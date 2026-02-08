@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const saved = localStorage.getItem('rd_linux_theme');
             if (saved) {
                 document.documentElement.setAttribute('data-theme', saved);
+                document.documentElement.classList.toggle('dark', saved === 'dark');
                 this.updateIcon(saved);
             } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
                 document.documentElement.setAttribute('data-theme', 'light');
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const current = document.documentElement.getAttribute('data-theme');
             const next = current === 'light' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.classList.toggle('dark', next === 'dark');
             localStorage.setItem('rd_linux_theme', next);
             this.updateIcon(next);
         },

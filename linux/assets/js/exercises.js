@@ -394,7 +394,7 @@ const ExerciseEngine = {
         const fb = document.getElementById(`qfeedback-${i}`);
         const userAns = input.value.trim().toLowerCase();
         const correct = this.data.quiz[i].answer.map(a => a.toLowerCase());
-        if (correct.some(c => userAns.includes(c) || c.includes(userAns))) {
+        if (correct.some(c => userAns === c)) {
           fb.innerHTML = '✅ Correct ! +10 XP';
           fb.className = 'quiz-feedback correct';
           btn.disabled = true;
