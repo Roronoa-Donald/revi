@@ -10,9 +10,9 @@
     // 1. CONFIGURATION
     // ================================================================
     const CONFIG = {
-        apiKey: 'sk-0f4d7cdf46be470fa8d25ab0bd94995d',
-        apiUrl: 'https://api.deepseek.com/chat/completions',
-        model: 'deepseek-chat',
+        apiKey: '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',
+        apiUrl: 'https://api.openai.com/v1/chat/completions',
+        model: 'gpt-4o-mini',
         maxTokens: 2048,
         temperature: 0.7,
         maxHistory: 20 // nombre max de messages conservés
@@ -234,10 +234,19 @@ ${context}`;
     }
 
     // ================================================================
-    // 5. FILTRE deepseek → RD-AI
+    // 5. FILTRE deepseek/openai/chatgpt → RD-AI
     // ================================================================
     function filterResponse(text) {
-        return text.replace(/deepseek/gi, 'RD-AI').replace(/deep seek/gi, 'RD-AI');
+        return text
+            .replace(/deepseek/gi, 'RD-AI')
+            .replace(/deep seek/gi, 'RD-AI')
+            .replace(/openai/gi, 'RD-AI')
+            .replace(/open ai/gi, 'RD-AI')
+            .replace(/chatgpt/gi, 'RD-AI')
+            .replace(/chat gpt/gi, 'RD-AI')
+            .replace(/gpt-4o[\w-]*/gi, 'RD-AI')
+            .replace(/gpt-4[\w-]*/gi, 'RD-AI')
+            .replace(/gpt-3\.5[\w-]*/gi, 'RD-AI');
     }
 
     // ================================================================
