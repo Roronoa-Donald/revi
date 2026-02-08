@@ -376,8 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const pct = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight;
             if (pct > 0.85) {
                 done = true;
-                const arr = JSON.parse(localStorage.getItem('rd_proba_completed') || '[]');
-                if (!arr.includes(num)) { arr.push(num); localStorage.setItem('rd_proba_completed', JSON.stringify(arr)); }
+                const arr = JSON.parse(localStorage.getItem('proba_rd_completed') || '[]');
+                if (!arr.includes(num)) { arr.push(num); localStorage.setItem('proba_rd_completed', JSON.stringify(arr)); }
             }
         };
         window.addEventListener('scroll', check);

@@ -444,7 +444,7 @@ const exerciseData = {
         guided: [
             { question: "Le Simplexe est une méthode...", hints: ["Pas graphique.", "Pas aléatoire.", "Itérative (étape par étape)."], correction: "Algébrique et Itérative. Elle saute de sommet en sommet." },
             { question: "Au départ, quelles variables sont nulles ?", hints: ["On commence à l'origine.", "On ne produit rien.", "Les variables de décision."], correction: "Les variables de décision (Hors-Base). Seules les variables d'écart sont dans la base." },
-            { question: "Comment choisit-on la Variable Entrante (Max Z) ?", hints: ["Celle qui rapporte le plus.", "Plus gros coeff.", "Dans la ligne Z."], correction: "Celle qui a le coefficient positif le plus grand (ou le plus négatif selon la forme) dans la fonction objectif." },
+            { question: "Comment choisit-on la Variable Entrante (Max Z) ?", hints: ["Celle qui rapporte le plus.", "Plus gros coeff.", "Dans la ligne Z."], correction: "Dans le tableau standard (Z - cX = 0), c'est le coefficient le plus négatif dans la ligne Z. Si on lit directement la FO (Max Z = c₁x₁+...), c'est celui qui rapporte le plus (plus grand cⱼ)." },
             { question: "Comment choisit-on la Variable Sortante ?", hints: ["Celle qui bloque en premier.", "Le Ratio.", "RHS div par Colonne."], correction: "Critère du Ratio Minimum Positif (RHS / Coeff Entrant)." },
             { question: "Quand s'arrête l'algorithme ?", hints: ["Quand on ne peut plus...", "Améliorer Z.", "Plus de coeff favorable."], correction: "Quand il n'y a plus de coefficient améliorant le profit dans la ligne Z." }
         ],
@@ -456,7 +456,7 @@ const exerciseData = {
             { type: "mcq", q: "Les variables 'Hors-Base' ont une valeur :", options: ["Nulle (0)", "Infinie", "1"], correct: 0 },
             { type: "qa", q: "On utilise la méthode du Pivot de _______ pour recalculer le tableau.", valid: ["gauss"] },
             { type: "mcq", q: "Si aucun ratio n'est limitant (tous négatifs/infinis), la solution est :", options: ["Optimale", "Non-bornée (Infinie)", "Nulle"], correct: 1 },
-            { type: "qa", q: "Dans un problème de MAX, on cherche le coefficient le plus ______ pour entrer.", valid: ["grand", "positif", "eleve"] },
+            { type: "qa", q: "Dans le tableau du Simplexe (forme standard), on cherche le coefficient le plus ______ dans la ligne Z pour la variable entrante.", valid: ["negatif", "négatif", "petit"] },
             { type: "mcq", q: "Le Simplexe visite-t-il tous les sommets ?", options: ["Oui tous", "Non, seulement ceux qui améliorent Z", "Aucun"], correct: 1 },
             { type: "qa", q: "Le RHS peut-il devenir négatif ?", valid: ["non"] }
         ],
