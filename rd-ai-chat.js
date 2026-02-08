@@ -10,9 +10,9 @@
     // 1. CONFIGURATION
     // ================================================================
     const CONFIG = {
-        apiKey: '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',
-        apiUrl: 'https://api.openai.com/v1/chat/completions',
-        model: 'gpt-4o-mini',
+        apiKey: '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',
+        apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
+        model: 'deepseek/deepseek-chat',
         maxTokens: 2048,
         temperature: 0.7,
         maxHistory: 20 // nombre max de messages conservés
