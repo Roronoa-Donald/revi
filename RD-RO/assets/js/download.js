@@ -216,7 +216,7 @@ class CourseDownloader {
         const mainClone = main.cloneNode(true);
 
         // Filter based on scope
-        if (scope === 'course') {
+        if (scope === 'cours') {
             // Remove exercises container
             mainClone.querySelectorAll('#interactive-exercise, .simulator-viewport, .inputs-panel').forEach(el => el.remove());
         } else if (scope === 'exos') {
@@ -258,7 +258,7 @@ class CourseDownloader {
             canvas { border: 1px solid #ccc; max-width: 100%; }
         `;
 
-        if (scope === 'course') {
+        if (scope === 'cours') {
             hideRules += ` #interactive-exercise, .simulator-viewport, canvas { display: none !important; } `;
         } else if (scope === 'exos') {
             hideRules += ` article:not(#interactive-exercise):not(.simulator-viewport) { display: none !important; } section { display: none !important; } `;

@@ -140,7 +140,7 @@ const Simulator = {
         this.updateStats();
         
         // Easter egg gamification
-        if (count >= 100) {
+        if (count >= 100 && typeof GameEngine !== 'undefined') {
             GameEngine.addXP(5, "Simulateur utilisé !");
         }
     },

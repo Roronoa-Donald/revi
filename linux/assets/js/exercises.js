@@ -318,6 +318,8 @@ const ExerciseEngine = {
         if (userAns === correct) {
           fb.innerHTML = '<span class="correct">✅ Correct ! +15 XP</span>';
           fb.className = 'guided-feedback correct';
+          btn.disabled = true;
+          input.readOnly = true;
           if (typeof GameEngine !== 'undefined') GameEngine.addXP(15, 'Exercice guidé réussi');
         } else {
           fb.innerHTML = `<span class="incorrect">❌ Pas tout à fait. La réponse est : <code>${this.data.guided[i].answer}</code></span>`;
@@ -395,6 +397,8 @@ const ExerciseEngine = {
         if (correct.some(c => userAns.includes(c) || c.includes(userAns))) {
           fb.innerHTML = '✅ Correct ! +10 XP';
           fb.className = 'quiz-feedback correct';
+          btn.disabled = true;
+          input.readOnly = true;
           if (typeof GameEngine !== 'undefined') {
             GameEngine.addXP(10, 'Réponse correcte');
             GameEngine.state.quizCorrect++;
@@ -513,6 +517,7 @@ const ExerciseEngine = {
         if (correct === zones.length) {
           fb.innerHTML = `✅ Parfait ! ${correct}/${zones.length} — +20 XP`;
           fb.className = 'dd-feedback correct';
+          btn.disabled = true;
           if (typeof GameEngine !== 'undefined') {
             GameEngine.addXP(20, 'Drag & Drop parfait');
             GameEngine.state.dragDropWins++;

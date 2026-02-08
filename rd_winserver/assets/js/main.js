@@ -71,7 +71,7 @@ const ActiveNavLink = {
     init() {
         const path = window.location.pathname;
         document.querySelectorAll('.nav-links a, .mobile-nav-panel a').forEach(a => {
-            if (a.getAttribute('href') && path.includes(a.getAttribute('href').replace('../', '').replace('./', ''))) {
+            if (a.getAttribute('href') && path.endsWith(a.getAttribute('href').replace('../', '').replace('./', ''))) {
                 a.classList.add('active');
             }
         });

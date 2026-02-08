@@ -724,7 +724,7 @@ function validateQuiz(container, questions, chapterNum) {
 // === EXERCICES ===
 function toggleSolution(exerciseId) {
     const solution = document.getElementById('solution-' + exerciseId);
-    const button = event.target.closest('.btn-toggle-solution');
+    const button = document.querySelector(`.btn-toggle-solution[onclick*="toggleSolution('${exerciseId}')"]`);
     
     if (solution.style.display === 'none' || !solution.style.display) {
         solution.style.display = 'block';
@@ -779,7 +779,7 @@ notificationStyles.textContent = `
         position: fixed;
         top: 80px;
         right: 20px;
-        background-color: white;
+        background-color: var(--card-bg, white);
         padding: 1rem 1.5rem;
         border-radius: 8px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);

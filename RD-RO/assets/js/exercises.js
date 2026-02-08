@@ -391,7 +391,7 @@ const exerciseData = {
             { type: "qa", q: "Le domaine des possibles a souvent la forme d'un _______.", valid: ["polygone", "polyèdre"] },
             { type: "mcq", q: "Le vecteur gradient (vecteur normal à Z) pointe vers :", options: ["L'augmentation de Z", "La diminution de Z", "L'origine"], correct: 0 },
             { type: "qa", q: "Si l'Iso-Profit est parallèle à une contrainte, on a une _______ de solutions.", valid: ["infinité", "infinite", "foule"] },
-            { type: "mcq", q: "On peut résoudre graphiquement avec 3 variables :", options: ["Oui (3D mais dur)", "Non impossible", "Facilement"], correct: 0 },
+            { type: "mcq", q: "On peut résoudre graphiquement avec 3 variables :", options: ["Oui (3D mais dur)", "Non, la méthode graphique ne s'applique qu'avec 2 variables", "Facilement"], correct: 1 },
             { type: "qa", q: "La solution optimale est le ______ point touché par la règle en sortant.", valid: ["dernier"] },
             { type: "mcq", q: "L'intersection des demi-plans valides forme :", options: ["Un cercle", "Une région convexe", "Une étoile"], correct: 1 },
             { type: "qa", q: "Le point (0,0) est-il toujours dans le domaine admissible ?", valid: ["non"] }
@@ -813,7 +813,7 @@ window.checkQA = function(btn) {
         return;
     }
 
-    const isGood = valids.some(v => val.includes(v.toLowerCase()));
+    const isGood = valids.some(v => val === v.toLowerCase().trim());
     feedback.classList.remove('hidden');
 
     if (isGood) {

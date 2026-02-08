@@ -6,15 +6,15 @@ window.quizChapitre4 = {
     questions: [
         {
             id: 1,
-            question: "Quelle classe est la base de toutes les exceptions en PHP ?",
+            question: "Quelle interface est à la racine de toutes les exceptions et erreurs en PHP 7+ ?",
             options: [
                 "Error",
                 "Throwable",
                 "Exception",
                 "BaseException"
             ],
-            correct: 2,
-            explanation: "La classe 'Exception' est la classe de base pour toutes les exceptions utilisateur en PHP 5/7+."
+            correct: 1,
+            explanation: "Depuis PHP 7, l'interface 'Throwable' est la racine commune de 'Exception' et 'Error'. Tout objet lancé avec throw doit implémenter Throwable."
         },
         {
             id: 2,

@@ -1,7 +1,7 @@
 
 import os
 
-base_dir = r"c:\Users\donald\Documents\proba\ro\chapitres"
+base_dir = r"c:\Users\donald\Documents\proba\probabilites\chapitres"
 chapters = [f"chapitre{i}.html" for i in range(1, 9)]
 
 target_str = '<div style="display:flex; justify-content:space-between; margin-top:60px;">'
