@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 04 : SELECT Avancé | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Module 04: SELECT Avancé</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+            <!-- Theory -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">1. L'Art de la Recherche</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas fa-search text-9xl"></i>
+                    </div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Stocker des données, c'est facile. Retrouver <strong>exactement</strong> l'information dont vous avez besoin parmi des millions de lignes, c'est un art.
+                        <br><br>
+                        Le <code>SELECT</code> est votre lampe de poche dans l'obscurité de la base de données.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Concept Supermarket -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                 <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-green-500 pl-4">2. Le Supermarché (SELECT & FROM)</h2>
+                 <div class="glass-card p-6 rounded-xl">
+                    <div class="flex flex-col md:flex-row gap-8 items-center">
+                        <div class="w-full md:w-1/3 text-center">
+                            <i class="fas fa-shopping-cart text-8xl text-green-500/80 mb-4"></i>
+                            <div class="text-sm text-slate-400">Faire ses courses</div>
+                        </div>
+                        <div class="w-full md:w-2/3 space-y-4">
+                            <p class="text-slate-300">
+                                Imaginez votre base de données comme un supermarché géant.
+                            </p>
+                            <div class="bg-slate-900 p-4 rounded border border-slate-700">
+                                <ul class="space-y-3">
+                                    <li class="flex items-center gap-3">
+                                        <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-mono">FROM</span>
+                                        <span class="text-slate-300">C'est choisir le <strong>rayon</strong> (La Table).</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <span class="bg-purple-600 text-white px-2 py-1 rounded text-xs font-mono">SELECT</span>
+                                        <span class="text-slate-300">C'est choisir les <strong>produits</strong> (Les Colonnes).</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="bg-red-900/20 p-3 rounded border-l-2 border-red-500">
+                                <p class="text-xs text-red-300">
+                                    <i class="fas fa-exclamation-circle"></i> <strong>SELECT *</strong> revient à acheter tout le rayon ! C'est lourd à porter (Performance).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+            <!-- Concept ORDER BY & DISTINCT -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">3. Organiser le Chaos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- ORDER BY -->
+                    <div class="glass-card p-6 rounded-xl hover:bg-slate-800/80 transition-colors">
+                        <h3 class="font-bold text-amber-400 mb-4 flex items-center gap-2">
+                            <i class="fas fa-sort-amount-down"></i> Le Classement (ORDER BY)
+                        </h3>
+                        <p class="text-sm text-slate-300 mb-4">
+                            Par défaut, SQL vous rend les données en vrac. Mettez de l'ordre !
+                        </p>
+                        <div class="bg-black p-3 rounded font-mono text-xs text-amber-300 mb-2">
+                            ORDER BY prix <span class="text-white">DESC</span><br>
+                            <span class="text-slate-500">-- Du plus cher au moins cher</span>
+                        </div>
+                    </div>
+
+                    <!-- DISTINCT -->
+                    <div class="glass-card p-6 rounded-xl hover:bg-slate-800/80 transition-colors">
+                        <h3 class="font-bold text-purple-400 mb-4 flex items-center gap-2">
+                            <i class="fas fa-filter"></i> L'Unique (DISTINCT)
+                        </h3>
+                        <p class="text-sm text-slate-300 mb-4">
+                            Si vous demandez "Quels pays ?", vous ne voulez pas voir "France" 1000 fois.
+                        </p>
+                        <div class="bg-black p-3 rounded font-mono text-xs text-purple-300 mb-2">
+                            SELECT <span class="text-white">DISTINCT</span> pays<br>
+                            FROM Clients
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Practice Mission -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">4. Mission : Le Rapport VIP</h2>
+                <div class="bg-blue-600/10 border border-blue-500 p-4 rounded-lg mb-6 flex gap-4">
+                    <div class="text-3xl">📊</div>
+                    <div>
+                        <h4 class="font-bold text-white">Votre Mission</h4>
+                        <p class="text-slate-300 text-sm">
+                            Le PDG veut la liste des employés, mais triée par Salaire décroissant (les mieux payés en premier).
+                            Affichez tout (<code>*</code>) pour l'instant.
+                        </p>
+                    </div>
+                </div>
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3"><span class="text-xs font-mono text-slate-500">sql-server</span></div>
+                    <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none" spellcheck="false" placeholder="Votre requête ici...">SELECT * 
+FROM Employees 
+ORDER BY salary DESC</textarea>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold flex items-center gap-2">
+                            <i class="fas fa-play"></i> Exécuter
+                        </button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px] overflow-auto max-h-[300px]">
+                        <div class="flex items-center gap-2 text-slate-500">
+                            <i class="fas fa-terminal"></i>
+                            <span>En attente...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Expert Section -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.2s;">
+                <h2 class="text-2xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">
+                    <i class="fas fa-microscope text-purple-400 mr-2"></i> Zoom : L'Ordre Secret
+                </h2>
+                <div class="bg-slate-800/50 border border-purple-500/30 rounded-xl p-6">
+                    <h3 class="font-bold text-lg mb-4 text-purple-300">Ce que vous écrivez vs Ce que SQL lit</h3>
+                    <p class="text-slate-300 mb-6 text-sm">
+                        SQL est un langage étrange. Vous écrivez la fin (SELECT) au début !
+                    </p>
+                    <div class="relative pt-8 pb-4">
+                        <div class="absolute top-4 left-0 w-full h-1 bg-slate-700 transform -translate-y-1/2 z-0"></div>
+                        <div class="grid grid-cols-4 gap-2 relative z-10 text-center">
+                            
+                            <!-- Step 1 -->
+                            <div class="group">
+                                <div class="bg-slate-900 border-2 border-slate-600 group-hover:border-blue-500 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 transition-colors font-bold text-slate-500 group-hover:text-white">1</div>
+                                <div class="text-xs font-mono text-blue-400">FROM</div>
+                                <div class="text-[10px] text-slate-500 mt-1">Je prends la table</div>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="group">
+                                <div class="bg-slate-900 border-2 border-slate-600 group-hover:border-purple-500 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 transition-colors font-bold text-slate-500 group-hover:text-white">2</div>
+                                <div class="text-xs font-mono text-purple-400">WHERE</div>
+                                <div class="text-[10px] text-slate-500 mt-1">Je filtre les lignes</div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="group">
+                                <div class="bg-slate-900 border-2 border-slate-600 group-hover:border-green-500 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 transition-colors font-bold text-slate-500 group-hover:text-white">3</div>
+                                <div class="text-xs font-mono text-green-400">SELECT</div>
+                                <div class="text-[10px] text-slate-500 mt-1">Je garde les colonnes</div>
+                            </div>
+
+                             <!-- Step 4 -->
+                             <div class="group">
+                                <div class="bg-slate-900 border-2 border-slate-600 group-hover:border-amber-500 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 transition-colors font-bold text-slate-500 group-hover:text-white">4</div>
+                                <div class="text-xs font-mono text-amber-400">ORDER BY</div>
+                                <div class="text-[10px] text-slate-500 mt-1">Je trie le résultat</div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Zone d'Entraînement Intensive -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.4s;">
+                <div class="glass-card p-6 rounded-xl border border-slate-700">
+                    <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                        <i class="fas fa-dumbbell text-red-500"></i>
+                        Zone d'Entraînement
+                    </h2>
+
+                    <!-- Tabs Header -->
+                    <div class="flex border-b border-slate-700 mb-6">
+                        <button onclick="switchTab('quiz')" id="tab-quiz" class="px-6 py-3 text-blue-400 border-b-2 border-blue-400 font-bold hover:bg-slate-800/50 transition-colors">
+                            Quiz (10)
+                        </button>
+                        <button onclick="switchTab('exos')" id="tab-exos" class="px-6 py-3 text-slate-400 hover:text-blue-300 hover:bg-slate-800/50 transition-colors">
+                            Exercices (5)
+                        </button>
+                        <button onclick="switchTab('drag')" id="tab-drag" class="px-6 py-3 text-slate-400 hover:text-blue-300 hover:bg-slate-800/50 transition-colors">
+                            Drag & Drop (3)
+                        </button>
+                    </div>
+
+                    <!-- TAB 1: QUIZ -->
+                    <div id="content-quiz" class="space-y-6">
+                        <div id="quiz-container" class="space-y-6"></div>
+                        <div class="flex items-center gap-4 mt-6 border-t border-slate-800 pt-4">
+                            <button onclick="checkQuiz()" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded shadow-lg shadow-blue-900/20 transition-all">
+                                Vérifier mes réponses
+                            </button>
+                            <span id="quiz-score" class="text-xl font-bold text-slate-300"></span>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: EXERCICES -->
+                    <div id="content-exos" class="hidden space-y-6">
+                        <!-- Exo 1 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol1')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>1. Sélection de Colonnes</h4>
+                                    <p class="text-sm text-slate-400">Ne sélectionnez que le nom et le prix des produits.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol1" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT name, price FROM Products;
+                                </code>
+                            </div>
+                        </div>
+                        <!-- Exo 2 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol2')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>2. Tri Temporel</h4>
+                                    <p class="text-sm text-slate-400">Listez les commandes de la plus récente à la plus ancienne.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol2" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT * FROM Orders ORDER BY created_at DESC;
+                                </code>
+                            </div>
+                        </div>
+                        <!-- Exo 3 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol3')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>3. Anti-Doublons</h4>
+                                    <p class="text-sm text-slate-400">Quels sont les différents pays de nos clients ? (Sans répétition)</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol3" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT DISTINCT country FROM Customers;
+                                </code>
+                            </div>
+                        </div>
+                        <!-- Exo 4 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol4')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>4. Podium</h4>
+                                    <p class="text-sm text-slate-400">Les 3 produits les plus chers.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol4" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT TOP 3 * FROM Products ORDER BY price DESC;<br>
+                                    -- ou LIMIT 3 selon SGBD
+                                </code>
+                            </div>
+                        </div>
+                        <!-- Exo 5 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol5')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>5. Tri Multi-Critères</h4>
+                                    <p class="text-sm text-slate-400">Trier par Pays (A-Z), puis par salaire (Haut-Bas) pour chaque pays.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol5" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT * FROM Employees<br>ORDER BY country ASC, salary DESC;
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: DRAG & DROP -->
+                    <div id="content-drag" class="hidden space-y-8">
+                        <!-- Jeu 1 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 1 : Ordre SQL</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Reconstituez la requête</p>
+                            <div id="drag-drop-1" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(1)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                        <!-- Jeu 2 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 2 : Vocabulaire</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Associez les termes</p>
+                            <div id="drag-drop-2" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(2)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                        <!-- Jeu 3 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 3 : Logique de Tri</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Associez les données</p>
+                            <div id="drag-drop-3" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(3)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="hidden lg:block w-72 shrink-0">
+            <div class="sticky top-24"><div id="databot-container"></div></div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script>
+        // --- 1. QUIZ ENGINE ---
+        const quizData = [
+            { q: "Par défaut, ORDER BY trie en :", o: ["Aléatoire", "Ascendant (ASC)", "Descendant (DESC)"], a: 1 },
+            { q: "Pour supprimer les doublons d'affichage :", o: ["DELETE DUPLICATES", "SELECT UNIQUE", "SELECT DISTINCT"], a: 2 },
+            { q: "Que lit le moteur SQL en premier ?", o: ["SELECT", "FROM", "ORDER BY"], a: 1 },
+            { q: "Quelle commande permet de ne garder que 10 lignes ?", o: ["TOP 10 / LIMIT 10", "ONLY 10", "MAX 10"], a: 0 },
+            { q: "Si je trie par 'Nom' puis 'Prénom' :", o: ["Le Prénom prime", "Le Nom prime, Prénom départage", "Tri aléatoire"], a: 1 },
+            { q: "Pour inverser l'ordre (Z-A) :", o: ["INVERT", "DESC", "ASC"], a: 1 },
+            { q: "SELECT * signifie :", o: ["Tout sélectionner", "Rien sélectionner", "Sélectionner les ID"], a: 0 },
+            { q: "Renommer une colonne dans le résultat :", o: ["RENAME", "ALIAS", "AS"], a: 2 },
+            { q: "La clause WHERE s'exécute :", o: ["Avant SELECT", "Après SELECT", "Après ORDER BY"], a: 0 },
+            { q: "Peut-on trier sur une colonne non affichée ?", o: ["Oui", "Non", "Jamais"], a: 0 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = quizData.map((item, idx) => `
+                <div class="q-item border-l-2 border-slate-700 pl-4">
+                    <p class="font-bold text-slate-200 mb-2">${idx + 1}. ${item.q}</p>
+                    <div class="flex gap-4 flex-wrap">
+                        ${item.o.map((opt, oIdx) => `
+                            <label class="flex items-center gap-2 cursor-pointer bg-slate-800 px-3 py-1 rounded hover:bg-slate-700">
+                                <input type="radio" name="q${idx}" value="${oIdx}">
+                                <span class="text-sm">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function checkQuiz() {
+            let score = 0;
+            quizData.forEach((item, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                const parent = document.querySelectorAll('.q-item')[idx];
+                if (selected) {
+                    if (parseInt(selected.value) === item.a) {
+                        score++;
+                        parent.classList.remove('border-red-500', 'border-slate-700');
+                        parent.classList.add('border-green-500');
+                    } else {
+                        parent.classList.remove('border-green-500', 'border-slate-700');
+                        parent.classList.add('border-red-500');
+                    }
+                }
+            });
+            document.getElementById('quiz-score').innerText = `Score: ${score}/10`;
+            if (score >= 7) {
+                bot.speak(`Excellent ! Score de ${score}/10 !`, "happy");
+                confetti();
+            } else {
+                bot.speak(`Score de ${score}/10. Révisez l'ordre d'exécution.`, "sad");
+            }
+        }
+
+        // --- 2. TABS LOGIC ---
+        function switchTab(tab) {
+            ['quiz', 'exos', 'drag'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-400');
+            });
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+            document.getElementById(`tab-${tab}`).classList.remove('text-slate-400');
+        }
+
+        function toggleSol(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        // --- 3. DRAG & DROP LOGIC ---
+        
+        // Game 1: Syntaxe Ordre
+        const dd1 = new DragDropEngine('drag-drop-1', 
+            [{id:'t1', text:'SELECT'}, {id:'t2', text:'FROM'}, {id:'t3', text:'WHERE'}, {id:'t4', text:'ORDER BY'}], 
+            [{id:'z1', label:'1', accept:'t1'}, {id:'z2', label:'2', accept:'t2'}, {id:'z3', label:'3', accept:'t3'}, {id:'z4', label:'4', accept:'t4'}]
+        );
+        // Game 2: Vocab
+        const dd2 = new DragDropEngine('drag-drop-2', 
+            [{id:'v1', text:'DISTINCT'}, {id:'v2', text:'TOP/LIMIT'}, {id:'v3', text:'*'}], 
+            [{id:'z1', label:'Sans doublon', accept:'v1'}, {id:'z2', label:'Echantillon', accept:'v2'}, {id:'z3', label:'Tout', accept:'v3'}]
+        );
+        // Game 3: Sort Logic
+        const dd3 = new DragDropEngine('drag-drop-3', 
+            [{id:'s1', text:'0..9 / A..Z'}, {id:'s2', text:'9..0 / Z..A'}], 
+            [{id:'z1', label:'ASC', accept:'s1'}, {id:'z2', label:'DESC', accept:'s2'}]
+        );
+
+        function verifyDD(id) {
+            let engine = (id===1) ? dd1 : (id===2) ? dd2 : dd3;
+            if (engine.validate()) {
+                bot.speak("Logique respectée !", "happy");
+                bot.awardXP(20);
+            } else {
+                bot.speak("Erreur de tri ou de syntaxe.", "sad");
+            }
+        }
+
+        // --- INIT ---
+        const bot = new DataBot();
+        bot.render('databot-container');
+        bot.speak("Le tri est essentiel pour la lisibilité des rapports.", 4000);
+        
+        renderQuiz();
+
+        // 4. SQL Engine logic
+        function runQuery() {
+            const sql = document.getElementById('sql-input').value;
+            const res = executeSQL(sql);
+            document.getElementById('query-output').innerHTML = res.success ? `<pre>${JSON.stringify(res.data,null,2)}</pre>` : `<span class='text-red-400'>${res.error}</span>`;
+            if(res.success) bot.awardXP(20);
+        }
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod03-dml.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 03 : DML</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod05-calculations.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 05 : Calculs & Agrégats →</a>
+    </div>
+    <script>if(localStorage.getItem('rd_sql_theme')==='light')document.documentElement.setAttribute('data-theme','light');</script>
+</body>
+</html>

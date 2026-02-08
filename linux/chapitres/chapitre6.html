@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 06 : Utilisateurs & Groupes | RD Linux</title>
+    <meta name="description" content="Gère les utilisateurs et groupes Linux : useradd, passwd, groupadd, sudo et les fichiers /etc/passwd, /etc/shadow.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#fb923c',500:'#f97316',600:'#ea580c'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-terminal"></i><span>RD Linux</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre5.html">← Module 05</a></li>
+                <li><a href="chapitre6.html" class="active">Module 06</a></li>
+                <li><a href="chapitre7.html">Suivant →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div id="user-xp-display"><i class="fas fa-bolt"></i> 0 XP</div>
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html">01 · Commandes de base</a></li>
+            <li><a href="chapitre2.html">02 · Manipulation de fichiers</a></li>
+            <li><a href="chapitre3.html">03 · Droits & Permissions</a></li>
+            <li><a href="chapitre4.html">04 · Recherche</a></li>
+            <li><a href="chapitre5.html">05 · Éditeurs Vi/Vim & Nano</a></li>
+            <li><a href="chapitre6.html" class="active">06 · Utilisateurs & Groupes</a></li>
+            <li><a href="chapitre7.html">07 · Réseau & SSH</a></li>
+            <li><a href="chapitre8.html">08 · Bash Scripting</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge">Module 06</span>
+        <h1 class="hero-title">Utilisateurs <span class="gradient-text">& Groupes</span></h1>
+        <p class="hero-description">Sami doit créer un compte pour un nouveau collègue et lui donner les bons accès. Bienvenue dans l'administration multi-utilisateur !</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-database" style="color:var(--accent);margin-right:0.5rem;"></i>Les fichiers clés</h2>
+            <p>Linux stocke toutes les infos des utilisateurs et groupes dans 4 fichiers texte essentiels :</p>
+
+            <pre class="code-block"><span class="code-label">Fichiers système</span><code><span class="path">/etc/passwd</span>    <span class="comment"># Infos utilisateurs (nom, UID, GID, home, shell)</span>
+<span class="path">/etc/shadow</span>    <span class="comment"># Mots de passe chiffrés (accès root uniquement)</span>
+<span class="path">/etc/group</span>     <span class="comment"># Infos groupes (nom, GID, membres)</span>
+<span class="path">/etc/gshadow</span>   <span class="comment"># Mots de passe des groupes (rarement utilisé)</span></code></pre>
+
+            <h3>Décoder /etc/passwd</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">cat</span> <span class="path">/etc/passwd</span> <span class="keyword">|</span> <span class="cmd">grep</span> sami
+<span class="output">sami:x:1001:1001:Sami Stagiaire:/home/sami:/bin/bash</span>
+<span class="comment">#  │   │  │    │       │            │          │</span>
+<span class="comment">#  │   │  │    │       │            │          └─ Shell de connexion</span>
+<span class="comment">#  │   │  │    │       │            └─ Répertoire personnel</span>
+<span class="comment">#  │   │  │    │       └─ Commentaire (nom complet)</span>
+<span class="comment">#  │   │  │    └─ GID (Group ID principal)</span>
+<span class="comment">#  │   │  └─ UID (User ID)</span>
+<span class="comment">#  │   └─ x = mot de passe dans /etc/shadow</span>
+<span class="comment">#  └─ Nom d'utilisateur</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> UID et GID</div>
+                <p style="margin:0;font-size:0.9rem;">
+                <strong>UID 0</strong> = root (superutilisateur)<br>
+                <strong>UID 1-999</strong> = comptes système (services comme www-data, mysql...)<br>
+                <strong>UID 1000+</strong> = comptes utilisateurs normaux<br>
+                Chaque utilisateur a un groupe principal (même GID) et peut appartenir à des groupes secondaires.
+                </p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-user-plus" style="color:var(--accent);margin-right:0.5rem;"></i>Gérer les utilisateurs</h2>
+
+            <h3>Créer un utilisateur</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Créer un utilisateur avec répertoire home</span>
+<span class="cmd">sudo useradd</span> <span class="flag">-m</span> <span class="path">alice</span>
+
+<span class="comment"># Créer avec shell bash + commentaire + home</span>
+<span class="cmd">sudo useradd</span> <span class="flag">-m -s</span> <span class="path">/bin/bash</span> <span class="flag">-c</span> <span class="string">"Alice Dupont"</span> <span class="path">alice</span>
+
+<span class="comment"># Créer et ajouter au groupe sudo directement</span>
+<span class="cmd">sudo useradd</span> <span class="flag">-m -s</span> <span class="path">/bin/bash</span> <span class="flag">-G</span> <span class="path">sudo</span> <span class="path">alice</span>
+
+<span class="comment"># Définir un mot de passe</span>
+<span class="cmd">sudo passwd</span> <span class="path">alice</span></code></pre>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> -m est indispensable</div>
+                <p style="margin:0;font-size:0.9rem;">Sans <code>-m</code>, le répertoire <code>/home/alice</code> ne sera PAS créé. L'utilisateur existera mais n'aura pas de dossier personnel. Sur Debian, <code>adduser alice</code> (interactif) est une alternative plus simple qui crée tout automatiquement.</p>
+            </div>
+
+            <h3>Modifier un utilisateur</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Ajouter au groupe sudo (droits admin)</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-aG</span> <span class="path">sudo</span> <span class="path">alice</span>
+
+<span class="comment"># Ajouter à plusieurs groupes secondaires</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-aG</span> <span class="path">www-data,docker</span> <span class="path">alice</span>
+
+<span class="comment"># Changer le shell</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-s</span> <span class="path">/bin/zsh</span> <span class="path">alice</span>
+
+<span class="comment"># Changer le répertoire home</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-d</span> <span class="path">/home/nouveau_home</span> <span class="flag">-m</span> <span class="path">alice</span>
+
+<span class="comment"># Verrouiller un compte (désactiver la connexion)</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-L</span> <span class="path">alice</span>
+
+<span class="comment"># Déverrouiller un compte</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-U</span> <span class="path">alice</span>
+
+<span class="comment"># Renommer un utilisateur</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-l</span> <span class="path">alice_new</span> <span class="path">alice</span></code></pre>
+
+            <div class="danger-box">
+                <div class="box-title"><i class="fas fa-skull-crossbones"></i> Attention au -G sans -a</div>
+                <p style="margin:0;font-size:0.9rem;"><code>usermod -G sudo alice</code> (sans <code>-a</code>) <strong>REMPLACE</strong> tous les groupes secondaires par "sudo" uniquement ! Utilise toujours <code>-aG</code> (append + Group) pour <strong>ajouter</strong> sans supprimer les groupes existants.</p>
+            </div>
+
+            <h3>Supprimer un utilisateur</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Supprimer l'utilisateur (garde le home)</span>
+<span class="cmd">sudo userdel</span> <span class="path">alice</span>
+
+<span class="comment"># Supprimer l'utilisateur ET son répertoire home</span>
+<span class="cmd">sudo userdel</span> <span class="flag">-r</span> <span class="path">alice</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-users" style="color:var(--accent);margin-right:0.5rem;"></i>Gérer les groupes</h2>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Créer un groupe</span>
+<span class="cmd">sudo groupadd</span> <span class="path">developpeurs</span>
+
+<span class="comment"># Créer un groupe avec un GID spécifique</span>
+<span class="cmd">sudo groupadd</span> <span class="flag">-g</span> <span class="num">2000</span> <span class="path">webmasters</span>
+
+<span class="comment"># Supprimer un groupe</span>
+<span class="cmd">sudo groupdel</span> <span class="path">developpeurs</span>
+
+<span class="comment"># Renommer un groupe</span>
+<span class="cmd">sudo groupmod</span> <span class="flag">-n</span> <span class="path">devs</span> <span class="path">developpeurs</span>
+
+<span class="comment"># Voir les groupes d'un utilisateur</span>
+<span class="cmd">groups</span> <span class="path">alice</span>
+<span class="output">alice : alice sudo www-data</span>
+
+<span class="comment"># Voir son propre ID et ses groupes</span>
+<span class="cmd">id</span>
+<span class="output">uid=1001(sami) gid=1001(sami) groupes=1001(sami),27(sudo)</span>
+
+<span class="comment"># Lister les membres d'un groupe</span>
+<span class="cmd">getent group</span> <span class="path">sudo</span>
+<span class="output">sudo:x:27:sami,alice</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-shield-alt" style="color:var(--accent);margin-right:0.5rem;"></i>Su & Sudo — Élévation de privilèges</h2>
+
+            <h3>su — Changer d'utilisateur</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Devenir root (demande le mot de passe root)</span>
+<span class="cmd">su -</span>
+
+<span class="comment"># Devenir alice (demande le mot de passe d'alice)</span>
+<span class="cmd">su -</span> <span class="path">alice</span>
+
+<span class="comment"># Exécuter une seule commande en tant qu'alice</span>
+<span class="cmd">su - alice</span> <span class="flag">-c</span> <span class="string">"whoami"</span>
+<span class="output">alice</span>
+
+<span class="comment"># Revenir à l'utilisateur précédent</span>
+<span class="cmd">exit</span></code></pre>
+
+            <h3>sudo — Exécuter en tant que root</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Exécuter une commande en root (mot de passe de l'utilisateur courant)</span>
+<span class="cmd">sudo</span> <span class="cmd">apt update</span>
+
+<span class="comment"># Ouvrir un shell root</span>
+<span class="cmd">sudo</span> <span class="flag">-i</span>
+
+<span class="comment"># Relancer la dernière commande avec sudo</span>
+<span class="cmd">sudo</span> <span class="keyword">!!</span>
+
+<span class="comment"># Voir les droits sudo de l'utilisateur actuel</span>
+<span class="cmd">sudo</span> <span class="flag">-l</span></code></pre>
+
+            <h3>Configurer sudo — Le fichier sudoers</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># TOUJOURS utiliser visudo pour éditer sudoers</span>
+<span class="cmd">sudo visudo</span>
+
+<span class="comment"># Syntaxe d'une ligne sudoers :</span>
+<span class="comment"># utilisateur  machine=(en_tant_que)  commandes</span>
+<span class="output">alice   ALL=(ALL:ALL)  ALL</span>           <span class="comment"># Alice peut tout faire</span>
+<span class="output">bob     ALL=(ALL)  /usr/bin/apt</span>      <span class="comment"># Bob peut seulement utiliser apt</span>
+<span class="output">%webdev ALL=(ALL)  /usr/bin/systemctl restart apache2</span>  <span class="comment"># Le groupe webdev peut redémarrer Apache</span></code></pre>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> Toujours visudo, jamais nano</div>
+                <p style="margin:0;font-size:0.9rem;">N'édite JAMAIS <code>/etc/sudoers</code> directement avec nano ou vim ! <code>visudo</code> vérifie la syntaxe avant de sauvegarder. Une erreur dans sudoers peut t'empêcher d'utiliser sudo et te bloquer hors du système.</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-key" style="color:var(--accent);margin-right:0.5rem;"></i>Commandes utiles</h2>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Changer son propre mot de passe</span>
+<span class="cmd">passwd</span>
+
+<span class="comment"># Changer le mot de passe d'un autre utilisateur (root)</span>
+<span class="cmd">sudo passwd</span> <span class="path">alice</span>
+
+<span class="comment"># Forcer le changement de mot de passe à la prochaine connexion</span>
+<span class="cmd">sudo passwd</span> <span class="flag">-e</span> <span class="path">alice</span>
+
+<span class="comment"># Voir qui est connecté</span>
+<span class="cmd">who</span>
+<span class="cmd">w</span>         <span class="comment"># Plus détaillé (activité, charge système)</span>
+
+<span class="comment"># Dernières connexions</span>
+<span class="cmd">last</span>       <span class="comment"># Historique des connexions réussies</span>
+<span class="cmd">lastlog</span>    <span class="comment"># Dernière connexion de chaque utilisateur</span>
+
+<span class="comment"># Lister tous les utilisateurs du système</span>
+<span class="cmd">cut</span> <span class="flag">-d:</span> <span class="flag">-f1</span> <span class="path">/etc/passwd</span>
+
+<span class="comment"># Lister seulement les utilisateurs « humains » (UID ≥ 1000)</span>
+<span class="cmd">awk</span> <span class="flag">-F:</span> <span class="string">'$3 >= 1000 && $3 < 65534 {print $1}'</span> <span class="path">/etc/passwd</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Scénario complet de Sami</div>
+                <p style="margin:0;font-size:0.9rem;">
+                Un nouveau développeur arrive. Sami doit :<br>
+                <code>sudo useradd -m -s /bin/bash -c "Bob Dev" -G sudo,www-data bob</code><br>
+                <code>sudo passwd bob</code><br>
+                <code>sudo passwd -e bob</code> (force le changement au 1er login)<br>
+                Vérifie : <code>id bob</code> → <code>uid=1002(bob) gid=1002(bob) groupes=1002(bob),27(sudo),33(www-data)</code>
+                </p>
+            </div>
+        </article>
+
+        <article class="glass-card" id="interactive-exercise">
+            <h2><i class="fas fa-dumbbell" style="color:var(--accent);margin-right:0.5rem;"></i>Exercices Interactifs</h2>
+            <p style="color:var(--text-muted);">Chargement des exercices...</p>
+        </article>
+
+        <div class="chapter-nav">
+            <a href="chapitre5.html"><i class="fas fa-arrow-left"></i> Module 05 : Éditeurs</a>
+            <a href="chapitre7.html">Module 07 : Réseau & SSH <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
+        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

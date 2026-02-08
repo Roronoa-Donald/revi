@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 10 : Transactions & ACID | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-orange-400">Module 10: Transactions</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+
+            <!-- 1. Narrative Hook -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-red-500 pl-4">1. Le Pacte du Tout-ou-Rien</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-shield-alt text-9xl"></i></div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Imaginez un virement bancaire : vous débitez 500€ du compte A... mais l'électricité coupe
+                        avant de créditer le compte B. L'argent a <strong>disparu</strong> !
+                        <br><br>
+                        En SQL, les <strong>transactions</strong> garantissent que cette catastrophe n'arrive jamais.
+                        C'est le principe <strong>ACID</strong> : soit TOUT réussit, soit RIEN ne change.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 2. ACID Détaillé -->
+            <section class="animate-fade-in-up" style="animation-delay:0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">2. ACID — Les 4 Garanties</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="glass-card p-5 rounded-lg border-l-4 border-red-500">
+                        <h4 class="font-bold text-red-400 text-lg mb-2"><i class="fas fa-atom mr-2"></i>Atomicité</h4>
+                        <p class="text-slate-400 text-sm">Tout ou rien. Si une opération échoue, toutes les modifications sont annulées.</p>
+                        <p class="text-xs text-slate-500 mt-2 italic">« Le virement est complet ou n'a jamais eu lieu. »</p>
+                    </div>
+                    <div class="glass-card p-5 rounded-lg border-l-4 border-blue-500">
+                        <h4 class="font-bold text-blue-400 text-lg mb-2"><i class="fas fa-check-double mr-2"></i>Cohérence</h4>
+                        <p class="text-slate-400 text-sm">La base passe d'un état valide à un autre état valide. Les contraintes sont respectées.</p>
+                        <p class="text-xs text-slate-500 mt-2 italic">« Le solde ne peut jamais être négatif si la contrainte existe. »</p>
+                    </div>
+                    <div class="glass-card p-5 rounded-lg border-l-4 border-purple-500">
+                        <h4 class="font-bold text-purple-400 text-lg mb-2"><i class="fas fa-user-lock mr-2"></i>Isolation</h4>
+                        <p class="text-slate-400 text-sm">Les transactions concurrentes ne se voient pas mutuellement. Chacune croit être seule.</p>
+                        <p class="text-xs text-slate-500 mt-2 italic">« Deux guichetiers ne modifient pas le même solde en même temps. »</p>
+                    </div>
+                    <div class="glass-card p-5 rounded-lg border-l-4 border-emerald-500">
+                        <h4 class="font-bold text-emerald-400 text-lg mb-2"><i class="fas fa-hdd mr-2"></i>Durabilité</h4>
+                        <p class="text-slate-400 text-sm">Une fois COMMIT fait, les données survivent même en cas de crash ou coupure de courant.</p>
+                        <p class="text-xs text-slate-500 mt-2 italic">« L'écriture est gravée sur disque, pas seulement en mémoire. »</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. BEGIN / COMMIT / ROLLBACK -->
+            <section class="animate-fade-in-up" style="animation-delay:0.15s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">3. BEGIN / COMMIT / ROLLBACK</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700 font-mono text-sm">
+                        <span class="text-amber-400">BEGIN TRANSACTION</span><br><br>
+                        <span class="text-blue-400">UPDATE</span> Comptes <span class="text-amber-400">SET</span> solde = solde - 500 <span class="text-amber-400">WHERE</span> id = 1<br>
+                        <span class="text-blue-400">UPDATE</span> Comptes <span class="text-amber-400">SET</span> solde = solde + 500 <span class="text-amber-400">WHERE</span> id = 2<br><br>
+                        <span class="text-amber-400">IF</span> <span class="text-blue-400">@@ERROR</span> = 0<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-emerald-400">COMMIT</span> <span class="text-slate-500">-- Tout est bon, on valide</span><br>
+                        <span class="text-amber-400">ELSE</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-red-400">ROLLBACK</span> <span class="text-slate-500">-- Problème ! On annule tout</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-blue-900/20 p-3 rounded-lg border border-blue-500/20 text-center">
+                            <code class="text-blue-400 font-bold">BEGIN TRAN</code>
+                            <p class="text-xs text-slate-400 mt-1">Démarre la transaction</p>
+                        </div>
+                        <div class="bg-emerald-900/20 p-3 rounded-lg border border-emerald-500/20 text-center">
+                            <code class="text-emerald-400 font-bold">COMMIT</code>
+                            <p class="text-xs text-slate-400 mt-1">Valide définitivement</p>
+                        </div>
+                        <div class="bg-red-900/20 p-3 rounded-lg border border-red-500/20 text-center">
+                            <code class="text-red-400 font-bold">ROLLBACK</code>
+                            <p class="text-xs text-slate-400 mt-1">Annule tout</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. SAVEPOINT -->
+            <section class="animate-fade-in-up" style="animation-delay:0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-cyan-500 pl-4">4. SAVEPOINT — Point de Sauvegarde</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300">Un SAVEPOINT permet d'annuler partiellement une transaction sans perdre tout le travail.</p>
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700 font-mono text-sm">
+                        <span class="text-amber-400">BEGIN TRANSACTION</span><br>
+                        &nbsp;&nbsp;<span class="text-blue-400">INSERT INTO</span> Commandes <span class="text-amber-400">VALUES</span>(1, <span class="text-orange-300">'Laptop'</span>, 1200)<br><br>
+                        &nbsp;&nbsp;<span class="text-amber-400">SAVE TRANSACTION</span> <span class="text-cyan-400">point1</span><br><br>
+                        &nbsp;&nbsp;<span class="text-blue-400">INSERT INTO</span> Commandes <span class="text-amber-400">VALUES</span>(2, <span class="text-orange-300">'Souris'</span>, 25)<br>
+                        &nbsp;&nbsp;<span class="text-slate-500">-- Oups, erreur sur cette insertion</span><br>
+                        &nbsp;&nbsp;<span class="text-red-400">ROLLBACK TRANSACTION</span> <span class="text-cyan-400">point1</span> <span class="text-slate-500">-- Annule seulement la souris</span><br><br>
+                        <span class="text-emerald-400">COMMIT</span> <span class="text-slate-500">-- Le laptop est validé !</span>
+                    </div>
+                    <div class="content-box tip">
+                        <strong>Analogie :</strong> C'est comme un jeu vidéo — le SAVEPOINT est votre checkpoint. Si vous mourez, vous ne recommencez pas du début.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Niveaux d'Isolation -->
+            <section class="animate-fade-in-up" style="animation-delay:0.25s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">5. Niveaux d'Isolation</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300 mb-4">L'isolation détermine ce qu'une transaction voit quand d'autres travaillent en même temps :</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border border-slate-700 rounded-lg overflow-hidden">
+                            <thead class="bg-slate-800/80">
+                                <tr>
+                                    <th class="text-left p-3 text-slate-400">Niveau</th>
+                                    <th class="text-center p-3 text-slate-400">Dirty Read</th>
+                                    <th class="text-center p-3 text-slate-400">Non-Repeatable</th>
+                                    <th class="text-center p-3 text-slate-400">Phantom</th>
+                                    <th class="text-center p-3 text-slate-400">Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700">
+                                <tr class="bg-red-900/10">
+                                    <td class="p-3 font-mono text-red-400 text-xs">READ UNCOMMITTED</td>
+                                    <td class="p-3 text-center text-red-400">⚠️ Oui</td>
+                                    <td class="p-3 text-center text-red-400">⚠️ Oui</td>
+                                    <td class="p-3 text-center text-red-400">⚠️ Oui</td>
+                                    <td class="p-3 text-center">⚡⚡⚡</td>
+                                </tr>
+                                <tr class="bg-amber-900/10">
+                                    <td class="p-3 font-mono text-amber-400 text-xs">READ COMMITTED</td>
+                                    <td class="p-3 text-center text-emerald-400">✅ Non</td>
+                                    <td class="p-3 text-center text-red-400">⚠️ Oui</td>
+                                    <td class="p-3 text-center text-red-400">⚠️ Oui</td>
+                                    <td class="p-3 text-center">⚡⚡</td>
+                                </tr>
+                                <tr class="bg-blue-900/10">
+                                    <td class="p-3 font-mono text-blue-400 text-xs">REPEATABLE READ</td>
+                                    <td class="p-3 text-center text-emerald-400">✅ Non</td>
+                                    <td class="p-3 text-center text-emerald-400">✅ Non</td>
+                                    <td class="p-3 text-center text-red-400">⚠️ Oui</td>
+                                    <td class="p-3 text-center">⚡</td>
+                                </tr>
+                                <tr class="bg-emerald-900/10">
+                                    <td class="p-3 font-mono text-emerald-400 text-xs">SERIALIZABLE</td>
+                                    <td class="p-3 text-center text-emerald-400">✅ Non</td>
+                                    <td class="p-3 text-center text-emerald-400">✅ Non</td>
+                                    <td class="p-3 text-center text-emerald-400">✅ Non</td>
+                                    <td class="p-3 text-center">🐌</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="content-box definition">
+                        <strong>Dirty Read :</strong> Lire une donnée modifiée par une autre transaction non encore validée.<br>
+                        <strong>Non-Repeatable Read :</strong> Deux lectures identiques dans la même transaction donnent des résultats différents.<br>
+                        <strong>Phantom Read :</strong> Des lignes apparaissent/disparaissent entre deux lectures (INSERT/DELETE par un tiers).
+                    </div>
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 font-mono text-sm">
+                        <span class="text-amber-400">SET TRANSACTION ISOLATION LEVEL</span> <span class="text-emerald-400">READ COMMITTED</span><br>
+                        <span class="text-amber-400">BEGIN TRANSACTION</span><br>
+                        &nbsp;&nbsp;<span class="text-slate-500">-- Vos opérations ici</span><br>
+                        <span class="text-emerald-400">COMMIT</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Deadlocks -->
+            <section class="animate-fade-in-up" style="animation-delay:0.3s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-red-500 pl-4">6. Deadlock — L'Impasse</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300 mb-4">Un deadlock survient quand deux transactions s'attendent mutuellement :</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-red-500/20">
+                            <h5 class="text-blue-400 font-mono text-xs mb-2">Transaction A</h5>
+                            <code class="text-xs text-slate-300">1. Verrouille Table1 ✅<br>2. Attend Table2... 🔒⏳</code>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-red-500/20">
+                            <h5 class="text-pink-400 font-mono text-xs mb-2">Transaction B</h5>
+                            <code class="text-xs text-slate-300">1. Verrouille Table2 ✅<br>2. Attend Table1... 🔒⏳</code>
+                        </div>
+                    </div>
+                    <div class="content-box danger">
+                        <strong>Résultat :</strong> SQL Server détecte l'impasse et tue la transaction la « moins coûteuse » (deadlock victim).
+                    </div>
+                    <div class="content-box tip">
+                        <strong>Prévention :</strong> Accédez toujours aux tables dans le <em>même ordre</em>, gardez les transactions courtes, évitez les verrous inutiles.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Labo Interactif (TransactionVisualizer) -->
+            <section class="animate-fade-in-up" style="animation-delay:0.35s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">7. Labo Interactif — Simulateur</h2>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 gap-3">
+                    <p class="text-slate-400">Simulez deux utilisateurs (A et B) travaillant en même temps sur la même donnée :</p>
+                    <select id="iso-level" class="bg-slate-800 border border-slate-600 text-white p-2 rounded text-sm" onchange="viz.setLevel(this.value)">
+                        <option value="read-uncommitted">Read Uncommitted (Dirty!)</option>
+                        <option value="read-committed" selected>Read Committed (Standard)</option>
+                        <option value="repeatable-read">Repeatable Read</option>
+                    </select>
+                </div>
+                <div class="glass-card p-6 rounded-2xl border border-blue-500/30">
+                    <div id="viz-container"></div>
+                    <div class="mt-4 p-3 bg-slate-800/50 rounded-lg text-xs text-slate-400">
+                        <p class="font-bold text-slate-300 mb-1"><i class="fas fa-lightbulb text-amber-400 mr-1"></i> Essayez ceci :</p>
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Changez le niveau d'isolation en <strong>Read Uncommitted</strong></li>
+                            <li>Cliquez UPDATE avec User A (modifie la valeur sans commit)</li>
+                            <li>Cliquez SELECT avec User B → il voit la donnée NON validée (Dirty Read !)</li>
+                            <li>Remettez <strong>Read Committed</strong> et refaites → le Dirty Read est bloqué</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Quiz -->
+            <section class="animate-fade-in-up" style="animation-delay:0.4s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">8. Quiz — Transactions</h2>
+                <div id="quiz-container" class="glass-card p-6 rounded-xl"></div>
+            </section>
+
+            <!-- 9. Challenge Drag-Drop -->
+            <section class="animate-fade-in-up" style="animation-delay:0.45s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-pink-500 pl-4">9. Challenge — Glisser-Déposer</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-400 mb-4">Associez chaque concept à sa définition :</p>
+                    <div id="drag-drop-exercice" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700"></div>
+                    <button onclick="validateDragDrop()" class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold"><i class="fas fa-check mr-1"></i> Vérifier</button>
+                </div>
+            </section>
+        </div>
+        <div class="hidden lg:block w-72 shrink-0">
+            <div class="sticky top-24"><div id="databot-container"></div></div>
+        </div>
+    </main>
+
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod09-loops.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 09 : Boucles</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod11-procedures.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 11 : Procédures →</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/transaction-visualizer.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const bot = new DataBot(); bot.render('databot-container');
+        bot.speak("Les transactions protègent vos données. Un crash ? Pas de souci avec ACID !", 5000);
+
+        // TransactionVisualizer (preserved)
+        const viz = new TransactionVisualizer('viz-container');
+
+        // Drag-Drop — 6 items
+        const draggables = [
+            {id:'d1',text:'COMMIT'},{id:'d2',text:'ROLLBACK'},{id:'d3',text:'SAVEPOINT'},
+            {id:'d4',text:'Dirty Read'},{id:'d5',text:'Deadlock'},{id:'d6',text:'Atomicité'}
+        ];
+        const zones = [
+            {id:'z1',label:'Valider définitivement la transaction',accept:'d1'},
+            {id:'z2',label:'Annuler toutes les modifications',accept:'d2'},
+            {id:'z3',label:'Point de sauvegarde partiel',accept:'d3'},
+            {id:'z4',label:'Lecture de donnée non validée',accept:'d4'},
+            {id:'z5',label:'Deux transactions bloquées mutuellement',accept:'d5'},
+            {id:'z6',label:'Tout ou rien',accept:'d6'}
+        ];
+        const ddEngine = new DragDropEngine('drag-drop-exercice',draggables,zones);
+
+        function validateDragDrop(){
+            if(ddEngine.validate()){
+                bot.speak("Transaction validée ! COMMIT ! 🛡️","happy");
+                bot.awardXP(60); confetti();
+            } else {
+                bot.speak("ROLLBACK... réessaie !","sad");
+            }
+        }
+
+        // Quiz
+        const quizData = [
+            { q:"Que signifie le A de ACID ?", o:["Automatique","Atomicité","Authentification","Agrégation"], a:1 },
+            { q:"COMMIT sert à :", o:["Annuler la transaction","Valider définitivement","Créer un savepoint","Verrouiller une table"], a:1 },
+            { q:"ROLLBACK annule :", o:["Seulement le dernier INSERT","Toute la transaction","Le schéma de la table","Les index"], a:1 },
+            { q:"Quel niveau permet les Dirty Reads ?", o:["SERIALIZABLE","REPEATABLE READ","READ COMMITTED","READ UNCOMMITTED"], a:3 },
+            { q:"Un deadlock c'est :", o:["Une erreur de syntaxe","Deux transactions bloquées mutuellement","Un type de verrou","Un niveau d'isolation"], a:1 },
+            { q:"SAVE TRANSACTION point1 crée :", o:["Une nouvelle table","Un point de sauvegarde","Un verrou","Un index"], a:1 },
+            { q:"Le niveau d'isolation par défaut de SQL Server est :", o:["READ UNCOMMITTED","READ COMMITTED","REPEATABLE READ","SERIALIZABLE"], a:1 },
+            { q:"L'isolation garantit que :", o:["Les données sont sur disque","Les transactions ne se voient pas","La syntaxe est correcte","Les index sont à jour"], a:1 },
+            { q:"Pour prévenir les deadlocks, il faut :", o:["Utiliser READ UNCOMMITTED","Accéder aux tables dans le même ordre","Éviter les transactions","Supprimer les index"], a:1 },
+            { q:"@@ERROR = 0 signifie :", o:["Il y a une erreur","Pas d'erreur","Transaction annulée","Table inexistante"], a:1 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            let html = '';
+            quizData.forEach((q, qi) => {
+                html += `<div class="mb-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <p class="font-bold mb-3 text-sm">${qi+1}. ${q.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+                q.o.forEach((opt, oi) => {
+                    html += `<button onclick="checkQuiz(${qi},${oi},this)" class="quiz-option text-left text-sm p-3 rounded border border-slate-600 bg-slate-800 hover:border-blue-500 transition-all">${opt}</button>`;
+                });
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function checkQuiz(qi, oi, btn) {
+            const correct = quizData[qi].a === oi;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('button').forEach((b, i) => {
+                b.disabled = true;
+                b.classList.remove('hover:border-blue-500');
+                if (i === quizData[qi].a) b.classList.add('border-emerald-500','bg-emerald-900/30','text-emerald-300');
+                else if (i === oi && !correct) b.classList.add('border-red-500','bg-red-900/30','text-red-300','line-through');
+            });
+            if (correct) { bot.awardXP(10); bot.speak("Exact ! ACID validé !","happy"); }
+            else { bot.speak("Pas tout à fait... révise ACID.","sad"); }
+        }
+
+        renderQuiz();
+        if(localStorage.getItem('rd_sql_theme')==='light') document.documentElement.setAttribute('data-theme','light');
+    </script>
+</body>
+</html>

@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dojo SQL — 50 Exercices Progressifs | RD-SQL</title>
+    <meta name="description" content="50 exercices SQL progressifs : DDL, DML, SELECT, agrégations, jointures, procédures, triggers et plus.">
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .difficulty-stars { display: inline-flex; gap: 2px; margin-left: 8px; }
+        .difficulty-stars .fa-star { font-size: 0.7rem; }
+        .difficulty-stars .fa-star.filled { color: #fbbf24; }
+        .difficulty-stars .fa-star:not(.filled) { color: #475569; }
+        .hint-box { background: linear-gradient(135deg, #1e293b, #0f172a); border-left: 3px solid #6366f1; padding: 10px 14px; margin-bottom: 8px; border-radius: 6px; font-size: 0.85rem; color: #94a3b8; animation: hintSlide 0.3s ease; }
+        .hint-box strong { color: #818cf8; }
+        @keyframes hintSlide { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .hint-btn { background: #312e81; color: #a5b4fc; border: 1px solid #4338ca; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+        .hint-btn:hover { background: #3730a3; }
+        .hint-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .progress-ring { position: fixed; bottom: 24px; right: 24px; z-index: 100; }
+        .exo-done { border-color: #22c55e !important; }
+        .exo-done::after { content: '✓'; position: absolute; top: 8px; right: 40px; color: #22c55e; font-weight: bold; font-size: 1.1rem; }
+        .filter-diff { display: inline-flex; gap: 6px; margin-left: 12px; padding-left: 12px; border-left: 2px solid #334155; }
+        .filter-diff button { font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; transition: all 0.2s; cursor: pointer; }
+    </style>
+    <script>
+        // Difficulty mapping: exercise number -> stars (1=easy, 2=medium, 3=hard)
+        const difficultyMap = {
+            1:1, 2:1, 3:1, 4:1, 5:2,
+            6:1, 7:1, 8:1, 9:2, 10:1,
+            11:1, 12:1, 13:2, 14:1, 15:1,
+            16:2, 17:2, 18:3, 19:2, 20:2,
+            21:3, 22:2, 23:2, 24:3, 25:2,
+            26:2, 27:2, 28:3, 29:3, 30:3,
+            31:2, 32:2, 33:3, 34:3, 35:2,
+            36:2, 37:3, 38:2, 39:2, 40:3,
+            41:2, 42:2, 43:3, 44:3, 45:3,
+            46:3, 47:2, 48:3, 49:3, 50:2
+        };
+
+        // Progressive hints for each exercise
+        const hintsMap = {
+            1: ["Commencez par CREATE TABLE suivi du nom.", "Chaque colonne se déclare : nom TYPE [contrainte].", "PRIMARY KEY se place après le type de la colonne id."],
+            2: ["La commande pour modifier une table existante est ALTER TABLE.", "Pour ajouter une colonne, utilisez ADD.", "Syntaxe : ALTER TABLE nom ADD colonne TYPE;"],
+            3: ["ALTER TABLE permet aussi d'ajouter des contraintes.", "ADD CONSTRAINT nom_contrainte TYPE (colonne).", "UNIQUE empêche les doublons sur une colonne."],
+            4: ["DROP TABLE supprime définitivement une table.", "Attention : pas de UNDO possible !", "DROP TABLE nom_table;"],
+            5: ["La syntaxe dépend du SGBD. SQL Server utilise sp_rename.", "En PostgreSQL : ALTER TABLE ... RENAME COLUMN.", "Pensez à mettre l'ancien et le nouveau nom."],
+            6: ["INSERT INTO table (colonnes) VALUES (valeurs).", "Les chaînes sont entre apostrophes.", "Les nombres ne nécessitent pas d'apostrophes."],
+            7: ["UPDATE table SET colonne = valeur.", "WHERE filtre les lignes à modifier.", "YEAR() extrait l'année d'une date."],
+            8: ["DELETE FROM table WHERE condition.", "IN ('val1', 'val2') teste plusieurs valeurs.", "Sans WHERE, toutes les lignes seraient supprimées !"],
+            9: ["INSERT INTO ... SELECT permet de copier des lignes.", "La structure : INSERT INTO cible (cols) SELECT cols FROM source.", "Ajoutez WHERE pour filtrer les données à copier."],
+            10: ["UPDATE avec WHERE ... IS NULL cible les valeurs nulles.", "SET colonne = 'nouvelle valeur'.", "IS NULL (pas = NULL) pour tester les valeurs nulles."],
+            11: ["LIKE permet des recherches avec motifs (patterns).", "% remplace zéro ou plusieurs caractères.", "'M%' = commence par M."],
+            12: ["ORDER BY accepte plusieurs colonnes séparées par des virgules.", "ASC = croissant (défaut), DESC = décroissant.", "L'ordre des colonnes définit la priorité du tri."],
+            13: ["LIMIT restreint le nombre de résultats.", "OFFSET saute les N premiers résultats.", "Page 2 avec 10/page = OFFSET 10 LIMIT 10."],
+            14: ["On peut faire des calculs dans le SELECT.", "L'alias se crée avec AS nom_alias.", "prix * 1.2 calcule le prix TTC (TVA 20%)."],
+            15: ["DISTINCT élimine les doublons dans les résultats.", "Se place juste après SELECT.", "SELECT DISTINCT colonne FROM table."],
+            16: ["SUM() additionne les valeurs d'une colonne.", "WHERE filtre AVANT l'agrégation.", "MONTH() et YEAR() extraient des parties de date."],
+            17: ["GROUP BY regroupe les lignes par valeur commune.", "COUNT(*) compte les lignes de chaque groupe.", "Le GROUP BY vient après le FROM/WHERE."],
+            18: ["HAVING filtre APRÈS le GROUP BY (contrairement à WHERE).", "On peut utiliser AVG() dans HAVING.", "HAVING AVG(col) > valeur."],
+            19: ["MIN() et MAX() trouvent les extrêmes.", "Ils fonctionnent sur les nombres ET les dates.", "On peut les combiner dans un seul SELECT."],
+            20: ["COUNT(DISTINCT col) compte les valeurs uniques.", "Différent de COUNT(*) qui compte toutes les lignes.", "Utile pour des métriques comme 'clients uniques'."],
+            21: ["Une sous-requête est un SELECT dans un autre SELECT.", "Elle s'utilise dans le WHERE pour comparer.", "AVG() dans la sous-requête calcule la moyenne."],
+            22: ["Les parenthèses contrôlent la priorité logique.", "AND est évalué avant OR sans parenthèses.", "(A OR B) AND C ≠ A OR B AND C."],
+            23: ["CASE WHEN est le 'if-else' du SQL.", "WHEN condition THEN résultat.", "N'oubliez pas END pour fermer le CASE."],
+            24: ["IN (sous-requête) teste l'appartenance à une liste.", "Equivalent à plusieurs OR.", "La sous-requête doit retourner une seule colonne."],
+            25: ["FORMAT (SQL Server) ou DATE_FORMAT (MySQL).", "Les codes varient selon le SGBD.", "dd = jour, MM = mois, yyyy = année."],
+            26: ["INNER JOIN ne garde que les correspondances.", "ON définit la condition de jonction.", "Alias (C, O) simplifient l'écriture."],
+            27: ["LEFT JOIN garde TOUTES les lignes de gauche.", "Les non-correspondances affichent NULL.", "Utile pour trouver 'qui n'a PAS de ...'."],
+            28: ["On peut chaîner plusieurs JOIN.", "Chaque JOIN a son propre ON.", "Suivez la logique : Client → Commande → Détail → Produit."],
+            29: ["Un Self Join joint une table avec elle-même.", "Utilisez des alias différents (E, M).", "LEFT JOIN car certains n'ont pas de manager."],
+            30: ["FULL OUTER JOIN = LEFT + RIGHT.", "Garde TOUT des deux côtés.", "Les non-correspondances sont NULL de chaque côté."],
+            31: ["CREATE PROCEDURE nom AS ... commence la définition.", "Le corps contient des requêtes SQL normales.", "GO termine un batch en SQL Server."],
+            32: ["Les paramètres se déclarent entre parenthèses.", "@nom TYPE est la syntaxe SQL Server.", "Le paramètre s'utilise comme une variable dans le corps."],
+            33: ["CREATE FUNCTION retourne une valeur.", "RETURNS TYPE déclare le type de retour.", "RETURN valeur renvoie le résultat."],
+            34: ["OUTPUT fait du paramètre une sortie.", "SELECT @param = expression assigne la valeur.", "L'appelant utilise DECLARE + EXEC avec OUTPUT."],
+            35: ["Les fonctions s'appellent avec le schéma : dbo.Nom().", "Elles s'utilisent directement dans un SELECT.", "Comme une colonne calculée."],
+            36: ["BEGIN TRANSACTION démarre la transaction.", "COMMIT valide toutes les modifications.", "Sans COMMIT, rien n'est sauvegardé."],
+            37: ["BEGIN TRY ... END TRY encapsule le code risqué.", "BEGIN CATCH ... END CATCH gère l'erreur.", "ROLLBACK dans le CATCH annule tout."],
+            38: ["AFTER INSERT se déclenche après chaque INSERT.", "La pseudo-table inserted contient les nouvelles lignes.", "Le trigger est automatique et invisible pour l'utilisateur."],
+            39: ["INSTEAD OF remplace l'opération originale.", "Le DELETE n'aura jamais lieu.", "PRINT affiche un message (ou RAISERROR pour une erreur)."],
+            40: ["AFTER UPDATE se déclenche quand une ligne change.", "DELETED contient l'état AVANT la modification.", "INSERTED contiendrait l'état APRÈS."],
+            41: ["CREATE VIEW nom AS SELECT ...", "La vue est une requête sauvegardée.", "On sélectionne uniquement les colonnes voulues."],
+            42: ["CREATE INDEX nom ON table (colonne).", "L'index accélère les recherches sur cette colonne.", "Comme l'index d'un livre : plus rapide que lire tout."],
+            43: ["WITH nom AS (requête) crée un CTE.", "Le CTE est utilisable dans le SELECT qui suit.", "Plus lisible qu'une sous-requête imbriquée."],
+            44: ["RANK() OVER (...) est une fonction de fenêtrage.", "ORDER BY dans OVER définit le critère de classement.", "RANK() laisse des trous ; DENSE_RANK() n'en laisse pas."],
+            45: ["SUM() OVER (ORDER BY ...) fait un cumul.", "Chaque ligne additionne toutes les précédentes.", "C'est un 'running total' sans GROUP BY."],
+            46: ["La syntaxe JSON varie selon le SGBD.", "PostgreSQL : colonne->>'clé' extrait en texte.", "SQL Server : JSON_VALUE(colonne, '$.clé')."],
+            47: ["CONCAT() joint plusieurs chaînes.", "UPPER() met en majuscules.", "On peut imbriquer : CONCAT(UPPER(a), ' ', b)."],
+            48: ["UPSERT = INSERT ou UPDATE selon l'existence.", "PostgreSQL : ON CONFLICT ... DO UPDATE.", "MySQL : ON DUPLICATE KEY UPDATE."],
+            49: ["EXISTS teste si une sous-requête renvoie des lignes.", "NOT EXISTS = 'il n'y en a aucun'.", "SELECT 1 suffit (on ne lit pas les données)."],
+            50: ["EXPLAIN montre le plan d'exécution.", "Seq Scan = lecture séquentielle (lent).", "Index Scan = utilisation d'index (rapide)."]
+        };
+
+        let completedExos = JSON.parse(localStorage.getItem('rd-sql-exos-done') || '[]');
+
+        function toggleSol(id) {
+            const el = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            el.classList.toggle('hidden');
+            if (el.classList.contains('hidden')) {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                // Mark as completed
+                const num = parseInt(id.replace('sol-', ''));
+                markDone(num);
+            }
+        }
+
+        function markDone(num) {
+            if (!completedExos.includes(num)) {
+                completedExos.push(num);
+                localStorage.setItem('rd-sql-exos-done', JSON.stringify(completedExos));
+                const card = document.querySelector(`[data-exo="${num}"]`);
+                if (card) card.classList.add('exo-done');
+                updateProgress();
+                // Gamification XP
+                if (window.DataBot) window.DataBot.addXP(5);
+            }
+        }
+
+        function showHint(exoNum) {
+            const container = document.getElementById(`hints-${exoNum}`);
+            const shown = container.querySelectorAll('.hint-box').length;
+            const hints = hintsMap[exoNum] || [];
+            if (shown < hints.length) {
+                const div = document.createElement('div');
+                div.className = 'hint-box';
+                div.innerHTML = `<strong>💡 Indice ${shown + 1}/${hints.length} :</strong> ${hints[shown]}`;
+                container.appendChild(div);
+                // Disable button if all shown
+                if (shown + 1 >= hints.length) {
+                    const btn = document.querySelector(`[data-hint-btn="${exoNum}"]`);
+                    if (btn) { btn.disabled = true; btn.textContent = 'Tous les indices révélés'; }
+                }
+            }
+        }
+        
+        function filterCat(cat) {
+            const allItems = document.querySelectorAll('.exo-item');
+            if (cat === 'all') {
+                allItems.forEach(el => el.classList.remove('hidden'));
+            } else {
+                allItems.forEach(el => {
+                    if (el.dataset.cat === cat) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                });
+            }
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+            });
+            event.target.classList.remove('bg-slate-800', 'text-slate-300');
+            event.target.classList.add('bg-blue-600', 'text-white');
+        }
+
+        function filterDiff(level) {
+            const allItems = document.querySelectorAll('.exo-item');
+            allItems.forEach(el => {
+                const num = parseInt(el.dataset.exo);
+                if (difficultyMap[num] === level) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+        }
+
+        function updateProgress() {
+            const total = 50;
+            const done = completedExos.length;
+            const pct = Math.round((done / total) * 100);
+            const el = document.getElementById('progress-count');
+            if (el) el.textContent = `${done}/${total} (${pct}%)`;
+            const bar = document.getElementById('progress-bar-fill');
+            if (bar) bar.style.width = pct + '%';
+        }
+
+        // Enhance cards on load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.exo-item').forEach((card, idx) => {
+                const num = idx + 1;
+                card.dataset.exo = num;
+                card.style.position = 'relative';
+
+                // Difficulty stars
+                const stars = difficultyMap[num] || 1;
+                const badge = card.querySelector('span');
+                if (badge) {
+                    const starsHTML = `<span class="difficulty-stars">${
+                        [1,2,3].map(s => `<i class="fas fa-star ${s <= stars ? 'filled' : ''}"></i>`).join('')
+                    }</span>`;
+                    badge.insertAdjacentHTML('afterend', starsHTML);
+                }
+
+                // Progressive hints
+                const solDiv = card.querySelector('[id^="sol-"]');
+                if (solDiv) {
+                    const hintsContainer = document.createElement('div');
+                    hintsContainer.id = `hints-${num}`;
+                    hintsContainer.className = 'mt-2';
+                    solDiv.before(hintsContainer);
+
+                    const hintBtn = document.createElement('button');
+                    hintBtn.className = 'hint-btn mb-2';
+                    hintBtn.dataset.hintBtn = num;
+                    hintBtn.innerHTML = '<i class="fas fa-lightbulb"></i> Indice';
+                    hintBtn.onclick = () => showHint(num);
+                    hintsContainer.before(hintBtn);
+                }
+
+                // Restore completed state
+                if (completedExos.includes(num)) card.classList.add('exo-done');
+            });
+            updateProgress();
+        });
+    </script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+
+    <!-- Navbar -->
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
+                <i class="fas fa-arrow-left"></i> <span class="font-bold">Retour au Cours</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400">
+                <i class="fas fa-database mr-2 text-blue-500"></i> Dojo SQL
+            </h1>
+            <div class="flex items-center gap-4">
+                <div class="text-sm font-mono text-slate-500">50 Exercices</div>
+                <button onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'; localStorage.setItem('theme', document.documentElement.dataset.theme)" class="text-slate-400 hover:text-white transition-colors" title="Thème">
+                    <i class="fas fa-adjust text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="py-12 text-center bg-gradient-to-b from-slate-900 to-slate-800">
+        <h2 class="text-4xl md:text-5xl font-extrabold mb-4">🥋 Entraînement Intensif</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto px-4 mb-6">
+            La maîtrise vient par la pratique. Voici 50 scénarios progressifs pour tester vos connaissances,
+            du simple <code>SELECT</code> aux fenêtrages avancés. Utilisez les <strong class="text-indigo-400">indices</strong> si vous bloquez !
+        </p>
+        <!-- Progress bar -->
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between text-sm text-slate-500 mb-1">
+                <span>Progression</span>
+                <span id="progress-count">0/50 (0%)</span>
+            </div>
+            <div class="w-full bg-slate-700 rounded-full h-2.5">
+                <div id="progress-bar-fill" class="bg-gradient-to-r from-blue-500 to-green-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        
+        <!-- Filters -->
+        <div class="flex flex-wrap justify-center gap-3 mb-10 sticky top-20 z-40 bg-slate-900/90 p-4 rounded-xl border border-slate-800 backdrop-blur">
+            <button onclick="filterCat('all')" class="filter-btn px-5 py-2 bg-blue-600 text-white rounded-full font-bold transition-all transform hover:scale-105">Tout</button>
+            <button onclick="filterCat('ddl')" class="filter-btn px-5 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-full font-bold transition-all">DDL (Structure)</button>
+            <button onclick="filterCat('dml')" class="filter-btn px-5 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-full font-bold transition-all">DML (Données)</button>
+            <button onclick="filterCat('select')" class="filter-btn px-5 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-full font-bold transition-all">SELECT</button>
+            <button onclick="filterCat('agg')" class="filter-btn px-5 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-full font-bold transition-all">Calculs</button>
+            <button onclick="filterCat('logic')" class="filter-btn px-5 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-full font-bold transition-all">Logique</button>
+            <button onclick="filterCat('join')" class="filter-btn px-5 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-full font-bold transition-all">Jointures</button>
+            <button onclick="filterCat('prog')" class="filter-btn px-5 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-full font-bold transition-all">Proc & Func</button>
+            <button onclick="filterCat('admin')" class="filter-btn px-5 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-full font-bold transition-all">Admin (Trans/Trig)</button>
+            <button onclick="filterCat('expert')" class="filter-btn px-5 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-full font-bold transition-all">Expert</button>
+            <span class="filter-diff">
+                <button onclick="filterDiff(1)" class="bg-green-900/50 text-green-400 hover:bg-green-800/50">⭐ Facile</button>
+                <button onclick="filterDiff(2)" class="bg-yellow-900/50 text-yellow-400 hover:bg-yellow-800/50">⭐⭐ Moyen</button>
+                <button onclick="filterDiff(3)" class="bg-red-900/50 text-red-400 hover:bg-red-800/50">⭐⭐⭐ Dur</button>
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+
+            <!-- ================= DDL (1-5) ================= -->
+            
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-blue-500 transition-all shadow-lg" data-cat="ddl">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-blue-900 text-blue-300 text-xs px-2 py-1 rounded font-mono">01 - DDL</span>
+                    <button onclick="toggleSol('sol-1')" class="text-slate-400 hover:text-white"><i id="icon-sol-1" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Architecte de Base de Données</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-blue-400">Contexte :</strong> Vous lancez une startup EdTech et devez stocker les profils étudiants.<br>
+                    <strong class="text-white">Objectif :</strong> Créez une table <code>Etudiants</code>.<br>
+                    <strong class="text-slate-500">Détails :</strong> Colonnes <code>id</code> (INT, Clé Primaire), <code>nom</code> (VARCHAR 100), et <code>moyenne</code> (DECIMAL 4,2).
+                </p>
+                <div id="sol-1" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE TABLE Etudiants (<br>
+                    &nbsp;&nbsp;id INT PRIMARY KEY,<br>
+                    &nbsp;&nbsp;nom VARCHAR(100),<br>
+                    &nbsp;&nbsp;moyenne DECIMAL(4,2)<br>
+                    );
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-blue-500 transition-all shadow-lg" data-cat="ddl">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-blue-900 text-blue-300 text-xs px-2 py-1 rounded font-mono">02 - DDL</span>
+                    <button onclick="toggleSol('sol-2')" class="text-slate-400 hover:text-white"><i id="icon-sol-2" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Évolution du Schéma</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-blue-400">Contexte :</strong> L'équipe marketing souhaite lancer une newsletter mais n'a pas les adresses des clients.<br>
+                    <strong class="text-white">Objectif :</strong> Modifiez la table <code>Clients</code> existante pour ajouter une colonne.<br>
+                    <strong class="text-slate-500">Action :</strong> Ajoutez <code>email</code> (VARCHAR 255).
+                </p>
+                <div id="sol-2" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    ALTER TABLE Clients<br>
+                    ADD email VARCHAR(255);
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-blue-500 transition-all shadow-lg" data-cat="ddl">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-blue-900 text-blue-300 text-xs px-2 py-1 rounded font-mono">03 - DDL</span>
+                    <button onclick="toggleSol('sol-3')" class="text-slate-400 hover:text-white"><i id="icon-sol-3" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Sécurité des Données</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-blue-400">Contexte :</strong> Un audit de sécurité révèle des doublons d'emails problématiques pour l'authentification.<br>
+                    <strong class="text-white">Objectif :</strong> Imposez une contrainte d'unicité sur la colonne email.<br>
+                    <strong class="text-slate-500">Commande :</strong> Ajoutez une contrainte <code>UNIQUE</code> sur la table <code>Users</code>.
+                </p>
+                <div id="sol-3" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    ALTER TABLE Users<br>
+                    ADD CONSTRAINT uq_email UNIQUE (email);
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-blue-500 transition-all shadow-lg" data-cat="ddl">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-blue-900 text-blue-300 text-xs px-2 py-1 rounded font-mono">04 - DDL</span>
+                    <button onclick="toggleSol('sol-4')" class="text-slate-400 hover:text-white"><i id="icon-sol-4" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Nettoyage RGPD</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-blue-400">Contexte :</strong> Pour respecter la législation, nous devons supprimer les données obsolètes.<br>
+                    <strong class="text-white">Objectif :</strong> Supprimez définitivement une table d'archivage.<br>
+                    <strong class="text-slate-500">Cible :</strong> Table <code>Old_Logs</code>.
+                </p>
+                <div id="sol-4" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    DROP TABLE Old_Logs;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-blue-500 transition-all shadow-lg" data-cat="ddl">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-blue-900 text-blue-300 text-xs px-2 py-1 rounded font-mono">05 - DDL</span>
+                    <button onclick="toggleSol('sol-5')" class="text-slate-400 hover:text-white"><i id="icon-sol-5" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Standardisation</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-blue-400">Contexte :</strong> Le CTO impose une nomenclature francophone pour tout le projet.<br>
+                    <strong class="text-white">Objectif :</strong> Renommez la colonne <code>fullname</code> en <code>nom_complet</code>.<br>
+                    <strong class="text-slate-500">Table :</strong> <code>Employes</code>.
+                </p>
+                <div id="sol-5" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    -- SQL Server<br>
+                    EXEC sp_rename 'Employes.fullname', 'nom_complet', 'COLUMN';<br><br>
+                    -- PostgreSQL / MySQL<br>
+                    ALTER TABLE Employes RENAME COLUMN fullname TO nom_complet;
+                </div>
+            </div>
+
+            <!-- ================= DML (6-10) ================= -->
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-green-500 transition-all shadow-lg" data-cat="dml">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-green-900 text-green-300 text-xs px-2 py-1 rounded font-mono">06 - DML</span>
+                    <button onclick="toggleSol('sol-6')" class="text-slate-400 hover:text-white"><i id="icon-sol-6" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Gestion de Stock</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-green-400">Contexte :</strong> Une nouvelle référence produit vient d'arriver à l'entrepôt.<br>
+                    <strong class="text-white">Objectif :</strong> Insérez ce nouveau produit dans la base.<br>
+                    <strong class="text-slate-500">Données :</strong> 'T-Shirt', Prix: 19.99, Stock: 100.
+                </p>
+                <div id="sol-6" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    INSERT INTO Produits (nom, prix, stock)<br>
+                    VALUES ('T-Shirt', 19.99, 100);
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-green-500 transition-all shadow-lg" data-cat="dml">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-green-900 text-green-300 text-xs px-2 py-1 rounded font-mono">07 - DML</span>
+                    <button onclick="toggleSol('sol-7')" class="text-slate-400 hover:text-white"><i id="icon-sol-7" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Activation en Masse</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-green-400">Contexte :</strong> Après vérification manuelle, tous les comptes créés cette année sont validés.<br>
+                    <strong class="text-white">Objectif :</strong> Mettez à jour leur statut à 'Actif'.<br>
+                    <strong class="text-slate-500">Cible :</strong> Users créés en 2025.
+                </p>
+                <div id="sol-7" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    UPDATE Users<br>
+                    SET statut = 'Actif'<br>
+                    WHERE YEAR(created_at) = 2025;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-green-500 transition-all shadow-lg" data-cat="dml">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-green-900 text-green-300 text-xs px-2 py-1 rounded font-mono">08 - DML</span>
+                    <button onclick="toggleSol('sol-8')" class="text-slate-400 hover:text-white"><i id="icon-sol-8" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Maintenance Serveur</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-green-400">Contexte :</strong> Le disque dur est plein. L'admin système demande de purger les logs inutiles.<br>
+                    <strong class="text-white">Objectif :</strong> Supprimez les alertes peu importantes.<br>
+                    <strong class="text-slate-500">Condition :</strong> Niveau 'Low' ou 'Info'.
+                </p>
+                <div id="sol-8" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    DELETE FROM Alertes<br>
+                    WHERE niveau IN ('Low', 'Info');
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-green-500 transition-all shadow-lg" data-cat="dml">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-green-900 text-green-300 text-xs px-2 py-1 rounded font-mono">09 - DML</span>
+                    <button onclick="toggleSol('sol-9')" class="text-slate-400 hover:text-white"><i id="icon-sol-9" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Archivage de Sécurité</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-green-400">Contexte :</strong> Avant de purger les vieux messages, nous devons en garder une copie.<br>
+                    <strong class="text-white">Objectif :</strong> Copiez les messages d'avant 2020 dans la table <code>Archive</code>.<br>
+                    <strong class="text-slate-500">Méthode :</strong> INSERT INTO ... SELECT ...
+                </p>
+                <div id="sol-9" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    INSERT INTO Archive (msg, date)<br>
+                    SELECT msg, date FROM Messages WHERE date < '2020-01-01';
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-green-500 transition-all shadow-lg" data-cat="dml">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-green-900 text-green-300 text-xs px-2 py-1 rounded font-mono">10 - DML</span>
+                    <button onclick="toggleSol('sol-10')" class="text-slate-400 hover:text-white"><i id="icon-sol-10" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Nettoyage de Données</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-green-400">Contexte :</strong> L'interface affiche "null" pour les téléphones manquants, ce qui n'est pas professionnel.<br>
+                    <strong class="text-white">Objectif :</strong> Remplacez les valeurs NULL par le texte 'Non renseigné'.<br>
+                    <strong class="text-slate-500">Table :</strong> <code>Clients</code>.
+                </p>
+                <div id="sol-10" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    UPDATE Clients<br>
+                    SET telephone = 'Non renseigné'<br>
+                    WHERE telephone IS NULL;
+                </div>
+            </div>
+
+            <!-- ================= SELECT (11-15) ================= -->
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-purple-500 transition-all shadow-lg" data-cat="select">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-purple-900 text-purple-300 text-xs px-2 py-1 rounded font-mono">11 - SELECT</span>
+                    <button onclick="toggleSol('sol-11')" class="text-slate-400 hover:text-white"><i id="icon-sol-11" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Moteur de Recherche</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-purple-400">Contexte :</strong> L'utilisateur tape "Mar" dans la barre de recherche du CRM.<br>
+                    <strong class="text-white">Objectif :</strong> Trouvez tous les clients dont le nom commence par 'M'.<br>
+                    <strong class="text-slate-500">Outil :</strong> Clause <code>LIKE</code> avec wildcard.
+                </p>
+                <div id="sol-11" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT * FROM Clients<br>
+                    WHERE nom LIKE 'M%';
+                </div>
+            </div>
+
+             <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-purple-500 transition-all shadow-lg" data-cat="select">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-purple-900 text-purple-300 text-xs px-2 py-1 rounded font-mono">12 - SELECT</span>
+                    <button onclick="toggleSol('sol-12')" class="text-slate-400 hover:text-white"><i id="icon-sol-12" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Catalogue Papier</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-purple-400">Contexte :</strong> Pour l'impression du catalogue, les produits doivent être groupés par rayon, puis mis en avant par prix.<br>
+                    <strong class="text-white">Objectif :</strong> Triez par Catégorie (A-Z), puis par Prix (Décroissant).<br>
+                    <strong class="text-slate-500">Clause :</strong> <code>ORDER BY ... ASC, ... DESC</code>.
+                </p>
+                <div id="sol-12" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT * FROM Produits<br>
+                    ORDER BY categorie ASC, prix DESC;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-purple-500 transition-all shadow-lg" data-cat="select">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-purple-900 text-purple-300 text-xs px-2 py-1 rounded font-mono">13 - SELECT</span>
+                    <button onclick="toggleSol('sol-13')" class="text-slate-400 hover:text-white"><i id="icon-sol-13" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Pagination Web</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-purple-400">Contexte :</strong> Le site affiche 10 résultats par page. L'utilisateur clique sur "Page 2".<br>
+                    <strong class="text-white">Objectif :</strong> Récupérez les enregistrements 11 à 20.<br>
+                    <strong class="text-slate-500">Méthode :</strong> LIMIT / OFFSET.
+                </p>
+                <div id="sol-13" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    -- Standard SQL / MySQL / PG<br>
+                    SELECT * FROM Table<br>
+                    ORDER BY id<br>
+                    LIMIT 10 OFFSET 10;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-purple-500 transition-all shadow-lg" data-cat="select">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-purple-900 text-purple-300 text-xs px-2 py-1 rounded font-mono">14 - SELECT</span>
+                    <button onclick="toggleSol('sol-14')" class="text-slate-400 hover:text-white"><i id="icon-sol-14" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Affichage Prix TTC</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-purple-400">Contexte :</strong> La base stocke du Hors Taxe, mais le client doit voir le TTC (TVA 20%).<br>
+                    <strong class="text-white">Objectif :</strong> Calculez une colonne virtuelle 'Prix TTC'.<br>
+                    <strong class="text-slate-500">Formule :</strong> <code>prix * 1.2</code> avec Alias.
+                </p>
+                <div id="sol-14" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT nom, prix * 1.2 AS prix_ttc<br>
+                    FROM Produits;
+                </div>
+            </div>
+
+             <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-purple-500 transition-all shadow-lg" data-cat="select">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-purple-900 text-purple-300 text-xs px-2 py-1 rounded font-mono">15 - SELECT</span>
+                    <button onclick="toggleSol('sol-15')" class="text-slate-400 hover:text-white"><i id="icon-sol-15" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Cartographie</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-purple-400">Contexte :</strong> L'équipe logistique veut une liste des villes desservies pour optimiser les tournées.<br>
+                    <strong class="text-white">Objectif :</strong> Listez chaque ville une seule fois, sans doublon.<br>
+                    <strong class="text-slate-500">Mot-clé :</strong> <code>DISTINCT</code>.
+                </p>
+                <div id="sol-15" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT DISTINCT ville<br>
+                    FROM Clients;
+                </div>
+            </div>
+
+            <!-- ================= AGG (16-20) ================= -->
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-yellow-500 transition-all shadow-lg" data-cat="agg">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-yellow-900 text-yellow-300 text-xs px-2 py-1 rounded font-mono">16 - CALCULS</span>
+                    <button onclick="toggleSol('sol-16')" class="text-slate-400 hover:text-white"><i id="icon-sol-16" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Rapport Financier</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-yellow-400">Contexte :</strong> Le directeur financier demande le chiffre d'affaires du mois de Mars 2024.<br>
+                    <strong class="text-white">Objectif :</strong> Calculez la somme des montants des ventes.<br>
+                    <strong class="text-slate-500">Filtre :</strong> Mois = 3, Année = 2024.
+                </p>
+                <div id="sol-16" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT SUM(montant)<br>
+                    FROM Ventes<br>
+                    WHERE MONTH(date) = 3 AND YEAR(date) = 2024;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-yellow-500 transition-all shadow-lg" data-cat="agg">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-yellow-900 text-yellow-300 text-xs px-2 py-1 rounded font-mono">17 - CALCULS</span>
+                    <button onclick="toggleSol('sol-17')" class="text-slate-400 hover:text-white"><i id="icon-sol-17" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Inventaire par Rayon</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-yellow-400">Contexte :</strong> Le responsable magasin veut savoir combien de références existent dans chaque rayon.<br>
+                    <strong class="text-white">Objectif :</strong> Comptez les produits groupés par catégorie.<br>
+                    <strong class="text-slate-500">Fonctions :</strong> <code>COUNT</code> et <code>GROUP BY</code>.
+                </p>
+                <div id="sol-17" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT categorie, COUNT(*)<br>
+                    FROM Produits<br>
+                    GROUP BY categorie;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-yellow-500 transition-all shadow-lg" data-cat="agg">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-yellow-900 text-yellow-300 text-xs px-2 py-1 rounded font-mono">18 - CALCULS</span>
+                    <button onclick="toggleSol('sol-18')" class="text-slate-400 hover:text-white"><i id="icon-sol-18" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Analyse Salariale</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-yellow-400">Contexte :</strong> Les RH veulent identifier les départements les plus coûteux.<br>
+                    <strong class="text-white">Objectif :</strong> Affichez les départements dont le salaire moyen dépasse 50,000.<br>
+                    <strong class="text-slate-500">Indice :</strong> Utilisez <code>HAVING</code> après le GROUP BY.
+                </p>
+                <div id="sol-18" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT dept, AVG(salaire)<br>
+                    FROM Employes<br>
+                    GROUP BY dept<br>
+                    HAVING AVG(salaire) > 50000;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-yellow-500 transition-all shadow-lg" data-cat="agg">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-yellow-900 text-yellow-300 text-xs px-2 py-1 rounded font-mono">19 - CALCULS</span>
+                    <button onclick="toggleSol('sol-19')" class="text-slate-400 hover:text-white"><i id="icon-sol-19" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Audit Temporel</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-yellow-400">Contexte :</strong> Pour calculer la "Lifetime Value", nous avons besoin de l'amplitude d'activité.<br>
+                    <strong class="text-white">Objectif :</strong> Trouvez la date de la toute première et de la toute dernière commande.<br>
+                    <strong class="text-slate-500">Fonctions :</strong> <code>MIN()</code> et <code>MAX()</code>.
+                </p>
+                <div id="sol-19" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT MIN(date_cmd), MAX(date_cmd)<br>
+                    FROM Commandes;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-yellow-500 transition-all shadow-lg" data-cat="agg">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-yellow-900 text-yellow-300 text-xs px-2 py-1 rounded font-mono">20 - CALCULS</span>
+                    <button onclick="toggleSol('sol-20')" class="text-slate-400 hover:text-white"><i id="icon-sol-20" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Base Clients Active</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-yellow-400">Contexte :</strong> Le marketing veut savoir combien de personnes *différentes* ont acheté quelque chose.<br>
+                    <strong class="text-white">Objectif :</strong> Comptez les `client_id` uniques dans la table Commandes.<br>
+                    <strong class="text-slate-500">Syntaxe :</strong> <code>COUNT(DISTINCT col)</code>.
+                </p>
+                <div id="sol-20" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT COUNT(DISTINCT client_id)<br>
+                    FROM Commandes;
+                </div>
+            </div>
+
+             <!-- ================= LOGIQUE (21-25) ================= -->
+
+             <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-red-500 transition-all shadow-lg" data-cat="logic">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-red-900 text-red-300 text-xs px-2 py-1 rounded font-mono">21 - LOGIC</span>
+                    <button onclick="toggleSol('sol-21')" class="text-slate-400 hover:text-white"><i id="icon-sol-21" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Produits Premium</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-red-400">Contexte :</strong> Le marketing veut mettre en avant les produits "Haut de gamme".<br>
+                    <strong class="text-white">Objectif :</strong> Sélectionnez les produits dont le prix est supérieur à la moyenne globale.<br>
+                    <strong class="text-slate-500">Outil :</strong> Sous-requête dans le <code>WHERE</code>.
+                </p>
+                <div id="sol-21" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT * FROM Produits<br>
+                    WHERE prix > (<br>
+                    &nbsp;&nbsp;SELECT AVG(prix) FROM Produits<br>
+                    );
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-red-500 transition-all shadow-lg" data-cat="logic">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-red-900 text-red-300 text-xs px-2 py-1 rounded font-mono">22 - LOGIC</span>
+                    <button onclick="toggleSol('sol-22')" class="text-slate-400 hover:text-white"><i id="icon-sol-22" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Ciblage Précis</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-red-400">Contexte :</strong> Promotion flash sur les articles bleus ou rouges bon marché.<br>
+                    <strong class="text-white">Objectif :</strong> Produits (Rouge OU Bleu) ET (Prix <= 50).<br>
+                    <strong class="text-slate-500">Attention :</strong> Aux parenthèses !
+                </p>
+                <div id="sol-22" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT * FROM Produits<br>
+                    WHERE (couleur = 'Rouge' OR couleur = 'Bleu')<br>
+                    AND prix <= 50;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-red-500 transition-all shadow-lg" data-cat="logic">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-red-900 text-red-300 text-xs px-2 py-1 rounded font-mono">23 - LOGIC</span>
+                    <button onclick="toggleSol('sol-23')" class="text-slate-400 hover:text-white"><i id="icon-sol-23" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Étiquetage Automatique</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-red-400">Contexte :</strong> L'affichage client doit montrer une catégorie de prix simplifiée.<br>
+                    <strong class="text-white">Objectif :</strong> Créez une colonne 'Etiquette' : 'Cher' si > 100, sinon 'Abordable'.<br>
+                    <strong class="text-slate-500">Syntaxe :</strong> <code>CASE WHEN ... THEN ... END</code>.
+                </p>
+                <div id="sol-23" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT nom,<br>
+                    CASE<br>
+                    &nbsp;&nbsp;WHEN prix > 100 THEN 'Cher'<br>
+                    &nbsp;&nbsp;ELSE 'Abordable'<br>
+                    END as etiquette<br>
+                    FROM Produits;
+                </div>
+            </div>
+
+             <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-red-500 transition-all shadow-lg" data-cat="logic">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-red-900 text-red-300 text-xs px-2 py-1 rounded font-mono">24 - LOGIC</span>
+                    <button onclick="toggleSol('sol-24')" class="text-slate-400 hover:text-white"><i id="icon-sol-24" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Programme VIP</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-red-400">Contexte :</strong> Nous avons une table séparée pour les VIPs. Qui sont-ils dans la table principale ?<br>
+                    <strong class="text-white">Objectif :</strong> Sélectionnez les Clients dont l'ID est dans la table VIP.<br>
+                    <strong class="text-slate-500">Méthode :</strong> <code>WHERE id IN (...)</code>.
+                </p>
+                <div id="sol-24" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT * FROM Clients<br>
+                    WHERE id IN (SELECT client_id FROM VIP);
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-red-500 transition-all shadow-lg" data-cat="logic">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-red-900 text-red-300 text-xs px-2 py-1 rounded font-mono">25 - LOGIC</span>
+                    <button onclick="toggleSol('sol-25')" class="text-slate-400 hover:text-white"><i id="icon-sol-25" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Localisation Date</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-red-400">Contexte :</strong> L'interface utilisateur française attend un format jour-mois-année.<br>
+                    <strong class="text-white">Objectif :</strong> Formatez la date de commande en 'JJ-MM-AAAA'.<br>
+                    <strong class="text-slate-500">Note :</strong> La fonction dépend du SGBD (FORMAT, DATE_FORMAT...).
+                </p>
+                <div id="sol-25" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    -- SQL Server<br>
+                    SELECT FORMAT(date, 'dd-MM-yyyy')<br><br>
+                    -- MySQL<br>
+                    SELECT DATE_FORMAT(date, '%d-%m-%Y')
+                </div>
+            </div>
+
+            <!-- ================= JOINTURES (26-30) ================= -->
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-indigo-500 transition-all shadow-lg" data-cat="join">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-indigo-900 text-indigo-300 text-xs px-2 py-1 rounded font-mono">26 - JOIN</span>
+                    <button onclick="toggleSol('sol-26')" class="text-slate-400 hover:text-white"><i id="icon-sol-26" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Facturation</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-indigo-400">Contexte :</strong> Pour générer une facture, nous avons besoin du nom du client sur chaque commande.<br>
+                    <strong class="text-white">Objectif :</strong> Jointure entre <code>Commandes</code> et <code>Clients</code>.<br>
+                    <strong class="text-slate-500">Type :</strong> <code>INNER JOIN</code> (Seulement si correspondance).
+                </p>
+                <div id="sol-26" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT C.nom, O.date_cmd<br>
+                    FROM Clients C<br>
+                    INNER JOIN Commandes O ON C.id = O.client_id;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-indigo-500 transition-all shadow-lg" data-cat="join">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-indigo-900 text-indigo-300 text-xs px-2 py-1 rounded font-mono">27 - JOIN</span>
+                    <button onclick="toggleSol('sol-27')" class="text-slate-400 hover:text-white"><i id="icon-sol-27" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Prospection Commerciale</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-indigo-400">Contexte :</strong> Nous voulons relancer les clients qui n'ont jamais rien acheté.<br>
+                    <strong class="text-white">Objectif :</strong> Listez TOUS les clients, et voyez NULL s'ils n'ont pas de commande.<br>
+                    <strong class="text-slate-500">Type :</strong> <code>LEFT JOIN</code>.
+                </p>
+                <div id="sol-27" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT C.nom, O.id as commande_id<br>
+                    FROM Clients C<br>
+                    LEFT JOIN Commandes O ON C.id = O.client_id;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-indigo-500 transition-all shadow-lg" data-cat="join">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-indigo-900 text-indigo-300 text-xs px-2 py-1 rounded font-mono">28 - JOIN</span>
+                    <button onclick="toggleSol('sol-28')" class="text-slate-400 hover:text-white"><i id="icon-sol-28" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Détail Complet</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-indigo-400">Contexte :</strong> Le service client veut savoir "Qui a acheté Quoi et Quand".<br>
+                    <strong class="text-white">Objectif :</strong> Joignez Clients -> Commandes -> Details -> Produits.<br>
+                    <strong class="text-slate-500">Défi :</strong> Triple Jointure.
+                </p>
+                <div id="sol-28" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT C.nom, O.date, P.nom<br>
+                    FROM Clients C<br>
+                    JOIN Commandes O ON C.id = O.client_id<br>
+                    JOIN Details_Commande D ON O.id = D.cmd_id<br>
+                    JOIN Produits P ON D.prod_id = P.id;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-indigo-500 transition-all shadow-lg" data-cat="join">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-indigo-900 text-indigo-300 text-xs px-2 py-1 rounded font-mono">29 - JOIN</span>
+                    <button onclick="toggleSol('sol-29')" class="text-slate-400 hover:text-white"><i id="icon-sol-29" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Hiérarchie RH</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-indigo-400">Contexte :</strong> Générer l'organigramme.<br>
+                    <strong class="text-white">Objectif :</strong> Pour chaque employé, affichez le nom de son manager.<br>
+                    <strong class="text-slate-500">Technique :</strong> Self Join (La table se joint à elle-même).
+                </p>
+                <div id="sol-29" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT E.nom as Employe, M.nom as Manager<br>
+                    FROM Employes E<br>
+                    LEFT JOIN Employes M ON E.manager_id = M.id;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-indigo-500 transition-all shadow-lg" data-cat="join">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-indigo-900 text-indigo-300 text-xs px-2 py-1 rounded font-mono">30 - JOIN</span>
+                    <button onclick="toggleSol('sol-30')" class="text-slate-400 hover:text-white"><i id="icon-sol-30" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Réconciliation</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-indigo-400">Contexte :</strong> Comparaison de deux sources de données A et B.<br>
+                    <strong class="text-white">Objectif :</strong> Affichez tout de A et tout de B, qu'il y ait correspondance ou non.<br>
+                    <strong class="text-slate-500">Type :</strong> <code>FULL OUTER JOIN</code>.
+                </p>
+                <div id="sol-30" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT * FROM TableA A<br>
+                    FULL OUTER JOIN TableB B ON A.id = B.a_id;
+                </div>
+            </div>
+
+            <!-- ================= PROC & FUNC (31-35) ================= -->
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-teal-500 transition-all shadow-lg" data-cat="prog">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-teal-900 text-teal-300 text-xs px-2 py-1 rounded font-mono">31 - PROC</span>
+                    <button onclick="toggleSol('sol-31')" class="text-slate-400 hover:text-white"><i id="icon-sol-31" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Encapsulation</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-teal-400">Contexte :</strong> Pour des raisons de sécurité, les développeurs front-end n'ont pas accès direct aux tables.<br>
+                    <strong class="text-white">Objectif :</strong> Créez une procédure stockée qui renvoie la liste des clients.<br>
+                    <strong class="text-slate-500">Avantage :</strong> Abstraction du schéma.
+                </p>
+                <div id="sol-31" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE PROCEDURE GetClients<br>
+                    AS<br>
+                    SELECT * FROM Clients;<br>
+                    GO;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-teal-500 transition-all shadow-lg" data-cat="prog">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-teal-900 text-teal-300 text-xs px-2 py-1 rounded font-mono">32 - PROC</span>
+                    <button onclick="toggleSol('sol-32')" class="text-slate-400 hover:text-white"><i id="icon-sol-32" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Recherche Backend</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-teal-400">Contexte :</strong> Le moteur de recherche du site envoie le nom de la ville.<br>
+                    <strong class="text-white">Objectif :</strong> Créez une procédure avec un paramètre d'entrée <code>@ville</code>.<br>
+                    <strong class="text-slate-500">Syntaxe :</strong> <code>CREATE PROCEDURE ... (@p type)</code>.
+                </p>
+                <div id="sol-32" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE PROCEDURE GetClientByCity (@ville VARCHAR(50))<br>
+                    AS<br>
+                    SELECT * FROM Clients WHERE ville = @ville;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-teal-500 transition-all shadow-lg" data-cat="prog">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-teal-900 text-teal-300 text-xs px-2 py-1 rounded font-mono">33 - FUNC</span>
+                    <button onclick="toggleSol('sol-33')" class="text-slate-400 hover:text-white"><i id="icon-sol-33" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Logique Métier Partagée</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-teal-400">Contexte :</strong> Le calcul de la TVA change souvent. Il doit être centralisé.<br>
+                    <strong class="text-white">Objectif :</strong> Créez une fonction scalaire qui prend un montant et retourne le montant * 1.20.<br>
+                    <strong class="text-slate-500">Retour :</strong> Un décimal.
+                </p>
+                <div id="sol-33" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE FUNCTION CalculTVA (@prix DECIMAL)<br>
+                    RETURNS DECIMAL<br>
+                    AS BEGIN<br>
+                    RETURN @prix * 1.20<br>
+                    END;
+                </div>
+            </div>
+
+             <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-teal-500 transition-all shadow-lg" data-cat="prog">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-teal-900 text-teal-300 text-xs px-2 py-1 rounded font-mono">34 - PROC</span>
+                    <button onclick="toggleSol('sol-34')" class="text-slate-400 hover:text-white"><i id="icon-sol-34" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">KPI Dashboard</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-teal-400">Contexte :</strong> Le tableau de bord a besoin du nombre total de clients pour un widget.<br>
+                    <strong class="text-white">Objectif :</strong> Utilisez un paramètre de sortie <code>OUTPUT</code>.<br>
+                    <strong class="text-slate-500">Action :</strong> Renvoyez le COUNT(*) dans @total.
+                </p>
+                <div id="sol-34" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE PROCEDURE CountClients (@total INT OUTPUT)<br>
+                    AS<br>
+                    SELECT @total = COUNT(*) FROM Clients;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-teal-500 transition-all shadow-lg" data-cat="prog">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-teal-900 text-teal-300 text-xs px-2 py-1 rounded font-mono">35 - FUNC</span>
+                    <button onclick="toggleSol('sol-35')" class="text-slate-400 hover:text-white"><i id="icon-sol-35" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Utilisation de Fonction</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-teal-400">Contexte :</strong> Génération du catalogue avec prix TTC.<br>
+                    <strong class="text-white">Objectif :</strong> Appelez votre fonction `CalculTVA` à l'intérieur d'un SELECT.<br>
+                    <strong class="text-slate-500">Note :</strong> N'oubliez pas le schéma (dbo.).
+                </p>
+                <div id="sol-35" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT nom, dbo.CalculTVA(prix) as PrixTTC<br>
+                    FROM Produits;
+                </div>
+            </div>
+
+
+            <!-- ================= ADMIN: TRANS & TRIG (36-40) ================= -->
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-orange-500 transition-all shadow-lg" data-cat="admin">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-orange-900 text-orange-300 text-xs px-2 py-1 rounded font-mono">36 - TRANS</span>
+                    <button onclick="toggleSol('sol-36')" class="text-slate-400 hover:text-white"><i id="icon-sol-36" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Virement Bancaire</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-orange-400">Contexte :</strong> Débit du compte A, Crédit du compte B. Si l'un échoue, tout doit échouer.<br>
+                    <strong class="text-white">Objectif :</strong> Enveloppez deux INSERTs/UPDATEs dans une transaction.<br>
+                    <strong class="text-slate-500">Instruction :</strong> <code>BEGIN ... COMMIT</code>.
+                </p>
+                <div id="sol-36" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    BEGIN TRANSACTION;<br>
+                    INSERT INTO A VALUES (1);<br>
+                    INSERT INTO B VALUES (2);<br>
+                    COMMIT;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-orange-500 transition-all shadow-lg" data-cat="admin">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-orange-900 text-orange-300 text-xs px-2 py-1 rounded font-mono">37 - TRANS</span>
+                    <button onclick="toggleSol('sol-37')" class="text-slate-400 hover:text-white"><i id="icon-sol-37" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Filet de Sécurité</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-orange-400">Contexte :</strong> Un script d'import massif est risqué.<br>
+                    <strong class="text-white">Objectif :</strong> Si une erreur survient, annulez toutes les modifications en cours.<br>
+                    <strong class="text-slate-500">Mécanisme :</strong> TRY / CATCH avec <code>ROLLBACK</code>.
+                </p>
+                <div id="sol-37" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    BEGIN TRY<br>
+                    &nbsp;&nbsp;BEGIN TRANSACTION<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;-- SQL Dangereux<br>
+                    &nbsp;&nbsp;COMMIT<br>
+                    END TRY<br>
+                    BEGIN CATCH<br>
+                    &nbsp;&nbsp;ROLLBACK<br>
+                    END CATCH
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-orange-500 transition-all shadow-lg" data-cat="admin">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-orange-900 text-orange-300 text-xs px-2 py-1 rounded font-mono">38 - TRIG</span>
+                    <button onclick="toggleSol('sol-38')" class="text-slate-400 hover:text-white"><i id="icon-sol-38" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Traçabilité (Audit)</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-orange-400">Contexte :</strong> Conformité légale. Nous devons savoir quand un utilisateur est créé.<br>
+                    <strong class="text-white">Objectif :</strong> Créez un Trigger qui insère une ligne dans `Logs` après insertion dans `Users`.<br>
+                    <strong class="text-slate-500">Type :</strong> <code>AFTER INSERT</code>.
+                </p>
+                <div id="sol-38" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE TRIGGER trg_UserAudit<br>
+                    ON Users AFTER INSERT<br>
+                    AS<br>
+                    INSERT INTO Logs (msg) VALUES ('Nouvel user créé');
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-orange-500 transition-all shadow-lg" data-cat="admin">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-orange-900 text-orange-300 text-xs px-2 py-1 rounded font-mono">39 - TRIG</span>
+                    <button onclick="toggleSol('sol-39')" class="text-slate-400 hover:text-white"><i id="icon-sol-39" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Verrouillage de Table</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-orange-400">Contexte :</strong> La table `Critical_Data` ne doit JAMAIS perdre de lignes.<br>
+                    <strong class="text-white">Objectif :</strong> Interceptez l'ordre de suppression et ne faites rien (ou affichez une erreur).<br>
+                    <strong class="text-slate-500">Type :</strong> <code>INSTEAD OF DELETE</code>.
+                </p>
+                <div id="sol-39" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE TRIGGER trg_NoDelete<br>
+                    ON Critical_Data INSTEAD OF DELETE<br>
+                    AS<br>
+                    PRINT 'Suppression interdite !';
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-orange-500 transition-all shadow-lg" data-cat="admin">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-orange-900 text-orange-300 text-xs px-2 py-1 rounded font-mono">40 - TRIG</span>
+                    <button onclick="toggleSol('sol-40')" class="text-slate-400 hover:text-white"><i id="icon-sol-40" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Historisation des Prix</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-orange-400">Contexte :</strong> Analyse de l'inflation. Avant qu'un prix change, sauvegardez l'ancien.<br>
+                    <strong class="text-white">Objectif :</strong> Trigger sur UPDATE qui lit la pseudotable <code>DELETED</code>.<br>
+                    <strong class="text-slate-500">Note :</strong> <code>DELETED</code> contient l'état avant modif.
+                </p>
+                <div id="sol-40" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE TRIGGER trg_History<br>
+                    ON Produits AFTER UPDATE<br>
+                    AS<br>
+                    INSERT INTO History (old_price)<br>
+                    SELECT prix FROM DELETED;
+                </div>
+            </div>
+
+            <!-- ================= EXPERT (41-50) ================= -->
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">41 - VIEW</span>
+                    <button onclick="toggleSol('sol-41')" class="text-slate-400 hover:text-white"><i id="icon-sol-41" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Vue Simplifiée</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> Donnez un accès aux stagiaires sans exposer les salaires.<br>
+                    <strong class="text-white">Objectif :</strong> Créez une vue <code>V_Employes_Public</code> sans la colonne salaire.<br>
+                    <strong class="text-slate-500">Code :</strong> CREATE VIEW...
+                </p>
+                <div id="sol-41" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE VIEW V_Employes_Public AS<br>
+                    SELECT id, nom, poste FROM Employes;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">42 - INDEX</span>
+                    <button onclick="toggleSol('sol-42')" class="text-slate-400 hover:text-white"><i id="icon-sol-42" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Optimisation de Recherche</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> La recherche par email est lente sur 1M d'utilisateurs.<br>
+                    <strong class="text-white">Objectif :</strong> Créez un index sur la colonne <code>email</code> de la table <code>Users</code>.<br>
+                    <strong class="text-slate-500">But :</strong> Accélérer les SELECT WHERE email = ...
+                </p>
+                <div id="sol-42" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    CREATE INDEX idx_user_email<br>
+                    ON Users (email);
+                </div>
+            </div>
+
+             <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">43 - CTE</span>
+                    <button onclick="toggleSol('sol-43')" class="text-slate-400 hover:text-white"><i id="icon-sol-43" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Requête Lisiable (CTE)</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> Une sous-requête complexe rend le code illisible.<br>
+                    <strong class="text-white">Objectif :</strong> Refactorisez avec <code>WITH</code> (Common Table Expression).<br>
+                    <strong class="text-slate-500">Exemple :</strong> Définissez 'BigOrders' puis sélectionnez dedans.
+                </p>
+                <div id="sol-43" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    WITH BigOrders AS (<br>
+                    &nbsp;&nbsp;SELECT * FROM Commandes WHERE total > 1000<br>
+                    )<br>
+                    SELECT * FROM BigOrders;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">44 - RANK</span>
+                    <button onclick="toggleSol('sol-44')" class="text-slate-400 hover:text-white"><i id="icon-sol-44" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Classement (Window Func)</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> Donnez un rang à chaque vendeur selon ses ventes.<br>
+                    <strong class="text-white">Objectif :</strong> Utilisez <code>RANK() OVER (ORDER BY ventes DESC)</code>.<br>
+                    <strong class="text-slate-500">Résultat :</strong> 1, 2, 3...
+                </p>
+                <div id="sol-44" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT nom, ventes,<br>
+                    RANK() OVER (ORDER BY ventes DESC) as classement<br>
+                    FROM Vendeurs;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">45 - SUM</span>
+                    <button onclick="toggleSol('sol-45')" class="text-slate-400 hover:text-white"><i id="icon-sol-45" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Cumul Progressif</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> Afficher l'évolution du CA jour après jour (Running Total).<br>
+                    <strong class="text-white">Objectif :</strong> <code>SUM(montant) OVER (ORDER BY date)</code>.<br>
+                    <strong class="text-slate-500">Concept :</strong> Fenêtrage cumulatif.
+                </p>
+                <div id="sol-45" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT date, montant,<br>
+                    SUM(montant) OVER (ORDER BY date) as cumul<br>
+                    FROM Ventes;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">46 - JSON</span>
+                    <button onclick="toggleSol('sol-46')" class="text-slate-400 hover:text-white"><i id="icon-sol-46" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Extraction JSON</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> Les configs utilisateurs sont stockées en JSON brutes.<br>
+                    <strong class="text-white">Objectif :</strong> Extraire la clé 'theme' de la colonne <code>preferences</code>.<br>
+                    <strong class="text-slate-500">PostgreSQL :</strong> <code>col->>'key'</code>.
+                </p>
+                <div id="sol-46" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    -- PostgreSQL<br>
+                    SELECT preferences->>'theme' as theme<br>
+                    FROM Users;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">47 - CONCAT</span>
+                    <button onclick="toggleSol('sol-47')" class="text-slate-400 hover:text-white"><i id="icon-sol-47" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Concaténation Avancée</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> Générer un nom complet lisible pour l'export CSV.<br>
+                    <strong class="text-white">Objectif :</strong> "NOM Prénom" (Nom en majuscule).<br>
+                    <strong class="text-slate-500">Fonctions :</strong> <code>UPPER()</code> et <code>CONCAT()</code> (ou ||).
+                </p>
+                <div id="sol-47" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT CONCAT(UPPER(nom), ' ', prenom)<br>
+                    FROM Employes;
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">48 - UPSERT</span>
+                    <button onclick="toggleSol('sol-48')" class="text-slate-400 hover:text-white"><i id="icon-sol-48" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Merge / Upsert</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> Synchro nocturne. Si le user existe, update, sinon insert.<br>
+                    <strong class="text-white">Objectif :</strong> Syntaxe "ON CONFLICT" (PG) ou "ON DUPLICATE KEY" (MySQL).<br>
+                    <strong class="text-slate-500">Cas :</strong> Sauvegarde de profil.
+                </p>
+                <div id="sol-48" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    -- PostgreSQL<br>
+                    INSERT INTO Users (id, nom) VALUES (1, 'Bob')<br>
+                    ON CONFLICT (id) DO UPDATE SET nom = 'Bob';
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">49 - EXIST</span>
+                    <button onclick="toggleSol('sol-49')" class="text-slate-400 hover:text-white"><i id="icon-sol-49" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Check Existence</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> Vérifier si une catégorie est vide avant de la supprimer.<br>
+                    <strong class="text-white">Objectif :</strong> Renvoyez Vrai si la sous-requête renvoie des lignes.<br>
+                    <strong class="text-slate-500">Opérateur :</strong> <code>EXISTS (...)</code> est souvent plus rapide que COUNT > 0.
+                </p>
+                <div id="sol-49" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    SELECT * FROM Categories C<br>
+                    WHERE NOT EXISTS (<br>
+                    &nbsp;&nbsp;SELECT 1 FROM Produits P WHERE P.cat_id = C.id<br>
+                    );
+                </div>
+            </div>
+
+            <div class="exo-item bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-pink-500 transition-all shadow-lg" data-cat="expert">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-pink-900 text-pink-300 text-xs px-2 py-1 rounded font-mono">50 - OPTIM</span>
+                    <button onclick="toggleSol('sol-50')" class="text-slate-400 hover:text-white"><i id="icon-sol-50" class="fas fa-eye"></i></button>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Plan d'Exécution</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                    <strong class="text-pink-400">Contexte :</strong> Une requête est lente. Pourquoi ?<br>
+                    <strong class="text-white">Objectif :</strong> Affichez comment le moteur SQL exécute la requête (Index Scan vs Seq Scan).<br>
+                    <strong class="text-slate-500">Commande :</strong> <code>EXPLAIN ANALYZE</code> (PG) ou <code>EXPLAIN</code> (MySQL).
+                </p>
+                <div id="sol-50" class="hidden bg-black p-3 rounded font-mono text-sm text-green-400 border-l-4 border-green-600">
+                    EXPLAIN SELECT * FROM Users WHERE email = 'x';
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-12 p-8 bg-slate-800/50 rounded-xl border border-slate-700 text-center">
+            <h3 class="text-2xl font-bold mb-4">🏆 Félicitations !</h3>
+            <p class="text-slate-400 mb-6">Vous avez accès à une banque complète de 50 exercices, du niveau débutant à expert. Chaque exercice complété vous rapporte <strong class="text-blue-400">5 XP</strong>.</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="../index.html" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-colors">
+                    <i class="fas fa-home mr-2"></i>Tableau de Bord
+                </a>
+                <a href="../modules/cartes.html" class="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg transition-colors">
+                    <i class="fas fa-clone mr-2"></i>Flashcards
+                </a>
+                <a href="../simulateur-examen.html" class="px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors">
+                    <i class="fas fa-graduation-cap mr-2"></i>Examen Blanc
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

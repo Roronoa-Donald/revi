@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 4 — DNS & DHCP | RD WinServer</title>
+    <meta name="description" content="Services réseau essentiels : DNS (résolution de noms, zones, enregistrements) et DHCP (allocation dynamique d'IP) sur Windows Server 2022.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre3.html">← Module 3</a></li>
+                <li><a href="chapitre4.html" class="active">Module 4</a></li>
+                <li><a href="chapitre5.html">Module 5 →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="chapitre4.html" class="active"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-network-wired"></i> Module 4</span>
+        <h1 class="hero-title">DNS & <span class="gradient-text">DHCP</span></h1>
+        <p class="hero-description">« Pourquoi quand je tape google.com ça marche, mais pas quand je tape 142.250.179.78 ? » Blaise découvre les deux services réseau qui font tourner le monde silencieusement.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <!-- DNS -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-globe" style="color:var(--accent)"></i> DNS — Le Traducteur Universel</h2>
+            <p>Le <strong>Domain Name System (DNS)</strong> traduit les noms de domaine en adresses IP. Sans DNS, tu devrais mémoriser des adresses IP pour chaque site et chaque serveur.</p>
+
+            <div class="analogy-box">
+                DNS, c'est l'<strong>annuaire téléphonique</strong> d'Internet. Tu cherches « Papa » (nom) → l'annuaire te donne 06 12 34 56 78 (IP). Tu n'as pas besoin de mémoriser le numéro, juste le nom.
+            </div>
+
+            <h3>Pourquoi DNS est vital pour AD</h3>
+            <p>Active Directory <strong>ne peut pas fonctionner sans DNS</strong>. Chaque fois qu'un PC joint le domaine ou qu'un utilisateur se connecte, le système interroge le DNS pour localiser le contrôleur de domaine.</p>
+
+            <div class="danger-box">
+                <strong>🚨 Si le DNS tombe :</strong> Plus d'authentification AD, plus de résolution de noms, plus d'accès aux partages réseau. Le DNS est le talon d'Achille du réseau. Protège-le !
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-layer-group" style="color:var(--accent)"></i> Les Zones DNS</h2>
+
+            <h3>Zone de recherche directe (Forward Lookup Zone)</h3>
+            <p>Traduit un <strong>nom → IP</strong>. C'est la zone la plus utilisée.</p>
+            <pre class="code-block"><code><span class="string">srv-dc01.entreprise.local</span>  →  <span class="num">192.168.1.10</span></code></pre>
+
+            <h3>Zone de recherche inversée (Reverse Lookup Zone)</h3>
+            <p>Traduit une <strong>IP → nom</strong>. Utile pour le diagnostic.</p>
+            <pre class="code-block"><code><span class="num">192.168.1.10</span>  →  <span class="string">srv-dc01.entreprise.local</span></code></pre>
+
+            <h3>Types de zones</h3>
+            <table class="styled-table">
+                <thead><tr><th>Type</th><th>Stockage</th><th>Modification</th><th>Usage</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Primaire</strong></td><td>Fichier local ou AD</td><td>Lecture/écriture</td><td>Zone principale</td></tr>
+                    <tr><td><strong>Secondaire</strong></td><td>Copie d'une primaire</td><td>Lecture seule</td><td>Redondance</td></tr>
+                    <tr><td><strong>Stub</strong></td><td>Référence vers NS</td><td>Lecture seule</td><td>Délégation</td></tr>
+                    <tr><td><strong>Intégrée AD</strong></td><td>Base AD</td><td>Multi-maître</td><td>Recommandé !</td></tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <strong>✅ Bonne pratique :</strong> Utilise des zones <strong>intégrées à Active Directory</strong>. Les enregistrements se répliquent automatiquement entre les DC — pas besoin de transferts de zone manuels.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-list" style="color:var(--accent)"></i> Les Enregistrements DNS</h2>
+
+            <table class="styled-table">
+                <thead><tr><th>Type</th><th>Signification</th><th>Exemple</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>A</strong></td><td>Nom → IPv4</td><td><code>srv-dc01 → 192.168.1.10</code></td></tr>
+                    <tr><td><strong>AAAA</strong></td><td>Nom → IPv6</td><td><code>srv-dc01 → fe80::1</code></td></tr>
+                    <tr><td><strong>CNAME</strong></td><td>Alias (pointe vers un autre nom)</td><td><code>mail → srv-exchange01</code></td></tr>
+                    <tr><td><strong>MX</strong></td><td>Serveur mail du domaine</td><td><code>entreprise.local → srv-mail (priorité 10)</code></td></tr>
+                    <tr><td><strong>NS</strong></td><td>Serveur DNS autoritaire</td><td><code>entreprise.local → srv-dc01</code></td></tr>
+                    <tr><td><strong>SOA</strong></td><td>Start of Authority (infos de la zone)</td><td>Serial, refresh, retry, expire</td></tr>
+                    <tr><td><strong>PTR</strong></td><td>IP → Nom (zone inverse)</td><td><code>10 → srv-dc01.entreprise.local</code></td></tr>
+                    <tr><td><strong>SRV</strong></td><td>Service + port</td><td><code>_ldap._tcp → srv-dc01:389</code></td></tr>
+                </tbody>
+            </table>
+
+            <h3>Commandes DNS PowerShell</h3>
+            <pre class="code-block"><code><span class="comment"># Installer le rôle DNS</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">DNS</span> <span class="flag">-IncludeManagementTools</span>
+
+<span class="comment"># Créer une zone directe</span>
+<span class="cmd">Add-DnsServerPrimaryZone</span> <span class="flag">-Name</span> <span class="string">"entreprise.local"</span> <span class="flag">-ReplicationScope</span> <span class="string">"Forest"</span>
+
+<span class="comment"># Ajouter un enregistrement A</span>
+<span class="cmd">Add-DnsServerResourceRecordA</span> <span class="flag">-ZoneName</span> <span class="string">"entreprise.local"</span> `
+    <span class="flag">-Name</span> <span class="string">"srv-files"</span> <span class="flag">-IPv4Address</span> <span class="num">192.168.1.20</span>
+
+<span class="comment"># Ajouter un CNAME</span>
+<span class="cmd">Add-DnsServerResourceRecordCName</span> <span class="flag">-ZoneName</span> <span class="string">"entreprise.local"</span> `
+    <span class="flag">-Name</span> <span class="string">"intranet"</span> <span class="flag">-HostNameAlias</span> <span class="string">"srv-web01.entreprise.local"</span>
+
+<span class="comment"># Diagnostiquer</span>
+<span class="cmd">nslookup</span> <span class="string">srv-dc01.entreprise.local</span>
+<span class="cmd">Resolve-DnsName</span> <span class="flag">-Name</span> <span class="string">"srv-dc01"</span> <span class="flag">-Type</span> <span class="string">A</span>
+<span class="cmd">Get-DnsServerResourceRecord</span> <span class="flag">-ZoneName</span> <span class="string">"entreprise.local"</span></code></pre>
+        </article>
+
+        <!-- DHCP -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-network-wired" style="color:var(--accent)"></i> DHCP — L'Attributeur d'Adresses</h2>
+            <p>Le <strong>Dynamic Host Configuration Protocol (DHCP)</strong> distribue automatiquement les adresses IP aux appareils qui se connectent au réseau.</p>
+
+            <div class="analogy-box">
+                DHCP, c'est le <strong>réceptionniste d'un hôtel</strong>. Quand un client arrive (un PC se connecte), le réceptionniste lui attribue une chambre (IP) avec une durée de séjour (bail). Quand le client part, la chambre redevient disponible.
+            </div>
+
+            <h3>Ce que DHCP distribue</h3>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;">
+                <li><strong>Adresse IP</strong> — depuis une plage configurée (étendue/scope)</li>
+                <li><strong>Masque de sous-réseau</strong> — pour délimiter le réseau</li>
+                <li><strong>Passerelle par défaut</strong> — pour sortir du réseau local</li>
+                <li><strong>Serveur DNS</strong> — pour la résolution de noms</li>
+                <li><strong>Suffixe DNS</strong> — <code>entreprise.local</code></li>
+                <li><strong>Durée du bail</strong> — combien de temps l'IP est réservée</li>
+            </ul>
+
+            <h3>Le processus DORA</h3>
+            <table class="styled-table">
+                <thead><tr><th>Étape</th><th>Message</th><th>Qui → Qui</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>D</strong></td><td>Discover</td><td>Client → Broadcast</td><td>« Y'a un serveur DHCP ici ? »</td></tr>
+                    <tr><td><strong>O</strong></td><td>Offer</td><td>Serveur → Client</td><td>« Oui ! Voici une IP disponible »</td></tr>
+                    <tr><td><strong>R</strong></td><td>Request</td><td>Client → Serveur</td><td>« OK, je prends cette IP »</td></tr>
+                    <tr><td><strong>A</strong></td><td>Acknowledge</td><td>Serveur → Client</td><td>« C'est noté ! Elle est à toi »</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-sliders" style="color:var(--accent)"></i> Configurer DHCP</h2>
+
+            <h3>Installer et configurer via PowerShell</h3>
+            <pre class="code-block"><code><span class="comment"># Installer le rôle DHCP</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">DHCP</span> <span class="flag">-IncludeManagementTools</span>
+
+<span class="comment"># Autoriser le serveur DHCP dans AD</span>
+<span class="cmd">Add-DhcpServerInDC</span> <span class="flag">-DnsName</span> <span class="string">"srv-dc01.entreprise.local"</span>
+
+<span class="comment"># Créer une étendue (scope)</span>
+<span class="cmd">Add-DhcpServerv4Scope</span> <span class="flag">-Name</span> <span class="string">"LAN Principal"</span> `
+    <span class="flag">-StartRange</span> <span class="num">192.168.1.100</span> `
+    <span class="flag">-EndRange</span> <span class="num">192.168.1.200</span> `
+    <span class="flag">-SubnetMask</span> <span class="num">255.255.255.0</span> `
+    <span class="flag">-LeaseDuration</span> <span class="num">8.00:00:00</span>   <span class="comment"># 8 jours</span>
+
+<span class="comment"># Options du scope : passerelle</span>
+<span class="cmd">Set-DhcpServerv4OptionValue</span> <span class="flag">-ScopeId</span> <span class="num">192.168.1.0</span> `
+    <span class="flag">-Router</span> <span class="num">192.168.1.1</span>
+
+<span class="comment"># Options du scope : DNS</span>
+<span class="cmd">Set-DhcpServerv4OptionValue</span> <span class="flag">-ScopeId</span> <span class="num">192.168.1.0</span> `
+    <span class="flag">-DnsServer</span> <span class="num">192.168.1.10</span> `
+    <span class="flag">-DnsDomain</span> <span class="string">"entreprise.local"</span>
+
+<span class="comment"># Réservation (IP fixe pour une machine spécifique)</span>
+<span class="cmd">Add-DhcpServerv4Reservation</span> <span class="flag">-ScopeId</span> <span class="num">192.168.1.0</span> `
+    <span class="flag">-IPAddress</span> <span class="num">192.168.1.50</span> `
+    <span class="flag">-ClientId</span> <span class="string">"AA-BB-CC-DD-EE-FF"</span> `
+    <span class="flag">-Description</span> <span class="string">"Imprimante Compta"</span></code></pre>
+
+            <h3>Exclusions</h3>
+            <p>Les adresses à ne <strong>jamais</strong> distribuer (serveurs, routeurs…) :</p>
+            <pre class="code-block"><code><span class="cmd">Add-DhcpServerv4ExclusionRange</span> <span class="flag">-ScopeId</span> <span class="num">192.168.1.0</span> `
+    <span class="flag">-StartRange</span> <span class="num">192.168.1.1</span> <span class="flag">-EndRange</span> <span class="num">192.168.1.20</span></code></pre>
+
+            <div class="info-box">
+                <strong>💡 Bonne pratique :</strong> Réserve toujours une plage pour les IP statiques (serveurs, imprimantes). Ex : <code>.1–.20</code> = statique, <code>.100–.200</code> = DHCP.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-stethoscope" style="color:var(--accent)"></i> Diagnostic DNS & DHCP</h2>
+
+            <pre class="code-block"><code><span class="comment"># ── DNS ──</span>
+<span class="cmd">nslookup</span> <span class="string">entreprise.local</span>             <span class="comment"># Résolution simple</span>
+<span class="cmd">nslookup</span> <span class="flag">-type=MX</span> <span class="string">entreprise.local</span>   <span class="comment"># Enregistrement MX</span>
+<span class="cmd">Resolve-DnsName</span> <span class="string">"srv-dc01"</span>              <span class="comment"># PowerShell natif</span>
+<span class="cmd">Clear-DnsClientCache</span>                    <span class="comment"># Vider le cache DNS local</span>
+<span class="cmd">ipconfig</span> <span class="flag">/flushdns</span>                     <span class="comment"># Alternative classique</span>
+<span class="cmd">dcdiag</span> <span class="flag">/test:dns</span>                       <span class="comment"># Test DNS pour AD</span>
+
+<span class="comment"># ── DHCP ──</span>
+<span class="cmd">Get-DhcpServerv4Scope</span>                   <span class="comment"># Voir les étendues</span>
+<span class="cmd">Get-DhcpServerv4Lease</span> <span class="flag">-ScopeId</span> <span class="num">192.168.1.0</span>  <span class="comment"># Bails actifs</span>
+<span class="cmd">ipconfig</span> <span class="flag">/release</span>                     <span class="comment"># Libérer l'IP (client)</span>
+<span class="cmd">ipconfig</span> <span class="flag">/renew</span>                       <span class="comment"># Renouveler l'IP (client)</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" style="border-left:3px solid var(--accent);">
+            <h2><i class="fas fa-clipboard-check" style="color:var(--accent)"></i> Résumé du Module</h2>
+            <ul style="margin:0.5rem 0 0 1.5rem;line-height:2;">
+                <li><strong>DNS</strong> traduit les noms en IP — indispensable pour AD</li>
+                <li>Zones : <strong>directe</strong> (nom→IP), <strong>inversée</strong> (IP→nom), <strong>intégrée AD</strong> recommandée</li>
+                <li>Enregistrements clés : <strong>A, AAAA, CNAME, MX, NS, SRV, PTR</strong></li>
+                <li><strong>DHCP</strong> distribue automatiquement les IP via le processus <strong>DORA</strong></li>
+                <li>Configurer : étendue (scope), options, exclusions, réservations</li>
+                <li>Toujours <strong>autoriser DHCP dans AD</strong> pour éviter les serveurs DHCP non autorisés</li>
+                <li>Diagnostic : <code>nslookup</code>, <code>Resolve-DnsName</code>, <code>ipconfig /flushdns</code></li>
+            </ul>
+        </article>
+
+        <div id="interactive-exercises"></div>
+
+        <div class="chapter-nav">
+            <a href="chapitre3.html"><i class="fas fa-arrow-left"></i> Module 3 — GPO</a>
+            <a href="chapitre5.html">Module 5 — Sauvegarde <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

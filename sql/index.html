@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RD-SQL : Zero to Hero — Cours Interactif SQL Server</title>
+    <meta name="description" content="Apprenez SQL Server de zéro à expert avec 12 modules interactifs, 50+ exercices, simulateurs et un compagnon IA. Cours gratuit, gamifié et progressif.">
+    <meta name="keywords" content="SQL, SQL Server, cours, interactif, base de données, DDL, DML, SELECT, transactions, procédures, triggers">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="RD-SQL : Zero to Hero — Cours Interactif SQL Server">
+    <meta property="og:description" content="Maîtrisez SQL Server avec 12 modules interactifs, un simulateur d'examen et un compagnon virtuel DataBot.">
+    <meta property="og:url" content="https://rd-sql.dev">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="RD-SQL : Zero to Hero">
+    <meta name="twitter:description" content="Cours interactif SQL Server gratuit. 12 modules, 50+ exercices, simulateurs.">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="min-h-screen flex flex-col bg-slate-900">
+
+    <!-- Skip to content (accessibility) -->
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-container" role="progressbar" aria-label="Progression de lecture">
+        <div class="progress-bar-fill"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50" aria-label="Navigation principale">
+        <div class="container mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3">
+                <i class="fas fa-database text-blue-500 text-2xl"></i>
+                <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">RD-SQL</span>
+            </a>
+            <div class="desktop-nav-links flex items-center gap-6">
+                <a href="#modules" class="text-slate-300 hover:text-white text-sm font-medium transition-colors">
+                    <i class="fas fa-th-large mr-1"></i> Modules
+                </a>
+                <a href="modules/formules.html" class="text-slate-300 hover:text-white text-sm font-medium transition-colors">
+                    <i class="fas fa-scroll mr-1"></i> Formules
+                </a>
+                <a href="exercices/exercices.html" class="text-slate-300 hover:text-white text-sm font-medium transition-colors">
+                    <i class="fas fa-dumbbell mr-1"></i> Exercices
+                </a>
+                <a href="modules/cartes.html" class="text-slate-300 hover:text-white text-sm font-medium transition-colors">
+                    <i class="fas fa-clone mr-1"></i> Flashcards
+                </a>
+                <a href="simulateur-examen.html" class="text-slate-300 hover:text-white text-sm font-medium transition-colors">
+                    <i class="fas fa-trophy mr-1"></i> Examen
+                </a>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <div class="flex items-center gap-3">
+                    <div class="text-xs text-slate-400"><span class="text-white font-bold" id="user-level">Novice</span></div>
+                    <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500" style="width:5%" id="global-progress"></div>
+                    </div>
+                </div>
+                <button class="theme-toggle" title="Changer le thème">
+                    <i id="theme-icon" class="fas fa-sun"></i>
+                </button>
+            </div>
+            <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div id="mobile-nav-overlay" class="mobile-nav-overlay"></div>
+    <div id="mobile-nav-panel" class="mobile-nav-panel">
+        <div class="flex justify-between items-center mb-8">
+            <span class="text-lg font-bold text-white">Menu</span>
+            <button onclick="document.getElementById('mobile-nav-panel').classList.remove('active');document.getElementById('mobile-nav-overlay').classList.remove('active');document.body.style.overflow='';" class="text-slate-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <a href="#modules" class="block py-2 text-slate-300 hover:text-white font-medium"><i class="fas fa-th-large mr-3 w-5"></i> Modules</a>
+            <a href="modules/formules.html" class="block py-2 text-slate-300 hover:text-white font-medium"><i class="fas fa-scroll mr-3 w-5"></i> Formules</a>
+            <a href="exercices/exercices.html" class="block py-2 text-slate-300 hover:text-white font-medium"><i class="fas fa-dumbbell mr-3 w-5"></i> Exercices</a>
+            <a href="modules/cartes.html" class="block py-2 text-slate-300 hover:text-white font-medium"><i class="fas fa-clone mr-3 w-5"></i> Flashcards</a>
+            <a href="simulateur-examen.html" class="block py-2 text-slate-300 hover:text-white font-medium"><i class="fas fa-trophy mr-3 w-5"></i> Examen</a>
+            <hr class="border-slate-700 my-4">
+            <div class="text-sm text-slate-400">
+                Niveau: <span class="text-white font-bold" id="mobile-user-level">Novice</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="relative pt-24 pb-24 text-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute top-20 left-[10%] text-6xl opacity-5 hero-float-1 text-blue-400">SELECT</div>
+            <div class="absolute top-40 right-[15%] text-4xl opacity-5 hero-float-2 text-purple-400">JOIN</div>
+            <div class="absolute bottom-20 left-[20%] text-5xl opacity-5 hero-float-3 text-emerald-400">WHERE</div>
+            <div class="absolute top-16 right-[30%] text-3xl opacity-5 hero-float-1 text-amber-400" style="animation-delay:1s">INSERT</div>
+            <div class="absolute bottom-32 right-[10%] text-4xl opacity-5 hero-float-2 text-pink-400" style="animation-delay:2s">COMMIT</div>
+        </div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold px-4 py-1.5 rounded-full mb-6">
+                <i class="fas fa-bolt"></i> MODULE PREMIUM V2.0
+            </div>
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 glow-text leading-tight">
+                SQL Server <br>
+                <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Zero to Hero</span>
+            </h1>
+            <p class="text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Maîtrisez les bases de données relationnelles. De la simple requête <code class="text-blue-400">SELECT</code> 
+                aux Transactions complexes et Triggers. Apprentissage interactif, simulé et gamifié.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <a href="#modules" class="btn-primary px-8 py-3 rounded-full font-bold text-white inline-flex items-center gap-2">
+                    Commencer l'Aventure <i class="fas fa-arrow-down"></i>
+                </a>
+                <a href="modules/formules.html" class="btn-outline px-8 py-3 rounded-full font-bold inline-flex items-center gap-2">
+                    <i class="fas fa-scroll"></i> Cheat Sheet
+                </a>
+            </div>
+            <!-- Hero Stats -->
+            <div class="flex flex-wrap justify-center gap-8 md:gap-16">
+                <div class="text-center">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Modules</div>
+                </div>
+                <div class="text-center">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Exercices</div>
+                </div>
+                <div class="text-center">
+                    <div class="stat-number" id="completed-count">0</div>
+                    <div class="stat-label">Complétés</div>
+                </div>
+                <div class="text-center">
+                    <div class="stat-number">&infin;</div>
+                    <div class="stat-label">Requêtes</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="py-20 border-t border-slate-800">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <span class="badge badge-blue mb-3"><i class="fas fa-star mr-1"></i> FONCTIONNALITÉS</span>
+                <h2 class="text-3xl font-bold text-white mb-3">Pourquoi ce cours est différent</h2>
+                <p class="text-slate-400 max-w-xl mx-auto">Une approche pédagogique moderne combinant théorie rigoureuse et expérimentation interactive.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 stagger">
+                <div class="glass-card p-6 rounded-xl feature-card" data-animate>
+                    <div class="feature-icon-box bg-blue-500/10 text-blue-400 mb-4">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <h3 class="font-bold text-white mb-2">Simulateur SQL</h3>
+                    <p class="text-slate-400 text-sm">Exécutez du SQL directement dans le navigateur. SELECT, INSERT, UPDATE en temps réel.</p>
+                </div>
+                <div class="glass-card p-6 rounded-xl feature-card" data-animate data-delay="100">
+                    <div class="feature-icon-box bg-purple-500/10 text-purple-400 mb-4">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3 class="font-bold text-white mb-2">Progressif</h3>
+                    <p class="text-slate-400 text-sm">Du DDL aux Triggers, une progression douce en 12 modules structurés.</p>
+                </div>
+                <div class="glass-card p-6 rounded-xl feature-card" data-animate data-delay="200">
+                    <div class="feature-icon-box bg-emerald-500/10 text-emerald-400 mb-4">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="font-bold text-white mb-2">DataBot</h3>
+                    <p class="text-slate-400 text-sm">Votre compagnon IA vous guide, donne des tips et vous récompense avec de l'XP.</p>
+                </div>
+                <div class="glass-card p-6 rounded-xl feature-card" data-animate data-delay="300">
+                    <div class="feature-icon-box bg-amber-500/10 text-amber-400 mb-4">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="font-bold text-white mb-2">Certifiant</h3>
+                    <p class="text-slate-400 text-sm">Passez l'examen de certification en conditions réelles. Timer, score, revue.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modules Grid -->
+    <main id="main-content" class="container mx-auto px-4 py-16 flex-grow" role="main">
+        <div class="text-center mb-12">
+            <span class="badge badge-purple mb-3"><i class="fas fa-book mr-1"></i> PROGRAMME</span>
+            <h2 class="text-3xl font-bold mb-3">Parcours d'Apprentissage</h2>
+            <p class="text-slate-400 max-w-xl mx-auto">12 modules progressifs pour passer de débutant à expert SQL Server.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 stagger">
+            
+            <!-- Module 1 -->
+            <a href="modules/mod01-ddl.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-blue">MODULE 01</span>
+                    <span class="text-slate-600 text-xs font-mono">Fondamental</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">Introduction & DDL</h3>
+                <p class="text-slate-400 text-xs mb-3">Créer des bases et des tables. Comprendre les types de données.</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">CREATE</span>
+                    <span class="topic-tag">ALTER</span>
+                    <span class="topic-tag">DROP</span>
+                    <span class="topic-tag">Types</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-blue-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 2 -->
+            <a href="modules/mod02-constraints.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-blue">MODULE 02</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">Contraintes (PK/FK)</h3>
+                <p class="text-slate-400 text-xs mb-3">Lier les tables entre elles. Clés primaires et étrangères.</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">PRIMARY KEY</span>
+                    <span class="topic-tag">FOREIGN KEY</span>
+                    <span class="topic-tag">CHECK</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-blue-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 3 -->
+            <a href="modules/mod03-dml.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-blue">MODULE 03</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">DML Fondamental</h3>
+                <p class="text-slate-400 text-xs mb-3">INSERT, UPDATE, DELETE. Le cycle de vie de la donnée.</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">INSERT</span>
+                    <span class="topic-tag">UPDATE</span>
+                    <span class="topic-tag">DELETE</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-blue-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 4 -->
+            <a href="modules/mod04-select.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-blue">MODULE 04</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">SELECT Avancé</h3>
+                <p class="text-slate-400 text-xs mb-3">Filtres, Tris, Alias et CASE WHEN pour la logique conditionnelle.</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">WHERE</span>
+                    <span class="topic-tag">ORDER BY</span>
+                    <span class="topic-tag">CASE</span>
+                    <span class="topic-tag">LIKE</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-blue-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 5 -->
+            <a href="modules/mod05-calculations.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-purple">MODULE 05</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">Calculs & Agrégats</h3>
+                <p class="text-slate-400 text-xs mb-3">SUM, COUNT, AVG, GROUP BY, HAVING. Analyser vos données.</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">SUM</span>
+                    <span class="topic-tag">COUNT</span>
+                    <span class="topic-tag">GROUP BY</span>
+                    <span class="topic-tag">HAVING</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-purple-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 6 -->
+            <a href="modules/mod06-strings.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-purple">MODULE 06</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">Fonctions Texte</h3>
+                <p class="text-slate-400 text-xs mb-3">SUBSTRING, LEN, CONCAT, REPLACE. Nettoyer les données.</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">SUBSTRING</span>
+                    <span class="topic-tag">LEN</span>
+                    <span class="topic-tag">REPLACE</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-purple-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 7 -->
+            <a href="modules/mod07-dates-nulls.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-purple">MODULE 07</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">Dates & NULLs</h3>
+                <p class="text-slate-400 text-xs mb-3">GETDATE(), DATEDIFF() et gestion des valeurs nulles (ISNULL).</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">GETDATE</span>
+                    <span class="topic-tag">DATEDIFF</span>
+                    <span class="topic-tag">ISNULL</span>
+                    <span class="topic-tag">COALESCE</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-purple-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+             <!-- Module 8 -->
+            <a href="modules/mod08-logic.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-amber">MODULE 08</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">Logique de Contrôle</h3>
+                <p class="text-slate-400 text-xs mb-3">IF/ELSE, Variables, DECLARE, blocs BEGIN/END.</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">DECLARE</span>
+                    <span class="topic-tag">IF/ELSE</span>
+                    <span class="topic-tag">SET</span>
+                    <span class="topic-tag">BEGIN/END</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-amber-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 9 -->
+            <a href="modules/mod09-loops.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-amber">MODULE 09</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">Boucles (Loops)</h3>
+                <p class="text-slate-400 text-xs mb-3">WHILE, BREAK, CONTINUE et curseurs (quand les éviter).</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">WHILE</span>
+                    <span class="topic-tag">BREAK</span>
+                    <span class="topic-tag">CURSOR</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-amber-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 10 -->
+            <a href="modules/mod10-transactions.html" class="glass-card module-card p-6 rounded-xl block group relative animate-pulse-glow">
+                <div class="absolute top-3 right-3">
+                    <span class="badge badge-green"><i class="fas fa-flask mr-1"></i>SIMULATEUR</span>
+                </div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-red">MODULE 10</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-red-400 transition-colors">Transactions ACID</h3>
+                <p class="text-slate-400 text-xs mb-3">Isolation, Commit, Rollback. <strong>Visualiseur Interactif</strong>.</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">COMMIT</span>
+                    <span class="topic-tag">ROLLBACK</span>
+                    <span class="topic-tag">Isolation</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-red-400 font-bold group-hover:translate-x-1 transition-transform">Lancer le Labo <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 11 -->
+            <a href="modules/mod11-procedures.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-green">MODULE 11</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">Procédures Stockées</h3>
+                <p class="text-slate-400 text-xs mb-3">Encapsuler la logique. Création, paramètres et exécution.</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">CREATE PROC</span>
+                    <span class="topic-tag">EXEC</span>
+                    <span class="topic-tag">OUTPUT</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-emerald-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Module 12 -->
+            <a href="modules/mod12-triggers.html" class="glass-card module-card p-6 rounded-xl block group">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="badge badge-green">MODULE 12</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">Triggers (Déclencheurs)</h3>
+                <p class="text-slate-400 text-xs mb-3">Automatisation sur événements (AFTER INSERT, INSTEAD OF).</p>
+                <div class="flex flex-wrap gap-1 mb-4">
+                    <span class="topic-tag">AFTER</span>
+                    <span class="topic-tag">INSTEAD OF</span>
+                    <span class="topic-tag">inserted</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-500"><i class="fas fa-file-alt mr-1"></i>10 quiz</span>
+                    <span class="text-emerald-400 font-bold group-hover:translate-x-1 transition-transform">Démarrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <!-- CTA Section -->
+    <section class="py-20 border-t border-slate-800">
+        <div class="container mx-auto px-4">
+            <div class="glass-card-strong p-12 rounded-2xl text-center max-w-3xl mx-auto relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5"></div>
+                <div class="relative z-10">
+                    <i class="fas fa-trophy text-5xl text-amber-500 mb-6"></i>
+                    <h2 class="text-3xl font-bold text-white mb-4">Prêt pour le défi final ?</h2>
+                    <p class="text-slate-400 mb-8 max-w-lg mx-auto">
+                        Testez vos connaissances avec un examen de 20 questions en conditions réelles. Timer, score, revue détaillée.
+                    </p>
+                    <a href="simulateur-examen.html" class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white text-lg font-bold py-4 px-10 rounded-full shadow-2xl hover:scale-105 transition-transform">
+                        <i class="fas fa-trophy"></i> Lancer l'Examen de Certification
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-section">
+                <h4><i class="fas fa-database mr-2 text-blue-500"></i> RD-SQL</h4>
+                <p class="text-slate-400 text-sm">Un cours interactif pour maîtriser SQL Server, de l'initiation aux concepts avancés. Gamifié, illustré et progressif.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Accueil</a></li>
+                    <li><a href="modules/formules.html"><i class="fas fa-scroll"></i> Formules</a></li>
+                    <li><a href="exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a></li>
+                    <li><a href="modules/cartes.html"><i class="fas fa-clone"></i> Flashcards</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Ressources</h4>
+                <ul>
+                    <li><a href="modules/rappels.html"><i class="fas fa-book-open"></i> Prérequis</a></li>
+                    <li><a href="simulateur-examen.html"><i class="fas fa-stopwatch"></i> Simulateur d'examen</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 RD-SQL Learning. Créé par <strong>RD</strong> <i class="fas fa-code" style="color: var(--accent);"></i> pour l'apprentissage des bases de données.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

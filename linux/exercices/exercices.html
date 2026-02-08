@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banque d'Exercices | RD Linux</title>
+    <meta name="description" content="10 exercices pratiques Linux avec corrections détaillées : scripts, permissions, réseau, utilisateurs.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#fb923c',500:'#f97316',600:'#ea580c'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .exo-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;}
+        .exo-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;cursor:pointer;}
+        .exo-num{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;}
+        .exo-title{font-weight:700;font-size:1.05rem;color:var(--text-primary);}
+        .exo-module{font-size:0.75rem;color:var(--accent);font-weight:600;}
+        .exo-body{margin-bottom:1rem;color:var(--text-secondary);line-height:1.7;}
+        .correction-toggle{display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1.2rem;border-radius:10px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;font-weight:600;font-size:0.9rem;transition:0.2s;}
+        .correction-toggle:hover{background:var(--accent);color:#fff;}
+        .correction-content{display:none;margin-top:1rem;padding:1rem;border-radius:12px;border-left:3px solid var(--accent);background:rgba(249,115,22,0.05);}
+        .correction-content.visible{display:block;}
+        .diff-tag{display:inline-block;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.7rem;font-weight:700;margin-left:0.5rem;}
+        .diff-easy{background:#dcfce7;color:#166534;}
+        .diff-medium{background:#fef3c7;color:#92400e;}
+        .diff-hard{background:#fecaca;color:#991b1b;}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-terminal"></i><span>RD Linux</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">← Accueil</a></li>
+                <li><a href="exercices.html" class="active">Exercices</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="../chapitres/formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+            <li><a href="../chapitres/cartes.html"><i class="fas fa-clone"></i> Flashcards</a></li>
+            <li><a href="../chapitres/simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Examen</a></li>
+            <li><a href="exercices.html" class="active"><i class="fas fa-dumbbell"></i> Exercices</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge"><i class="fas fa-dumbbell"></i> Pratique</span>
+        <h1 class="hero-title">Banque <span class="gradient-text">d'Exercices</span></h1>
+        <p class="hero-description">12 exercices pratiques avec corrections détaillées. Du terminal à la production !</p>
+    </section>
+
+    <main id="main-content" style="max-width:850px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <!-- Exercice 1 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">1</span><div><span class="exo-module">Module 1 — Commandes de base</span><span class="diff-tag diff-easy">Facile</span><div class="exo-title">Exploration du système</div></div></div>
+            <div class="exo-body">
+                <p>Sans utiliser d'interface graphique :</p>
+                <ol>
+                    <li>Affiche le répertoire courant</li>
+                    <li>Navigue vers <code>/etc</code> et liste son contenu en détail</li>
+                    <li>Affiche les 5 premières lignes du fichier <code>/etc/hostname</code></li>
+                    <li>Retourne à ton répertoire personnel en une commande</li>
+                    <li>Affiche la date, le nom d'utilisateur et le hostname</li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="cmd">pwd</span>
+<span class="cmd">cd</span> <span class="path">/etc</span> <span class="keyword">&&</span> <span class="cmd">ls</span> <span class="flag">-la</span>
+<span class="cmd">head</span> <span class="flag">-5</span> <span class="path">/etc/hostname</span>
+<span class="cmd">cd</span> <span class="path">~</span>
+<span class="cmd">date</span> <span class="keyword">&&</span> <span class="cmd">echo</span> <span class="var">$USER</span> <span class="keyword">&&</span> <span class="cmd">hostname</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 2 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">2</span><div><span class="exo-module">Module 2 — Manipulation de fichiers</span><span class="diff-tag diff-easy">Facile</span><div class="exo-title">Arborescence de projet</div></div></div>
+            <div class="exo-body">
+                <p>Crée la structure suivante en une seule ligne de commande, puis vérifie avec <code>ls -R</code> :</p>
+                <pre><code>projet/
+├── src/
+│   ├── main.py
+│   └── utils.py
+├── docs/
+└── README.md</code></pre>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="cmd">mkdir</span> <span class="flag">-p</span> <span class="path">projet/{src,docs}</span> <span class="keyword">&&</span> <span class="cmd">touch</span> <span class="path">projet/src/{main.py,utils.py}</span> <span class="path">projet/README.md</span>
+<span class="cmd">ls</span> <span class="flag">-R</span> <span class="path">projet/</span></code></pre>
+                <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-muted);"><strong>Astuce :</strong> Les accolades <code>{}</code> permettent de créer plusieurs éléments en une seule commande. C'est le <em>brace expansion</em> de Bash.</p>
+            </div>
+        </div>
+
+        <!-- Exercice 3 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">3</span><div><span class="exo-module">Module 3 — Permissions</span><span class="diff-tag diff-medium">Moyen</span><div class="exo-title">Sécuriser un script</div></div></div>
+            <div class="exo-body">
+                <ol>
+                    <li>Crée un fichier <code>deploy.sh</code></li>
+                    <li>Donne les permissions : propriétaire peut tout faire, groupe peut lire et exécuter, autres ne peuvent rien faire</li>
+                    <li>Vérifie les permissions avec <code>ls -l</code></li>
+                    <li>Quel est le code octal correspondant ?</li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="cmd">touch</span> <span class="path">deploy.sh</span>
+<span class="cmd">chmod</span> <span class="num">750</span> <span class="path">deploy.sh</span>
+<span class="cmd">ls</span> <span class="flag">-l</span> <span class="path">deploy.sh</span>
+<span class="output">-rwxr-x--- 1 sami sami 0 ... deploy.sh</span>
+<span class="comment"># Réponse : 750 (rwx=7, r-x=5, ---=0)</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 4 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">4</span><div><span class="exo-module">Module 4 — Recherche</span><span class="diff-tag diff-medium">Moyen</span><div class="exo-title">Audit des gros fichiers</div></div></div>
+            <div class="exo-body">
+                <ol>
+                    <li>Trouve tous les fichiers de plus de 50 Mo dans <code>/var</code></li>
+                    <li>Cherche le mot "error" dans <code>/var/log/syslog</code> (insensible à la casse)</li>
+                    <li>Compte combien de lignes contiennent le mot "error"</li>
+                    <li>Liste les 10 plus gros fichiers dans <code>/var/log</code></li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="cmd">sudo find</span> <span class="path">/var</span> <span class="flag">-type f -size</span> +<span class="num">50M</span> <span class="num">2</span>>/dev/null
+<span class="cmd">grep</span> <span class="flag">-i</span> <span class="string">"error"</span> <span class="path">/var/log/syslog</span>
+<span class="cmd">grep</span> <span class="flag">-ic</span> <span class="string">"error"</span> <span class="path">/var/log/syslog</span>
+<span class="cmd">sudo du</span> <span class="flag">-ah</span> <span class="path">/var/log</span> <span class="keyword">|</span> <span class="cmd">sort</span> <span class="flag">-rh</span> <span class="keyword">|</span> <span class="cmd">head</span> <span class="flag">-10</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 5 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">5</span><div><span class="exo-module">Module 5 — Éditeurs</span><span class="diff-tag diff-easy">Facile</span><div class="exo-title">Édition de fichier config</div></div></div>
+            <div class="exo-body">
+                <ol>
+                    <li>Ouvre le fichier <code>/etc/hostname</code> avec Nano (en sudo)</li>
+                    <li>Note le nom actuel, modifie-le en "linux-test"</li>
+                    <li>Sauvegarde et quitte</li>
+                    <li>Vérifie la modification avec <code>cat</code></li>
+                    <li>Remet le nom original</li>
+                </ol>
+                <p><strong>Bonus :</strong> Fais la même chose avec Vim.</p>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="comment"># Avec Nano :</span>
+<span class="cmd">sudo nano</span> <span class="path">/etc/hostname</span>
+<span class="comment"># → Modifier → Ctrl+O → Entrée → Ctrl+X</span>
+<span class="cmd">cat</span> <span class="path">/etc/hostname</span>
+
+<span class="comment"># Avec Vim :</span>
+<span class="cmd">sudo vim</span> <span class="path">/etc/hostname</span>
+<span class="comment"># → i (mode insertion) → modifier → Esc → :wq</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 6 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">6</span><div><span class="exo-module">Module 6 — Utilisateurs</span><span class="diff-tag diff-medium">Moyen</span><div class="exo-title">Gestion d'une équipe</div></div></div>
+            <div class="exo-body">
+                <p>Tu dois intégrer 2 nouveaux membres dans l'équipe :</p>
+                <ol>
+                    <li>Crée le groupe "webteam"</li>
+                    <li>Crée l'utilisateur "alice" avec home, shell bash et groupe webteam</li>
+                    <li>Crée l'utilisateur "bob" avec les mêmes paramètres</li>
+                    <li>Définis un mot de passe pour chacun</li>
+                    <li>Ajoute alice au groupe sudo</li>
+                    <li>Vérifie les groupes des deux utilisateurs</li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="cmd">sudo groupadd</span> <span class="path">webteam</span>
+<span class="cmd">sudo useradd</span> <span class="flag">-m -s</span> <span class="path">/bin/bash</span> <span class="flag">-G</span> <span class="path">webteam</span> <span class="path">alice</span>
+<span class="cmd">sudo useradd</span> <span class="flag">-m -s</span> <span class="path">/bin/bash</span> <span class="flag">-G</span> <span class="path">webteam</span> <span class="path">bob</span>
+<span class="cmd">sudo passwd</span> <span class="path">alice</span>
+<span class="cmd">sudo passwd</span> <span class="path">bob</span>
+<span class="cmd">sudo usermod</span> <span class="flag">-aG</span> <span class="path">sudo</span> <span class="path">alice</span>
+<span class="cmd">groups</span> <span class="path">alice</span>   <span class="comment"># alice : alice webteam sudo</span>
+<span class="cmd">groups</span> <span class="path">bob</span>     <span class="comment"># bob : bob webteam</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 7 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">7</span><div><span class="exo-module">Module 7 — Réseau</span><span class="diff-tag diff-medium">Moyen</span><div class="exo-title">Configuration IP statique</div></div></div>
+            <div class="exo-body">
+                <p>Configure ton interface réseau en IP statique :</p>
+                <ul>
+                    <li>IP : 192.168.1.50</li>
+                    <li>Masque : 255.255.255.0</li>
+                    <li>Passerelle : 192.168.1.1</li>
+                    <li>DNS : 8.8.8.8 et 1.1.1.1</li>
+                </ul>
+                <ol>
+                    <li>Identifie le nom de ton interface réseau</li>
+                    <li>Écris la configuration dans le bon fichier</li>
+                    <li>Applique les changements</li>
+                    <li>Vérifie avec <code>ip addr</code> et <code>ping</code></li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="cmd">ip</span> <span class="flag">addr</span>   <span class="comment"># → Repérer le nom (ex: ens33)</span>
+
+<span class="cmd">sudo nano</span> <span class="path">/etc/network/interfaces</span>
+<span class="comment"># Ajouter :</span>
+<span class="keyword">auto</span> ens33
+<span class="keyword">iface</span> ens33 <span class="keyword">inet</span> <span class="string">static</span>
+    <span class="var">address</span>   <span class="num">192.168.1.50</span>
+    <span class="var">netmask</span>   <span class="num">255.255.255.0</span>
+    <span class="var">gateway</span>   <span class="num">192.168.1.1</span>
+    <span class="var">dns-nameservers</span> <span class="num">8.8.8.8</span> <span class="num">1.1.1.1</span>
+
+<span class="cmd">sudo systemctl restart</span> <span class="path">networking</span>
+<span class="cmd">ip</span> <span class="flag">addr show</span> <span class="path">ens33</span>
+<span class="cmd">ping</span> <span class="flag">-c 4</span> <span class="path">8.8.8.8</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 8 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">8</span><div><span class="exo-module">Module 7 — SSH</span><span class="diff-tag diff-hard">Difficile</span><div class="exo-title">Sécuriser SSH</div></div></div>
+            <div class="exo-body">
+                <ol>
+                    <li>Installe le serveur SSH</li>
+                    <li>Génère une paire de clés ed25519</li>
+                    <li>Change le port SSH de 22 à 2222</li>
+                    <li>Interdit la connexion root</li>
+                    <li>Redémarre le service et vérifie</li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="cmd">sudo apt install</span> <span class="path">openssh-server</span>
+<span class="cmd">ssh-keygen</span> <span class="flag">-t ed25519</span>
+
+<span class="cmd">sudo nano</span> <span class="path">/etc/ssh/sshd_config</span>
+<span class="comment"># Modifier :</span>
+<span class="var">Port</span> <span class="num">2222</span>
+<span class="var">PermitRootLogin</span> <span class="string">no</span>
+
+<span class="cmd">sudo systemctl restart</span> <span class="path">ssh</span>
+<span class="cmd">sudo ss</span> <span class="flag">-tulnp</span> <span class="keyword">|</span> <span class="cmd">grep</span> <span class="num">2222</span>
+<span class="comment"># Pour se connecter : ssh -p 2222 user@ip</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 9 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">9</span><div><span class="exo-module">Module 8 — Bash</span><span class="diff-tag diff-medium">Moyen</span><div class="exo-title">Script de bienvenue</div></div></div>
+            <div class="exo-body">
+                <p>Écris un script <code>welcome.sh</code> qui :</p>
+                <ol>
+                    <li>Affiche un message de bienvenue avec le nom de l'utilisateur</li>
+                    <li>Affiche la date et l'heure actuelles</li>
+                    <li>Affiche l'espace disque restant sur /</li>
+                    <li>Si l'utilisateur est root, affiche un avertissement</li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="keyword">#!/bin/bash</span>
+
+<span class="cmd">echo</span> <span class="string">"═══════════════════════════"</span>
+<span class="cmd">echo</span> <span class="string">"  Bienvenue $USER !"</span>
+<span class="cmd">echo</span> <span class="string">"═══════════════════════════"</span>
+<span class="cmd">echo</span> <span class="string">"Date : $(date '+%d/%m/%Y %H:%M')"</span>
+<span class="cmd">echo</span> <span class="string">"Disque : $(df -h / | awk 'NR==2{print $4}') disponibles"</span>
+
+<span class="keyword">if</span> [[ <span class="var">$USER</span> == <span class="string">"root"</span> ]]; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"⚠️  ATTENTION : Tu es connecté en ROOT !"</span>
+<span class="keyword">fi</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 10 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">10</span><div><span class="exo-module">Module 8 — Bash</span><span class="diff-tag diff-hard">Difficile</span><div class="exo-title">Script de sauvegarde automatique</div></div></div>
+            <div class="exo-body">
+                <p>Crée un script <code>backup.sh</code> qui prend en argument un dossier source et :</p>
+                <ol>
+                    <li>Vérifie que le dossier source existe (sinon, erreur)</li>
+                    <li>Crée un dossier <code>~/backups</code> s'il n'existe pas</li>
+                    <li>Crée une archive tar.gz avec la date dans le nom</li>
+                    <li>Affiche un message de succès avec la taille de l'archive</li>
+                    <li>Supprime les archives de plus de 7 jours</li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="keyword">#!/bin/bash</span>
+<span class="keyword">set -e</span>
+
+<span class="var">SOURCE</span>=<span class="string">"$1"</span>
+<span class="var">BACKUP_DIR</span>=<span class="string">"$HOME/backups"</span>
+<span class="var">DATE</span>=$(<span class="cmd">date</span> +%Y%m%d_%H%M%S)
+
+<span class="comment"># Vérifier l'argument</span>
+<span class="keyword">if</span> [[ <span class="flag">-z</span> <span class="string">"$SOURCE"</span> ]]; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"❌ Usage : $0 &lt;dossier_source&gt;"</span>
+    <span class="keyword">exit</span> <span class="num">1</span>
+<span class="keyword">fi</span>
+
+<span class="keyword">if</span> [[ ! <span class="flag">-d</span> <span class="string">"$SOURCE"</span> ]]; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"❌ Le dossier '$SOURCE' n'existe pas"</span>
+    <span class="keyword">exit</span> <span class="num">1</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Créer le dossier de backup</span>
+<span class="cmd">mkdir</span> <span class="flag">-p</span> <span class="string">"$BACKUP_DIR"</span>
+
+<span class="comment"># Créer l'archive</span>
+<span class="var">ARCHIVE</span>=<span class="string">"${BACKUP_DIR}/backup_${DATE}.tar.gz"</span>
+<span class="cmd">tar</span> <span class="flag">-czf</span> <span class="string">"$ARCHIVE"</span> <span class="string">"$SOURCE"</span>
+
+<span class="comment"># Afficher le résultat</span>
+<span class="var">TAILLE</span>=$(<span class="cmd">du</span> <span class="flag">-h</span> <span class="string">"$ARCHIVE"</span> <span class="keyword">|</span> <span class="cmd">cut</span> <span class="flag">-f1</span>)
+<span class="cmd">echo</span> <span class="string">"✅ Sauvegarde créée : $ARCHIVE ($TAILLE)"</span>
+
+<span class="comment"># Nettoyage des vieilles archives</span>
+<span class="cmd">find</span> <span class="string">"$BACKUP_DIR"</span> <span class="flag">-name</span> <span class="string">"backup_*.tar.gz"</span> <span class="flag">-mtime</span> +<span class="num">7</span> <span class="flag">-delete</span>
+<span class="cmd">echo</span> <span class="string">"🧹 Archives > 7 jours supprimées"</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 11 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">11</span><div><span class="exo-module">Transversal</span><span class="diff-tag diff-hard">Difficile</span><div class="exo-title">Mise en production d'un serveur web</div></div></div>
+            <div class="exo-body">
+                <p>Scénario complet : tu configures un serveur Debian pour héberger un site web.</p>
+                <ol>
+                    <li>Configure une IP statique (192.168.1.200/24, gw 192.168.1.1)</li>
+                    <li>Crée un utilisateur "webmaster" dans le groupe www-data</li>
+                    <li>Installe Apache (<code>apache2</code>)</li>
+                    <li>Crée le dossier <code>/var/www/monsite</code> avec les bons droits (propriétaire webmaster:www-data, 755)</li>
+                    <li>Crée un fichier index.html basique</li>
+                    <li>Sécurise SSH (port 2222, pas de root login)</li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="comment"># 1. IP statique</span>
+<span class="cmd">sudo nano</span> <span class="path">/etc/network/interfaces</span>
+<span class="comment"># auto ens33 / iface ens33 inet static / address 192.168.1.200 ...</span>
+<span class="cmd">sudo systemctl restart</span> <span class="path">networking</span>
+
+<span class="comment"># 2. Utilisateur</span>
+<span class="cmd">sudo useradd</span> <span class="flag">-m -s</span> <span class="path">/bin/bash</span> <span class="flag">-G</span> <span class="path">www-data</span> <span class="path">webmaster</span>
+<span class="cmd">sudo passwd</span> <span class="path">webmaster</span>
+
+<span class="comment"># 3. Apache</span>
+<span class="cmd">sudo apt install</span> <span class="path">apache2</span>
+<span class="cmd">sudo systemctl enable</span> <span class="path">apache2</span>
+
+<span class="comment"># 4. Dossier site</span>
+<span class="cmd">sudo mkdir</span> <span class="flag">-p</span> <span class="path">/var/www/monsite</span>
+<span class="cmd">sudo chown</span> <span class="flag">-R</span> <span class="path">webmaster:www-data</span> <span class="path">/var/www/monsite</span>
+<span class="cmd">sudo chmod</span> <span class="flag">-R</span> <span class="num">755</span> <span class="path">/var/www/monsite</span>
+
+<span class="comment"># 5. index.html</span>
+<span class="cmd">echo</span> <span class="string">"&lt;h1&gt;Mon site&lt;/h1&gt;"</span> <span class="keyword">|</span> <span class="cmd">sudo tee</span> <span class="path">/var/www/monsite/index.html</span>
+
+<span class="comment"># 6. SSH</span>
+<span class="cmd">sudo nano</span> <span class="path">/etc/ssh/sshd_config</span>
+<span class="comment"># Port 2222 + PermitRootLogin no</span>
+<span class="cmd">sudo systemctl restart</span> <span class="path">ssh</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Exercice 12 -->
+        <div class="exo-card">
+            <div class="exo-header"><span class="exo-num">12</span><div><span class="exo-module">Module 8 — Bash</span><span class="diff-tag diff-hard">Difficile</span><div class="exo-title">Script de monitoring système</div></div></div>
+            <div class="exo-body">
+                <p>Crée un script <code>monitor.sh</code> qui :</p>
+                <ol>
+                    <li>Affiche un résumé système (hostname, IP, uptime, RAM, disque)</li>
+                    <li>Vérifie si le service SSH est actif</li>
+                    <li>Si le disque est utilisé à plus de 80%, affiche une alerte</li>
+                    <li>Sauvegarde le rapport dans <code>/var/log/monitor.log</code> avec timestamp</li>
+                </ol>
+            </div>
+            <button class="correction-toggle" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-eye"></i> Voir la correction</button>
+            <div class="correction-content">
+                <pre class="code-block"><code><span class="keyword">#!/bin/bash</span>
+
+<span class="var">LOG</span>=<span class="string">"/var/log/monitor.log"</span>
+<span class="var">DATE</span>=$(<span class="cmd">date</span> <span class="string">'+%Y-%m-%d %H:%M:%S'</span>)
+
+<span class="keyword">log</span>() { <span class="cmd">echo</span> <span class="string">"[$DATE] $1"</span> <span class="keyword">|</span> <span class="cmd">sudo tee</span> <span class="flag">-a</span> <span class="string">"$LOG"</span>; }
+
+<span class="keyword">log</span> <span class="string">"══ Rapport système ══"</span>
+<span class="keyword">log</span> <span class="string">"Hostname : $(hostname)"</span>
+<span class="keyword">log</span> <span class="string">"IP       : $(hostname -I | awk '{print $1}')"</span>
+<span class="keyword">log</span> <span class="string">"Uptime   : $(uptime -p)"</span>
+<span class="keyword">log</span> <span class="string">"RAM      : $(free -h | awk '/Mem/{print $3"/"$2}')"</span>
+<span class="keyword">log</span> <span class="string">"Disque / : $(df -h / | awk 'NR==2{print $3"/"$2" ("$5")"}')"</span>
+
+<span class="comment"># Vérifier SSH</span>
+<span class="keyword">if</span> <span class="cmd">systemctl is-active</span> <span class="flag">--quiet</span> <span class="path">ssh</span>; <span class="keyword">then</span>
+    <span class="keyword">log</span> <span class="string">"SSH : ✅ Actif"</span>
+<span class="keyword">else</span>
+    <span class="keyword">log</span> <span class="string">"SSH : ❌ Inactif !"</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Alerte disque</span>
+<span class="var">USAGE</span>=$(<span class="cmd">df</span> / <span class="keyword">|</span> <span class="cmd">awk</span> <span class="string">'NR==2{print $5}'</span> <span class="keyword">|</span> <span class="cmd">tr</span> <span class="flag">-d</span> <span class="string">'%'</span>)
+<span class="keyword">if</span> [[ <span class="var">$USAGE</span> <span class="flag">-gt</span> <span class="num">80</span> ]]; <span class="keyword">then</span>
+    <span class="keyword">log</span> <span class="string">"⚠️ ALERTE : Disque utilisé à ${USAGE}% !"</span>
+<span class="keyword">fi</span>
+
+<span class="keyword">log</span> <span class="string">"══ Fin du rapport ══"</span></code></pre>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
+        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

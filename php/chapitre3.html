@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 3 - Autoloading, Namespaces et Traits</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+<body class="chapter-page">
+    <!-- Barre de progression -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="chapterProgress"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-code"></i>
+                    <span>PHP POO</span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <a href="index.html">Accueil</a>
+                <a href="#" class="active">Chapitre 3</a>
+                <button class="btn-notes" id="showNotesBtn">
+                    <i class="fas fa-bookmark"></i> Notes
+                </button>
+                <button class="btn-theme" id="themeToggleBtn" title="Changer de thème">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Navigation Chapitres -->
+    <div class="chapter-nav">
+        <a href="chapitre2.html" class="nav-btn nav-prev">
+            <i class="fas fa-arrow-left"></i>
+            <span>Chapitre 2</span>
+        </a>
+        <div class="chapter-info">
+            <span class="chapter-number">Chapitre 3/6</span>
+            <h1>Autoloading, Namespaces et Traits</h1>
+        </div>
+        <a href="chapitre4.html" class="nav-btn nav-next">
+            <span>Chapitre 4</span>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <!-- Contenu Principal -->
+    <main class="chapter-content">
+        <div class="container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-sticky">
+                    <h3><i class="fas fa-list"></i> Dans ce chapitre</h3>
+                    <nav class="table-of-contents">
+                        <a href="#section-1" class="toc-link active">
+                            <span class="toc-number">1</span>
+                            Inclusion de fichiers
+                        </a>
+                        <a href="#section-2" class="toc-link">
+                            <span class="toc-number">2</span>
+                            Autoloading
+                        </a>
+                        <a href="#section-3" class="toc-link">
+                            <span class="toc-number">3</span>
+                            Namespaces
+                        </a>
+                        <a href="#section-4" class="toc-link">
+                            <span class="toc-number">4</span>
+                            Traits
+                        </a>
+                        <a href="#exercices" class="toc-link">
+                            <span class="toc-number"><i class="fas fa-dumbbell"></i></span>
+                            Exercices
+                        </a>
+                        <a href="#quiz" class="toc-link">
+                            <span class="toc-number"><i class="fas fa-question-circle"></i></span>
+                            Quiz
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Contenu du cours -->
+            <article class="content">
+                
+                <!-- Section 1: Inclusion -->
+                <section id="section-1" class="content-section">
+                    <div class="section-header">
+                        <h2>Inclusion de fichiers</h2>
+                    </div>
+                    <p>Pour éviter de dupliquer du code, PHP permet d'inclure des fichiers dans d'autres. C'est essentiel pour organiser son code (une classe par fichier).</p>
+                    
+                    <h3><code>include</code> vs <code>require</code></h3>
+                    <ul>
+                        <li><strong>include</strong> : Si le fichier n'est pas trouvé, génère un avertissement (E_WARNING) mais le script <em>continue</em>.</li>
+                        <li><strong>require</strong> : Si le fichier n'est pas trouvé, génère une erreur fatale (E_COMPILE_ERROR) et le script <em>s'arrête</em>.</li>
+                    </ul>
+                    
+                    <p>Les variantes <code>include_once</code> et <code>require_once</code> s'assurent que le fichier n'est inclus qu'une seule fois, évitant les erreurs de redéfinition.</p>
+                </section>
+
+                <!-- Section 2: Autoloading -->
+                <section id="section-2" class="content-section">
+                    <div class="section-header">
+                        <h2>Autoloading</h2>
+                    </div>
+                    <p>Plutôt que d'écrire des dizaines de <code>require</code> en début de fichier, l'autoloading permet de charger automatiquement les classes quand elles sont utilisées.</p>
+
+                    <div class="code-block-wrapper">
+                        <div class="code-header">
+                            <span class="language-label">PHP</span>
+                            <button class="btn-copy"><i class="far fa-copy"></i> Copier</button>
+                        </div>
+                        <div class="code-block">
+                            <pre><code class="language-php">// Ancienne méthode (dépréciée en PHP 7.2+, supprimée en 8.0)
+function __autoload($class_name) {
+    require 'classes/' . $class_name . '.php';
+}
+
+// Nouvelle méthode recommandée : spl_autoload_register
+spl_autoload_register(function ($class_name) {
+    echo "Tentative de chargement de la classe : " . $class_name . "\n";
+    // include 'classes/' . $class_name . '.php';
+});
+
+$obj = new MaClasse(); // Le fichier classes/MaClasse.php est inclus automatiquement</code></pre>
+                        </div>
+                        <div class="execution-panel">
+                            <button class="btn-run" onclick="simulatePHPExecution(this)">
+                                <i class="fas fa-play"></i> Exécuter
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Namespaces -->
+                <section id="section-3" class="content-section">
+                    <div class="section-header">
+                        <h2>Namespaces (Espaces de noms)</h2>
+                    </div>
+                    <p>Les <strong>Namespaces</strong> permettent de résoudre les conflits de noms entre classes (ex: deux classes <code>User</code> dans deux bibliothèques différentes) et d'organiser le code.</p>
+
+                    <div class="code-block-wrapper">
+                        <div class="code-header">
+                            <span class="language-label">PHP</span>
+                            <button class="btn-copy"><i class="far fa-copy"></i> Copier</button>
+                        </div>
+                        <div class="code-block">
+                            <pre><code class="language-php">namespace MonProjet\Model;
+
+class User {
+    public function direBonjour() {
+        echo "Bonjour depuis le Namespace MonProjet\\Model !";
+    }
+}
+
+// Simulation de l'utilisation
+$u = new User();
+$u->direBonjour();</code></pre>
+                        </div>
+                        <div class="execution-panel">
+                            <button class="btn-run" onclick="simulatePHPExecution(this)">
+                                <i class="fas fa-play"></i> Exécuter
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3>Utilisation avec <code>use</code></h3>
+                    <p>Pour utiliser une classe située dans un namespace, on l'importe avec <code>use</code>, ou on utilise son chemin complet (Fully Qualified Name).</p>
+
+                    <div class="code-block">
+                        <pre><code class="language-php">use MonProjet\Model\User;
+
+$u = new User(); // Utilise MonProjet\Model\User
+
+// Ou avec un alias
+use MonProjet\Model\User as Utilisateur;
+$u = new Utilisateur();</code></pre>
+                    </div>
+                </section>
+
+                <!-- Section 4: Traits -->
+                <section id="section-4" class="content-section">
+                    <div class="section-header">
+                        <h2>Les Traits</h2>
+                    </div>
+                    <p>PHP ne supporte pas l'héritage multiple. Les <strong>Traits</strong> sont un mécanisme de réutilisation de code qui permet de composer des classes avec des ensembles de méthodes, contournant cette limitation.</p>
+                    <p>Un Trait ressemble à une classe mais ne peut pas être instancié.</p>
+
+                    <div class="code-block">
+                        <pre><code class="language-php">trait Loggable {
+    public function log($msg) {
+        echo "Log: $msg";
+    }
+}
+
+class User {
+    use Loggable; // Injection des méthodes du trait
+}
+
+class Product {
+    use Loggable;
+}
+
+$u = new User();
+$u->log("Création utilisateur"); // Affiche "Log: Création utilisateur"</code></pre>
+                    </div>
+                </section>
+
+                <!-- Exercices -->
+                <section id="exercices" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-dumbbell"></i> Exercices Pratiques</h2>
+                    </div>
+                    
+                    <div class="exercise-card">
+                        <h3>Exercice 1 : Autoload</h3>
+                        <p>Créez une structure de dossier avec <code>classes/Client.php</code> et <code>index.php</code>. Dans <code>index.php</code>, mettez en place un autoloader avec <code>spl_autoload_register</code> pour charger la classe Client automatiquement lors de son instanciation.</p>
+                    </div>
+
+                    <div class="exercise-card">
+                        <h3>Exercice 2 : Namespace</h3>
+                        <p>Placez la classe <code>Client</code> dans le namespace <code>App\Entity</code>. Essayez de l'instancier dans <code>index.php</code> en utilisant le mot clé <code>use</code>.</p>
+                    </div>
+                </section>
+
+                <!-- Quiz -->
+                <section id="quiz" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-question-circle"></i> Quiz du Chapitre 3</h2>
+                    </div>
+                    <div id="quiz-container" class="quiz-container">
+                        <div class="quiz-start">
+                            <p>Testez vos connaissances sur l'organisation du code moderne en PHP.</p>
+                            <button id="start-quiz-btn" class="btn-primary">Commencer le Quiz</button>
+                        </div>
+                    </div>
+                </section>
+
+            </article>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2026 Cours PHP POO. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup-templating.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-php.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/quiz-chapitre3.js"></script>
+</body>
+</html>

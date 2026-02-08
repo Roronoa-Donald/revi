@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 12 : Triggers | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+             <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-400">Module 12: Triggers</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+
+            <!-- 1. Narrative Hook -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">1. L'Effet Papillon de la Base de Données</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-bolt text-9xl"></i></div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Un client est supprimé de la base. Automatiquement, un email de confirmation est envoyé,
+                        l'historique est archivé, et le manager est notifié. <strong>Personne n'a écrit de code pour ça</strong>
+                        — c'est le <strong>trigger</strong> qui a tout déclenché.
+                        <br><br>
+                        Un trigger, c'est un <strong>piège invisible</strong> posé sur une table. Dès qu'une action se produit
+                        (INSERT, UPDATE, DELETE), le trigger se déclenche automatiquement.
+                    </p>
+                    <div class="content-box warning">
+                        <strong>Attention :</strong> Les triggers sont puissants mais dangereux. Un trigger mal conçu peut ralentir drastiquement votre base ou créer des boucles infinies (un trigger qui déclenche un autre trigger...).
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. AFTER Triggers -->
+            <section class="animate-fade-in-up" style="animation-delay:0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">2. AFTER — Après l'Action</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300">Le trigger AFTER s'exécute <strong>après</strong> que l'opération a réussi.</p>
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700 font-mono text-sm">
+                        <span class="text-amber-400">CREATE TRIGGER</span> <span class="text-emerald-400">trg_AuditInsert</span><br>
+                        <span class="text-amber-400">ON</span> Clients<br>
+                        <span class="text-amber-400">AFTER INSERT</span><br>
+                        <span class="text-amber-400">AS</span><br>
+                        <span class="text-amber-400">BEGIN</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">INSERT INTO</span> AuditLog (action, table_name, date_action)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-400">SELECT</span> <span class="text-orange-300">'INSERT'</span>, <span class="text-orange-300">'Clients'</span>, <span class="text-blue-400">GETDATE</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-400">FROM</span> <span class="text-cyan-400">inserted</span><br>
+                        <span class="text-amber-400">END</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-emerald-900/20 p-3 rounded-lg border border-emerald-500/20 text-center">
+                            <code class="text-emerald-400 font-bold text-sm">AFTER INSERT</code>
+                            <p class="text-xs text-slate-400 mt-1">Après un ajout</p>
+                        </div>
+                        <div class="bg-amber-900/20 p-3 rounded-lg border border-amber-500/20 text-center">
+                            <code class="text-amber-400 font-bold text-sm">AFTER UPDATE</code>
+                            <p class="text-xs text-slate-400 mt-1">Après une modification</p>
+                        </div>
+                        <div class="bg-red-900/20 p-3 rounded-lg border border-red-500/20 text-center">
+                            <code class="text-red-400 font-bold text-sm">AFTER DELETE</code>
+                            <p class="text-xs text-slate-400 mt-1">Après une suppression</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Tables inserted / deleted -->
+            <section class="animate-fade-in-up" style="animation-delay:0.15s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">3. Les Tables Magiques : inserted & deleted</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300">SQL Server crée automatiquement deux tables virtuelles dans chaque trigger :</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border border-slate-700 rounded-lg overflow-hidden">
+                            <thead class="bg-slate-800/80">
+                                <tr>
+                                    <th class="p-3 text-left text-slate-400">Opération</th>
+                                    <th class="p-3 text-center text-emerald-400">inserted</th>
+                                    <th class="p-3 text-center text-red-400">deleted</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700">
+                                <tr>
+                                    <td class="p-3 font-mono text-blue-300">INSERT</td>
+                                    <td class="p-3 text-center text-emerald-400">✅ Nouvelles lignes</td>
+                                    <td class="p-3 text-center text-slate-600">— vide</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-amber-300">UPDATE</td>
+                                    <td class="p-3 text-center text-emerald-400">✅ Nouvelles valeurs</td>
+                                    <td class="p-3 text-center text-red-400">✅ Anciennes valeurs</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-red-300">DELETE</td>
+                                    <td class="p-3 text-center text-slate-600">— vide</td>
+                                    <td class="p-3 text-center text-red-400">✅ Lignes supprimées</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="content-box definition">
+                        <strong>Astuce UPDATE :</strong> Pour savoir quelle colonne a changé, comparez <code>inserted.colonne</code> avec <code>deleted.colonne</code>.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. INSTEAD OF -->
+            <section class="animate-fade-in-up" style="animation-delay:0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-red-500 pl-4">4. INSTEAD OF — Interception</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300">INSTEAD OF <strong>remplace</strong> l'opération originale. Idéal pour le « soft delete » :</p>
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-red-500/20 font-mono text-sm">
+                        <span class="text-amber-400">CREATE TRIGGER</span> <span class="text-emerald-400">trg_SoftDelete</span><br>
+                        <span class="text-amber-400">ON</span> Clients<br>
+                        <span class="text-amber-400">INSTEAD OF DELETE</span><br>
+                        <span class="text-amber-400">AS</span><br>
+                        <span class="text-amber-400">BEGIN</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-slate-500">-- Au lieu de supprimer, on marque comme inactif</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">UPDATE</span> Clients<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-400">SET</span> actif = 0, date_suppression = <span class="text-blue-400">GETDATE</span>()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-400">WHERE</span> id <span class="text-amber-400">IN</span> (<span class="text-amber-400">SELECT</span> id <span class="text-amber-400">FROM</span> <span class="text-red-400">deleted</span>)<br>
+                        <span class="text-amber-400">END</span>
+                    </div>
+                    <div class="content-box success">
+                        <strong>Soft Delete :</strong> Les données ne sont jamais vraiment supprimées — elles sont marquées inactives. Utile pour l'audit, la conformité RGPD, et la récupération de données.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Cas pratiques -->
+            <section class="animate-fade-in-up" style="animation-delay:0.25s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-cyan-500 pl-4">5. Cas d'Usage Réels</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex gap-3">
+                            <i class="fas fa-clipboard-list text-blue-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-blue-400 text-sm">Audit automatique</h5>
+                                <p class="text-xs text-slate-400">Logger qui a modifié quoi, quand, avec AFTER UPDATE sur les tables sensibles.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex gap-3">
+                            <i class="fas fa-shield-alt text-emerald-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-emerald-400 text-sm">Validation métier</h5>
+                                <p class="text-xs text-slate-400">Vérifier qu'un stock ne passe pas en négatif avec AFTER UPDATE + ROLLBACK.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex gap-3">
+                            <i class="fas fa-sync text-amber-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-amber-400 text-sm">Synchronisation</h5>
+                                <p class="text-xs text-slate-400">Mettre à jour une table dérivée quand la table source change.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex gap-3">
+                            <i class="fas fa-bell text-purple-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-purple-400 text-sm">Notifications</h5>
+                                <p class="text-xs text-slate-400">Insérer dans une table de notifications pour alerter les utilisateurs.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Performance & Précautions -->
+            <section class="animate-fade-in-up" style="animation-delay:0.3s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-red-500 pl-4">6. Pièges & Performance</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-red-900/10 p-4 rounded-lg border border-red-500/20">
+                            <h5 class="text-red-400 text-sm font-bold mb-2"><i class="fas fa-exclamation-triangle mr-1"></i> À éviter</h5>
+                            <ul class="text-xs text-slate-400 space-y-1">
+                                <li>• Triggers récursifs (trigger qui en déclenche un autre)</li>
+                                <li>• Logique métier complexe dans un trigger</li>
+                                <li>• Envoi d'emails depuis un trigger</li>
+                                <li>• Triggers sur tables à fort volume (millions d'INSERT/sec)</li>
+                            </ul>
+                        </div>
+                        <div class="bg-emerald-900/10 p-4 rounded-lg border border-emerald-500/20">
+                            <h5 class="text-emerald-400 text-sm font-bold mb-2"><i class="fas fa-check mr-1"></i> Bonnes pratiques</h5>
+                            <ul class="text-xs text-slate-400 space-y-1">
+                                <li>• Garder les triggers courts et simples</li>
+                                <li>• Documenter chaque trigger</li>
+                                <li>• Préférer les procédures stockées si possible</li>
+                                <li>• Tester avec des volumes réalistes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 font-mono text-sm">
+                        <span class="text-slate-500">-- Désactiver un trigger temporairement</span><br>
+                        <span class="text-amber-400">DISABLE TRIGGER</span> trg_AuditInsert <span class="text-amber-400">ON</span> Clients<br><br>
+                        <span class="text-slate-500">-- Réactiver</span><br>
+                        <span class="text-amber-400">ENABLE TRIGGER</span> trg_AuditInsert <span class="text-amber-400">ON</span> Clients<br><br>
+                        <span class="text-slate-500">-- Supprimer</span><br>
+                        <span class="text-amber-400">DROP TRIGGER</span> trg_AuditInsert
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Labo Pratique -->
+            <section class="animate-fade-in-up" style="animation-delay:0.35s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">7. Labo Pratique</h2>
+                <p class="text-slate-400 mb-4">Créez des triggers :</p>
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3 flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-500">sql-editor</span>
+                        <div class="flex gap-2">
+                            <button onclick="loadExample('audit')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">Audit</button>
+                            <button onclick="loadExample('softdel')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">Soft Delete</button>
+                            <button onclick="loadExample('valid')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">Validation</button>
+                        </div>
+                    </div>
+                    <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none">CREATE TRIGGER trg_LogUser
+ON users
+AFTER INSERT
+AS
+BEGIN
+  INSERT INTO AuditLog (action, date_action)
+  SELECT 'INSERT', GETDATE()
+  FROM inserted
+END</textarea>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold"><i class="fas fa-play mr-1"></i> Activer</button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px]"></div>
+                </div>
+            </section>
+
+            <!-- 8. Quiz -->
+            <section class="animate-fade-in-up" style="animation-delay:0.4s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">8. Quiz — Triggers</h2>
+                <div id="quiz-container" class="glass-card p-6 rounded-xl"></div>
+            </section>
+
+            <!-- 9. Challenge Drag-Drop -->
+            <section class="animate-fade-in-up" style="animation-delay:0.45s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-pink-500 pl-4">9. Challenge — Glisser-Déposer</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-400 mb-4">Associez chaque concept à sa fonction :</p>
+                    <div id="drag-drop-exercice" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700"></div>
+                    <button onclick="validateDragDrop()" class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold"><i class="fas fa-check mr-1"></i> Vérifier</button>
+                </div>
+            </section>
+
+            <!-- Fin du cours -->
+            <section class="animate-fade-in-up" style="animation-delay:0.5s;">
+                <div class="glass-card p-8 rounded-xl text-center border border-emerald-500/30 bg-gradient-to-r from-emerald-900/20 to-blue-900/20">
+                    <i class="fas fa-trophy text-5xl text-amber-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-white mb-3">Félicitations !</h3>
+                    <p class="text-slate-300 mb-6">Vous avez terminé les 12 modules du cours SQL ! Vous maîtrisez maintenant le DDL, DML, les jointures, les agrégats, les fonctions, la logique T-SQL, les transactions, les procédures et les triggers.</p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="../exercices/exercices.html" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition-all"><i class="fas fa-dumbbell mr-2"></i> Pratiquer</a>
+                        <a href="cartes.html" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold transition-all"><i class="fas fa-clone mr-2"></i> Flashcards</a>
+                        <a href="../simulateur-examen.html" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold transition-all"><i class="fas fa-graduation-cap mr-2"></i> Examen</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="hidden lg:block w-72 shrink-0">
+            <div class="sticky top-24"><div id="databot-container"></div></div>
+        </div>
+    </main>
+
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod11-procedures.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 11 : Procédures</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <span class="text-emerald-400 font-bold text-sm"><i class="fas fa-flag-checkered mr-1"></i> Fin du cours</span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const bot = new DataBot(); bot.render('databot-container');
+        bot.speak("Dernier module ! Les triggers sont l'arme ultime de l'automatisation SQL.", 5000);
+
+        // Drag-Drop — 6 items
+        const draggables = [
+            {id:'d1',text:'AFTER INSERT'},{id:'d2',text:'INSTEAD OF DELETE'},{id:'d3',text:'inserted'},
+            {id:'d4',text:'deleted'},{id:'d5',text:'DISABLE TRIGGER'},{id:'d6',text:'DROP TRIGGER'}
+        ];
+        const zones = [
+            {id:'z1',label:'Se déclenche après un ajout',accept:'d1'},
+            {id:'z2',label:'Remplace une suppression (soft delete)',accept:'d2'},
+            {id:'z3',label:'Table des nouvelles lignes',accept:'d3'},
+            {id:'z4',label:'Table des lignes supprimées/modifiées',accept:'d4'},
+            {id:'z5',label:'Désactiver temporairement',accept:'d5'},
+            {id:'z6',label:'Supprimer définitivement le trigger',accept:'d6'}
+        ];
+        const ddEngine = new DragDropEngine('drag-drop-exercice',draggables,zones);
+
+        function validateDragDrop(){
+            if(ddEngine.validate()){
+                bot.speak("L'automatisme est parfait ! 🎯","happy");
+                bot.awardXP(60); confetti();
+            } else {
+                bot.speak("Le mécanisme est grippé...","sad");
+            }
+        }
+
+        // Examples
+        function loadExample(type) {
+            const editor = document.getElementById('sql-input');
+            const examples = {
+                'audit': "CREATE TRIGGER trg_LogUser\nON users\nAFTER INSERT\nAS\nBEGIN\n  INSERT INTO AuditLog (action, date_action)\n  SELECT 'INSERT', GETDATE()\n  FROM inserted\nEND",
+                'softdel': "CREATE TRIGGER trg_SoftDelete\nON Clients\nINSTEAD OF DELETE\nAS\nBEGIN\n  UPDATE Clients\n  SET actif = 0, date_suppression = GETDATE()\n  WHERE id IN (SELECT id FROM deleted)\nEND",
+                'valid': "CREATE TRIGGER trg_CheckStock\nON Produits\nAFTER UPDATE\nAS\nBEGIN\n  IF EXISTS (SELECT 1 FROM inserted WHERE stock < 0)\n  BEGIN\n    ROLLBACK\n    PRINT 'Stock négatif interdit !'\n  END\nEND"
+            };
+            editor.value = examples[type] || '';
+        }
+
+        function runQuery() {
+            const sql = document.getElementById('sql-input').value;
+            const upper = sql.toUpperCase();
+            const output = document.getElementById('query-output');
+
+            if (upper.includes('CREATE TRIGGER') && upper.includes('ON')) {
+                const nameMatch = sql.match(/CREATE\s+TRIGGER\s+(\w+)/i);
+                const name = nameMatch ? nameMatch[1] : 'trigger';
+                const type = upper.includes('INSTEAD OF') ? 'INSTEAD OF' : 'AFTER';
+                const event = upper.includes('INSERT') ? 'INSERT' : upper.includes('UPDATE') ? 'UPDATE' : 'DELETE';
+                output.innerHTML = `<div class="text-green-400"><i class="fas fa-check-circle mr-1"></i> Trigger <strong>${name}</strong> créé (${type} ${event}).</div>
+                <div class="text-xs text-slate-500 mt-2">Le trigger se déclenchera automatiquement à chaque ${event} sur la table.</div>`;
+                bot.awardXP(20);
+            } else if (upper.includes('DISABLE TRIGGER')) {
+                output.innerHTML = `<div class="text-amber-400"><i class="fas fa-pause-circle mr-1"></i> Trigger désactivé.</div>`;
+                bot.awardXP(10);
+            } else if (upper.includes('DROP TRIGGER')) {
+                output.innerHTML = `<div class="text-red-400"><i class="fas fa-trash mr-1"></i> Trigger supprimé.</div>`;
+                bot.awardXP(10);
+            } else {
+                output.innerHTML = '<div class="text-red-400">Syntaxe non reconnue. Utilisez CREATE TRIGGER, DISABLE TRIGGER ou DROP TRIGGER.</div>';
+            }
+        }
+
+        // Quiz
+        const quizData = [
+            { q:"Un trigger se déclenche :", o:["Manuellement","Automatiquement sur INSERT/UPDATE/DELETE","À heure fixe","Au redémarrage du serveur"], a:1 },
+            { q:"AFTER INSERT signifie :", o:["Avant l'insertion","Après l'insertion réussie","À la place de l'insertion","Pendant l'insertion"], a:1 },
+            { q:"La table 'inserted' contient :", o:["Les lignes supprimées","Les nouvelles lignes ajoutées/modifiées","Les tables système","Les index"], a:1 },
+            { q:"INSTEAD OF DELETE :", o:["Supprime et log","Remplace le DELETE par autre chose","Double la suppression","Fait un ROLLBACK"], a:1 },
+            { q:"Le soft delete c'est :", o:["Suppression définitive","Marquer comme inactif sans supprimer","Supprimer lentement","Supprimer de la mémoire"], a:1 },
+            { q:"Un trigger récursif c'est :", o:["Un trigger rapide","Un trigger qui déclenche d'autres triggers","Un trigger sur plusieurs tables","Un trigger planifié"], a:1 },
+            { q:"DISABLE TRIGGER fait quoi ?", o:["Supprime le trigger","Désactive temporairement le trigger","Crée un trigger","Active le trigger"], a:1 },
+            { q:"Lors d'un UPDATE, 'deleted' contient :", o:["Les nouvelles valeurs","Les anciennes valeurs","Rien","Les tables modifiées"], a:1 },
+            { q:"Quand éviter les triggers ?", o:["Pour l'audit","Pour la logique métier complexe","Pour les validations simples","Pour le logging"], a:1 },
+            { q:"DROP TRIGGER fait quoi ?", o:["Désactive le trigger","Supprime définitivement le trigger","Pause le trigger","Modifie le trigger"], a:1 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            let html = '';
+            quizData.forEach((q, qi) => {
+                html += `<div class="mb-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <p class="font-bold mb-3 text-sm">${qi+1}. ${q.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+                q.o.forEach((opt, oi) => {
+                    html += `<button onclick="checkQuiz(${qi},${oi},this)" class="quiz-option text-left text-sm p-3 rounded border border-slate-600 bg-slate-800 hover:border-blue-500 transition-all">${opt}</button>`;
+                });
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function checkQuiz(qi, oi, btn) {
+            const correct = quizData[qi].a === oi;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('button').forEach((b, i) => {
+                b.disabled = true;
+                b.classList.remove('hover:border-blue-500');
+                if (i === quizData[qi].a) b.classList.add('border-emerald-500','bg-emerald-900/30','text-emerald-300');
+                else if (i === oi && !correct) b.classList.add('border-red-500','bg-red-900/30','text-red-300','line-through');
+            });
+            if (correct) { bot.awardXP(10); bot.speak("Trigger validé !","happy"); }
+            else { bot.speak("Raté... révise les triggers.","sad"); }
+        }
+
+        renderQuiz();
+        if(localStorage.getItem('rd_sql_theme')==='light') document.documentElement.setAttribute('data-theme','light');
+    </script>
+</body>
+</html>

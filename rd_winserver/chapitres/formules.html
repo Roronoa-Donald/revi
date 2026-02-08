@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheat Sheet — RD WinServer</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre8.html">← Module 8</a></li>
+                <li><a href="formules.html" class="active">Cheat Sheet</a></li>
+                <li><a href="cartes.html">Flashcards →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="formules.html" class="active"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-book-open"></i> Référence</span>
+        <h1 class="hero-title">Cheat Sheet <span class="gradient-text">Windows Server</span></h1>
+        <p class="hero-description">Toutes les commandes essentielles et concepts clés en un seul endroit.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll" data-chapter="1">
+            <h2><i class="fas fa-terminal" style="color:var(--accent)"></i> PowerShell — Commandes de Base</h2>
+            <pre class="code-block"><code><span class="comment"># Informations système</span>
+<span class="cmd">Get-ComputerInfo</span>                  <span class="comment"># Infos complètes du serveur</span>
+<span class="cmd">Rename-Computer</span> <span class="string">"SRV-DC01"</span>       <span class="comment"># Renommer le serveur</span>
+<span class="cmd">Restart-Computer</span>                  <span class="comment"># Redémarrer</span>
+<span class="cmd">Get-WindowsFeature</span>                <span class="comment"># Lister les rôles/fonctionnalités</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="string">AD-Domain-Services</span> <span class="flag">-IncludeManagementTools</span>
+
+<span class="comment"># Réseau</span>
+<span class="cmd">Get-NetIPAddress</span>                  <span class="comment"># Voir les IP</span>
+<span class="cmd">New-NetIPAddress</span> <span class="flag">-InterfaceAlias</span> <span class="string">"Ethernet"</span> <span class="flag">-IPAddress</span> <span class="num">192.168.1.10</span> <span class="flag">-PrefixLength</span> <span class="num">24</span> <span class="flag">-DefaultGateway</span> <span class="num">192.168.1.1</span>
+<span class="cmd">Set-DnsClientServerAddress</span> <span class="flag">-InterfaceAlias</span> <span class="string">"Ethernet"</span> <span class="flag">-ServerAddresses</span> <span class="num">192.168.1.10</span>,<span class="num">192.168.1.11</span>
+<span class="cmd">Test-NetConnection</span> <span class="string">"SRV-DC01"</span> <span class="flag">-Port</span> <span class="num">389</span>
+
+<span class="comment"># Services</span>
+<span class="cmd">Get-Service</span> | <span class="cmd">Where-Object</span> Status <span class="flag">-eq</span> <span class="string">"Stopped"</span>
+<span class="cmd">Start-Service</span> <span class="string">"DNS"</span>
+<span class="cmd">Restart-Service</span> <span class="string">"NTDS"</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" data-chapter="2">
+            <h2><i class="fas fa-sitemap" style="color:var(--accent)"></i> Active Directory</h2>
+            <pre class="code-block"><code><span class="comment"># Installer AD DS et promouvoir en DC</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="string">AD-Domain-Services</span> <span class="flag">-IncludeManagementTools</span>
+<span class="cmd">Install-ADDSForest</span> <span class="flag">-DomainName</span> <span class="string">"lab.local"</span> <span class="flag">-DomainNetbiosName</span> <span class="string">"LAB"</span> <span class="flag">-InstallDns</span>
+
+<span class="comment"># Créer OU / Utilisateur / Groupe</span>
+<span class="cmd">New-ADOrganizationalUnit</span> <span class="flag">-Name</span> <span class="string">"IT"</span> <span class="flag">-Path</span> <span class="string">"DC=lab,DC=local"</span>
+<span class="cmd">New-ADUser</span> <span class="flag">-Name</span> <span class="string">"Jean Dupont"</span> <span class="flag">-SamAccountName</span> <span class="string">"jdupont"</span> <span class="flag">-Enabled</span> <span class="var">$true</span> <span class="flag">-AccountPassword</span> (<span class="cmd">ConvertTo-SecureString</span> <span class="string">"P@ss1234"</span> <span class="flag">-AsPlainText</span> <span class="flag">-Force</span>)
+<span class="cmd">New-ADGroup</span> <span class="flag">-Name</span> <span class="string">"GRP_IT"</span> <span class="flag">-GroupScope</span> <span class="string">Global</span>
+<span class="cmd">Add-ADGroupMember</span> <span class="flag">-Identity</span> <span class="string">"GRP_IT"</span> <span class="flag">-Members</span> <span class="string">"jdupont"</span>
+
+<span class="comment"># Vérification</span>
+<span class="cmd">Get-ADDomain</span> | <span class="cmd">Get-ADForest</span> | <span class="cmd">Get-ADDomainController</span>
+<span class="cmd">netdom query fsmo</span>
+<span class="cmd">repadmin</span> /replsummary | <span class="cmd">dcdiag</span> /v</code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" data-chapter="3">
+            <h2><i class="fas fa-scroll" style="color:var(--accent)"></i> GPO</h2>
+            <pre class="code-block"><code><span class="cmd">New-GPO</span> <span class="flag">-Name</span> <span class="string">"Sécurité Mots de Passe"</span>
+<span class="cmd">New-GPLink</span> <span class="flag">-Name</span> <span class="string">"Sécurité Mots de Passe"</span> <span class="flag">-Target</span> <span class="string">"DC=lab,DC=local"</span>
+<span class="cmd">gpresult</span> /r             <span class="comment"># Résumé des GPO appliquées</span>
+<span class="cmd">gpresult</span> /h rapport.html <span class="comment"># Rapport HTML détaillé</span>
+<span class="cmd">gpupdate</span> /force          <span class="comment"># Forcer la mise à jour GPO</span>
+<span class="gui">rsop.msc</span>                 <span class="comment"># Resultant Set of Policy</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" data-chapter="4">
+            <h2><i class="fas fa-network-wired" style="color:var(--accent)"></i> DNS & DHCP</h2>
+            <pre class="code-block"><code><span class="comment"># DNS</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="string">DNS</span> <span class="flag">-IncludeManagementTools</span>
+<span class="cmd">Add-DnsServerPrimaryZone</span> <span class="flag">-Name</span> <span class="string">"lab.local"</span> <span class="flag">-ReplicationScope</span> <span class="string">"Forest"</span>
+<span class="cmd">Add-DnsServerResourceRecordA</span> <span class="flag">-ZoneName</span> <span class="string">"lab.local"</span> <span class="flag">-Name</span> <span class="string">"srv-web"</span> <span class="flag">-IPv4Address</span> <span class="num">192.168.1.20</span>
+<span class="cmd">nslookup</span> srv-dc01.lab.local | <span class="cmd">Resolve-DnsName</span> <span class="string">"srv-dc01.lab.local"</span>
+
+<span class="comment"># DHCP</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="string">DHCP</span> <span class="flag">-IncludeManagementTools</span>
+<span class="cmd">Add-DhcpServerInDC</span> <span class="flag">-DnsName</span> <span class="string">"srv-dc01.lab.local"</span>
+<span class="cmd">Add-DhcpServerv4Scope</span> <span class="flag">-Name</span> <span class="string">"LAN"</span> <span class="flag">-StartRange</span> <span class="num">192.168.1.51</span> <span class="flag">-EndRange</span> <span class="num">192.168.1.200</span> <span class="flag">-SubnetMask</span> <span class="num">255.255.255.0</span>
+<span class="cmd">Set-DhcpServerv4OptionValue</span> <span class="flag">-Router</span> <span class="num">192.168.1.1</span> <span class="flag">-DnsServer</span> <span class="num">192.168.1.10</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" data-chapter="5">
+            <h2><i class="fas fa-database" style="color:var(--accent)"></i> Sauvegarde</h2>
+            <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="string">Windows-Server-Backup</span>
+<span class="var">$policy</span> = <span class="cmd">New-WBPolicy</span>
+<span class="cmd">Add-WBSystemState</span> <span class="flag">-Policy</span> <span class="var">$policy</span>
+<span class="cmd">Set-WBSchedule</span> <span class="flag">-Policy</span> <span class="var">$policy</span> <span class="flag">-Schedule</span> <span class="num">22:00</span>
+<span class="cmd">Start-WBBackup</span> <span class="flag">-Policy</span> (<span class="cmd">Get-WBPolicy</span>)
+<span class="cmd">Get-WBBackupSet</span>                <span class="comment"># Voir les sauvegardes disponibles</span>
+<span class="cmd">Get-WBSummary</span>                  <span class="comment"># Résumé de la dernière</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" data-chapter="6">
+            <h2><i class="fas fa-arrows-rotate" style="color:var(--accent)"></i> Haute Disponibilité</h2>
+            <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="string">Failover-Clustering</span> <span class="flag">-IncludeManagementTools</span>
+<span class="cmd">Test-Cluster</span> <span class="flag">-Node</span> <span class="string">"SRV-NODE1"</span>,<span class="string">"SRV-NODE2"</span>
+<span class="cmd">New-Cluster</span> <span class="flag">-Name</span> <span class="string">"CLUSTER-PROD"</span> <span class="flag">-Node</span> <span class="string">"SRV-NODE1"</span>,<span class="string">"SRV-NODE2"</span> <span class="flag">-StaticAddress</span> <span class="num">192.168.1.200</span>
+<span class="cmd">Get-ClusterNode</span> | <span class="cmd">Get-Cluster</span>
+
+<span class="comment"># NLB</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="string">NLB</span> <span class="flag">-IncludeManagementTools</span>
+<span class="cmd">New-NlbCluster</span> <span class="flag">-InterfaceName</span> <span class="string">"Ethernet"</span> <span class="flag">-ClusterPrimaryIP</span> <span class="num">192.168.1.250</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" data-chapter="7">
+            <h2><i class="fas fa-wrench" style="color:var(--accent)"></i> Maintenance & Monitoring</h2>
+            <pre class="code-block"><code><span class="comment"># Event Viewer</span>
+<span class="cmd">Get-EventLog</span> <span class="flag">-LogName</span> <span class="string">System</span> <span class="flag">-EntryType</span> <span class="string">Error</span> <span class="flag">-Newest</span> <span class="num">50</span>
+<span class="cmd">Get-WinEvent</span> <span class="flag">-FilterHashtable</span> @{LogName=<span class="string">'Security'</span>;Id=<span class="num">4625</span>} <span class="flag">-MaxEvents</span> <span class="num">20</span>
+
+<span class="comment"># Performance</span>
+<span class="cmd">Get-Counter</span> <span class="string">'\Processor(_Total)\% Processor Time'</span>
+<span class="cmd">Get-Counter</span> <span class="string">'\Memory\Available MBytes'</span>
+
+<span class="comment"># WSUS</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="string">UpdateServices</span> <span class="flag">-IncludeManagementTools</span>
+
+<span class="comment"># Diagnostic</span>
+<span class="cmd">dcdiag</span> /v | <span class="cmd">repadmin</span> /replsummary | <span class="cmd">Get-WBSummary</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" data-chapter="8">
+            <h2><i class="fas fa-cube" style="color:var(--accent)"></i> Hyper-V & Snapshots</h2>
+            <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="string">Hyper-V</span> <span class="flag">-IncludeManagementTools</span> <span class="flag">-Restart</span>
+
+<span class="comment"># Créer VM</span>
+<span class="cmd">New-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Generation</span> <span class="num">2</span> <span class="flag">-MemoryStartupBytes</span> <span class="num">4GB</span> <span class="flag">-NewVHDPath</span> <span class="path">"D:\VMs\disk.vhdx"</span> <span class="flag">-NewVHDSizeBytes</span> <span class="num">60GB</span>
+<span class="cmd">Set-VMProcessor</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Count</span> <span class="num">2</span>
+<span class="cmd">Start-VM</span> <span class="string">"SRV-WEB01"</span>
+
+<span class="comment"># Switches</span>
+<span class="cmd">New-VMSwitch</span> <span class="flag">-Name</span> <span class="string">"Production"</span> <span class="flag">-NetAdapterName</span> <span class="string">"Ethernet"</span> <span class="flag">-AllowManagementOS</span> <span class="var">$true</span>
+
+<span class="comment"># Snapshots</span>
+<span class="cmd">Checkpoint-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-SnapshotName</span> <span class="string">"Avant-MAJ"</span>
+<span class="cmd">Restore-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Name</span> <span class="string">"Avant-MAJ"</span>
+<span class="cmd">Remove-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Name</span> <span class="string">"Avant-MAJ"</span>
+
+<span class="comment"># Export / Import</span>
+<span class="cmd">Export-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Path</span> <span class="path">"E:\Exports"</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-table" style="color:var(--accent)"></i> Tableaux de Référence Rapide</h2>
+
+            <h3>Ports essentiels</h3>
+            <table class="styled-table">
+                <thead><tr><th>Service</th><th>Port</th></tr></thead>
+                <tbody>
+                    <tr><td>DNS</td><td>53</td></tr>
+                    <tr><td>Kerberos</td><td>88</td></tr>
+                    <tr><td>LDAP</td><td>389 / 636 (SSL)</td></tr>
+                    <tr><td>SMB</td><td>445</td></tr>
+                    <tr><td>RPC</td><td>135</td></tr>
+                    <tr><td>RDP</td><td>3389</td></tr>
+                    <tr><td>DHCP</td><td>67-68</td></tr>
+                    <tr><td>WSUS</td><td>8530</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Ordre d'application GPO (LSDOU)</h3>
+            <table class="styled-table">
+                <thead><tr><th>Ordre</th><th>Niveau</th><th>Priorité</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Local</td><td>La plus faible</td></tr>
+                    <tr><td>2</td><td>Site</td><td>↑</td></tr>
+                    <tr><td>3</td><td>Domain</td><td>↑</td></tr>
+                    <tr><td>4</td><td>OU</td><td>La plus forte</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Seuils performance</h3>
+            <table class="styled-table">
+                <thead><tr><th>Ressource</th><th>🟢</th><th>🟡</th><th>🔴</th></tr></thead>
+                <tbody>
+                    <tr><td>CPU %</td><td>&lt;70</td><td>70-85</td><td>&gt;85</td></tr>
+                    <tr><td>RAM libre %</td><td>&gt;20</td><td>10-20</td><td>&lt;10</td></tr>
+                    <tr><td>Disk Queue</td><td>&lt;2</td><td>2-4</td><td>&gt;4</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <div class="chapter-nav">
+            <a href="chapitre8.html"><i class="fas fa-arrow-left"></i> Module 8</a>
+            <a href="cartes.html">Flashcards <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+    (function() {
+        const completed = (() => { try { return JSON.parse(localStorage.getItem('rd_winserver_completed')) || []; } catch { return []; } })();
+        document.querySelectorAll('[data-chapter]').forEach(el => {
+            const ch = parseInt(el.dataset.chapter);
+            if (!completed.includes(ch)) {
+                el.classList.add('cheatsheet-locked');
+                const overlay = document.createElement('div');
+                overlay.className = 'lock-overlay';
+                overlay.innerHTML = '<i class="fas fa-lock"></i><p>Terminez le Module ' + ch + ' pour débloquer</p><a href="chapitre' + ch + '.html">Aller au Module ' + ch + ' →</a>';
+                el.appendChild(overlay);
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chapitre 2 - Dénombrement : Tableaux, arbres, permutations, combinaisons et triangle de Pascal">
+    <title>Chapitre 2 : Dénombrement | Probas RD</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    
+    <style>
+        /* Pascal Triangle Styles */
+        .pascal-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 2rem;
+        }
+        
+        .pascal-row {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .pascal-cell {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .pascal-cell:hover {
+            transform: scale(1.1);
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 5px 20px var(--accent-glow);
+        }
+        
+        .pascal-cell.highlighted {
+            background: var(--accent-gradient);
+            color: white;
+            border-color: var(--accent-primary);
+            animation: pulse 1s ease-in-out;
+        }
+        
+        .pascal-formula {
+            margin-top: 1.5rem;
+            padding: 1rem 2rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+        
+        /* Factorial Calculator */
+        .calc-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .calc-result {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            margin-top: 1rem;
+        }
+        
+        .calc-result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-family: var(--font-mono);
+        }
+        
+        /* Arrangement visualization */
+        .arrangement-viz {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            margin-top: 1rem;
+        }
+        
+        .arrangement-item {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-gradient);
+            color: white;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            animation: fadeInUp 0.3s ease forwards;
+        }
+        
+        .arrangement-item:nth-child(1) { animation-delay: 0.1s; }
+        .arrangement-item:nth-child(2) { animation-delay: 0.2s; }
+        .arrangement-item:nth-child(3) { animation-delay: 0.3s; }
+        .arrangement-item:nth-child(4) { animation-delay: 0.4s; }
+        .arrangement-item:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">🎲</div>
+                <span>Probas <strong style="color: var(--accent-secondary);">RD</strong></span>
+            </a>
+            
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Accueil</a>
+                <a href="chapitre1.html" class="nav-link">Probabilités</a>
+                <a href="chapitre2.html" class="nav-link active">Dénombrement</a>
+                <a href="chapitre3.html" class="nav-link">VA Discrètes</a>
+                <a href="chapitre4.html" class="nav-link">VA Continues</a>
+                <a href="cartes.html" class="nav-link">🃏 Cartes</a>
+                <a href="../exercices/exercices.html" class="nav-link">Exercices</a>
+                <a href="formules.html" class="nav-link">📐 Formules</a>
+                <a href="rappels-integration.html" class="nav-link">∫ Intégrales</a>
+                <a href="simulateur-examen.html" class="nav-link" style="color: var(--accent-secondary);">📝 Examen</a>
+            </nav>
+            
+            <div class="flex" style="gap: 0.75rem;">
+                <button class="theme-toggle" aria-label="Changer le thème">
+                    <i class="fas fa-sun icon-sun"></i>
+                    <i class="fas fa-moon icon-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-layout">
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Chapter Header -->
+                <section class="section" style="padding-top: 2rem;">
+                    <div class="card-badge" style="margin-bottom: 1rem;">
+                        <i class="fas fa-book-open"></i>
+                        Chapitre 2
+                    </div>
+                    <h1>Dénombrement</h1>
+                    <p style="font-size: 1.1rem; max-width: 800px;">
+                        Le problème du calcul de probabilités se réduit souvent à un problème de <strong>dénombrement</strong> : 
+                        combien y a-t-il d'issues possibles ? Combien de cas favorables ?
+                    </p>
+                    
+                    <div class="progress-bar" style="max-width: 400px; margin-top: 1.5rem;">
+                        <div class="progress-fill" style="width: 0%;" id="progress"></div>
+                    </div>
+                </section>
+
+                <!-- Section 1: Méthodes de dénombrement -->
+                <section id="methodes" class="section">
+                    <h2><i class="fas fa-table" style="color: var(--info);"></i> I. Méthodes de dénombrement</h2>
+                    
+                    <h3 id="tableaux">I.1 Utilisation de tableaux</h3>
+                    
+                    <div class="math-example">
+                        <h4><i class="fas fa-lightbulb"></i> Exemple : Produit de deux dés</h4>
+                        <p>On jette deux dés à 4 faces (tétraèdres) et on calcule le produit obtenu :</p>
+                        
+                        <div style="overflow-x: auto; margin: 1rem 0;">
+                            <table style="width: 100%; max-width: 400px; border-collapse: collapse; text-align: center;">
+                                <thead>
+                                    <tr style="background: var(--accent-gradient); color: white;">
+                                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);">×</th>
+                                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);">1</th>
+                                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);">2</th>
+                                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);">3</th>
+                                        <th style="padding: 0.75rem; border: 1px solid var(--border-color);">4</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color); background: var(--accent-gradient); color: white; font-weight: 600;">1</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">1</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">2</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">3</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">4</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color); background: var(--accent-gradient); color: white; font-weight: 600;">2</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">2</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">4</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">6</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">8</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color); background: var(--accent-gradient); color: white; font-weight: 600;">3</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">3</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">6</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">9</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">12</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color); background: var(--accent-gradient); color: white; font-weight: 600;">4</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">4</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">8</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">12</td>
+                                        <td style="padding: 0.75rem; border: 1px solid var(--border-color);">16</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p>Il y a $4 \times 4 = 16$ résultats possibles.</p>
+                    </div>
+                    
+                    <h3 id="arbres">I.2 Utilisation d'arbres</h3>
+                    
+                    <div class="math-recall">
+                        <h4><i class="fas fa-info-circle"></i> Principe de l'arbre</h4>
+                        <p>Un arbre permet de visualiser toutes les possibilités d'une expérience à plusieurs étapes. Le nombre total de chemins correspond au nombre de résultats possibles.</p>
+                    </div>
+                    
+                    <div class="math-example">
+                        <h4><i class="fas fa-lightbulb"></i> Exemple : Bâtons de glace</h4>
+                        <p>Benoît prend successivement 2 bâtons parmi 4 parfums (vanille, chocolat, pistache, fraise) dans le noir.</p>
+                        <p>D'après l'arbre, on obtient $4 \times 3 = 12$ possibilités (car pas de remise).</p>
+                        <p>Ses préférés sont vanille et fraise. Calculons :</p>
+                        <ul>
+                            <li>P(vanille puis chocolat) = $\frac{1}{12}$</li>
+                            <li>P(ses deux préférés) = $\frac{2}{12} = \frac{1}{6}$ (V-F ou F-V)</li>
+                            <li>P(un seul préféré) = $\frac{8}{12} = \frac{2}{3}$</li>
+                            <li>P(aucun préféré) = $\frac{2}{12} = \frac{1}{6}$</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Section 2: Factorielles et Permutations -->
+                <section id="permutations" class="section">
+                    <h2><i class="fas fa-random" style="color: var(--accent-secondary);"></i> II. Permutations</h2>
+                    
+                    <div class="math-definition">
+                        <h4><i class="fas fa-book"></i> Définition : Permutation</h4>
+                        <p>On réalise une <strong>permutation</strong> lorsqu'on écrit tous les éléments d'un ensemble dans un <em>ordre déterminé</em>.</p>
+                    </div>
+                    
+                    <div class="math-definition">
+                        <h4><i class="fas fa-book"></i> Définition : Factorielle</h4>
+                        <p>Soit $n \in \mathbb{N}$. On appelle <strong>factorielle $n$</strong> le nombre noté $n!$ qui vaut :</p>
+                        $$ n! = n \times (n-1) \times \cdots \times 2 \times 1 $$
+                        <p>Par convention : $0! = 1$</p>
+                    </div>
+                    
+                    <div class="math-property">
+                        <h4><i class="fas fa-check-circle"></i> Propriété fondamentale</h4>
+                        <p>Le <strong>nombre de permutations</strong> de $n$ éléments est $n!$</p>
+                        <p><em>Autrement dit : il y a $n!$ façons de ranger $n$ objets distincts dans $n$ cases.</em></p>
+                    </div>
+                    
+                    <!-- Interactive: Factorial Calculator -->
+                    <div class="simulation-container">
+                        <div class="simulation-header">
+                            <div class="simulation-title">
+                                <i class="fas fa-calculator"></i>
+                                Calculateur de Factorielles
+                            </div>
+                            <select class="simulation-selector" id="calc-selector">
+                                <option value="factorial">Factorielle n!</option>
+                                <option value="arrangement">Arrangement A(n,p)</option>
+                                <option value="combination">Combinaison C(n,p)</option>
+                            </select>
+                        </div>
+                        <div class="simulation-body">
+                            <div class="simulation-controls">
+                                <div class="control-group">
+                                    <label>Valeur de n</label>
+                                    <input type="number" id="calc-n" value="5" min="0" max="20">
+                                </div>
+                                <div class="control-group" id="calc-p-group" style="display: none;">
+                                    <label>Valeur de p</label>
+                                    <input type="number" id="calc-p" value="2" min="0" max="20">
+                                </div>
+                                <div class="control-group">
+                                    <label>Calculer</label>
+                                    <button class="btn btn-primary" id="calc-btn">
+                                        <i class="fas fa-equals"></i> Résultat
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="calc-result" id="calc-result">
+                                <div style="margin-bottom: 0.5rem; color: var(--text-secondary);">Résultat :</div>
+                                <div class="calc-result-value" id="calc-result-value">5! = 120</div>
+                                <div style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted);" id="calc-steps">
+                                    5! = 5 × 4 × 3 × 2 × 1 = 120
+                                </div>
+                            </div>
+                            
+                            <div class="arrangement-viz" id="arrangement-viz" style="display: none;">
+                                <!-- Will be filled by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="math-example">
+                        <h4><i class="fas fa-lightbulb"></i> Exemples de calculs</h4>
+                        <ul>
+                            <li>$3! = 3 \times 2 \times 1 = 6$</li>
+                            <li>$6! = 720$</li>
+                            <li>$8! = 40\,320$</li>
+                            <li>$\displaystyle\frac{15!}{12!} = 15 \times 14 \times 13 = 2730$</li>
+                            <li>$\displaystyle\frac{7!}{5! \times 2!} = \frac{7 \times 6}{2} = 21$</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="math-property">
+                        <h4><i class="fas fa-check-circle"></i> Propriété de récurrence</h4>
+                        <p>Pour tout $n \in \mathbb{N}^*$ :</p>
+                        $$ (n+1)! = (n+1) \times n! $$
+                    </div>
+                </section>
+
+                <!-- Section 3: Combinaisons -->
+                <section id="combinaisons" class="section">
+                    <h2><i class="fas fa-object-group" style="color: var(--success);"></i> III. Combinaisons</h2>
+                    
+                    <div class="math-definition">
+                        <h4><i class="fas fa-book"></i> Définition</h4>
+                        <p>Soient $n$ et $p$ deux entiers naturels.</p>
+                        <p>On appelle <strong>combinaison de $p$ éléments parmi $n$</strong> le fait de prélever $p$ éléments parmi $n$, où <em>l'ordre n'a pas d'importance</em>.</p>
+                        $$ \binom{n}{p} = C_n^p = \begin{cases} \displaystyle\frac{n!}{p!(n-p)!} & \text{si } p \leqslant n \\ 0 & \text{sinon} \end{cases} $$
+                    </div>
+                    
+                    <div class="math-warning">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Attention : Arrangement vs Combinaison</h4>
+                        <ul>
+                            <li><strong>Arrangement</strong> : l'ordre compte → $A_n^p = \frac{n!}{(n-p)!}$</li>
+                            <li><strong>Combinaison</strong> : l'ordre ne compte pas → $C_n^p = \frac{n!}{p!(n-p)!}$</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="math-example">
+                        <h4><i class="fas fa-lightbulb"></i> Exemple : Calcul de $\binom{5}{k}$</h4>
+                        <ul>
+                            <li>$\binom{5}{0} = 1$</li>
+                            <li>$\binom{5}{1} = 5$</li>
+                            <li>$\binom{5}{2} = \frac{5!}{2! \times 3!} = \frac{5 \times 4}{2} = 10$</li>
+                            <li>$\binom{5}{3} = 10$</li>
+                            <li>$\binom{5}{4} = 5$</li>
+                            <li>$\binom{5}{5} = 1$</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="math-theorem">
+                        <h4><i class="fas fa-scroll"></i> Propriétés des combinaisons</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 0.5rem 0;">$\bullet \quad \binom{n}{0} = \binom{n}{n} = 1$</li>
+                            <li style="padding: 0.5rem 0;">$\bullet \quad$ <strong>Symétrie :</strong> $\binom{n}{p} = \binom{n}{n-p}$</li>
+                            <li style="padding: 0.5rem 0; color: var(--accent-primary); font-weight: 600;">$\bullet \quad$ <strong>Relation de Pascal :</strong> $\binom{n}{p} + \binom{n}{p+1} = \binom{n+1}{p+1}$</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="math-example">
+                        <h4><i class="fas fa-spade"></i> Exemple : Jeu de cartes</h4>
+                        <p>On tire 5 cartes dans un jeu de 32 pour constituer une main.</p>
+                        <ul>
+                            <li>Nombre de mains possibles : $\binom{32}{5} = 201\,376$</li>
+                            <li>Mains avec exactement 3 rois : $\binom{4}{3} \times \binom{28}{2} = 4 \times 378 = 1\,512$</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Section 4: Triangle de Pascal -->
+                <section id="pascal" class="section">
+                    <h2><i class="fas fa-shapes" style="color: var(--warning);"></i> IV. Triangle de Pascal</h2>
+                    
+                    <div class="math-recall">
+                        <h4><i class="fas fa-info-circle"></i> Principe de construction</h4>
+                        <p>Chaque nombre est la <strong>somme des deux nombres situés au-dessus</strong> de lui. C'est la traduction graphique de la relation de Pascal.</p>
+                    </div>
+                    
+                    <!-- Interactive Pascal Triangle -->
+                    <div class="simulation-container">
+                        <div class="simulation-header">
+                            <div class="simulation-title">
+                                <i class="fas fa-shapes"></i>
+                                Triangle de Pascal Interactif
+                            </div>
+                            <select class="simulation-selector" id="pascal-rows">
+                                <option value="6">6 lignes</option>
+                                <option value="8" selected>8 lignes</option>
+                                <option value="10">10 lignes</option>
+                                <option value="12">12 lignes</option>
+                            </select>
+                        </div>
+                        <div class="simulation-body">
+                            <p style="text-align: center; color: var(--text-muted); margin-bottom: 1rem;">
+                                <i class="fas fa-mouse-pointer"></i> Cliquez sur un coefficient pour voir sa formule
+                            </p>
+                            
+                            <div class="pascal-container" id="pascal-container">
+                                <!-- Generated by JS -->
+                            </div>
+                            
+                            <div class="pascal-formula" id="pascal-formula">
+                                <span style="color: var(--text-muted);">Cliquez sur un coefficient...</span>
+                            </div>
+                            
+                            <div class="simulation-results" style="margin-top: 1.5rem;">
+                                <div class="result-grid">
+                                    <div class="result-item">
+                                        <div class="result-value" id="pascal-sum">-</div>
+                                        <div class="result-label">Somme de la ligne</div>
+                                    </div>
+                                    <div class="result-item">
+                                        <div class="result-value" id="pascal-power">2ⁿ</div>
+                                        <div class="result-label">= Somme = 2ⁿ</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="math-theorem">
+                        <h4><i class="fas fa-scroll"></i> Formule du binôme de Newton</h4>
+                        <p>Pour tous réels $a$ et $b$ et tout entier naturel $n$ :</p>
+                        $$ (a + b)^n = \sum_{k=0}^{n} \binom{n}{k} a^k b^{n-k} $$
+                    </div>
+                    
+                    <div class="math-example">
+                        <h4><i class="fas fa-lightbulb"></i> Exemple : Développement de $(x+2)^4$</h4>
+                        <p>Les coefficients de la ligne $n=4$ du triangle de Pascal sont : <strong>1 - 4 - 6 - 4 - 1</strong></p>
+                        
+                        \begin{align}
+                        (x+2)^4 &= 1 \times 2^4 \times x^0 + 4 \times 2^3 \times x^1 + 6 \times 2^2 \times x^2 + 4 \times 2^1 \times x^3 + 1 \times 2^0 \times x^4 \\
+                        &= 16 + 32x + 24x^2 + 8x^3 + x^4
+                        \end{align}
+                    </div>
+                    
+                    <div class="math-property">
+                        <h4><i class="fas fa-check-circle"></i> Propriétés remarquables</h4>
+                        <ul>
+                            <li>La somme des coefficients de la ligne $n$ est $2^n$ : $\displaystyle\sum_{k=0}^{n} \binom{n}{k} = 2^n$</li>
+                            <li>Le triangle est symétrique par rapport à son axe central</li>
+                            <li>La $n$-ième ligne contient $n+1$ coefficients</li>
+                        </ul>
+                    </div>
+
+                    <!-- ALERT WARNING: Erreurs classiques -->
+                    <div class="alert-warning">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Erreurs classiques en dénombrement</h4>
+                        <ul>
+                            <li><strong>Confondre arrangements et combinaisons :</strong> L'ordre compte-t-il ? Si OUI → arrangements $A_n^k$. Si NON → combinaisons $C_n^k$.</li>
+                            <li><strong>Oublier que $0! = 1$ :</strong> Par convention, la factorielle de 0 vaut 1.</li>
+                            <li><strong>Inverser $n$ et $k$ :</strong> $C_n^k$ = choisir $k$ éléments parmi $n$, pas l'inverse !</li>
+                            <li><strong>Tirage avec remise vs sans remise :</strong> Changez de formule selon le contexte.</li>
+                        </ul>
+                    </div>
+
+                    <!-- EXERCICES CLASSIQUES -->
+                    <h3 id="exercices-chapitre">Exercices de fin de chapitre</h3>
+                    
+                    <div class="exercise-card">
+                        <div class="exercise-header">
+                            <span class="exercise-number">Exercice 1</span>
+                            <span class="exercise-difficulty easy">Facile</span>
+                        </div>
+                        <div class="exercise-body">
+                            <p>De combien de façons peut-on ranger 6 livres différents sur une étagère ?</p>
+                        </div>
+                        <details class="solution-details">
+                            <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+                            <div class="solution-content">
+                                <p><strong>Solution :</strong> C'est une permutation de 6 éléments.</p>
+                                $$ 6! = 6 \times 5 \times 4 \times 3 \times 2 \times 1 = \boxed{720} $$
+                            </div>
+                        </details>
+                    </div>
+                    
+                    <div class="exercise-card">
+                        <div class="exercise-header">
+                            <span class="exercise-number">Exercice 2</span>
+                            <span class="exercise-difficulty medium">Moyen</span>
+                        </div>
+                        <div class="exercise-body">
+                            <p>Une classe de 30 élèves doit élire un délégué et un suppléant.</p>
+                            <ol>
+                                <li>Combien y a-t-il de résultats possibles ?</li>
+                                <li>Si on élit 3 représentants sans distinction de rôle, combien de choix ?</li>
+                            </ol>
+                        </div>
+                        <details class="solution-details">
+                            <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+                            <div class="solution-content">
+                                <p><strong>1. Délégué + suppléant :</strong> L'ordre compte (arrangement)</p>
+                                $$ A_{30}^2 = 30 \times 29 = \boxed{870} $$
+                                
+                                <p><strong>2. Trois représentants :</strong> L'ordre ne compte pas (combinaison)</p>
+                                $$ C_{30}^3 = \frac{30!}{3! \times 27!} = \frac{30 \times 29 \times 28}{3 \times 2 \times 1} = \frac{24360}{6} = \boxed{4060} $$
+                            </div>
+                        </details>
+                    </div>
+                    
+                    <div class="exercise-card">
+                        <div class="exercise-header">
+                            <span class="exercise-number">Exercice 3</span>
+                            <span class="exercise-difficulty hard">Difficile</span>
+                        </div>
+                        <div class="exercise-body">
+                            <p>On tire 5 cartes d'un jeu de 52 cartes.</p>
+                            <ol>
+                                <li>Combien y a-t-il de mains de 5 cartes possibles ?</li>
+                                <li>Combien de mains contiennent exactement 2 as ?</li>
+                                <li>Quelle est la probabilité d'avoir exactement 2 as ?</li>
+                            </ol>
+                        </div>
+                        <details class="solution-details">
+                            <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+                            <div class="solution-content">
+                                <p><strong>1. Nombre total de mains :</strong></p>
+                                $$ C_{52}^5 = \frac{52!}{5! \times 47!} = \frac{52 \times 51 \times 50 \times 49 \times 48}{120} = \boxed{2\ 598\ 960} $$
+                                
+                                <p><strong>2. Mains avec exactement 2 as :</strong></p>
+                                <ul>
+                                    <li>Choisir 2 as parmi 4 : $C_4^2 = 6$</li>
+                                    <li>Choisir 3 non-as parmi 48 : $C_{48}^3 = \frac{48 \times 47 \times 46}{6} = 17\ 296$</li>
+                                </ul>
+                                $$ \text{Total} = 6 \times 17\ 296 = \boxed{103\ 776} $$
+                                
+                                <p><strong>3. Probabilité :</strong></p>
+                                $$ P = \frac{103\ 776}{2\ 598\ 960} \approx \boxed{0{,}0399 \approx 4\%} $$
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- EXERCICES AVEC INDICES -->
+                    <h3 id="exercices-indices" style="margin-top: 2rem;">
+                        <i class="fas fa-lightbulb" style="color: var(--warning);"></i>
+                        Exercices guidés avec indices
+                    </h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        Ces exercices proposent des indices progressifs. Essayez de résoudre sans les regarder !
+                    </p>
+
+                    <!-- Exercice guidé 1 -->
+                    <div class="exercise-with-hints" id="exo-hint-2-1">
+                        <div class="exercise-title">
+                            <h4><i class="fas fa-puzzle-piece"></i> Exercice guidé 1</h4>
+                            <span class="exercise-level medium">Moyen</span>
+                        </div>
+                        <div class="exercise-statement">
+                            <p>Combien de mots de 4 lettres (pas forcément existants) peut-on former avec les lettres du mot "PROBA" (sans répétition) ?</p>
+                        </div>
+                        
+                        <div class="hints-container">
+                            <div class="hints-title">
+                                <i class="fas fa-lightbulb"></i> Indices progressifs
+                                <span class="hints-counter" id="hints-counter-exo-hint-2-1">0/3 indices utilisés</span>
+                            </div>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-2-1" data-hint-number="1" id="hint-exo-hint-2-1-1">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">1</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 1 : Ordre important ?
+                                </summary>
+                                <div class="hint-content">
+                                    Un "mot" est une suite ordonnée de lettres. L'ordre compte donc ! C'est un arrangement.
+                                </div>
+                            </details>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-2-1" data-hint-number="2" id="hint-exo-hint-2-1-2">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">2</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 2 : Combien de lettres ?
+                                </summary>
+                                <div class="hint-content">
+                                    <p>Le mot "PROBA" contient 5 lettres distinctes : P, R, O, B, A.</p>
+                                    <p>On veut choisir 4 lettres parmi 5 avec ordre : $A_n^k = \frac{n!}{(n-k)!}$</p>
+                                </div>
+                            </details>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-2-1" data-hint-number="3" id="hint-exo-hint-2-1-3">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">3</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 3 : Le calcul
+                                </summary>
+                                <div class="hint-content">
+                                    <p>$A_5^4 = \frac{5!}{(5-4)!} = \frac{5!}{1!} = 5 \times 4 \times 3 \times 2 = ?$</p>
+                                </div>
+                            </details>
+                        </div>
+                        
+                        <div class="answer-section">
+                            <div class="answer-input-group">
+                                <input type="text" class="answer-input" id="answer-exo-hint-2-1" placeholder="Votre réponse">
+                                <button class="btn-check-answer" onclick="checkExerciseAnswer('exo-hint-2-1')">
+                                    <i class="fas fa-check"></i> Vérifier
+                                </button>
+                            </div>
+                            <div class="answer-feedback" id="feedback-exo-hint-2-1"></div>
+                        </div>
+                        
+                        <details class="final-solution">
+                            <summary class="final-solution-toggle">
+                                <i class="fas fa-graduation-cap"></i> Voir la solution complète
+                            </summary>
+                            <div class="final-solution-content">
+                                <p>$A_5^4 = 5 \times 4 \times 3 \times 2 = \boxed{120}$ mots possibles.</p>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Exercice guidé 2 -->
+                    <div class="exercise-with-hints" id="exo-hint-2-2">
+                        <div class="exercise-title">
+                            <h4><i class="fas fa-puzzle-piece"></i> Exercice guidé 2</h4>
+                            <span class="exercise-level hard">Difficile</span>
+                        </div>
+                        <div class="exercise-statement">
+                            <p>On forme un comité de 5 personnes parmi 8 hommes et 6 femmes. Combien y a-t-il de comités contenant exactement 3 femmes ?</p>
+                        </div>
+                        
+                        <div class="hints-container">
+                            <div class="hints-title">
+                                <i class="fas fa-lightbulb"></i> Indices progressifs
+                                <span class="hints-counter" id="hints-counter-exo-hint-2-2">0/3 indices utilisés</span>
+                            </div>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-2-2" data-hint-number="1" id="hint-exo-hint-2-2-1">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">1</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 1 : Décomposition du problème
+                                </summary>
+                                <div class="hint-content">
+                                    Le comité doit avoir exactement 3 femmes ET 2 hommes. Les deux choix sont indépendants, on multiplie.
+                                </div>
+                            </details>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-2-2" data-hint-number="2" id="hint-exo-hint-2-2-2">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">2</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 2 : Les combinaisons à calculer
+                                </summary>
+                                <div class="hint-content">
+                                    <ul>
+                                        <li>Choisir 3 femmes parmi 6 : $C_6^3$</li>
+                                        <li>Choisir 2 hommes parmi 8 : $C_8^2$</li>
+                                    </ul>
+                                    <p>L'ordre dans le comité n'a pas d'importance !</p>
+                                </div>
+                            </details>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-2-2" data-hint-number="3" id="hint-exo-hint-2-2-3">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">3</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 3 : Calcul numérique
+                                </summary>
+                                <div class="hint-content">
+                                    <p>$C_6^3 = \frac{6!}{3! \times 3!} = \frac{6 \times 5 \times 4}{6} = 20$</p>
+                                    <p>$C_8^2 = \frac{8!}{2! \times 6!} = \frac{8 \times 7}{2} = 28$</p>
+                                    <p>Multipliez ces deux résultats...</p>
+                                </div>
+                            </details>
+                        </div>
+                        
+                        <div class="answer-section">
+                            <div class="answer-input-group">
+                                <input type="text" class="answer-input" id="answer-exo-hint-2-2" placeholder="Votre réponse">
+                                <button class="btn-check-answer" onclick="checkExerciseAnswer('exo-hint-2-2')">
+                                    <i class="fas fa-check"></i> Vérifier
+                                </button>
+                            </div>
+                            <div class="answer-feedback" id="feedback-exo-hint-2-2"></div>
+                        </div>
+                        
+                        <details class="final-solution">
+                            <summary class="final-solution-toggle">
+                                <i class="fas fa-graduation-cap"></i> Voir la solution complète
+                            </summary>
+                            <div class="final-solution-content">
+                                <p>Nombre de comités = $C_6^3 \times C_8^2 = 20 \times 28 = \boxed{560}$</p>
+                            </div>
+                        </details>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="chapter-nav">
+                    <a href="chapitre1.html" class="nav-btn prev">
+                        <i class="fas fa-arrow-left"></i>
+                        <div class="nav-btn-content">
+                            <span class="nav-btn-label">Chapitre précédent</span>
+                            <span class="nav-btn-title">Probabilités</span>
+                        </div>
+                    </a>
+                    <a href="chapitre3.html" class="nav-btn next">
+                        <i class="fas fa-arrow-right"></i>
+                        <div class="nav-btn-content">
+                            <span class="nav-btn-label">Chapitre suivant</span>
+                            <span class="nav-btn-title">VA Discrètes</span>
+                        </div>
+                    </a>
+                </div>
+            </main>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav class="toc">
+                    <h4 class="toc-title">Sommaire</h4>
+                    <ul class="toc-list">
+                        <li class="toc-item">
+                            <a href="#methodes" class="toc-link active">
+                                <i class="fas fa-chevron-right"></i>
+                                I. Méthodes
+                            </a>
+                        </li>
+                        <li class="toc-item">
+                            <a href="#tableaux" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+                                I.1 Tableaux
+                            </a>
+                        </li>
+                        <li class="toc-item">
+                            <a href="#arbres" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+                                I.2 Arbres
+                            </a>
+                        </li>
+                        <li class="toc-item">
+                            <a href="#permutations" class="toc-link">
+                                <i class="fas fa-chevron-right"></i>
+                                II. Permutations
+                            </a>
+                        </li>
+                        <li class="toc-item">
+                            <a href="#combinaisons" class="toc-link">
+                                <i class="fas fa-chevron-right"></i>
+                                III. Combinaisons
+                            </a>
+                        </li>
+                        <li class="toc-item">
+                            <a href="#pascal" class="toc-link">
+                                <i class="fas fa-chevron-right"></i>
+                                IV. Triangle de Pascal
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <div class="card" style="margin-top: 1.5rem; padding: 1.25rem;">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">
+                        <i class="fas fa-tasks" style="color: var(--accent-primary);"></i>
+                        Exercices
+                    </h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        Entraînez-vous avec les exercices de dénombrement.
+                    </p>
+                    <a href="../exercices/exercices.html#chapitre2" class="btn btn-primary btn-sm" style="width: 100%;">
+                        Voir les exercices
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="section" style="background: var(--bg-secondary); padding: 3rem 0; margin-top: 2rem;">
+        <div class="container">
+            <div class="quiz-section" id="quiz-chapitre2">
+                <div class="quiz-header-section">
+                    <h2 style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <i class="fas fa-question-circle" style="color: var(--accent-primary);"></i>
+                        Quiz - Chapitre 2 : Dénombrement
+                    </h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        Testez vos connaissances sur le dénombrement avec ce quiz de 10 questions.
+                    </p>
+                    <div class="quiz-score-display" id="quiz2-score" style="display: none; padding: 1.5rem; background: var(--bg-primary); border-radius: var(--radius-xl); margin-bottom: 2rem; text-align: center;">
+                        <h3 style="margin: 0;">Votre score : <span id="quiz2-result" style="color: var(--accent-primary);">0/10</span></h3>
+                    </div>
+                </div>
+
+                <!-- Question 1 -->
+                <div class="exercise-interactive" id="q2-1">
+                    <div class="exercise-header">
+                        <span><strong>Question 1</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $5!$ (5 factorielle).
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-1" placeholder="Votre réponse">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-1', '120')">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-1"></div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="exercise-interactive" id="q2-2">
+                    <div class="exercise-header">
+                        <span><strong>Question 2</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Que vaut $0!$ ?
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-2" placeholder="Votre réponse">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-2', '1')">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-2"></div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="exercise-interactive" id="q2-3">
+                    <div class="exercise-header">
+                        <span><strong>Question 3</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Les <strong>arrangements</strong> sont utilisés quand l'ordre est... (important/pas important)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-3" placeholder="Votre réponse">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-3', 'important', ['important', 'imp'])">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-3"></div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="exercise-interactive" id="q2-4">
+                    <div class="exercise-header">
+                        <span><strong>Question 4</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $A_5^2$ (arrangements de 2 éléments parmi 5).
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-4" placeholder="Votre réponse">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-4', '20')">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-4"></div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="exercise-interactive" id="q2-5">
+                    <div class="exercise-header">
+                        <span><strong>Question 5</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $C_5^2$ (combinaisons de 2 éléments parmi 5).
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-5" placeholder="Votre réponse">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-5', '10')">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-5"></div>
+                </div>
+
+                <!-- Question 6 -->
+                <div class="exercise-interactive" id="q2-6">
+                    <div class="exercise-header">
+                        <span><strong>Question 6</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Propriété de symétrie : $C_n^k = C_n^{?}$
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-6" placeholder="C_n^...">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-6', 'n-k', ['n-k', 'n - k'])">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-6"></div>
+                </div>
+
+                <!-- Question 7 -->
+                <div class="exercise-interactive" id="q2-7">
+                    <div class="exercise-header">
+                        <span><strong>Question 7</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Combien y a-t-il de façons de ranger 4 personnes sur 4 chaises ?
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-7" placeholder="Votre réponse">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-7', '24')">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-7"></div>
+                </div>
+
+                <!-- Question 8 -->
+                <div class="exercise-interactive" id="q2-8">
+                    <div class="exercise-header">
+                        <span><strong>Question 8</strong></span>
+                        <span class="exercise-level hard">Difficile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Triangle de Pascal : $C_n^k = C_{n-1}^{k-1} + C_{n-1}^{?}$
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-8" placeholder="Votre réponse">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-8', 'k')">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-8"></div>
+                </div>
+
+                <!-- Question 9 -->
+                <div class="exercise-interactive" id="q2-9">
+                    <div class="exercise-header">
+                        <span><strong>Question 9</strong></span>
+                        <span class="exercise-level hard">Difficile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Une main de poker contient 5 cartes parmi 52. Combien de mains possibles ? (Donnez la formule en notation $C$)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-9" placeholder="C_...^...">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-9', 'C_52^5', ['c_52^5', 'c52^5', 'c(52,5)'])">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-9"></div>
+                </div>
+
+                <!-- Question 10 -->
+                <div class="exercise-interactive" id="q2-10">
+                    <div class="exercise-header">
+                        <span><strong>Question 10</strong></span>
+                        <span class="exercise-level hard">Difficile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Un code à 4 chiffres (0-9) avec répétition possible : combien de codes ?
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-q2-10" placeholder="Votre réponse">
+                        <button class="exercise-btn check" onclick="checkQuiz2('q2-10', '10000')">Vérifier</button>
+                    </div>
+                    <div class="exercise-feedback" id="feedback-q2-10"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="calculateQuiz2Score()" style="padding: 1rem 2rem;">
+                        <i class="fas fa-calculator"></i> Calculer mon score
+                    </button>
+                    <button class="btn" onclick="resetQuiz2()" style="padding: 1rem 2rem; margin-left: 1rem;">
+                        <i class="fas fa-redo"></i> Recommencer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chapter Navigation -->
+    <nav class="chapter-nav">
+        <div class="container">
+            <div class="chapter-nav-content">
+                <a href="chapitre1.html" class="chapter-nav-btn prev">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Chapitre 1</span>
+                </a>
+                <div class="chapter-nav-info">
+                    <span class="chapter-nav-current">Chapitre 2 sur 4</span>
+                    <div class="chapter-nav-progress">
+                        <div class="chapter-nav-progress-fill" style="width: 50%;"></div>
+                    </div>
+                </div>
+                <a href="chapitre3.html" class="chapter-nav-btn next">
+                    <span>Chapitre 3</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-text">
+                    © 2025 Cours de Probabilités | Créé par <strong>RD</strong>
+                </p>
+                <div class="footer-links">
+                    <a href="../index.html" class="footer-link">Accueil</a>
+                    <a href="formules.html" class="footer-link">Formules</a>
+                    <a href="../exercices/exercices.html" class="footer-link">Exercices</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Factorial function
+        function factorial(n) {
+            if (n <= 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+        
+        // Combination function
+        function combination(n, p) {
+            if (p > n || p < 0) return 0;
+            if (p === 0 || p === n) return 1;
+            return factorial(n) / (factorial(p) * factorial(n - p));
+        }
+        
+        // Arrangement function
+        function arrangement(n, p) {
+            if (p > n || p < 0) return 0;
+            return factorial(n) / factorial(n - p);
+        }
+        
+        // Format large numbers
+        function formatNumber(n) {
+            if (n >= 1e15) return n.toExponential(3);
+            return n.toLocaleString('fr-FR');
+        }
+        
+        // Calculator logic
+        document.getElementById('calc-selector')?.addEventListener('change', function(e) {
+            const pGroup = document.getElementById('calc-p-group');
+            pGroup.style.display = e.target.value === 'factorial' ? 'none' : 'flex';
+        });
+        
+        document.getElementById('calc-btn')?.addEventListener('click', function() {
+            const type = document.getElementById('calc-selector').value;
+            const n = parseInt(document.getElementById('calc-n').value) || 0;
+            const p = parseInt(document.getElementById('calc-p').value) || 0;
+            
+            let result, formula, steps;
+            
+            if (type === 'factorial') {
+                result = factorial(n);
+                formula = `${n}! = ${formatNumber(result)}`;
+                steps = n <= 10 
+                    ? `${n}! = ${Array.from({length: n}, (_, i) => n - i).join(' × ')} = ${formatNumber(result)}`
+                    : `${n}! = ${n} × ${n-1} × ... × 2 × 1 = ${formatNumber(result)}`;
+            } else if (type === 'arrangement') {
+                result = arrangement(n, p);
+                formula = `A(${n}, ${p}) = ${formatNumber(result)}`;
+                steps = `A(${n}, ${p}) = ${n}! / (${n}-${p})! = ${n}! / ${n-p}! = ${formatNumber(result)}`;
+            } else {
+                result = combination(n, p);
+                formula = `C(${n}, ${p}) = ${formatNumber(result)}`;
+                steps = `C(${n}, ${p}) = ${n}! / (${p}! × ${n-p}!) = ${formatNumber(result)}`;
+            }
+            
+            document.getElementById('calc-result-value').textContent = formula;
+            document.getElementById('calc-steps').textContent = steps;
+        });
+        
+        // Pascal Triangle Generator
+        function generatePascalTriangle(numRows) {
+            const container = document.getElementById('pascal-container');
+            container.innerHTML = '';
+            
+            for (let n = 0; n < numRows; n++) {
+                const row = document.createElement('div');
+                row.className = 'pascal-row';
+                row.setAttribute('data-row', n);
+                
+                for (let k = 0; k <= n; k++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'pascal-cell';
+                    cell.textContent = combination(n, k);
+                    cell.setAttribute('data-n', n);
+                    cell.setAttribute('data-k', k);
+                    
+                    cell.addEventListener('click', function() {
+                        // Remove previous highlights
+                        document.querySelectorAll('.pascal-cell.highlighted').forEach(c => c.classList.remove('highlighted'));
+                        
+                        // Highlight this cell
+                        this.classList.add('highlighted');
+                        
+                        // Show formula
+                        const nn = this.getAttribute('data-n');
+                        const kk = this.getAttribute('data-k');
+                        const val = combination(parseInt(nn), parseInt(kk));
+                        
+                        document.getElementById('pascal-formula').innerHTML = `
+                            <strong style="color: var(--accent-primary);">C(${nn}, ${kk}) = ${val}</strong>
+                            <br>
+                            <span style="color: var(--text-secondary);">
+                                $C_{${nn}}^{${kk}} = \\frac{${nn}!}{${kk}! \\times ${nn - kk}!} = ${val}$
+                            </span>
+                        `;
+                        
+                        // Update sum
+                        let sum = 0;
+                        for (let i = 0; i <= parseInt(nn); i++) {
+                            sum += combination(parseInt(nn), i);
+                        }
+                        document.getElementById('pascal-sum').textContent = formatNumber(sum);
+                        document.getElementById('pascal-power').textContent = `2^${nn} = ${formatNumber(Math.pow(2, parseInt(nn)))}`;
+                        
+                        // Re-render MathJax
+                        if (window.MathJax) {
+                            MathJax.typesetPromise();
+                        }
+                    });
+                    
+                    row.appendChild(cell);
+                }
+                
+                container.appendChild(row);
+            }
+        }
+        
+        document.getElementById('pascal-rows')?.addEventListener('change', function(e) {
+            generatePascalTriangle(parseInt(e.target.value));
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            generatePascalTriangle(8);
+        });
+        
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            const progressBar = document.getElementById('progress');
+            if (progressBar) {
+                progressBar.style.width = `${scrolled}%`;
+            }
+        });
+    </script>
+
+                <!-- Section Approfondissement (Expert) -->
+                <section class="section" style="background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 2rem; margin-top: 3rem; border: 1px solid var(--border-color);">
+                    <h2><i class="fas fa-crown" style="color: gold;"></i> Cas Pratique : Le Poker</h2>
+                    <p>La combinatoire est essentielle pour les jeux de cartes. Calculons la probabilité d'obtenir un <strong>Full</strong> (3 cartes d'un rang, 2 cartes d'un autre) dans une main de 5 cartes tirées de 52.</p>
+                    
+                    <div class="math-theorem">
+                        <h4><i class="fas fa-calculator"></i> Nombre de mains possibles</h4>
+                        $$ N = \binom{52}{5} = \frac{52!}{5!47!} = 2,598,960 $$
+                    </div>
+
+                    <div class="example-box">
+                        <h3><i class="fas fa-list-ol"></i> Dénombrement des Fulls</h3>
+                        <p>Pour former un Full (ex: Rois et Valets) :</p>
+                        <ul>
+                            <li><strong>Choix du rang du brelan :</strong> 1 rang parmi 13 ($\binom{13}{1} = 13$).</li>
+                            <li><strong>Choix des 3 cartes de ce rang :</strong> 3 parmi 4 ($\binom{4}{3} = 4$).</li>
+                            <li><strong>Choix du rang de la paire :</strong> 1 rang parmi les 12 restants ($\binom{12}{1} = 12$).</li>
+                            <li><strong>Choix des 2 cartes de ce rang :</strong> 2 parmi 4 ($\binom{4}{2} = 6$).</li>
+                        </ul>
+                        
+                        <div class="solution-step">
+                            <p><strong>Calcul Final :</strong></p>
+                            $$ \text{Nb Fulls} = 13 \times 4 \times 12 \times 6 = 3,744 $$
+                            $$ P(\text{Full}) = \frac{3,744}{2,598,960} \approx 0.00144 \text{ (0.14\%)} $$
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section Exercices de Fin de Chapitre -->
+                <section id="exercices-chapitre" class="section" style="margin-top: 3rem;">
+                    <h2><i class="fas fa-dumbbell" style="color: var(--success);"></i> Exercices d'Entraînement</h2>
+
+                    <!-- Exercice 1 -->
+                    <div class="exercise-card">
+                        <div class="exercise-header">
+                            <span class="badge badge-medium">Moyen</span>
+                            <h3>Exercice 1 : Le Code Secret</h3>
+                        </div>
+                        <p>Un code est formé de 4 chiffres (0-9). Combien de codes comportent <strong>au moins un 7</strong> ?</p>
+                        
+                        <details>
+                            <summary class="btn-solution"><i class="fas fa-eye"></i> Voir la solution détaillée</summary>
+                            <div class="solution-content">
+                                <p><strong>Méthode du complémentaire :</strong></p>
+                                <p>1. Nombre total de codes : $10^4 = 10,000$.</p>
+                                <p>2. Codes SANS aucun 7 (chiffres 0,1,2,3,4,5,6,8,9, choix de 9 chiffres) : $9^4 = 6,561$.</p>
+                                <p>3. Codes avec au moins un 7 :</p>
+                                $$ 10,000 - 6,561 = 3,439 $$
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Exercice 2 -->
+                    <div class="exercise-card">
+                        <div class="exercise-header">
+                            <span class="badge badge-hard">Difficile</span>
+                            <h3>Exercice 2 : Anagrammes avec répétition</h3>
+                        </div>
+                        <p>Combien d'anagrammes peut-on former avec le mot <strong>MISSISSIPPI</strong> ?</p>
+                        
+                        <details>
+                            <summary class="btn-solution"><i class="fas fa-eye"></i> Voir la solution détaillée</summary>
+                            <div class="solution-content">
+                                <p>Le mot a 11 lettres :</p>
+                                <ul>
+                                    <li>M : 1 fois</li>
+                                    <li>I : 4 fois</li>
+                                    <li>S : 4 fois</li>
+                                    <li>P : 2 fois</li>
+                                </ul>
+                                <p>On utilise la formule des permutations avec répétition :</p>
+                                $$ \frac{11!}{1! \times 4! \times 4! \times 2!} $$
+                                $$ \frac{39,916,800}{1 \times 24 \times 24 \times 2} = \frac{39,916,800}{1,152} = 34,650 $$
+                            </div>
+                        </details>
+                    </div>
+                </section>
+
+    <!-- Quiz JS externe -->
+    <script src="../assets/js/quiz-chapitre2.js"></script>
+    <!-- Exercices avec indices -->
+    <script src="../assets/js/exercises-hints.js"></script>
+    <!-- Nouvelles fonctionnalités (Gamification & Simulations) -->
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/simulators.js"></script>
+    <script>
+        // Initialisation des exercices avec indices
+        document.addEventListener('DOMContentLoaded', () => {
+            initExerciseWithHints('exo-hint-2-1', '120', ['120']);
+            initExerciseWithHints('exo-hint-2-2', '560', ['560']);
+        });
+    </script>
+</body>
+</html>

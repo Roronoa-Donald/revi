@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 05 : Calculs & Agrégats | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Module 05: Calculs</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+            <!-- Theory -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">1. L'Art de la Synthèse</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas fa-calculator text-9xl"></i>
+                    </div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Avoir 1 million de lignes de vente, c'est illisible.
+                        Votre patron ne veut pas voir chaque ticket de caisse. Il veut savoir : <strong>"Combien on a gagné ?"</strong>.
+                        <br><br>
+                        Le SQL transforme des données brutes en <span class="text-purple-400 font-bold">Informations</span> exploitables.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Visual Metaphor: The Receipt -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                 <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">2. La Métaphore du Ticket de Caisse</h2>
+                 <div class="glass-card p-6 rounded-xl">
+                    <div class="flex flex-col md:flex-row gap-8 items-start">
+                        <!-- Receipt Visual -->
+                        <div class="bg-white text-slate-900 p-4 rounded shadow-lg w-full md:w-1/3 font-mono text-xs rotating-receipt transform -rotate-2">
+                            <div class="text-center font-bold mb-4">MAGASIN SUPER-SQL</div>
+                            <div class="flex justify-between border-b border-black pb-1 mb-2"><span>Item</span><span>Prix</span></div>
+                            <div class="space-y-1 mb-4">
+                                <div class="flex justify-between"><span>Pomme</span><span>1.00</span></div>
+                                <div class="flex justify-between"><span>Poire</span><span>2.00</span></div>
+                                <div class="flex justify-between"><span>USB</span><span>10.00</span></div>
+                            </div>
+                            <div class="border-t-2 border-dashed border-black pt-2 font-bold flex justify-between">
+                                <span>TOTAL (SUM)</span>
+                                <span>13.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-500 mt-1">
+                                <span>ARTICLES (COUNT)</span>
+                                <span>3</span>
+                            </div>
+                             <div class="flex justify-between text-slate-500 mt-1">
+                                <span>MOYENNE (AVG)</span>
+                                <span>4.33</span>
+                            </div>
+                        </div>
+
+                        <!-- Theory Content -->
+                        <div class="w-full md:w-2/3 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                                    <i class="fas fa-plus-circle text-purple-400"></i> Les Fonctions d'Agrégation
+                                </h4>
+                                <p class="text-slate-300 text-sm mb-2">Elles écrasent plusieurs lignes pour n'en faire qu'une seule (le résultat).</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <code class="bg-black p-2 rounded text-green-400">COUNT(*)</code> <span class="p-2 text-slate-400">Compter les lignes</span>
+                                    <code class="bg-black p-2 rounded text-green-400">SUM(prix)</code> <span class="p-2 text-slate-400">Additionner</span>
+                                    <code class="bg-black p-2 rounded text-green-400">AVG(note)</code> <span class="p-2 text-slate-400">Moyenne</span>
+                                    <code class="bg-black p-2 rounded text-green-400">MAX(date)</code> <span class="p-2 text-slate-400">Le plus récent</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+             <!-- Concept GROUP BY -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">3. Le Panier de Tri (GROUP BY)</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-300 mb-6">
+                        Calculer le total global, c'est bien. Mais si on veut le total <strong>par catégorie</strong> ?
+                        Imaginez que vous triez votre chariot avant de passer en caisse : "Légumes" d'un côté, "Tech" de l'autre.
+                    </p>
+                    <div class="bg-slate-900 border border-slate-700 p-4 rounded-lg">
+                        <code class="font-mono text-sm block">
+                            <span class="text-blue-400">SELECT</span> category, <span class="text-pink-400">SUM(price)</span><br>
+                            <span class="text-blue-400">FROM</span> Products<br>
+                            <span class="text-amber-400">GROUP BY</span> category;
+                        </code>
+                        <div class="mt-4 grid grid-cols-2 gap-4">
+                            <div class="bg-slate-800 p-2 rounded text-center">
+                                <div class="text-xs text-slate-500 uppercase">Groupe Légumes</div>
+                                <div class="text-xl font-bold text-white">3.00 €</div>
+                            </div>
+                             <div class="bg-slate-800 p-2 rounded text-center">
+                                <div class="text-xs text-slate-500 uppercase">Groupe Tech</div>
+                                <div class="text-xl font-bold text-white">10.00 €</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Practice Mission -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">4. Mission : L'Audit</h2>
+                <div class="bg-blue-600/10 border border-blue-500 p-4 rounded-lg mb-6 flex gap-4">
+                    <div class="text-3xl">🖩</div>
+                    <div>
+                        <h4 class="font-bold text-white">Votre Mission</h4>
+                        <p class="text-slate-300 text-sm">
+                            Combien avons-nous d'utilisateurs inscrits au total ? Utilisez la fonction <code>COUNT</code>.
+                        </p>
+                    </div>
+                </div>
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3"><span class="text-xs font-mono text-slate-500">sql-server</span></div>
+                    <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none" spellcheck="false" placeholder="Tapez votre code ici...">SELECT COUNT(*) as Total FROM users</textarea>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold flex items-center gap-2">
+                            <i class="fas fa-play"></i> Calculer
+                        </button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px]">
+                        <div class="flex items-center gap-2 text-slate-500">
+                            <i class="fas fa-terminal"></i>
+                            <span>En attente...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Expert Section -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.2s;">
+                <h2 class="text-2xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">
+                    <i class="fas fa-microscope text-purple-400 mr-2"></i> Zoom : WHERE vs HAVING
+                </h2>
+                <div class="bg-slate-800/50 border border-purple-500/30 rounded-xl p-6">
+                    <h3 class="font-bold text-lg mb-4 text-purple-300">Le piège de l'entretien d'embauche</h3>
+                    <p class="text-slate-300 mb-4">
+                        Les deux servent à filtrer, mais ils ne vivent pas dans le même monde temporel.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-900 p-4 rounded border border-slate-700 relative">
+                            <div class="absolute -top-3 left-4 bg-slate-800 px-2 text-xs text-blue-400 border border-slate-600 rounded">Le Vigile de l'Entrée</div>
+                            <h4 class="font-bold text-white mt-2 mb-2">WHERE</h4>
+                            <p class="text-xs text-slate-400 mb-2">Filtre les <strong class="text-white">lignes individuelles</strong>.</p>
+                            <ul class="text-xs text-slate-500 list-disc list-inside">
+                                <li>S'applique <strong>AVANT</strong> de faire les groupes.</li>
+                                <li>Ex: "Je ne veux que les ventes de 2023".</li>
+                                <li> <i class="fas fa-ban text-red-500"></i> Interdit d'utiliser SUM() ici.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded border border-slate-700 relative">
+                            <div class="absolute -top-3 left-4 bg-slate-800 px-2 text-xs text-pink-400 border border-slate-600 rounded">Le Vigile de la Sortie</div>
+                            <h4 class="font-bold text-white mt-2 mb-2">HAVING</h4>
+                            <p class="text-xs text-slate-400 mb-2">Filtre les <strong class="text-white">résultats groupés</strong>.</p>
+                            <ul class="text-xs text-slate-500 list-disc list-inside">
+                                <li>S'applique <strong>APRÈS</strong> les calculs.</li>
+                                <li>Ex: "Montrez-moi les totaux > 1000€".</li>
+                                <li> <i class="fas fa-check text-green-500"></i> C'est ici qu'on filtre sur SUM().</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Zone d'Entraînement Intensive -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.4s;">
+                <div class="glass-card p-6 rounded-xl border border-slate-700">
+                    <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                        <i class="fas fa-dumbbell text-red-500"></i>
+                        Zone d'Entraînement
+                    </h2>
+
+                    <!-- Tabs Header -->
+                    <div class="flex border-b border-slate-700 mb-6">
+                        <button onclick="switchTab('quiz')" id="tab-quiz" class="px-6 py-3 text-blue-400 border-b-2 border-blue-400 font-bold hover:bg-slate-800/50 transition-colors">
+                            Quiz (10)
+                        </button>
+                        <button onclick="switchTab('exos')" id="tab-exos" class="px-6 py-3 text-slate-400 hover:text-blue-300 hover:bg-slate-800/50 transition-colors">
+                            Exercices (5)
+                        </button>
+                        <button onclick="switchTab('drag')" id="tab-drag" class="px-6 py-3 text-slate-400 hover:text-blue-300 hover:bg-slate-800/50 transition-colors">
+                            Drag & Drop (3)
+                        </button>
+                    </div>
+
+                    <!-- TAB 1: QUIZ -->
+                    <div id="content-quiz" class="space-y-6">
+                        <div id="quiz-container" class="space-y-6"></div>
+                        <div class="flex items-center gap-4 mt-6 border-t border-slate-800 pt-4">
+                            <button onclick="checkQuiz()" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded shadow-lg shadow-blue-900/20 transition-all">
+                                Vérifier mes réponses
+                            </button>
+                            <span id="quiz-score" class="text-xl font-bold text-slate-300"></span>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: EXERCICES -->
+                    <div id="content-exos" class="hidden space-y-6">
+                        <!-- Exo 1 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol1')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>1. Somme Totale</h4>
+                                    <p class="text-sm text-slate-400">Calculez la valeur totale du stock (somme de la colonne price).</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol1" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT SUM(price) FROM Products;
+                                </code>
+                            </div>
+                        </div>
+                        <!-- Exo 2 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol2')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>2. Répartition Géographique</h4>
+                                    <p class="text-sm text-slate-400">Comptez le nombre d'utilisateurs par pays.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol2" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT country, COUNT(*) FROM Users<br>GROUP BY country;
+                                </code>
+                            </div>
+                        </div>
+                        <!-- Exo 3 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol3')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>3. Salaire Moyen</h4>
+                                    <p class="text-sm text-slate-400">Quel est le salaire moyen des employés du département 'HR' ?</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol3" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT AVG(salary) FROM Employees<br>WHERE dept = 'HR';
+                                </code>
+                            </div>
+                        </div>
+                        <!-- Exo 4 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol4')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>4. Groupes Importants (HAVING)</h4>
+                                    <p class="text-sm text-slate-400">Listez les catégories qui ont plus de 50 produits.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol4" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT category, COUNT(*)<br>FROM Products<br>GROUP BY category<br>HAVING COUNT(*) > 50;
+                                </code>
+                            </div>
+                        </div>
+                        <!-- Exo 5 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol5')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>5. Bornes de Prix</h4>
+                                    <p class="text-sm text-slate-400">Affichez le prix minimum et maximum pour chaque catégorie.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol5" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT category, MIN(price), MAX(price)<br>FROM Products<br>GROUP BY category;
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: DRAG & DROP -->
+                    <div id="content-drag" class="hidden space-y-8">
+                        <!-- Jeu 1 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 1 : Ordre Complet</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Reconstituez la requête complexe</p>
+                            <div id="drag-drop-1" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(1)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                        <!-- Jeu 2 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 2 : Fonctions</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Associez les définitions</p>
+                            <div id="drag-drop-2" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(2)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                        <!-- Jeu 3 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 3 : Filtrage</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Quand filtrer ?</p>
+                            <div id="drag-drop-3" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(3)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="hidden lg:block w-72 shrink-0">
+            <div class="sticky top-24"><div id="databot-container"></div></div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script>
+        // --- 1. QUIZ ENGINE ---
+        const quizData = [
+            { q: "Laquelle de ces fonctions compte les lignes ?", o: ["SUM", "TOTAL", "COUNT"], a: 2 },
+            { q: "Peut-on utiliser WHERE avec SUM() ?", o: ["Oui", "Non, il faut HAVING", "Ça dépend"], a: 1 },
+            { q: "Quelle clause crée des groupes ?", o: ["ORDER BY", "GROUP BY", "PARTITION BY"], a: 1 },
+            { q: "AVG(col) prend-il en compte les NULL ?", o: ["Oui", "Non (il les ignore)", "Erreur SQL"], a: 1 },
+            { q: "Si je fais un SELECT name, COUNT(*)... il manque :", o: ["WHERE", "GROUP BY name", "ORDER BY"], a: 1 },
+            { q: "L'ordre correct est :", o: ["GROUP BY -> WHERE", "WHERE -> GROUP BY", "HAVING -> WHERE"], a: 1 },
+            { q: "HAVING sert à filtrer :", o: ["Les lignes avant calcul", "Les groupes après calcul", "Les tables"], a: 1 },
+            { q: "Peut-on faire MIN() sur une date ?", o: ["Oui (la plus ancienne)", "Non", "Oui (la plus récente)"], a: 0 },
+            { q: "COUNT(DISTINCT pays) donne :", o: ["Nombre total de pays", "Nombre de pays uniques", "Erreur"], a: 1 },
+            { q: "SUM() sur une colonne texte provoque :", o: ["Une concaténation", "Une erreur", "Rien"], a: 1 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = quizData.map((item, idx) => `
+                <div class="q-item border-l-2 border-slate-700 pl-4">
+                    <p class="font-bold text-slate-200 mb-2">${idx + 1}. ${item.q}</p>
+                    <div class="flex gap-4 flex-wrap">
+                        ${item.o.map((opt, oIdx) => `
+                            <label class="flex items-center gap-2 cursor-pointer bg-slate-800 px-3 py-1 rounded hover:bg-slate-700">
+                                <input type="radio" name="q${idx}" value="${oIdx}">
+                                <span class="text-sm">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function checkQuiz() {
+            let score = 0;
+            quizData.forEach((item, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                const parent = document.querySelectorAll('.q-item')[idx];
+                if (selected) {
+                    if (parseInt(selected.value) === item.a) {
+                        score++;
+                        parent.classList.remove('border-red-500', 'border-slate-700');
+                        parent.classList.add('border-green-500');
+                    } else {
+                        parent.classList.remove('border-green-500', 'border-slate-700');
+                        parent.classList.add('border-red-500');
+                    }
+                }
+            });
+            document.getElementById('quiz-score').innerText = `Score: ${score}/10`;
+            if (score >= 7) {
+                bot.speak(`Calcul exact ! Score de ${score}/10 !`, "happy");
+                confetti();
+            } else {
+                bot.speak(`Erreur de calcul. Score de ${score}/10.`, "sad");
+            }
+        }
+
+        // --- 2. TABS LOGIC ---
+        function switchTab(tab) {
+            ['quiz', 'exos', 'drag'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-400');
+            });
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+            document.getElementById(`tab-${tab}`).classList.remove('text-slate-400');
+        }
+
+        function toggleSol(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        // --- 3. DRAG & DROP LOGIC ---
+        
+        // Game 1: Syntaxe Ordre Global
+        const dd1 = new DragDropEngine('drag-drop-1', 
+            [{id:'t1', text:'WHERE'}, {id:'t2', text:'GROUP BY'}, {id:'t3', text:'HAVING'}, {id:'t4', text:'ORDER BY'}], 
+            [{id:'z1', label:'1. Filtre Lignes', accept:'t1'}, {id:'z2', label:'2. Agrégation', accept:'t2'}, {id:'z3', label:'3. Filtre Groupes', accept:'t3'}, {id:'z4', label:'4. Tri Final', accept:'t4'}]
+        );
+        // Game 2: Fonctions
+        const dd2 = new DragDropEngine('drag-drop-2', 
+            [{id:'f1', text:'SUM'}, {id:'f2', text:'AVG'}, {id:'f3', text:'COUNT'}], 
+            [{id:'z1', label:'Addition', accept:'f1'}, {id:'z2', label:'Moyenne', accept:'f2'}, {id:'z3', label:'Dénombrer', accept:'f3'}]
+        );
+        // Game 3: WHERE vs HAVING logic
+        const dd3 = new DragDropEngine('drag-drop-3', 
+            [{id:'w1', text:'price > 100'}, {id:'w2', text:'COUNT(*) > 5'}, {id:'w3', text:'date < NOW()'}], 
+            [{id:'z1', label:'WHERE', accept:'w1'}, {id:'z2', label:'HAVING', accept:'w2'}, {id:'z3', label:'WHERE (Date)', accept:'w3'}]
+        );
+
+        function verifyDD(id) {
+            let engine = (id===1) ? dd1 : (id===2) ? dd2 : dd3;
+            if (engine.validate()) {
+                bot.speak("Logique respectée !", "happy");
+                bot.awardXP(20);
+            } else {
+                bot.speak("Attention à l'ordre SQL.", "sad");
+            }
+        }
+
+        // --- INIT ---
+        const bot = new DataBot();
+        bot.render('databot-container');
+        bot.speak("Les fonctions d'agrégation sont la base de l'analyse !", 4000);
+        
+        renderQuiz();
+
+        // 4. SQL Engine logic
+        function runQuery() {
+             const sql = document.getElementById('sql-input').value;
+             if (sql.toUpperCase().includes('COUNT') || sql.toUpperCase().includes('SUM') || sql.toUpperCase().includes('AVG')) {
+                 // Mock result for aggregates presentation
+                 document.getElementById('query-output').innerHTML = `
+                 <table class="w-full text-left border-collapse">
+                    <thead><tr><th class="border-b border-slate-700 p-2 text-purple-400">Resultat Agrégé</th></tr></thead>
+                    <tbody><tr><td class="p-2 font-mono text-xl">42</td></tr></tbody>
+                 </table>
+                 <div class="text-xs text-slate-500 mt-2 bg-slate-900 p-2 rounded border border-slate-800"><i class="fas fa-info-circle mr-1"></i> Simulation : Le moteur JS ne gère pas encore les agrégats complexes.</div>`;
+                 bot.awardXP(20);
+                 bot.speak("Calcul validé !");
+             } else {
+                 const res = executeSQL(sql);
+                 document.getElementById('query-output').innerHTML = res.success ? `<pre>${JSON.stringify(res.data,null,2)}</pre>` : `<span class='text-red-400'>${res.error}</span>`;
+             }
+        }
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod04-select.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 04 : SELECT</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod06-strings.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 06 : Chaînes de texte →</a>
+    </div>
+    <script>if(localStorage.getItem('rd_sql_theme')==='light')document.documentElement.setAttribute('data-theme','light');</script>
+</body>
+</html>

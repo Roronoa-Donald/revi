@@ -1,0 +1,304 @@
+      Haute disponibilité et reprise après sinistre
+             en environnement virtualisé
+La haute disponibilité (souvent abrégée HA, de l’anglais High
+Availability) est un ensemble de mécanismes et de configurations
+techniques qui permettent à un système informatique de continuer à
+fonctionner même en cas de panne d’un de ses composants (serveur,
+disque, réseau, etc.).
+
+Son objectif est de Minimiser ou éviter les interruptions de service pour
+garantir un fonctionnement continu, surtout pour les applications
+critiques (banques, e-commerce, hôpitaux, etc.).
+                                  BOUKLINAM ABALO
+                    Haute disponibilité
+
+Elle repose sur :
+
+ La redondance : plusieurs serveurs, disques ou composants sont
+  disponibles pour prendre le relais en cas de panne.
+
+ Le basculement automatique (failover) : si un serveur tombe, un autre
+  prend automatiquement le relais.
+
+ La supervision (monitoring) : un système surveille en temps réel l’état
+  des ressources et déclenche le basculement si nécessaire.
+
+
+                               BOUKLINAM ABALO
+                    Haute disponibilité
+Il s'exprime souvent en années, par exemple
+
+99% → 3,65 jours /an indisponible
+
+99,99% → 4,38 heures / an indisponible
+
+99,999%→ ~ 5 minutes / an indisponible
+
+99,9999% → ~ 30 secondes / an indisponible
+
+
+                              BOUKLINAM ABALO
+                         Redondance
+La redondance consiste à dupliquer des composants critiques d’un
+système (serveurs, disques, alimentations, connexions réseau, etc.) afin
+de garantir la continuité de service en cas de défaillance. L’objectif est
+d’éviter un point unique de défaillance : si un élément tombe en panne,
+un autre, déjà prêt et fonctionnel, peut prendre le relais immédiatement
+ou après basculement.
+
+Exemple : Deux serveurs web configurés en parallèle : si l’un tombe,
+l’autre continue à répondre aux requêtes.
+
+
+
+                               BOUKLINAM ABALO
+      Basculement automatique (Failover)
+Le basculement automatique, ou failover, est un mécanisme permettant
+de transférer automatiquement l’activité d’un composant défaillant vers
+un autre composant redondant, sans intervention humaine et avec un
+minimum d’interruption de service.
+
+Exemple : Si une base de données principale devient inaccessible, le
+système bascule automatiquement sur une base de secours.
+
+
+
+
+                              BOUKLINAM ABALO
+              Supervision (Monitoring)
+La supervision ou monitoring désigne l’ensemble des outils et processus
+permettant de surveiller en temps réel l’état de santé des ressources
+informatiques (serveurs, services, performances, etc.). Elle permet de
+détecter les anomalies et, dans un système redondant, de déclencher
+automatiquement un basculement en cas de panne.
+
+Exemple : Un outil comme Zabbix ou Nagios vérifie constamment si les
+serveurs sont disponibles et alerte (ou agit) dès qu’une panne est
+détectée.
+
+
+                              BOUKLINAM ABALO
+                               Exemple
+
+Un site web est hébergé sur 2 serveurs web avec un équilibreur de charge
+(load balancer) devant eux. Si un serveur tombe :
+
+ Le load balancer détecte l’échec.
+
+ Il redirige les utilisateurs vers le serveur qui fonctionne.
+
+ L’utilisateur ne remarque aucune interruption.
+
+
+
+
+                                 BOUKLINAM ABALO
+                          virtualisation
+
+Dans un environnement comme Proxmox ou VMware vSphere :
+
+On peut créer un cluster de plusieurs hôtes.
+
+Les machines virtuelles peuvent être automatiquement redémarrées sur
+un autre hôte en cas de panne matérielle.
+
+Si un hyperviseur tombe, ses VM redémarrent ailleurs (selon les règles
+HA configurées).
+
+
+
+                                BOUKLINAM ABALO
+                            Le clustering
+
+Le clustering (ou grappes de serveurs) est une technique d’architecture
+informatique qui consiste à regrouper plusieurs serveurs (ou nœuds) pour
+qu’ils fonctionnent ensemble comme un seul système afin de garantir :
+
+ la haute disponibilité,
+
+ la répartition de charge,
+
+ la tolérance aux pannes.
+
+
+
+                               BOUKLINAM ABALO
+                              Application
+Imaginons une application web importante (comme un site d’e-commerce).
+Au lieu de la faire tourner sur un seul serveur, on la déploie sur 3 serveurs en
+cluster.
+
+Si l’un des serveurs tombe en panne, les autres prennent automatiquement
+ le relais (failover).
+
+Le trafic des utilisateurs est partagé entre les serveurs (load balancing).
+
+Cela évite les interruptions de service (haute disponibilité).
+
+
+                                   BOUKLINAM ABALO
+                   Principaux types de clustering
+                               Cluster Active-Passive
+
+Fonctionnement
+
+Un ou plusieurs nœuds sont actifs et traitent les requêtes.
+
+Les autres sont passifs (en veille), prêts à prendre le relais si un nœud actif tombe.
+
+Exemple
+
+Serveur A est actif.
+
+Serveur B est en veille.
+
+Si A tombe, B devient actif automatiquement (failover).
+
+                                        BOUKLINAM ABALO
+                   Avantages & inconvenients
+Avantages
+• Configuration simple
+• Moins de conflits de synchronization
+
+ Inconvénients
+• Le serveur passif ne travaille pas (sous-utilisation)
+• Temps de basculement (failover) peut être perceptible
+
+Cas d’usage
+• Applications critiques mais à faible charge constante
+• Services financiers, ERP
+
+                                     BOUKLINAM ABALO
+                           Cluster Active-Active
+
+Fonctionnement
+
+Tous les nœuds sont actifs en même temps.
+
+Ils partagent les tâches de traitement.
+
+S’ils sont bien configurés, ils se remplacent automatiquement en cas de panne.
+
+Exemple
+
+3 serveurs d’une application web partagent les requêtes des utilisateurs.
+
+
+
+                                          BOUKLINAM ABALO
+                   Avantages & inconvenients
+Avantages
+Meilleure performance (répartition de charge)
+Haute tolérance aux pannes
+Aucun nœud inactive
+
+Inconvénients
+Configuration complexe
+Gestion des conflits/synchronisation plus difficile
+
+Cas d’usage
+Sites web à fort trafic
+Infrastructures virtualisées
+                                     BOUKLINAM ABALO
+ Load Balancing Cluster (Cluster de répartition de
+                    charge)
+Fonctionnement :
+
+Un répartiteur de charge (load balancer) distribue les requêtes entre plusieurs
+ serveurs actifs.
+
+Utilisé principalement pour améliorer la performance et la scalabilité.
+
+
+
+Exemple :
+
+Un site web reçoit 1000 requêtes/seconde, réparties sur 4 serveurs web via un load
+balancer.
+                                     BOUKLINAM ABALO
+                   Avantages & inconvenients
+Avantages :
+Équilibrage du trafic
+Mise à l’échelle horizontale facile
+Améliore la disponibilité et la réactivité
+
+Inconvénients :
+Ne remplace pas un failover complet (pas de reprise d’état d’une application)
+Load balancer devient un point critique (sauf s’il est redondant)
+
+Cas d’usage :
+Serveurs web, serveurs d’applications, frontaux API
+
+                                      BOUKLINAM ABALO
+               Failover Cluster (Cluster de basculement)
+Fonctionnement
+
+Chaque nœud partage un même espace de stockage.
+
+Si un nœud échoue, un autre reprend les services avec le même état, via le stockage partagé.
+
+
+
+Exemple :
+
+Deux nœuds SQL Server partagent un disque SAN.
+
+En cas de panne, le deuxième nœud démarre le service SQL avec les mêmes données.
+
+
+
+                                         BOUKLINAM ABALO
+               Avantages & inconvenients
+Avantages
+    Tolérance élevée aux pannes
+    Restauration automatique des services
+    Haute cohérence des données
+Inconvénients
+    Besoin d’un stockage partagé
+    Dépend de la qualité du SAN ou du NAS
+Cas d’usage
+     Bases de données critiques
+     Applications métier vitales
+
+                              BOUKLINAM ABALO
+              Grid Cluster / Compute Cluster
+
+Fonctionnement
+Utilisé pour le calcul intensif distribué.
+Plusieurs nœuds traitent en parallèle des calculs complexes.
+
+Exemple
+Simulation météo, rendu 3D, intelligence artificielle.
+
+Cas d’usage
+Laboratoires, universités, industrie scientifique.
+
+
+                                       BOUKLINAM ABALO
+                              Tableau récapitulatif
+                                         Haute               Répartition de
+Type de Cluster     Tous actifs ?                                                Utilisation
+                                      disponibilité             charge
+
+Active-Passive    Non               Oui                     Non               Pannes critiques
+
+                                                                              Performance &
+Active-Active     Oui               Oui                     Oui
+                                                                              disponibilité
+Load Balancing                       Oui (si
+               Oui                                          Oui               Sites web, APIs
+Cluster                             redondant)
+
+Failover Cluster (failover)         Très haute              Non               Bases de données
+
+                                                                              Calculs
+Grid Cluster      Oui               Non (souvent)           Oui
+                                                                              complexes
+                                          BOUKLINAM ABALO
+QCM
+
+
+
+
+BOUKLINAM ABALO
+

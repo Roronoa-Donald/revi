@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards SQL | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Accueil</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                <i class="fas fa-clone mr-2"></i>Flashcards SQL
+            </h1>
+            <div class="flex items-center gap-3">
+                <span id="card-counter" class="text-sm font-mono text-slate-400">1 / 40</span>
+                <button class="theme-toggle" onclick="toggleTheme()"><i id="theme-icon" class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl flex-grow">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h2 class="text-3xl font-extrabold mb-3">Révision Express</h2>
+            <p class="text-slate-400 max-w-xl mx-auto">Cliquez sur une carte pour voir la réponse. Filtrez par catégorie et marquez celles que vous maîtrisez.</p>
+        </header>
+
+        <!-- Category Filters -->
+        <div class="flex flex-wrap justify-center gap-2 mb-8" id="filter-bar">
+            <button onclick="filterCards('all')" data-cat="all" class="fc-filter active px-4 py-2 rounded-full text-sm font-bold transition-all bg-blue-600 text-white">Toutes</button>
+            <button onclick="filterCards('ddl')" data-cat="ddl" class="fc-filter px-4 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">DDL</button>
+            <button onclick="filterCards('contraintes')" data-cat="contraintes" class="fc-filter px-4 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">Contraintes</button>
+            <button onclick="filterCards('dml')" data-cat="dml" class="fc-filter px-4 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">DML</button>
+            <button onclick="filterCards('select')" data-cat="select" class="fc-filter px-4 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">SELECT</button>
+            <button onclick="filterCards('fonctions')" data-cat="fonctions" class="fc-filter px-4 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">Fonctions</button>
+            <button onclick="filterCards('tsql')" data-cat="tsql" class="fc-filter px-4 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">T-SQL</button>
+            <button onclick="filterCards('transactions')" data-cat="transactions" class="fc-filter px-4 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">Transactions</button>
+            <button onclick="filterCards('avance')" data-cat="avance" class="fc-filter px-4 py-2 rounded-full text-sm font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">Avancé</button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full h-2 bg-slate-800 rounded-full mb-8 overflow-hidden">
+            <div id="mastery-bar" class="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-500 rounded-full" style="width: 0%"></div>
+        </div>
+
+        <!-- Flashcard Carousel -->
+        <div class="flex flex-col items-center gap-6">
+            <!-- Card Display -->
+            <div id="flashcard-zone" class="w-full max-w-lg">
+                <div id="flashcard" class="flashcard" onclick="flipCard()">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <div class="text-xs font-mono text-blue-400 mb-4 uppercase tracking-wider" id="fc-category">DDL</div>
+                            <p class="text-xl font-bold leading-relaxed" id="fc-question">Chargement...</p>
+                            <div class="mt-6 text-slate-500 text-sm"><i class="fas fa-hand-pointer mr-1"></i> Cliquez pour retourner</div>
+                        </div>
+                        <div class="flashcard-back">
+                            <div class="text-xs font-mono text-emerald-400 mb-4 uppercase tracking-wider">Réponse</div>
+                            <p class="text-lg leading-relaxed" id="fc-answer">...</p>
+                            <code class="block mt-4 text-sm text-left bg-slate-950 p-3 rounded-lg w-full overflow-x-auto" id="fc-code" style="display:none;"></code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center gap-4">
+                <button onclick="prevCard()" class="w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600 flex items-center justify-center transition-all" title="Précédente">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button onclick="markMastered()" id="btn-mastered" class="px-6 py-3 rounded-full bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-600 hover:text-white font-bold text-sm transition-all" title="Maîtrisée">
+                    <i class="fas fa-check mr-2"></i> Maîtrisée
+                </button>
+                <button onclick="shuffleCards()" class="px-4 py-3 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-sm font-bold transition-all" title="Mélanger">
+                    <i class="fas fa-random"></i>
+                </button>
+                <button onclick="nextCard()" class="w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600 flex items-center justify-center transition-all" title="Suivante">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Keyboard hint -->
+            <p class="text-xs text-slate-600 mt-2"><kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">←</kbd> <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">→</kbd> naviguer · <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">Espace</kbd> retourner · <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-400">M</kbd> maîtrisée</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="mt-12 grid grid-cols-3 gap-4 text-center">
+            <div class="glass-card p-4 rounded-xl">
+                <div class="text-2xl font-bold text-blue-400" id="stat-total">40</div>
+                <div class="text-xs text-slate-500">Total</div>
+            </div>
+            <div class="glass-card p-4 rounded-xl">
+                <div class="text-2xl font-bold text-emerald-400" id="stat-mastered">0</div>
+                <div class="text-xs text-slate-500">Maîtrisées</div>
+            </div>
+            <div class="glass-card p-4 rounded-xl">
+                <div class="text-2xl font-bold text-amber-400" id="stat-remaining">40</div>
+                <div class="text-xs text-slate-500">Restantes</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer mt-auto">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p class="text-slate-500 text-sm">RD-SQL — Flashcards pour révision rapide</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+    // ============================================================
+    //  FLASHCARDS ENGINE — 40 cartes SQL Server (avec verrouillage)
+    // ============================================================
+    const catToModule = { ddl:1, contraintes:2, dml:3, select:4, fonctions:5, tsql:8, transactions:10, avance:11 };
+    const moduleNames = { 1:'DDL', 2:'Contraintes', 3:'DML', 4:'SELECT', 5:'Fonctions', 8:'T-SQL', 10:'Transactions', 11:'Avancé' };
+
+    function getCompleted() {
+        try { return JSON.parse(localStorage.getItem('rd_sql_completed') || '[]'); } catch(e) { return []; }
+    }
+    function isUnlocked(cat) {
+        const m = catToModule[cat];
+        return m === undefined || getCompleted().includes(m);
+    }
+
+    const allCards = [
+        // DDL (1-5)
+        { cat:'ddl', q:"Que fait CREATE DATABASE ?", a:"Crée une nouvelle base de données sur le serveur SQL.", code:"CREATE DATABASE MaBase;" },
+        { cat:'ddl', q:"Comment créer une table avec une clé primaire auto-incrémentée ?", a:"Utilisez IDENTITY(1,1) sur la colonne INT.", code:"CREATE TABLE Clients (\n  id INT PRIMARY KEY IDENTITY(1,1),\n  nom VARCHAR(100)\n);" },
+        { cat:'ddl', q:"Quelle est la différence entre DROP et TRUNCATE ?", a:"DROP supprime la table entière (structure + données). TRUNCATE vide les données mais garde la structure.", code:"DROP TABLE Clients;\nTRUNCATE TABLE Clients;" },
+        { cat:'ddl', q:"Comment ajouter une colonne à une table existante ?", a:"Utilisez ALTER TABLE ... ADD.", code:"ALTER TABLE Clients\nADD telephone VARCHAR(20);" },
+        { cat:'ddl', q:"Comment renommer une table en SQL Server ?", a:"Utilisez la procédure système sp_rename.", code:"EXEC sp_rename 'AncienNom', 'NouveauNom';" },
+        // Contraintes (6-10)
+        { cat:'contraintes', q:"Que garantit PRIMARY KEY ?", a:"Unicité + NOT NULL. Chaque ligne est identifiable de manière unique.", code:"id INT PRIMARY KEY" },
+        { cat:'contraintes', q:"Qu'est-ce qu'une FOREIGN KEY ?", a:"Un lien vers la clé primaire d'une autre table. Assure l'intégrité référentielle.", code:"FOREIGN KEY (dept_id)\nREFERENCES Departements(id)" },
+        { cat:'contraintes', q:"Que fait la contrainte CHECK ?", a:"Vérifie qu'une valeur respecte une condition avant insertion/mise à jour.", code:"age INT CHECK (age >= 0 AND age <= 150)" },
+        { cat:'contraintes', q:"Quelle contrainte définit une valeur par défaut ?", a:"DEFAULT — appliquée automatiquement si aucune valeur n'est fournie.", code:"date_creation DATETIME DEFAULT GETDATE()" },
+        { cat:'contraintes', q:"Que signifie UNIQUE ?", a:"La colonne ne peut pas contenir de doublons, mais peut contenir UN NULL.", code:"email VARCHAR(200) UNIQUE" },
+        // DML (11-15)
+        { cat:'dml', q:"Quelle commande ajoute une ligne à une table ?", a:"INSERT INTO ... VALUES ...", code:"INSERT INTO Clients (nom, email)\nVALUES ('Alice', 'alice@mail.com');" },
+        { cat:'dml', q:"Que se passe-t-il avec UPDATE sans WHERE ?", a:"TOUTES les lignes de la table seront modifiées ! Danger absolu.", code:"-- DANGER !\nUPDATE Clients SET actif = 0;\n-- Affecte TOUT le monde" },
+        { cat:'dml', q:"Comment supprimer des lignes spécifiques ?", a:"DELETE FROM ... WHERE condition.", code:"DELETE FROM Clients\nWHERE id = 42;" },
+        { cat:'dml', q:"Différence entre DELETE et TRUNCATE ?", a:"DELETE est filtrable (WHERE) et loggé. TRUNCATE vide tout et réinitialise l'IDENTITY.", code:"DELETE FROM T WHERE id > 10;\n-- vs\nTRUNCATE TABLE T;" },
+        { cat:'dml', q:"Comment insérer plusieurs lignes en une fois ?", a:"Utilisez VALUES avec des virgules séparant chaque tuple.", code:"INSERT INTO Produits (nom, prix)\nVALUES\n  ('Stylo', 1.50),\n  ('Cahier', 3.00),\n  ('Gomme', 0.50);" },
+        // SELECT (16-22)
+        { cat:'select', q:"Comment trier les résultats par ordre décroissant ?", a:"ORDER BY colonne DESC", code:"SELECT * FROM Produits\nORDER BY prix DESC;" },
+        { cat:'select', q:"Comment filtrer avec un motif partiel ?", a:"Utilisez LIKE avec % (n'importe quoi) et _ (un caractère).", code:"SELECT * FROM Clients\nWHERE nom LIKE 'A%';\n-- Commence par A" },
+        { cat:'select', q:"Que fait GROUP BY ?", a:"Regroupe les lignes par valeur commune pour appliquer des agrégats (COUNT, SUM, AVG...).", code:"SELECT ville, COUNT(*)\nFROM Clients\nGROUP BY ville;" },
+        { cat:'select', q:"Différence entre WHERE et HAVING ?", a:"WHERE filtre AVANT le regroupement, HAVING filtre APRÈS le GROUP BY.", code:"SELECT dept, AVG(salaire)\nFROM Employes\nGROUP BY dept\nHAVING AVG(salaire) > 3000;" },
+        { cat:'select', q:"Que fait DISTINCT ?", a:"Élimine les doublons dans les résultats.", code:"SELECT DISTINCT ville\nFROM Clients;" },
+        { cat:'select', q:"Qu'est-ce qu'un INNER JOIN ?", a:"Retourne seulement les lignes qui ont une correspondance dans les deux tables.", code:"SELECT c.nom, cmd.total\nFROM Clients c\nINNER JOIN Commandes cmd\nON c.id = cmd.client_id;" },
+        { cat:'select', q:"Qu'est-ce qu'un LEFT JOIN ?", a:"Retourne toutes les lignes de la table gauche, même sans correspondance à droite (NULL).", code:"SELECT c.nom, cmd.total\nFROM Clients c\nLEFT JOIN Commandes cmd\nON c.id = cmd.client_id;" },
+        // Fonctions (23-27)
+        { cat:'fonctions', q:"Comment obtenir la date actuelle en SQL Server ?", a:"GETDATE() retourne la date et l'heure actuelles du serveur.", code:"SELECT GETDATE();\n-- 2025-01-15 14:30:00.000" },
+        { cat:'fonctions', q:"Comment gérer les valeurs NULL ?", a:"ISNULL(col, valeur_remplacement) ou COALESCE(col1, col2, défaut).", code:"SELECT ISNULL(telephone, 'Non renseigné')\nFROM Clients;" },
+        { cat:'fonctions', q:"Comment calculer la différence entre deux dates ?", a:"DATEDIFF(unité, date_début, date_fin)", code:"SELECT DATEDIFF(day, '2025-01-01', GETDATE())\n-- Nombre de jours depuis le 1er janvier" },
+        { cat:'fonctions', q:"Comment convertir du texte en majuscules ?", a:"La fonction UPPER() convertit tout en majuscules.", code:"SELECT UPPER(nom) FROM Clients;\n-- 'alice' → 'ALICE'" },
+        { cat:'fonctions', q:"Que fait LEN() ?", a:"Retourne le nombre de caractères d'une chaîne (sans espaces de fin).", code:"SELECT LEN('SQL Server');\n-- Résultat : 10" },
+        // T-SQL (28-32)
+        { cat:'tsql', q:"Comment déclarer une variable en T-SQL ?", a:"DECLARE @nom_variable TYPE [= valeur_initiale]", code:"DECLARE @compteur INT = 0;\nDECLARE @nom VARCHAR(50);" },
+        { cat:'tsql', q:"Quelle est la syntaxe du IF/ELSE en T-SQL ?", a:"IF (condition) BEGIN ... END ELSE BEGIN ... END", code:"IF (@age >= 18)\n  PRINT 'Majeur'\nELSE\n  PRINT 'Mineur'" },
+        { cat:'tsql', q:"Comment faire une boucle en T-SQL ?", a:"WHILE (condition) BEGIN ... END. Attention aux boucles infinies !", code:"DECLARE @i INT = 1\nWHILE @i <= 5\nBEGIN\n  PRINT @i\n  SET @i = @i + 1\nEND" },
+        { cat:'tsql', q:"Qu'est-ce qu'un CURSOR ?", a:"Un mécanisme pour parcourir les résultats ligne par ligne. Lent, à éviter quand possible.", code:"DECLARE cur CURSOR FOR\n  SELECT nom FROM Clients\nOPEN cur\n-- FETCH NEXT..." },
+        { cat:'tsql', q:"Comment utiliser CASE WHEN ?", a:"Expression conditionnelle inline, comme un if/else dans le SELECT.", code:"SELECT nom,\n  CASE\n    WHEN age < 18 THEN 'Mineur'\n    WHEN age < 65 THEN 'Adulte'\n    ELSE 'Senior'\n  END AS categorie\nFROM Personnes;" },
+        // Transactions (33-36)
+        { cat:'transactions', q:"Que signifie ACID ?", a:"Atomicité (tout ou rien), Cohérence (données valides), Isolation (pas d'interférence), Durabilité (persisté).", code:"BEGIN TRANSACTION\n  UPDATE Comptes SET solde = solde - 100 WHERE id = 1;\n  UPDATE Comptes SET solde = solde + 100 WHERE id = 2;\nCOMMIT;" },
+        { cat:'transactions', q:"Que fait ROLLBACK ?", a:"Annule toutes les modifications depuis le dernier BEGIN TRANSACTION.", code:"BEGIN TRANSACTION\n  DELETE FROM Clients;\n  -- Oups !\nROLLBACK;\n-- Tout est restauré !" },
+        { cat:'transactions', q:"Qu'est-ce qu'un dirty read ?", a:"Lire des données modifiées par une autre transaction pas encore validée (COMMIT).", code:"-- Niveau READ UNCOMMITTED\n-- permet le dirty read" },
+        { cat:'transactions', q:"Que fait SAVEPOINT ?", a:"Crée un point de sauvegarde dans une transaction pour un rollback partiel.", code:"SAVE TRANSACTION MonPoint;\n-- ... opérations ...\nROLLBACK TRANSACTION MonPoint;\n-- Annule jusqu'au savepoint" },
+        // Avancé (37-40)
+        { cat:'avance', q:"Qu'est-ce qu'une procédure stockée ?", a:"Un bloc de code SQL réutilisable, stocké sur le serveur. Accepte des paramètres.", code:"CREATE PROCEDURE GetUser\n  @id INT\nAS\nBEGIN\n  SELECT * FROM Users WHERE id = @id\nEND" },
+        { cat:'avance', q:"Qu'est-ce qu'un Trigger ?", a:"Un code automatiquement exécuté en réponse à un INSERT, UPDATE ou DELETE sur une table.", code:"CREATE TRIGGER trg_Log\nON Users AFTER INSERT\nAS\nBEGIN\n  INSERT INTO Logs (action)\n  VALUES ('Nouvel utilisateur')\nEND" },
+        { cat:'avance', q:"Que sont les tables inserted et deleted dans un Trigger ?", a:"Tables temporaires contenant les lignes ajoutées (inserted) ou supprimées (deleted) par l'opération.", code:"-- Dans un trigger AFTER UPDATE :\nSELECT * FROM inserted;  -- nouvelles valeurs\nSELECT * FROM deleted;   -- anciennes valeurs" },
+        { cat:'avance', q:"Qu'est-ce qu'un INDEX ?", a:"Structure qui accélère les recherches sur une colonne, comme l'index d'un livre.", code:"CREATE INDEX idx_nom\nON Clients(nom);\n-- Accélère WHERE nom = '...'" }
+    ];
+
+    let cards = [];
+    let currentIndex = 0;
+    let mastered = new Set();
+    let isFlipped = false;
+    let activeFilter = 'all';
+
+    function loadMastery() {
+        const saved = localStorage.getItem('rd_sql_flashcards_mastered');
+        if (saved) { try { mastered = new Set(JSON.parse(saved)); } catch(e) { mastered = new Set(); } }
+        updateStats();
+    }
+    function saveMastery() {
+        localStorage.setItem('rd_sql_flashcards_mastered', JSON.stringify([...mastered]));
+    }
+
+    function buildDeck(cat) {
+        const completed = getCompleted();
+        let pool = (cat === 'all') ? allCards : allCards.filter(c => c.cat === cat);
+        return pool.filter(c => completed.includes(catToModule[c.cat]));
+    }
+
+    function displayCard() {
+        if (cards.length === 0) {
+            const locked = activeFilter !== 'all' && !isUnlocked(activeFilter);
+            const mod = catToModule[activeFilter];
+            document.getElementById('fc-question').innerHTML = locked
+                ? '<i class="fas fa-lock text-amber-400 text-3xl mb-4"></i><br>Module verrouillé'
+                : 'Aucune carte disponible';
+            document.getElementById('fc-answer').textContent = locked
+                ? 'Terminez le module ' + mod + ' (' + (moduleNames[mod]||'') + ') pour débloquer ces flashcards.'
+                : '';
+            document.getElementById('fc-code').style.display = 'none';
+            document.getElementById('fc-category').textContent = '';
+            document.getElementById('card-counter').textContent = '0 / 0';
+            return;
+        }
+        const card = cards[currentIndex];
+        isFlipped = false;
+        document.getElementById('flashcard').classList.remove('flipped');
+        document.getElementById('fc-category').textContent = card.cat.toUpperCase();
+        document.getElementById('fc-question').textContent = card.q;
+        document.getElementById('fc-answer').textContent = card.a;
+        if (card.code) {
+            document.getElementById('fc-code').textContent = card.code;
+            document.getElementById('fc-code').style.display = 'block';
+        } else { document.getElementById('fc-code').style.display = 'none'; }
+        document.getElementById('card-counter').textContent = `${currentIndex + 1} / ${cards.length}`;
+        const globalIdx = allCards.indexOf(card);
+        const btn = document.getElementById('btn-mastered');
+        if (mastered.has(globalIdx)) {
+            btn.classList.add('bg-emerald-600', 'text-white');
+            btn.classList.remove('bg-emerald-600/20', 'text-emerald-400');
+            btn.innerHTML = '<i class="fas fa-check-double mr-2"></i> Maîtrisée ✓';
+        } else {
+            btn.classList.remove('bg-emerald-600', 'text-white');
+            btn.classList.add('bg-emerald-600/20', 'text-emerald-400');
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i> Maîtrisée';
+        }
+    }
+
+    function flipCard() {
+        if (cards.length === 0) return;
+        isFlipped = !isFlipped;
+        document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+        if (cards.length === 0) return;
+        currentIndex = (currentIndex + 1) % cards.length;
+        displayCard();
+    }
+    function prevCard() {
+        if (cards.length === 0) return;
+        currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+        displayCard();
+    }
+
+    function markMastered() {
+        if (cards.length === 0) return;
+        const globalIdx = allCards.indexOf(cards[currentIndex]);
+        if (mastered.has(globalIdx)) { mastered.delete(globalIdx); } else { mastered.add(globalIdx); }
+        saveMastery(); updateStats(); displayCard();
+    }
+
+    function shuffleCards() {
+        for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+        currentIndex = 0; displayCard();
+    }
+
+    function filterCards(cat) {
+        activeFilter = cat;
+        updateButtons();
+        cards = buildDeck(cat);
+        currentIndex = 0;
+        displayCard();
+    }
+
+    function updateButtons() {
+        document.querySelectorAll('.fc-filter').forEach(btn => {
+            const c = btn.getAttribute('data-cat');
+            const isActive = c === activeFilter;
+            btn.classList.toggle('bg-blue-600', isActive);
+            btn.classList.toggle('text-white', isActive);
+            btn.classList.toggle('bg-slate-800', !isActive);
+            btn.classList.toggle('text-slate-300', !isActive);
+            // lock icon
+            if (c && c !== 'all') {
+                const label = btn.textContent.replace(/\s*🔒/g, '').trim();
+                btn.textContent = isUnlocked(c) ? label : label + ' 🔒';
+            }
+        });
+    }
+
+    function updateStats() {
+        const total = allCards.length;
+        const masteredCount = mastered.size;
+        document.getElementById('stat-total').textContent = total;
+        document.getElementById('stat-mastered').textContent = masteredCount;
+        document.getElementById('stat-remaining').textContent = total - masteredCount;
+        document.getElementById('mastery-bar').style.width = `${(masteredCount / total) * 100}%`;
+    }
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        const icon = document.getElementById('theme-icon');
+        if (html.getAttribute('data-theme') === 'light') {
+            html.removeAttribute('data-theme');
+            icon.className = 'fas fa-sun';
+            localStorage.setItem('rd_sql_theme', 'dark');
+        } else {
+            html.setAttribute('data-theme', 'light');
+            icon.className = 'fas fa-moon';
+            localStorage.setItem('rd_sql_theme', 'light');
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') nextCard();
+        else if (e.key === 'ArrowLeft') prevCard();
+        else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+        else if (e.key === 'm' || e.key === 'M') markMastered();
+    });
+
+    // Init
+    (function init() {
+        const savedTheme = localStorage.getItem('rd_sql_theme');
+        if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').className = 'fas fa-moon';
+        }
+        loadMastery();
+        updateButtons();
+        cards = buildDeck('all');
+        currentIndex = 0;
+        displayCard();
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur Examen | Recherche Opérationnelle</title>
+    <meta name="description" content="Simulateur d'examen de Recherche Opérationnelle — testez vos connaissances en conditions réelles.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    
+    <!-- Tailwind CSS (Required for Download Modal & Button) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' },
+                        slate: { 850: '#1a2438', 900: '#0f172a' }
+                    }
+                }
+            },
+            corePlugins: {
+                preflight: false // Disable preflight to preserve existing styles
+            }
+        }
+    </script>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-primary: #10b981; /* Emerald 500 */
+            --accent-secondary: #34d399; /* Emerald 400 */
+            --accent-glow: rgba(16, 185, 129, 0.5);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 1rem;
+            --radius-full: 9999px;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Navbar (Matches RO style) */
+        header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 4rem;
+            flex-wrap: nowrap; /* Prevent wrapping */
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            text-decoration: none;
+            color: white;
+            white-space: nowrap; /* Keep logo on one line */
+        }
+        .logo-icon {
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, var(--accent-primary), #059669);
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        .nav-links {
+             display: flex;
+             align-items: center;
+             white-space: nowrap;
+        }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 1.5rem; /* Reduced margin slightly */
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--accent-secondary);
+        }
+
+        /* Exam Container */
+        .exam-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding-bottom: 4rem;
+        }
+        
+        /* Setup Screen */
+        .setup-screen {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .setup-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+            text-align: left;
+        }
+        
+        .setup-option {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .setup-option:hover {
+            border-color: var(--accent-primary);
+        }
+        
+        .setup-option label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--accent-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .setup-option select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--accent-primary), #059669);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.25rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        /* Timer Bar */
+        .timer-bar {
+            position: sticky;
+            top: 70px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            z-index: 50;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+        }
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+        }
+        .timer-display.warning { color: #f59e0b; animation: pulse 1s infinite; }
+        .timer-display.danger { color: #ef4444; animation: pulse 0.5s infinite; }
+
+        .progress-dots {
+            display: flex;
+            gap: 0.4rem;
+        }
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            transition: all 0.3s;
+        }
+        .progress-dot.answered { background: var(--accent-primary); }
+        .progress-dot.current { background: #f59e0b; transform: scale(1.5); }
+
+        /* Questions */
+        .question-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Scenario Box */
+        .scenario-box {
+            background: rgba(51, 65, 85, 0.5); /* lighter slate */
+            border-left: 4px solid var(--accent-primary);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            font-style: italic;
+            color: #d1d5db;
+        }
+        .scenario-title {
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+            font-style: normal;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .answer-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .answer-option:hover {
+            border-color: var(--accent-secondary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .answer-option.selected {
+            border-color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.15);
+        }
+        .answer-option input { margin-top: 0.3rem; accent-color: var(--accent-primary); }
+
+        /* Navigation */
+        .exam-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            padding: 0.75rem 2rem;
+            border-radius: var(--radius-lg);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .nav-btn.prev {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        .nav-btn.prev:hover:not(:disabled) {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .nav-btn.next {
+            background: var(--accent-primary);
+            color: #fff;
+        }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Hidden Utility */
+        .hidden { display: none !important; }
+
+        /* Results */
+        .score-circle {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: 10px solid var(--accent-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 2rem;
+            background: var(--bg-primary);
+        }
+        .score-val { font-size: 3.5rem; font-weight: 800; color: white; }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-box {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+        }
+        
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container nav">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">R</div>
+                <span>Recherche Opérationnelle</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Accueil</a>
+                <a href="../exercices/exercices.html">Exercices</a>
+                <a href="formules.html">Formules</a>
+                <a href="#" class="active">Simulateur</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container exam-container">
+        
+        <!-- SETUP SCREEN -->
+        <div id="setup-screen" class="setup-screen">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: white;">Simulateur d'Examen</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Paramétrez votre épreuve : Exercices de Modélisation & Quiz Théorique</p>
+            
+            <div class="setup-options">
+                <div class="setup-option">
+                    <label><i class="fas fa-list-ol"></i> Quantité</label>
+                    <select id="num-questions">
+                        <option value="5">5 Questions (Démo)</option>
+                        <option value="10" selected>10 Questions (Standard)</option>
+                        <option value="20">20 Questions (Complet)</option>
+                    </select>
+                </div>
+                
+                <div class="setup-option">
+                    <label><i class="fas fa-stopwatch"></i> Temps / Question</label>
+                    <select id="time-limit">
+                        <option value="60">1 minute (Speed)</option>
+                        <option value="120" selected>2 minutes (Normal)</option>
+                        <option value="180">3 minutes (Relax)</option>
+                        <option value="0">Illimité</option>
+                    </select>
+                </div>
+                
+                <div class="setup-option">
+                    <label><i class="fas fa-layer-group"></i> Contenu</label>
+                    <select id="content-type">
+                        <option value="mix" selected>Mélange (Quiz + Scénarios)</option>
+                        <option value="quiz">Quiz Théorique Uniquement</option>
+                        <option value="scenario">Exercices Pratiques Uniquement</option>
+                    </select>
+                </div>
+
+                <div class="setup-option">
+                    <label><i class="fas fa-filter"></i> Chapitres</label>
+                    <select id="chapters">
+                        <option value="all" selected>Tous (Sauf Dualité)</option>
+                        <option value="intro">Intro & Modélisation</option>
+                        <option value="graphique">Résolution Graphique</option>
+                        <option value="simplexe">Simplexe</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="start-btn" onclick="startExam()">
+                <i class="fas fa-play" style="margin-right: 0.5rem;"></i> Lancer l'épreuve
+            </button>
+        </div>
+
+        <!-- EXAM SCREEN -->
+        <div id="exam-screen" class="hidden">
+            <div class="timer-bar">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-weight: 700; color: white;">Question <span id="current-q-disp">1</span>/<span id="total-q-disp">10</span></span>
+                    <div class="progress-dots" id="dots-container"></div>
+                </div>
+                <div class="timer-display" id="timer-display">00:00</div>
+            </div>
+
+            <div id="question-container">
+                <!-- Injected via JS -->
+            </div>
+
+            <div class="exam-nav">
+                <button class="nav-btn prev" id="prev-btn" onclick="prevQuestion()" disabled>
+                    <i class="fas fa-arrow-left"></i> Précédent
+                </button>
+                <button class="nav-btn next" id="next-btn" onclick="nextQuestion()">
+                    Suivant <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="nav-btn next hidden" id="submit-btn" onclick="submitExam()" style="background: linear-gradient 135deg #f59e0b #d97706;">
+                    Terminer <i class="fas fa-check"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="results-screen" class="hidden setup-screen">
+            <h2 style="font-size: 2rem; margin-bottom: 2rem;">Résultats de l'examen</h2>
+            
+            <div class="score-circle">
+                <span class="score-val" id="final-score">0%</span>
+                <span style="color: rgba(255,255,255,0.6);">Score Final</span>
+            </div>
+
+            <p id="feedback-msg" style="font-size: 1.2rem; margin-bottom: 2rem; color: var(--accent-secondary);"></p>
+
+            <div class="result-grid">
+                <div class="stat-box">
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">Bonnes Réponses</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="correct-cnt">0</div>
+                </div>
+                <div class="stat-box">
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">Temps Total</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: white;" id="time-taken">0:00</div>
+                </div>
+            </div>
+
+            <button class="start-btn" onclick="location.reload()">
+                <i class="fas fa-redo"></i> Recommencer
+            </button>
+        </div>
+
+    </div>
+
+    <script src="../assets/js/download.js"></script>
+    <script>
+        // --- DATA BANK (NO DUALITY) ---
+        const questionBank = [
+            // --- QUIZ TYPE ---
+            {
+                id: 1, type: 'quiz', chapter: 'intro',
+                q: "Quelle est la définition de la Recherche Opérationnelle ?",
+                options: ["Méthode militaire uniquement", "Approche scientifique pour la prise de décision", "Gestion de stock", "Programmation informatique"],
+                correct: 1,
+                explanation: "La R.O. utilise des modèles mathématiques et algorithmes pour aider à prendre les meilleures décisions."
+            },
+            {
+                id: 2, type: 'quiz', chapter: 'simplexe',
+                q: "Qui est le père fondateur de l'algorithme du Simplexe (1947) ?",
+                options: ["John Nash", "George Dantzig", "Leonid Kantorovitch", "Von Neumann"],
+                correct: 1,
+                explanation: "George Dantzig a développé l'algorithme du simplexe pour résoudre des problèmes de planification de l'US Air Force."
+            },
+            {
+                id: 3, type: 'quiz', chapter: 'modelisation',
+                q: "Dans un PL standard, les variables de décision doivent être :",
+                options: ["Négatives", "Positives ou nulles", "Entières uniquement", "Sans contrainte"],
+                correct: 1,
+                explanation: "Les contraintes de non-négativité ($x_j \\geq 0$) sont fondamentales dans la forme standard."
+            },
+            {
+                id: 4, type: 'quiz', chapter: 'simplexe',
+                q: "Quelle variable choisit-on comme variable entrante dans un problème de Maximisation ?",
+                options: ["Celle au coût réduit le plus négatif", "Celle au coût réduit le plus positif", "La première de la liste", "Une variable artificielle"],
+                correct: 1,
+                explanation: "On choisit la variable qui améliore le plus la fonction objectif (gradient le plus fort), donc le coût réduit le plus grand (positif ou négatif selon convention, ici souvent le plus positif en gain marginal)."
+            },
+            {
+                id: 5, type: 'quiz', chapter: 'graphique',
+                q: "Dans la méthode graphique, l'optimum se trouve toujours :",
+                options: ["Au centre du domaine admissible", "Sur un sommet (point extrême)", "À l'infini", "Sur l'axe des ordonnées"],
+                correct: 1,
+                explanation: "Le théorème fondamental de la PL stipule que si un optimum existe, il se trouve sur l'un des sommets du polyèdre de contraintes."
+            },
+
+            // --- SCENARIO / EXERCISE TYPE (Inspired by provided texts) ---
+            {
+                id: 101, type: 'scenario', chapter: 'modelisation',
+                title: "Production Usine",
+                text: "Une usine produit des pièces P1 et P2. <br>• P1 nécessite 2h d'usinage et rapporte 15€.<br>• P2 nécessite 3h d'usinage et rapporte 20€.<br>• L'atelier dispose de 120h d'usinage max.",
+                q: "Quelle est la contrainte liée au temps d'usinage ?",
+                options: ["$2x_1 + 3x_2 \\leq 120$", "$2x_1 + 3x_2 \\geq 120$", "$15x_1 + 20x_2 \\leq 120$", "$x_1 + x_2 = 120$"],
+                correct: 0,
+                explanation: "Chaque unité x1 consomme 2h, chaque unité x2 consomme 3h. La somme ne doit pas dépasser 120."
+            },
+            {
+                id: 102, type: 'scenario', chapter: 'modelisation',
+                title: "Problème du Transport",
+                text: "On doit transporter des marchandises de 2 Usines (U1, U2) vers 3 Magasins (M1, M2, M3). <br>Soit $c_{ij}$ le coût unitaire de transport de Ui vers Mj.",
+                q: "Combien y a-t-il de variables de décision dans ce problème ?",
+                options: ["2 variables", "3 variables", "5 variables", "6 variables"],
+                correct: 3,
+                explanation: "Il y a $2 \\times 3 = 6$ trajets possibles, donc 6 variables de flux $x_{ij}$ (U1->M1, U1->M2, U1->M3, U2->M1...)."
+            },
+            {
+                id: 103, type: 'scenario', chapter: 'graphique',
+                title: "Résolution Graphique",
+                text: "Soit le système : <br> (1) $x + y \\leq 4$ <br> (2) $x \\geq 0, y \\geq 0$. <br>On cherche à Maximiser $Z = 3x + 2y$.",
+                q: "Quel est le point optimal ?",
+                options: ["(0,0)", "(0,4)", "(4,0)", "(2,2)"],
+                correct: 2,
+                explanation: "Sommets possibles: (0,0) -> Z=0. (0,4) -> Z=8. (4,0) -> Z=12. Le max est en (4,0)."
+            },
+            {
+                id: 104, type: 'scenario', chapter: 'simplexe',
+                title: "Passage au Standard",
+                text: "On a la contrainte $3x_1 - 2x_2 \\leq 10$. On veut écrire le problème sous forme standard (égalités).",
+                q: "Quelle transformation est correcte ?",
+                options: ["$3x_1 - 2x_2 + e_1 = 10, e_1 \\geq 0$", "$3x_1 - 2x_2 - e_1 = 10, e_1 \\geq 0$", "$3x_1 - 2x_2 + a_1 = 10, a_1 \\geq 0$", "Aucune transformation nécessaire"],
+                correct: 0,
+                explanation: "Pour une inégalité $\\leq$, on ajoute une variable d'écart (slack) positive $e_1$ pour combler la différence."
+            }
+        ];
+
+        // --- EXAM LOGIC ---
+        let state = {
+            questions: [],
+            answers: [],
+            idx: 0,
+            timer: null,
+            timeLeft: 0,
+            startTime: 0
+        };
+
+        function startExam() {
+            try {
+                console.log("Starting Exam..."); // Debug
+                const count = parseInt(document.getElementById('num-questions').value);
+                const timePerQ = parseInt(document.getElementById('time-limit').value);
+                const typePref = document.getElementById('content-type').value;
+                const chapterPref = document.getElementById('chapters').value;
+
+                // Filter
+                let pool = questionBank.filter(q => {
+                    let typeMatch = (typePref === 'mix') ? true : q.type === typePref;
+                    let chapMatch = (chapterPref === 'all') ? true : q.chapter === chapterPref || (chapterPref==='intro' && q.chapter==='modelisation');
+                    return typeMatch && chapMatch;
+                });
+
+                if (pool.length === 0) {
+                    alert("Aucune question trouvée pour ces critères !");
+                    return;
+                }
+
+                // If pool is too small, duplicate for demo purposes (robustness)
+                if (pool.length < count) {
+                    // In a real app we would warn, but here we just take what we have
+                    // We'll duplicate the entire pool to have enough questions
+                    while (pool.length < count && pool.length > 0) {
+                       pool = pool.concat(pool);
+                    }
+                }
+                
+                // Limit to count if we have enough
+                if (pool.length > count) {
+                    // Shuffle before slicing
+                     pool.sort(() => Math.random() - 0.5);
+                     pool = pool.slice(0, count);
+                }
+
+                // Init state
+                state.questions = pool;
+                state.answers = new Array(state.questions.length).fill(null);
+                
+                // Time Setup
+                state.timeLeft = (timePerQ > 0) ? timePerQ * state.questions.length : -1; //-1 means infinite
+                state.startTime = Date.now();
+
+                // UI Switch
+                const setupScreen = document.getElementById('setup-screen');
+                const examScreen = document.getElementById('exam-screen');
+                
+                if(setupScreen) setupScreen.classList.add('hidden');
+                if(examScreen) examScreen.classList.remove('hidden');
+                
+                // Render Dots
+                renderDots();
+                
+                // Show Q1
+                showQuestion(0);
+                
+                // Start Timer
+                if (state.timeLeft > 0) {
+                    updateTimerDisplay();
+                    state.timer = setInterval(tick, 1000);
+                } else {
+                    document.getElementById('timer-display').innerText = "∞";
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Erreur lors du lancement de l'examen : " + e.message);
+            }
+        }
+
+        function tick() {
+            state.timeLeft--;
+            updateTimerDisplay();
+            if (state.timeLeft <= 0) {
+                finishExam();
+            }
+        }
+
+        function updateTimerDisplay() {
+            let m = Math.floor(state.timeLeft / 60);
+            let s = state.timeLeft % 60;
+            let str = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            const el = document.getElementById('timer-display');
+            el.innerText = str;
+            
+            if (state.timeLeft < 30) el.classList.add('danger');
+        }
+
+        function renderDots() {
+            const c = document.getElementById('dots-container');
+            c.innerHTML = state.questions.map((_, i) => `<div class="progress-dot" id="dot-${i}"></div>`).join('');
+            document.getElementById('total-q-disp').innerText = state.questions.length;
+        }
+
+        function showQuestion(i) {
+            state.idx = i;
+            const q = state.questions[i];
+            
+            // Update Headers
+            document.getElementById('current-q-disp').innerText = i + 1;
+            document.querySelectorAll('.progress-dot').forEach((d, idx) => {
+                d.classList.toggle('current', idx === i);
+                if (state.answers[idx] !== null) d.classList.add('answered');
+            });
+
+            // Build HTML
+            let html = '';
+            
+            // Scenario Box if needed
+            if (q.type === 'scenario') {
+                html += `
+                <div class="scenario-box">
+                    <div class="scenario-title"><i class="fas fa-file-alt"></i> Cas Pratique : ${q.title}</div>
+                    <div>${q.text}</div>
+                </div>`;
+            }
+
+            html += `<h3 class="question-text">${q.q}</h3>`;
+            html += `<div class="options-grid">`;
+            q.options.forEach((opt, oIdx) => {
+                const isSelected = state.answers[i] === oIdx;
+                html += `
+                <div class="answer-option ${isSelected ? 'selected' : ''}" onclick="selectAnswer(${oIdx})">
+                    <input type="radio" name="q-${i}" ${isSelected ? 'checked' : ''}>
+                    <span>${opt}</span>
+                </div>`;
+            });
+            html += `</div>`;
+
+            const card = document.createElement('div');
+            card.className = 'question-card zoom-in';
+            card.innerHTML = html;
+            
+            const container = document.getElementById('question-container');
+            container.innerHTML = '';
+            container.appendChild(card);
+            
+            // MathJax
+            if (window.MathJax) MathJax.typesetPromise();
+
+            // Nav Buttons
+            document.getElementById('prev-btn').disabled = (i === 0);
+            const isLast = (i === state.questions.length - 1);
+            document.getElementById('next-btn').classList.toggle('hidden', isLast);
+            document.getElementById('submit-btn').classList.toggle('hidden', !isLast);
+        }
+
+        function selectAnswer(ansIdx) {
+            state.answers[state.idx] = ansIdx;
+            showQuestion(state.idx); // Re-render to show selection state
+        }
+
+        function nextQuestion() {
+            if (state.idx < state.questions.length - 1) showQuestion(state.idx + 1);
+        }
+
+        function prevQuestion() {
+            if (state.idx > 0) showQuestion(state.idx - 1);
+        }
+
+        function submitExam() {
+            if (confirm("Terminer l'épreuve maintenant ?")) {
+                finishExam();
+            }
+        }
+
+        function finishExam() {
+            clearInterval(state.timer);
+            
+            // Calculate Score
+            let correct = 0;
+            state.questions.forEach((q, i) => {
+                if (state.answers[i] === q.correct) correct++;
+            });
+            
+            let percent = Math.round((correct / state.questions.length) * 100);
+            
+            // Time taken
+            let timeSpent = Date.now() - state.startTime;
+            let m = Math.floor(timeSpent / 60000);
+            let s = Math.floor((timeSpent % 60000) / 1000);
+            
+            // Display Results
+            document.getElementById('exam-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = percent + "%";
+            document.getElementById('correct-cnt').innerText = `${correct}/${state.questions.length}`;
+            document.getElementById('time-taken').innerText = `${m}m ${s}s`;
+            
+            let msg = "";
+            if (percent >= 80) msg = "Excellent travail ! La modélisation n'a plus de secret pour vous.";
+            else if (percent >= 50) msg = "Bien joué, mais quelques révisions sont nécessaires.";
+            else msg = "Courage, reprenez les cours et les exercices corrigés.";
+            document.getElementById('feedback-msg').innerText = msg;
+        }
+
+        // Pulse animation for critical timer
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+            .zoom-in { animation: zoomIn 0.3s ease-out; }
+            @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        `;
+        document.head.appendChild(style);
+
+    </script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

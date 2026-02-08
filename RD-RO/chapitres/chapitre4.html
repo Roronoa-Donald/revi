@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 04 : Forme Standard | Optimization Master</title>
+    <meta name="description" content="Module de Recherche Opérationnelle — cours interactif avec exercices et simulateurs.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    
+    <!-- Tailwind & Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' },
+                        slate: { 850: '#1a2438', 900: '#0f172a' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" aria-hidden="true"></div>
+
+    <nav class="fixed w-full z-50 glass-nav border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="../index.html" class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-slate-900 font-bold shadow-lg shadow-emerald-500/20 transition-all group-hover:scale-105 group-hover:shadow-emerald-500/40">RO</div>
+                    <span class="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-200 to-cyan-200">Recherche Ops</span>
+                </a>
+                <div class="hidden md:flex items-center gap-6 desktop-nav">
+                    <a href="chapitre3.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Précédent</a>
+                    <span class="text-sm font-medium text-emerald-500">Module 04</span>
+                    <a href="chapitre5.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Suivant</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="theme-toggle" aria-label="Changer de thème"><i class="fas fa-sun"></i></button>
+                    <button class="hamburger-btn md:hidden" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav-overlay" aria-hidden="true"></div>
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+        <div class="flex justify-between items-center mb-6">
+            <span class="font-bold text-lg">Menu</span>
+            <button onclick="document.querySelector('.mobile-nav-overlay').click()" class="text-slate-400 hover:text-white" aria-label="Fermer"><i class="fas fa-times"></i></button>
+        </div>
+        <a href="../index.html">Accueil</a>
+        <a href="formules.html">Formules</a>
+        <a href="../exercices/exercices.html">Exercices</a>
+        <a href="simulateur-examen.html">Examen</a>
+    </nav>
+
+    <section class="pt-32 pb-12 relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-500/20 rounded-full blur-[120px] -z-10"></div>
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-6">
+                Module 04
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 tracking-tight">
+                Le Dress Code du Mathématicien
+            </h1>
+            <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                L'algorithme du Simplexe, c'est un club très sélect. Il refuse les inégalités. Pour entrer, votre modèle doit enfiler un costume strict : la "Forme Standard".
+            </p>
+        </div>
+    </section>
+
+    <main id="main-content" class="max-w-4xl mx-auto px-4 pb-24 space-y-8">
+
+        <!-- METAPHORE : LE MANIAQUE -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10 relative">
+            <h2 class="text-2xl font-bold text-white mb-6">1. Le problème avec "Plus Petit Que"</h2>
+            <p class="text-slate-300 leading-relaxed mb-6">
+                Imaginez dire à un comptable : "J'ai dépensé <em>au plus</em> 100€". Il va vous détester. Il veut savoir EXACTEMENT combien. 99€ ? 50€ ? 0€ ?
+                <br><br>
+                L'ordinateur est comme ce comptable. Il ne sait pas gérer le flou du symbole $\le$. Il veut du solide, du $=$.
+            </p>
+
+            <div class="bg-indigo-900/20 border border-indigo-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-center">
+                <div class="text-center opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                    <span class="block text-4xl mb-2">😩</span>
+                    <span class="font-mono text-red-300 line-through decoration-2">2x + y &le; 20</span>
+                    <br><span class="text-xs text-red-400 font-bold uppercase mt-1">Refusé (Canonique)</span>
+                </div>
+                
+                <div class="hidden md:block text-2xl text-slate-500">➜</div>
+                
+                <div class="text-center scale-110">
+                    <span class="block text-4xl mb-2">😎</span>
+                    <span class="font-mono text-emerald-300 font-bold">2x + y + e = 20</span>
+                    <br><span class="text-xs text-emerald-400 font-bold uppercase mt-1">Accepté (Standard)</span>
+                </div>
+            </div>
+        </article>
+
+        <!-- CONCEPT : VARIABLE D'ECART -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10">
+            <h2 class="text-2xl font-bold text-white mb-6">2. La Variable d'Écart ($e$)</h2>
+            <p class="text-slate-300 mb-6">
+                Pour passer de $\le$ à $=$, on invente une variable magique : la <strong class="text-indigo-300">Variable d'Écart</strong> (Slack Variable).
+            </p>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-slate-800/50 rounded-lg border-l-4 border-indigo-500">
+                    <h5 class="text-indigo-300 font-bold mb-1">L'Explication Concrète (André)</h5>
+                    <p class="text-sm text-slate-300">
+                        Si André a <strong class="text-white">20 planches</strong> et en utilise seulement 18 pour ses tables, où sont passées les 2 autres ?<br>
+                        Elles sont dans le placard. C'est du stock inutilisé.<br>
+                        En math : <code class="bg-black/30 px-1 rounded text-cyan-300">Consommé (18) + Stock (2) = 20</code>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-mono">
+                <div class="bg-black/20 p-4 rounded border border-white/5">
+                    <div class="text-slate-500 mb-2">// AVANT (Forme Canonique)</div>
+                    <div class="text-red-300">2x₁ + x₂ &le; 20</div>
+                    <div class="text-red-300">x₁ + x₂ &le; 40</div>
+                </div>
+                <div class="bg-black/20 p-4 rounded border border-emerald-500/30 shadow-[0_0_15px_-5px_var(--color-emerald-500)]">
+                    <div class="text-emerald-500 mb-2">// APRÈS (Forme Standard)</div>
+                    <div class="text-white">2x₁ + x₂ <span class="text-indigo-400 font-bold">+ e₁</span> = 20</div>
+                    <div class="text-white">x₁ + x₂ <span class="text-purple-400 font-bold">+ e₂</span> = 40</div>
+                </div>
+            </div>
+            
+            <p class="text-xs text-slate-500 mt-4 italic text-center">
+                Note : Chaque contrainte a sa PROPRE variable d'écart ($e_1$ pour le bois, $e_2$ pour le temps). On ne mélange pas les stocks !
+            </p>
+        </article>
+
+        <!-- Interactive Exercises Container -->
+        <article class="glass-card p-6 md:p-8 rounded-2xl border border-white/10 bg-black/20" id="interactive-exercise">
+            <!-- Injecté par exercises.js -->
+        </article>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">&copy; 2025 Optimization Master — Recherche Opérationnelle.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

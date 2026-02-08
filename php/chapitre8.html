@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 8 - Projet ToDo List : Finalisation</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+<body class="chapter-page no-sandbox">
+    
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="chapterProgress"></div>
+    </div>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html"><i class="fas fa-code"></i><span>PHP POO</span></a>
+            </div>
+            <nav class="main-nav">
+                <a href="index.html">Accueil</a>
+                <a href="#" class="active">Chapitre 8</a>
+                <button class="btn-notes" id="showNotesBtn"><i class="fas fa-bookmark"></i> Notes</button>
+                <button class="btn-theme" id="themeToggleBtn" title="Changer de thème"><i class="fas fa-moon"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="chapter-nav">
+        <a href="chapitre7.html" class="nav-btn nav-prev">
+            <i class="fas fa-arrow-left"></i><span>Chapitre 7</span>
+        </a>
+        <div class="chapter-info">
+            <span class="chapter-number">Chapitre 8/8</span>
+            <h1>Projet ToDo List : Finalisation (CRUD)</h1>
+        </div>
+        <!-- Fin du cours, retour à l'accueil ou bouton final -->
+        <a href="index.html" class="nav-btn nav-next">
+            <span>Accueil</span><i class="fas fa-home"></i>
+        </a>
+    </div>
+
+    <main class="chapter-content">
+        <div class="container">
+            <aside class="sidebar">
+                <div class="sidebar-sticky">
+                    <h3><i class="fas fa-list"></i> Fonctionnalités</h3>
+                    <nav class="table-of-contents">
+                        <a href="#create" class="toc-link active"><span class="toc-number">1</span> Create (Ajouter)</a>
+                        <a href="#update" class="toc-link"><span class="toc-number">2</span> Update (Modifier)</a>
+                        <a href="#delete" class="toc-link"><span class="toc-number">3</span> Delete (Supprimer)</a>
+                        <a href="#router" class="toc-link"><span class="toc-number">4</span> Mise à jour Routeur</a>
+                        <a href="#conclusion" class="toc-link"><span class="toc-number">5</span> Conclusion</a>
+                        <a href="#quiz" class="toc-link quiz-link"><i class="fas fa-question-circle"></i> Quiz</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <article class="content">
+                <section id="create" class="content-section">
+                    <div class="section-header"><h2>1. Ajouter une tâche (Create)</h2></div>
+                    <p>Pour ajouter des données, il nous faut un formulaire HTML et une méthode pour traiter l'envoi (POST).</p>
+
+                    <h4>1.1 Le Modèle (app/Models/Task.php)</h4>
+                    <div class="code-block">
+<pre><code class="language-php">// Ajouter dans la classe Task
+public static function create($title) {
+    $pdo = Db::getInstance();
+    $stmt = $pdo->prepare("INSERT INTO tasks (title) VALUES (:title)");
+    return $stmt->execute(['title' => $title]);
+}</code></pre>
+                    </div>
+
+                    <h4>1.2 Le Contrôleur (app/Controllers/HomeController.php)</h4>
+                    <div class="code-block">
+<pre><code class="language-php">// Ajouter dans HomeController
+public function add() {
+    if (!empty($_POST['title'])) {
+        $title = strip_tags($_POST['title']); // Sécurité basique
+        Task::create($title);
+    }
+    // Redirection vers la liste
+    header('Location: /todo-app/public/');
+    exit;
+}</code></pre>
+                    </div>
+
+                    <h4>1.3 La Vue (views/home.php)</h4>
+                    <p>Ajoutez ce formulaire en haut de votre body :</p>
+                    <div class="code-block">
+<pre><code class="language-html">&lt;form action="?action=add" method="post"&gt;
+    &lt;input type="text" name="title" placeholder="Nouvelle tâche..." required&gt;
+    &lt;button type="submit"&gt;Ajouter&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+                </section>
+
+                <section id="update" class="content-section">
+                    <div class="section-header"><h2>2. Valider une tâche (Update)</h2></div>
+                    <p>Nous voulons pouvoir cocher une tâche comme "faite" ou "à faire".</p>
+
+                    <div class="exercise-box">
+                        <h3><i class="fas fa-code"></i> A vous de jouer !</h3>
+                        <p>Essayez d'écrire la méthode SQL <code>toggle($id)</code> dans le Modèle pour inverser le statut <code>is_done</code> d'une tâche donnée.</p>
+                        <button class="btn btn-sm btn-secondary btn-toggle-solution" onclick="toggleSolution('toggle')"><i class="fas fa-eye"></i> Solution</button>
+                        <div id="solution-toggle" class="solution-content">
+<pre><code class="language-php">// Dans Task.php
+public static function toggle($id) {
+    $pdo = Db::getInstance();
+    $stmt = $pdo->prepare("UPDATE tasks SET is_done = NOT is_done WHERE id = :id");
+    return $stmt->execute(['id' => $id]);
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <p>Ensuite, le contrôleur :</p>
+                    <div class="code-block">
+<pre><code class="language-php">public function toggle() {
+    if (isset($_GET['id'])) {
+        Task::toggle($_GET['id']);
+    }
+    header('Location: /todo-app/public/');
+}</code></pre>
+                    </div>
+                </section>
+
+                <section id="delete" class="content-section">
+                    <div class="section-header"><h2>3. Supprimer (Delete)</h2></div>
+                    <p>Le principe est le même. On passe un ID, et on supprime la ligne.</p>
+                    <div class="code-block">
+<pre><code class="language-php">// Model
+public static function delete($id) {
+    $pdo = Db::getInstance();
+    $stmt = $pdo->prepare("DELETE FROM tasks WHERE id = :id");
+    return $stmt->execute(['id' => $id]);
+}
+
+// Controller
+public function delete() {
+    if (isset($_GET['id'])) {
+        Task::delete($_GET['id']);
+    }
+    header('Location: /todo-app/public/');
+}</code></pre>
+                    </div>
+                </section>
+
+                <section id="router" class="content-section">
+                    <div class="section-header"><h2>4. Mise à jour du Routeur</h2></div>
+                    <p>Pour que nos formulaires (<code>?action=add</code>) fonctionnent, il faut update <code>public/index.php</code>.</p>
+                    
+                    <div class="code-block">
+<pre><code class="language-php">// ... Autoloader ...
+use App\Controllers\HomeController;
+$controller = new HomeController();
+
+// Routeur très basique
+$action = $_GET['action'] ?? 'index';
+
+if ($action === 'add') {
+    $controller->add();
+} elseif ($action === 'toggle') {
+    $controller->toggle();
+} elseif ($action === 'delete') {
+    $controller->delete();
+} else {
+    $controller->index();
+}</code></pre>
+                    </div>
+                </section>
+
+                <section id="conclusion" class="content-section" style="text-align: center; margin-top: 50px;">
+                    <div class="info-box info-success" style="display:inline-block; text-align:left;">
+                        <h2><i class="fas fa-trophy"></i> Formation Terminée !</h2>
+                        <p>Bravo ! Vous avez construit une application MVC fonctionnelle avec base de données.</p>
+                        <p>Vous avez appris :</p>
+                        <ul>
+                            <li>La POO (Classes, Héritage)</li>
+                            <li>PDO et Singleton</li>
+                            <li>L'architecture MVC</li>
+                            <li>Le CRUD (Create, Read, Update, Delete)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="quiz" class="content-section">
+                    <div class="section-header"><h2><i class="fas fa-question-circle"></i> Quiz Final</h2></div>
+                    <div id="quiz-container" class="quiz-container">
+                        <div class="quiz-start">
+                             <p>Ultime vérification des connaissances.</p>
+                            <button id="start-quiz-btn" class="btn-primary">Commencer le Quiz</button>
+                        </div>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <footer class="main-footer"><div class="container"><p>&copy; 2026 Cours PHP POO. Tous droits réservés.</p></div></footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup-templating.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-php.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/quiz-chapitre8.js"></script>
+</body>
+</html>

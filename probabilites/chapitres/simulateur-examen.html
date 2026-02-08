@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Simulateur d'examen de probabilités - Entraînez-vous dans des conditions réelles avec un chronomètre">
+    <meta property="og:title" content="Simulateur d'Examen - Probabilités">
+    <meta property="og:description" content="Testez vos connaissances en probabilités avec des examens chronométrés générés aléatoirement.">
+    <meta property="og:type" content="website">
+    <title>Simulateur d'Examen | Probas RD</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    
+    <style>
+        .exam-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        /* Setup Screen */
+        .setup-screen {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .setup-screen h2 {
+            margin-bottom: 2rem;
+        }
+        
+        .setup-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .setup-option {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+        
+        .setup-option label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+        
+        .setup-option select,
+        .setup-option input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .start-btn {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+        
+        /* Timer Bar */
+        .timer-bar {
+            position: sticky;
+            top: 80px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            z-index: 50;
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+        
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+        
+        .timer-display.warning {
+            color: #f59e0b;
+            animation: pulse 1s infinite;
+        }
+        
+        .timer-display.danger {
+            color: #ef4444;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .exam-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .progress-text {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .progress-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+        
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            transition: all 0.3s ease;
+        }
+        
+        .progress-dot.answered {
+            background: var(--accent-primary);
+        }
+        
+        .progress-dot.current {
+            background: #f59e0b;
+            transform: scale(1.3);
+        }
+        
+        /* Question Card */
+        .question-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .question-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+        
+        .question-chapter {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            color: var(--text-muted);
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .answer-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .answer-option:hover {
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .answer-option.selected {
+            border-color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.15);
+        }
+        
+        .answer-option.correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.15);
+        }
+        
+        .answer-option.incorrect {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+        }
+        
+        .answer-option input {
+            margin-top: 0.25rem;
+        }
+        
+        .answer-option-text {
+            flex: 1;
+        }
+        
+        /* Navigation */
+        .exam-nav {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-btn.prev {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .nav-btn.prev:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .nav-btn.next {
+            background: var(--accent-gradient);
+            color: white;
+        }
+        
+        .nav-btn.next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        
+        .nav-btn.submit {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Results Screen */
+        .results-screen {
+            text-align: center;
+        }
+        
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 8px solid var(--accent-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem auto;
+            position: relative;
+        }
+        
+        .score-circle.excellent {
+            border-color: #10b981;
+        }
+        
+        .score-circle.good {
+            border-color: #3b82f6;
+        }
+        
+        .score-circle.average {
+            border-color: #f59e0b;
+        }
+        
+        .score-circle.poor {
+            border-color: #ef4444;
+        }
+        
+        .score-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        
+        .score-label {
+            color: var(--text-muted);
+        }
+        
+        .results-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .results-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn.primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+        
+        .action-btn.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        /* Review Section */
+        .review-section {
+            margin-top: 3rem;
+            text-align: left;
+        }
+        
+        .review-section h3 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progress"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-square-root-alt"></i>
+                    <span>Probas <strong style="color: var(--accent-secondary);">RD</strong></span>
+                </a>
+                <div class="nav-links">
+                    <a href="../index.html">Accueil</a>
+                    <a href="chapitre1.html">Chapitres</a>
+                    <a href="../exercices/exercices.html">Exercices</a>
+                    <a href="formules.html">Formules</a>
+                    <a href="rappels-integration.html">∫ Intégrales</a>
+                    <a href="simulateur-examen.html" class="active" style="color: var(--accent-secondary);">Examen</a>
+                </div>
+                <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" style="padding-top: 100px; padding-bottom: 50px;">
+        <div class="container exam-container">
+            
+            <!-- Setup Screen -->
+            <div id="setup-screen" class="setup-screen">
+                <h2><i class="fas fa-graduation-cap"></i> Simulateur d'Examen</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                    Testez vos connaissances en conditions réelles avec un examen chronométré.
+                </p>
+                
+                <div class="setup-options">
+                    <div class="setup-option">
+                        <label for="num-questions"><i class="fas fa-list-ol"></i> Nombre de questions</label>
+                        <select id="num-questions">
+                            <option value="5">5 questions (rapide)</option>
+                            <option value="10" selected>10 questions (standard)</option>
+                            <option value="15">15 questions (complet)</option>
+                            <option value="20">20 questions (examen)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setup-option">
+                        <label for="time-limit"><i class="fas fa-clock"></i> Temps par question</label>
+                        <select id="time-limit">
+                            <option value="60">1 minute</option>
+                            <option value="90" selected>1.5 minutes</option>
+                            <option value="120">2 minutes</option>
+                            <option value="180">3 minutes</option>
+                            <option value="0">Pas de limite</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setup-option">
+                        <label for="chapters"><i class="fas fa-book"></i> Chapitres inclus</label>
+                        <select id="chapters">
+                            <option value="all" selected>Tous les chapitres</option>
+                            <option value="1">Chapitre 1 uniquement</option>
+                            <option value="2">Chapitre 2 uniquement</option>
+                            <option value="3">Chapitre 3 uniquement</option>
+                            <option value="4">Chapitre 4 uniquement</option>
+                            <option value="1,2">Chapitres 1 et 2</option>
+                            <option value="3,4">Chapitres 3 et 4</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setup-option">
+                        <label for="difficulty"><i class="fas fa-signal"></i> Difficulté</label>
+                        <select id="difficulty">
+                            <option value="all" selected>Toutes difficultés</option>
+                            <option value="easy">Facile</option>
+                            <option value="medium">Moyen</option>
+                            <option value="hard">Difficile</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="start-btn" onclick="startExam()">
+                    <i class="fas fa-play"></i> Commencer l'examen
+                </button>
+            </div>
+            
+            <!-- Exam Screen -->
+            <div id="exam-screen" class="hidden">
+                <!-- Timer Bar -->
+                <div class="timer-bar">
+                    <div class="exam-progress">
+                        <span class="progress-text">Question <span id="current-q">1</span>/<span id="total-q">10</span></span>
+                        <div class="progress-dots" id="progress-dots"></div>
+                    </div>
+                    <div class="timer-display" id="timer">15:00</div>
+                </div>
+                
+                <!-- Question Card -->
+                <div class="question-card" id="question-card">
+                    <div class="question-header">
+                        <span class="question-number" id="question-number">Question 1</span>
+                        <span class="question-chapter" id="question-chapter">Chapitre 1</span>
+                    </div>
+                    <div class="question-text" id="question-text">
+                        <!-- Question will be inserted here -->
+                    </div>
+                    <div class="answer-options" id="answer-options">
+                        <!-- Options will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <div class="exam-nav">
+                    <button class="nav-btn prev" id="prev-btn" onclick="prevQuestion()">
+                        <i class="fas fa-arrow-left"></i> Précédent
+                    </button>
+                    <button class="nav-btn next" id="next-btn" onclick="nextQuestion()">
+                        Suivant <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="nav-btn submit hidden" id="submit-btn" onclick="submitExam()">
+                        <i class="fas fa-check"></i> Terminer l'examen
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Results Screen -->
+            <div id="results-screen" class="results-screen hidden">
+                <h2><i class="fas fa-trophy"></i> Résultats de l'examen</h2>
+                
+                <div class="score-circle" id="score-circle">
+                    <span class="score-value" id="score-value">0%</span>
+                    <span class="score-label">Score</span>
+                </div>
+                
+                <p id="score-message" style="font-size: 1.2rem; color: var(--text-secondary);"></p>
+                
+                <div class="results-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="correct-count">0</div>
+                        <div class="stat-label">Bonnes réponses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="incorrect-count">0</div>
+                        <div class="stat-label">Mauvaises réponses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="time-taken">0:00</div>
+                        <div class="stat-label">Temps utilisé</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avg-time">0s</div>
+                        <div class="stat-label">Temps moyen/question</div>
+                    </div>
+                </div>
+                
+                <div class="results-actions">
+                    <button class="action-btn primary" onclick="restartExam()">
+                        <i class="fas fa-redo"></i> Nouvel examen
+                    </button>
+                    <button class="action-btn secondary" onclick="toggleReview()">
+                        <i class="fas fa-search"></i> Voir les corrections
+                    </button>
+                    <a href="formules.html" class="action-btn secondary">
+                        <i class="fas fa-book"></i> Revoir les formules
+                    </a>
+                </div>
+                
+                <div class="review-section hidden" id="review-section">
+                    <h3><i class="fas fa-clipboard-check"></i> Correction détaillée</h3>
+                    <div id="review-content"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-graduation-cap"></i> Probas RD</h4>
+                    <p>Un cours interactif pour maîtriser les probabilités.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+                        <li><a href="chapitre1.html"><i class="fas fa-book"></i> Chapitres</a></li>
+                        <li><a href="../exercices/exercices.html"><i class="fas fa-pencil-alt"></i> Exercices</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Cours de Probabilités. Créé par <strong>RD</strong> <i class="fas fa-code" style="color: var(--accent-primary);"></i></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Question Bank
+        const questionBank = [
+            // Chapter 1: Basic Probability
+            {
+                chapter: 1,
+                difficulty: 'easy',
+                question: "On lance un dé équilibré à 6 faces. Quelle est la probabilité d'obtenir un nombre pair ?",
+                options: ["$\\frac{1}{6}$", "$\\frac{1}{3}$", "$\\frac{1}{2}$", "$\\frac{2}{3}$"],
+                correct: 2,
+                explanation: "Les nombres pairs sont {2, 4, 6}, soit 3 cas favorables sur 6 possibles. $P = \\frac{3}{6} = \\frac{1}{2}$"
+            },
+            {
+                chapter: 1,
+                difficulty: 'easy',
+                question: "Si $P(A) = 0.7$, quelle est la probabilité de l'événement contraire $\\bar{A}$ ?",
+                options: ["$0.7$", "$0.3$", "$1.7$", "$0$"],
+                correct: 1,
+                explanation: "$P(\\bar{A}) = 1 - P(A) = 1 - 0.7 = 0.3$"
+            },
+            {
+                chapter: 1,
+                difficulty: 'medium',
+                question: "On tire une carte d'un jeu de 52 cartes. Quelle est la probabilité d'obtenir un As ou un Roi ?",
+                options: ["$\\frac{1}{13}$", "$\\frac{2}{13}$", "$\\frac{4}{52}$", "$\\frac{1}{26}$"],
+                correct: 1,
+                explanation: "Il y a 4 As et 4 Rois, soit 8 cartes. $P = \\frac{8}{52} = \\frac{2}{13}$"
+            },
+            {
+                chapter: 1,
+                difficulty: 'medium',
+                question: "Si $P(A) = 0.4$, $P(B) = 0.5$ et $P(A \\cap B) = 0.2$, quelle est $P(A \\cup B)$ ?",
+                options: ["$0.9$", "$0.7$", "$0.5$", "$0.3$"],
+                correct: 1,
+                explanation: "$P(A \\cup B) = P(A) + P(B) - P(A \\cap B) = 0.4 + 0.5 - 0.2 = 0.7$"
+            },
+            {
+                chapter: 1,
+                difficulty: 'hard',
+                question: "On lance deux dés équilibrés. Quelle est la probabilité que la somme soit égale à 7 ?",
+                options: ["$\\frac{1}{12}$", "$\\frac{1}{6}$", "$\\frac{1}{9}$", "$\\frac{7}{36}$"],
+                correct: 1,
+                explanation: "Les combinaisons pour obtenir 7 : (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6 cas. $P = \\frac{6}{36} = \\frac{1}{6}$"
+            },
+            
+            // Chapter 2: Conditional Probability
+            {
+                chapter: 2,
+                difficulty: 'easy',
+                question: "Si $P(A) = 0.6$ et $P(A \\cap B) = 0.3$, quelle est $P_A(B)$ ?",
+                options: ["$0.2$", "$0.3$", "$0.5$", "$0.9$"],
+                correct: 2,
+                explanation: "$P_A(B) = \\frac{P(A \\cap B)}{P(A)} = \\frac{0.3}{0.6} = 0.5$"
+            },
+            {
+                chapter: 2,
+                difficulty: 'medium',
+                question: "Deux événements A et B sont indépendants avec $P(A) = 0.4$ et $P(B) = 0.3$. Quelle est $P(A \\cap B)$ ?",
+                options: ["$0.7$", "$0.12$", "$0.1$", "$0.4$"],
+                correct: 1,
+                explanation: "Si A et B sont indépendants : $P(A \\cap B) = P(A) \\times P(B) = 0.4 \\times 0.3 = 0.12$"
+            },
+            {
+                chapter: 2,
+                difficulty: 'medium',
+                question: "Un test médical a une sensibilité de 95% et une spécificité de 90%. Si 1% de la population est malade, quelle formule donne $P(\\text{Malade}|\\text{+})$ ?",
+                options: [
+                    "$\\frac{0.95 \\times 0.01}{P(+)}$",
+                    "$\\frac{0.90 \\times 0.99}{P(+)}$",
+                    "$0.95 \\times 0.01$",
+                    "$\\frac{0.95}{0.01}$"
+                ],
+                correct: 0,
+                explanation: "Formule de Bayes : $P(M|+) = \\frac{P(+|M) \\times P(M)}{P(+)} = \\frac{0.95 \\times 0.01}{P(+)}$"
+            },
+            {
+                chapter: 2,
+                difficulty: 'hard',
+                question: "Dans un arbre de probabilités, si $P(A) = 0.3$, $P_A(B) = 0.6$ et $P_{\\bar{A}}(B) = 0.2$, quelle est $P(B)$ ?",
+                options: ["$0.32$", "$0.26$", "$0.38$", "$0.44$"],
+                correct: 0,
+                explanation: "Formule des probabilités totales : $P(B) = P(A) \\times P_A(B) + P(\\bar{A}) \\times P_{\\bar{A}}(B) = 0.3 \\times 0.6 + 0.7 \\times 0.2 = 0.18 + 0.14 = 0.32$"
+            },
+            {
+                chapter: 2,
+                difficulty: 'hard',
+                question: "A et B sont deux événements tels que $P(A) = 0.5$, $P(B) = 0.4$ et $P(A \\cup B) = 0.7$. A et B sont-ils indépendants ?",
+                options: [
+                    "Oui, car $P(A \\cap B) = P(A) \\times P(B)$",
+                    "Non, car $P(A \\cap B) \\neq P(A) \\times P(B)$",
+                    "On ne peut pas savoir",
+                    "Oui, car $P(A \\cup B) < 1$"
+                ],
+                correct: 0,
+                explanation: "$P(A \\cap B) = P(A) + P(B) - P(A \\cup B) = 0.5 + 0.4 - 0.7 = 0.2$. Et $P(A) \\times P(B) = 0.5 \\times 0.4 = 0.2$. Donc indépendants."
+            },
+            
+            // Chapter 3: Counting
+            {
+                chapter: 3,
+                difficulty: 'easy',
+                question: "Combien vaut $5!$ ?",
+                options: ["$25$", "$120$", "$60$", "$24$"],
+                correct: 1,
+                explanation: "$5! = 5 \\times 4 \\times 3 \\times 2 \\times 1 = 120$"
+            },
+            {
+                chapter: 3,
+                difficulty: 'easy',
+                question: "Combien vaut $C_5^2$ ?",
+                options: ["$10$", "$20$", "$25$", "$5$"],
+                correct: 0,
+                explanation: "$C_5^2 = \\frac{5!}{2! \\times 3!} = \\frac{5 \\times 4}{2} = 10$"
+            },
+            {
+                chapter: 3,
+                difficulty: 'medium',
+                question: "De combien de façons peut-on choisir 3 personnes parmi 8 pour former un comité ?",
+                options: ["$24$", "$56$", "$336$", "$512$"],
+                correct: 1,
+                explanation: "L'ordre n'importe pas : $C_8^3 = \\frac{8!}{3! \\times 5!} = \\frac{8 \\times 7 \\times 6}{6} = 56$"
+            },
+            {
+                chapter: 3,
+                difficulty: 'medium',
+                question: "Combien de mots de 4 lettres différentes peut-on former avec l'alphabet (26 lettres) ?",
+                options: ["$C_{26}^4$", "$A_{26}^4 = 358800$", "$26^4$", "$4!$"],
+                correct: 1,
+                explanation: "L'ordre compte et pas de répétition : $A_{26}^4 = 26 \\times 25 \\times 24 \\times 23 = 358800$"
+            },
+            {
+                chapter: 3,
+                difficulty: 'hard',
+                question: "Combien de mains de 5 cartes contiennent exactement 2 As parmi un jeu de 52 cartes ?",
+                options: ["$C_4^2 \\times C_{48}^3$", "$C_{52}^5 \\times \\frac{4}{52}$", "$4^2 \\times 48^3$", "$C_4^2 + C_{48}^3$"],
+                correct: 0,
+                explanation: "On choisit 2 As parmi 4 ($C_4^2$) ET 3 cartes non-As parmi 48 ($C_{48}^3$) : $C_4^2 \\times C_{48}^3$"
+            },
+            
+            // Chapter 4: Random Variables
+            {
+                chapter: 4,
+                difficulty: 'easy',
+                question: "Si $X \\sim \\mathcal{B}(10, 0.3)$, quelle est l'espérance $E(X)$ ?",
+                options: ["$0.3$", "$3$", "$10$", "$30$"],
+                correct: 1,
+                explanation: "Pour une loi binomiale : $E(X) = np = 10 \\times 0.3 = 3$"
+            },
+            {
+                chapter: 4,
+                difficulty: 'easy',
+                question: "Si $E(X) = 5$ et $E(X^2) = 29$, quelle est la variance $V(X)$ ?",
+                options: ["$24$", "$4$", "$29$", "$5$"],
+                correct: 1,
+                explanation: "$V(X) = E(X^2) - [E(X)]^2 = 29 - 25 = 4$"
+            },
+            {
+                chapter: 4,
+                difficulty: 'medium',
+                question: "Si $X \\sim \\mathcal{B}(20, 0.5)$, quelle est la variance $V(X)$ ?",
+                options: ["$10$", "$5$", "$20$", "$2.5$"],
+                correct: 1,
+                explanation: "$V(X) = np(1-p) = 20 \\times 0.5 \\times 0.5 = 5$"
+            },
+            {
+                chapter: 4,
+                difficulty: 'medium',
+                question: "Si $Y = 3X + 2$ avec $E(X) = 4$ et $V(X) = 9$, quelle est $E(Y)$ ?",
+                options: ["$14$", "$12$", "$38$", "$11$"],
+                correct: 0,
+                explanation: "$E(Y) = E(3X + 2) = 3E(X) + 2 = 3 \\times 4 + 2 = 14$"
+            },
+            {
+                chapter: 4,
+                difficulty: 'hard',
+                question: "On lance une pièce équilibrée 6 fois. Quelle est la probabilité d'obtenir exactement 4 faces ?",
+                options: [
+                    "$C_6^4 \\times (0.5)^6$",
+                    "$\\frac{4}{6}$",
+                    "$C_6^4 \\times (0.5)^4$",
+                    "$(0.5)^4$"
+                ],
+                correct: 0,
+                explanation: "$P(X=4) = C_6^4 \\times (0.5)^4 \\times (0.5)^2 = C_6^4 \\times (0.5)^6 = 15 \\times \\frac{1}{64} = \\frac{15}{64}$"
+            }
+        ];
+        
+        // Exam State
+        let examState = {
+            questions: [],
+            currentIndex: 0,
+            answers: [],
+            startTime: null,
+            timeLimit: 0,
+            timerInterval: null,
+            remainingTime: 0
+        };
+        
+        // Fisher-Yates shuffle
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+        
+        // Start Exam
+        function startExam() {
+            const numQuestions = parseInt(document.getElementById('num-questions').value);
+            const timePerQ = parseInt(document.getElementById('time-limit').value);
+            const chaptersVal = document.getElementById('chapters').value;
+            const difficulty = document.getElementById('difficulty').value;
+            
+            // Filter questions
+            let filtered = [...questionBank];
+            
+            if (chaptersVal !== 'all') {
+                const chapters = chaptersVal.split(',').map(Number);
+                filtered = filtered.filter(q => chapters.includes(q.chapter));
+            }
+            
+            if (difficulty !== 'all') {
+                filtered = filtered.filter(q => q.difficulty === difficulty);
+            }
+            
+            // Shuffle and select
+            filtered = shuffle(filtered);
+            examState.questions = filtered.slice(0, Math.min(numQuestions, filtered.length));
+            examState.currentIndex = 0;
+            examState.answers = new Array(examState.questions.length).fill(null);
+            examState.startTime = Date.now();
+            examState.timeLimit = timePerQ > 0 ? timePerQ * examState.questions.length : 0;
+            examState.remainingTime = examState.timeLimit;
+            
+            // Show exam screen
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('exam-screen').classList.remove('hidden');
+            document.getElementById('results-screen').classList.add('hidden');
+            
+            // Setup progress dots
+            const dotsContainer = document.getElementById('progress-dots');
+            dotsContainer.innerHTML = examState.questions.map((_, i) => 
+                `<div class="progress-dot ${i === 0 ? 'current' : ''}" data-index="${i}"></div>`
+            ).join('');
+            
+            document.getElementById('total-q').textContent = examState.questions.length;
+            
+            // Start timer
+            if (examState.timeLimit > 0) {
+                updateTimerDisplay();
+                examState.timerInterval = setInterval(updateTimer, 1000);
+            } else {
+                document.getElementById('timer').textContent = '∞';
+            }
+            
+            // Show first question
+            showQuestion(0);
+        }
+        
+        // Update Timer
+        function updateTimer() {
+            examState.remainingTime--;
+            updateTimerDisplay();
+            
+            if (examState.remainingTime <= 0) {
+                clearInterval(examState.timerInterval);
+                submitExam();
+            }
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(examState.remainingTime / 60);
+            const seconds = examState.remainingTime % 60;
+            const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            const timerEl = document.getElementById('timer');
+            timerEl.textContent = display;
+            
+            // Warning colors
+            const totalTime = examState.timeLimit;
+            if (examState.remainingTime <= totalTime * 0.1) {
+                timerEl.className = 'timer-display danger';
+            } else if (examState.remainingTime <= totalTime * 0.25) {
+                timerEl.className = 'timer-display warning';
+            } else {
+                timerEl.className = 'timer-display';
+            }
+        }
+        
+        // Show Question
+        function showQuestion(index) {
+            const q = examState.questions[index];
+            examState.currentIndex = index;
+            
+            document.getElementById('current-q').textContent = index + 1;
+            document.getElementById('question-number').textContent = `Question ${index + 1}`;
+            document.getElementById('question-chapter').textContent = `Chapitre ${q.chapter}`;
+            document.getElementById('question-text').innerHTML = q.question;
+            
+            // Render options
+            const optionsHtml = q.options.map((opt, i) => `
+                <label class="answer-option ${examState.answers[index] === i ? 'selected' : ''}" data-index="${i}">
+                    <input type="radio" name="answer" value="${i}" ${examState.answers[index] === i ? 'checked' : ''}>
+                    <span class="answer-option-text">${opt}</span>
+                </label>
+            `).join('');
+            
+            document.getElementById('answer-options').innerHTML = optionsHtml;
+            
+            // Add click handlers
+            document.querySelectorAll('.answer-option').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    const idx = parseInt(this.dataset.index);
+                    selectAnswer(idx);
+                });
+            });
+            
+            // Update progress dots
+            document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+                dot.classList.remove('current');
+                if (examState.answers[i] !== null) {
+                    dot.classList.add('answered');
+                }
+                if (i === index) {
+                    dot.classList.add('current');
+                }
+            });
+            
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = index === 0;
+            
+            const isLast = index === examState.questions.length - 1;
+            document.getElementById('next-btn').classList.toggle('hidden', isLast);
+            document.getElementById('submit-btn').classList.toggle('hidden', !isLast);
+            
+            // Re-render MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+        
+        // Select Answer
+        function selectAnswer(index) {
+            examState.answers[examState.currentIndex] = index;
+            
+            document.querySelectorAll('.answer-option').forEach((opt, i) => {
+                opt.classList.toggle('selected', i === index);
+                opt.querySelector('input').checked = i === index;
+            });
+            
+            // Update progress dot
+            document.querySelector(`.progress-dot[data-index="${examState.currentIndex}"]`).classList.add('answered');
+        }
+        
+        // Navigation
+        function prevQuestion() {
+            if (examState.currentIndex > 0) {
+                showQuestion(examState.currentIndex - 1);
+            }
+        }
+        
+        function nextQuestion() {
+            if (examState.currentIndex < examState.questions.length - 1) {
+                showQuestion(examState.currentIndex + 1);
+            }
+        }
+        
+        // Submit Exam
+        function submitExam() {
+            clearInterval(examState.timerInterval);
+            
+            const endTime = Date.now();
+            const timeTaken = Math.floor((endTime - examState.startTime) / 1000);
+            
+            // Calculate score
+            let correct = 0;
+            examState.questions.forEach((q, i) => {
+                if (examState.answers[i] === q.correct) {
+                    correct++;
+                }
+            });
+            
+            const percentage = Math.round((correct / examState.questions.length) * 100);
+            
+            // Show results
+            document.getElementById('exam-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            
+            // Score circle
+            const scoreCircle = document.getElementById('score-circle');
+            scoreCircle.className = 'score-circle';
+            if (percentage >= 80) {
+                scoreCircle.classList.add('excellent');
+            } else if (percentage >= 60) {
+                scoreCircle.classList.add('good');
+            } else if (percentage >= 40) {
+                scoreCircle.classList.add('average');
+            } else {
+                scoreCircle.classList.add('poor');
+            }
+            
+            document.getElementById('score-value').textContent = `${percentage}%`;
+            
+            // Message
+            let message;
+            if (percentage >= 80) {
+                message = "🎉 Excellent ! Vous maîtrisez très bien les probabilités !";
+            } else if (percentage >= 60) {
+                message = "👍 Bien joué ! Continuez vos efforts !";
+            } else if (percentage >= 40) {
+                message = "📚 Des bases solides, mais revoyez certains chapitres.";
+            } else {
+                message = "💪 Ne vous découragez pas, révisez les formules et réessayez !";
+            }
+            document.getElementById('score-message').textContent = message;
+            
+            // Stats
+            document.getElementById('correct-count').textContent = correct;
+            document.getElementById('incorrect-count').textContent = examState.questions.length - correct;
+            
+            const mins = Math.floor(timeTaken / 60);
+            const secs = timeTaken % 60;
+            document.getElementById('time-taken').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('avg-time').textContent = `${Math.round(timeTaken / examState.questions.length)}s`;
+            
+            // Generate review
+            generateReview();
+        }
+        
+        // Generate Review
+        function generateReview() {
+            let html = '';
+            
+            examState.questions.forEach((q, i) => {
+                const userAnswer = examState.answers[i];
+                const isCorrect = userAnswer === q.correct;
+                
+                html += `
+                    <div class="question-card" style="border-left: 4px solid ${isCorrect ? '#10b981' : '#ef4444'};">
+                        <div class="question-header">
+                            <span class="question-number">Question ${i + 1}</span>
+                            <span style="color: ${isCorrect ? '#10b981' : '#ef4444'};">
+                                ${isCorrect ? '<i class="fas fa-check"></i> Correct' : '<i class="fas fa-times"></i> Incorrect'}
+                            </span>
+                        </div>
+                        <div class="question-text">${q.question}</div>
+                        <div class="answer-options">
+                            ${q.options.map((opt, j) => `
+                                <div class="answer-option ${j === q.correct ? 'correct' : ''} ${j === userAnswer && j !== q.correct ? 'incorrect' : ''}">
+                                    <span class="answer-option-text">
+                                        ${j === q.correct ? '<i class="fas fa-check" style="color: #10b981;"></i>' : ''}
+                                        ${j === userAnswer && j !== q.correct ? '<i class="fas fa-times" style="color: #ef4444;"></i>' : ''}
+                                        ${opt}
+                                    </span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-lg);">
+                            <strong><i class="fas fa-lightbulb" style="color: #f59e0b;"></i> Explication :</strong>
+                            <p style="margin: 0.5rem 0 0;">${q.explanation}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('review-content').innerHTML = html;
+            
+            // Re-render MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+        
+        // Toggle Review
+        function toggleReview() {
+            const section = document.getElementById('review-section');
+            section.classList.toggle('hidden');
+            
+            if (!section.classList.contains('hidden')) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Restart
+        function restartExam() {
+            document.getElementById('setup-screen').classList.remove('hidden');
+            document.getElementById('exam-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('review-section').classList.add('hidden');
+        }
+        
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.getElementById('progress').style.width = `${scrolled}%`;
+        });
+    </script>
+</body>
+</html>

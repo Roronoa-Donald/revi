@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards Linux | RD Linux</title>
+    <meta name="description" content="40+ flashcards interactives pour réviser les commandes Linux essentielles.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#fb923c',500:'#f97316',600:'#ea580c'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .fc-container{max-width:600px;margin:0 auto;perspective:1000px;}
+        .fc-card{width:100%;min-height:220px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform 0.6s;}
+        .fc-card.flipped{transform:rotateY(180deg);}
+        .fc-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;font-size:1.2rem;font-weight:600;}
+        .fc-front{background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-primary);flex-direction:column;gap:0.5rem;}
+        .fc-front code{font-size:1.6rem;color:var(--accent);font-family:'JetBrains Mono',monospace;}
+        .fc-back{background:linear-gradient(135deg,var(--accent),#ea580c);color:#fff;transform:rotateY(180deg);flex-direction:column;gap:0.5rem;}
+        .fc-progress{text-align:center;margin:1rem 0;color:var(--text-muted);font-size:0.9rem;}
+        .fc-controls{display:flex;gap:1rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap;}
+        .fc-btn{padding:0.7rem 1.5rem;border-radius:12px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text-primary);cursor:pointer;font-weight:600;transition:0.2s;}
+        .fc-btn:hover{border-color:var(--accent);color:var(--accent);}
+        .fc-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+        .fc-category-btns{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin-bottom:2rem;}
+        .fc-cat-btn{padding:0.4rem 1rem;border-radius:20px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text-primary);cursor:pointer;font-size:0.85rem;transition:0.2s;}
+        .fc-cat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-terminal"></i><span>RD Linux</span></a>
+            <ul class="nav-links">
+                <li><a href="formules.html">← Cheat Sheet</a></li>
+                <li><a href="cartes.html" class="active">Flashcards</a></li>
+                <li><a href="simulateur-examen.html">Examen →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+            <li><a href="cartes.html" class="active"><i class="fas fa-clone"></i> Flashcards</a></li>
+            <li><a href="simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Examen</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge"><i class="fas fa-clone"></i> Révision</span>
+        <h1 class="hero-title">Flashcards <span class="gradient-text">Linux</span></h1>
+        <p class="hero-description">Terminez un chapitre pour débloquer ses flashcards. 48 cartes au total ! <i class="fas fa-lock" style="font-size:0.8em;"></i></p>
+    </section>
+
+    <main id="main-content" style="max-width:700px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <div class="fc-category-btns" id="fc-categories"></div>
+        <div class="fc-progress" id="fc-progress"></div>
+        <div class="fc-container">
+            <div class="fc-card" id="fc-card">
+                <div class="fc-face fc-front" id="fc-front"></div>
+                <div class="fc-face fc-back" id="fc-back"></div>
+            </div>
+        </div>
+        <div class="fc-controls">
+            <button class="fc-btn" id="fc-prev"><i class="fas fa-arrow-left"></i> Précédent</button>
+            <button class="fc-btn" id="fc-flip"><i class="fas fa-sync-alt"></i> Retourner</button>
+            <button class="fc-btn primary" id="fc-next">Suivant <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="fc-controls" style="margin-top:0.5rem;">
+            <button class="fc-btn" id="fc-shuffle"><i class="fas fa-random"></i> Mélanger</button>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
+        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+    </footer>
+
+    <script>
+    const catToChapter = {"Navigation":1,"Fichiers":2,"Permissions":3,"Recherche":4,"Vim & Nano":5,"Utilisateurs":6,"Réseau & SSH":7,"Bash":8};
+    function getCompleted() { try { return JSON.parse(localStorage.getItem('rd_linux_completed')) || []; } catch { return []; } }
+
+    const flashcards = {
+        "Navigation": [
+            { front: "pwd", back: "Affiche le répertoire de travail courant (Print Working Directory)" },
+            { front: "ls -la", back: "Liste tous les fichiers (inclus cachés) avec les détails" },
+            { front: "cd ..", back: "Remonte d'un niveau dans l'arborescence" },
+            { front: "cd ~", back: "Va dans le répertoire personnel (/home/user)" },
+            { front: "cd -", back: "Retourne au répertoire précédent" },
+            { front: "clear", back: "Efface l'écran du terminal" }
+        ],
+        "Fichiers": [
+            { front: "touch fichier.txt", back: "Crée un fichier vide ou met à jour la date de modification" },
+            { front: "mkdir -p a/b/c", back: "Crée le dossier a/b/c et tous les parents manquants" },
+            { front: "cp -r src dest", back: "Copie récursivement un dossier et son contenu" },
+            { front: "mv old new", back: "Déplace ou renomme un fichier/dossier" },
+            { front: "rm -r dossier", back: "Supprime un dossier et tout son contenu (IRRÉVERSIBLE)" },
+            { front: "ln -s cible lien", back: "Crée un lien symbolique pointant vers 'cible'" },
+            { front: "tar -czf a.tar.gz d", back: "Crée une archive compressée (gzip) du dossier d" },
+            { front: "tar -xzf a.tar.gz", back: "Extrait une archive .tar.gz" }
+        ],
+        "Permissions": [
+            { front: "chmod 755 fichier", back: "rwxr-xr-x : propriétaire tout, groupe/autres lecture+exécution" },
+            { front: "chmod 644 fichier", back: "rw-r--r-- : propriétaire lecture+écriture, autres lecture seule" },
+            { front: "chmod +x script.sh", back: "Ajoute le droit d'exécution pour tous" },
+            { front: "chown user:group f", back: "Change le propriétaire et le groupe du fichier" },
+            { front: "umask 022", back: "Masque par défaut : fichiers créés en 644, dossiers en 755" },
+            { front: "r=? w=? x=?", back: "r=4 (lecture) w=2 (écriture) x=1 (exécution)" }
+        ],
+        "Recherche": [
+            { front: "find / -name '*.log'", back: "Cherche récursivement tous les fichiers .log à partir de /" },
+            { front: "grep -ri 'error' .", back: "Cherche 'error' récursivement, insensible à la casse" },
+            { front: "locate fichier", back: "Recherche rapide via base de données (updatedb pour MAJ)" },
+            { front: "which commande", back: "Affiche le chemin complet d'un exécutable" },
+            { front: "wc -l fichier", back: "Compte le nombre de lignes dans un fichier" },
+            { front: "| (pipe)", back: "Envoie la sortie d'une commande vers l'entrée de la suivante" }
+        ],
+        "Vim & Nano": [
+            { front: "Vim : i", back: "Passe en mode Insertion (pour taper du texte)" },
+            { front: "Vim : Esc", back: "Revient en mode Normal" },
+            { front: "Vim : :wq", back: "Sauvegarde et quitte Vim" },
+            { front: "Vim : :q!", back: "Quitte Vim sans sauvegarder (force)" },
+            { front: "Vim : dd", back: "Supprime (coupe) la ligne courante" },
+            { front: "Nano : Ctrl+O", back: "Sauvegarde le fichier" },
+            { front: "Nano : Ctrl+X", back: "Quitte Nano" },
+            { front: "Nano : Ctrl+W", back: "Recherche un mot dans le fichier" }
+        ],
+        "Utilisateurs": [
+            { front: "useradd -m -s /bin/bash user", back: "Crée un utilisateur avec home et shell bash" },
+            { front: "usermod -aG sudo user", back: "Ajoute l'utilisateur au groupe sudo (droits admin)" },
+            { front: "passwd user", back: "Définit ou change le mot de passe d'un utilisateur" },
+            { front: "userdel -r user", back: "Supprime l'utilisateur et son répertoire home" },
+            { front: "id user", back: "Affiche l'UID, GID et tous les groupes de l'utilisateur" },
+            { front: "visudo", back: "Édite /etc/sudoers en toute sécurité (vérifie la syntaxe)" }
+        ],
+        "Réseau & SSH": [
+            { front: "ip addr", back: "Affiche les interfaces réseau et leurs adresses IP" },
+            { front: "ssh user@host", back: "Se connecte en SSH à un serveur distant" },
+            { front: "ssh-keygen -t ed25519", back: "Génère une paire de clés SSH (publique + privée)" },
+            { front: "ssh-copy-id user@host", back: "Copie la clé publique sur le serveur pour login sans MDP" },
+            { front: "scp fichier user@host:path", back: "Copie un fichier vers un serveur distant via SSH" },
+            { front: "systemctl restart ssh", back: "Redémarre le service SSH (après modif de sshd_config)" }
+        ],
+        "Bash": [
+            { front: "#!/bin/bash", back: "Shebang : indique que le script doit être interprété par bash" },
+            { front: "$1, $2, $#, $?", back: "$1=1er arg, $2=2ème arg, $#=nombre d'args, $?=code retour" },
+            { front: "if [[ -f fichier ]]", back: "Vérifie si le fichier existe et est un fichier régulier" },
+            { front: "for i in {1..5}; do", back: "Boucle qui itère de 1 à 5" },
+            { front: "read -p 'Nom : ' var", back: "Lit une saisie utilisateur avec un prompt et la stocke" },
+            { front: "crontab -e", back: "Édite les tâches planifiées (cron) de l'utilisateur" }
+        ]
+    };
+
+    let currentCategory = 'all';
+    let currentDeck = [];
+    let currentIndex = 0;
+
+    function buildDeck(category) {
+        const completed = getCompleted();
+        if (category === 'all') {
+            currentDeck = [];
+            Object.entries(flashcards).forEach(([cat, cards]) => {
+                const ch = catToChapter[cat];
+                if (completed.includes(ch)) currentDeck.push(...cards);
+            });
+        } else {
+            const ch = catToChapter[category];
+            if (completed.includes(ch)) {
+                currentDeck = flashcards[category] || [];
+            } else {
+                currentDeck = [];
+            }
+        }
+        currentIndex = 0;
+    }
+
+    function renderCategories() {
+        const el = document.getElementById('fc-categories');
+        const completed = getCompleted();
+        const cats = ['all', ...Object.keys(flashcards)];
+        el.innerHTML = cats.map(c => {
+            if (c === 'all') {
+                const unlocked = Object.keys(catToChapter).filter(k => completed.includes(catToChapter[k])).length;
+                return `<button class="fc-cat-btn ${c === currentCategory ? 'active' : ''}" data-cat="${c}">📦 Débloquées (${unlocked}/8)</button>`;
+            }
+            const ch = catToChapter[c];
+            const locked = !completed.includes(ch);
+            return `<button class="fc-cat-btn ${c === currentCategory ? 'active' : ''}${locked ? ' locked' : ''}" data-cat="${c}" ${locked ? 'title="Terminez le chapitre '+ch+' pour débloquer"' : ''}>${locked ? '<i class="fas fa-lock" style="margin-right:4px;font-size:0.75em;"></i>' : ''}${c}</button>`;
+        }).join('');
+        el.querySelectorAll('.fc-cat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentCategory = btn.dataset.cat;
+                buildDeck(currentCategory);
+                renderCategories();
+                showCard();
+            });
+        });
+    }
+
+    function showCard() {
+        const card = document.getElementById('fc-card');
+        const front = document.getElementById('fc-front');
+        const back = document.getElementById('fc-back');
+        const progress = document.getElementById('fc-progress');
+        card.classList.remove('flipped');
+        if (currentDeck.length === 0) {
+            const completed = getCompleted();
+            const ch = catToChapter[currentCategory];
+            if (currentCategory !== 'all' && !completed.includes(ch)) {
+                front.innerHTML = '<i class="fas fa-lock" style="font-size:2rem;color:var(--accent);margin-bottom:1rem;"></i><p style="font-weight:700;">Chapitre verrouillé</p><p style="font-size:0.85rem;color:var(--text-muted);">Terminez le chapitre '+ch+' pour débloquer ces flashcards</p><a href="chapitre'+ch+'.html" style="color:var(--accent);margin-top:0.5rem;display:inline-block;">Aller au chapitre '+ch+' →</a>';
+            } else if (currentCategory === 'all' && completed.length === 0) {
+                front.innerHTML = '<i class="fas fa-lock" style="font-size:2rem;color:var(--accent);margin-bottom:1rem;"></i><p style="font-weight:700;">Aucune carte débloquée</p><p style="font-size:0.85rem;color:var(--text-muted);">Terminez au moins un chapitre pour débloquer ses flashcards</p>';
+            } else {
+                front.innerHTML = '<p>Aucune carte</p>';
+            }
+            back.innerHTML = '';
+            progress.textContent = '';
+            return;
+        }
+        const c = currentDeck[currentIndex];
+        front.innerHTML = `<span style="font-size:0.8rem;color:var(--text-muted);">Commande / Concept</span><code>${c.front}</code><span style="font-size:0.75rem;color:var(--text-muted);">Clique pour retourner</span>`;
+        back.innerHTML = `<span style="font-size:0.8rem;opacity:0.8;">Réponse</span><span>${c.back}</span>`;
+        progress.textContent = `Carte ${currentIndex + 1} / ${currentDeck.length}`;
+    }
+
+    document.getElementById('fc-card').addEventListener('click', () => { if(currentDeck.length > 0) document.getElementById('fc-card').classList.toggle('flipped'); });
+    document.getElementById('fc-flip').addEventListener('click', () => { if(currentDeck.length > 0) document.getElementById('fc-card').classList.toggle('flipped'); });
+    document.getElementById('fc-next').addEventListener('click', () => { if(currentDeck.length > 0) { currentIndex = (currentIndex + 1) % currentDeck.length; showCard(); } });
+    document.getElementById('fc-prev').addEventListener('click', () => { if(currentDeck.length > 0) { currentIndex = (currentIndex - 1 + currentDeck.length) % currentDeck.length; showCard(); } });
+    document.getElementById('fc-shuffle').addEventListener('click', () => { if(currentDeck.length > 0) { currentDeck.sort(() => Math.random() - 0.5); currentIndex = 0; showCard(); } });
+
+    document.addEventListener('keydown', e => {
+        if (currentDeck.length === 0) return;
+        if (e.key === 'ArrowRight') { currentIndex = (currentIndex + 1) % currentDeck.length; showCard(); }
+        if (e.key === 'ArrowLeft') { currentIndex = (currentIndex - 1 + currentDeck.length) % currentDeck.length; showCard(); }
+        if (e.key === ' ') { e.preventDefault(); document.getElementById('fc-card').classList.toggle('flipped'); }
+    });
+
+    buildDeck('all');
+    renderCategories();
+    showCard();
+    </script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

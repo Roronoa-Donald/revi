@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banque d'Exercices | Recherche Opérationnelle</title>
+    <meta name="description" content="Banque de 10 exercices corrigés de modélisation en Recherche Opérationnelle.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' }
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        .nav-link { opacity: 0.7; transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { opacity: 1; color: #34d399; }
+        
+        /* Accordion transition */
+        .accordion-content {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .accordion-content.open {
+            max-height: 1000px;
+            opacity: 1;
+        }
+    </style>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 glass-card border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold">R</div>
+                    <span class="font-bold text-xl tracking-tight text-white">Recherche <span class="text-emerald-400">Opérationnelle</span></span>
+                </div>
+                <div class="hidden md:block desktop-nav">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="../index.html" class="nav-link">Accueil</a>
+                        <a href="../chapitres/chapitre1.html" class="nav-link text-sm font-medium">Cours</a>
+                        <a href="#" class="nav-link active text-sm font-medium">Exercices</a>
+                        <a href="../chapitres/formules.html" class="nav-link text-sm font-medium">Formules</a>
+                        <a href="../chapitres/simulateur-examen.html" class="nav-link text-sm font-medium text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded hover:bg-emerald-500/10">Examen</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="theme-toggle" aria-label="Changer de thème"><i class="fas fa-sun"></i></button>
+                    <button class="hamburger-btn md:hidden" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav-overlay" aria-hidden="true"></div>
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+        <div class="flex justify-between items-center mb-6">
+            <span class="font-bold text-lg">Menu</span>
+            <button onclick="document.querySelector('.mobile-nav-overlay').click()" class="text-slate-400 hover:text-white" aria-label="Fermer"><i class="fas fa-times"></i></button>
+        </div>
+        <a href="../index.html">Accueil</a>
+        <a href="../chapitres/chapitre1.html">Cours</a>
+        <a href="#">Exercices</a>
+        <a href="../chapitres/formules.html">Formules</a>
+        <a href="../chapitres/simulateur-examen.html">Examen</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-white mb-4">Banque d'<span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Exercices</span></h1>
+            <p class="text-slate-400">Entraînez-vous à la modélisation avec ces 10 cas pratiques corrigés pas à pas.</p>
+        </header>
+
+        <div class="space-y-6" id="exercises-list">
+            <!-- Exercices generated via JS for cleaner HTML -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">&copy; 2025 Optimization Master — Recherche Opérationnelle.</p>
+        </div>
+    </footer>
+
+    <script>
+        const exercises = [
+            {
+                title: "Ex 1 : Production sur deux machines",
+                tags: ["Modélisation", "Production", "Facile"],
+                enonce: "Une usine fabrique des produits A et B à l'aide de deux machines. La machine M1 fonctionne 10h/jour et M2 12h/jour. <br>• A occupe M1 (2h) et M2 (4h). <br>• B occupe M1 (3h) et M2 (2h). <br>• Bénéfice : 50€ pour A, 40€ pour B. <br><strong>Objectif :</strong> Maximiser le bénéfice.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">1. Variables :</strong><br>
+                        $x_1$ = nombre de produits A<br>
+                        $x_2$ = nombre de produits B
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Max $Z = 50x_1 + 40x_2$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $2x_1 + 3x_2 \\leq 10$ (Machine 1)<br>
+                        $4x_1 + 2x_2 \\leq 12$ (Machine 2)<br>
+                        $x_1, x_2 \\geq 0$
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 2 : Mélange Alimentaire (Diète)",
+                tags: ["Minimisation", "Mélange", "Moyen"],
+                enonce: "Mélanger Blé (3€/kg) et Maïs (2€/kg) pour faire une farine (100kg max). <br>Stocks : 60kg Blé, 80kg Maïs. <br>Contrainte qualité : Au moins 40% de Blé, au moins 30% de Maïs. <br><strong>Objectif :</strong> Minimiser le coût.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">1. Variables :</strong><br>
+                        $x_b$ = kg de blé utilisé<br>
+                        $x_m$ = kg de maïs utilisé
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Min $Z = 3x_b + 2x_m$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $x_b \\leq 60$ (Stock Blé)<br>
+                        $x_m \\leq 80$ (Stock Maïs)<br>
+                        $x_b + x_m \\leq 100$ (Capacité Moulins)<br>
+                        $x_b \\geq 0.40(x_b + x_m)$ (Qualité 40%) $\\Rightarrow 0.6x_b - 0.4x_m \\geq 0$<br>
+                        $x_m \\geq 0.30(x_b + x_m)$ (Qualité 30%) $\\Rightarrow -0.3x_b + 0.7x_m \\geq 0$<br>
+                        $x_b, x_m \\geq 0$
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 3 : Planification d'Ateliers",
+                tags: ["Production", "Entier", "Facile"],
+                enonce: "Atelier 1 (max 6 objets/j, min 2 objets/j). Atelier 2 (max 4 objets/j). <br>Total journalier $\\geq$ 3 objets. <br>Gain : 30€ (Atelier 1), 25€ (Atelier 2). <br><strong>Objectif :</strong> Maximiser Profit.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">1. Variables :</strong><br>
+                        $x_1$ = production Atelier 1<br>
+                        $x_2$ = production Atelier 2
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Max $Z = 30x_1 + 25x_2$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $x_1 \\leq 6$ (Capacité 1)<br>
+                        $x_1 \\geq 2$ (Min Activité 1)<br>
+                        $x_2 \\leq 4$ (Capacité 2)<br>
+                        $x_1 + x_2 \\geq 3$ (Demande Totale)<br>
+                        $x_1, x_2 \\geq 0$ (et entiers)
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 4 : Affectation d'Ouvriers (Binaire)",
+                tags: ["Affectation", "Binaire", "Moyen"],
+                enonce: "Affecter 4 ouvriers à 4 tâches uniques. Matrice de coûts $c_{ij}$ connue. <br>Chaque ouvrier fait 1 tâche max. Chaque tâche est faite par 1 ouvrier max.<br><strong>Objectif :</strong> Minimiser coût total.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">1. Variables ($x_{ij}$) :</strong><br>
+                        $x_{ij} = 1$ si ouvrier $i$ fait tâche $j$, sinon 0. (Pour $i,j = 1..4$)
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Min $Z = \\sum_{i=1}^4 \\sum_{j=1}^4 c_{ij} x_{ij}$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $\\sum_{j=1}^4 x_{ij} = 1, \\forall i$ (1 tâche par ouvrier)<br>
+                        $\\sum_{i=1}^4 x_{ij} = 1, \\forall j$ (1 ouvrier par tâche)<br>
+                        $x_{ij} \\in \\{0,1\\}$
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 5 : Transport Logistique",
+                tags: ["Transport", "Distribution", "Moyen"],
+                enonce: "3 Entrepôts (Stocks: 100, 150, 120) vers 4 Magasins (Demandes: 80, 70, 90, 50). <br>Coût transport $c_{ij}$. <br><strong>Objectif :</strong> Minimiser coût transport.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">1. Variables :</strong><br>
+                        $x_{ij}$ = quantité de l'entrepôt $i$ vers magasin $j$.
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Min $Z = \\sum \\sum c_{ij} x_{ij}$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $\\sum_{j} x_{1j} \\leq 100$ (Offre E1)<br>
+                        $\\sum_{j} x_{2j} \\leq 150$ (Offre E2)<br>
+                        $\\sum_{j} x_{3j} \\leq 120$ (Offre E3)<br>
+                        $\\sum_{i} x_{i1} \\geq 80$ (Demande M1)<br>
+                        $\\sum_{i} x_{i2} \\geq 70$ (Demande M2)...<br>
+                        $x_{ij} \\geq 0$
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 6 : Optimisation Matières Premières",
+                tags: ["Production", "Minimisation", "Facile"],
+                enonce: "Produire au moins 200 unités. <br>1 unité nécessite 2g de A (4€/g) et 3g de B (2€/g). <br>Max dispos : 500g de A, 800g de B. <br><strong>Objectif :</strong> Minimiser coût total matière.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">Attention :</strong> Ici la variable de décision est le nombre de produits finis, pas les matières !<br>
+                        <strong class="text-emerald-400">1. Variable :</strong><br>
+                        $x$ = nombre d'unités à produire
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Coût par unité = $(2 \\times 4) + (3 \\times 2) = 14€$.<br>
+                        Min $Z = 14x$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $2x \\leq 500$ (Stock A)<br>
+                        $3x \\leq 800$ (Stock B)<br>
+                        $x \\geq 200$ (Demande min)<br>
+                        $x \\geq 0$
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 7 : Budget Publicitaire",
+                tags: ["Marketing", "Maximisation", "Moyen"],
+                enonce: "Budget 10 000€. <br>Pub A : 500€, 3000 vues, Max 12 spots. <br>Pub B : 1000€, 5000 vues, Min 5 spots. <br><strong>Objectif :</strong> Maximiser portée (vues).",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">1. Variables :</strong><br>
+                        $x_a$ = nb spots A<br>
+                        $x_b$ = nb spots B
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Max $Z = 3000x_a + 5000x_b$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $500x_a + 1000x_b \\leq 10000$ (Budget)<br>
+                        $x_b \\geq 5$ (Min B)<br>
+                        $x_a \\leq 12$ (Max A)<br>
+                        $x_a, x_b \\geq 0, entier$
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 8 : Affectation RH (Projets)",
+                tags: ["RH", "Minimisation", "Difficile"],
+                enonce: "5 agents max disponibles. <br>Projet 1 nécessite 100h min. Projet 2 nécessite 150h min. <br>Chaque agent peut faire max 40h/projet. <br><strong>Objectif :</strong> Minimiser nb agents total mobilisés.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">1. Variables :</strong><br>
+                        $x$ = nb agents sur Projet 1<br>
+                        $y$ = nb agents sur Projet 2
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Min $Z = x + y$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $x + y \\leq 5$ (Total agents)<br>
+                        $40x \\geq 100 \\Rightarrow x \\geq 2.5$ (Besoin P1)<br>
+                        $40y \\geq 150 \\Rightarrow y \\geq 3.75$ (Besoin P2)<br>
+                        $x, y \\in \\mathbb{N}$ (Agents entiers)
+                    </div>
+                    <div class="mt-2 text-xs text-red-300">Note: Ce problème n'a pas de solution car $x \\geq 3$ et $y \\geq 4$ implique $x+y \\geq 7$, or on a max 5 agents.</div>
+                </div>`
+            },
+            {
+                title: "Ex 9 : Sélection de Produits (Binaire)",
+                tags: ["Binaire", "Budget", "Difficile"],
+                enonce: "Sélectionner 3 articles parmi 6 (Coûts: 20, 30, 15, 25, 35, 10 | Valeurs: 100, 120, 80, 110, 150, 90). <br>Budget Max: 80€. <br><strong>Objectif :</strong> Maximiser la valeur totale.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">1. Variables :</strong><br>
+                        $x_i = 1$ si article $i$ choisi, 0 sinon ($i=1..6$)
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Max $Z = 100x_1 + 120x_2 + 80x_3 + 110x_4 + 150x_5 + 90x_6$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $\\sum_{i=1}^6 x_i = 3$ (Exactement 3 articles)<br>
+                        $20x_1 + 30x_2 + 15x_3 + 25x_4 + 35x_5 + 10x_6 \\le 80$ (Budget)<br>
+                        $x_i \\in \\{0, 1\\}$
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 10 : Planification Agricole",
+                tags: ["Agriculture", "Surface", "Moyen"],
+                enonce: "100 ha disponibles. Blé (Min 30ha, 500€/ha). Maïs (Min 20ha, 400€/ha). <br>Contrainte engrais limite surface cultivable totale à 90ha.<br><strong>Objectif :</strong> Maximiser le revenu.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">1. Variables :</strong><br>
+                        $x_1$ = hectares de Blé<br>
+                        $x_2$ = hectares de Maïs
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">2. Objectif :</strong><br>
+                        Max $Z = 500x_1 + 400x_2$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">3. Contraintes :</strong><br>
+                        $x_1 + x_2 \\le 100$ (Terrain dispo)<br>
+                        $x_1 \\ge 30$ (Min Blé)<br>
+                        $x_2 \\ge 20$ (Min Maïs)<br>
+                        $x_1 + x_2 \\le 90$ (Contrainte Engrais qui 'écrase' la contrainte terrain)<br>
+                        $x_1, x_2 \\ge 0$
+                    </div>
+                </div>`
+            }
+        ];
+        
+        // Add more placeholders for demo (since I can't put all 10 in one go efficiently without bloat, I'll put top 3 + generic filler for now then user can ask to expand)
+        
+        const container = document.getElementById('exercises-list');
+        
+        exercises.forEach((ex, idx) => {
+            const card = document.createElement('div');
+            card.className = 'glass-card rounded-xl overflow-hidden';
+            card.innerHTML = `
+                <div class="p-6 cursor-pointer hover:bg-white/5 transition-colors" onclick="toggleEx(${idx})">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                           <span class="bg-slate-700 text-emerald-400 text-xs px-2 py-1 rounded">#${idx+1}</span>
+                           ${ex.title}
+                        </h3>
+                        <i class="fas fa-chevron-down text-slate-500 transition-transform" id="icon-${idx}"></i>
+                    </div>
+                    <div class="flex gap-2 mb-4">
+                        ${ex.tags.map(t => `<span class="text-xs bg-emerald-900/30 text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded-full">${t}</span>`).join('')}
+                    </div>
+                    <div class="text-slate-300 text-sm bg-slate-800/50 p-4 rounded border-l-2 border-slate-500">
+                        ${ex.enonce}
+                    </div>
+                </div>
+                
+                <div class="accordion-content bg-slate-900/50 border-t border-white/5" id="content-${idx}">
+                    <div class="p-6">
+                         <h4 class="text-emerald-400 font-bold mb-4 flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i> Correction
+                         </h4>
+                         <div class="text-slate-300 text-sm font-light leading-relaxed">
+                            ${ex.correction}
+                         </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        function toggleEx(id) {
+            const content = document.getElementById(`content-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('open');
+                icon.style.transform = 'rotate(180deg)';
+                // Re-render mathjax if needed
+            }
+        }
+    </script>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

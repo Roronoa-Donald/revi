@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 1 — Fondamentaux Windows Server | RD WinServer</title>
+    <meta name="description" content="Installation, interface, rôles, fonctionnalités, Server Manager et premiers pas PowerShell sur Windows Server 2022.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">← Accueil</a></li>
+                <li><a href="chapitre1.html" class="active">Module 1</a></li>
+                <li><a href="chapitre2.html">Module 2 →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html" class="active"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-server"></i> Module 1</span>
+        <h1 class="hero-title">Fondamentaux <span class="gradient-text">Windows Server</span></h1>
+        <p class="hero-description">Blaise arrive en stage. Son responsable lui tend un ISO de Windows Server 2022 : « Installe-le, configure-le, et on en reparle. » Premier jour, premières commandes.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <!-- Qu'est-ce que WinServer -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-question-circle" style="color:var(--accent)"></i> Qu'est-ce que Windows Server ?</h2>
+            <p>Windows Server est un <strong>système d'exploitation conçu pour gérer des infrastructures professionnelles</strong>. Contrairement à Windows 10/11 que tu utilises pour surfer et jouer, Windows Server est le « cerveau » qui distribue les ressources dans un réseau d'entreprise.</p>
+
+            <div class="analogy-box">
+                Imagine un hôtel 5 étoiles. Windows 10/11, c'est <strong>la chambre</strong> — confortable, personnelle. Windows Server, c'est <strong>la réception</strong> — elle gère les clés, les réservations, le room service, la sécurité. Sans réception, l'hôtel est un chaos. Sans serveur, le réseau est un chaos.
+            </div>
+
+            <h3>Windows Server vs Windows Desktop</h3>
+            <table class="styled-table">
+                <thead><tr><th>Critère</th><th>Windows 10/11</th><th>Windows Server 2022</th></tr></thead>
+                <tbody>
+                    <tr><td>Cible</td><td>Utilisateur final</td><td>Infrastructure / entreprise</td></tr>
+                    <tr><td>Connexions simultanées</td><td>~20 max</td><td>Illimité (selon licence)</td></tr>
+                    <tr><td>Rôles serveur</td><td>Non</td><td>AD, DNS, DHCP, Hyper-V, etc.</td></tr>
+                    <tr><td>Interface</td><td>Toujours graphique</td><td>GUI ou Server Core (sans GUI)</td></tr>
+                    <tr><td>Coût</td><td>~150 €</td><td>~1 000 €+ (selon édition)</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <!-- Éditions -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-layer-group" style="color:var(--accent)"></i> Les Éditions de Windows Server 2022</h2>
+
+            <table class="styled-table">
+                <thead><tr><th>Édition</th><th>Usage</th><th>Hyper-V</th><th>Conteneurs</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Essentials</strong></td><td>PME ≤ 25 utilisateurs</td><td>Non</td><td>Non</td></tr>
+                    <tr><td><strong>Standard</strong></td><td>Virtualisation légère</td><td>2 VM</td><td>Illimité</td></tr>
+                    <tr><td><strong>Datacenter</strong></td><td>Cloud / virtualisation massive</td><td>Illimité</td><td>Illimité</td></tr>
+                </tbody>
+            </table>
+
+            <div class="analogy-box">
+                C'est comme les formules chez un opérateur mobile : <strong>Essentials</strong> = forfait basique (appels + SMS), <strong>Standard</strong> = forfait avec un peu de data, <strong>Datacenter</strong> = forfait illimité tout compris.
+            </div>
+        </article>
+
+        <!-- Installation -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-download" style="color:var(--accent)"></i> Installation</h2>
+
+            <h3>Prérequis matériel (minimaux)</h3>
+            <table class="styled-table">
+                <thead><tr><th>Composant</th><th>Minimum</th><th>Recommandé</th></tr></thead>
+                <tbody>
+                    <tr><td>Processeur</td><td>1.4 GHz 64-bit</td><td>2 GHz+ multi-core</td></tr>
+                    <tr><td>RAM</td><td>512 Mo (Core) / 2 Go (GUI)</td><td>4 Go+</td></tr>
+                    <tr><td>Disque</td><td>32 Go</td><td>80 Go+ SSD</td></tr>
+                    <tr><td>Réseau</td><td>1 carte Gigabit</td><td>2 cartes (redondance)</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Desktop Experience vs Server Core</h3>
+            <p>Lors de l'installation, tu as <strong>deux choix</strong> :</p>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;">
+                <li><strong>Desktop Experience (GUI)</strong> — Interface graphique complète, familière, idéale pour débuter</li>
+                <li><strong>Server Core</strong> — Pas d'interface graphique, uniquement la ligne de commande. Plus léger, plus sécurisé (moins de surface d'attaque)</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>💡 Pour débuter</strong>, choisis Desktop Experience. Tu pourras toujours migrer vers Core plus tard. En production, Core est souvent préféré car il consomme moins de ressources et réduit les risques de sécurité.
+            </div>
+
+            <h3>Post-installation : les premiers réflexes</h3>
+            <ol style="margin:0.5rem 0 0 1.5rem;line-height:2;">
+                <li><strong>Renommer le serveur</strong> — <code>SRV-DC01</code> est plus parlant que <code>WIN-A12B3C4D</code></li>
+                <li><strong>Configurer une IP statique</strong> — Un serveur ne doit JAMAIS être en DHCP</li>
+                <li><strong>Appliquer les mises à jour</strong> — Première chose à faire, toujours</li>
+                <li><strong>Activer le Bureau à distance</strong> — Pour l'administrer à distance</li>
+                <li><strong>Configurer le pare-feu</strong> — Ouvrir uniquement les ports nécessaires</li>
+            </ol>
+
+            <div class="warning-box">
+                <strong>⚠️ Règle d'or :</strong> Un serveur = une IP statique. Imagine un hôpital dont le numéro de téléphone change tous les jours — personne ne pourrait appeler les urgences. C'est pareil pour un serveur.
+            </div>
+        </article>
+
+        <!-- Server Manager -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-gauge-high" style="color:var(--accent)"></i> Server Manager — Le Tableau de Bord</h2>
+            <p>Server Manager est l'<strong>outil central</strong> de Windows Server. Il s'ouvre automatiquement au démarrage et te donne une vue d'ensemble de ton serveur.</p>
+
+            <h3>Que fait Server Manager ?</h3>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;">
+                <li>📊 <strong>Dashboard</strong> — Vue globale : alertes, événements, état des rôles</li>
+                <li>🔧 <strong>Ajouter des rôles</strong> — Installer AD, DNS, DHCP, Hyper-V, etc.</li>
+                <li>🖥️ <strong>Gérer plusieurs serveurs</strong> — Un seul tableau de bord pour tout</li>
+                <li>📋 <strong>Événements & services</strong> — Voir ce qui tourne, ce qui plante</li>
+            </ul>
+
+            <div class="analogy-box">
+                Server Manager, c'est le <strong>tableau de bord d'un avion</strong>. Le pilote ne pilote pas « à l'aveugle » : il consulte ses instruments. Toi non plus, tu ne gères pas un serveur à l'aveugle.
+            </div>
+        </article>
+
+        <!-- Rôles et Fonctionnalités -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-puzzle-piece" style="color:var(--accent)"></i> Rôles et Fonctionnalités</h2>
+            <p>Un Windows Server tout neuf ne fait <strong>rien de spécial</strong>. Il devient utile quand tu lui donnes des <strong>rôles</strong>.</p>
+
+            <h3>Rôles = les métiers du serveur</h3>
+            <table class="styled-table">
+                <thead><tr><th>Rôle</th><th>Ce qu'il fait</th><th>Analogie</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>AD DS</strong></td><td>Gérer les utilisateurs, ordinateurs, droits</td><td>🏛️ La mairie — registre des habitants</td></tr>
+                    <tr><td><strong>DNS</strong></td><td>Traduire les noms en adresses IP</td><td>📖 L'annuaire téléphonique</td></tr>
+                    <tr><td><strong>DHCP</strong></td><td>Distribuer automatiquement les adresses IP</td><td>🏨 Le réceptionniste qui attribue les chambres</td></tr>
+                    <tr><td><strong>Hyper-V</strong></td><td>Créer des machines virtuelles</td><td>🏢 Un immeuble avec des appartements</td></tr>
+                    <tr><td><strong>File Server</strong></td><td>Partager des fichiers sur le réseau</td><td>📁 La bibliothèque partagée</td></tr>
+                    <tr><td><strong>Print Server</strong></td><td>Gérer les imprimantes centralisées</td><td>🖨️ Le centre de reprographie</td></tr>
+                    <tr><td><strong>WSUS</strong></td><td>Centraliser les mises à jour</td><td>📬 La poste qui distribue le courrier</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Fonctionnalités = les outils complémentaires</h3>
+            <p>Les fonctionnalités sont des <strong>options supplémentaires</strong> qui enrichissent un rôle ou le serveur lui-même :</p>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;">
+                <li><strong>.NET Framework</strong> — Pour les applications qui en ont besoin</li>
+                <li><strong>Windows Server Backup</strong> — Outil de sauvegarde intégré</li>
+                <li><strong>Failover Clustering</strong> — Haute disponibilité</li>
+                <li><strong>BitLocker</strong> — Chiffrement des disques</li>
+                <li><strong>Telnet Client</strong> — Tests réseau basiques</li>
+            </ul>
+
+            <h3>Installer un rôle</h3>
+            <p>Via Server Manager :</p>
+            <pre class="code-block"><code><span class="gui">Server Manager</span> → <span class="gui">Manage</span> → <span class="gui">Add Roles and Features</span>
+→ Suivre l'assistant → Sélectionner le rôle → <span class="gui">Install</span></code></pre>
+
+            <p>Via PowerShell (plus rapide) :</p>
+            <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">AD-Domain-Services</span> <span class="flag">-IncludeManagementTools</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">DNS</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">DHCP</span>
+<span class="cmd">Get-WindowsFeature</span>   <span class="comment"># Lister tous les rôles/fonctionnalités</span></code></pre>
+        </article>
+
+        <!-- PowerShell Basics -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-terminal" style="color:var(--accent)"></i> PowerShell — Premiers Pas</h2>
+            <p>PowerShell est le <strong>langage de commande</strong> de Windows Server. Si tu viens du monde Linux, c'est l'équivalent de Bash — mais en version « objet ».</p>
+
+            <div class="analogy-box">
+                PowerShell, c'est comme passer une commande par texto au lieu de se déplacer au guichet. Plus rapide, plus précis, et tu gardes un historique de tout ce que tu as demandé.
+            </div>
+
+            <h3>Commandes essentielles</h3>
+            <pre class="code-block"><code><span class="comment"># Informations système</span>
+<span class="cmd">Get-ComputerInfo</span>                    <span class="comment"># Toutes les infos du serveur</span>
+<span class="cmd">hostname</span>                             <span class="comment"># Nom du serveur</span>
+<span class="cmd">Get-Date</span>                             <span class="comment"># Date et heure</span>
+
+<span class="comment"># Réseau</span>
+<span class="cmd">Get-NetIPAddress</span>                     <span class="comment"># Adresses IP</span>
+<span class="cmd">Get-NetAdapter</span>                       <span class="comment"># Cartes réseau</span>
+
+<span class="comment"># Services</span>
+<span class="cmd">Get-Service</span>                          <span class="comment"># Tous les services</span>
+<span class="cmd">Get-Service</span> <span class="flag">-Name</span> <span class="string">WinRM</span>             <span class="comment"># Un service spécifique</span>
+<span class="cmd">Restart-Service</span> <span class="flag">-Name</span> <span class="string">Spooler</span>       <span class="comment"># Redémarrer un service</span>
+
+<span class="comment"># Gestion du serveur</span>
+<span class="cmd">Rename-Computer</span> <span class="flag">-NewName</span> <span class="string">SRV-DC01</span> <span class="flag">-Restart</span>
+<span class="cmd">Get-WindowsFeature</span>                   <span class="comment"># Rôles installés et disponibles</span>
+<span class="cmd">Get-EventLog</span> <span class="flag">-LogName</span> <span class="string">System</span> <span class="flag">-Newest</span> <span class="num">10</span></code></pre>
+
+            <h3>La logique Verbe-Nom</h3>
+            <p>PowerShell suit toujours le schéma <code>Verbe-Nom</code> :</p>
+            <table class="styled-table">
+                <thead><tr><th>Verbe</th><th>Signification</th><th>Exemple</th></tr></thead>
+                <tbody>
+                    <tr><td><code>Get</code></td><td>Obtenir / Lire</td><td><code>Get-Service</code></td></tr>
+                    <tr><td><code>Set</code></td><td>Modifier</td><td><code>Set-NetIPAddress</code></td></tr>
+                    <tr><td><code>New</code></td><td>Créer</td><td><code>New-ADUser</code></td></tr>
+                    <tr><td><code>Remove</code></td><td>Supprimer</td><td><code>Remove-ADUser</code></td></tr>
+                    <tr><td><code>Start / Stop</code></td><td>Démarrer / Arrêter</td><td><code>Start-Service</code></td></tr>
+                    <tr><td><code>Restart</code></td><td>Redémarrer</td><td><code>Restart-Computer</code></td></tr>
+                    <tr><td><code>Install</code></td><td>Installer</td><td><code>Install-WindowsFeature</code></td></tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <strong>✅ Astuce :</strong> Tape <code>Get-Command *service*</code> pour trouver toutes les commandes liées aux services. PowerShell est auto-documenté avec <code>Get-Help</code>.
+            </div>
+        </article>
+
+        <!-- Configurer IP statique -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-ethernet" style="color:var(--accent)"></i> Configurer une IP Statique</h2>
+            <p>Première mission de Blaise : donner une adresse fixe à son serveur.</p>
+
+            <h3>Via l'interface graphique</h3>
+            <pre class="code-block"><code><span class="gui">Control Panel</span> → <span class="gui">Network and Sharing Center</span>
+→ <span class="gui">Change adapter settings</span> → Clic droit sur la carte → <span class="gui">Properties</span>
+→ <span class="gui">Internet Protocol Version 4 (TCP/IPv4)</span> → <span class="gui">Properties</span>
+→ Renseigner : IP, Masque, Passerelle, DNS</code></pre>
+
+            <h3>Via PowerShell (recommandé)</h3>
+            <pre class="code-block"><code><span class="comment"># Identifier la carte réseau</span>
+<span class="cmd">Get-NetAdapter</span>
+
+<span class="comment"># Configurer l'IP statique</span>
+<span class="cmd">New-NetIPAddress</span> <span class="flag">-InterfaceAlias</span> <span class="string">"Ethernet"</span> `
+    <span class="flag">-IPAddress</span> <span class="num">192.168.1.10</span> `
+    <span class="flag">-PrefixLength</span> <span class="num">24</span> `
+    <span class="flag">-DefaultGateway</span> <span class="num">192.168.1.1</span>
+
+<span class="comment"># Configurer le DNS</span>
+<span class="cmd">Set-DnsClientServerAddress</span> <span class="flag">-InterfaceAlias</span> <span class="string">"Ethernet"</span> `
+    <span class="flag">-ServerAddresses</span> <span class="num">192.168.1.10</span>,<span class="num">8.8.8.8</span>
+
+<span class="comment"># Vérifier</span>
+<span class="cmd">Get-NetIPConfiguration</span></code></pre>
+
+            <div class="info-box">
+                <strong>💡 Pourquoi le DNS pointe sur lui-même ?</strong> Quand le serveur sera contrôleur de domaine, il hébergera son propre service DNS. Il doit donc se référencer lui-même en DNS primaire.
+            </div>
+        </article>
+
+        <!-- Bureau à distance -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-desktop" style="color:var(--accent)"></i> Bureau à Distance (RDP)</h2>
+            <p>En entreprise, les serveurs sont dans une salle serveur. Tu ne vas pas te déplacer avec clavier et écran à chaque intervention. Tu utilises le <strong>Remote Desktop Protocol (RDP)</strong>.</p>
+
+            <h3>Activer RDP</h3>
+            <pre class="code-block"><code><span class="comment"># Via PowerShell</span>
+<span class="cmd">Set-ItemProperty</span> <span class="flag">-Path</span> <span class="string">'HKLM:\System\CurrentControlSet\Control\Terminal Server'</span> `
+    <span class="flag">-Name</span> <span class="string">"fDenyTSConnections"</span> <span class="flag">-Value</span> <span class="num">0</span>
+
+<span class="comment"># Ouvrir le port dans le pare-feu</span>
+<span class="cmd">Enable-NetFirewallRule</span> <span class="flag">-DisplayGroup</span> <span class="string">"Remote Desktop"</span>
+
+<span class="comment"># Se connecter depuis un poste client</span>
+<span class="cmd">mstsc</span> <span class="flag">/v:</span><span class="num">192.168.1.10</span></code></pre>
+
+            <div class="warning-box">
+                <strong>⚠️ Sécurité RDP :</strong> Ne jamais exposer RDP directement sur Internet. Utilise un VPN ou un bastion pour protéger l'accès.
+            </div>
+        </article>
+
+        <!-- Résumé -->
+        <article class="glass-card reveal-on-scroll" style="border-left:3px solid var(--accent);">
+            <h2><i class="fas fa-clipboard-check" style="color:var(--accent)"></i> Résumé du Module</h2>
+            <ul style="margin:0.5rem 0 0 1.5rem;line-height:2;">
+                <li>Windows Server = OS conçu pour les <strong>infrastructures professionnelles</strong></li>
+                <li>3 éditions : <strong>Essentials < Standard < Datacenter</strong></li>
+                <li>Desktop Experience (GUI) vs <strong>Server Core</strong> (CLI)</li>
+                <li><strong>Server Manager</strong> = tableau de bord central</li>
+                <li><strong>Rôles</strong> = métiers du serveur (AD, DNS, DHCP, Hyper-V…)</li>
+                <li>PowerShell suit la logique <strong>Verbe-Nom</strong></li>
+                <li>Toujours configurer une <strong>IP statique</strong></li>
+                <li><strong>RDP</strong> pour administrer à distance</li>
+            </ul>
+        </article>
+
+        <div id="interactive-exercises"></div>
+
+        <div class="chapter-nav">
+            <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+            <a href="chapitre2.html">Module 2 — Active Directory <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

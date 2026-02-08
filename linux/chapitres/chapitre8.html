@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 08 : Bash Scripting | RD Linux</title>
+    <meta name="description" content="Apprends à écrire des scripts Bash : variables, conditions, boucles, fonctions et automatisation sous Debian 13.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#fb923c',500:'#f97316',600:'#ea580c'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-terminal"></i><span>RD Linux</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre7.html">← Module 07</a></li>
+                <li><a href="chapitre8.html" class="active">Module 08</a></li>
+                <li><a href="formules.html">Cheat Sheet →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div id="user-xp-display"><i class="fas fa-bolt"></i> 0 XP</div>
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html">01 · Commandes de base</a></li>
+            <li><a href="chapitre2.html">02 · Manipulation de fichiers</a></li>
+            <li><a href="chapitre3.html">03 · Droits & Permissions</a></li>
+            <li><a href="chapitre4.html">04 · Recherche</a></li>
+            <li><a href="chapitre5.html">05 · Éditeurs Vi/Vim & Nano</a></li>
+            <li><a href="chapitre6.html">06 · Utilisateurs & Groupes</a></li>
+            <li><a href="chapitre7.html">07 · Réseau & SSH</a></li>
+            <li><a href="chapitre8.html" class="active">08 · Bash Scripting</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge">Module 08</span>
+        <h1 class="hero-title">Introduction au <span class="gradient-text">Bash Scripting</span></h1>
+        <p class="hero-description">Sami en a marre de taper les mêmes commandes tous les matins. Il va automatiser tout ça avec des scripts Bash !</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-file-code" style="color:var(--accent);margin-right:0.5rem;"></i>Premier script</h2>
+
+            <h3>Créer et exécuter</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># 1. Créer le fichier script</span>
+<span class="cmd">nano</span> <span class="path">mon_script.sh</span>
+
+<span class="comment"># 2. Ajouter le contenu (voir ci-dessous)</span>
+
+<span class="comment"># 3. Rendre exécutable</span>
+<span class="cmd">chmod</span> <span class="flag">+x</span> <span class="path">mon_script.sh</span>
+
+<span class="comment"># 4. Exécuter</span>
+<span class="cmd">./mon_script.sh</span>
+
+<span class="comment"># OU sans chmod :</span>
+<span class="cmd">bash</span> <span class="path">mon_script.sh</span></code></pre>
+
+            <h3>Structure d'un script</h3>
+            <pre class="code-block"><span class="code-label">mon_script.sh</span><code><span class="keyword">#!/bin/bash</span>
+<span class="comment"># Mon premier script Bash</span>
+<span class="comment"># Auteur : Sami | Date : 2025</span>
+
+<span class="cmd">echo</span> <span class="string">"Bonjour, bienvenue sur $(hostname) !"</span>
+<span class="cmd">echo</span> <span class="string">"Nous sommes le $(date +%d/%m/%Y)"</span>
+<span class="cmd">echo</span> <span class="string">"Il est $(date +%H:%M)"</span>
+<span class="cmd">echo</span> <span class="string">"Tu es connecté en tant que : $USER"</span>
+<span class="cmd">echo</span> <span class="string">"Uptime : $(uptime -p)"</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Le shebang #!/bin/bash</div>
+                <p style="margin:0;font-size:0.9rem;">La première ligne <code>#!/bin/bash</code> (shebang) indique au système quel interpréteur utiliser. Sans elle, le script pourrait être interprété par un autre shell. C'est <strong>obligatoire</strong> dans tout script Bash.</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-box" style="color:var(--accent);margin-right:0.5rem;"></i>Variables</h2>
+
+            <pre class="code-block"><span class="code-label">variables.sh</span><code><span class="keyword">#!/bin/bash</span>
+
+<span class="comment"># Déclarer une variable (PAS d'espace autour du =)</span>
+<span class="var">nom</span>=<span class="string">"Sami"</span>
+<span class="var">age</span>=<span class="num">22</span>
+<span class="var">dossier</span>=<span class="string">"/home/sami/projets"</span>
+
+<span class="comment"># Utiliser une variable avec $</span>
+<span class="cmd">echo</span> <span class="string">"Bonjour $nom, tu as $age ans"</span>
+<span class="cmd">echo</span> <span class="string">"Tes projets sont dans : $dossier"</span>
+
+<span class="comment"># Stocker le résultat d'une commande</span>
+<span class="var">date_actuelle</span>=$(<span class="cmd">date</span> +%d/%m/%Y)
+<span class="var">nb_users</span>=$(<span class="cmd">who</span> <span class="keyword">|</span> <span class="cmd">wc</span> <span class="flag">-l</span>)
+<span class="cmd">echo</span> <span class="string">"Date : $date_actuelle — $nb_users utilisateur(s) connecté(s)"</span>
+
+<span class="comment"># Variables spéciales</span>
+<span class="cmd">echo</span> <span class="string">"Nom du script : $0"</span>
+<span class="cmd">echo</span> <span class="string">"Argument 1 : $1"</span>
+<span class="cmd">echo</span> <span class="string">"Argument 2 : $2"</span>
+<span class="cmd">echo</span> <span class="string">"Tous les arguments : $@"</span>
+<span class="cmd">echo</span> <span class="string">"Nombre d'arguments : $#"</span>
+<span class="cmd">echo</span> <span class="string">"Code retour dernière commande : $?"</span></code></pre>
+
+            <h3>Lire une saisie utilisateur</h3>
+            <pre class="code-block"><span class="code-label">saisie.sh</span><code><span class="keyword">#!/bin/bash</span>
+
+<span class="cmd">echo</span> <span class="flag">-n</span> <span class="string">"Quel est ton nom ? "</span>
+<span class="keyword">read</span> <span class="var">nom</span>
+<span class="cmd">echo</span> <span class="string">"Salut $nom !"</span>
+
+<span class="comment"># Avec un prompt intégré</span>
+<span class="keyword">read</span> <span class="flag">-p</span> <span class="string">"Ton âge : "</span> <span class="var">age</span>
+
+<span class="comment"># Saisie masquée (mot de passe)</span>
+<span class="keyword">read</span> <span class="flag">-sp</span> <span class="string">"Mot de passe : "</span> <span class="var">mdp</span>
+<span class="cmd">echo</span>   <span class="comment"># Retour à la ligne après saisie masquée</span></code></pre>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> Piège classique</div>
+                <p style="margin:0;font-size:0.9rem;"><code>nom = "Sami"</code> avec des espaces autour du <code>=</code> provoque une erreur ! Bash interprète <code>nom</code> comme une commande. Écris toujours <code>nom="Sami"</code> <strong>sans espace</strong>.</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-code-branch" style="color:var(--accent);margin-right:0.5rem;"></i>Conditions (if/else)</h2>
+
+            <pre class="code-block"><span class="code-label">conditions.sh</span><code><span class="keyword">#!/bin/bash</span>
+
+<span class="comment"># Structure de base</span>
+<span class="keyword">if</span> [[ <span class="var">$USER</span> == <span class="string">"root"</span> ]]; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"⚠️ Tu es root ! Fais attention."</span>
+<span class="keyword">else</span>
+    <span class="cmd">echo</span> <span class="string">"Tu es $USER, utilisateur normal."</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># if / elif / else</span>
+<span class="keyword">read</span> <span class="flag">-p</span> <span class="string">"Entrez un nombre : "</span> <span class="var">n</span>
+
+<span class="keyword">if</span> [[ <span class="var">$n</span> <span class="flag">-gt</span> <span class="num">100</span> ]]; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"Plus grand que 100"</span>
+<span class="keyword">elif</span> [[ <span class="var">$n</span> <span class="flag">-eq</span> <span class="num">100</span> ]]; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"Exactement 100"</span>
+<span class="keyword">else</span>
+    <span class="cmd">echo</span> <span class="string">"Plus petit que 100"</span>
+<span class="keyword">fi</span></code></pre>
+
+            <h3>Opérateurs de comparaison</h3>
+            <pre class="code-block"><code><span class="comment">── Nombres ──</span>
+<span class="flag">-eq</span>    <span class="comment">Égal           (equal)</span>
+<span class="flag">-ne</span>    <span class="comment">Différent      (not equal)</span>
+<span class="flag">-gt</span>    <span class="comment">Plus grand     (greater than)</span>
+<span class="flag">-lt</span>    <span class="comment">Plus petit     (less than)</span>
+<span class="flag">-ge</span>    <span class="comment">Plus grand ou égal (greater or equal)</span>
+<span class="flag">-le</span>    <span class="comment">Plus petit ou égal (less or equal)</span>
+
+<span class="comment">── Chaînes ──</span>
+<span class="flag">==</span>     <span class="comment">Égale</span>
+<span class="flag">!=</span>     <span class="comment">Différente</span>
+<span class="flag">-z</span>     <span class="comment">Chaîne vide (zero)</span>
+<span class="flag">-n</span>     <span class="comment">Chaîne non vide (not zero)</span>
+
+<span class="comment">── Fichiers ──</span>
+<span class="flag">-f</span>     <span class="comment">Le fichier existe et est un fichier</span>
+<span class="flag">-d</span>     <span class="comment">Le dossier existe</span>
+<span class="flag">-e</span>     <span class="comment">Existe (fichier ou dossier)</span>
+<span class="flag">-r</span>     <span class="comment">Est lisible (readable)</span>
+<span class="flag">-w</span>     <span class="comment">Est modifiable (writable)</span>
+<span class="flag">-x</span>     <span class="comment">Est exécutable</span>
+
+<span class="comment">── Logiques ──</span>
+<span class="flag">&&</span>     <span class="comment">ET logique</span>
+<span class="flag">||</span>     <span class="comment">OU logique</span>
+<span class="flag">!</span>      <span class="comment">NON logique</span></code></pre>
+
+            <h3>Exemples pratiques</h3>
+            <pre class="code-block"><span class="code-label">check_file.sh</span><code><span class="keyword">#!/bin/bash</span>
+
+<span class="var">fichier</span>=<span class="string">"/etc/ssh/sshd_config"</span>
+
+<span class="keyword">if</span> [[ <span class="flag">-f</span> <span class="var">$fichier</span> ]]; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"✅ Le fichier $fichier existe"</span>
+    <span class="keyword">if</span> [[ <span class="flag">-r</span> <span class="var">$fichier</span> ]]; <span class="keyword">then</span>
+        <span class="cmd">echo</span> <span class="string">"   → Tu peux le lire"</span>
+    <span class="keyword">fi</span>
+<span class="keyword">else</span>
+    <span class="cmd">echo</span> <span class="string">"❌ Le fichier n'existe pas"</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Vérifier si un paquet est installé</span>
+<span class="keyword">if</span> <span class="cmd">dpkg</span> <span class="flag">-l</span> <span class="path">vim</span> &>/dev/null; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"Vim est installé"</span>
+<span class="keyword">else</span>
+    <span class="cmd">echo</span> <span class="string">"Vim n'est pas installé. Installation..."</span>
+    <span class="cmd">sudo apt install</span> <span class="flag">-y</span> <span class="path">vim</span>
+<span class="keyword">fi</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-redo" style="color:var(--accent);margin-right:0.5rem;"></i>Boucles</h2>
+
+            <h3>Boucle for</h3>
+            <pre class="code-block"><span class="code-label">boucle_for.sh</span><code><span class="keyword">#!/bin/bash</span>
+
+<span class="comment"># Parcourir une liste</span>
+<span class="keyword">for</span> <span class="var">fruit</span> <span class="keyword">in</span> pomme banane orange; <span class="keyword">do</span>
+    <span class="cmd">echo</span> <span class="string">"J'aime les ${fruit}s"</span>
+<span class="keyword">done</span>
+
+<span class="comment"># Parcourir des nombres</span>
+<span class="keyword">for</span> <span class="var">i</span> <span class="keyword">in</span> {<span class="num">1</span>..<span class="num">5</span>}; <span class="keyword">do</span>
+    <span class="cmd">echo</span> <span class="string">"Iteration $i"</span>
+<span class="keyword">done</span>
+
+<span class="comment"># Parcourir les fichiers .log</span>
+<span class="keyword">for</span> <span class="var">fichier</span> <span class="keyword">in</span> /var/log/*.log; <span class="keyword">do</span>
+    <span class="cmd">echo</span> <span class="string">"Log trouvé : $fichier"</span>
+<span class="keyword">done</span>
+
+<span class="comment"># Style C (compteur classique)</span>
+<span class="keyword">for</span> (( <span class="var">i</span>=<span class="num">0</span>; <span class="var">i</span><<span class="num">5</span>; <span class="var">i</span>++ )); <span class="keyword">do</span>
+    <span class="cmd">echo</span> <span class="string">"Compteur : $i"</span>
+<span class="keyword">done</span></code></pre>
+
+            <h3>Boucle while</h3>
+            <pre class="code-block"><span class="code-label">boucle_while.sh</span><code><span class="keyword">#!/bin/bash</span>
+
+<span class="comment"># Compteur simple</span>
+<span class="var">compteur</span>=<span class="num">1</span>
+<span class="keyword">while</span> [[ <span class="var">$compteur</span> <span class="flag">-le</span> <span class="num">5</span> ]]; <span class="keyword">do</span>
+    <span class="cmd">echo</span> <span class="string">"Tour n°$compteur"</span>
+    (( <span class="var">compteur</span>++ ))
+<span class="keyword">done</span>
+
+<span class="comment"># Lire un fichier ligne par ligne</span>
+<span class="keyword">while</span> <span class="keyword">IFS=</span> <span class="keyword">read</span> <span class="flag">-r</span> <span class="var">ligne</span>; <span class="keyword">do</span>
+    <span class="cmd">echo</span> <span class="string">"Ligne : $ligne"</span>
+<span class="keyword">done</span> < <span class="path">/etc/hostname</span>
+
+<span class="comment"># Menu interactif</span>
+<span class="keyword">while</span> <span class="keyword">true</span>; <span class="keyword">do</span>
+    <span class="cmd">echo</span> <span class="string">"1) Voir l'heure  2) Voir le disque  3) Quitter"</span>
+    <span class="keyword">read</span> <span class="flag">-p</span> <span class="string">"Choix : "</span> <span class="var">choix</span>
+    <span class="keyword">case</span> <span class="var">$choix</span> <span class="keyword">in</span>
+        <span class="num">1</span>) <span class="cmd">date</span> ;;
+        <span class="num">2</span>) <span class="cmd">df</span> <span class="flag">-h</span> ;;
+        <span class="num">3</span>) <span class="cmd">echo</span> <span class="string">"Au revoir !"</span>; <span class="keyword">break</span> ;;
+        *) <span class="cmd">echo</span> <span class="string">"Choix invalide"</span> ;;
+    <span class="keyword">esac</span>
+<span class="keyword">done</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-cube" style="color:var(--accent);margin-right:0.5rem;"></i>Fonctions</h2>
+
+            <pre class="code-block"><span class="code-label">fonctions.sh</span><code><span class="keyword">#!/bin/bash</span>
+
+<span class="comment"># Définir une fonction</span>
+<span class="keyword">saluer</span>() {
+    <span class="cmd">echo</span> <span class="string">"Bonjour $1 ! Tu as $2 ans."</span>
+}
+
+<span class="comment"># Appeler la fonction avec des arguments</span>
+<span class="keyword">saluer</span> <span class="string">"Sami"</span> <span class="num">22</span>
+<span class="keyword">saluer</span> <span class="string">"Alice"</span> <span class="num">25</span>
+
+<span class="comment"># Fonction avec valeur de retour</span>
+<span class="keyword">fichier_existe</span>() {
+    <span class="keyword">if</span> [[ <span class="flag">-f</span> <span class="string">"$1"</span> ]]; <span class="keyword">then</span>
+        <span class="keyword">return</span> <span class="num">0</span>   <span class="comment"># succès</span>
+    <span class="keyword">else</span>
+        <span class="keyword">return</span> <span class="num">1</span>   <span class="comment"># échec</span>
+    <span class="keyword">fi</span>
+}
+
+<span class="keyword">if</span> <span class="keyword">fichier_existe</span> <span class="string">"/etc/passwd"</span>; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"Le fichier existe"</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Fonction utile : log avec timestamp</span>
+<span class="keyword">log</span>() {
+    <span class="cmd">echo</span> <span class="string">"[$(date '+%Y-%m-%d %H:%M:%S')] $1"</span>
+}
+
+<span class="keyword">log</span> <span class="string">"Script démarré"</span>
+<span class="keyword">log</span> <span class="string">"Mise à jour en cours..."</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-rocket" style="color:var(--accent);margin-right:0.5rem;"></i>Scripts pratiques</h2>
+
+            <h3>Script de sauvegarde</h3>
+            <pre class="code-block"><span class="code-label">backup.sh</span><code><span class="keyword">#!/bin/bash</span>
+<span class="comment"># Script de sauvegarde simple</span>
+
+<span class="var">SOURCE</span>=<span class="string">"/home/sami/projets"</span>
+<span class="var">DEST</span>=<span class="string">"/home/sami/backups"</span>
+<span class="var">DATE</span>=$(<span class="cmd">date</span> +%Y%m%d_%H%M%S)
+<span class="var">ARCHIVE</span>=<span class="string">"backup_${DATE}.tar.gz"</span>
+
+<span class="comment"># Créer le dossier de destination s'il n'existe pas</span>
+<span class="cmd">mkdir</span> <span class="flag">-p</span> <span class="string">"$DEST"</span>
+
+<span class="comment"># Créer l'archive</span>
+<span class="cmd">tar</span> <span class="flag">-czf</span> <span class="string">"${DEST}/${ARCHIVE}"</span> <span class="string">"$SOURCE"</span>
+
+<span class="keyword">if</span> [[ <span class="var">$?</span> <span class="flag">-eq</span> <span class="num">0</span> ]]; <span class="keyword">then</span>
+    <span class="cmd">echo</span> <span class="string">"✅ Sauvegarde réussie : ${DEST}/${ARCHIVE}"</span>
+<span class="keyword">else</span>
+    <span class="cmd">echo</span> <span class="string">"❌ Erreur lors de la sauvegarde"</span>
+    <span class="keyword">exit</span> <span class="num">1</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Supprimer les sauvegardes de plus de 7 jours</span>
+<span class="cmd">find</span> <span class="string">"$DEST"</span> <span class="flag">-name</span> <span class="string">"backup_*.tar.gz"</span> <span class="flag">-mtime</span> +<span class="num">7</span> <span class="flag">-delete</span>
+<span class="cmd">echo</span> <span class="string">"🧹 Anciennes sauvegardes nettoyées"</span></code></pre>
+
+            <h3>Script d'info système</h3>
+            <pre class="code-block"><span class="code-label">sysinfo.sh</span><code><span class="keyword">#!/bin/bash</span>
+<span class="comment"># Affiche un résumé du système</span>
+
+<span class="cmd">echo</span> <span class="string">"═══════════════════════════════════"</span>
+<span class="cmd">echo</span> <span class="string">" 🖥️  INFORMATIONS SYSTÈME"</span>
+<span class="cmd">echo</span> <span class="string">"═══════════════════════════════════"</span>
+<span class="cmd">echo</span> <span class="string">"Hostname    : $(hostname)"</span>
+<span class="cmd">echo</span> <span class="string">"OS          : $(lsb_release -ds 2>/dev/null || cat /etc/os-release | grep PRETTY | cut -d= -f2)"</span>
+<span class="cmd">echo</span> <span class="string">"Kernel      : $(uname -r)"</span>
+<span class="cmd">echo</span> <span class="string">"Uptime      : $(uptime -p)"</span>
+<span class="cmd">echo</span> <span class="string">"Utilisateur : $USER"</span>
+<span class="cmd">echo</span> <span class="string">"IP          : $(hostname -I | awk '{print $1}')"</span>
+<span class="cmd">echo</span> <span class="string">"RAM         : $(free -h | awk '/Mem/{print $3 "/" $2}')"</span>
+<span class="cmd">echo</span> <span class="string">"Disque /    : $(df -h / | awk 'NR==2{print $3 "/" $2 " (" $5 ")"}')"</span>
+<span class="cmd">echo</span> <span class="string">"Connectés   : $(who | wc -l) utilisateur(s)"</span>
+<span class="cmd">echo</span> <span class="string">"═══════════════════════════════════"</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Automatiser avec cron</div>
+                <p style="margin:0;font-size:0.9rem;">
+                Tu peux automatiser tes scripts avec <code>crontab</code> :<br>
+                <code>crontab -e</code> puis ajoute une ligne :<br>
+                <code>0 2 * * * /home/sami/backup.sh</code> → Exécute le backup tous les jours à 2h du matin<br>
+                <code>*/5 * * * * /home/sami/check.sh</code> → Toutes les 5 minutes<br>
+                Format : <code>minute heure jour mois jour_semaine commande</code>
+                </p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-bug" style="color:var(--accent);margin-right:0.5rem;"></i>Déboguer un script</h2>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Exécuter en mode debug (affiche chaque commande)</span>
+<span class="cmd">bash</span> <span class="flag">-x</span> <span class="path">mon_script.sh</span>
+
+<span class="comment"># Activer le debug dans le script</span>
+<span class="keyword">set -x</span>    <span class="comment"># Active le mode debug</span>
+<span class="keyword">set +x</span>    <span class="comment"># Désactive le mode debug</span>
+
+<span class="comment"># Arrêter le script à la première erreur</span>
+<span class="keyword">set -e</span>
+
+<span class="comment"># Bonnes pratiques en début de script</span>
+<span class="keyword">set -euo pipefail</span>
+<span class="comment"># -e = exit on error</span>
+<span class="comment"># -u = error on undefined variable</span>
+<span class="comment"># -o pipefail = catch errors in pipes</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Codes de retour</div>
+                <p style="margin:0;font-size:0.9rem;">
+                Chaque commande retourne un code : <code>$?</code><br>
+                <strong>0</strong> = succès, <strong>1+</strong> = erreur<br>
+                <code>exit 0</code> = le script se termine avec succès<br>
+                <code>exit 1</code> = le script se termine avec une erreur
+                </p>
+            </div>
+        </article>
+
+        <article class="glass-card" id="interactive-exercise">
+            <h2><i class="fas fa-dumbbell" style="color:var(--accent);margin-right:0.5rem;"></i>Exercices Interactifs</h2>
+            <p style="color:var(--text-muted);">Chargement des exercices...</p>
+        </article>
+
+        <div class="chapter-nav">
+            <a href="chapitre7.html"><i class="fas fa-arrow-left"></i> Module 07 : Réseau & SSH</a>
+            <a href="formules.html">Cheat Sheet Linux <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
+        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

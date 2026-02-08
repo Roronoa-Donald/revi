@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 7 — Maintenance | RD WinServer</title>
+    <meta name="description" content="Maintenance préventive, corrective et évolutive. WSUS, Event Viewer, Performance Monitor sous Windows Server 2022.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre6.html">← Module 6</a></li>
+                <li><a href="chapitre7.html" class="active">Module 7</a></li>
+                <li><a href="chapitre8.html">Module 8 →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="chapitre7.html" class="active"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-wrench"></i> Module 7</span>
+        <h1 class="hero-title">Maintenance <span class="gradient-text">Windows Server</span></h1>
+        <p class="hero-description">Blaise pensait qu'une fois le serveur installé, c'était fini. Erreur de débutant. Un serveur, c'est comme une voiture : sans entretien régulier, elle tombe en panne au pire moment. Ce module t'apprend à garder tes serveurs en pleine forme.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-toolbox" style="color:var(--accent)"></i> Les 3 Types de Maintenance</h2>
+
+            <h3>1. Maintenance Préventive</h3>
+            <p>Actions planifiées pour <strong>éviter</strong> les pannes avant qu'elles ne surviennent.</p>
+            <div class="analogy-box">
+                C'est la <strong>révision annuelle de ta voiture</strong>. Tu changes l'huile, vérifies les freins et les pneus. Tu n'attends pas que le moteur casse pour réagir.
+            </div>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;line-height:2;">
+                <li>Mises à jour du système et des rôles</li>
+                <li>Monitoring des ressources (CPU, RAM, disques, réseau)</li>
+                <li>Vérification des sauvegardes → <strong>test de restauration</strong></li>
+                <li>Audit des comptes et des permissions</li>
+                <li>Nettoyage des fichiers temporaires et des logs</li>
+                <li>Vérification de la santé matérielle (températures, SMART)</li>
+            </ul>
+
+            <h3>2. Maintenance Corrective</h3>
+            <p>Intervention <strong>après une panne</strong> pour restaurer le fonctionnement normal.</p>
+            <div class="analogy-box">
+                Ta voiture est en panne sur le bord de la route. Tu appelles le dépanneur. C'est stressant, coûteux, et ça aurait pu être évité avec de la préventive.
+            </div>
+            <p>Exemples typiques :</p>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;line-height:2;">
+                <li>Service AD DS qui ne démarre plus</li>
+                <li>Réplication DNS cassée</li>
+                <li>Volume disque plein à 100%</li>
+                <li>Performance dégradée (CPU à 95% en permanence)</li>
+                <li>Serveur DHCP qui ne distribue plus d'adresses</li>
+            </ul>
+
+            <h3>3. Maintenance Évolutive</h3>
+            <p>Mise à niveau pour <strong>améliorer</strong> les capacités ou s'adapter aux nouveaux besoins.</p>
+            <div class="analogy-box">
+                Tu ajoutes un GPS et une caméra de recul à ta voiture. Elle fonctionnait déjà, mais maintenant elle est <strong>mieux adaptée</strong> aux besoins actuels.
+            </div>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;line-height:2;">
+                <li>Migration de Windows Server 2016 vers 2022</li>
+                <li>Ajout de RAM ou de stockage</li>
+                <li>Déploiement de nouveaux rôles</li>
+                <li>Passage à Hyper-V pour la virtualisation</li>
+            </ul>
+
+            <table class="styled-table">
+                <thead><tr><th></th><th>Préventive</th><th>Corrective</th><th>Évolutive</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Quand</strong></td><td>Planifié</td><td>Urgence</td><td>Planifié</td></tr>
+                    <tr><td><strong>Objectif</strong></td><td>Éviter les pannes</td><td>Réparer les pannes</td><td>Améliorer le système</td></tr>
+                    <tr><td><strong>Stress</strong></td><td>😌 Faible</td><td>😰 Maximum</td><td>🤔 Modéré</td></tr>
+                    <tr><td><strong>Coût</strong></td><td>Faible si régulier</td><td>Élevé (urgence)</td><td>Variable</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-desktop" style="color:var(--accent)"></i> Les Outils de Surveillance</h2>
+
+            <h3>Event Viewer (Observateur d'événements)</h3>
+            <p>Le <strong>journal de bord</strong> de ton serveur. Chaque erreur, avertissement et information y est consigné.</p>
+
+            <pre class="code-block"><code><span class="comment"># Lancer l'Observateur d'événements</span>
+<span class="gui">eventvwr.msc</span>
+
+<span class="comment"># Les 50 dernières erreurs système</span>
+<span class="cmd">Get-EventLog</span> <span class="flag">-LogName</span> <span class="string">System</span> <span class="flag">-EntryType</span> <span class="string">Error</span> <span class="flag">-Newest</span> <span class="num">50</span>
+
+<span class="comment"># Erreurs sur les dernières 24h</span>
+<span class="cmd">Get-WinEvent</span> <span class="flag">-FilterHashtable</span> @{
+    LogName = <span class="string">'System'</span>
+    Level = <span class="num">2</span>  <span class="comment"># 2=Error, 3=Warning, 4=Info</span>
+    StartTime = (<span class="cmd">Get-Date</span>).AddHours(<span class="num">-24</span>)
+}
+
+<span class="comment"># Erreurs d'authentification (sécurité)</span>
+<span class="cmd">Get-WinEvent</span> <span class="flag">-FilterHashtable</span> @{
+    LogName = <span class="string">'Security'</span>
+    Id = <span class="num">4625</span>  <span class="comment"># Échec de connexion</span>
+} <span class="flag">-MaxEvents</span> <span class="num">20</span></code></pre>
+
+            <div class="info-box">
+                <strong>💡 IDs critiques à surveiller :</strong> 4625 (échec auth), 1074 (shutdown/reboot), 7036 (service arrêté), 41 (crash système), 1001 (BSOD bugcheck).
+            </div>
+
+            <h3>Performance Monitor (perfmon)</h3>
+            <p>Monitoring en temps réel des compteurs de performance :</p>
+            <pre class="code-block"><code><span class="comment"># Lancer Performance Monitor</span>
+<span class="gui">perfmon.msc</span>
+
+<span class="comment"># Vérifier l'utilisation CPU via PowerShell</span>
+<span class="cmd">Get-Counter</span> <span class="string">'\Processor(_Total)\% Processor Time'</span>
+
+<span class="comment"># Mémoire disponible</span>
+<span class="cmd">Get-Counter</span> <span class="string">'\Memory\Available MBytes'</span>
+
+<span class="comment"># Longueur de la file d'attente disque</span>
+<span class="cmd">Get-Counter</span> <span class="string">'\PhysicalDisk(_Total)\Current Disk Queue Length'</span>
+
+<span class="comment"># Monitoring continu (toutes les 5 secondes, 12 fois)</span>
+<span class="cmd">Get-Counter</span> <span class="flag">-Counter</span> @(
+    <span class="string">'\Processor(_Total)\% Processor Time'</span>,
+    <span class="string">'\Memory\Available MBytes'</span>,
+    <span class="string">'\PhysicalDisk(_Total)\% Disk Time'</span>
+) <span class="flag">-SampleInterval</span> <span class="num">5</span> <span class="flag">-MaxSamples</span> <span class="num">12</span></code></pre>
+
+            <h3>Seuils d'alerte recommandés</h3>
+            <table class="styled-table">
+                <thead><tr><th>Ressource</th><th>Compteur</th><th>🟢 OK</th><th>🟡 Attention</th><th>🔴 Critique</th></tr></thead>
+                <tbody>
+                    <tr><td>CPU</td><td>% Processor Time</td><td>&lt; 70%</td><td>70-85%</td><td>&gt; 85%</td></tr>
+                    <tr><td>RAM</td><td>Available MBytes</td><td>&gt; 20%</td><td>10-20%</td><td>&lt; 10%</td></tr>
+                    <tr><td>Disque</td><td>% Disk Time</td><td>&lt; 50%</td><td>50-80%</td><td>&gt; 80%</td></tr>
+                    <tr><td>Disque</td><td>Queue Length</td><td>&lt; 2</td><td>2-4</td><td>&gt; 4</td></tr>
+                    <tr><td>Réseau</td><td>Bytes Total/sec</td><td>&lt; 60%</td><td>60-80%</td><td>&gt; 80%</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-download" style="color:var(--accent)"></i> WSUS (Windows Server Update Services)</h2>
+            <p>WSUS permet de <strong>centraliser et contrôler</strong> les mises à jour Windows dans ton réseau.</p>
+
+            <div class="analogy-box">
+                Sans WSUS, chaque PC télécharge ses mises à jour directement sur Internet (= 200 employés qui téléchargent la même mise à jour de 500 MB = 100 GB de bande passante gaspillés). Avec WSUS, le serveur télécharge une seule fois, et distribue en interne. C'est un <strong>entrepôt central de pièces détachées</strong>.
+            </div>
+
+            <h3>Installation et configuration</h3>
+            <pre class="code-block"><code><span class="comment"># Installer WSUS</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">UpdateServices</span> <span class="flag">-IncludeManagementTools</span>
+
+<span class="comment"># Post-installation : configurer le dossier de stockage</span>
+<span class="gui">cd "C:\Program Files\Update Services\Tools"</span>
+<span class="cmd">.\wsusutil.exe</span> postinstall CONTENT_DIR=<span class="path">D:\WSUS</span>
+
+<span class="comment"># Configurer les clients via GPO :</span>
+<span class="comment"># Computer Configuration > Administrative Templates</span>
+<span class="comment"># > Windows Components > Windows Update</span>
+<span class="comment"># → Specify intranet Microsoft update service location</span>
+<span class="comment"># → http://SRV-WSUS:8530</span></code></pre>
+
+            <h3>Bonnes pratiques WSUS</h3>
+            <table class="styled-table">
+                <thead><tr><th>Pratique</th><th>Pourquoi</th></tr></thead>
+                <tbody>
+                    <tr><td>Approuver manuellement les mises à jour</td><td>Éviter qu'une MAJ casse la prod</td></tr>
+                    <tr><td>Tester sur un groupe pilote d'abord</td><td>Valider avant déploiement massif</td></tr>
+                    <tr><td>Planifier les mises à jour hors heures</td><td>Éviter les redémarrages en plein travail</td></tr>
+                    <tr><td>Nettoyer WSUS régulièrement</td><td>La base grandit vite (Server Cleanup Wizard)</td></tr>
+                    <tr><td>Surveiller le rapport de conformité</td><td>Identifier les machines non à jour</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-stethoscope" style="color:var(--accent)"></i> Vérifications de Santé Quotidiennes</h2>
+            <pre class="code-block"><code><span class="comment"># === SCRIPT DE SANTÉ QUOTIDIEN ===</span>
+
+<span class="comment"># 1. Espace disque</span>
+<span class="cmd">Get-WmiObject</span> Win32_LogicalDisk <span class="flag">-Filter</span> <span class="string">"DriveType=3"</span> |
+    <span class="cmd">Select-Object</span> DeviceID,
+        @{N=<span class="string">'TailleGB'</span>;E={[math]::Round(<span class="var">$_</span>.Size/<span class="num">1GB</span>,<span class="num">1</span>)}},
+        @{N=<span class="string">'LibreGB'</span>;E={[math]::Round(<span class="var">$_</span>.FreeSpace/<span class="num">1GB</span>,<span class="num">1</span>)}},
+        @{N=<span class="string">'%Libre'</span>;E={[math]::Round(<span class="var">$_</span>.FreeSpace/<span class="var">$_</span>.Size*<span class="num">100</span>,<span class="num">1</span>)}}
+
+<span class="comment"># 2. Services critiques</span>
+<span class="var">$services</span> = <span class="string">"DNS"</span>,<span class="string">"NTDS"</span>,<span class="string">"W32Time"</span>,<span class="string">"DHCPServer"</span>,<span class="string">"Spooler"</span>
+<span class="var">$services</span> | <span class="cmd">ForEach-Object</span> {
+    <span class="var">$svc</span> = <span class="cmd">Get-Service</span> <span class="var">$_</span> <span class="flag">-ErrorAction</span> SilentlyContinue
+    [PSCustomObject]@{
+        Nom = <span class="var">$_</span>
+        Statut = <span class="keyword">if</span>(<span class="var">$svc</span>){<span class="var">$svc</span>.Status}<span class="keyword">else</span>{<span class="string">"Non installé"</span>}
+    }
+}
+
+<span class="comment"># 3. Uptime du serveur</span>
+(<span class="cmd">Get-Date</span>) - (<span class="cmd">Get-CimInstance</span> Win32_OperatingSystem).LastBootUpTime
+
+<span class="comment"># 4. Dernière sauvegarde réussie</span>
+<span class="cmd">Get-WBSummary</span>
+
+<span class="comment"># 5. Réplication AD</span>
+<span class="cmd">repadmin</span> /replsummary
+<span class="cmd">dcdiag</span> /s:<span class="var">$env:COMPUTERNAME</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-calendar-days" style="color:var(--accent)"></i> Planning de Maintenance</h2>
+
+            <table class="styled-table">
+                <thead><tr><th>Fréquence</th><th>Tâches</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Quotidien</strong></td><td>Vérifier Event Viewer, vérifier sauvegardes, vérifier espace disque, surveiller performances</td></tr>
+                    <tr><td><strong>Hebdomadaire</strong></td><td>Appliquer les mises à jour testées, vérifier réplication AD, nettoyer fichiers temporaires</td></tr>
+                    <tr><td><strong>Mensuel</strong></td><td>Tester une restauration de sauvegarde, auditer les comptes/groupes AD, analyser les logs de sécurité, rapport WSUS</td></tr>
+                    <tr><td><strong>Trimestriel</strong></td><td>Revue des GPO, inventaire matériel, test du PRA, mise à jour de la documentation</td></tr>
+                    <tr><td><strong>Annuel</strong></td><td>Évaluation de l'infrastructure, planification capacité, renouvellement licences, audit complet de sécurité</td></tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <strong>✅ Conseil de Blaise :</strong> Crée un <strong>checklist</strong> et coche chaque vérification. Un admin qui ne vérifie pas, c'est un gardien de but qui ferme les yeux pendant le match.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-bug" style="color:var(--accent)"></i> Dépannage : Méthodologie</h2>
+            <p>Face à un problème, suis cette méthode en <strong>6 étapes</strong> :</p>
+
+            <table class="styled-table">
+                <thead><tr><th>Étape</th><th>Action</th><th>Outils</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>1</strong></td><td>Identifier le symptôme</td><td>Signalements utilisateurs, monitoring</td></tr>
+                    <tr><td><strong>2</strong></td><td>Établir la chronologie</td><td>Event Viewer (quand ça a commencé ?)</td></tr>
+                    <tr><td><strong>3</strong></td><td>Chercher les changements récents</td><td>Qui a modifié quoi ? MAJ ? GPO ?</td></tr>
+                    <tr><td><strong>4</strong></td><td>Isoler la cause</td><td>Tests, logs, commandes diag</td></tr>
+                    <tr><td><strong>5</strong></td><td>Appliquer la correction</td><td>Fix, rollback, restart</td></tr>
+                    <tr><td><strong>6</strong></td><td>Documenter</td><td>Base de connaissances interne</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Commandes de diagnostic essentielles</h3>
+            <pre class="code-block"><code><span class="comment"># Réseau</span>
+<span class="cmd">Test-NetConnection</span> <span class="flag">-ComputerName</span> <span class="string">"SRV-DC01"</span> <span class="flag">-Port</span> <span class="num">389</span>
+<span class="cmd">Test-NetConnection</span> <span class="string">"8.8.8.8"</span> <span class="flag">-TraceRoute</span>
+
+<span class="comment"># DNS</span>
+<span class="cmd">Resolve-DnsName</span> <span class="string">"srv-dc01.lab.local"</span>
+<span class="cmd">nslookup</span> srv-dc01.lab.local
+
+<span class="comment"># Active Directory</span>
+<span class="cmd">dcdiag</span> /v
+<span class="cmd">repadmin</span> /showrepl
+
+<span class="comment"># Services</span>
+<span class="cmd">Get-Service</span> | <span class="cmd">Where-Object</span> {<span class="var">$_</span>.Status <span class="flag">-eq</span> <span class="string">'Stopped'</span> <span class="flag">-and</span> <span class="var">$_</span>.StartType <span class="flag">-eq</span> <span class="string">'Automatic'</span>}
+
+<span class="comment"># Processus les plus gourmands</span>
+<span class="cmd">Get-Process</span> | <span class="cmd">Sort-Object</span> CPU <span class="flag">-Descending</span> | <span class="cmd">Select-Object</span> <span class="flag">-First</span> <span class="num">10</span> Name,CPU,WS</code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" style="border-left:3px solid var(--accent);">
+            <h2><i class="fas fa-clipboard-check" style="color:var(--accent)"></i> Résumé du Module</h2>
+            <ul style="margin:0.5rem 0 0 1.5rem;line-height:2;">
+                <li><strong>Préventive</strong> = éviter les pannes, <strong>Corrective</strong> = réparer, <strong>Évolutive</strong> = améliorer</li>
+                <li><strong>Event Viewer</strong> : le journal de bord (IDs critiques : 4625, 1074, 41)</li>
+                <li><strong>Performance Monitor</strong> : CPU &lt; 85%, RAM libre &gt; 10%, Disk Queue &lt; 2</li>
+                <li><strong>WSUS</strong> : centralise les mises à jour, teste avant de déployer</li>
+                <li>Planning : quotidien → hebdo → mensuel → trimestriel → annuel</li>
+                <li>Dépannage en 6 étapes : symptôme → chrono → changements → isoler → corriger → documenter</li>
+            </ul>
+        </article>
+
+        <div id="interactive-exercises"></div>
+
+        <div class="chapter-nav">
+            <a href="chapitre6.html"><i class="fas fa-arrow-left"></i> Module 6 — Haute Disponibilité</a>
+            <a href="chapitre8.html">Module 8 — Hyper-V & Snapshots <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

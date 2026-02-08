@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 06 : Fonctions Texte | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Module 06: String Functions</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+            <!-- Theory -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">1. Le Grand Nettoyage</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas fa-magic text-9xl"></i>
+                    </div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Le monde est sale. Les utilisateurs tapent "  Jean ", "alice", ou "BOB". 
+                        <br>Votre base de données doit être impeccable.
+                        <br><br>
+                        Voici votre trousse à outils pour nettoyer, couper et recoller les morceaux.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Concepts: Tools -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                 <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">2. La Trousse à Outils</h2>
+                 <div class="glass-card p-6 rounded-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <!-- UPPER/LOWER -->
+                        <div class="bg-slate-900 p-4 rounded border border-slate-700 hover:border-blue-500 transition-colors">
+                            <i class="fas fa-font text-blue-400 text-3xl mb-4"></i>
+                            <h4 class="font-bold text-white mb-2">Uniformiser</h4>
+                            <code class="block bg-black p-2 rounded text-xs text-blue-300 mb-2">UPPER('a') -> 'A'</code>
+                            <p class="text-xs text-slate-400">Pour normaliser les noms et prénoms.</p>
+                        </div>
+
+                        <!-- TRIM -->
+                        <div class="bg-slate-900 p-4 rounded border border-slate-700 hover:border-pink-500 transition-colors">
+                            <i class="fas fa-cut text-pink-400 text-3xl mb-4"></i>
+                            <h4 class="font-bold text-white mb-2">Nettoyer (TRIM)</h4>
+                            <code class="block bg-black p-2 rounded text-xs text-pink-300 mb-2">TRIM('  Hi ') -> 'Hi'</code>
+                            <p class="text-xs text-slate-400">L'aspirateur à espaces inutiles.</p>
+                        </div>
+
+                        <!-- CONCAT -->
+                        <div class="bg-slate-900 p-4 rounded border border-slate-700 hover:border-green-500 transition-colors">
+                            <i class="fas fa-link text-green-400 text-3xl mb-4"></i>
+                            <h4 class="font-bold text-white mb-2">Coller (CONCAT)</h4>
+                            <code class="block bg-black p-2 rounded text-xs text-green-300 mb-2">CONCAT('A','B') -> 'AB'</code>
+                            <p class="text-xs text-slate-400">Assemblez Prénom + Nom.</p>
+                        </div>
+
+                    </div>
+                 </div>
+            </section>
+
+             <!-- Concept Interactive -->
+             <section class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">3. Mission : Générateur d'Emails</h2>
+                <div class="bg-blue-600/10 border border-blue-500 p-4 rounded-lg mb-6 flex gap-4">
+                    <div class="text-3xl">📧</div>
+                    <div>
+                        <h4 class="font-bold text-white">Votre Mission</h4>
+                        <p class="text-slate-300 text-sm">
+                            Générez des emails professionnels au format : <code>prenom.nom@company.com</code> en minuscules.
+                            La table <code>Employees</code> contient <code>firstname</code> et <code>lastname</code>.
+                        </p>
+                    </div>
+                </div>
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3"><span class="text-xs font-mono text-slate-500">sql-server</span></div>
+                    <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none" spellcheck="false" placeholder="Tapez votre code ici...">SELECT LOWER(CONCAT(firstname, '.', lastname, '@company.com')) 
+FROM Employees</textarea>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold flex items-center gap-2">
+                            <i class="fas fa-play"></i> Générer
+                        </button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px]">
+                        <div class="flex items-center gap-2 text-slate-500">
+                            <i class="fas fa-terminal"></i>
+                            <span>En attente...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Zone d'Entraînement Intensive -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.4s;">
+                <div class="glass-card p-6 rounded-xl border border-slate-700">
+                    <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                        <i class="fas fa-dumbbell text-red-500"></i>
+                        Zone d'Entraînement
+                    </h2>
+
+                    <!-- Tabs Header -->
+                    <div class="flex border-b border-slate-700 mb-6">
+                        <button onclick="switchTab('quiz')" id="tab-quiz" class="px-6 py-3 text-blue-400 border-b-2 border-blue-400 font-bold hover:bg-slate-800/50 transition-colors">
+                            Quiz (10)
+                        </button>
+                        <button onclick="switchTab('exos')" id="tab-exos" class="px-6 py-3 text-slate-400 hover:text-blue-300 hover:bg-slate-800/50 transition-colors">
+                            Exercices (5)
+                        </button>
+                        <button onclick="switchTab('drag')" id="tab-drag" class="px-6 py-3 text-slate-400 hover:text-blue-300 hover:bg-slate-800/50 transition-colors">
+                            Drag & Drop (3)
+                        </button>
+                    </div>
+
+                    <!-- TAB 1: QUIZ -->
+                    <div id="content-quiz" class="space-y-6">
+                        <div id="quiz-container" class="space-y-6"></div>
+                        <div class="flex items-center gap-4 mt-6 border-t border-slate-800 pt-4">
+                            <button onclick="checkQuiz()" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded shadow-lg shadow-blue-900/20 transition-all">
+                                Vérifier mes réponses
+                            </button>
+                            <span id="quiz-score" class="text-xl font-bold text-slate-300"></span>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: EXERCICES -->
+                    <div id="content-exos" class="hidden space-y-6">
+                        <!-- Exo 1 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol1')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>1. Mise en Majuscule</h4>
+                                    <p class="text-sm text-slate-400">Affichez tous les noms de pays en majuscules.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol1" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT UPPER(country) FROM Customers;
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- Exo 2 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol2')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>2. Initiales</h4>
+                                    <p class="text-sm text-slate-400">Extrayez la première lettre du nom (LEFT ou SUBSTRING).</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol2" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT LEFT(name, 1) FROM Users;<br>-- Ou SUBSTRING(name, 1, 1)
+                                </code>
+                            </div>
+                        </div>
+
+                         <!-- Exo 3 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol3')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>3. Longueur</h4>
+                                    <p class="text-sm text-slate-400">Listez les produits dont le nom fait plus de 10 caractères (LEN/LENGTH).</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol3" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT * FROM Products WHERE LENGTH(name) > 10;
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- Exo 4 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol4')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>4. Recherche Floue</h4>
+                                    <p class="text-sm text-slate-400">Trouvez les utilisateurs dont le nom contient "son" (LIKE).</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol4" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT * FROM Users WHERE name LIKE '%son%';
+                                </code>
+                            </div>
+                        </div>
+
+                         <!-- Exo 5 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol5')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>5. Formatage Téléphone</h4>
+                                    <p class="text-sm text-slate-400">Remplacez les tirets '-' par des espaces ' ' dans les numéros (REPLACE).</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol5" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    SELECT REPLACE(phone, '-', ' ') FROM Users;
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: DRAG & DROP -->
+                    <div id="content-drag" class="hidden space-y-8">
+                        <!-- Jeu 1 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 1 : Nettoyage</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Quel outil pour quelle tâche ?</p>
+                            <div id="drag-drop-1" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(1)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                        <!-- Jeu 2 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 2 : Recherche</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Syntaxe LIKE</p>
+                            <div id="drag-drop-2" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(2)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                        <!-- Jeu 3 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 3 : Extraction</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Composition</p>
+                            <div id="drag-drop-3" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(3)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="hidden lg:block w-72 shrink-0">
+            <div class="sticky top-24"><div id="databot-container"></div></div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script>
+        // --- 1. QUIZ ENGINE ---
+        const quizData = [
+            { q: "Quelle fonction met tout en MAJUSCULES ?", o: ["CAPS()", "UPPER()", "BIG()"], a: 1 },
+            { q: "TRIM('  a  ') donne :", o: ["'a  '", "'  a'", "'a'"], a: 2 },
+            { q: "Pour chercher 'Jean' n'importe où :", o: ["LIKE 'Jean%'", "LIKE '%Jean%'", "LIKE 'Jean'"], a: 1 },
+            { q: "Quelle fonction donne la longueur ?", o: ["LEN ou LENGTH", "SIZE", "WIDTH"], a: 0 },
+            { q: "LEFT('Bonjour', 3) donne :", o: ["Bon", "our", "B"], a: 0 },
+            { q: "Pour coller 'A' et 'B' :", o: ["ADD('A','B')", "CONCAT('A','B')", "MERGE('A','B')"], a: 1 },
+            { q: "LOWER('ABC') retourne :", o: ["abc", "ABC", "Abc"], a: 0 },
+            { q: "REPLACE('Hello', 'l', 'w') donne :", o: ["Hewwo", "Helwo", "Hellow"], a: 0 },
+            { q: "SUBSTRING('Maison', 1, 4) extrait :", o: ["Mais", "aiso", "M"], a: 0 },
+            { q: "Le symbole Joker pour 'plusieurs caractères' est :", o: ["?", "*", "%"], a: 2 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = quizData.map((item, idx) => `
+                <div class="q-item border-l-2 border-slate-700 pl-4">
+                    <p class="font-bold text-slate-200 mb-2">${idx + 1}. ${item.q}</p>
+                    <div class="flex gap-4 flex-wrap">
+                        ${item.o.map((opt, oIdx) => `
+                            <label class="flex items-center gap-2 cursor-pointer bg-slate-800 px-3 py-1 rounded hover:bg-slate-700">
+                                <input type="radio" name="q${idx}" value="${oIdx}">
+                                <span class="text-sm">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function checkQuiz() {
+            let score = 0;
+            quizData.forEach((item, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                const parent = document.querySelectorAll('.q-item')[idx];
+                if (selected) {
+                    if (parseInt(selected.value) === item.a) {
+                        score++;
+                        parent.classList.remove('border-red-500', 'border-slate-700');
+                        parent.classList.add('border-green-500');
+                    } else {
+                        parent.classList.remove('border-green-500', 'border-slate-700');
+                        parent.classList.add('border-red-500');
+                    }
+                }
+            });
+            document.getElementById('quiz-score').innerText = `Score: ${score}/10`;
+            if (score >= 7) {
+                bot.speak(`Texte impeccable ! Score de ${score}/10 !`, "happy");
+                confetti();
+            } else {
+                bot.speak(`Score de ${score}/10. Relisez les fonctions.`, "sad");
+            }
+        }
+
+        // --- 2. TABS LOGIC ---
+        function switchTab(tab) {
+            ['quiz', 'exos', 'drag'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-400');
+            });
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+            document.getElementById(`tab-${tab}`).classList.remove('text-slate-400');
+        }
+
+        function toggleSol(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        // --- 3. DRAG & DROP LOGIC ---
+        
+        // Game 1: Outils
+        const dd1 = new DragDropEngine('drag-drop-1', 
+            [{id:'t1', text:'TRIM'}, {id:'t2', text:'UPPER'}, {id:'t3', text:'CONCAT'}], 
+            [{id:'z1', label:'Enlever espaces', accept:'t1'}, {id:'z2', label:'Majuscule', accept:'t2'}, {id:'z3', label:'Assembler', accept:'t3'}]
+        );
+        // Game 2: Like
+        const dd2 = new DragDropEngine('drag-drop-2', 
+            [{id:'l1', text:'%Test%'}, {id:'l2', text:'Test%'}, {id:'l3', text:'%Test'}], 
+            [{id:'z1', label:'Contient', accept:'l1'}, {id:'z2', label:'Commence par', accept:'l2'}, {id:'z3', label:'Finit par', accept:'l3'}]
+        );
+        // Game 3: Extract
+        const dd3 = new DragDropEngine('drag-drop-3', 
+            [{id:'x1', text:'LEFT(s,2)'}, {id:'x2', text:'RIGHT(s,2)'}, {id:'x3', text:'SUBSTRING(s,2,2)'}], 
+            [{id:'z1', label:'Début', accept:'x1'}, {id:'z2', label:'Fin', accept:'x2'}, {id:'z3', label:'Milieur', accept:'x3'}]
+        );
+
+        function verifyDD(id) {
+            let engine = (id===1) ? dd1 : (id===2) ? dd2 : dd3;
+            if (engine.validate()) {
+                bot.speak("Logique respectée !", "happy");
+                bot.awardXP(20);
+            } else {
+                bot.speak("Erreur de fonction.", "sad");
+            }
+        }
+
+        // --- INIT ---
+        const bot = new DataBot();
+        bot.render('databot-container');
+        bot.speak("Le texte est la donnée la plus désordonnée. Nettoyez-le !", 4000);
+        
+        renderQuiz();
+
+        // 4. SQL Engine logic
+        function runQuery() {
+             const sql = document.getElementById('sql-input').value;
+             if (sql.toUpperCase().includes('LOWER') || sql.toUpperCase().includes('CONCAT')) {
+                 document.getElementById('query-output').innerHTML = `
+                 <table class="w-full text-left border-collapse">
+                    <thead><tr><th class="border-b border-slate-700 p-2 text-purple-400">email</th></tr></thead>
+                    <tbody>
+                        <tr><td class="p-2 font-mono">alice.dupont@company.com</td></tr>
+                        <tr><td class="p-2 font-mono">bob.maelys@company.com</td></tr>
+                    </tbody>
+                 </table>
+                 <div class="text-xs text-slate-500 mt-2 bg-slate-900 p-2 rounded border border-slate-800"><i class="fas fa-info-circle mr-1"></i> Résultat Simulé</div>`;
+                 bot.awardXP(20);
+                 bot.speak("Emails générés !", "happy");
+             } else {
+                 const res = executeSQL(sql);
+                 document.getElementById('query-output').innerHTML = res.success ? `<pre>${JSON.stringify(res.data,null,2)}</pre>` : `<span class='text-red-400'>${res.error}</span>`;
+             }
+        }
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod05-calculations.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 05 : Calculs & Agrégats</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod07-dates-nulls.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 07 : Dates & Nulls →</a>
+    </div>
+    <script>if(localStorage.getItem('rd_sql_theme')==='light')document.documentElement.setAttribute('data-theme','light');</script>
+</body>
+</html>

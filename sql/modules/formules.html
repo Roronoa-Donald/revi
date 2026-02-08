@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheat Sheet SQL Server | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Accueil</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">
+                <i class="fas fa-scroll mr-2"></i>Cheat Sheet SQL
+            </h1>
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="btn-ghost px-3 py-1.5 rounded text-xs font-bold"><i class="fas fa-print mr-1"></i> Imprimer</button>
+                <button class="theme-toggle"><i id="theme-icon" class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+
+        <header class="text-center mb-12">
+            <h2 class="text-4xl font-extrabold mb-4">Référence Rapide SQL Server</h2>
+            <p class="text-slate-400 max-w-2xl mx-auto">Toutes les commandes essentielles en un seul endroit. Organisées par catégorie pour une consultation rapide.</p>
+        </header>
+
+        <!-- DDL Section -->
+        <section class="mb-12" data-module="1">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-blue-500 pl-4 flex items-center gap-3">
+                <span class="badge badge-blue">DDL</span> Définition de Données
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-plus-circle text-blue-400 mr-2"></i>Créer une Base</div>
+                    <code>CREATE DATABASE MaBase;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-plus-circle text-blue-400 mr-2"></i>Créer une Table</div>
+                    <code>CREATE TABLE Clients (<br>  id INT PRIMARY KEY IDENTITY,<br>  nom VARCHAR(100) NOT NULL,<br>  email VARCHAR(200) UNIQUE<br>);</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-edit text-amber-400 mr-2"></i>Modifier une Table</div>
+                    <code>ALTER TABLE Clients<br>ADD telephone VARCHAR(20);<br><br>ALTER TABLE Clients<br>DROP COLUMN telephone;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-trash text-red-400 mr-2"></i>Supprimer une Table</div>
+                    <code>DROP TABLE Clients;<br>-- Suppression définitive !</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-eraser text-red-400 mr-2"></i>Vider une Table</div>
+                    <code>TRUNCATE TABLE Clients;<br>-- Vide sans log, rapide</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-key text-amber-400 mr-2"></i>Types Courants</div>
+                    <code>INT, BIGINT, FLOAT, DECIMAL<br>VARCHAR(n), NVARCHAR(n), TEXT<br>DATE, DATETIME, BIT</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contraintes -->
+        <section class="mb-12" data-module="2">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-emerald-500 pl-4 flex items-center gap-3">
+                <span class="badge badge-green">CONTRAINTES</span> Intégrité des Données
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-key text-amber-400 mr-2"></i>Clé Primaire</div>
+                    <code>id INT PRIMARY KEY IDENTITY(1,1)</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-link text-purple-400 mr-2"></i>Clé Étrangère</div>
+                    <code>FOREIGN KEY (client_id)<br>REFERENCES Clients(id)<br>ON DELETE CASCADE</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-fingerprint text-blue-400 mr-2"></i>UNIQUE</div>
+                    <code>email VARCHAR(200) UNIQUE</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-shield-alt text-emerald-400 mr-2"></i>CHECK</div>
+                    <code>age INT CHECK (age >= 0 AND age <= 150)</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-fill-drip text-slate-400 mr-2"></i>DEFAULT</div>
+                    <code>statut VARCHAR(20) DEFAULT 'actif'</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-ban text-red-400 mr-2"></i>NOT NULL</div>
+                    <code>nom VARCHAR(100) NOT NULL</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- DML -->
+        <section class="mb-12" data-module="3">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-purple-500 pl-4 flex items-center gap-3">
+                <span class="badge badge-purple">DML</span> Manipulation de Données
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-plus text-emerald-400 mr-2"></i>INSERT</div>
+                    <code>INSERT INTO Clients (nom, email)<br>VALUES ('Alice', 'alice@test.com');</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-pen text-amber-400 mr-2"></i>UPDATE</div>
+                    <code>UPDATE Clients<br>SET nom = 'Bob'<br>WHERE id = 1;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-trash-alt text-red-400 mr-2"></i>DELETE</div>
+                    <code>DELETE FROM Clients<br>WHERE id = 1;<br>-- ⚠️ Toujours mettre WHERE !</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-copy text-blue-400 mr-2"></i>INSERT multi-lignes</div>
+                    <code>INSERT INTO Clients (nom)<br>VALUES ('A'), ('B'), ('C');</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-exchange-alt text-purple-400 mr-2"></i>MERGE (Upsert)</div>
+                    <code>MERGE INTO Cible AS t<br>USING Source AS s<br>ON t.id = s.id<br>WHEN MATCHED THEN UPDATE...<br>WHEN NOT MATCHED THEN INSERT...;</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- SELECT -->
+        <section class="mb-12" data-module="4">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-cyan-500 pl-4 flex items-center gap-3">
+                <span class="badge badge-blue">SELECT</span> Interrogation
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-asterisk text-blue-400 mr-2"></i>Tout sélectionner</div>
+                    <code>SELECT * FROM Clients;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-filter text-emerald-400 mr-2"></i>WHERE (Filtres)</div>
+                    <code>WHERE age > 18<br>WHERE nom LIKE 'A%'<br>WHERE id IN (1, 2, 3)<br>WHERE age BETWEEN 18 AND 65</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-sort text-purple-400 mr-2"></i>ORDER BY</div>
+                    <code>ORDER BY nom ASC<br>ORDER BY age DESC, nom ASC</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-project-diagram text-amber-400 mr-2"></i>JOIN</div>
+                    <code>SELECT c.nom, o.total<br>FROM Clients c<br>INNER JOIN Orders o<br>  ON c.id = o.client_id;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-code-branch text-pink-400 mr-2"></i>Types de JOIN</div>
+                    <code>INNER JOIN  → correspondances<br>LEFT JOIN   → tout à gauche<br>RIGHT JOIN  → tout à droite<br>FULL JOIN   → tout des deux</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-random text-cyan-400 mr-2"></i>CASE WHEN</div>
+                    <code>SELECT nom,<br>  CASE<br>    WHEN age >= 18 THEN 'Majeur'<br>    ELSE 'Mineur'<br>  END AS statut<br>FROM Clients;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-clone text-slate-400 mr-2"></i>DISTINCT</div>
+                    <code>SELECT DISTINCT ville FROM Clients;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-cut text-red-400 mr-2"></i>TOP / OFFSET</div>
+                    <code>SELECT TOP 10 * FROM Clients;<br><br>ORDER BY id<br>OFFSET 20 ROWS<br>FETCH NEXT 10 ROWS ONLY;</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Agrégats -->
+        <section class="mb-12" data-module="5">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-amber-500 pl-4 flex items-center gap-3">
+                <span class="badge badge-amber">AGRÉGATS</span> Calculs & Groupement
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-calculator text-amber-400 mr-2"></i>Fonctions d'agrégat</div>
+                    <code>COUNT(*), COUNT(col)<br>SUM(col), AVG(col)<br>MIN(col), MAX(col)</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-object-group text-purple-400 mr-2"></i>GROUP BY</div>
+                    <code>SELECT ville, COUNT(*) AS nb<br>FROM Clients<br>GROUP BY ville;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-filter text-emerald-400 mr-2"></i>HAVING (filtre groupes)</div>
+                    <code>SELECT ville, COUNT(*) AS nb<br>FROM Clients<br>GROUP BY ville<br>HAVING COUNT(*) > 5;</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fonctions Texte & Dates -->
+        <section class="mb-12" data-module="5">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-pink-500 pl-4 flex items-center gap-3">
+                <span class="badge badge-red">FONCTIONS</span> Texte, Dates & NULL
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-font text-pink-400 mr-2"></i>Texte</div>
+                    <code>LEN(str), UPPER(str), LOWER(str)<br>SUBSTRING(str, pos, len)<br>REPLACE(str, old, new)<br>CONCAT(a, b), TRIM(str)<br>LEFT(str, n), RIGHT(str, n)</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-calendar text-blue-400 mr-2"></i>Dates</div>
+                    <code>GETDATE()  → maintenant<br>DATEADD(day, 7, @d)  → +7 jours<br>DATEDIFF(month, @a, @b)<br>YEAR(@d), MONTH(@d), DAY(@d)<br>FORMAT(@d, 'dd/MM/yyyy')</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-question-circle text-slate-400 mr-2"></i>NULL</div>
+                    <code>IS NULL / IS NOT NULL<br>ISNULL(col, 'défaut')<br>COALESCE(a, b, c)  → 1er non-null<br>NULLIF(a, b)  → NULL si a=b</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Logique & Boucles -->
+        <section class="mb-12" data-module="8">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-amber-500 pl-4 flex items-center gap-3">
+                <span class="badge badge-amber">T-SQL</span> Variables, Logique & Boucles
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-box text-amber-400 mr-2"></i>Variables</div>
+                    <code>DECLARE @nom VARCHAR(50);<br>SET @nom = 'Alice';<br>SELECT @nom = nom FROM Clients<br>WHERE id = 1;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-code-branch text-amber-400 mr-2"></i>IF / ELSE</div>
+                    <code>IF @age >= 18<br>BEGIN<br>  PRINT 'Majeur'<br>END<br>ELSE<br>BEGIN<br>  PRINT 'Mineur'<br>END</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-redo text-amber-400 mr-2"></i>WHILE</div>
+                    <code>DECLARE @i INT = 1;<br>WHILE @i <= 10<br>BEGIN<br>  PRINT @i<br>  SET @i = @i + 1<br>END</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transactions -->
+        <section class="mb-12" data-module="10">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-red-500 pl-4 flex items-center gap-3">
+                <span class="badge badge-red">TRANSACTIONS</span> ACID & Verrous
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-lock text-red-400 mr-2"></i>Structure</div>
+                    <code>BEGIN TRANSACTION;<br>  -- opérations...<br>COMMIT;<br>-- ou ROLLBACK; si erreur</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-shield-alt text-red-400 mr-2"></i>TRY/CATCH</div>
+                    <code>BEGIN TRY<br>  BEGIN TRAN<br>  -- opérations<br>  COMMIT<br>END TRY<br>BEGIN CATCH<br>  ROLLBACK<br>  PRINT ERROR_MESSAGE()<br>END CATCH</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-layer-group text-red-400 mr-2"></i>Niveaux d'isolation</div>
+                    <code>READ UNCOMMITTED → dirty<br>READ COMMITTED → standard<br>REPEATABLE READ → verrous<br>SERIALIZABLE → strict</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Procédures & Triggers -->
+        <section class="mb-12" data-module="11">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-emerald-500 pl-4 flex items-center gap-3">
+                <span class="badge badge-green">AVANCÉ</span> Procédures, Fonctions & Triggers
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-cogs text-emerald-400 mr-2"></i>Procédure Stockée</div>
+                    <code>CREATE PROCEDURE GetUser<br>  @id INT<br>AS<br>BEGIN<br>  SELECT * FROM Users<br>  WHERE id = @id<br>END<br><br>EXEC GetUser @id = 1;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-share text-emerald-400 mr-2"></i>Paramètre OUTPUT</div>
+                    <code>CREATE PROCEDURE CountUsers<br>  @total INT OUTPUT<br>AS<br>BEGIN<br>  SELECT @total = COUNT(*)<br>  FROM Users<br>END</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-bolt text-amber-400 mr-2"></i>Trigger</div>
+                    <code>CREATE TRIGGER trg_Log<br>ON Users AFTER INSERT<br>AS<br>BEGIN<br>  INSERT INTO Logs(action)<br>  SELECT 'New: ' + name<br>  FROM inserted<br>END</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-ban text-red-400 mr-2"></i>INSTEAD OF</div>
+                    <code>CREATE TRIGGER trg_NoDelete<br>ON Users INSTEAD OF DELETE<br>AS<br>BEGIN<br>  UPDATE Users<br>  SET actif = 0<br>  WHERE id IN<br>    (SELECT id FROM deleted)<br>END</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-magic text-purple-400 mr-2"></i>Tables Magiques</div>
+                    <code>inserted → lignes ajoutées<br>deleted  → lignes supprimées<br><br>Dispo dans les Triggers</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-eye text-blue-400 mr-2"></i>Vue (VIEW)</div>
+                    <code>CREATE VIEW v_ActiveUsers AS<br>SELECT * FROM Users<br>WHERE actif = 1;<br><br>SELECT * FROM v_ActiveUsers;</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bonus -->
+        <section class="mb-12">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-slate-500 pl-4 flex items-center gap-3">
+                <span class="badge" style="background:rgba(100,116,139,0.15);color:#94a3b8">BONUS</span> Astuces & Patterns
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-search text-blue-400 mr-2"></i>Sous-requête</div>
+                    <code>SELECT * FROM Clients<br>WHERE id IN (<br>  SELECT client_id<br>  FROM Orders<br>  WHERE total > 100<br>);</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-stream text-purple-400 mr-2"></i>CTE (WITH)</div>
+                    <code>WITH TopClients AS (<br>  SELECT client_id,<br>    SUM(total) AS sum_total<br>  FROM Orders<br>  GROUP BY client_id<br>)<br>SELECT * FROM TopClients<br>WHERE sum_total > 1000;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-chart-line text-amber-400 mr-2"></i>Window Functions</div>
+                    <code>SELECT nom, salaire,<br>  RANK() OVER (<br>    ORDER BY salaire DESC<br>  ) AS rang,<br>  SUM(salaire) OVER () AS total<br>FROM Employes;</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-tachometer-alt text-emerald-400 mr-2"></i>Index</div>
+                    <code>CREATE INDEX idx_nom<br>ON Clients(nom);<br><br>-- Index composé<br>CREATE INDEX idx_ville_nom<br>ON Clients(ville, nom);</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-check-double text-emerald-400 mr-2"></i>EXISTS</div>
+                    <code>SELECT * FROM Clients c<br>WHERE EXISTS (<br>  SELECT 1 FROM Orders o<br>  WHERE o.client_id = c.id<br>);</code>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-info-circle text-blue-400 mr-2"></i>Ordre d'exécution SQL</div>
+                    <code>1. FROM / JOIN<br>2. WHERE<br>3. GROUP BY<br>4. HAVING<br>5. SELECT<br>6. ORDER BY<br>7. TOP / OFFSET</code>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-bottom">
+            <p>&copy; 2026 RD-SQL Learning. Créé par <strong>RD</strong></p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+    (function() {
+        const moduleNames = {1:'DDL',2:'Contraintes',3:'DML',4:'SELECT',5:'Fonctions',8:'T-SQL',10:'Transactions',11:'Avancé'};
+        const completed = JSON.parse(localStorage.getItem('rd_sql_completed') || '[]');
+        document.querySelectorAll('[data-module]').forEach(sec => {
+            const m = parseInt(sec.getAttribute('data-module'));
+            if (completed.includes(m)) return;
+            sec.style.position = 'relative';
+            sec.style.overflow = 'hidden';
+            sec.style.maxHeight = '180px';
+            sec.style.pointerEvents = 'none';
+            sec.style.userSelect = 'none';
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:absolute;inset:0;background:linear-gradient(transparent 20%,rgba(15,23,42,.95) 70%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:24px;pointer-events:auto;z-index:5;';
+            overlay.innerHTML = '<i class="fas fa-lock" style="font-size:1.8rem;color:#f59e0b;margin-bottom:8px"></i>'
+                + '<span style="color:#94a3b8;font-size:.9rem">Terminez le module ' + m + ' (' + (moduleNames[m]||'') + ') pour débloquer</span>'
+                + '<a href="mod' + String(m).padStart(2,'0') + '.html" style="margin-top:8px;color:#60a5fa;font-size:.85rem;text-decoration:underline;pointer-events:auto">Aller au module →</a>';
+            sec.appendChild(overlay);
+        });
+    })();
+    </script>
+</body>
+</html>

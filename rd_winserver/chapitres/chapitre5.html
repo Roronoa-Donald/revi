@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 5 — Sauvegarde & Restauration | RD WinServer</title>
+    <meta name="description" content="Principes de sauvegarde, types (complète, incrémentielle, différentielle), stratégie 3-2-1, Windows Server Backup, PCA/PRA.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre4.html">← Module 4</a></li>
+                <li><a href="chapitre5.html" class="active">Module 5</a></li>
+                <li><a href="chapitre6.html">Module 6 →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="chapitre5.html" class="active"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-database"></i> Module 5</span>
+        <h1 class="hero-title">Sauvegarde & <span class="gradient-text">Restauration</span></h1>
+        <p class="hero-description">Un ransomware chiffre les données de l'entreprise un vendredi soir. Le responsable se tourne vers Blaise : « Dis-moi qu'on a des sauvegardes récentes. » Ce module t'apprend à ne jamais être celui qui répond « non ».</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-shield-halved" style="color:var(--accent)"></i> Pourquoi sauvegarder ?</h2>
+            <p>Les sauvegardes protègent contre <strong>5 types de désastres</strong> :</p>
+            <table class="styled-table">
+                <thead><tr><th>Menace</th><th>Exemple concret</th><th>Impact sans sauvegarde</th></tr></thead>
+                <tbody>
+                    <tr><td>🧑 Erreur humaine</td><td>Un admin supprime une OU entière</td><td>Tous les comptes perdus</td></tr>
+                    <tr><td>💻 Panne matérielle</td><td>Disque dur en panne</td><td>Données irrécupérables</td></tr>
+                    <tr><td>🦠 Cyberattaque</td><td>Ransomware chiffre les fichiers</td><td>Rançon ou perte totale</td></tr>
+                    <tr><td>⚡ Panne de courant</td><td>Coupure longue sans onduleur</td><td>Corruption système</td></tr>
+                    <tr><td>🌊 Catastrophe naturelle</td><td>Inondation de la salle serveur</td><td>Destruction physique</td></tr>
+                </tbody>
+            </table>
+
+            <div class="danger-box">
+                <strong>🚨 Réalité :</strong> 93% des entreprises qui perdent leurs données pendant plus de 10 jours font faillite dans l'année. La sauvegarde n'est pas optionnelle — c'est une <strong>assurance vie</strong>.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-layer-group" style="color:var(--accent)"></i> Les 3 Types de Sauvegarde</h2>
+
+            <h3>1. Sauvegarde Complète (Full Backup)</h3>
+            <p>Copie <strong>l'intégralité des données</strong> à chaque exécution. Simple, fiable, mais volumineuse et lente.</p>
+            <div class="analogy-box">
+                C'est comme <strong>photocopier tout le dossier</strong> à chaque fois. Tu es sûr de tout avoir, mais c'est beaucoup de papier et de temps.
+            </div>
+            <table class="styled-table">
+                <thead><tr><th>✅ Avantages</th><th>❌ Inconvénients</th></tr></thead>
+                <tbody>
+                    <tr><td>Restauration simple (1 seul jeu)</td><td>Lente à exécuter</td></tr>
+                    <tr><td>Toutes les données en un point</td><td>Occupe beaucoup d'espace</td></tr>
+                </tbody>
+            </table>
+
+            <h3>2. Sauvegarde Incrémentielle (Incremental)</h3>
+            <p>Après une complète initiale, ne sauvegarde que <strong>les données modifiées depuis la dernière sauvegarde</strong> (complète OU incrémentielle).</p>
+            <div class="analogy-box">
+                Tu as photocopié le dossier lundi. Mardi, tu ne photocopies que les <strong>nouvelles pages ajoutées</strong> depuis lundi. Mercredi, que celles ajoutées depuis mardi. Rapide, mais pour restaurer mercredi, tu as besoin de la complète + lundi + mardi + mercredi.
+            </div>
+            <table class="styled-table">
+                <thead><tr><th>✅ Avantages</th><th>❌ Inconvénients</th></tr></thead>
+                <tbody>
+                    <tr><td>Très rapide et légère</td><td>Restauration complexe (chaîne complète nécessaire)</td></tr>
+                    <tr><td>Peu d'espace disque</td><td>Si un maillon manque, restauration partielle</td></tr>
+                </tbody>
+            </table>
+
+            <h3>3. Sauvegarde Différentielle (Differential)</h3>
+            <p>Après une complète, sauvegarde tout ce qui a changé <strong>depuis la dernière sauvegarde COMPLÈTE</strong>. Grossit progressivement.</p>
+            <div class="analogy-box">
+                Tu photocopies toujours par rapport au dossier de lundi. Mardi = pages changées depuis lundi. Mercredi = pages changées depuis lundi aussi (donc mardi est inclus). Pour restaurer, tu n'as besoin que de la complète + la dernière différentielle.
+            </div>
+            <table class="styled-table">
+                <thead><tr><th>✅ Avantages</th><th>❌ Inconvénients</th></tr></thead>
+                <tbody>
+                    <tr><td>Restauration simple (complète + 1 diff)</td><td>Grossit jour après jour</td></tr>
+                    <tr><td>Compromis vitesse/simplicité</td><td>Plus lente qu'incrémentielle</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Comparaison visuelle</h3>
+            <pre class="code-block"><code><span class="comment"># Semaine type avec une Full le dimanche</span>
+
+<span class="keyword">Complète</span>       : Dim[████████] Lun[████████] Mar[████████] ...
+                   <span class="output">→ Espace : ÉNORME  |  Restauration : FACILE</span>
+
+<span class="keyword">Incrémentielle</span> : Dim[████████] Lun[█] Mar[██] Mer[█] Jeu[███] ...
+                   <span class="output">→ Espace : MINIMAL  |  Restauration : COMPLEXE</span>
+
+<span class="keyword">Différentielle</span> : Dim[████████] Lun[█] Mar[███] Mer[█████] Jeu[███████]
+                   <span class="output">→ Espace : MOYEN    |  Restauration : SIMPLE</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-cubes" style="color:var(--accent)"></i> La Stratégie 3-2-1</h2>
+            <p>La stratégie 3-2-1 est le <strong>standard de l'industrie</strong> pour protéger les données :</p>
+
+            <table class="styled-table">
+                <thead><tr><th>Règle</th><th>Signification</th><th>Exemple</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>3</strong> copies</td><td>Au moins 3 copies de tes données</td><td>Original + 2 sauvegardes</td></tr>
+                    <tr><td><strong>2</strong> supports</td><td>Sur 2 types de supports différents</td><td>Disque local + NAS / Cloud</td></tr>
+                    <tr><td><strong>1</strong> hors-site</td><td>Au moins 1 copie géographiquement séparée</td><td>Datacenter distant ou cloud</td></tr>
+                </tbody>
+            </table>
+
+            <div class="analogy-box">
+                Imagine tes photos de famille. Tu les as sur ton téléphone (<strong>1</strong>), tu les copies sur un disque dur à la maison (<strong>2</strong>), et tu les envoies sur Google Drive (<strong>3</strong>, hors-site). Si ta maison brûle, tu as encore le cloud. Si Google disparaît, tu as le disque dur.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-clock-rotate-left" style="color:var(--accent)"></i> RPO et RTO</h2>
+            <p>Deux métriques essentielles pour planifier tes sauvegardes :</p>
+
+            <table class="styled-table">
+                <thead><tr><th>Métrique</th><th>Question</th><th>Exemple</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>RPO</strong> (Recovery Point Objective)</td><td>Combien de données peut-on <strong>se permettre de perdre</strong> ?</td><td>RPO = 4h → sauvegarde toutes les 4h</td></tr>
+                    <tr><td><strong>RTO</strong> (Recovery Time Objective)</td><td>En combien de temps doit-on <strong>restaurer le service</strong> ?</td><td>RTO = 2h → restauration max en 2h</td></tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                <strong>⚠️</strong> Plus le RPO/RTO est bas, plus la solution est coûteuse. Un RPO de 0 (aucune perte) nécessite de la réplication en temps réel ! C'est un arbitrage business.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-hard-drive" style="color:var(--accent)"></i> Windows Server Backup</h2>
+            <p>L'outil intégré de sauvegarde de Windows Server.</p>
+
+            <h3>Installation</h3>
+            <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">Windows-Server-Backup</span></code></pre>
+
+            <h3>Sauvegarde complète via PowerShell</h3>
+            <pre class="code-block"><code><span class="comment"># Créer une politique de sauvegarde</span>
+<span class="var">$policy</span> = <span class="cmd">New-WBPolicy</span>
+
+<span class="comment"># Ajouter tous les volumes</span>
+<span class="var">$volumes</span> = <span class="cmd">Get-WBVolume</span> <span class="flag">-AllVolumes</span>
+<span class="cmd">Add-WBVolume</span> <span class="flag">-Policy</span> <span class="var">$policy</span> <span class="flag">-Volume</span> <span class="var">$volumes</span>
+
+<span class="comment"># Inclure l'état système (AD, registre, boot)</span>
+<span class="cmd">Add-WBSystemState</span> <span class="flag">-Policy</span> <span class="var">$policy</span>
+
+<span class="comment"># Cible : disque dédié</span>
+<span class="var">$target</span> = <span class="cmd">New-WBBackupTarget</span> <span class="flag">-VolumePath</span> <span class="string">"E:"</span>
+<span class="cmd">Add-WBBackupTarget</span> <span class="flag">-Policy</span> <span class="var">$policy</span> <span class="flag">-Target</span> <span class="var">$target</span>
+
+<span class="comment"># Planifier : tous les jours à 22h</span>
+<span class="cmd">Set-WBSchedule</span> <span class="flag">-Policy</span> <span class="var">$policy</span> <span class="flag">-Schedule</span> <span class="num">22:00</span>
+
+<span class="comment"># Appliquer la politique</span>
+<span class="cmd">Set-WBPolicy</span> <span class="flag">-Policy</span> <span class="var">$policy</span>
+
+<span class="comment"># Lancer une sauvegarde manuelle immédiate</span>
+<span class="cmd">Start-WBBackup</span> <span class="flag">-Policy</span> (<span class="cmd">Get-WBPolicy</span>)</code></pre>
+
+            <h3>Restaurer</h3>
+            <pre class="code-block"><code><span class="comment"># Voir les sauvegardes disponibles</span>
+<span class="cmd">Get-WBBackupSet</span>
+
+<span class="comment"># Restaurer l'état système (mode DSRM requis pour AD)</span>
+<span class="cmd">wbadmin start systemstaterecovery</span> <span class="flag">-version:</span><span class="num">01/15/2025-22:00</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-building-shield" style="color:var(--accent)"></i> PCA et PRA</h2>
+            <p>Deux concepts complémentaires pour la résilience de l'entreprise :</p>
+
+            <table class="styled-table">
+                <thead><tr><th></th><th>PCA (Plan de Continuité d'Activité)</th><th>PRA (Plan de Reprise d'Activité)</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Objectif</strong></td><td>Maintenir le service PENDANT l'incident</td><td>Restaurer le service APRÈS l'incident</td></tr>
+                    <tr><td><strong>Quand</strong></td><td>Avant et pendant la crise</td><td>Après la crise</td></tr>
+                    <tr><td><strong>Approche</strong></td><td>Redondance, bascule</td><td>Sauvegarde, restauration</td></tr>
+                    <tr><td><strong>Exemple</strong></td><td>2 DC, clustering, NLB</td><td>Restore depuis backup E:</td></tr>
+                    <tr><td><strong>Coût</strong></td><td>Élevé (infrastructure double)</td><td>Modéré (stockage + procédures)</td></tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <strong>✅ Règle d'or :</strong> Teste régulièrement tes restaurations. Une sauvegarde qui n'a jamais été testée n'est PAS une sauvegarde — c'est un <strong>espoir</strong>. Et l'espoir n'est pas une stratégie.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-calendar-check" style="color:var(--accent)"></i> Planning de Sauvegarde Type</h2>
+            <table class="styled-table">
+                <thead><tr><th>Fréquence</th><th>Type</th><th>Rétention</th></tr></thead>
+                <tbody>
+                    <tr><td>Quotidien (22h)</td><td>Incrémentielle</td><td>7 jours</td></tr>
+                    <tr><td>Hebdomadaire (Dim)</td><td>Complète</td><td>4 semaines</td></tr>
+                    <tr><td>Mensuel (1er dimanche)</td><td>Complète</td><td>12 mois</td></tr>
+                    <tr><td>Annuel</td><td>Complète archivée</td><td>5+ ans</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" style="border-left:3px solid var(--accent);">
+            <h2><i class="fas fa-clipboard-check" style="color:var(--accent)"></i> Résumé du Module</h2>
+            <ul style="margin:0.5rem 0 0 1.5rem;line-height:2;">
+                <li>3 types : <strong>Complète</strong> (tout) > <strong>Différentielle</strong> (depuis full) > <strong>Incrémentielle</strong> (depuis dernière)</li>
+                <li>Stratégie <strong>3-2-1</strong> : 3 copies, 2 supports, 1 hors-site</li>
+                <li><strong>RPO</strong> = données perdues max, <strong>RTO</strong> = temps de restauration max</li>
+                <li><strong>Windows Server Backup</strong> : outil intégré, planifiable</li>
+                <li><strong>PCA</strong> = continuité pendant, <strong>PRA</strong> = reprise après</li>
+                <li>TOUJOURS <strong>tester la restauration</strong> régulièrement</li>
+            </ul>
+        </article>
+
+        <div id="interactive-exercises"></div>
+
+        <div class="chapter-nav">
+            <a href="chapitre4.html"><i class="fas fa-arrow-left"></i> Module 4 — DNS & DHCP</a>
+            <a href="chapitre6.html">Module 6 — Haute Disponibilité <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

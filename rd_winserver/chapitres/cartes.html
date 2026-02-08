@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards — RD WinServer</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="formules.html">← Cheat Sheet</a></li>
+                <li><a href="cartes.html" class="active">Flashcards</a></li>
+                <li><a href="simulateur-examen.html">Examen →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-clone"></i> Révision</span>
+        <h1 class="hero-title">Flashcards <span class="gradient-text">WinServer</span></h1>
+        <p class="hero-description">48 cartes pour mémoriser les concepts clés. Terminez un module pour débloquer ses flashcards. <i class="fas fa-lock" style="font-size:0.8em;"></i></p>
+    </section>
+
+    <main id="main-content" style="max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem;">
+        <div class="flashcard-controls" style="text-align:center;margin-bottom:2rem;display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;">
+            <button class="exercise-tab active" data-ch="all" onclick="filterCards('all',this)">Toutes (48)</button>
+            <button class="exercise-tab" data-ch="ch1" onclick="filterCards('ch1',this)">Fondamentaux</button>
+            <button class="exercise-tab" data-ch="ch2" onclick="filterCards('ch2',this)">AD DS</button>
+            <button class="exercise-tab" data-ch="ch3" onclick="filterCards('ch3',this)">GPO</button>
+            <button class="exercise-tab" data-ch="ch4" onclick="filterCards('ch4',this)">DNS/DHCP</button>
+            <button class="exercise-tab" data-ch="ch5" onclick="filterCards('ch5',this)">Sauvegarde</button>
+            <button class="exercise-tab" data-ch="ch6" onclick="filterCards('ch6',this)">HA</button>
+            <button class="exercise-tab" data-ch="ch7" onclick="filterCards('ch7',this)">Maintenance</button>
+            <button class="exercise-tab" data-ch="ch8" onclick="filterCards('ch8',this)">Hyper-V</button>
+        </div>
+        <div class="flashcard-grid" id="flashcard-grid"></div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+    function getCompleted() {
+        try { return JSON.parse(localStorage.getItem('rd_winserver_completed')) || []; } catch { return []; }
+    }
+
+    const cards = [
+        // CH1 - Fondamentaux (6)
+        {ch:'ch1',q:"Windows Server vs Windows Desktop ?",a:"Server = multi-utilisateurs, rôles réseau, pas de limite connexion. Desktop = mono-utilisateur, usage personnel."},
+        {ch:'ch1',q:"3 éditions de WS2022 ?",a:"Essentials (≤25 users), Standard (2 VMs), Datacenter (VMs illimitées, Storage Spaces Direct)."},
+        {ch:'ch1',q:"Server Core vs Desktop Experience ?",a:"Core = CLI uniquement, plus sécurisé, moins de RAM. Desktop Experience = interface graphique complète."},
+        {ch:'ch1',q:"Logique PowerShell ?",a:"Verbe-Nom : Get-Service, New-ADUser, Remove-Item. Verbes standards : Get, Set, New, Remove, Start, Stop, Install."},
+        {ch:'ch1',q:"Pourquoi IP statique sur un serveur ?",a:"Les clients doivent trouver le serveur à une adresse fixe. DNS, AD, DHCP ne fonctionnent pas avec une IP qui change."},
+        {ch:'ch1',q:"Port RDP par défaut ?",a:"3389. Commande : mstsc /v:serveur"},
+        // CH2 - Active Directory (6)
+        {ch:'ch2',q:"Hiérarchie AD DS ?",a:"Forêt > Arbre > Domaine > OU. Analogie : Pays > Région > Ville > Quartier."},
+        {ch:'ch2',q:"Pourquoi 2 DC minimum ?",a:"Éviter le SPOF (Single Point of Failure). Si un DC tombe, l'autre assure l'authentification."},
+        {ch:'ch2',q:"5 rôles FSMO ?",a:"Forêt : Schema Master, Domain Naming Master. Domaine : PDC Emulator, RID Master, Infrastructure Master."},
+        {ch:'ch2',q:"OU vs Groupe ?",a:"OU = conteneur pour organiser et appliquer des GPO. Groupe = pour attribuer des permissions. Un user = 1 OU, N groupes."},
+        {ch:'ch2',q:"Protocole d'auth AD ?",a:"Kerberos (port 88). Ticket TGT délivré par le KDC au DC. Analogie : ticket de concert."},
+        {ch:'ch2',q:"Cmdlet pour promouvoir en DC ?",a:"Install-ADDSForest -DomainName \"lab.local\" -InstallDns"},
+        // CH3 - GPO (6)
+        {ch:'ch3',q:"Ordre LSDOU ?",a:"Local → Site → Domain → OU. Le dernier appliqué gagne (OU a la priorité la plus haute)."},
+        {ch:'ch3',q:"Block Inheritance vs Enforced ?",a:"Block Inheritance = l'OU refuse les GPO parentes. Enforced = la GPO parente s'impose malgré le blocage."},
+        {ch:'ch3',q:"Computer vs User Configuration ?",a:"Computer = s'applique au démarrage PC. User = s'applique à la connexion utilisateur."},
+        {ch:'ch3',q:"Security Filtering ?",a:"Limiter la GPO à un groupe spécifique. Retirer Authenticated Users, ajouter le groupe ciblé."},
+        {ch:'ch3',q:"Commande forcer MAJ GPO ?",a:"gpupdate /force (client). Invoke-GPUpdate -Computer \"PC01\" (à distance)."},
+        {ch:'ch3',q:"Event ID échec connexion ?",a:"4625. À surveiller pour détecter tentatives d'intrusion ou brute force."},
+        // CH4 - DNS & DHCP (6)
+        {ch:'ch4',q:"Rôle du DNS pour AD ?",a:"AD utilise DNS pour localiser les DC (enregistrements SRV). Sans DNS = pas d'AD fonctionnel."},
+        {ch:'ch4',q:"Zone directe vs inversée ?",a:"Forward : nom → IP. Reverse : IP → nom. Les deux sont recommandées."},
+        {ch:'ch4',q:"Zone intégrée AD avantage ?",a:"Réplication multi-maître, mises à jour dynamiques sécurisées, tolérance aux pannes native."},
+        {ch:'ch4',q:"Processus DORA ?",a:"Discover (client broadcast) → Offer (serveur propose IP) → Request (client accepte) → Acknowledge (bail démarre)."},
+        {ch:'ch4',q:"Enregistrement SRV ?",a:"Localise un service (ex: _ldap._tcp.lab.local → pointe vers le DC). Critique pour AD."},
+        {ch:'ch4',q:"Commande vider cache DNS ?",a:"ipconfig /flushdns (client). Clear-DnsClientCache (PowerShell)."},
+        // CH5 - Sauvegarde (6)
+        {ch:'ch5',q:"Incrémentielle vs Différentielle ?",a:"Incrémentielle : depuis la DERNIÈRE backup. Différentielle : depuis la dernière COMPLÈTE. Incrémentielle = plus rapide, diff = restauration plus simple."},
+        {ch:'ch5',q:"Stratégie 3-2-1 ?",a:"3 copies, 2 supports différents, 1 hors-site. Standard de l'industrie."},
+        {ch:'ch5',q:"RPO vs RTO ?",a:"RPO = données max perdues (combien ?). RTO = temps max de restauration (combien de temps ?)."},
+        {ch:'ch5',q:"PCA vs PRA ?",a:"PCA = maintenir le service PENDANT l'incident (redondance). PRA = restaurer APRÈS (backup/restore)."},
+        {ch:'ch5',q:"Outil de sauvegarde intégré ?",a:"Windows Server Backup. Install: Install-WindowsFeature Windows-Server-Backup."},
+        {ch:'ch5',q:"Règle d'or sauvegarde ?",a:"TOUJOURS tester la restauration. Une backup jamais testée = un espoir, pas une stratégie."},
+        // CH6 - HA (6)
+        {ch:'ch6',q:"3 piliers de la HA ?",a:"Redondance (dupliquer), Failover (basculer), Monitoring (surveiller)."},
+        {ch:'ch6',q:"SLA 99.99% = ?",a:"Maximum 52 minutes d'arrêt par an. Chaque '9' supplémentaire ×10 en coût."},
+        {ch:'ch6',q:"Active-Passive vs Active-Active ?",a:"Passive : 1 nœud actif, 1 en veille. Active : tous travaillent. Passive = simple, Active = performant mais complexe."},
+        {ch:'ch6',q:"NLB pour quel usage ?",a:"Services stateless uniquement (web, portail, API). Jamais pour SQL ou fichiers !"},
+        {ch:'ch6',q:"Quorum dans un cluster ?",a:"Vote pour déterminer si le cluster a assez de nœuds. Empêche le split-brain."},
+        {ch:'ch6',q:"Cmdlet créer un cluster ?",a:"New-Cluster -Name \"CLUSTER\" -Node \"N1\",\"N2\" -StaticAddress IP. TOUJOURS faire Test-Cluster AVANT."},
+        // CH7 - Maintenance (6)
+        {ch:'ch7',q:"3 types de maintenance ?",a:"Préventive (éviter), Corrective (réparer), Évolutive (améliorer)."},
+        {ch:'ch7',q:"Event IDs critiques ?",a:"4625 (échec auth), 1074 (reboot), 41 (crash kernel), 7036 (service), 1001 (BSOD)."},
+        {ch:'ch7',q:"Seuils performance critique ?",a:"CPU >85%, RAM libre <10%, Disk Queue >4, Réseau >80%."},
+        {ch:'ch7',q:"WSUS sert à ?",a:"Centraliser et contrôler les mises à jour Windows. Économise bande passante, permet approbation manuelle."},
+        {ch:'ch7',q:"Dépannage en 6 étapes ?",a:"Symptôme → Chronologie → Changements → Isoler → Corriger → Documenter."},
+        {ch:'ch7',q:"Fréquence vérification Event Viewer ?",a:"Quotidienne. C'est le journal de bord du serveur."},
+        // CH8 - Hyper-V (6)
+        {ch:'ch8',q:"Hyperviseur Type 1 vs Type 2 ?",a:"Type 1 : sur le matériel (Hyper-V, ESXi). Type 2 : sur un OS (VirtualBox). Type 1 = production."},
+        {ch:'ch8',q:"3 types de switches virtuels ?",a:"External (VMs + réseau physique), Internal (VMs + hôte), Private (VMs entre elles)."},
+        {ch:'ch8',q:"Snapshot ≠ Sauvegarde ?",a:"Snapshot = fichiers .avhdx temporaires, dégradent les performances après 72h. Sauvegarde = protection long terme sur support séparé."},
+        {ch:'ch8',q:"Checkpoint Standard vs Production ?",a:"Standard : capture RAM + disque (test). Production : VSS, état disque cohérent (production recommandé)."},
+        {ch:'ch8',q:"VHDX vs VHD ?",a:"VHDX : max 64 To, résilient. VHD : max 2 To, ancien. Toujours utiliser VHDX."},
+        {ch:'ch8',q:"Live Migration ?",a:"Déplacer une VM allumée entre hôtes sans interruption. Prérequis : même domaine AD, CPU compatible, réseau dédié."}
+    ];
+
+    const chNames = {ch1:'Fondamentaux',ch2:'AD DS',ch3:'GPO',ch4:'DNS/DHCP',ch5:'Sauvegarde',ch6:'HA',ch7:'Maintenance',ch8:'Hyper-V'};
+
+    function renderCards(filter) {
+        const grid = document.getElementById('flashcard-grid');
+        const completed = getCompleted();
+        const filtered = filter === 'all' ? cards : cards.filter(c => c.ch === filter);
+        grid.innerHTML = filtered.map(c => {
+            const chNum = parseInt(c.ch.replace('ch',''));
+            const locked = !completed.includes(chNum);
+            if (locked) {
+                return `<div class="flashcard locked">
+                    <div class="flashcard-lock-overlay"><i class="fas fa-lock"></i><span>Terminez le Module ${chNum}</span></div>
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front"><span class="flashcard-chapter">${c.ch.replace('ch','Module ')}</span><p>${c.q}</p><small>🔒 Verrouillé</small></div>
+                        <div class="flashcard-back"><p>${c.a}</p></div>
+                    </div>
+                </div>`;
+            }
+            return `<div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front"><span class="flashcard-chapter">${c.ch.replace('ch','Module ')}</span><p>${c.q}</p><small>Clique pour retourner</small></div>
+                    <div class="flashcard-back"><p>${c.a}</p></div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function filterCards(ch, btn) {
+        document.querySelectorAll('.flashcard-controls .exercise-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderCards(ch);
+    }
+
+    function updateButtons() {
+        const completed = getCompleted();
+        document.querySelectorAll('.exercise-tab[data-ch]').forEach(btn => {
+            const num = parseInt(btn.dataset.ch.replace('ch',''));
+            const locked = !completed.includes(num);
+            const name = chNames[btn.dataset.ch] || btn.dataset.ch;
+            const count = cards.filter(c => c.ch === btn.dataset.ch).length;
+            btn.innerHTML = locked ? `<i class="fas fa-lock" style="margin-right:4px;font-size:0.75em;"></i>${name}` : `${name} (${count})`;
+        });
+        const allUnlocked = completed.length;
+        const allBtn = document.querySelector('.exercise-tab[data-ch="all"]');
+        if(allBtn) allBtn.textContent = `Toutes (${allUnlocked * 6}/48)`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { renderCards('all'); updateButtons(); });
+    </script>
+</body>
+</html>

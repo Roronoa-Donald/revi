@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 6 — Haute Disponibilité | RD WinServer</title>
+    <meta name="description" content="Haute disponibilité, redondance, failover clustering, NLB, réplication, SLA, Windows Server 2022.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre5.html">← Module 5</a></li>
+                <li><a href="chapitre6.html" class="active">Module 6</a></li>
+                <li><a href="chapitre7.html">Module 7 →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="chapitre6.html" class="active"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-arrows-rotate"></i> Module 6</span>
+        <h1 class="hero-title">Haute <span class="gradient-text">Disponibilité</span></h1>
+        <p class="hero-description">Le serveur principal de facturation tombe un lundi matin. 200 employés bloqués. Blaise sait que, sans redondance, chaque minute d'arrêt coûte des milliers d'euros. Voyons comment éviter ce cauchemar.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-bullseye" style="color:var(--accent)"></i> C'est quoi la Haute Disponibilité ?</h2>
+            <p>La haute disponibilité (HA) c'est la capacité d'un système à rester <strong>opérationnel malgré les pannes</strong>. L'objectif : le service ne s'arrête jamais — ou presque.</p>
+
+            <div class="analogy-box">
+                Pense à un hôpital. Il a des <strong>générateurs de secours</strong> (redondance), des <strong>chirurgiens de garde</strong> (failover), et des <strong>moniteurs qui alertent</strong> (monitoring). Si un système tombe, un autre prend le relais immédiatement. Un hôpital ne peut pas se permettre de « redémarrer ».
+            </div>
+
+            <p>La HA repose sur <strong>3 piliers</strong> :</p>
+            <table class="styled-table">
+                <thead><tr><th>Pilier</th><th>Rôle</th><th>Exemple Windows Server</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Redondance</strong></td><td>Dupliquer les composants critiques</td><td>2 Domain Controllers, 2 serveurs DNS</td></tr>
+                    <tr><td><strong>Failover</strong></td><td>Basculer automatiquement vers le backup</td><td>Failover Clustering</td></tr>
+                    <tr><td><strong>Monitoring</strong></td><td>Détecter les pannes en temps réel</td><td>Event Viewer, SCOM, Nagios</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-chart-line" style="color:var(--accent)"></i> Mesurer la Disponibilité : les SLA</h2>
+            <p>Le SLA (Service Level Agreement) exprime le <strong>temps de disponibilité garanti</strong> en pourcentage :</p>
+
+            <table class="styled-table">
+                <thead><tr><th>Disponibilité</th><th>Surnom</th><th>Temps d'arrêt max / an</th><th>Type de service</th></tr></thead>
+                <tbody>
+                    <tr><td>99%</td><td>« Deux neufs »</td><td><strong>3 jours 15h</strong></td><td>Site web personnel</td></tr>
+                    <tr><td>99.9%</td><td>« Trois neufs »</td><td><strong>8h 45min</strong></td><td>Application métier</td></tr>
+                    <tr><td>99.99%</td><td>« Quatre neufs »</td><td><strong>52 min</strong></td><td>E-commerce, banque</td></tr>
+                    <tr><td>99.999%</td><td>« Cinq neufs »</td><td><strong>5 min 15s</strong></td><td>Urgences, aviation</td></tr>
+                    <tr><td>99.9999%</td><td>« Six neufs »</td><td><strong>31 secondes</strong></td><td>Nucléaire, spatial</td></tr>
+                </tbody>
+            </table>
+
+            <div class="warning-box">
+                <strong>⚠️</strong> Chaque « neuf » supplémentaire coûte exponentiellement plus cher. Passer de 99.9% à 99.99% peut multiplier le budget infrastructure par 10.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-server" style="color:var(--accent)"></i> Types de Clusters</h2>
+            <p>Un cluster = un <strong>groupe de serveurs qui travaillent ensemble</strong> comme un seul système.</p>
+
+            <h3>1. Active-Passive (Failover simple)</h3>
+            <p>Un nœud actif, un nœud en veille. Si l'actif tombe, le passif prend le relais.</p>
+            <div class="analogy-box">
+                C'est un <strong>pilote et un copilote</strong>. Le copilote est là « au cas où ». Il ne fait rien tant que le pilote va bien. Simple mais le copilote est « payé à ne rien faire ».
+            </div>
+            <table class="styled-table">
+                <thead><tr><th>✅ Avantages</th><th>❌ Inconvénients</th></tr></thead>
+                <tbody>
+                    <tr><td>Simple à mettre en place</td><td>Sous-utilisation du nœud passif</td></tr>
+                    <tr><td>Fiable et éprouvé</td><td>Pas d'augmentation de performance</td></tr>
+                </tbody>
+            </table>
+
+            <h3>2. Active-Active</h3>
+            <p>Tous les nœuds traitent des requêtes. Si un tombe, les autres absorbent la charge.</p>
+            <div class="analogy-box">
+                Comme <strong>deux caisses ouvertes au supermarché</strong>. Les deux servent des clients. Si l'une ferme, l'autre gère toute la file — c'est plus lent mais ça marche.
+            </div>
+            <table class="styled-table">
+                <thead><tr><th>✅ Avantages</th><th>❌ Inconvénients</th></tr></thead>
+                <tbody>
+                    <tr><td>Utilisation optimale des ressources</td><td>Plus complexe à configurer</td></tr>
+                    <tr><td>Meilleures performances globales</td><td>Risque de surcharge si un nœud tombe</td></tr>
+                </tbody>
+            </table>
+
+            <h3>3. Network Load Balancing (NLB)</h3>
+            <p>Distribue le trafic réseau entre plusieurs serveurs pour <strong>répartir la charge</strong>.</p>
+            <div class="analogy-box">
+                Un <strong>aiguilleur à l'entrée d'un parking</strong> : « Vous, niveau 1. Vous, niveau 2. » Chaque niveau est un serveur, et l'aiguilleur répartit les voitures équitablement.
+            </div>
+            <p>Idéal pour : serveurs web, portails intranet, services sans état (stateless).</p>
+
+            <h3>4. Failover Cluster avec stockage partagé</h3>
+            <p>Les nœuds partagent un <strong>stockage SAN</strong>. Un seul nœud accède aux données à la fois.</p>
+            <p>Cas d'usage : SQL Server, serveurs de fichiers, Hyper-V.</p>
+
+            <h3>Tableau comparatif</h3>
+            <table class="styled-table">
+                <thead><tr><th>Type</th><th>Nœuds actifs</th><th>Stockage</th><th>Cas d'usage</th></tr></thead>
+                <tbody>
+                    <tr><td>Active-Passive</td><td>1</td><td>Partagé (SAN)</td><td>SQL, fichiers critiques</td></tr>
+                    <tr><td>Active-Active</td><td>Tous</td><td>Partagé ou répliqué</td><td>Apps distribuées</td></tr>
+                    <tr><td>NLB</td><td>Tous</td><td>Pas de partage requis</td><td>Web, portails</td></tr>
+                    <tr><td>Failover Cluster</td><td>Variable</td><td>SAN obligatoire</td><td>SQL, Hyper-V, fichiers</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-cogs" style="color:var(--accent)"></i> Failover Clustering sous Windows Server</h2>
+
+            <h3>Prérequis</h3>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;line-height:2;">
+                <li>Minimum <strong>2 serveurs</strong> Windows Server (même version)</li>
+                <li><strong>Stockage partagé</strong> (SAN iSCSI, Fibre Channel, ou Storage Spaces)</li>
+                <li>Réseau dédié pour le <strong>heartbeat</strong> (communication inter-nœuds)</li>
+                <li>Domaine <strong>Active Directory</strong> (tous les nœuds dans le même domaine)</li>
+            </ul>
+
+            <h3>Installation</h3>
+            <pre class="code-block"><code><span class="comment"># Sur chaque nœud du cluster</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">Failover-Clustering</span> <span class="flag">-IncludeManagementTools</span>
+
+<span class="comment"># Valider la configuration (OBLIGATOIRE avant création)</span>
+<span class="cmd">Test-Cluster</span> <span class="flag">-Node</span> <span class="string">"SRV-NODE1"</span>,<span class="string">"SRV-NODE2"</span>
+
+<span class="comment"># Créer le cluster</span>
+<span class="cmd">New-Cluster</span> <span class="flag">-Name</span> <span class="string">"CLUSTER-PROD"</span> `
+    <span class="flag">-Node</span> <span class="string">"SRV-NODE1"</span>,<span class="string">"SRV-NODE2"</span> `
+    <span class="flag">-StaticAddress</span> <span class="num">192.168.1.200</span>
+
+<span class="comment"># Vérifier l'état du cluster</span>
+<span class="cmd">Get-Cluster</span>
+<span class="cmd">Get-ClusterNode</span></code></pre>
+
+            <div class="info-box">
+                <strong>💡 Test-Cluster</strong> génère un rapport HTML détaillé qui vérifie : réseau, stockage, configuration, compatibilité. Ne saute <strong>JAMAIS</strong> cette étape — Microsoft peut refuser le support si le test n'a pas été validé.
+            </div>
+
+            <h3>Quorum : le vote du cluster</h3>
+            <p>Le quorum détermine combien de nœuds doivent être actifs pour que le cluster fonctionne :</p>
+            <table class="styled-table">
+                <thead><tr><th>Mode</th><th>Fonctionnement</th><th>Usage</th></tr></thead>
+                <tbody>
+                    <tr><td>Node Majority</td><td>Majorité de nœuds vivants</td><td>Cluster à 3+ nœuds</td></tr>
+                    <tr><td>Node + Disk Witness</td><td>Majorité + disque témoin</td><td>Cluster à 2 nœuds</td></tr>
+                    <tr><td>Node + File Share Witness</td><td>Majorité + partage réseau</td><td>Cluster multi-sites</td></tr>
+                    <tr><td>Cloud Witness</td><td>Témoin dans Azure</td><td>Cluster hybride</td></tr>
+                </tbody>
+            </table>
+
+            <div class="analogy-box">
+                Le quorum, c'est comme un <strong>vote dans un conseil d'administration</strong>. Si la majorité des membres est présente, les décisions sont valides. Sinon, on ne peut rien faire. Le « witness » (témoin) est un vote supplémentaire pour départager en cas d'égalité.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-network-wired" style="color:var(--accent)"></i> NLB (Network Load Balancing)</h2>
+
+            <pre class="code-block"><code><span class="comment"># Installer NLB sur chaque serveur</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">NLB</span> <span class="flag">-IncludeManagementTools</span>
+
+<span class="comment"># Créer un nouveau cluster NLB</span>
+<span class="cmd">New-NlbCluster</span> <span class="flag">-InterfaceName</span> <span class="string">"Ethernet"</span> `
+    <span class="flag">-ClusterPrimaryIP</span> <span class="num">192.168.1.250</span> `
+    <span class="flag">-SubnetMask</span> <span class="num">255.255.255.0</span> `
+    <span class="flag">-ClusterName</span> <span class="string">"WEB-NLB"</span> `
+    <span class="flag">-OperationMode</span> <span class="string">Multicast</span>
+
+<span class="comment"># Ajouter un deuxième nœud</span>
+<span class="cmd">Add-NlbClusterNode</span> <span class="flag">-InterfaceName</span> <span class="string">"Ethernet"</span> `
+    <span class="flag">-NewNodeInterface</span> <span class="string">"Ethernet"</span> `
+    <span class="flag">-NewNodeName</span> <span class="string">"SRV-WEB2"</span>
+
+<span class="comment"># Vérifier</span>
+<span class="cmd">Get-NlbCluster</span></code></pre>
+
+            <div class="warning-box">
+                <strong>⚠️ NLB vs Failover Cluster :</strong> Ne JAMAIS utiliser NLB pour des services qui écrivent sur disque (SQL, fichiers). NLB est pour les services <strong>stateless</strong> (web, portail, API). Pour le reste, utilisez Failover Clustering.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-copy" style="color:var(--accent)"></i> Réplication</h2>
+            <p>La réplication synchronise les données entre serveurs pour la redondance :</p>
+
+            <table class="styled-table">
+                <thead><tr><th>Type</th><th>Fonctionnement</th><th>Latence</th><th>Perte de données</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Synchrone</strong></td><td>Écriture confirmée quand les 2 copies sont faites</td><td>Plus élevée</td><td>Aucune (RPO = 0)</td></tr>
+                    <tr><td><strong>Asynchrone</strong></td><td>Écriture confirmée immédiatement, copie en arrière-plan</td><td>Faible</td><td>Possible (RPO > 0)</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Storage Replica (Windows Server 2022)</h3>
+            <pre class="code-block"><code><span class="comment"># Installer Storage Replica</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">Storage-Replica</span> <span class="flag">-IncludeManagementTools</span>
+
+<span class="comment"># Créer un partenariat de réplication synchrone</span>
+<span class="cmd">New-SRPartnership</span> <span class="flag">-SourceComputerName</span> <span class="string">"SRV-PARIS"</span> `
+    <span class="flag">-SourceRGName</span> <span class="string">"RG-Paris"</span> `
+    <span class="flag">-SourceVolumeName</span> <span class="string">"D:"</span> `
+    <span class="flag">-SourceLogVolumeName</span> <span class="string">"L:"</span> `
+    <span class="flag">-DestinationComputerName</span> <span class="string">"SRV-LYON"</span> `
+    <span class="flag">-DestinationRGName</span> <span class="string">"RG-Lyon"</span> `
+    <span class="flag">-DestinationVolumeName</span> <span class="string">"D:"</span> `
+    <span class="flag">-DestinationLogVolumeName</span> <span class="string">"L:"</span> `
+    <span class="flag">-ReplicationMode</span> <span class="string">Synchronous</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" style="border-left:3px solid var(--accent);">
+            <h2><i class="fas fa-clipboard-check" style="color:var(--accent)"></i> Résumé du Module</h2>
+            <ul style="margin:0.5rem 0 0 1.5rem;line-height:2;">
+                <li>HA = <strong>Redondance + Failover + Monitoring</strong></li>
+                <li>SLA : chaque « neuf » supplémentaire = coût ×10</li>
+                <li><strong>Active-Passive</strong> : simple mais sous-utilisé / <strong>Active-Active</strong> : optimal mais complexe</li>
+                <li><strong>NLB</strong> pour les services stateless, <strong>Failover Cluster</strong> pour le reste</li>
+                <li><strong>Quorum</strong> : le vote qui maintient le cluster cohérent</li>
+                <li><strong>Test-Cluster</strong> = obligatoire avant toute création</li>
+                <li>Réplication <strong>synchrone</strong> (RPO=0) vs <strong>asynchrone</strong> (plus rapide)</li>
+            </ul>
+        </article>
+
+        <div id="interactive-exercises"></div>
+
+        <div class="chapter-nav">
+            <a href="chapitre5.html"><i class="fas fa-arrow-left"></i> Module 5 — Sauvegarde</a>
+            <a href="chapitre7.html">Module 7 — Maintenance <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

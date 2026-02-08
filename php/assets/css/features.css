@@ -1,0 +1,474 @@
+/* ===========================================
+   NOUVELLES FONCTIONNALITÉS (BADGES, SANDBOX, FLASHCARDS)
+   =========================================== */
+
+/* 1. Trophées / Badges */
+.trophy-section {
+    padding: 3rem 0;
+    background-color: var(--bg-secondary);
+}
+
+.trophy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.trophy-card {
+    background: var(--bg-primary);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.trophy-card.unlocked {
+    border-color: var(--warning-color);
+    background: linear-gradient(to bottom right, #fffbeb, #ffffff);
+}
+.dark-mode .trophy-card.unlocked {
+    background: linear-gradient(to bottom right, #451a03, #1e293b);
+}
+
+.trophy-card.locked {
+    opacity: 0.6;
+    filter: grayscale(1);
+    cursor: not-allowed;
+}
+
+.trophy-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--warning-color);
+}
+
+.trophy-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.trophy-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* 2. Bouton "Tester le code" */
+.code-block-wrapper {
+    position: relative;
+    margin: 1.5rem 0;
+}
+
+.code-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-test-code {
+    background: var(--success-color);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.9;
+    transition: all 0.2s;
+}
+
+.btn-test-code:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+/* 3. Révisions (Flashcards) Zone */
+.revision-section {
+    padding: 4rem 0;
+}
+
+.flashcards-packs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.pack-card {
+    background: var(--bg-primary);
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: relative;
+    transition: transform 0.3s;
+    cursor: pointer;
+    border-bottom: 4px solid var(--primary-color);
+}
+
+.pack-card:hover {
+    transform: translateY(-5px);
+}
+
+.pack-card.locked {
+    cursor: not-allowed;
+}
+
+.pack-card.locked::after {
+    content: "🔒 Terminer le chapitre";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.pack-content {
+    padding: 1.5rem;
+}
+
+.pack-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+/* Flashcard Modal & Animation */
+.flashcard-container {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 500px;
+    height: 300px;
+    margin: 0 auto;
+    cursor: pointer;
+}
+
+.flashcard {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 1rem;
+}
+
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border-radius: 1rem;
+    background-color: var(--bg-primary);
+    border: 2px solid var(--border-color);
+}
+
+.flashcard-front {
+    background: linear-gradient(135deg, var(--primary-lighter), var(--bg-primary));
+    color: var(--primary-dark);
+}
+.dark-mode .flashcard-front {
+    background: linear-gradient(135deg, #1e3a8a, #1e293b);
+    color: white;
+}
+
+.flashcard-back {
+    transform: rotateY(180deg);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--primary-color);
+}
+
+.flashcard-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.hint {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    font-style: italic;
+}
+
+/* ===========================================
+   4. QUIZ SYSTEM
+   =========================================== */
+.quiz-container {
+    padding: 2rem 0;
+}
+
+.quiz-start {
+    text-align: center;
+    padding: 3rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.quiz-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.question-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s ease;
+}
+
+.question-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.question-header {
+    margin-bottom: 1rem;
+}
+
+.q-number {
+    display: inline-block;
+    background: var(--primary-light);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.question-text {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.options-grid {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.option-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border: 2px solid transparent;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option-item:hover {
+    border-color: var(--primary-light);
+    background: var(--bg-primary);
+}
+
+.option-item input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.option-content {
+    flex: 1;
+    margin-left: 0.5rem;
+}
+
+.check-icon {
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s ease;
+}
+
+/* Sélection & Validation */
+.option-item:has(input:checked) {
+    border-color: var(--primary-color);
+    background: var(--primary-lighter);
+}
+.dark-mode .option-item:has(input:checked) {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.option-item.correct {
+    border-color: var(--success-color) !important;
+    background-color: rgba(34, 197, 94, 0.1) !important;
+}
+
+.option-item.correct .check-icon {
+    opacity: 1;
+    transform: scale(1);
+    color: var(--success-color);
+}
+
+.option-item.incorrect {
+    border-color: var(--danger-color) !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.feedback {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    font-size: 0.95rem;
+    animation: slideDown 0.3s ease;
+}
+
+.feedback-success {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid var(--success-color);
+    color: var(--success-color);
+}
+
+.feedback-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+}
+
+.quiz-actions {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* Résultats */
+.quiz-result {
+    text-align: center;
+    background: var(--bg-primary);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.result-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.quiz-result.success .result-icon { color: var(--success-color); }
+.quiz-result.warning .result-icon { color: var(--warning-color); }
+
+.result-bar {
+    height: 10px;
+    background: var(--bg-secondary);
+    border-radius: 5px;
+    margin: 1.5rem auto;
+    max-width: 300px;
+    overflow: hidden;
+}
+
+.result-fill {
+    height: 100%;
+    background: var(--success-color);
+    transition: width 1s ease;
+}
+
+.result-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ===========================================
+   5. DARK MODE ADJUSTMENTS
+   =========================================== */
+body.dark-mode .hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+}
+
+body.dark-mode .chapter-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .chapter-number {
+    color: var(--primary-light);
+    opacity: 0.2;
+}
+
+body.dark-mode .stat-card {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .about-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .code-block,
+body.dark-mode pre[class*="language-"] {
+    background-color: #0f172a !important;
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .modal-content {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .info-box {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .warning-box {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: var(--warning-color);
+}
+
+body.dark-mode .exercise-box {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .sidebar {
+    background-color: var(--bg-primary);
+}
+
+body.dark-mode .toc-link:hover,
+body.dark-mode .toc-link.active {
+    background-color: var(--primary-lighter);
+}

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 07 : Dates & Nulls | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+             <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Module 07: Dates & Nulls</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+
+            <!-- 1. Narrative Hook -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">1. Le Temps et le Vide</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-clock text-9xl"></i></div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Deux ennemis invisibles guettent le développeur SQL : <strong>le temps</strong> et <strong>le vide</strong>.
+                        <br><br>
+                        Le temps semble simple — une date, une heure — mais il cache des pièges redoutables :
+                        fuseaux horaires, formats régionaux, calculs entre jours fériés...
+                        Et puis il y a <code class="text-red-400">NULL</code> : l'absence totale de valeur. Ce n'est pas <code>0</code>,
+                        ce n'est pas <code>''</code> (chaîne vide). C'est <strong>l'inconnu</strong>.
+                    </p>
+                    <p class="text-slate-400 text-sm italic border-l-2 border-slate-600 pl-4">
+                        "Dans SQL, NULL est comme un trou noir : tout ce qui le touche disparaît."
+                        — NULL + 5 = NULL, NULL = NULL renverra FALSE. Étrange, non ?
+                    </p>
+                </div>
+            </section>
+
+            <!-- 2. Types de dates SQL Server -->
+            <section class="animate-fade-in-up" style="animation-delay:0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">2. Les Types Temporels</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-300 mb-4">SQL Server offre plusieurs types pour stocker le temps :</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h4 class="font-bold text-blue-400 mb-1"><code>DATE</code></h4>
+                            <p class="text-xs text-slate-400">Date seule (sans heure). <br><code class="text-emerald-400">'2025-01-15'</code></p>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h4 class="font-bold text-blue-400 mb-1"><code>TIME</code></h4>
+                            <p class="text-xs text-slate-400">Heure seule (sans date). <br><code class="text-emerald-400">'14:30:00'</code></p>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h4 class="font-bold text-blue-400 mb-1"><code>DATETIME</code></h4>
+                            <p class="text-xs text-slate-400">Date + heure. Précision 3.33ms. <br><code class="text-emerald-400">'2025-01-15 14:30:00'</code></p>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h4 class="font-bold text-blue-400 mb-1"><code>DATETIME2</code></h4>
+                            <p class="text-xs text-slate-400">Plus précis (100ns). Recommandé. <br><code class="text-emerald-400">'2025-01-15 14:30:00.1234567'</code></p>
+                        </div>
+                    </div>
+                    <div class="content-box tip mt-4">
+                        <strong>Conseil :</strong> Utilisez <code>DATETIME2</code> pour les nouveaux projets. <code>DATETIME</code> est conservé pour la compatibilité mais est moins précis et a une plage plus limitée.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Fonctions de dates -->
+            <section class="animate-fade-in-up" style="animation-delay:0.15s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">3. Fonctions de Dates</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-emerald-900/20 text-emerald-300">
+                                    <th class="border border-slate-700 px-4 py-2 text-left">Fonction</th>
+                                    <th class="border border-slate-700 px-4 py-2 text-left">Description</th>
+                                    <th class="border border-slate-700 px-4 py-2 text-left">Exemple</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-300">
+                                <tr class="bg-slate-800/50">
+                                    <td class="border border-slate-700 px-4 py-2 font-mono text-purple-400">GETDATE()</td>
+                                    <td class="border border-slate-700 px-4 py-2">Date et heure actuelles du serveur</td>
+                                    <td class="border border-slate-700 px-4 py-2 text-xs"><code>SELECT GETDATE()</code></td>
+                                </tr>
+                                <tr class="bg-slate-900/50">
+                                    <td class="border border-slate-700 px-4 py-2 font-mono text-purple-400">SYSDATETIME()</td>
+                                    <td class="border border-slate-700 px-4 py-2">Comme GETDATE() mais plus précis</td>
+                                    <td class="border border-slate-700 px-4 py-2 text-xs"><code>SELECT SYSDATETIME()</code></td>
+                                </tr>
+                                <tr class="bg-slate-800/50">
+                                    <td class="border border-slate-700 px-4 py-2 font-mono text-purple-400">DATEADD(unit, n, date)</td>
+                                    <td class="border border-slate-700 px-4 py-2">Ajoute n unités à une date</td>
+                                    <td class="border border-slate-700 px-4 py-2 text-xs"><code>DATEADD(month, 3, '2025-01-01')</code> → 2025-04-01</td>
+                                </tr>
+                                <tr class="bg-slate-900/50">
+                                    <td class="border border-slate-700 px-4 py-2 font-mono text-purple-400">DATEDIFF(unit, d1, d2)</td>
+                                    <td class="border border-slate-700 px-4 py-2">Différence entre deux dates</td>
+                                    <td class="border border-slate-700 px-4 py-2 text-xs"><code>DATEDIFF(day, '2025-01-01', '2025-03-15')</code> → 73</td>
+                                </tr>
+                                <tr class="bg-slate-800/50">
+                                    <td class="border border-slate-700 px-4 py-2 font-mono text-purple-400">DATEPART(unit, date)</td>
+                                    <td class="border border-slate-700 px-4 py-2">Extrait une partie (année, mois...)</td>
+                                    <td class="border border-slate-700 px-4 py-2 text-xs"><code>DATEPART(year, GETDATE())</code> → 2025</td>
+                                </tr>
+                                <tr class="bg-slate-900/50">
+                                    <td class="border border-slate-700 px-4 py-2 font-mono text-purple-400">FORMAT(date, fmt)</td>
+                                    <td class="border border-slate-700 px-4 py-2">Formater l'affichage</td>
+                                    <td class="border border-slate-700 px-4 py-2 text-xs"><code>FORMAT(GETDATE(), 'dd/MM/yyyy')</code> → 15/01/2025</td>
+                                </tr>
+                                <tr class="bg-slate-800/50">
+                                    <td class="border border-slate-700 px-4 py-2 font-mono text-purple-400">YEAR() / MONTH() / DAY()</td>
+                                    <td class="border border-slate-700 px-4 py-2">Raccourcis pour extraire</td>
+                                    <td class="border border-slate-700 px-4 py-2 text-xs"><code>YEAR('2025-06-15')</code> → 2025</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. NULL - L'Ennemi Invisible -->
+            <section class="animate-fade-in-up" style="animation-delay:0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-red-500 pl-4">4. NULL — L'Ennemi Invisible</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <div class="content-box danger">
+                        <strong>Règle d'or :</strong> NULL n'est <strong>PAS</strong> une valeur. C'est l'<em>absence</em> de valeur. Toute opération avec NULL donne NULL.
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-red-900/10 p-4 rounded-lg border border-red-500/30 text-center">
+                            <code class="text-lg text-red-400">NULL + 5 = NULL</code>
+                            <p class="text-xs text-slate-500 mt-1">Propagation du NULL</p>
+                        </div>
+                        <div class="bg-red-900/10 p-4 rounded-lg border border-red-500/30 text-center">
+                            <code class="text-lg text-red-400">NULL = NULL → FALSE</code>
+                            <p class="text-xs text-slate-500 mt-1">On ne peut pas comparer</p>
+                        </div>
+                        <div class="bg-emerald-900/10 p-4 rounded-lg border border-emerald-500/30 text-center">
+                            <code class="text-lg text-emerald-400">IS NULL → TRUE</code>
+                            <p class="text-xs text-slate-500 mt-1">Le seul test valide</p>
+                        </div>
+                    </div>
+
+                    <h4 class="font-bold text-white mt-4">Les outils anti-NULL</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h5 class="font-bold text-purple-400 mb-1">ISNULL(expr, remplacement)</h5>
+                            <p class="text-xs text-slate-400 mb-2">Remplace NULL par une valeur. Spécifique SQL Server.</p>
+                            <code class="text-xs text-emerald-400">SELECT ISNULL(telephone, 'Non renseigné')<br>FROM Clients;</code>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h5 class="font-bold text-purple-400 mb-1">COALESCE(a, b, c, ...)</h5>
+                            <p class="text-xs text-slate-400 mb-2">Retourne le premier non-NULL. Standard SQL.</p>
+                            <code class="text-xs text-emerald-400">SELECT COALESCE(mobile, fixe, 'Aucun')<br>FROM Contacts;</code>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h5 class="font-bold text-purple-400 mb-1">NULLIF(a, b)</h5>
+                            <p class="text-xs text-slate-400 mb-2">Retourne NULL si a = b. Utile pour éviter div/0.</p>
+                            <code class="text-xs text-emerald-400">SELECT total / NULLIF(quantite, 0)<br>FROM Ventes;</code>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h5 class="font-bold text-purple-400 mb-1">IS NULL / IS NOT NULL</h5>
+                            <p class="text-xs text-slate-400 mb-2">Les seuls opérateurs pour tester NULL dans WHERE.</p>
+                            <code class="text-xs text-emerald-400">SELECT * FROM Clients<br>WHERE email IS NOT NULL;</code>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Pratique SQL Editor -->
+            <section class="animate-fade-in-up" style="animation-delay:0.25s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">5. Labo Pratique</h2>
+                <p class="text-slate-400 mb-4">Testez les fonctions de dates et les outils anti-NULL dans le simulateur :</p>
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3 flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-500">sql-editor</span>
+                        <div class="flex gap-2">
+                            <button onclick="loadExample('getdate')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">GETDATE()</button>
+                            <button onclick="loadExample('datediff')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">DATEDIFF</button>
+                            <button onclick="loadExample('isnull')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">ISNULL</button>
+                            <button onclick="loadExample('coalesce')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">COALESCE</button>
+                        </div>
+                    </div>
+                    <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none">SELECT GETDATE() AS maintenant</textarea>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold"><i class="fas fa-play mr-1"></i> Exécuter</button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px]"></div>
+                </div>
+            </section>
+
+            <!-- 6. Quiz -->
+            <section class="animate-fade-in-up" style="animation-delay:0.3s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">6. Quiz — Dates & NULL</h2>
+                <div id="quiz-container" class="glass-card p-6 rounded-xl"></div>
+            </section>
+
+            <!-- 7. Challenge Drag-Drop -->
+            <section class="animate-fade-in-up" style="animation-delay:0.35s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-pink-500 pl-4">7. Challenge — Glisser-Déposer</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-400 mb-4">Associez chaque fonction à son rôle :</p>
+                    <div id="drag-drop-exercice" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700"></div>
+                    <button onclick="validateDragDrop()" class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold"><i class="fas fa-check mr-1"></i> Vérifier</button>
+                </div>
+            </section>
+        </div>
+        <div class="hidden lg:block w-72 shrink-0">
+            <div class="sticky top-24"><div id="databot-container"></div></div>
+        </div>
+    </main>
+
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod06-strings.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 06 : Chaînes</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod08-logic.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 08 : Logique →</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const bot = new DataBot(); bot.render('databot-container');
+        bot.speak("NULL != 0. NULL c'est l'inconnu absolu !", 5000);
+
+        // Drag-Drop
+        const draggables = [
+            {id:'d1',text:'GETDATE()'},{id:'d2',text:'DATEDIFF'},{id:'d3',text:'ISNULL'},
+            {id:'d4',text:'COALESCE'},{id:'d5',text:'NULLIF'},{id:'d6',text:'IS NULL'}
+        ];
+        const zones = [
+            {id:'z1',label:'Obtenir la date actuelle',accept:'d1'},
+            {id:'z2',label:'Calculer une durée',accept:'d2'},
+            {id:'z3',label:'Remplacer NULL (SQL Server)',accept:'d3'},
+            {id:'z4',label:'Premier non-NULL (Standard)',accept:'d4'},
+            {id:'z5',label:'Retourner NULL si égal',accept:'d5'},
+            {id:'z6',label:'Tester si NULL',accept:'d6'}
+        ];
+        const ddEngine = new DragDropEngine('drag-drop-exercice',draggables,zones);
+
+        function validateDragDrop(){
+            if(ddEngine.validate()){
+                bot.speak("L'inconnu est maîtrisé ! Tu gères le temps et le vide.","happy");
+                bot.awardXP(60); confetti();
+            } else {
+                bot.speak("Tu te perds dans le temps... Réessaie !","sad");
+            }
+        }
+
+        // SQL Editor examples
+        function loadExample(type) {
+            const editor = document.getElementById('sql-input');
+            const examples = {
+                'getdate': "SELECT GETDATE() AS maintenant",
+                'datediff': "SELECT DATEDIFF(day, '2025-01-01', GETDATE()) AS jours_ecoules",
+                'isnull': "SELECT ISNULL(NULL, 'Valeur par défaut') AS resultat",
+                'coalesce': "SELECT COALESCE(NULL, NULL, 'Trouvé !') AS premier_non_null"
+            };
+            editor.value = examples[type] || '';
+        }
+
+        function runQuery() {
+            const sql = document.getElementById('sql-input').value;
+            const output = document.getElementById('query-output');
+            const upper = sql.toUpperCase();
+
+            if (upper.includes('GETDATE')) {
+                const now = new Date().toISOString().replace('T',' ').substring(0,23);
+                output.innerHTML = `<div class="text-green-400"><table><tr><th class="pr-4 text-slate-500">maintenant</th></tr><tr><td>${now}</td></tr></table></div>`;
+                bot.awardXP(15);
+            } else if (upper.includes('DATEDIFF')) {
+                const start = new Date('2025-01-01');
+                const diff = Math.floor((new Date() - start) / (1000*60*60*24));
+                output.innerHTML = `<div class="text-green-400"><table><tr><th class="pr-4 text-slate-500">jours_ecoules</th></tr><tr><td>${diff}</td></tr></table></div>`;
+                bot.awardXP(20);
+            } else if (upper.includes('ISNULL')) {
+                output.innerHTML = `<div class="text-green-400"><table><tr><th class="pr-4 text-slate-500">resultat</th></tr><tr><td>Valeur par défaut</td></tr></table></div>`;
+                bot.awardXP(15);
+            } else if (upper.includes('COALESCE')) {
+                output.innerHTML = `<div class="text-green-400"><table><tr><th class="pr-4 text-slate-500">premier_non_null</th></tr><tr><td>Trouvé !</td></tr></table></div>`;
+                bot.awardXP(15);
+            } else {
+                try {
+                    const res = executeSQL(sql);
+                    output.innerHTML = res.message || res.error || JSON.stringify(res.data);
+                } catch(e) {
+                    output.innerHTML = `<div class="text-red-400"><i class="fas fa-times-circle mr-1"></i> ${e.message}</div>`;
+                }
+            }
+        }
+
+        // Quiz
+        const quizData = [
+            { q:"GETDATE() retourne :", o:["La date d'hier","La date et heure actuelles","NULL","L'heure UTC"], a:1 },
+            { q:"NULL + 10 donne :", o:["10","0","NULL","Erreur"], a:2 },
+            { q:"Pour tester si une valeur est NULL, on utilise :", o:["= NULL","== NULL","IS NULL","EQUALS NULL"], a:2 },
+            { q:"COALESCE(NULL, NULL, 'X', 'Y') retourne :", o:["NULL","'X'","'Y'","Erreur"], a:1 },
+            { q:"DATEDIFF(month, '2025-01-01', '2025-04-01') =", o:["3","4","90","91"], a:0 },
+            { q:"ISNULL est spécifique à :", o:["Standard SQL","SQL Server","PostgreSQL","MySQL"], a:1 },
+            { q:"NULLIF(5, 5) retourne :", o:["5","0","NULL","10"], a:2 },
+            { q:"Quel type date est recommandé pour les nouveaux projets ?", o:["DATETIME","DATE","DATETIME2","SMALLDATETIME"], a:2 },
+            { q:"DATEPART(year, '2025-06-15') retourne :", o:["06","15","2025","06-15"], a:2 },
+            { q:"NULL = NULL dans un WHERE retourne :", o:["TRUE","FALSE","NULL","Erreur"], a:1 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            let html = '';
+            quizData.forEach((q, qi) => {
+                html += `<div class="mb-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <p class="font-bold mb-3 text-sm">${qi+1}. ${q.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+                q.o.forEach((opt, oi) => {
+                    html += `<button onclick="checkQuiz(${qi},${oi},this)" class="quiz-option text-left text-sm p-3 rounded border border-slate-600 bg-slate-800 hover:border-blue-500 transition-all">${opt}</button>`;
+                });
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function checkQuiz(qi, oi, btn) {
+            const correct = quizData[qi].a === oi;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('button').forEach((b, i) => {
+                b.disabled = true;
+                b.classList.remove('hover:border-blue-500');
+                if (i === quizData[qi].a) {
+                    b.classList.add('border-emerald-500', 'bg-emerald-900/30', 'text-emerald-300');
+                } else if (i === oi && !correct) {
+                    b.classList.add('border-red-500', 'bg-red-900/30', 'text-red-300', 'line-through');
+                }
+            });
+            if (correct) { bot.awardXP(10); bot.speak("Exact !", "happy"); }
+            else { bot.speak("Pas tout à fait...", "sad"); }
+        }
+
+        renderQuiz();
+
+        // Theme restore
+        if(localStorage.getItem('rd_sql_theme')==='light') document.documentElement.setAttribute('data-theme','light');
+    </script>
+</body>
+</html>
+</html>

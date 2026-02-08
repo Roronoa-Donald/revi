@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 8 — Hyper-V & Snapshots VM | RD WinServer</title>
+    <meta name="description" content="Virtualisation Hyper-V, création de machines virtuelles, snapshots/checkpoints, export, bonnes pratiques sous Windows Server 2022.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre7.html">← Module 7</a></li>
+                <li><a href="chapitre8.html" class="active">Module 8</a></li>
+                <li><a href="formules.html">Cheat Sheet →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="chapitre8.html" class="active"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-cube"></i> Module 8</span>
+        <h1 class="hero-title">Hyper-V & <span class="gradient-text">Snapshots VM</span></h1>
+        <p class="hero-description">Un seul serveur physique qui fait tourner 10 serveurs virtuels ? C'est la magie de la virtualisation. Blaise découvre Hyper-V et apprend à créer, gérer et protéger ses machines virtuelles avec les snapshots.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-cubes" style="color:var(--accent)"></i> Qu'est-ce que la Virtualisation ?</h2>
+            <p>La virtualisation permet de faire tourner <strong>plusieurs systèmes d'exploitation</strong> sur une seule machine physique, chacun isolé dans sa propre « machine virtuelle » (VM).</p>
+
+            <div class="analogy-box">
+                Imagine un <strong>immeuble de bureaux</strong>. L'immeuble (serveur physique) est un seul bâtiment, mais il contient plusieurs bureaux indépendants (VMs). Chaque bureau a sa propre porte, son propre verrou, sa propre décoration. Les occupants ne se voient pas et ne s'influencent pas. L'<strong>hyperviseur</strong>, c'est le gestionnaire de l'immeuble qui attribue les étages.
+            </div>
+
+            <h3>Pourquoi virtualiser ?</h3>
+            <table class="styled-table">
+                <thead><tr><th>Avantage</th><th>Explication</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Consolidation</strong></td><td>10 serveurs physiques → 1 serveur avec 10 VMs</td></tr>
+                    <tr><td><strong>Isolation</strong></td><td>Si une VM plante, les autres continuent</td></tr>
+                    <tr><td><strong>Économies</strong></td><td>Moins de matériel, moins d'électricité, moins de place</td></tr>
+                    <tr><td><strong>Flexibilité</strong></td><td>Créer/supprimer un serveur en minutes (pas en semaines)</td></tr>
+                    <tr><td><strong>Snapshots</strong></td><td>« Sauvegarder l'état exact » avant un changement risqué</td></tr>
+                    <tr><td><strong>Migration</strong></td><td>Déplacer une VM d'un serveur physique à un autre</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Types d'hyperviseurs</h3>
+            <table class="styled-table">
+                <thead><tr><th></th><th>Type 1 (Bare-metal)</th><th>Type 2 (Hosted)</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>S'installe sur</strong></td><td>Directement sur le matériel</td><td>Sur un OS existant</td></tr>
+                    <tr><td><strong>Performance</strong></td><td>Excellente</td><td>Bonne mais overhead</td></tr>
+                    <tr><td><strong>Usage</strong></td><td>Production, datacenter</td><td>Test, développement</td></tr>
+                    <tr><td><strong>Exemples</strong></td><td><strong>Hyper-V</strong>, VMware ESXi, Proxmox</td><td>VirtualBox, VMware Workstation</td></tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <strong>💡</strong> Hyper-V est un hyperviseur de <strong>Type 1</strong>. Même quand il est installé comme rôle sur Windows Server, il s'insère <em>sous</em> le système d'exploitation qui devient lui-même une VM (la « partition parente »).
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-microchip" style="color:var(--accent)"></i> Installer et Configurer Hyper-V</h2>
+
+            <h3>Prérequis matériels</h3>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;line-height:2;">
+                <li>Processeur 64 bits avec <strong>SLAT</strong> (Second Level Address Translation)</li>
+                <li><strong>Virtualisation matérielle</strong> activée dans le BIOS (VT-x / AMD-V)</li>
+                <li>Minimum <strong>4 Go de RAM</strong> (8+ recommandé)</li>
+                <li><strong>DEP</strong> (Data Execution Prevention) activé</li>
+            </ul>
+
+            <h3>Installation</h3>
+            <pre class="code-block"><code><span class="comment"># Installer le rôle Hyper-V</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">Hyper-V</span> <span class="flag">-IncludeManagementTools</span> <span class="flag">-Restart</span>
+
+<span class="comment"># Vérifier l'installation après redémarrage</span>
+<span class="cmd">Get-WindowsFeature</span> <span class="string">Hyper-V</span></code></pre>
+
+            <h3>Switches virtuels (réseaux virtuels)</h3>
+            <p>Les VMs ont besoin de réseau. Hyper-V propose 3 types de switches virtuels :</p>
+            <table class="styled-table">
+                <thead><tr><th>Type</th><th>Accès</th><th>Usage</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>External</strong></td><td>VMs + hôte + réseau physique</td><td>Production (les VMs accèdent à Internet)</td></tr>
+                    <tr><td><strong>Internal</strong></td><td>VMs + hôte uniquement</td><td>Communication hôte-VM sans réseau externe</td></tr>
+                    <tr><td><strong>Private</strong></td><td>VMs entre elles uniquement</td><td>Lab isolé, tests</td></tr>
+                </tbody>
+            </table>
+
+            <pre class="code-block"><code><span class="comment"># Créer un switch externe (lié à la carte réseau physique)</span>
+<span class="cmd">New-VMSwitch</span> <span class="flag">-Name</span> <span class="string">"Switch-Production"</span> `
+    <span class="flag">-NetAdapterName</span> <span class="string">"Ethernet"</span> `
+    <span class="flag">-AllowManagementOS</span> <span class="var">$true</span>
+
+<span class="comment"># Créer un switch interne (pour lab)</span>
+<span class="cmd">New-VMSwitch</span> <span class="flag">-Name</span> <span class="string">"Switch-Lab"</span> <span class="flag">-SwitchType</span> <span class="string">Internal</span>
+
+<span class="comment"># Créer un switch privé</span>
+<span class="cmd">New-VMSwitch</span> <span class="flag">-Name</span> <span class="string">"Switch-Isolé"</span> <span class="flag">-SwitchType</span> <span class="string">Private</span>
+
+<span class="comment"># Vérifier les switches</span>
+<span class="cmd">Get-VMSwitch</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-plus-circle" style="color:var(--accent)"></i> Créer une Machine Virtuelle</h2>
+
+            <h3>Génération 1 vs Génération 2</h3>
+            <table class="styled-table">
+                <thead><tr><th></th><th>Génération 1</th><th>Génération 2</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Firmware</strong></td><td>BIOS</td><td>UEFI</td></tr>
+                    <tr><td><strong>Secure Boot</strong></td><td>Non</td><td>Oui</td></tr>
+                    <tr><td><strong>Disque de boot</strong></td><td>IDE</td><td>SCSI</td></tr>
+                    <tr><td><strong>OS supportés</strong></td><td>Tous (Windows, Linux ancien)</td><td>Windows 8+, Linux récent</td></tr>
+                    <tr><td><strong>Recommandation</strong></td><td>Compatibilité anciens OS</td><td><strong>À privilégier</strong></td></tr>
+                </tbody>
+            </table>
+
+            <h3>Création via PowerShell</h3>
+            <pre class="code-block"><code><span class="comment"># Créer une VM Génération 2</span>
+<span class="cmd">New-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> `
+    <span class="flag">-Generation</span> <span class="num">2</span> `
+    <span class="flag">-MemoryStartupBytes</span> <span class="num">4GB</span> `
+    <span class="flag">-NewVHDPath</span> <span class="path">"D:\VMs\SRV-WEB01\disk.vhdx"</span> `
+    <span class="flag">-NewVHDSizeBytes</span> <span class="num">60GB</span> `
+    <span class="flag">-SwitchName</span> <span class="string">"Switch-Production"</span>
+
+<span class="comment"># Configurer le nombre de processeurs</span>
+<span class="cmd">Set-VMProcessor</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Count</span> <span class="num">2</span>
+
+<span class="comment"># Activer la mémoire dynamique</span>
+<span class="cmd">Set-VMMemory</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> `
+    <span class="flag">-DynamicMemoryEnabled</span> <span class="var">$true</span> `
+    <span class="flag">-MinimumBytes</span> <span class="num">1GB</span> `
+    <span class="flag">-MaximumBytes</span> <span class="num">8GB</span> `
+    <span class="flag">-StartupBytes</span> <span class="num">4GB</span>
+
+<span class="comment"># Monter un ISO pour l'installation</span>
+<span class="cmd">Add-VMDvdDrive</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> `
+    <span class="flag">-Path</span> <span class="path">"D:\ISOs\WinServer2022.iso"</span>
+
+<span class="comment"># Configurer le boot sur DVD en premier</span>
+<span class="var">$dvd</span> = <span class="cmd">Get-VMDvdDrive</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span>
+<span class="cmd">Set-VMFirmware</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-FirstBootDevice</span> <span class="var">$dvd</span>
+
+<span class="comment"># Démarrer la VM</span>
+<span class="cmd">Start-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span>
+
+<span class="comment"># Se connecter à la console</span>
+<span class="cmd">vmconnect.exe</span> localhost <span class="string">SRV-WEB01</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-camera" style="color:var(--accent)"></i> Les Snapshots (Points de contrôle)</h2>
+            <p>Un snapshot capture <strong>l'état exact d'une VM à un instant T</strong> : disque, mémoire, configuration. Tu peux y revenir à tout moment.</p>
+
+            <div class="analogy-box">
+                C'est une <strong>photo Polaroid de ton bureau</strong>. Avant de tout bouleverser pour une réorganisation, tu prends une photo. Si le résultat ne te plaît pas, tu remets tout <strong>exactement comme sur la photo</strong>.
+            </div>
+
+            <h3>Types de checkpoints</h3>
+            <table class="styled-table">
+                <thead><tr><th>Type</th><th>Capture</th><th>Usage</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Standard</strong></td><td>État disque + mémoire + config</td><td>Développement, test</td></tr>
+                    <tr><td><strong>Production</strong></td><td>État disque cohérent (via VSS)</td><td><strong>Production</strong> (par défaut WS2022)</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Gérer les snapshots</h3>
+            <pre class="code-block"><code><span class="comment"># Créer un snapshot AVANT une opération risquée</span>
+<span class="cmd">Checkpoint-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> `
+    <span class="flag">-SnapshotName</span> <span class="string">"Avant-MAJ-IIS"</span>
+
+<span class="comment"># Lister les snapshots d'une VM</span>
+<span class="cmd">Get-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span>
+
+<span class="comment"># Revenir à un snapshot (rollback !)</span>
+<span class="cmd">Restore-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> `
+    <span class="flag">-Name</span> <span class="string">"Avant-MAJ-IIS"</span> <span class="flag">-Confirm:</span><span class="var">$false</span>
+
+<span class="comment"># Supprimer un snapshot (fusionne les différences)</span>
+<span class="cmd">Remove-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> `
+    <span class="flag">-Name</span> <span class="string">"Avant-MAJ-IIS"</span>
+
+<span class="comment"># Configurer le type de checkpoint (Production recommandé)</span>
+<span class="cmd">Set-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> `
+    <span class="flag">-CheckpointType</span> <span class="string">Production</span></code></pre>
+
+            <div class="danger-box">
+                <strong>🚨 ATTENTION — Snapshot ≠ Sauvegarde !</strong><br>
+                Un snapshot n'est PAS une sauvegarde. Les fichiers .avhdx (disques différentiels) grossissent avec le temps et dégradent les performances. Ne garde JAMAIS un snapshot plus de <strong>72 heures</strong> en production.<br><br>
+                <strong>Snapshot</strong> = filet de sécurité temporaire (avant MAJ, test).<br>
+                <strong>Sauvegarde</strong> = protection long terme (Module 5).
+            </div>
+
+            <h3>Cycle de vie recommandé d'un snapshot</h3>
+            <pre class="code-block"><code><span class="comment"># 1. Créer le snapshot AVANT le changement</span>
+<span class="cmd">Checkpoint-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-SnapshotName</span> <span class="string">"Pre-Update"</span>
+
+<span class="comment"># 2. Faire le changement (installer MAJ, modifier config...)</span>
+<span class="comment"># ... travail en cours ...</span>
+
+<span class="comment"># 3a. Si tout va bien → SUPPRIMER le snapshot</span>
+<span class="cmd">Remove-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Name</span> <span class="string">"Pre-Update"</span>
+
+<span class="comment"># 3b. Si problème → RESTAURER le snapshot</span>
+<span class="cmd">Restore-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Name</span> <span class="string">"Pre-Update"</span> <span class="flag">-Confirm:</span><span class="var">$false</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-file-export" style="color:var(--accent)"></i> Export et Import de VMs</h2>
+            <p>Exporter une VM crée une copie complète transportable (disques + config + snapshots).</p>
+
+            <pre class="code-block"><code><span class="comment"># Exporter une VM (même allumée avec WS2022)</span>
+<span class="cmd">Export-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Path</span> <span class="path">"E:\Exports"</span>
+
+<span class="comment"># Importer une VM sur un autre hôte</span>
+<span class="cmd">Import-VM</span> <span class="flag">-Path</span> <span class="path">"E:\Exports\SRV-WEB01\Virtual Machines\*.vmcx"</span> `
+    <span class="flag">-Copy</span> `
+    <span class="flag">-GenerateNewId</span>
+
+<span class="comment"># -Copy : copie les fichiers au lieu de les référencer</span>
+<span class="comment"># -GenerateNewId : évite les conflits d'identifiant</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-hard-drive" style="color:var(--accent)"></i> Disques Virtuels</h2>
+
+            <table class="styled-table">
+                <thead><tr><th>Format</th><th>Caractéristique</th><th>Usage</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>VHDX</strong></td><td>Taille max 64 To, résilient aux pannes d'alimentation</td><td><strong>Standard</strong> (toujours utiliser)</td></tr>
+                    <tr><td>VHD</td><td>Taille max 2 To, ancien format</td><td>Compatibilité anciens systèmes</td></tr>
+                </tbody>
+            </table>
+
+            <table class="styled-table">
+                <thead><tr><th>Type</th><th>Espace disque</th><th>Performance</th><th>Usage</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Dynamique</strong></td><td>Grandit selon besoin</td><td>Légèrement inférieure</td><td>Test, développement</td></tr>
+                    <tr><td><strong>Fixe</strong></td><td>Alloué immédiatement</td><td>Optimale</td><td><strong>Production</strong></td></tr>
+                    <tr><td><strong>Differencing</strong></td><td>Stocke les différences vs parent</td><td>Variable</td><td>Snapshots (automatique)</td></tr>
+                </tbody>
+            </table>
+
+            <pre class="code-block"><code><span class="comment"># Créer un disque dynamique de 100 Go</span>
+<span class="cmd">New-VHD</span> <span class="flag">-Path</span> <span class="path">"D:\VMs\data.vhdx"</span> `
+    <span class="flag">-SizeBytes</span> <span class="num">100GB</span> <span class="flag">-Dynamic</span>
+
+<span class="comment"># Créer un disque fixe de 50 Go (production)</span>
+<span class="cmd">New-VHD</span> <span class="flag">-Path</span> <span class="path">"D:\VMs\sql-data.vhdx"</span> `
+    <span class="flag">-SizeBytes</span> <span class="num">50GB</span> <span class="flag">-Fixed</span>
+
+<span class="comment"># Attacher un disque à une VM</span>
+<span class="cmd">Add-VMHardDiskDrive</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> `
+    <span class="flag">-Path</span> <span class="path">"D:\VMs\data.vhdx"</span>
+
+<span class="comment"># Redimensionner un VHDX</span>
+<span class="cmd">Resize-VHD</span> <span class="flag">-Path</span> <span class="path">"D:\VMs\data.vhdx"</span> <span class="flag">-SizeBytes</span> <span class="num">200GB</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-arrows-alt" style="color:var(--accent)"></i> Live Migration</h2>
+            <p>Déplacer une VM d'un hôte Hyper-V à un autre <strong>sans interruption de service</strong>.</p>
+
+            <div class="analogy-box">
+                C'est comme <strong>déménager un aquarium sans vider l'eau ni déranger les poissons</strong>. La VM continue de fonctionner pendant le transfert. Les utilisateurs ne remarquent rien.
+            </div>
+
+            <h3>Prérequis</h3>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;line-height:2;">
+                <li>Les deux hôtes dans le <strong>même domaine AD</strong></li>
+                <li>Même génération de processeur (ou compatibilité activée)</li>
+                <li>Réseau dédié pour la migration (recommandé)</li>
+                <li>Stockage partagé ou <strong>Storage Migration</strong></li>
+            </ul>
+
+            <pre class="code-block"><code><span class="comment"># Activer Live Migration</span>
+<span class="cmd">Enable-VMMigration</span>
+<span class="cmd">Set-VMMigrationNetwork</span> <span class="num">192.168.10.0</span>
+
+<span class="comment"># Migrer une VM vers un autre hôte</span>
+<span class="cmd">Move-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> `
+    <span class="flag">-DestinationHost</span> <span class="string">"HYPERV-02"</span> `
+    <span class="flag">-IncludeStorage</span> `
+    <span class="flag">-DestinationStoragePath</span> <span class="path">"D:\VMs"</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-list-check" style="color:var(--accent)"></i> Bonnes Pratiques Hyper-V</h2>
+
+            <table class="styled-table">
+                <thead><tr><th>Pratique</th><th>Pourquoi</th></tr></thead>
+                <tbody>
+                    <tr><td>Toujours utiliser <strong>Génération 2</strong></td><td>UEFI, Secure Boot, meilleures performances</td></tr>
+                    <tr><td>Disques <strong>VHDX fixes</strong> en production</td><td>Performance optimale, pas de fragmentation</td></tr>
+                    <tr><td>Ne PAS garder de snapshots > 72h</td><td>Dégradation des performances, espace disque</td></tr>
+                    <tr><td>Séparer les disques <strong>OS et données</strong></td><td>Facilite la sauvegarde et la maintenance</td></tr>
+                    <tr><td>Installer les <strong>Integration Services</strong></td><td>Pilotes optimisés, horloge sync, shutdown propre</td></tr>
+                    <tr><td>Réseau dédié pour <strong>Live Migration</strong></td><td>Pas d'impact sur le trafic de production</td></tr>
+                    <tr><td>Mémoire <strong>dynamique</strong> avec réserve</td><td>Optimise l'utilisation sans starving</td></tr>
+                    <tr><td><strong>Sauvegarder</strong> au niveau hôte</td><td>WS Backup voit les VMs, pas besoin d'agent</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" style="border-left:3px solid var(--accent);">
+            <h2><i class="fas fa-clipboard-check" style="color:var(--accent)"></i> Résumé du Module</h2>
+            <ul style="margin:0.5rem 0 0 1.5rem;line-height:2;">
+                <li><strong>Hyper-V</strong> = hyperviseur Type 1, intégré à Windows Server</li>
+                <li>3 types de switches : <strong>External</strong>, <strong>Internal</strong>, <strong>Private</strong></li>
+                <li><strong>Génération 2</strong> : UEFI + Secure Boot = à privilégier</li>
+                <li><strong>Snapshot</strong> = photo temporaire ≠ sauvegarde (max 72h !)</li>
+                <li>2 types de checkpoints : <strong>Standard</strong> (test) vs <strong>Production</strong> (VSS)</li>
+                <li><strong>VHDX fixe</strong> en production, dynamique en test</li>
+                <li><strong>Live Migration</strong> = déplacement sans interruption</li>
+                <li><strong>Export/Import</strong> pour transporter ou cloner des VMs</li>
+            </ul>
+        </article>
+
+        <div id="interactive-exercises"></div>
+
+        <div class="chapter-nav">
+            <a href="chapitre7.html"><i class="fas fa-arrow-left"></i> Module 7 — Maintenance</a>
+            <a href="formules.html">Cheat Sheet <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

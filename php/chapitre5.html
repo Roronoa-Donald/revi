@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 5 - PHP POO et PDO</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+<body class="chapter-page">
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="chapterProgress"></div>
+    </div>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo"><a href="index.html"><i class="fas fa-code"></i><span>PHP POO</span></a></div>
+            <nav class="main-nav">
+                <a href="index.html">Accueil</a>
+                <a href="#" class="active">Chapitre 5</a>
+                <button class="btn-notes" id="showNotesBtn"><i class="fas fa-bookmark"></i> Notes</button>
+                <button class="btn-theme" id="themeToggleBtn" title="Changer de thème"><i class="fas fa-moon"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="chapter-nav">
+        <a href="chapitre4.html" class="nav-btn nav-prev"><i class="fas fa-arrow-left"></i><span>Chapitre 4</span></a>
+        <div class="chapter-info"><span class="chapter-number">Chapitre 5/8</span><h1>PHP POO et Base de Données (PDO)</h1></div>
+        <a href="chapitre6.html" class="nav-btn nav-next"><span>Chapitre 6</span><i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <main class="chapter-content">
+        <div class="container">
+            <aside class="sidebar">
+                <div class="sidebar-sticky">
+                    <h3><i class="fas fa-list"></i> Sommaire</h3>
+                    <nav class="table-of-contents">
+                        <a href="#section-1" class="toc-link active"><span class="toc-number">1</span> Introduction à PDO</a>
+                        <a href="#section-2" class="toc-link"><span class="toc-number">2</span> Connexion</a>
+                        <a href="#section-3" class="toc-link"><span class="toc-number">3</span> Requêtes SQL</a>
+                        <a href="#section-4" class="toc-link"><span class="toc-number">4</span> Requêtes Préparées</a>
+                         <a href="#quiz" class="toc-link"><span class="toc-number"><i class="fas fa-question-circle"></i></span> Quiz</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <article class="content">
+                <section id="section-1" class="content-section">
+                    <div class="section-header"><h2>1. Introduction à PDO</h2></div>
+                    <p>PDO (PHP Data Objects) est une extension définissant une interface pour accéder à une base de données depuis PHP. Elle permet d'utiliser le même code pour interagir avec différents SGBD (MySQL, PostgreSQL, etc.).</p>
+                </section>
+
+                <section id="section-2" class="content-section">
+                    <div class="section-header"><h2>2. Connexion à la BDD</h2></div>
+                    <div class="code-block-wrapper">
+                        <div class="code-header">
+                            <span class="language-label">PHP</span>
+                            <button class="btn-copy"><i class="far fa-copy"></i> Copier</button>
+                        </div>
+                        <div class="code-block">
+                            <pre><code class="language-php">try {
+    $dsn = 'mysql:host=localhost;dbname=test;charset=utf8';
+    $user = 'root';
+    $password = '';
+    
+    $bdd = new PDO($dsn, $user, $password);
+    
+    // Activation des erreurs PDO
+    $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    echo "Connexion réussie !";
+} catch (Exception $e) {
+    die('Erreur : ' . $e->getMessage());
+}</code></pre>
+                        </div>
+                        <div class="execution-panel">
+                            <button class="btn-run" onclick="simulatePHPExecution(this)">
+                                <i class="fas fa-play"></i> Exécuter
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="section-3" class="content-section">
+                    <div class="section-header"><h2>3. Exécuter des requêtes (Query)</h2></div>
+                    <p>Pour des requêtes simples sans variables utilisateur :</p>
+                    <div class="code-block-wrapper">
+                        <div class="code-header">
+                            <span class="language-label">PHP</span>
+                            <button class="btn-copy"><i class="far fa-copy"></i> Copier</button>
+                        </div>
+                        <div class="code-block">
+                            <pre><code class="language-php">$reponse = $bdd->query('SELECT * FROM jeux_video');
+
+while ($donnees = $reponse->fetch()) {
+    echo $donnees['nom'] . "\n";
+}
+
+$reponse->closeCursor();</code></pre>
+                        </div>
+                        <div class="execution-panel">
+                            <button class="btn-run" onclick="simulatePHPExecution(this)">
+                                <i class="fas fa-play"></i> Exécuter
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="section-4" class="content-section">
+                    <div class="section-header"><h2>4. Requêtes Préparées</h2></div>
+                    <p>Pour la sécurité (éviter les injections SQL) et la performance :</p>
+                    <div class="code-block-wrapper">
+                        <div class="code-header">
+                            <span class="language-label">PHP</span>
+                            <button class="btn-copy"><i class="far fa-copy"></i> Copier</button>
+                        </div>
+                        <div class="code-block">
+                            <pre><code class="language-php">$possesseur = 'Michel';
+$req = $bdd->prepare('SELECT nom, prix FROM jeux_video WHERE possesseur = ?');
+$req->execute(array($possesseur));
+
+while ($donnees = $req->fetch()) {
+    echo $donnees['nom'] . ' coûte ' . $donnees['prix'] . ' euros' . "\n";
+}</code></pre>
+                        </div>
+                        <div class="execution-panel">
+                            <button class="btn-run" onclick="simulatePHPExecution(this)">
+                                <i class="fas fa-play"></i> Exécuter
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                 <section id="quiz" class="content-section">
+                    <div class="section-header"><h2><i class="fas fa-question-circle"></i> Quiz du Chapitre 5</h2></div>
+                    <div id="quiz-container" class="quiz-container">
+                        <div class="quiz-start">
+                             <p>Testez vos connaissances sur PDO.</p>
+                            <button id="start-quiz-btn" class="btn-primary">Commencer le Quiz</button>
+                        </div>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <footer class="main-footer"><div class="container"><p>&copy; 2026 Cours PHP POO. Tous droits réservés.</p></div></footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup-templating.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-php.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/quiz-chapitre5.js"></script>
+</body>
+</html>

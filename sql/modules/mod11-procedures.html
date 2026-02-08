@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 11 : Procédures Stockées | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+             <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-400">Module 11: Procédures</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+
+            <!-- 1. Narrative Hook -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">1. L'Usine à Requêtes</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-cogs text-9xl"></i></div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Imaginez que vous devez vérifier le stock d'un produit 50 fois par jour. Allez-vous
+                        réécrire la même requête à chaque fois ? Non !
+                        <br><br>
+                        Une <strong>procédure stockée</strong>, c'est une recette : vous l'écrivez une fois,
+                        vous la rangez dans la base de données, et ensuite vous l'exécutez d'un simple <code class="text-amber-400">EXEC</code>.
+                        C'est le passage de l'artisanat à l'<strong>industrialisation</strong>.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 2. CREATE PROCEDURE -->
+            <section class="animate-fade-in-up" style="animation-delay:0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">2. Créer une Procédure</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700 font-mono text-sm">
+                        <span class="text-amber-400">CREATE PROCEDURE</span> <span class="text-emerald-400">sp_GetClient</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">@id</span> <span class="text-cyan-400">INT</span><br>
+                        <span class="text-amber-400">AS</span><br>
+                        <span class="text-amber-400">BEGIN</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">SELECT</span> nom, email, date_inscription<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-400">FROM</span> Clients<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-400">WHERE</span> id = <span class="text-blue-400">@id</span><br>
+                        <span class="text-amber-400">END</span>
+                    </div>
+                    <div class="content-box tip">
+                        <strong>Convention :</strong> Préfixez vos procédures par <code>sp_</code> (stored procedure) ou <code>usp_</code> (user stored procedure) pour les distinguer des procédures système.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Paramètres IN et OUT -->
+            <section class="animate-fade-in-up" style="animation-delay:0.15s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">3. Paramètres IN et OUT</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-blue-500/20">
+                            <h4 class="font-bold text-blue-400 mb-2"><i class="fas fa-sign-in-alt mr-1"></i> Paramètre IN (entrée)</h4>
+                            <p class="text-slate-400 text-sm mb-2">Valeur envoyée à la procédure (par défaut).</p>
+                            <code class="text-xs text-emerald-400">CREATE PROCEDURE sp_Note<br>&nbsp;&nbsp;@etudiant_id INT,<br>&nbsp;&nbsp;@matiere VARCHAR(50)<br>AS ...</code>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-purple-500/20">
+                            <h4 class="font-bold text-purple-400 mb-2"><i class="fas fa-sign-out-alt mr-1"></i> Paramètre OUTPUT</h4>
+                            <p class="text-slate-400 text-sm mb-2">Valeur retournée par la procédure.</p>
+                            <code class="text-xs text-emerald-400">CREATE PROCEDURE sp_Count<br>&nbsp;&nbsp;@total INT OUTPUT<br>AS<br>BEGIN<br>&nbsp;&nbsp;SELECT @total = COUNT(*)<br>&nbsp;&nbsp;FROM Clients<br>END</code>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                        <h5 class="text-sm text-slate-400 mb-2">Appel avec OUTPUT :</h5>
+                        <code class="text-xs text-emerald-400 font-mono">DECLARE @resultat INT<br>EXEC sp_Count @total = @resultat OUTPUT<br>PRINT @resultat</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. EXEC et ALTER/DROP -->
+            <section class="animate-fade-in-up" style="animation-delay:0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">4. Exécuter, Modifier, Supprimer</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-emerald-900/20 p-4 rounded-lg border border-emerald-500/20 text-center">
+                            <code class="text-emerald-400 font-bold text-sm">EXEC sp_GetClient 5</code>
+                            <p class="text-xs text-slate-400 mt-2">Exécuter avec paramètre positionnel</p>
+                        </div>
+                        <div class="bg-amber-900/20 p-4 rounded-lg border border-amber-500/20 text-center">
+                            <code class="text-amber-400 font-bold text-sm">ALTER PROCEDURE</code>
+                            <p class="text-xs text-slate-400 mt-2">Modifier une procédure existante</p>
+                        </div>
+                        <div class="bg-red-900/20 p-4 rounded-lg border border-red-500/20 text-center">
+                            <code class="text-red-400 font-bold text-sm">DROP PROCEDURE</code>
+                            <p class="text-xs text-slate-400 mt-2">Supprimer définitivement</p>
+                        </div>
+                    </div>
+                    <div class="content-box definition">
+                        <strong>Paramètre nommé vs positionnel :</strong><br>
+                        <code>EXEC sp_GetClient 5</code> → positionnel (ordre des paramètres)<br>
+                        <code>EXEC sp_GetClient @id = 5</code> → nommé (plus lisible)
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Gestion d'erreurs dans les procédures -->
+            <section class="animate-fade-in-up" style="animation-delay:0.25s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-red-500 pl-4">5. Gestion d'Erreurs dans une Procédure</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700 font-mono text-sm">
+                        <span class="text-amber-400">CREATE PROCEDURE</span> <span class="text-emerald-400">sp_Virement</span><br>
+                        &nbsp;&nbsp;<span class="text-blue-400">@from</span> INT, <span class="text-blue-400">@to</span> INT, <span class="text-blue-400">@montant</span> DECIMAL(10,2)<br>
+                        <span class="text-amber-400">AS</span><br>
+                        <span class="text-amber-400">BEGIN</span><br>
+                        &nbsp;&nbsp;<span class="text-amber-400">BEGIN TRY</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-amber-400">BEGIN TRANSACTION</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">UPDATE</span> Comptes <span class="text-amber-400">SET</span> solde = solde - <span class="text-blue-400">@montant</span> <span class="text-amber-400">WHERE</span> id = <span class="text-blue-400">@from</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">UPDATE</span> Comptes <span class="text-amber-400">SET</span> solde = solde + <span class="text-blue-400">@montant</span> <span class="text-amber-400">WHERE</span> id = <span class="text-blue-400">@to</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-emerald-400">COMMIT</span><br>
+                        &nbsp;&nbsp;<span class="text-amber-400">END TRY</span><br>
+                        &nbsp;&nbsp;<span class="text-amber-400">BEGIN CATCH</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-red-400">ROLLBACK</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">PRINT</span> <span class="text-blue-400">ERROR_MESSAGE</span>()<br>
+                        &nbsp;&nbsp;<span class="text-amber-400">END CATCH</span><br>
+                        <span class="text-amber-400">END</span>
+                    </div>
+                    <div class="content-box success">
+                        <strong>Best Practice :</strong> Combinez toujours TRY/CATCH + BEGIN TRAN/COMMIT/ROLLBACK dans vos procédures pour une robustesse maximale.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Avantages -->
+            <section class="animate-fade-in-up" style="animation-delay:0.3s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-cyan-500 pl-4">6. Pourquoi utiliser des Procédures ?</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex gap-3">
+                            <i class="fas fa-shield-alt text-emerald-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-emerald-400 text-sm">Sécurité</h5>
+                                <p class="text-xs text-slate-400">Les utilisateurs exécutent la procédure sans accéder directement aux tables. Protection contre l'injection SQL.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex gap-3">
+                            <i class="fas fa-bolt text-amber-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-amber-400 text-sm">Performance</h5>
+                                <p class="text-xs text-slate-400">Le plan d'exécution est compilé et mis en cache à la première exécution, accélérant les appels suivants.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex gap-3">
+                            <i class="fas fa-wrench text-blue-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-blue-400 text-sm">Maintenance</h5>
+                                <p class="text-xs text-slate-400">Modifiez la logique en un seul endroit (ALTER PROCEDURE) sans toucher à l'application.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex gap-3">
+                            <i class="fas fa-network-wired text-purple-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-purple-400 text-sm">Réseau</h5>
+                                <p class="text-xs text-slate-400">Un seul appel EXEC traverse le réseau, au lieu d'envoyer de longues requêtes texte.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Labo Pratique -->
+            <section class="animate-fade-in-up" style="animation-delay:0.35s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">7. Labo Pratique</h2>
+                <p class="text-slate-400 mb-4">Créez et exécutez des procédures :</p>
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3 flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-500">sql-editor</span>
+                        <div class="flex gap-2">
+                            <button onclick="loadExample('create')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">CREATE</button>
+                            <button onclick="loadExample('output')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">OUTPUT</button>
+                            <button onclick="loadExample('trycatch')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">TRY/CATCH</button>
+                        </div>
+                    </div>
+                    <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none">CREATE PROCEDURE sp_GetUser (@id INT)
+AS
+BEGIN
+  SELECT * FROM users WHERE id = @id
+END</textarea>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold"><i class="fas fa-play mr-1"></i> Compiler</button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px]"></div>
+                </div>
+            </section>
+
+            <!-- 8. Quiz -->
+            <section class="animate-fade-in-up" style="animation-delay:0.4s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">8. Quiz — Procédures Stockées</h2>
+                <div id="quiz-container" class="glass-card p-6 rounded-xl"></div>
+            </section>
+
+            <!-- 9. Challenge Drag-Drop -->
+            <section class="animate-fade-in-up" style="animation-delay:0.45s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-pink-500 pl-4">9. Challenge — Glisser-Déposer</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-400 mb-4">Associez chaque concept à sa description :</p>
+                    <div id="drag-drop-exercice" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700"></div>
+                    <button onclick="validateDragDrop()" class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold"><i class="fas fa-check mr-1"></i> Vérifier</button>
+                </div>
+            </section>
+        </div>
+        <div class="hidden lg:block w-72 shrink-0">
+            <div class="sticky top-24"><div id="databot-container"></div></div>
+        </div>
+    </main>
+
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod10-transactions.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 10 : Transactions</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod12-triggers.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 12 : Triggers →</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const bot = new DataBot(); bot.render('databot-container');
+        bot.speak("Bienvenue dans l'industrialisation SQL ! On crée des procédures réutilisables.", 5000);
+
+        // Drag-Drop — 6 items
+        const draggables = [
+            {id:'d1',text:'CREATE PROCEDURE'},{id:'d2',text:'EXEC'},{id:'d3',text:'@param OUTPUT'},
+            {id:'d4',text:'ALTER PROCEDURE'},{id:'d5',text:'DROP PROCEDURE'},{id:'d6',text:'BEGIN TRY'}
+        ];
+        const zones = [
+            {id:'z1',label:'Définir une nouvelle procédure',accept:'d1'},
+            {id:'z2',label:'Exécuter une procédure',accept:'d2'},
+            {id:'z3',label:'Paramètre de sortie',accept:'d3'},
+            {id:'z4',label:'Modifier une procédure existante',accept:'d4'},
+            {id:'z5',label:'Supprimer une procédure',accept:'d5'},
+            {id:'z6',label:'Bloc de gestion d\'erreur',accept:'d6'}
+        ];
+        const ddEngine = new DragDropEngine('drag-drop-exercice',draggables,zones);
+
+        function validateDragDrop(){
+            if(ddEngine.validate()){
+                bot.speak("Architecte certifié ! 🏗️","happy");
+                bot.awardXP(60); confetti();
+            } else {
+                bot.speak("Problème d'architecture...","sad");
+            }
+        }
+
+        // Examples
+        function loadExample(type) {
+            const editor = document.getElementById('sql-input');
+            const examples = {
+                'create': "CREATE PROCEDURE sp_GetUser (@id INT)\nAS\nBEGIN\n  SELECT * FROM users WHERE id = @id\nEND",
+                'output': "CREATE PROCEDURE sp_CountUsers\n  @total INT OUTPUT\nAS\nBEGIN\n  SELECT @total = COUNT(*) FROM users\nEND\n\n-- Appel :\n-- DECLARE @n INT\n-- EXEC sp_CountUsers @total = @n OUTPUT\n-- PRINT @n",
+                'trycatch': "CREATE PROCEDURE sp_Virement\n  @from INT, @to INT, @montant DECIMAL(10,2)\nAS\nBEGIN\n  BEGIN TRY\n    BEGIN TRANSACTION\n      UPDATE Comptes SET solde = solde - @montant WHERE id = @from\n      UPDATE Comptes SET solde = solde + @montant WHERE id = @to\n    COMMIT\n  END TRY\n  BEGIN CATCH\n    ROLLBACK\n    PRINT ERROR_MESSAGE()\n  END CATCH\nEND"
+            };
+            editor.value = examples[type] || '';
+        }
+
+        function runQuery() {
+            const sql = document.getElementById('sql-input').value;
+            const upper = sql.toUpperCase();
+            const output = document.getElementById('query-output');
+
+            if (upper.includes('CREATE PROCEDURE') && upper.includes('AS')) {
+                const nameMatch = sql.match(/CREATE\s+PROCEDURE\s+(\w+)/i);
+                const name = nameMatch ? nameMatch[1] : 'Procedure';
+                output.innerHTML = `<div class="text-green-400"><i class="fas fa-check-circle mr-1"></i> Commandes réussies.<br>Procédure <strong>${name}</strong> créée avec succès.</div>`;
+                bot.awardXP(20);
+            } else if (upper.includes('EXEC')) {
+                const execMatch = sql.match(/EXEC\s+(\w+)/i);
+                const pName = execMatch ? execMatch[1] : 'sp_Unknown';
+                output.innerHTML = `<div class="text-green-400"><i class="fas fa-play mr-1"></i> Exécution de ${pName}...<br>Résultat: 1 ligne(s) retournée(s).</div>`;
+                bot.awardXP(15);
+            } else {
+                output.innerHTML = '<div class="text-red-400">Syntaxe non reconnue. Utilisez CREATE PROCEDURE ou EXEC.</div>';
+            }
+        }
+
+        // Quiz
+        const quizData = [
+            { q:"CREATE PROCEDURE fait quoi ?", o:["Crée une table","Crée une procédure stockée","Crée un index","Crée un trigger"], a:1 },
+            { q:"EXEC est utilisé pour :", o:["Supprimer une table","Exécuter une procédure","Créer un curseur","Compiler du SQL"], a:1 },
+            { q:"Un paramètre OUTPUT sert à :", o:["Afficher du texte","Retourner une valeur","Supprimer des données","Verrouiller une table"], a:1 },
+            { q:"Quel préfixe est recommandé pour les procédures ?", o:["tbl_","fn_","sp_ ou usp_","idx_"], a:2 },
+            { q:"ALTER PROCEDURE fait quoi ?", o:["Supprime la procédure","Modifie une procédure existante","Crée une copie","Verrouille la procédure"], a:1 },
+            { q:"Avantage sécurité des procédures ?", o:["Chiffrement des données","L'utilisateur n'accède pas directement aux tables","Sauvegarde automatique","Journalisation"], a:1 },
+            { q:"BEGIN TRY...END TRY permet :", o:["De boucler","De gérer les erreurs","De créer des variables","D'optimiser les index"], a:1 },
+            { q:"Les procédures sont stockées :", o:["Sur le client","Dans la base de données","En mémoire RAM seulement","Dans un fichier .sql"], a:1 },
+            { q:"EXEC sp_GetClient @id = 5 utilise un paramètre :", o:["Positionnel","Nommé","Output","Global"], a:1 },
+            { q:"DROP PROCEDURE fait quoi ?", o:["Renomme la procédure","Supprime définitivement la procédure","Désactive la procédure","Compile la procédure"], a:1 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            let html = '';
+            quizData.forEach((q, qi) => {
+                html += `<div class="mb-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <p class="font-bold mb-3 text-sm">${qi+1}. ${q.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+                q.o.forEach((opt, oi) => {
+                    html += `<button onclick="checkQuiz(${qi},${oi},this)" class="quiz-option text-left text-sm p-3 rounded border border-slate-600 bg-slate-800 hover:border-blue-500 transition-all">${opt}</button>`;
+                });
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function checkQuiz(qi, oi, btn) {
+            const correct = quizData[qi].a === oi;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('button').forEach((b, i) => {
+                b.disabled = true;
+                b.classList.remove('hover:border-blue-500');
+                if (i === quizData[qi].a) b.classList.add('border-emerald-500','bg-emerald-900/30','text-emerald-300');
+                else if (i === oi && !correct) b.classList.add('border-red-500','bg-red-900/30','text-red-300','line-through');
+            });
+            if (correct) { bot.awardXP(10); bot.speak("Bonne architecture !","happy"); }
+            else { bot.speak("Révise la structure...","sad"); }
+        }
+
+        renderQuiz();
+        if(localStorage.getItem('rd_sql_theme')==='light') document.documentElement.setAttribute('data-theme','light');
+    </script>
+</body>
+</html>

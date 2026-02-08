@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercices Pratiques — RD WinServer</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">← Accueil</a></li>
+                <li><a href="exercices.html" class="active">Exercices Pratiques</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="../chapitres/chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="../chapitres/chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="../chapitres/chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="../chapitres/chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="../chapitres/chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="../chapitres/chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="../chapitres/chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="../chapitres/chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="../chapitres/formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-laptop-code"></i> Pratique</span>
+        <h1 class="hero-title">Exercices <span class="gradient-text">Pratiques</span></h1>
+        <p class="hero-description">12 TP guidés pour mettre en pratique chaque module. Chaque exercice inclut le contexte, les étapes et la correction complète.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <!-- TP1 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-server" style="color:var(--accent)"></i> TP1 — Installation et Post-Installation</h2>
+            <p><strong>Contexte :</strong> Vous venez de recevoir un serveur neuf. Préparez-le pour rejoindre l'infrastructure.</p>
+            <h3>Objectifs</h3>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;line-height:2;">
+                <li>Renommer le serveur en <strong>SRV-DC01</strong></li>
+                <li>Configurer l'IP statique : 192.168.1.10/24, GW 192.168.1.1, DNS 192.168.1.10</li>
+                <li>Activer le Bureau à distance</li>
+                <li>Vérifier la configuration</li>
+            </ul>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="comment"># 1. Renommer</span>
+<span class="cmd">Rename-Computer</span> <span class="flag">-NewName</span> <span class="string">"SRV-DC01"</span> <span class="flag">-Restart</span>
+
+<span class="comment"># 2. IP statique</span>
+<span class="cmd">New-NetIPAddress</span> <span class="flag">-InterfaceAlias</span> <span class="string">"Ethernet"</span> <span class="flag">-IPAddress</span> <span class="num">192.168.1.10</span> <span class="flag">-PrefixLength</span> <span class="num">24</span> <span class="flag">-DefaultGateway</span> <span class="num">192.168.1.1</span>
+<span class="cmd">Set-DnsClientServerAddress</span> <span class="flag">-InterfaceAlias</span> <span class="string">"Ethernet"</span> <span class="flag">-ServerAddresses</span> <span class="num">192.168.1.10</span>
+
+<span class="comment"># 3. Activer RDP</span>
+<span class="cmd">Set-ItemProperty</span> <span class="flag">-Path</span> <span class="string">'HKLM:\System\CurrentControlSet\Control\Terminal Server'</span> <span class="flag">-Name</span> <span class="string">"fDenyTSConnections"</span> <span class="flag">-Value</span> <span class="num">0</span>
+<span class="cmd">Enable-NetFirewallRule</span> <span class="flag">-DisplayGroup</span> <span class="string">"Remote Desktop"</span>
+
+<span class="comment"># 4. Vérifier</span>
+<span class="cmd">Get-ComputerInfo</span> | <span class="cmd">Select-Object</span> CsName
+<span class="cmd">Get-NetIPAddress</span> <span class="flag">-InterfaceAlias</span> <span class="string">"Ethernet"</span></code></pre>
+            </details>
+        </article>
+
+        <!-- TP2 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-sitemap" style="color:var(--accent)"></i> TP2 — Créer une forêt Active Directory</h2>
+            <p><strong>Contexte :</strong> Promouvoir SRV-DC01 en premier contrôleur de domaine de la forêt lab.local.</p>
+            <h3>Objectifs</h3>
+            <ul style="margin:0.5rem 0 1rem 1.5rem;line-height:2;">
+                <li>Installer le rôle AD DS</li>
+                <li>Promouvoir en DC avec le domaine <strong>lab.local</strong></li>
+                <li>Vérifier le domaine et les rôles FSMO</li>
+            </ul>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="string">AD-Domain-Services</span> <span class="flag">-IncludeManagementTools</span>
+<span class="cmd">Install-ADDSForest</span> <span class="flag">-DomainName</span> <span class="string">"lab.local"</span> `
+    <span class="flag">-DomainNetbiosName</span> <span class="string">"LAB"</span> `
+    <span class="flag">-ForestMode</span> <span class="string">"WinThreshold"</span> `
+    <span class="flag">-DomainMode</span> <span class="string">"WinThreshold"</span> `
+    <span class="flag">-InstallDns</span> `
+    <span class="flag">-SafeModeAdministratorPassword</span> (<span class="cmd">ConvertTo-SecureString</span> <span class="string">"Recup@2025!"</span> <span class="flag">-AsPlainText</span> <span class="flag">-Force</span>)
+
+<span class="comment"># Après redémarrage :</span>
+<span class="cmd">Get-ADDomain</span>
+<span class="cmd">Get-ADForest</span>
+<span class="cmd">netdom query fsmo</span></code></pre>
+            </details>
+        </article>
+
+        <!-- TP3 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-users" style="color:var(--accent)"></i> TP3 — Structure AD : OU, Utilisateurs, Groupes</h2>
+            <p><strong>Contexte :</strong> Créer la structure organisationnelle pour les services IT, RH et Direction.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="comment"># Créer les OUs</span>
+<span class="cmd">New-ADOrganizationalUnit</span> <span class="flag">-Name</span> <span class="string">"Entreprise"</span> <span class="flag">-Path</span> <span class="string">"DC=lab,DC=local"</span>
+<span class="string">"IT"</span>,<span class="string">"RH"</span>,<span class="string">"Direction"</span> | <span class="cmd">ForEach-Object</span> {
+    <span class="cmd">New-ADOrganizationalUnit</span> <span class="flag">-Name</span> <span class="var">$_</span> <span class="flag">-Path</span> <span class="string">"OU=Entreprise,DC=lab,DC=local"</span>
+}
+
+<span class="comment"># Créer des utilisateurs</span>
+<span class="var">$pass</span> = <span class="cmd">ConvertTo-SecureString</span> <span class="string">"User@2025!"</span> <span class="flag">-AsPlainText</span> <span class="flag">-Force</span>
+<span class="cmd">New-ADUser</span> <span class="flag">-Name</span> <span class="string">"Alice Martin"</span> <span class="flag">-SamAccountName</span> <span class="string">"amartin"</span> <span class="flag">-Path</span> <span class="string">"OU=IT,OU=Entreprise,DC=lab,DC=local"</span> <span class="flag">-AccountPassword</span> <span class="var">$pass</span> <span class="flag">-Enabled</span> <span class="var">$true</span>
+<span class="cmd">New-ADUser</span> <span class="flag">-Name</span> <span class="string">"Bob Durand"</span> <span class="flag">-SamAccountName</span> <span class="string">"bdurand"</span> <span class="flag">-Path</span> <span class="string">"OU=RH,OU=Entreprise,DC=lab,DC=local"</span> <span class="flag">-AccountPassword</span> <span class="var">$pass</span> <span class="flag">-Enabled</span> <span class="var">$true</span>
+
+<span class="comment"># Créer des groupes</span>
+<span class="cmd">New-ADGroup</span> <span class="flag">-Name</span> <span class="string">"GRP_IT"</span> <span class="flag">-GroupScope</span> <span class="string">Global</span> <span class="flag">-Path</span> <span class="string">"OU=IT,OU=Entreprise,DC=lab,DC=local"</span>
+<span class="cmd">Add-ADGroupMember</span> <span class="flag">-Identity</span> <span class="string">"GRP_IT"</span> <span class="flag">-Members</span> <span class="string">"amartin"</span></code></pre>
+            </details>
+        </article>
+
+        <!-- TP4 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-scroll" style="color:var(--accent)"></i> TP4 — Créer et appliquer une GPO de sécurité</h2>
+            <p><strong>Contexte :</strong> Imposer une politique de mots de passe forts sur tout le domaine.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="comment"># Créer et lier la GPO</span>
+<span class="cmd">New-GPO</span> <span class="flag">-Name</span> <span class="string">"Politique MDP Fort"</span>
+<span class="cmd">New-GPLink</span> <span class="flag">-Name</span> <span class="string">"Politique MDP Fort"</span> <span class="flag">-Target</span> <span class="string">"DC=lab,DC=local"</span>
+
+<span class="comment"># Configurer via GPMC :</span>
+<span class="comment"># Computer Config > Policies > Windows Settings</span>
+<span class="comment"># > Security Settings > Account Policies > Password Policy</span>
+<span class="comment">#   - Minimum password length : 12</span>
+<span class="comment">#   - Password must meet complexity : Enabled</span>
+<span class="comment">#   - Maximum password age : 90 days</span>
+<span class="comment">#   - Enforce password history : 24</span>
+
+<span class="comment"># Forcer l'application</span>
+<span class="cmd">gpupdate</span> /force
+<span class="cmd">gpresult</span> /r</code></pre>
+            </details>
+        </article>
+
+        <!-- TP5 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-network-wired" style="color:var(--accent)"></i> TP5 — Configurer DNS et DHCP</h2>
+            <p><strong>Contexte :</strong> Installer et configurer DNS et DHCP pour le réseau 192.168.1.0/24.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="comment"># DNS (déjà installé avec AD DS normalement)</span>
+<span class="cmd">Add-DnsServerPrimaryZone</span> <span class="flag">-NetworkId</span> <span class="string">"192.168.1.0/24"</span> <span class="flag">-ReplicationScope</span> <span class="string">"Forest"</span>
+<span class="cmd">Add-DnsServerResourceRecordA</span> <span class="flag">-ZoneName</span> <span class="string">"lab.local"</span> <span class="flag">-Name</span> <span class="string">"srv-web"</span> <span class="flag">-IPv4Address</span> <span class="num">192.168.1.20</span>
+
+<span class="comment"># DHCP</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="string">DHCP</span> <span class="flag">-IncludeManagementTools</span>
+<span class="cmd">Add-DhcpServerInDC</span> <span class="flag">-DnsName</span> <span class="string">"srv-dc01.lab.local"</span> <span class="flag">-IPAddress</span> <span class="num">192.168.1.10</span>
+<span class="cmd">Add-DhcpServerv4Scope</span> <span class="flag">-Name</span> <span class="string">"LAN"</span> <span class="flag">-StartRange</span> <span class="num">192.168.1.51</span> <span class="flag">-EndRange</span> <span class="num">192.168.1.200</span> <span class="flag">-SubnetMask</span> <span class="num">255.255.255.0</span> <span class="flag">-LeaseDuration</span> <span class="num">08:00:00</span>
+<span class="cmd">Set-DhcpServerv4OptionValue</span> <span class="flag">-Router</span> <span class="num">192.168.1.1</span> <span class="flag">-DnsServer</span> <span class="num">192.168.1.10</span> <span class="flag">-DnsDomain</span> <span class="string">"lab.local"</span>
+<span class="cmd">Add-DhcpServerv4ExclusionRange</span> <span class="flag">-ScopeId</span> <span class="num">192.168.1.0</span> <span class="flag">-StartRange</span> <span class="num">192.168.1.1</span> <span class="flag">-EndRange</span> <span class="num">192.168.1.50</span>
+
+<span class="comment"># Vérifier</span>
+<span class="cmd">nslookup</span> srv-web.lab.local
+<span class="cmd">Get-DhcpServerv4Scope</span></code></pre>
+            </details>
+        </article>
+
+        <!-- TP6 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-database" style="color:var(--accent)"></i> TP6 — Mettre en place une sauvegarde planifiée</h2>
+            <p><strong>Contexte :</strong> Configurer une sauvegarde complète quotidienne de l'état système sur le volume E:.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="string">Windows-Server-Backup</span>
+
+<span class="var">$policy</span> = <span class="cmd">New-WBPolicy</span>
+<span class="cmd">Add-WBSystemState</span> <span class="flag">-Policy</span> <span class="var">$policy</span>
+<span class="var">$target</span> = <span class="cmd">New-WBBackupTarget</span> <span class="flag">-VolumePath</span> <span class="string">"E:"</span>
+<span class="cmd">Add-WBBackupTarget</span> <span class="flag">-Policy</span> <span class="var">$policy</span> <span class="flag">-Target</span> <span class="var">$target</span>
+<span class="cmd">Set-WBSchedule</span> <span class="flag">-Policy</span> <span class="var">$policy</span> <span class="flag">-Schedule</span> <span class="num">22:00</span>
+<span class="cmd">Set-WBPolicy</span> <span class="flag">-Policy</span> <span class="var">$policy</span>
+
+<span class="comment"># Test immédiat</span>
+<span class="cmd">Start-WBBackup</span> <span class="flag">-Policy</span> (<span class="cmd">Get-WBPolicy</span>)
+<span class="cmd">Get-WBSummary</span></code></pre>
+            </details>
+        </article>
+
+        <!-- TP7 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-arrows-rotate" style="color:var(--accent)"></i> TP7 — Créer un Failover Cluster</h2>
+            <p><strong>Contexte :</strong> Configurer un cluster à 2 nœuds pour la haute disponibilité.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="comment"># Sur chaque nœud</span>
+<span class="cmd">Install-WindowsFeature</span> <span class="string">Failover-Clustering</span> <span class="flag">-IncludeManagementTools</span>
+
+<span class="comment"># Valider (OBLIGATOIRE)</span>
+<span class="cmd">Test-Cluster</span> <span class="flag">-Node</span> <span class="string">"SRV-NODE1"</span>,<span class="string">"SRV-NODE2"</span>
+
+<span class="comment"># Créer le cluster</span>
+<span class="cmd">New-Cluster</span> <span class="flag">-Name</span> <span class="string">"CLUSTER-PROD"</span> `
+    <span class="flag">-Node</span> <span class="string">"SRV-NODE1"</span>,<span class="string">"SRV-NODE2"</span> `
+    <span class="flag">-StaticAddress</span> <span class="num">192.168.1.200</span>
+
+<span class="comment"># Configurer le quorum (File Share Witness)</span>
+<span class="cmd">Set-ClusterQuorum</span> <span class="flag">-NodeAndFileShareMajority</span> <span class="string">"\\SRV-FS\ClusterWitness"</span>
+
+<span class="comment"># Vérifier</span>
+<span class="cmd">Get-Cluster</span>
+<span class="cmd">Get-ClusterNode</span>
+<span class="cmd">Get-ClusterQuorum</span></code></pre>
+            </details>
+        </article>
+
+        <!-- TP8 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-stethoscope" style="color:var(--accent)"></i> TP8 — Script de santé quotidien</h2>
+            <p><strong>Contexte :</strong> Créer un script PowerShell de vérification de santé à exécuter chaque matin.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="comment"># HealthCheck.ps1</span>
+Write-Host <span class="string">"=== SANTÉ SERVEUR ==="</span> <span class="flag">-ForegroundColor</span> Cyan
+
+<span class="comment"># Uptime</span>
+<span class="var">$boot</span> = (<span class="cmd">Get-CimInstance</span> Win32_OperatingSystem).LastBootUpTime
+Write-Host <span class="string">"Uptime : $((Get-Date) - $boot)"</span>
+
+<span class="comment"># Espace disque</span>
+<span class="cmd">Get-WmiObject</span> Win32_LogicalDisk <span class="flag">-Filter</span> <span class="string">"DriveType=3"</span> |
+    <span class="cmd">Format-Table</span> DeviceID,
+        @{N=<span class="string">'Libre(GB)'</span>;E={[math]::Round(<span class="var">$_</span>.FreeSpace/1GB,1)}},
+        @{N=<span class="string">'%Libre'</span>;E={[math]::Round(<span class="var">$_</span>.FreeSpace/<span class="var">$_</span>.Size*100,1)}}
+
+<span class="comment"># Services critiques arrêtés</span>
+<span class="cmd">Get-Service</span> DNS,NTDS,W32Time,DHCPServer <span class="flag">-ErrorAction</span> SilentlyContinue |
+    <span class="cmd">Where-Object</span> Status <span class="flag">-ne</span> <span class="string">"Running"</span> |
+    <span class="cmd">Format-Table</span> Name,Status
+
+<span class="comment"># Erreurs système (24h)</span>
+<span class="var">$errors</span> = (<span class="cmd">Get-EventLog</span> System <span class="flag">-EntryType</span> Error <span class="flag">-After</span> (Get-Date).AddHours(-24) <span class="flag">-ErrorAction</span> SilentlyContinue).Count
+Write-Host <span class="string">"Erreurs système (24h) : $errors"</span>
+
+<span class="comment"># Dernière sauvegarde</span>
+<span class="cmd">Get-WBSummary</span> <span class="flag">-ErrorAction</span> SilentlyContinue</code></pre>
+            </details>
+        </article>
+
+        <!-- TP9 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-download" style="color:var(--accent)"></i> TP9 — Déployer WSUS</h2>
+            <p><strong>Contexte :</strong> Installer WSUS et créer la GPO pour diriger les clients vers le serveur WSUS.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="string">UpdateServices</span> <span class="flag">-IncludeManagementTools</span>
+<span class="gui">cd "C:\Program Files\Update Services\Tools"</span>
+<span class="cmd">.\wsusutil.exe</span> postinstall CONTENT_DIR=<span class="path">D:\WSUS</span>
+
+<span class="comment"># GPO pour les clients :</span>
+<span class="cmd">New-GPO</span> <span class="flag">-Name</span> <span class="string">"WSUS Clients"</span>
+<span class="cmd">New-GPLink</span> <span class="flag">-Name</span> <span class="string">"WSUS Clients"</span> <span class="flag">-Target</span> <span class="string">"DC=lab,DC=local"</span>
+
+<span class="comment"># Dans GPMC, configurer :</span>
+<span class="comment"># Computer Config > Admin Templates > Windows Components</span>
+<span class="comment"># > Windows Update ></span>
+<span class="comment">#   "Specify intranet update service" → http://SRV-DC01:8530</span>
+<span class="comment">#   "Configure Automatic Updates" → Auto download & schedule</span>
+<span class="comment">#   "Automatic Updates detection frequency" → 4 hours</span></code></pre>
+            </details>
+        </article>
+
+        <!-- TP10 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-cube" style="color:var(--accent)"></i> TP10 — Créer une VM Hyper-V</h2>
+            <p><strong>Contexte :</strong> Installer Hyper-V et créer une VM Windows Server Génération 2.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="string">Hyper-V</span> <span class="flag">-IncludeManagementTools</span> <span class="flag">-Restart</span>
+
+<span class="comment"># Créer un switch externe</span>
+<span class="cmd">New-VMSwitch</span> <span class="flag">-Name</span> <span class="string">"Production"</span> <span class="flag">-NetAdapterName</span> <span class="string">"Ethernet"</span> <span class="flag">-AllowManagementOS</span> <span class="var">$true</span>
+
+<span class="comment"># Créer la VM</span>
+<span class="cmd">New-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Generation</span> <span class="num">2</span> `
+    <span class="flag">-MemoryStartupBytes</span> <span class="num">4GB</span> `
+    <span class="flag">-NewVHDPath</span> <span class="path">"D:\VMs\SRV-WEB01\disk.vhdx"</span> `
+    <span class="flag">-NewVHDSizeBytes</span> <span class="num">60GB</span> `
+    <span class="flag">-SwitchName</span> <span class="string">"Production"</span>
+
+<span class="cmd">Set-VMProcessor</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Count</span> <span class="num">2</span>
+<span class="cmd">Set-VMMemory</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-DynamicMemoryEnabled</span> <span class="var">$true</span> <span class="flag">-MinimumBytes</span> <span class="num">1GB</span> <span class="flag">-MaximumBytes</span> <span class="num">8GB</span>
+<span class="cmd">Set-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-CheckpointType</span> <span class="string">Production</span>
+<span class="cmd">Add-VMDvdDrive</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Path</span> <span class="path">"D:\ISOs\WinServer2022.iso"</span>
+
+<span class="cmd">Start-VM</span> <span class="string">"SRV-WEB01"</span></code></pre>
+            </details>
+        </article>
+
+        <!-- TP11 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-camera" style="color:var(--accent)"></i> TP11 — Gérer les Snapshots</h2>
+            <p><strong>Contexte :</strong> Créer, restaurer et supprimer un snapshot avant une mise à jour risquée.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="comment"># 1. Créer le snapshot AVANT la MAJ</span>
+<span class="cmd">Checkpoint-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-SnapshotName</span> <span class="string">"Pre-MAJ-IIS"</span>
+
+<span class="comment"># 2. Vérifier qu'il existe</span>
+<span class="cmd">Get-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span>
+
+<span class="comment"># 3. Faire la mise à jour...</span>
+<span class="comment"># (si problème, restaurer) :</span>
+<span class="cmd">Restore-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Name</span> <span class="string">"Pre-MAJ-IIS"</span> <span class="flag">-Confirm:</span><span class="var">$false</span>
+
+<span class="comment"># 4. Si tout va bien, SUPPRIMER le snapshot (&lt;72h !)</span>
+<span class="cmd">Remove-VMSnapshot</span> <span class="flag">-VMName</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Name</span> <span class="string">"Pre-MAJ-IIS"</span></code></pre>
+            </details>
+        </article>
+
+        <!-- TP12 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-file-export" style="color:var(--accent)"></i> TP12 — Exporter et Importer une VM</h2>
+            <p><strong>Contexte :</strong> Exporter une VM pour la transférer vers un autre hôte Hyper-V.</p>
+            <details>
+                <summary style="cursor:pointer;font-weight:600;color:var(--accent);margin:1rem 0;">📝 Voir la correction</summary>
+                <pre class="code-block"><code><span class="comment"># Exporter (même si la VM est allumée)</span>
+<span class="cmd">Export-VM</span> <span class="flag">-Name</span> <span class="string">"SRV-WEB01"</span> <span class="flag">-Path</span> <span class="path">"E:\Exports"</span>
+
+<span class="comment"># Copier le dossier E:\Exports\SRV-WEB01 vers l'autre hôte</span>
+
+<span class="comment"># Importer sur le nouvel hôte</span>
+<span class="cmd">Import-VM</span> <span class="flag">-Path</span> <span class="path">"E:\Exports\SRV-WEB01\Virtual Machines\*.vmcx"</span> `
+    <span class="flag">-Copy</span> `
+    <span class="flag">-GenerateNewId</span>
+
+<span class="comment"># Vérifier</span>
+<span class="cmd">Get-VM</span></code></pre>
+            </details>
+        </article>
+
+        <div class="chapter-nav">
+            <a href="../index.html"><i class="fas fa-arrow-left"></i> Accueil</a>
+            <a href="../chapitres/simulateur-examen.html">Simulateur d'Examen <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

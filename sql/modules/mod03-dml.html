@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 03 : DML (Update/Delete) | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Module 03: DML Fondamental</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+            <!-- Theory -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">1. La Vie des Données</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas fa-heartbeat text-9xl"></i>
+                    </div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Créer des tables (DDL), c'est comme construire une maison.
+                        Maintenant, il faut y vivre ! C'est le rôle du <strong>DML (Data Manipulation Language)</strong>.
+                        <br><br>
+                        Vos données ne sont pas des statues de pierre. Elles naissent (INSERT), elles changent (UPDATE) et elles meurent (DELETE).
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Concept INSERT -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                 <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-green-500 pl-4">2. La Naissance (INSERT)</h2>
+                 <div class="glass-card p-6 rounded-xl">
+                    <div class="flex flex-col md:flex-row gap-8 items-center">
+                        <div class="w-full md:w-1/3 text-center">
+                            <i class="fas fa-envelope-open-text text-8xl text-green-500/80 mb-4"></i>
+                            <div class="text-sm text-slate-400">Poster une lettre</div>
+                        </div>
+                        <div class="w-full md:w-2/3">
+                            <p class="text-slate-300 mb-4">
+                                Pour ajouter une ligne, imaginez que vous remplissez un formulaire papier et que vous le glissez dans une boîte.
+                            </p>
+                            <div class="bg-[#1e1e1e] p-4 rounded-lg border-l-4 border-green-500 font-mono text-sm relative group">
+                                <span class="text-blue-400">INSERT INTO</span> <span class="text-white">Clients</span> 
+                                (<span class="text-purple-400">nom</span>, <span class="text-purple-400">ville</span>)
+                                <br>
+                                <span class="text-blue-400">VALUES</span> 
+                                (<span class="text-yellow-300">'Alice'</span>, <span class="text-yellow-300">'Paris'</span>);
+                                
+                                <div class="absolute top-2 right-2 opacity-50 text-xs text-slate-500">
+                                    Attention à l'ordre !<br>Nom -> Alice<br>Ville -> Paris
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+            <!-- Concept UPDATE & DELETE -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">3. La Modification & Suppression</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-300 mb-6">
+                        C'est ici que le SQL devient puissant... et dangereux.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- UPDATE Card -->
+                        <div class="bg-slate-900 p-6 rounded-xl border border-amber-500/30 hover:border-amber-500 transition-colors group">
+                             <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-amber-400 flex items-center gap-2">
+                                    <i class="fas fa-eraser"></i> UPDATE (La Gomme)
+                                </h4>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-4">
+                                Permet de corriger une valeur existante.
+                            </p>
+                            <div class="bg-black p-3 rounded font-mono text-xs text-amber-300 mb-2">
+                                UPDATE table SET prix = 20<br>
+                                <strong class="text-red-500 bg-red-900/20 px-1">WHERE id = 5</strong>
+                            </div>
+                            <p class="text-xs text-slate-500">
+                                <i class="fas fa-exclamation-triangle text-red-500"></i> Sans le WHERE, vous changez TOUS les prix du magasin à 20€ !
+                            </p>
+                        </div>
+
+                        <!-- DELETE Card -->
+                        <div class="bg-slate-900 p-6 rounded-xl border border-red-500/30 hover:border-red-500 transition-colors group">
+                             <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-red-400 flex items-center gap-2">
+                                    <i class="fas fa-trash-alt"></i> DELETE (La Broyeuse)
+                                </h4>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-4">
+                                Supprime définitivement une ou plusieurs lignes.
+                            </p>
+                            <div class="bg-black p-3 rounded font-mono text-xs text-red-300 mb-2">
+                                DELETE FROM table<br>
+                                <strong class="text-red-500 bg-red-900/20 px-1">WHERE date < '2020'</strong>
+                            </div>
+                            <p class="text-xs text-slate-500">
+                                <i class="fas fa-exclamation-triangle text-red-500"></i> Sans le WHERE, la table est vide.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Practice Mission -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">4. Mission : Sauver la Paie</h2>
+                <div class="bg-blue-600/10 border border-blue-500 p-4 rounded-lg mb-6 flex gap-4">
+                    <div class="text-3xl">💸</div>
+                    <div>
+                        <h4 class="font-bold text-white">Votre Mission</h4>
+                        <p class="text-slate-300 text-sm">
+                            Le stagiaire a fait une erreur ! Alice (id=1) a été enregistrée avec le rôle 'Guest' au lieu de 'Admin'.
+                            Corrigez cela avant qu'elle ne perde ses accès.
+                        </p>
+                    </div>
+                </div>
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3"><span class="text-xs font-mono text-slate-500">sql-server</span></div>
+                    <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none" spellcheck="false" placeholder="Tapez votre code ici...">UPDATE users 
+SET role = 'Admin' 
+WHERE id = 1</textarea>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold flex items-center gap-2">
+                            <i class="fas fa-play"></i> Exécuter
+                        </button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px]">
+                        <div class="flex items-center gap-2 text-slate-500">
+                            <i class="fas fa-terminal"></i>
+                            <span>En attente...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+
+            <!-- Section Approfondissement (Expert) -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.3s;">
+                <h2 class="text-2xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">
+                    <i class="fas fa-microscope text-purple-400 mr-2"></i> Zoom : TRUNCATE vs DELETE
+                </h2>
+                <div class="bg-slate-800/50 border border-purple-500/30 rounded-xl p-8">
+                    <h3 class="font-bold text-lg mb-6 text-purple-300">Comment vider une table efficacement ?</h3>
+                    <p class="text-slate-300 mb-6 leading-relaxed">
+                        Imaginez que vous devez vider une armoire d'archives géante (1 million de dossiers).
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- DELETE -->
+                        <div class="bg-slate-900 p-6 rounded-xl border border-slate-700">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-bold text-white">DELETE FROM Table</h4>
+                                <span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-400">Méthode Douce</span>
+                            </div>
+                            <div class="flex justify-center my-4">
+                                <i class="fas fa-file-contract text-4xl text-slate-600 animate-pulse"></i>
+                            </div>
+                            <p class="text-sm text-slate-400 mb-2">
+                                Vous prenez chaque dossier un par un, vous vérifiez s'il doit être jeté (WHERE), et vous le passez au broyeur.
+                            </p>
+                            <ul class="text-xs text-red-400 list-disc list-inside mt-2">
+                                <li>Lent (Ligne par ligne)</li>
+                                <li>Consomme beaucoup de ressources</li>
+                                <li>Mais annulable (Loggué)</li>
+                            </ul>
+                        </div>
+
+                        <!-- TRUNCATE -->
+                        <div class="bg-slate-900 p-6 rounded-xl border border-slate-700">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-bold text-white">TRUNCATE TABLE</h4>
+                                <span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-400">Méthode Brutale</span>
+                            </div>
+                            <div class="flex justify-center my-4">
+                                <i class="fas fa-fire text-4xl text-orange-500 animate-bounce"></i>
+                            </div>
+                            <p class="text-sm text-slate-400 mb-2">
+                                Vous mettez le feu à l'armoire entière. Vous ne regardez pas ce qu'il y a dedans.
+                            </p>
+                            <ul class="text-xs text-green-400 list-disc list-inside mt-2">
+                                <li>Immédiat (Désallocation de page)</li>
+                                <li>Extrêmement performant</li>
+                                <li>Impossible d'utiliser WHERE</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Zone d'Entraînement Intensive -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.4s;">
+                <div class="glass-card p-6 rounded-xl border border-slate-700">
+                    <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                        <i class="fas fa-dumbbell text-red-500"></i>
+                        Zone d'Entraînement
+                    </h2>
+
+                    <!-- Tabs Header -->
+                    <div class="flex border-b border-slate-700 mb-6">
+                        <button onclick="switchTab('quiz')" id="tab-quiz" class="px-6 py-3 text-blue-400 border-b-2 border-blue-400 font-bold hover:bg-slate-800/50 transition-colors">
+                            Quiz (10)
+                        </button>
+                        <button onclick="switchTab('exos')" id="tab-exos" class="px-6 py-3 text-slate-400 hover:text-blue-300 hover:bg-slate-800/50 transition-colors">
+                            Exercices (5)
+                        </button>
+                        <button onclick="switchTab('drag')" id="tab-drag" class="px-6 py-3 text-slate-400 hover:text-blue-300 hover:bg-slate-800/50 transition-colors">
+                            Drag & Drop (3)
+                        </button>
+                    </div>
+
+                    <!-- TAB 1: QUIZ -->
+                    <div id="content-quiz" class="space-y-6">
+                        <div id="quiz-container" class="space-y-6"></div>
+                        <div class="flex items-center gap-4 mt-6 border-t border-slate-800 pt-4">
+                            <button onclick="checkQuiz()" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold rounded shadow-lg shadow-blue-900/20 transition-all">
+                                Vérifier mes réponses
+                            </button>
+                            <span id="quiz-score" class="text-xl font-bold text-slate-300"></span>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: EXERCICES -->
+                    <div id="content-exos" class="hidden space-y-6">
+                        <!-- Exo 1 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol1')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>1. Insertion Simple</h4>
+                                    <p class="text-sm text-slate-400">Ajoutez un utilisateur 'Alice' avec l'email 'alice@test.com' dans la table Users (colonnes name, email).</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol1" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    INSERT INTO Users (name, email)<br>VALUES ('Alice', 'alice@test.com');
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- Exo 2 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol2')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>2. Correction d'Email</h4>
+                                    <p class="text-sm text-slate-400">L'utilisateur d'ID 5 a changé d'email pour 'new@test.com'. Mettez à jour sa fiche.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol2" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    UPDATE Users<br>SET email = 'new@test.com'<br>WHERE id = 5;
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- Exo 3 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol3')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>3. Suppression Ciblée</h4>
+                                    <p class="text-sm text-slate-400">Supprimez toutes les commandes (Orders) datant d'avant 2020 (colonne created_at).</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol3" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    DELETE FROM Orders<br>WHERE created_at < '2020-01-01';
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- Exo 4 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol4')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-code mr-2"></i>4. Augmentation Générale</h4>
+                                    <p class="text-sm text-slate-400">Le produit 'Laptop' voit son prix augmenter de 50€ pour tous les modèles en stock.</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol4" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    UPDATE Products<br>SET price = price + 50<br>WHERE name = 'Laptop';
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- Exo 5 -->
+                        <div class="group bg-slate-900/50 p-4 rounded-lg border border-slate-800 hover:border-slate-600 transition-all">
+                            <div class="flex justify-between items-start cursor-pointer" onclick="toggleSol('sol5')">
+                                <div>
+                                    <h4 class="font-bold text-blue-300 mb-1"><i class="fas fa-trash-alt mr-2"></i>5. Vide-Grenier (TRUNCATE)</h4>
+                                    <p class="text-sm text-slate-400">Videz entièrement la table 'Logs' de manière performante (sans scanner ligne par ligne).</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-slate-500 group-hover:text-white transition-colors"></i>
+                            </div>
+                            <div id="sol5" class="hidden mt-4 pt-4 border-t border-slate-800">
+                                <code class="block bg-black p-3 rounded text-green-400 font-mono text-sm shadow-inner">
+                                    TRUNCATE TABLE Logs;
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: DRAG & DROP -->
+                    <div id="content-drag" class="hidden space-y-8">
+                        <!-- Jeu 1 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 1 : Ordre INSERT</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Reconstituez la syntaxe</p>
+                            <div id="drag-drop-1" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(1)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+
+                        <!-- Jeu 2 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 2 : Safety First</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Classez les actions</p>
+                            <div id="drag-drop-2" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(2)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+
+                        <!-- Jeu 3 -->
+                        <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                            <h4 class="font-bold text-purple-400 mb-4 text-center">Défi 3 : Vocabulaire DML</h4>
+                            <p class="text-xs text-center text-slate-500 mb-4">Associez les termes</p>
+                            <div id="drag-drop-3" class="min-h-[200px]"></div>
+                            <button onclick="verifyDD(3)" class="w-full mt-4 py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded border border-slate-600">Vérifier</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <div class="hidden lg:block w-72 shrink-0">
+             <div class="sticky top-24 space-y-6">
+                <div id="databot-container"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script>
+        // --- 1. QUIZ ENGINE ---
+        const quizData = [
+            { q: "Quelle commande modifie des données existantes ?", o: ["UPDATE", "ALTER", "CHANGE"], a: 0 },
+            { q: "Quelle commande supprime des lignes ?", o: ["REMOVE", "DELETE", "DROP"], a: 1 },
+            { q: "Que se passe-t-il si j'oublie le WHERE dans un DELETE ?", o: ["Erreur de syntaxe", "Rien ne se passe", "Toutes les lignes sont supprimées"], a: 2 },
+            { q: "TRUNCATE est-il plus rapide que DELETE ?", o: ["Oui (pas de log ligne par ligne)", "Non", "C'est pareil"], a: 0 },
+            { q: "TRUNCATE accepte-t-il un WHERE ?", o: ["Oui", "Non", "Parfois"], a: 1 },
+            { q: "Comment ajouter une nouvelle ligne ?", o: ["ADD ROW", "INSERT INTO", "UPDATE NEW"], a: 1 },
+            { q: "Laquelle est une bonne pratique ?", o: ["DELETE sans WHERE", "UPDATE sans WHERE", "Toujours vérifier le WHERE"], a: 2 },
+            { q: "Pour vider une table complètement et rapidement :", o: ["DELETE *", "DROP TABLE", "TRUNCATE TABLE"], a: 2 },
+            { q: "Quelle clause définit les nouvelles valeurs dans un UPDATE ?", o: ["VALUES", "SET", "TO"], a: 1 },
+            { q: "Si je veux supprimer la table elle-même (structure incluse) :", o: ["DELETE TABLE", "TRUNCATE TABLE", "DROP TABLE"], a: 2 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = quizData.map((item, idx) => `
+                <div class="q-item border-l-2 border-slate-700 pl-4">
+                    <p class="font-bold text-slate-200 mb-2">${idx + 1}. ${item.q}</p>
+                    <div class="flex gap-4 flex-wrap">
+                        ${item.o.map((opt, oIdx) => `
+                            <label class="flex items-center gap-2 cursor-pointer bg-slate-800 px-3 py-1 rounded hover:bg-slate-700">
+                                <input type="radio" name="q${idx}" value="${oIdx}">
+                                <span class="text-sm">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function checkQuiz() {
+            let score = 0;
+            quizData.forEach((item, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                const parent = document.querySelectorAll('.q-item')[idx];
+                if (selected) {
+                    if (parseInt(selected.value) === item.a) {
+                        score++;
+                        parent.classList.remove('border-red-500', 'border-slate-700');
+                        parent.classList.add('border-green-500');
+                    } else {
+                        parent.classList.remove('border-green-500', 'border-slate-700');
+                        parent.classList.add('border-red-500');
+                    }
+                }
+            });
+            document.getElementById('quiz-score').innerText = `Score: ${score}/10`;
+            if (score >= 7) {
+                bot.speak(`Excellent ! Score de ${score}/10 !`, "happy");
+                confetti();
+            } else {
+                bot.speak(`Score de ${score}/10. Attention aux pièges DML.`, "sad");
+            }
+        }
+
+        // --- 2. TABS LOGIC ---
+        function switchTab(tab) {
+            ['quiz', 'exos', 'drag'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-400');
+            });
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+            document.getElementById(`tab-${tab}`).classList.remove('text-slate-400');
+        }
+
+        function toggleSol(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        // --- 3. DRAG & DROP LOGIC ---
+        
+        // Game 1: Syntaxe INSERT
+        const dd1 = new DragDropEngine('drag-drop-1', 
+            [{id:'i1', text:'INSERT INTO'}, {id:'i2', text:'VALUES'}, {id:'i3', text:'(col1)'}], 
+            [{id:'z1', label:'1. Commande', accept:'i1'}, {id:'z2', label:'2. Colonnes', accept:'i3'}, {id:'z3', label:'3. Données', accept:'i2'}]
+        );
+        // Game 2: Safety
+        const dd2 = new DragDropEngine('drag-drop-2', 
+            [{id:'safe', text:'WHERE id=1'}, {id:'danger', text:'(Pas de WHERE)'}, {id:'check', text:'SELECT avant DELETE'}], 
+            [{id:'z1', label:'Safe Update', accept:'safe'}, {id:'z2', label:'Danger Zone', accept:'danger'}, {id:'z3', label:'Best Practice', accept:'check'}]
+        );
+        // Game 3: Definitions
+        const dd3 = new DragDropEngine('drag-drop-3', 
+            [{id:'t1', text:'TRUNCATE'}, {id:'t2', text:'DELETE'}, {id:'t3', text:'UPDATE'}], 
+            [{id:'z1', label:'Vider table (Rapide)', accept:'t1'}, {id:'z2', label:'Supprimer ligne (Loggé)', accept:'t2'}, {id:'z3', label:'Modifier contenu', accept:'t3'}]
+        );
+
+        function verifyDD(id) {
+            let engine = (id===1) ? dd1 : (id===2) ? dd2 : dd3;
+            if (engine.validate()) {
+                bot.speak("Logique respectée !", "happy");
+                bot.awardXP(20);
+            } else {
+                bot.speak("Revois la syntaxe ou la sécurité.", "sad");
+            }
+        }
+
+        // --- INIT ---
+        const bot = new DataBot();
+        bot.render('databot-container');
+        bot.speak("Attention avec DELETE et UPDATE. Oublier le WHERE est fatal !", 5000);
+        
+        renderQuiz();
+
+        // 4. SQL Engine logic
+        function runQuery() {
+            const sql = document.getElementById('sql-input').value;
+            // The sql-engine.js handles UPDATE/DELETE logic
+            const result = executeSQL(sql); 
+            
+            const output = document.getElementById('query-output');
+            if (result.success) {
+                // Formatting JSON/Array output to table if array
+                if (Array.isArray(result.data)) {
+                    // It's a select or return
+                     output.innerHTML = JSON.stringify(result.data);
+                } else {
+                    // Message
+                     output.innerHTML = `<div class="text-green-400">${result.message || 'Succès'}</div>`;
+                }
+                bot.awardXP(20);
+                if (sql.toUpperCase().includes('UPDATE')) bot.speak("Mise à jour effectuée !");
+            } else {
+                output.innerHTML = `<div class="text-red-400">${result.error}</div>`;
+                bot.speak("Erreur de syntaxe ou logique.", "sad");
+            }
+        }
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod02-constraints.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 02 : Contraintes</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod04-select.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 04 : SELECT →</a>
+    </div>
+    <script>if(localStorage.getItem('rd_sql_theme')==='light')document.documentElement.setAttribute('data-theme','light');</script>
+</body>
+</html>

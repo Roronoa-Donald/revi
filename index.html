@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail des Cours Interactifs</title>
+    <meta name="description" content="Accédez à tous les cours interactifs : Probabilités, SQL, Recherche Opérationnelle et PHP POO.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0a0e1a;
+            --bg-card: #111827;
+            --text: #e2e8f0;
+            --text-muted: #64748b;
+            --border: rgba(255,255,255,0.06);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---- Background pattern ---- */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1.5rem;
+        }
+
+        /* ---- Header ---- */
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 540px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* ---- Grid ---- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* ---- Cards ---- */
+        .card {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 20px 20px 0 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.4);
+        }
+        .card:hover::before { opacity: 1; }
+
+        /* Per-card colors */
+        .card--proba { --accent: #8b5cf6; }
+        .card--proba::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+        .card--proba:hover { border-color: rgba(139, 92, 246, 0.3); }
+
+        .card--sql { --accent: #3b82f6; }
+        .card--sql::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .card--sql:hover { border-color: rgba(59, 130, 246, 0.3); }
+
+        .card--ro { --accent: #10b981; }
+        .card--ro::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .card--ro:hover { border-color: rgba(16, 185, 129, 0.3); }
+
+        .card--php { --accent: #f43f5e; }
+        .card--php::before { background: linear-gradient(90deg, #f43f5e, #fb7185); }
+        .card--php:hover { border-color: rgba(244, 63, 94, 0.3); }
+
+        .card--linux { --accent: #f97316; }
+        .card--linux::before { background: linear-gradient(90deg, #f97316, #fb923c); }
+        .card--linux:hover { border-color: rgba(249, 115, 22, 0.3); }
+
+        .card--winserver { --accent: #6b7280; }
+        .card--winserver::before { background: linear-gradient(90deg, #6b7280, #9ca3af); }
+        .card--winserver:hover { border-color: rgba(107, 114, 128, 0.3); }
+
+        .card--java { --accent: #ef4444; }
+        .card--java::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .card--java:hover { border-color: rgba(239, 68, 68, 0.3); }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white));
+            box-shadow: 0 4px 15px color-mix(in srgb, var(--accent) 30%, transparent);
+        }
+
+        .card h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+        .card .desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            flex: 1;
+        }
+        .card .meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .card .meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .card .enter {
+            margin-left: auto;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: gap 0.2s;
+        }
+        .card:hover .enter { gap: 0.6rem; }
+
+        /* ---- Footer ---- */
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ---- Responsive ---- */
+        @media (max-width: 640px) {
+            .grid { grid-template-columns: 1fr; }
+            .wrapper { padding: 2rem 1rem; }
+        }
+
+        /* ---- Accessibility ---- */
+        .card:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 3px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .card { transition: none; }
+            .card:hover { transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <div class="hero">
+            <div class="hero-badge">
+                <i class="fas fa-graduation-cap"></i>
+                Cours Interactifs
+            </div>
+            <h1>Choisissez votre matière</h1>
+            <p>7 cours complets avec exercices interactifs, QCM, simulateurs et gamification. Cliquez sur une carte pour commencer.</p>
+        </div>
+
+        <div class="grid">
+
+            <!-- Probabilités -->
+            <a href="probabilites/index.html" class="card card--proba">
+                <div class="card-icon"><i class="fas fa-chart-bar"></i></div>
+                <h2>Probabilités</h2>
+                <p class="desc">Variables aléatoires, lois de probabilité, espérance, variance, théorèmes limites et statistiques inférentielles.</p>
+                <div class="meta">
+                    <span><i class="fas fa-book-open"></i> Cours complet</span>
+                    <span><i class="fas fa-pen-to-square"></i> Exercices</span>
+                    <span class="enter">Entrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- SQL -->
+            <a href="sql/index.html" class="card card--sql">
+                <div class="card-icon"><i class="fas fa-database"></i></div>
+                <h2>SQL</h2>
+                <p class="desc">Requêtes SELECT, jointures, sous-requêtes, agrégation, transactions, PL/SQL et optimisation de bases de données.</p>
+                <div class="meta">
+                    <span><i class="fas fa-book-open"></i> 12 modules</span>
+                    <span><i class="fas fa-gamepad"></i> Gamifié</span>
+                    <span class="enter">Entrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- RD & RO -->
+            <a href="RD-RO/index.html" class="card card--ro">
+                <div class="card-icon"><i class="fas fa-cube"></i></div>
+                <h2>RD & Recherche Opérationnelle</h2>
+                <p class="desc">Programmation linéaire, méthode du Simplexe, résolution graphique, dualité et optimisation des ressources.</p>
+                <div class="meta">
+                    <span><i class="fas fa-book-open"></i> 8 modules</span>
+                    <span><i class="fas fa-calculator"></i> Simulateurs</span>
+                    <span class="enter">Entrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Linux -->
+            <a href="linux/index.html" class="card card--linux">
+                <div class="card-icon"><i class="fas fa-terminal"></i></div>
+                <h2>Linux</h2>
+                <p class="desc">Administration Debian : commandes de base, permissions, éditeurs, utilisateurs, réseau, SSH et scripting Bash.</p>
+                <div class="meta">
+                    <span><i class="fas fa-book-open"></i> 8 modules</span>
+                    <span><i class="fas fa-gamepad"></i> Gamifié</span>
+                    <span class="enter">Entrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- PHP POO -->
+            <a href="php/index.html" class="card card--php">
+                <div class="card-icon"><i class="fab fa-php"></i></div>
+                <h2>PHP POO</h2>
+                <p class="desc">Programmation orientée objet en PHP : classes, héritage, interfaces, traits, namespaces et design patterns.</p>
+                <div class="meta">
+                    <span><i class="fas fa-book-open"></i> 8 chapitres</span>
+                    <span><i class="fas fa-code"></i> Pratique</span>
+                    <span class="enter">Entrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Windows Server -->
+            <a href="rd_winserver/index.html" class="card card--winserver">
+                <div class="card-icon"><i class="fas fa-shield-halved"></i></div>
+                <h2>Windows Server</h2>
+                <p class="desc">Administration Windows Server 2022 : AD DS, GPO, DNS/DHCP, sauvegarde, haute disponibilité, Hyper-V et maintenance.</p>
+                <div class="meta">
+                    <span><i class="fas fa-book-open"></i> 8 modules</span>
+                    <span><i class="fas fa-gamepad"></i> Gamifié</span>
+                    <span class="enter">Entrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <!-- Java -->
+            <a href="rd_java/index.html" class="card card--java">
+                <div class="card-icon"><i class="fas fa-mug-hot"></i></div>
+                <h2>Java</h2>
+                <p class="desc">Fondamentaux Java : syntaxe, variables, conditions, boucles, tableaux, fonctions, POO, encapsulation et collections.</p>
+                <div class="meta">
+                    <span><i class="fas fa-book-open"></i> 10 chapitres</span>
+                    <span><i class="fas fa-gamepad"></i> Gamifié</span>
+                    <span class="enter">Entrer <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 — Portail des Cours Interactifs</p>
+    </footer>
+
+</body>
+</html>

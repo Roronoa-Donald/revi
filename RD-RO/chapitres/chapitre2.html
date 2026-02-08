@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 02 : Le Monde Linéaire | Optimization Master</title>
+    <meta name="description" content="Module de Recherche Opérationnelle — cours interactif avec exercices et simulateurs.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    
+    <!-- Tailwind & Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' },
+                        slate: { 850: '#1a2438', 900: '#0f172a' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" aria-hidden="true"></div>
+
+    <nav class="fixed w-full z-50 glass-nav border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="../index.html" class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-slate-900 font-bold shadow-lg shadow-emerald-500/20 transition-all group-hover:scale-105 group-hover:shadow-emerald-500/40">RO</div>
+                    <span class="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-200 to-cyan-200">Recherche Ops</span>
+                </a>
+                <div class="hidden md:flex items-center gap-6 desktop-nav">
+                    <a href="chapitre1.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Précédent</a>
+                    <span class="text-sm font-medium text-emerald-500">Module 02</span>
+                    <a href="chapitre3.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Suivant</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="theme-toggle" aria-label="Changer de thème"><i class="fas fa-sun"></i></button>
+                    <button class="hamburger-btn md:hidden" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav-overlay" aria-hidden="true"></div>
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+        <div class="flex justify-between items-center mb-6">
+            <span class="font-bold text-lg">Menu</span>
+            <button onclick="document.querySelector('.mobile-nav-overlay').click()" class="text-slate-400 hover:text-white" aria-label="Fermer"><i class="fas fa-times"></i></button>
+        </div>
+        <a href="../index.html">Accueil</a>
+        <a href="formules.html">Formules</a>
+        <a href="../exercices/exercices.html">Exercices</a>
+        <a href="simulateur-examen.html">Examen</a>
+    </nav>
+
+    <section class="pt-32 pb-12 relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-500/20 rounded-full blur-[120px] -z-10"></div>
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold uppercase tracking-wider mb-6">
+                Module 02
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 tracking-tight">
+                L'Hypothèse du Monde Plat
+            </h1>
+            <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                Le mot "Linéaire" dans Programmation Linéaire n'est pas là pour faire joli. C'est une règle stricte qui simplifie l'univers pour le rendre calculable.
+            </p>
+        </div>
+    </section>
+
+    <main id="main-content" class="max-w-4xl mx-auto px-4 pb-24 space-y-8">
+
+        <!-- CONCEPT : LA LINÉARITÉ -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10 relative">
+            <h2 class="text-2xl font-bold text-white mb-6">1. La Règle du Jeu : Tout est Proportionnel</h2>
+            <p class="text-slate-300 leading-relaxed mb-6">
+                Dans le monde réel, les choses sont compliquées : si vous achetez 1000 tables, vous avez un rabais (non-linéaire). Si vous travaillez 20h d'affilée, vous fatiguez (non-linéaire).
+            </p>
+            <p class="text-slate-300 leading-relaxed mb-6">
+                En <strong>Programmation Linéaire (PL)</strong>, nous vivons dans un monde parfait et simple. C'est le monde d'André le Menuisier, mais version "Idéale".
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6 mt-8">
+                <!-- Proportionality -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-white/5 hover:border-purple-500/30 transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xl font-bold mb-4">×</div>
+                    <h3 class="font-bold text-white mb-2">Proportionnalité</h3>
+                    <p class="text-sm text-slate-400 mb-4">Pas de rendement décroissant.</p>
+                    <div class="text-sm bg-black/20 p-3 rounded text-emerald-200 font-mono">
+                        Si 1 Table = 2 Planches<br>
+                        Alors 100 Tables = 200 Planches.
+                    </div>
+                </div>
+
+                <!-- Additivity -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-white/5 hover:border-purple-500/30 transition-all">
+                    <div class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xl font-bold mb-4">+</div>
+                    <h3 class="font-bold text-white mb-2">Additivité</h3>
+                    <p class="text-sm text-slate-400 mb-4">Le tout est la somme des parties.</p>
+                    <div class="text-sm bg-black/20 p-3 rounded text-cyan-200 font-mono">
+                        Profit Total = (Profit Tables) + (Profit Chaises).<br>
+                        Pas de "synergie magique".
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- CONTRE-EXEMPLES : CE QUI EST INTERDIT -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10">
+            <h2 class="text-2xl font-bold text-white mb-6">2. Ce qui brise le modèle (Les Interdits)</h2>
+            <p class="text-slate-300 mb-6">
+                Pour que l'algorithme "Simplexe" fonctionne plus tard, il faut respecter ces formes. Si vous voyez ça, ce n'est PAS de la PL :
+            </p>
+
+            <div class="space-y-4">
+                <div class="flex items-center gap-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                    <span class="text-red-400 font-bold text-xl">x²</span>
+                    <div>
+                        <strong class="text-red-200">Les Puissances</strong>
+                        <p class="text-xs text-red-300">Pas de carrés, pas de cubes. $x_1^2$ c'est interdit. Les courbes sont bannies, on ne veut que des droites.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                    <span class="text-red-400 font-bold text-xl">x₁·x₂</span>
+                    <div>
+                        <strong class="text-red-200">Les Multiplications de Variables</strong>
+                        <p class="text-xs text-red-300">On ne multiplie pas des chaises par des tables. On multiplie une variable par une constante (un prix, un poids), c'est tout.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                    <span class="text-red-400 font-bold text-xl">IF/THEN</span>
+                    <div>
+                        <strong class="text-red-200">La Logique Discontinue</strong>
+                        <p class="text-xs text-red-300">"Si x > 10 alors..." : Non. La fonction doit être continue et lisse.</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- ANALOGIE : LE TERRITOIRE -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10 bg-slate-800/30">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 text-3xl">🗺️</div>
+                <div>
+                    <h3 class="font-bold text-white text-lg mb-2">Analogie : La Carte et la Clôture</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Imaginez un champ infini. Chaque <strong>contrainte</strong> linéaire ($2x + y \le 10$) est comme une clôture parfaitement droite que l'on pose sur ce champ.
+                        Plus vous ajoutez de contraintes (bois, temps, peinture), plus vous réduisez l'espace disponible.
+                        <br><br>
+                        À la fin, il reste un petit polygone (un espace fermé) au milieu des clôtures. C'est le <strong>Domaine Admissible</strong>. La solution se cache quelque part là-dedans (spoiler : toujours dans un coin !).
+                    </p>
+                </div>
+            </div>
+        </article>
+
+        <!-- QUESTION RETENUE -->
+        <article class="glass-card p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-900/50 to-slate-900">
+            <h3 class="font-bold text-emerald-300 mb-2">Pourquoi cette obsession de la ligne droite ?</h3>
+            <p class="text-slate-300 text-sm">
+                Parce que les ordinateurs savent résoudre des systèmes de droites de manière incroyablement rapide (des millions de variables). Si on accepte des courbes, le calcul devient exponentiellement plus dur et incertain. La PL est un compromis : on simplifie un peu la réalité pour pouvoir la résoudre parfaitement.
+            </p>
+        </article>
+
+        <!-- Interactive Exercises Container -->
+        <article class="glass-card p-6 md:p-8 rounded-2xl border border-white/10 bg-black/20" id="interactive-exercise">
+            <!-- Injecté par exercises.js -->
+        </article>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">&copy; 2025 Optimization Master — Recherche Opérationnelle.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

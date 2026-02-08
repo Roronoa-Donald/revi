@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur d'Examen Linux | RD Linux</title>
+    <meta name="description" content="Teste tes connaissances Linux avec 50 questions chronométrées couvrant les 8 modules.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#fb923c',500:'#f97316',600:'#ea580c'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .exam-config{max-width:500px;margin:0 auto;}
+        .exam-option{display:flex;align-items:center;gap:1rem;padding:1rem;border-radius:12px;border:1px solid var(--glass-border);background:var(--glass-bg);margin-bottom:0.75rem;cursor:pointer;transition:0.2s;}
+        .exam-option:hover{border-color:var(--accent);}
+        .exam-option.selected{border-color:var(--accent);background:rgba(249,115,22,0.1);}
+        .exam-start-btn{width:100%;padding:1rem;border-radius:16px;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;font-size:1.1rem;font-weight:700;cursor:pointer;margin-top:1rem;transition:0.3s;}
+        .exam-start-btn:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(249,115,22,0.4);}
+        .exam-timer{position:fixed;top:80px;right:1.5rem;background:var(--glass-bg);border:1px solid var(--glass-border);padding:0.5rem 1rem;border-radius:12px;font-family:'JetBrains Mono',monospace;font-weight:700;z-index:50;backdrop-filter:blur(10px);}
+        .exam-timer.warning{color:#ef4444;animation:pulse 1s infinite;}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+        .exam-q-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;}
+        .exam-q-num{font-size:0.8rem;color:var(--accent);font-weight:700;margin-bottom:0.5rem;}
+        .exam-q-text{font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--text-primary);}
+        .exam-opt{display:block;width:100%;text-align:left;padding:0.8rem 1rem;border-radius:10px;border:1px solid var(--glass-border);background:transparent;color:var(--text-primary);cursor:pointer;margin-bottom:0.5rem;transition:0.2s;font-size:0.95rem;}
+        .exam-opt:hover{border-color:var(--accent);background:rgba(249,115,22,0.05);}
+        .exam-opt.selected{border-color:var(--accent);background:rgba(249,115,22,0.15);font-weight:600;}
+        .exam-opt.correct{border-color:#22c55e;background:rgba(34,197,94,0.15);color:#22c55e;}
+        .exam-opt.wrong{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#ef4444;}
+        .exam-nav{display:flex;justify-content:space-between;margin-top:1rem;}
+        .exam-nav-btn{padding:0.7rem 1.5rem;border-radius:12px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text-primary);cursor:pointer;font-weight:600;transition:0.2s;}
+        .exam-nav-btn:hover{border-color:var(--accent);}
+        .exam-nav-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+        .result-card{text-align:center;padding:2rem;}
+        .result-score{font-size:3rem;font-weight:800;color:var(--accent);}
+        .result-bar{width:100%;height:12px;border-radius:6px;background:var(--glass-border);margin:1rem 0;overflow:hidden;}
+        .result-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#f97316,#ea580c);transition:width 1s ease;}
+        .q-grid{display:flex;flex-wrap:wrap;gap:0.3rem;justify-content:center;margin:1rem 0;}
+        .q-dot{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;border:1px solid var(--glass-border);cursor:pointer;transition:0.2s;}
+        .q-dot.answered{background:var(--accent);color:#fff;border-color:var(--accent);}
+        .q-dot.current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);}
+        .q-dot.correct-dot{background:#22c55e;color:#fff;border-color:#22c55e;}
+        .q-dot.wrong-dot{background:#ef4444;color:#fff;border-color:#ef4444;}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-terminal"></i><span>RD Linux</span></a>
+            <ul class="nav-links">
+                <li><a href="cartes.html">← Flashcards</a></li>
+                <li><a href="simulateur-examen.html" class="active">Examen</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+            <li><a href="cartes.html"><i class="fas fa-clone"></i> Flashcards</a></li>
+            <li><a href="simulateur-examen.html" class="active"><i class="fas fa-graduation-cap"></i> Examen</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge"><i class="fas fa-graduation-cap"></i> Évaluation</span>
+        <h1 class="hero-title">Simulateur <span class="gradient-text">d'Examen</span></h1>
+        <p class="hero-description">50 questions couvrant les 8 modules. Chrono. Correction détaillée.</p>
+    </section>
+
+    <main id="main-content" style="max-width:750px;margin:0 auto;padding:0 1.5rem 4rem;">
+        <div id="exam-area"></div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
+        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+    </footer>
+
+    <script>
+    const examQuestions = [
+        // Module 1 — Commandes de base
+        { q: "Que signifie l'acronyme 'pwd' ?", o: ["Print Working Directory", "Password", "Path Workspace Directory", "Program Word Display"], c: 0, mod: 1 },
+        { q: "Quel flag de 'ls' affiche les fichiers cachés ?", o: ["-l", "-h", "-a", "-r"], c: 2, mod: 1 },
+        { q: "La commande 'cd -' permet de :", o: ["Aller à la racine", "Retourner au dossier précédent", "Aller au home", "Supprimer le dossier"], c: 1, mod: 1 },
+        { q: "Quelle commande affiche les 5 dernières lignes d'un fichier ?", o: ["head -5 fichier", "tail -5 fichier", "cat -5 fichier", "last 5 fichier"], c: 1, mod: 1 },
+        { q: "Le symbole '~' représente :", o: ["La racine /", "Le dossier parent", "Le répertoire personnel", "Le dossier courant"], c: 2, mod: 1 },
+        { q: "Quelle commande affiche le manuel d'une commande ?", o: ["help", "info", "man", "doc"], c: 2, mod: 1 },
+        // Module 2 — Fichiers
+        { q: "La commande 'touch' sert à :", o: ["Toucher un fichier", "Créer un fichier vide", "Supprimer un fichier", "Déplacer un fichier"], c: 1, mod: 2 },
+        { q: "Le flag '-p' de mkdir permet de :", o: ["Afficher la progression", "Créer les dossiers parents", "Protéger les fichiers", "Créer en mode privé"], c: 1, mod: 2 },
+        { q: "Quelle commande renomme un fichier ?", o: ["rename", "rn", "mv", "cp"], c: 2, mod: 2 },
+        { q: "Linux a-t-il une corbeille en ligne de commande ?", o: ["Oui dans /tmp", "Non, rm est irréversible", "Oui avec undo", "Oui dans ~/.trash"], c: 1, mod: 2 },
+        { q: "Les flags tar '-czf' signifient :", o: ["Copy Zip File", "Create gZip File", "Check Zero Files", "Copy Zero Folders"], c: 1, mod: 2 },
+        { q: "Un lien symbolique créé avec 'ln -s' :", o: ["Copie le fichier", "Pointe vers un autre fichier", "Fusionne deux fichiers", "Compresse le fichier"], c: 1, mod: 2 },
+        // Module 3 — Permissions
+        { q: "La permission octale 755 correspond à :", o: ["rw-r--r--", "rwxr-xr-x", "rwx------", "rwxrwxrwx"], c: 1, mod: 3 },
+        { q: "La valeur octale de 'w' (écriture) est :", o: ["1", "2", "4", "6"], c: 1, mod: 3 },
+        { q: "La commande 'chmod u+x fichier' :", o: ["Retire l'exécution", "Ajoute l'exécution au propriétaire", "Ajoute l'exécution à tous", "Change le propriétaire"], c: 1, mod: 3 },
+        { q: "Le sticky bit (1777) est typiquement sur :", o: ["/home", "/tmp", "/etc", "/boot"], c: 1, mod: 3 },
+        { q: "Le SUID permet :", o: ["D'exécuter comme le propriétaire du fichier", "De supprimer le fichier", "De le rendre invisible", "De le chiffrer"], c: 0, mod: 3 },
+        { q: "'chown alice:dev fichier' change :", o: ["Seulement le propriétaire", "Seulement le groupe", "Le propriétaire ET le groupe", "Les permissions"], c: 2, mod: 3 },
+        // Module 4 — Recherche
+        { q: "La commande find cherche dans :", o: ["La base de données", "L'arborescence en temps réel", "L'historique", "Internet"], c: 1, mod: 4 },
+        { q: "Le flag '-i' de grep signifie :", o: ["Inverse", "Insensible à la casse", "Interactif", "Incluant les sous-dossiers"], c: 1, mod: 4 },
+        { q: "La redirection '>>' :", o: ["Écrase le fichier", "Ajoute à la fin du fichier", "Redirige les erreurs", "Lit depuis un fichier"], c: 1, mod: 4 },
+        { q: "/dev/null est :", o: ["Un dossier temporaire", "Un fichier qui absorbe tout", "Un périphérique réseau", "Un fichier log"], c: 1, mod: 4 },
+        { q: "La commande 'which' affiche :", o: ["Le type de fichier", "Le chemin d'un exécutable", "L'aide d'une commande", "Le propriétaire"], c: 1, mod: 4 },
+        { q: "'sort -n' trie :", o: ["Alphabétiquement", "Numériquement", "Par taille", "Par date"], c: 1, mod: 4 },
+        // Module 5 — Éditeurs
+        { q: "Le mode par défaut de Vim est :", o: ["Insertion", "Normal", "Commande", "Visuel"], c: 1, mod: 5 },
+        { q: "Pour quitter Vim sans sauvegarder :", o: [":w", ":q", ":q!", ":wq"], c: 2, mod: 5 },
+        { q: "Dans Nano, Ctrl+O permet de :", o: ["Ouvrir un fichier", "Sauvegarder", "Quitter", "Copier"], c: 1, mod: 5 },
+        { q: "La commande Vim 'dd' :", o: ["Duplique la ligne", "Supprime la ligne", "Descend d'une page", "Debug"], c: 1, mod: 5 },
+        { q: "Dans Nano, le ^ signifie :", o: ["Alt", "Shift", "Ctrl", "Fn"], c: 2, mod: 5 },
+        { q: "':%s/old/new/g' dans Vim :", o: ["Cherche 'old'", "Remplace tout 'old' par 'new'", "Sauvegarde", "Supprime 'old'"], c: 1, mod: 5 },
+        // Module 6 — Utilisateurs
+        { q: "L'UID de root est :", o: ["1", "0", "1000", "999"], c: 1, mod: 6 },
+        { q: "Le flag '-m' de useradd :", o: ["Modifie l'utilisateur", "Crée le répertoire home", "Ajoute au groupe", "Mode muet"], c: 1, mod: 6 },
+        { q: "'usermod -aG sudo alice' :", o: ["Remplace les groupes par sudo", "Ajoute alice au groupe sudo", "Supprime alice de sudo", "Crée le groupe sudo"], c: 1, mod: 6 },
+        { q: "Le fichier /etc/shadow contient :", o: ["Les permissions", "Les mots de passe chiffrés", "Les groupes", "La config réseau"], c: 1, mod: 6 },
+        { q: "Pourquoi utiliser visudo au lieu de nano pour /etc/sudoers ?", o: ["Plus rapide", "Vérifie la syntaxe avant de sauvegarder", "Plus joli", "Crée une sauvegarde"], c: 1, mod: 6 },
+        { q: "'sudo !!' signifie :", o: ["Relancer la dernière commande en sudo", "Afficher l'aide de sudo", "Supprimer sudo", "Lister les commandes sudo"], c: 0, mod: 6 },
+        // Module 7 — Réseau & SSH
+        { q: "Le port SSH par défaut est :", o: ["21", "22", "80", "443"], c: 1, mod: 7 },
+        { q: "La configuration IP statique sur Debian est dans :", o: ["/etc/ssh/config", "/etc/network/interfaces", "/etc/resolv.conf", "/etc/hosts"], c: 1, mod: 7 },
+        { q: "'ssh-keygen -t ed25519' :", o: ["Se connecte en SSH", "Génère une paire de clés", "Copie une clé", "Supprime une clé"], c: 1, mod: 7 },
+        { q: "'PermitRootLogin no' dans sshd_config :", o: ["Active le login root", "Interdit le login root en SSH", "Supprime root", "Crée un alias"], c: 1, mod: 7 },
+        { q: "La commande 'scp' sert à :", o: ["Scanner le réseau", "Copier des fichiers via SSH", "Configurer SSH", "Sécuriser les connexions"], c: 1, mod: 7 },
+        { q: "Pour appliquer une modif de sshd_config :", o: ["Rien à faire", "systemctl restart ssh", "Reboot obligatoire", "ssh reload"], c: 1, mod: 7 },
+        { q: "'systemctl enable ssh' :", o: ["Démarre SSH maintenant", "Active SSH au démarrage", "Installe SSH", "Désactive SSH"], c: 1, mod: 7 },
+        // Module 8 — Bash
+        { q: "Le shebang #!/bin/bash indique :", o: ["Un commentaire", "L'interpréteur à utiliser", "Une variable", "Un alias"], c: 1, mod: 8 },
+        { q: "En Bash, 'nom = val' (avec espaces) :", o: ["Fonctionne normalement", "Provoque une erreur", "Crée un alias", "Est un commentaire"], c: 1, mod: 8 },
+        { q: "La variable $? contient :", o: ["Le PID", "Le code retour de la dernière commande", "Le nom du script", "Le nombre de fichiers"], c: 1, mod: 8 },
+        { q: "'set -e' dans un script :", o: ["Active l'echo", "Arrête à la première erreur", "Exporte les variables", "Active le mode étendu"], c: 1, mod: 8 },
+        { q: "Le mot-clé pour fermer un 'if' est :", o: ["end", "endif", "fi", "done"], c: 2, mod: 8 },
+        { q: "La commande 'read -p \"Nom: \" var' :", o: ["Lit un fichier", "Affiche un prompt et lit la saisie", "Crée une variable", "Supprime une variable"], c: 1, mod: 8 },
+        { q: "'crontab -e' permet de :", o: ["Supprimer les tâches cron", "Éditer les tâches planifiées", "Exécuter un cron", "Lister les crons passés"], c: 1, mod: 8 }
+    ];
+
+    let state = { questions: [], answers: [], currentQ: 0, timer: null, timeLeft: 0, submitted: false };
+
+    function showConfig() {
+        document.getElementById('exam-area').innerHTML = `
+            <div class="exam-config glass-card">
+                <h2 style="text-align:center;margin-bottom:1.5rem;"><i class="fas fa-cog" style="color:var(--accent);"></i> Configuration</h2>
+                <p style="font-weight:600;margin-bottom:0.75rem;">Nombre de questions :</p>
+                <div class="exam-option selected" data-count="20" onclick="selectCount(this)"><i class="fas fa-bolt" style="color:var(--accent);"></i><div><strong>20 questions</strong><br><small>~15 min — Rapide</small></div></div>
+                <div class="exam-option" data-count="35" onclick="selectCount(this)"><i class="fas fa-fire" style="color:var(--accent);"></i><div><strong>35 questions</strong><br><small>~25 min — Intermédiaire</small></div></div>
+                <div class="exam-option" data-count="50" onclick="selectCount(this)"><i class="fas fa-trophy" style="color:var(--accent);"></i><div><strong>50 questions</strong><br><small>~40 min — Complet</small></div></div>
+                <button class="exam-start-btn" onclick="startExam()"><i class="fas fa-play"></i> Commencer l'examen</button>
+            </div>`;
+    }
+
+    function selectCount(el) {
+        document.querySelectorAll('.exam-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function startExam() {
+        const count = parseInt(document.querySelector('.exam-option.selected').dataset.count);
+        const shuffled = [...examQuestions].sort(() => Math.random() - 0.5);
+        state.questions = shuffled.slice(0, count);
+        state.answers = new Array(count).fill(-1);
+        state.currentQ = 0;
+        state.submitted = false;
+        state.timeLeft = count * 50; // ~50s per question
+        showQuestion();
+        state.timer = setInterval(tick, 1000);
+    }
+
+    function tick() {
+        state.timeLeft--;
+        const timerEl = document.getElementById('exam-timer');
+        if (timerEl) {
+            const m = Math.floor(state.timeLeft / 60);
+            const s = state.timeLeft % 60;
+            timerEl.textContent = `⏱ ${m}:${s.toString().padStart(2, '0')}`;
+            if (state.timeLeft <= 60) timerEl.classList.add('warning');
+        }
+        if (state.timeLeft <= 0) { clearInterval(state.timer); submitExam(); }
+    }
+
+    function showQuestion() {
+        const q = state.questions[state.currentQ];
+        const i = state.currentQ;
+        const area = document.getElementById('exam-area');
+        area.innerHTML = `
+            <div class="exam-timer" id="exam-timer">⏱ --:--</div>
+            <div class="q-grid">${state.questions.map((_, qi) => `<span class="q-dot ${state.answers[qi] !== -1 ? 'answered' : ''} ${qi === i ? 'current' : ''}" onclick="goToQ(${qi})">${qi + 1}</span>`).join('')}</div>
+            <div class="exam-q-card">
+                <div class="exam-q-num">Question ${i + 1} / ${state.questions.length} — Module ${q.mod}</div>
+                <div class="exam-q-text">${q.q}</div>
+                ${q.o.map((opt, oi) => `<button class="exam-opt ${state.answers[i] === oi ? 'selected' : ''}" onclick="selectAnswer(${oi})">${opt}</button>`).join('')}
+            </div>
+            <div class="exam-nav">
+                <button class="exam-nav-btn" onclick="prevQ()" ${i === 0 ? 'disabled style="opacity:0.3"' : ''}><i class="fas fa-arrow-left"></i> Précédent</button>
+                ${i === state.questions.length - 1 ? `<button class="exam-nav-btn primary" onclick="submitExam()"><i class="fas fa-check"></i> Terminer</button>` : `<button class="exam-nav-btn primary" onclick="nextQ()">Suivant <i class="fas fa-arrow-right"></i></button>`}
+            </div>`;
+        tick();
+    }
+
+    function selectAnswer(oi) { state.answers[state.currentQ] = oi; showQuestion(); }
+    function nextQ() { if (state.currentQ < state.questions.length - 1) { state.currentQ++; showQuestion(); } }
+    function prevQ() { if (state.currentQ > 0) { state.currentQ--; showQuestion(); } }
+    function goToQ(qi) { state.currentQ = qi; showQuestion(); }
+
+    function submitExam() {
+        clearInterval(state.timer);
+        state.submitted = true;
+        let correct = 0;
+        state.questions.forEach((q, i) => { if (state.answers[i] === q.c) correct++; });
+        const pct = Math.round((correct / state.questions.length) * 100);
+        const grade = pct >= 90 ? 'Excellent 🏆' : pct >= 75 ? 'Très bien 🎉' : pct >= 60 ? 'Bien 👍' : pct >= 50 ? 'Passable 😐' : 'À retravailler 📚';
+
+        if (typeof GameEngine !== 'undefined') GameEngine.addXP(correct * 5);
+
+        const area = document.getElementById('exam-area');
+        area.innerHTML = `
+            <div class="glass-card result-card">
+                <h2>Résultat</h2>
+                <div class="result-score">${pct}%</div>
+                <p style="font-size:1.3rem;font-weight:700;">${grade}</p>
+                <div class="result-bar"><div class="result-fill" style="width:${pct}%;"></div></div>
+                <p>${correct} / ${state.questions.length} réponses correctes</p>
+                <div class="q-grid">${state.questions.map((q, i) => `<span class="q-dot ${state.answers[i] === q.c ? 'correct-dot' : 'wrong-dot'}" onclick="showReview(${i})">${i + 1}</span>`).join('')}</div>
+            </div>
+            <div id="review-area"></div>
+            <div style="text-align:center;margin-top:1rem;">
+                <button class="exam-nav-btn" onclick="showAllReview()"><i class="fas fa-list"></i> Voir toutes les corrections</button>
+                <button class="exam-nav-btn primary" onclick="showConfig()" style="margin-left:0.5rem;"><i class="fas fa-redo"></i> Recommencer</button>
+            </div>`;
+    }
+
+    function showReview(i) {
+        const q = state.questions[i];
+        document.getElementById('review-area').innerHTML = `
+            <div class="exam-q-card" style="margin-top:1rem;">
+                <div class="exam-q-num">Question ${i + 1} — Module ${q.mod}</div>
+                <div class="exam-q-text">${q.q}</div>
+                ${q.o.map((opt, oi) => `<div class="exam-opt ${oi === q.c ? 'correct' : (oi === state.answers[i] ? 'wrong' : '')}" style="cursor:default;">${oi === q.c ? '✅ ' : (oi === state.answers[i] ? '❌ ' : '')}${opt}</div>`).join('')}
+                ${state.answers[i] === -1 ? '<p style="color:#ef4444;font-size:0.9rem;margin-top:0.5rem;">⚠️ Pas de réponse donnée</p>' : ''}
+            </div>`;
+    }
+
+    function showAllReview() {
+        const area = document.getElementById('review-area');
+        area.innerHTML = state.questions.map((q, i) => `
+            <div class="exam-q-card">
+                <div class="exam-q-num">${state.answers[i] === q.c ? '✅' : '❌'} Question ${i + 1} — Module ${q.mod}</div>
+                <div class="exam-q-text">${q.q}</div>
+                ${q.o.map((opt, oi) => `<div class="exam-opt ${oi === q.c ? 'correct' : (oi === state.answers[i] && oi !== q.c ? 'wrong' : '')}" style="cursor:default;">${oi === q.c ? '✅ ' : (oi === state.answers[i] && oi !== q.c ? '❌ ' : '')}${opt}</div>`).join('')}
+            </div>
+        `).join('');
+    }
+
+    showConfig();
+    </script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

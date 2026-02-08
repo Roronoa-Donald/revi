@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 03 : Modélisation | Optimization Master</title>
+    <meta name="description" content="Module de Recherche Opérationnelle — cours interactif avec exercices et simulateurs.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    
+    <!-- Tailwind & Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' },
+                        slate: { 850: '#1a2438', 900: '#0f172a' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" aria-hidden="true"></div>
+
+    <nav class="fixed w-full z-50 glass-nav border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="../index.html" class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-slate-900 font-bold shadow-lg shadow-emerald-500/20 transition-all group-hover:scale-105 group-hover:shadow-emerald-500/40">RO</div>
+                    <span class="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-200 to-cyan-200">Recherche Ops</span>
+                </a>
+                <div class="hidden md:flex items-center gap-6 desktop-nav">
+                    <a href="chapitre2.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Précédent</a>
+                    <span class="text-sm font-medium text-emerald-500">Module 03</span>
+                    <a href="chapitre4.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Suivant</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="theme-toggle" aria-label="Changer de thème"><i class="fas fa-sun"></i></button>
+                    <button class="hamburger-btn md:hidden" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav-overlay" aria-hidden="true"></div>
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+        <div class="flex justify-between items-center mb-6">
+            <span class="font-bold text-lg">Menu</span>
+            <button onclick="document.querySelector('.mobile-nav-overlay').click()" class="text-slate-400 hover:text-white" aria-label="Fermer"><i class="fas fa-times"></i></button>
+        </div>
+        <a href="../index.html">Accueil</a>
+        <a href="formules.html">Formules</a>
+        <a href="../exercices/exercices.html">Exercices</a>
+        <a href="simulateur-examen.html">Examen</a>
+    </nav>
+
+    <section class="pt-32 pb-12 relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-blue-500/20 rounded-full blur-[120px] -z-10"></div>
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-semibold uppercase tracking-wider mb-6">
+                Module 03
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 tracking-tight">
+                L'Art de la Traduction
+            </h1>
+            <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                Le plus dur en Maths, ce n'est pas le calcul (l'ordi le fait). C'est de prendre un problème "réel" (flou, bavard) et de le transformer en équations (précis, muet).
+            </p>
+        </div>
+    </section>
+
+    <main id="main-content" class="max-w-4xl mx-auto px-4 pb-24 space-y-8">
+
+        <!-- METAPHORE : LE TRADUCTEUR -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10 relative">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="p-3 bg-blue-500/20 rounded-xl text-blue-300 text-2xl">🗣️</div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Devenir Bilingue : Français ↔ Maths</h2>
+                    <p class="text-slate-300">
+                        Votre client (ou votre patron) ne parle pas algèbre. Il vous dit : <em>"Je veux pas perdre trop d'argent, mais faut que ça aille vite !"</em>. Votre job, c'est de traduire ça.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid gap-4">
+                <div class="bg-slate-800/50 p-4 rounded-lg flex items-center justify-between group hover:bg-slate-800 transition-colors">
+                    <span class="text-slate-400 italic">"Je ne peux pas dépasser 50..."</span>
+                    <span class="text-2xl text-slate-600 group-hover:text-emerald-400 transition-colors">→</span>
+                    <span class="font-mono text-emerald-300 bg-black/30 px-3 py-1 rounded">x &le; 50</span>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg flex items-center justify-between group hover:bg-slate-800 transition-colors">
+                    <span class="text-slate-400 italic">"Il me faut au moins 10..."</span>
+                    <span class="text-2xl text-slate-600 group-hover:text-emerald-400 transition-colors">→</span>
+                    <span class="font-mono text-emerald-300 bg-black/30 px-3 py-1 rounded">x &ge; 10</span>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg flex items-center justify-between group hover:bg-slate-800 transition-colors">
+                    <span class="text-slate-400 italic">"Il faut que ce soit équilibré..."</span>
+                    <span class="text-2xl text-slate-600 group-hover:text-emerald-400 transition-colors">→</span>
+                    <span class="font-mono text-emerald-300 bg-black/30 px-3 py-1 rounded">x₁ = x₂</span>
+                </div>
+            </div>
+        </article>
+
+        <!-- CAS 1 : MAXIMISATION (ANDRÉ) -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-xs font-bold bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded border border-emerald-500/20">CAS N°1</span>
+                <h2 class="text-xl font-bold text-white">Le Menuisier (Maximisation)</h2>
+            </div>
+            
+            <p class="text-slate-300 mb-4">
+                Retournons voir André. Il a du stock, il veut du Cash.
+            </p>
+
+            <div class="space-y-6 border-l-2 border-slate-700 ml-2 pl-6">
+                <!-- STEP 1 -->
+                <div class="relative">
+                    <span class="absolute -left-[33px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 border-2 border-emerald-500 text-xs font-bold">1</span>
+                    <h3 class="text-emerald-300 font-bold text-sm uppercase mb-1">Variables de Décision</h3>
+                    <p class="text-slate-400 text-sm">Qu'est-ce qu'André peut changer ? Le nombre de meubles.</p>
+                    <code class="block mt-2 text-xs bg-black/20 p-2 rounded text-slate-300 w-fit">x₁ = Tables, x₂ = Chaises</code>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="relative">
+                    <span class="absolute -left-[33px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 border-2 border-emerald-500 text-xs font-bold">2</span>
+                    <h3 class="text-emerald-300 font-bold text-sm uppercase mb-1">Objectif</h3>
+                    <p class="text-slate-400 text-sm">Il gagne 50€/table et 30€/chaise. Il veut MAXIMISER le total.</p>
+                    <code class="block mt-2 text-xs bg-black/20 p-2 rounded text-emerald-300 w-fit">Max Z = 50x₁ + 30x₂</code>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="relative">
+                    <span class="absolute -left-[33px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 border-2 border-emerald-500 text-xs font-bold">3</span>
+                    <h3 class="text-emerald-300 font-bold text-sm uppercase mb-1">Contraintes</h3>
+                    <p class="text-slate-400 text-sm">Il est limité par son bois (20 planches) et son temps (40h).</p>
+                    <code class="block mt-2 text-xs bg-black/20 p-2 rounded text-slate-300 w-fit">
+                        2x₁ + x₂ &le; 20 (Bois)<br>
+                        x₁ + x₂ &le; 40 (Temps)
+                    </code>
+                </div>
+            </div>
+        </article>
+
+        <!-- CAS 2 : MINIMISATION (NOUVEAU) -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10 bg-slate-800/30">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-xs font-bold bg-blue-500/20 text-blue-300 px-2 py-1 rounded border border-blue-500/20">CAS N°2</span>
+                <h2 class="text-xl font-bold text-white">L'Étudiant Fauché (Minimisation)</h2>
+            </div>
+            
+            <p class="text-slate-300 mb-4">
+                Changeons de décor. Vous êtes étudiant, vous avez 0€, mais vous ne voulez pas mourir de faim (ni de scorbut).
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="font-bold text-white mb-2">Le Problème</h4>
+                    <p class="text-sm text-slate-400 mb-4">
+                        Vous pouvez manger des <strong>Pâtes</strong> (0.5€, 2000 cal, 0 vitamines) ou des <strong>Oranges</strong> (1€, 50 cal, 100 vitamines).
+                        <br><br>
+                        Il vous faut au moins <strong>2000 calories</strong> et <strong>300 vitamines</strong> par jour. Quel est le panier le moins cher ?
+                    </p>
+                </div>
+                <div class="bg-black/20 p-4 rounded-lg border border-white/5 text-sm font-mono">
+                    <div class="mb-2 text-blue-300">// Variables</div>
+                    x₁ = portions Pâtes, x₂ = Oranges
+                    <div class="my-2 text-blue-300">// Objectif (Minimiser Coût)</div>
+                    Min Z = 0.5x₁ + 1x₂
+                    <div class="my-2 text-blue-300">// Contraintes (Santé)</div>
+                    2000x₁ + 50x₂ &ge; 2000 (Calories)<br>
+                    0x₁ + 100x₂ &ge; 300 (Vitamines)
+                </div>
+            </div>
+            
+            <div class="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-xs text-yellow-200 flex gap-2">
+                <span>⚡</span>
+                <span><strong>Astuce :</strong> Pour "Minimiser", les contraintes sont souvent du type "Plus grand que" ($\ge$). Pour "Maximiser", c'est souvent "Plus petit que" ($\le$). C'est logique : on veut dépenser le moins possible, mais il faut quand même manger "au moins" un minimum.</span>
+            </div>
+        </article>
+
+        <!-- Interactive Exercises Container -->
+        <article class="glass-card p-6 md:p-8 rounded-2xl border border-white/10 bg-black/20" id="interactive-exercise">
+            <!-- Injecté par exercises.js -->
+        </article>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">&copy; 2025 Optimization Master — Recherche Opérationnelle.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 04 : Recherche de Fichiers | RD Linux</title>
+    <meta name="description" content="Maîtrise find, grep, locate, which et les pipes pour retrouver n'importe quoi sous Debian 13.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#fb923c',500:'#f97316',600:'#ea580c'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-terminal"></i><span>RD Linux</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre3.html">← Module 03</a></li>
+                <li><a href="chapitre4.html" class="active">Module 04</a></li>
+                <li><a href="chapitre5.html">Suivant →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div id="user-xp-display"><i class="fas fa-bolt"></i> 0 XP</div>
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html">01 · Commandes de base</a></li>
+            <li><a href="chapitre2.html">02 · Manipulation de fichiers</a></li>
+            <li><a href="chapitre3.html">03 · Droits & Permissions</a></li>
+            <li><a href="chapitre4.html" class="active">04 · Recherche</a></li>
+            <li><a href="chapitre5.html">05 · Éditeurs Vi/Vim & Nano</a></li>
+            <li><a href="chapitre6.html">06 · Utilisateurs & Groupes</a></li>
+            <li><a href="chapitre7.html">07 · Réseau & SSH</a></li>
+            <li><a href="chapitre8.html">08 · Bash Scripting</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge">Module 04</span>
+        <h1 class="hero-title">Recherche de <span class="gradient-text">Fichiers</span></h1>
+        <p class="hero-description">Sami cherche un fichier de config perdu dans /etc. Les outils de recherche vont lui sauver la vie.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-search" style="color:var(--accent);margin-right:0.5rem;"></i>find — Recherche avancée de fichiers</h2>
+            <p><code>find</code> parcourt l'arborescence en temps réel pour trouver des fichiers selon de nombreux critères.</p>
+
+            <h3>Par nom</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">find</span> <span class="path">/home</span> <span class="flag">-name</span> <span class="string">"rapport.txt"</span>        <span class="comment"># Recherche exacte</span>
+<span class="cmd">find</span> <span class="path">/etc</span> <span class="flag">-name</span> <span class="string">"*.conf"</span>               <span class="comment"># Tous les .conf dans /etc</span>
+<span class="cmd">find</span> <span class="path">.</span> <span class="flag">-iname</span> <span class="string">"readme*"</span>                <span class="comment"># Insensible à la casse</span></code></pre>
+
+            <h3>Par type</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">find</span> <span class="path">/var</span> <span class="flag">-type f</span>                      <span class="comment"># Fichiers uniquement</span>
+<span class="cmd">find</span> <span class="path">/var</span> <span class="flag">-type d</span>                      <span class="comment"># Dossiers uniquement</span>
+<span class="cmd">find</span> <span class="path">/usr</span> <span class="flag">-type l</span>                      <span class="comment"># Liens symboliques</span></code></pre>
+
+            <h3>Par taille</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">find</span> <span class="path">/var/log</span> <span class="flag">-size +100M</span>              <span class="comment"># Fichiers > 100 Mo</span>
+<span class="cmd">find</span> <span class="path">/tmp</span> <span class="flag">-size -1k</span>                    <span class="comment"># Fichiers < 1 Ko</span>
+<span class="cmd">find</span> <span class="path">/home</span> <span class="flag">-empty</span>                      <span class="comment"># Fichiers et dossiers vides</span></code></pre>
+
+            <h3>Par date</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">find</span> <span class="path">/var/log</span> <span class="flag">-mtime -7</span>               <span class="comment"># Modifiés dans les 7 derniers jours</span>
+<span class="cmd">find</span> <span class="path">/tmp</span> <span class="flag">-atime +30</span>                   <span class="comment"># Non accédés depuis 30+ jours</span>
+<span class="cmd">find</span> <span class="path">.</span> <span class="flag">-newer référence.txt</span>              <span class="comment"># Plus récents que référence.txt</span></code></pre>
+
+            <h3>Actions sur les résultats</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Supprimer les fichiers trouvés</span>
+<span class="cmd">find</span> <span class="path">/tmp</span> <span class="flag">-name "*.tmp" -delete</span>
+
+<span class="comment"># Exécuter une commande sur chaque résultat</span>
+<span class="cmd">find</span> <span class="path">/var/log</span> <span class="flag">-name "*.log" -exec</span> <span class="cmd">ls</span> <span class="flag">-lh</span> {} \;
+
+<span class="comment"># Copier tous les .conf trouvés dans un dossier</span>
+<span class="cmd">find</span> <span class="path">/etc</span> <span class="flag">-name "*.conf" -exec</span> <span class="cmd">cp</span> {} <span class="path">/backup/configs/</span> \;</code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> {} et \; dans -exec</div>
+                <p style="margin:0;font-size:0.9rem;"><code>{}</code> est remplacé par le fichier trouvé. <code>\;</code> termine la commande. Tu peux aussi utiliser <code>+</code> au lieu de <code>\;</code> pour passer tous les fichiers en une seule fois (plus rapide).</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-filter" style="color:var(--accent);margin-right:0.5rem;"></i>grep — Recherche dans le contenu</h2>
+            <p><code>grep</code> cherche un texte (ou une regex) <strong>à l'intérieur</strong> des fichiers. C'est l'outil le plus puissant du terminal.</p>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">grep</span> <span class="string">"error"</span> <span class="path">/var/log/syslog</span>         <span class="comment"># Cherche "error" dans syslog</span>
+<span class="cmd">grep</span> <span class="flag">-i</span> <span class="string">"error"</span> <span class="path">fichier.log</span>           <span class="comment"># Insensible à la casse</span>
+<span class="cmd">grep</span> <span class="flag">-r</span> <span class="string">"TODO"</span> <span class="path">/home/sami/projets/</span>   <span class="comment"># Recherche récursive dans un dossier</span>
+<span class="cmd">grep</span> <span class="flag">-n</span> <span class="string">"root"</span> <span class="path">/etc/passwd</span>           <span class="comment"># Affiche les numéros de ligne</span>
+<span class="cmd">grep</span> <span class="flag">-c</span> <span class="string">"error"</span> <span class="path">*.log</span>                <span class="comment"># Compte les occurrences</span>
+<span class="cmd">grep</span> <span class="flag">-v</span> <span class="string">"#"</span> <span class="path">/etc/fstab</span>               <span class="comment"># Lignes qui NE contiennent PAS "#"</span>
+<span class="cmd">grep</span> <span class="flag">-l</span> <span class="string">"password"</span> <span class="path">/etc/*</span>            <span class="comment"># Liste les fichiers qui contiennent le mot</span></code></pre>
+
+            <h3>grep + pipes : la combinaison magique</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">cat</span> <span class="path">/etc/passwd</span> | <span class="cmd">grep</span> <span class="string">"sami"</span>       <span class="comment"># Cherche "sami" dans passwd</span>
+<span class="cmd">ps aux</span> | <span class="cmd">grep</span> <span class="string">"apache"</span>               <span class="comment"># Cherche les processus apache</span>
+<span class="cmd">history</span> | <span class="cmd">grep</span> <span class="string">"chmod"</span>               <span class="comment"># Retrouve tes commandes chmod</span>
+<span class="cmd">dmesg</span> | <span class="cmd">grep</span> <span class="flag">-i</span> <span class="string">"usb"</span>               <span class="comment"># Cherche les messages USB du kernel</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Astuce pro — grep -rn</div>
+                <p style="margin:0;font-size:0.9rem;">La combinaison <code>grep -rn "mot" dossier/</code> (<strong>r</strong>ecursive + <strong>n</strong>uméros de ligne) est LA commande la plus utilisée par les développeurs pour rechercher du code. Sami l'utilise 50 fois par jour.</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-bolt" style="color:var(--accent);margin-right:0.5rem;"></i>Autres outils de recherche</h2>
+
+            <h3><code class="cmd">locate</code> — Recherche ultra-rapide</h3>
+            <p><code>locate</code> utilise une base de données pré-indexée. Beaucoup plus rapide que <code>find</code>, mais les résultats peuvent ne pas être à jour.</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">sudo apt install</span> <span class="path">mlocate</span>             <span class="comment"># Installer si nécessaire</span>
+<span class="cmd">sudo updatedb</span>                          <span class="comment"># Met à jour la base de données</span>
+<span class="cmd">locate</span> <span class="string">"nginx.conf"</span>                    <span class="comment"># Recherche instantanée</span>
+<span class="cmd">locate</span> <span class="flag">-i</span> <span class="string">"readme"</span>                    <span class="comment"># Insensible à la casse</span></code></pre>
+
+            <h3><code class="cmd">which</code> et <code class="cmd">whereis</code> — Trouver des commandes</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">which</span> <span class="path">python3</span>          <span class="comment"># Chemin de l'exécutable python3</span>
+<span class="output">/usr/bin/python3</span>
+<span class="cmd">whereis</span> <span class="path">bash</span>            <span class="comment"># Binaire + sources + man pages</span>
+<span class="output">bash: /usr/bin/bash /usr/share/man/man1/bash.1.gz</span></code></pre>
+
+            <h3><code class="cmd">wc</code> — Compter</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">wc</span> <span class="path">fichier.txt</span>          <span class="comment"># Lignes, mots, octets</span>
+<span class="cmd">wc</span> <span class="flag">-l</span> <span class="path">fichier.txt</span>       <span class="comment"># Nombre de lignes uniquement</span>
+<span class="cmd">ls</span> <span class="path">/etc</span> | <span class="cmd">wc</span> <span class="flag">-l</span>        <span class="comment"># Combien de fichiers dans /etc ?</span></code></pre>
+
+            <h3><code class="cmd">sort</code> et <code class="cmd">uniq</code> — Trier et dédupliquer</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">sort</span> <span class="path">noms.txt</span>                        <span class="comment"># Tri alphabétique</span>
+<span class="cmd">sort</span> <span class="flag">-n</span> <span class="path">nombres.txt</span>                  <span class="comment"># Tri numérique</span>
+<span class="cmd">sort</span> <span class="flag">-r</span> <span class="path">fichier.txt</span>                  <span class="comment"># Tri inversé</span>
+<span class="cmd">sort</span> <span class="path">fichier.txt</span> | <span class="cmd">uniq</span>              <span class="comment"># Supprime les doublons consécutifs</span>
+<span class="cmd">sort</span> <span class="path">fichier.txt</span> | <span class="cmd">uniq</span> <span class="flag">-c</span>           <span class="comment"># Compte les occurrences de chaque ligne</span></code></pre>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> uniq sans sort = piège</div>
+                <p style="margin:0;font-size:0.9rem;"><code>uniq</code> ne supprime que les doublons <strong>consécutifs</strong>. Si "chat" apparaît aux lignes 1, 5 et 8, seuls les doublons adjacents sont retirés. Toujours faire <code>sort | uniq</code> pour être sûr !</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-link" style="color:var(--accent);margin-right:0.5rem;"></i>Les Pipes et Redirections</h2>
+
+            <h3>Le pipe <code>|</code></h3>
+            <p>Le pipe envoie la sortie (stdout) d'une commande comme entrée de la suivante. C'est l'ADN de Linux !</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">cat</span> <span class="path">/var/log/syslog</span> | <span class="cmd">grep</span> <span class="string">"error"</span> | <span class="cmd">wc</span> <span class="flag">-l</span>
+<span class="comment"># Combien de lignes contiennent "error" dans syslog ?</span>
+
+<span class="cmd">ps aux</span> | <span class="cmd">grep</span> <span class="string">"apache"</span> | <span class="cmd">grep</span> <span class="flag">-v</span> <span class="string">"grep"</span>
+<span class="comment"># Liste les processus apache (en excluant la commande grep elle-même)</span>
+
+<span class="cmd">du</span> <span class="flag">-sh</span> <span class="path">/var/*</span> | <span class="cmd">sort</span> <span class="flag">-hr</span> | <span class="cmd">head</span> <span class="flag">-5</span>
+<span class="comment"># Top 5 des plus gros dossiers dans /var</span></code></pre>
+
+            <h3>Redirections</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">echo</span> <span class="string">"Hello"</span> <span class="keyword">></span> <span class="path">fichier.txt</span>          <span class="comment"># Écrit dans fichier (ÉCRASE le contenu)</span>
+<span class="cmd">echo</span> <span class="string">"World"</span> <span class="keyword">>></span> <span class="path">fichier.txt</span>         <span class="comment"># Ajoute à la fin (APPEND)</span>
+<span class="cmd">ls</span> <span class="path">/inexistant</span> <span class="keyword">2></span> <span class="path">erreurs.log</span>        <span class="comment"># Redirige les erreurs (stderr)</span>
+<span class="cmd">commande</span> <span class="keyword">&></span> <span class="path">tout.log</span>                <span class="comment"># Redirige stdout ET stderr</span>
+<span class="cmd">commande</span> <span class="keyword">></span> <span class="path">/dev/null</span> <span class="keyword">2>&1</span>         <span class="comment"># Envoie tout dans le néant (silence total)</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> > vs >></div>
+                <p style="margin:0;font-size:0.9rem;"><code>></code> <strong>écrase</strong> le fichier. <code>>></code> <strong>ajoute</strong> à la fin. Si tu utilises <code>></code> par erreur, tu perds l'ancien contenu ! Sami a perdu un fichier de log comme ça — depuis il utilise toujours <code>>></code> sauf quand il veut vraiment écraser.</p>
+            </div>
+        </article>
+
+        <article class="glass-card" id="interactive-exercise">
+            <h2><i class="fas fa-dumbbell" style="color:var(--accent);margin-right:0.5rem;"></i>Exercices Interactifs</h2>
+            <p style="color:var(--text-muted);">Chargement des exercices...</p>
+        </article>
+
+        <div class="chapter-nav">
+            <a href="chapitre3.html"><i class="fas fa-arrow-left"></i> Module 03 : Droits & Permissions</a>
+            <a href="chapitre5.html">Module 05 : Éditeurs Vi/Vim & Nano <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
+        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

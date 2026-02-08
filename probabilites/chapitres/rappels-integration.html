@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rappels sur les fonctions, dérivées et intégrales - Cours de remise à niveau pour les probabilités continues">
+    <meta property="og:title" content="Rappels d'Intégration - Probas RD">
+    <meta property="og:description" content="Remise à niveau complète : fonctions, dérivées, primitives et intégrales avec exercices interactifs.">
+    <title>Rappels d'Intégration | Probas RD</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    
+    <style>
+        .chapter-intro {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chapter-intro h1 {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .chapter-intro .intro-icon {
+            font-size: 2.5rem;
+        }
+        
+        .section-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-card h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--accent-primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-primary);
+        }
+        
+        .section-card h3 {
+            color: var(--accent-secondary);
+            margin: 1.5rem 0 1rem;
+        }
+        
+        .formula-box {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-primary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .formula-box.important {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+        }
+        
+        .example-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .example-box h4 {
+            color: #10b981;
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Interactive Exercise Styles */
+        .exercise-interactive {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .exercise-interactive.correct {
+            border-color: #10b981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+        }
+        
+        .exercise-interactive.incorrect {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+        }
+        
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .exercise-level {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+        }
+        
+        .exercise-level.easy { background: #d1fae5; color: #065f46; }
+        .exercise-level.medium { background: #fef3c7; color: #92400e; }
+        .exercise-level.hard { background: #fee2e2; color: #991b1b; }
+        
+        .exercise-question {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .exercise-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .exercise-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+        }
+        
+        .exercise-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .exercise-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .exercise-btn.check {
+            background: var(--accent-gradient);
+            color: white;
+        }
+        
+        .exercise-btn.check:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+        
+        .exercise-btn.hint {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .exercise-feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            display: none;
+        }
+        
+        .exercise-feedback.show {
+            display: block;
+        }
+        
+        .exercise-feedback.correct {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .exercise-feedback.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .exercise-hint {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #fef3c7;
+            border-radius: var(--radius-lg);
+            color: #92400e;
+            display: none;
+        }
+        
+        .exercise-hint.show {
+            display: block;
+        }
+        
+        /* Table Styles */
+        .formula-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        
+        .formula-table th {
+            background: var(--accent-gradient);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .formula-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .formula-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .formula-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        /* Progress Tracker */
+        .progress-tracker {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 1rem;
+            z-index: 100;
+            max-width: 200px;
+        }
+        
+        .progress-tracker h4 {
+            font-size: 0.85rem;
+            margin: 0 0 1rem 0;
+            color: var(--text-muted);
+        }
+        
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .progress-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .progress-item.completed i {
+            color: #10b981;
+        }
+        
+        @media (max-width: 1400px) {
+            .progress-tracker {
+                display: none;
+            }
+        }
+        
+        /* Navigation TOC */
+        .toc-sidebar {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .toc-sidebar h3 {
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .toc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .toc-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .toc-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .toc-list a {
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .toc-list a:hover {
+            color: var(--accent-primary);
+        }
+        
+        .print-table-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .print-table-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progress"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">🎲</div>
+                <span>Probas <strong style="color: var(--accent-secondary);">RD</strong></span>
+            </a>
+            
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Accueil</a>
+                <a href="chapitre1.html" class="nav-link">Probabilités</a>
+                <a href="chapitre2.html" class="nav-link">Dénombrement</a>
+                <a href="chapitre3.html" class="nav-link">VA Discrètes</a>
+                <a href="chapitre4.html" class="nav-link">VA Continues</a>
+                <a href="cartes.html" class="nav-link">🃏 Cartes</a>
+                <a href="../exercices/exercices.html" class="nav-link">Exercices</a>
+                <a href="formules.html" class="nav-link">📐 Formules</a>
+                <a href="rappels-integration.html" class="nav-link active">∫ Intégrales</a>
+                <a href="simulateur-examen.html" class="nav-link" style="color: var(--accent-secondary);">📝 Examen</a>
+            </nav>
+            
+            <div class="flex" style="gap: 0.75rem;">
+                <button class="theme-toggle" aria-label="Changer le thème">
+                    <i class="fas fa-sun icon-sun"></i>
+                    <i class="fas fa-moon icon-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" style="padding-top: 100px;">
+        <div class="container">
+            
+            <!-- Chapter Intro -->
+            <div class="chapter-intro">
+                <h1>
+                    <span class="intro-icon">∫</span>
+                    Rappels : Fonctions, Dérivées & Intégrales
+                </h1>
+                <p style="font-size: 1.1rem; color: var(--text-secondary); margin: 0;">
+                    <strong>Objectif :</strong> Cette page est conçue pour ceux qui n'ont pas fait de mathématiques depuis plusieurs années. 
+                    Nous allons revoir les bases des fonctions, des dérivées et des intégrales, étape par étape, 
+                    avec de nombreux exercices interactifs pour vous préparer au <strong>chapitre 4 sur les variables aléatoires continues</strong>.
+                </p>
+                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(245, 158, 11, 0.2); border-radius: var(--radius-lg); display: flex; align-items: center; gap: 1rem;">
+                    <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 1.5rem;"></i>
+                    <p style="margin: 0;"><strong>Important :</strong> Ces rappels sont <strong>essentiels</strong> pour comprendre les densités de probabilité, 
+                    les fonctions de répartition et les calculs d'espérance/variance des lois continues.</p>
+                </div>
+            </div>
+
+            <!-- Table of Contents -->
+            <div class="toc-sidebar">
+                <h3><i class="fas fa-list"></i> Sommaire</h3>
+                <ol class="toc-list">
+                    <li><a href="#fonctions"><i class="fas fa-wave-square"></i> 1. Rappels sur les fonctions</a></li>
+                    <li><a href="#derivees"><i class="fas fa-chart-line"></i> 2. La dérivée</a></li>
+                    <li><a href="#primitives"><i class="fas fa-integral"></i> 3. Primitives et intégrales</a></li>
+                    <li><a href="#tableau"><i class="fas fa-table"></i> 4. Tableau récapitulatif</a></li>
+                    <li><a href="#ipp"><i class="fas fa-exchange-alt"></i> 5. Intégration par parties</a></li>
+                    <li><a href="#exercices-finaux"><i class="fas fa-trophy"></i> 6. Exercices récapitulatifs</a></li>
+                </ol>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════════
+                 SECTION 1: FONCTIONS
+                 ═══════════════════════════════════════════════════════════════════ -->
+            <section class="section-card" id="fonctions">
+                <h2><i class="fas fa-wave-square"></i> 1. Rappels sur les Fonctions</h2>
+                
+                <h3>1.1 Qu'est-ce qu'une fonction ?</h3>
+                <p>Une <strong>fonction</strong> est une relation qui associe à chaque valeur $x$ (l'entrée) une unique valeur $f(x)$ (la sortie).</p>
+                
+                <div class="formula-box">
+                    $f : x \mapsto f(x)$
+                    <br><br>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">
+                        Exemple : $f(x) = x^2$ signifie "à chaque nombre $x$, on associe son carré"
+                    </span>
+                </div>
+                
+                <div class="example-box">
+                    <h4><i class="fas fa-lightbulb"></i> Exemple concret</h4>
+                    <p>Si $f(x) = 2x + 3$, alors :</p>
+                    <ul>
+                        <li>$f(0) = 2(0) + 3 = 3$</li>
+                        <li>$f(1) = 2(1) + 3 = 5$</li>
+                        <li>$f(5) = 2(5) + 3 = 13$</li>
+                    </ul>
+                </div>
+                
+                <h3>1.2 Les fonctions usuelles</h3>
+                
+                <h4>📊 Fonctions polynômes</h4>
+                <p>Ce sont les fonctions construites avec des puissances entières de $x$ :</p>
+                <ul>
+                    <li><strong>Constante :</strong> $f(x) = c$ (exemple : $f(x) = 5$)</li>
+                    <li><strong>Affine :</strong> $f(x) = ax + b$ (exemple : $f(x) = 3x - 2$)</li>
+                    <li><strong>Quadratique :</strong> $f(x) = ax^2 + bx + c$ (exemple : $f(x) = x^2 - 4x + 3$)</li>
+                    <li><strong>Degré n :</strong> $f(x) = a_n x^n + a_{n-1}x^{n-1} + \ldots + a_0$</li>
+                </ul>
+                
+                <h4>📊 Fonction racine carrée</h4>
+                <div class="formula-box">
+                    $f(x) = \sqrt{x}$ définie pour $x \geq 0$
+                    <br><br>
+                    <span style="font-size: 0.9rem;">Notation alternative : $\sqrt{x} = x^{1/2}$</span>
+                </div>
+                
+                <h4>📊 Fonction exponentielle</h4>
+                <div class="formula-box important">
+                    $f(x) = e^x$ où $e \approx 2.718...$
+                    <br><br>
+                    <span style="font-size: 0.9rem;">Propriétés : $e^{a+b} = e^a \times e^b$ et $e^0 = 1$</span>
+                </div>
+                <p>L'exponentielle est <strong>fondamentale</strong> en probabilités (loi exponentielle, loi normale).</p>
+                
+                <h4>📊 Fonction logarithme népérien</h4>
+                <div class="formula-box important">
+                    $f(x) = \ln(x)$ définie pour $x > 0$
+                    <br><br>
+                    <span style="font-size: 0.9rem;">C'est la fonction réciproque de l'exponentielle : $\ln(e^x) = x$ et $e^{\ln(x)} = x$</span>
+                </div>
+                <p>Propriétés clés :</p>
+                <ul>
+                    <li>$\ln(ab) = \ln(a) + \ln(b)$</li>
+                    <li>$\ln(a/b) = \ln(a) - \ln(b)$</li>
+                    <li>$\ln(a^n) = n \ln(a)$</li>
+                    <li>$\ln(1) = 0$ et $\ln(e) = 1$</li>
+                </ul>
+                
+                <!-- Exercices Fonctions -->
+                <h3>🎯 Exercices - Fonctions</h3>
+                
+                <div class="exercise-interactive" id="ex-func-1">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 1</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Soit $f(x) = 3x - 5$. Calculez $f(4)$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-func-1" placeholder="Votre réponse...">
+                        <button class="exercise-btn check" onclick="checkAnswer('func-1', '7')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('func-1')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-func-1">
+                        Remplacez $x$ par $4$ dans l'expression : $f(4) = 3 \times 4 - 5$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-func-1"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-func-2">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 2</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\sqrt{49}$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-func-2" placeholder="Votre réponse...">
+                        <button class="exercise-btn check" onclick="checkAnswer('func-2', '7')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('func-2')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-func-2">
+                        Quel nombre multiplié par lui-même donne 49 ?
+                    </div>
+                    <div class="exercise-feedback" id="feedback-func-2"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-func-3">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 3</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Simplifiez $e^2 \times e^3$ (répondez sous forme $e^n$, n étant un nombre).
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-func-3" placeholder="e^...">
+                        <button class="exercise-btn check" onclick="checkAnswer('func-3', 'e^5', ['e5', 'e^5'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('func-3')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-func-3">
+                        Utilisez la propriété $e^a \times e^b = e^{a+b}$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-func-3"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-func-4">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 4</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Simplifiez $\ln(e^7)$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-func-4" placeholder="Votre réponse...">
+                        <button class="exercise-btn check" onclick="checkAnswer('func-4', '7')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('func-4')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-func-4">
+                        Le logarithme et l'exponentielle sont des fonctions réciproques : $\ln(e^x) = x$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-func-4"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-func-5">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 5</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Simplifiez $\ln(8) - \ln(2)$ (donnez le résultat sous forme $\ln(n)$).
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-func-5" placeholder="ln(...)">
+                        <button class="exercise-btn check" onclick="checkAnswer('func-5', 'ln(4)', ['ln4', 'ln(4)'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('func-5')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-func-5">
+                        Utilisez $\ln(a) - \ln(b) = \ln(a/b)$, donc $\ln(8) - \ln(2) = \ln(8/2)$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-func-5"></div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════════
+                 SECTION 2: DÉRIVÉES
+                 ═══════════════════════════════════════════════════════════════════ -->
+            <section class="section-card" id="derivees">
+                <h2><i class="fas fa-chart-line"></i> 2. La Dérivée</h2>
+                
+                <h3>2.1 Qu'est-ce qu'une dérivée ?</h3>
+                <p>La <strong>dérivée</strong> d'une fonction $f$ en un point $x$ mesure la <strong>vitesse de variation</strong> de $f$ en ce point. 
+                Géométriquement, c'est la pente de la tangente à la courbe.</p>
+                
+                <div class="formula-box">
+                    $f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}$
+                    <br><br>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">
+                        On note $f'(x)$ ou $\frac{df}{dx}$ ou $\frac{d}{dx}f(x)$
+                    </span>
+                </div>
+                
+                <div class="example-box">
+                    <h4><i class="fas fa-lightbulb"></i> Interprétation</h4>
+                    <ul>
+                        <li>Si $f'(x) > 0$ : la fonction <strong>croît</strong> en $x$</li>
+                        <li>Si $f'(x) < 0$ : la fonction <strong>décroît</strong> en $x$</li>
+                        <li>Si $f'(x) = 0$ : possible <strong>extremum</strong> (max ou min)</li>
+                    </ul>
+                </div>
+                
+                <h3>2.2 Formules de dérivation</h3>
+                
+                <table class="formula-table">
+                    <thead>
+                        <tr>
+                            <th>Fonction $f(x)$</th>
+                            <th>Dérivée $f'(x)$</th>
+                            <th>Exemple</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>$c$ (constante)</td>
+                            <td>$0$</td>
+                            <td>$(5)' = 0$</td>
+                        </tr>
+                        <tr>
+                            <td>$x$</td>
+                            <td>$1$</td>
+                            <td>$(x)' = 1$</td>
+                        </tr>
+                        <tr>
+                            <td>$x^n$</td>
+                            <td>$n x^{n-1}$</td>
+                            <td>$(x^3)' = 3x^2$</td>
+                        </tr>
+                        <tr>
+                            <td>$\sqrt{x} = x^{1/2}$</td>
+                            <td>$\frac{1}{2\sqrt{x}}$</td>
+                            <td>$(\sqrt{x})' = \frac{1}{2\sqrt{x}}$</td>
+                        </tr>
+                        <tr>
+                            <td>$\frac{1}{x} = x^{-1}$</td>
+                            <td>$-\frac{1}{x^2}$</td>
+                            <td>$(1/x)' = -1/x^2$</td>
+                        </tr>
+                        <tr>
+                            <td>$e^x$</td>
+                            <td>$e^x$</td>
+                            <td>$(e^x)' = e^x$</td>
+                        </tr>
+                        <tr>
+                            <td>$\ln(x)$</td>
+                            <td>$\frac{1}{x}$</td>
+                            <td>$(\ln x)' = 1/x$</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>2.3 Règles de dérivation</h3>
+                
+                <div class="formula-box">
+                    <strong>Somme :</strong> $(f + g)' = f' + g'$
+                    <br><br>
+                    <strong>Produit par constante :</strong> $(k \cdot f)' = k \cdot f'$
+                    <br><br>
+                    <strong>Produit :</strong> $(f \times g)' = f' \times g + f \times g'$
+                    <br><br>
+                    <strong>Quotient :</strong> $\left(\frac{f}{g}\right)' = \frac{f' \times g - f \times g'}{g^2}$
+                    <br><br>
+                    <strong>Composée :</strong> $(f \circ g)' = g' \times f'(g)$ ou $(f(g(x)))' = g'(x) \times f'(g(x))$
+                </div>
+                
+                <div class="example-box">
+                    <h4><i class="fas fa-calculator"></i> Exemple : Dériver $f(x) = 3x^2 + 5x - 2$</h4>
+                    <p>On applique les règles terme par terme :</p>
+                    <ul>
+                        <li>$(3x^2)' = 3 \times 2x = 6x$</li>
+                        <li>$(5x)' = 5$</li>
+                        <li>$(-2)' = 0$</li>
+                    </ul>
+                    <p><strong>Résultat :</strong> $f'(x) = 6x + 5$</p>
+                </div>
+                
+                <!-- Exercices Dérivées -->
+                <h3>🎯 Exercices - Dérivées</h3>
+                
+                <div class="exercise-interactive" id="ex-deriv-1">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 1</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Dérivez $f(x) = x^4$. Donnez $f'(x)$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-deriv-1" placeholder="f'(x) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('deriv-1', '4x^3', ['4x3', '4x^3', '4*x^3'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('deriv-1')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-deriv-1">
+                        Formule : $(x^n)' = nx^{n-1}$, ici $n=4$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-deriv-1"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-deriv-2">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 2</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Dérivez $f(x) = 5e^x$. Donnez $f'(x)$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-deriv-2" placeholder="f'(x) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('deriv-2', '5e^x', ['5e^x', '5*e^x', '5ex'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('deriv-2')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-deriv-2">
+                        $(e^x)' = e^x$ et $(kf)' = kf'$, donc $(5e^x)' = 5 \times (e^x)' = 5e^x$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-deriv-2"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-deriv-3">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 3</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Dérivez $f(x) = 2x^3 - 4x + 7$. Donnez $f'(x)$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-deriv-3" placeholder="f'(x) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('deriv-3', '6x^2-4', ['6x^2-4', '6x2-4', '6x^2 - 4'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('deriv-3')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-deriv-3">
+                        Dérivez terme par terme : $(2x^3)' = 6x^2$, $(-4x)' = -4$, $(7)' = 0$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-deriv-3"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-deriv-4">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 4</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Dérivez $f(x) = e^{2x}$ (fonction composée). Donnez $f'(x)$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-deriv-4" placeholder="f'(x) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('deriv-4', '2e^{2x}', ['2e^2x', '2e^{2x}', '2*e^(2x)'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('deriv-4')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-deriv-4">
+                        Utilisez la règle de la composée : si $g(x) = 2x$, alors $(e^{g(x)})' = g'(x) \times e^{g(x)} = 2 \times e^{2x}$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-deriv-4"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-deriv-5">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 5</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Dérivez $f(x) = x^2 e^x$ (produit). Donnez $f'(x)$ sous forme factorisée.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-deriv-5" placeholder="f'(x) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('deriv-5', 'e^x(x^2+2x)', ['e^x(x^2+2x)', '(x^2+2x)e^x', 'e^x*(x^2+2x)', 'xe^x(x+2)'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('deriv-5')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-deriv-5">
+                        Règle du produit : $(uv)' = u'v + uv'$. Ici $u = x^2$, $v = e^x$. <br>
+                        $f'(x) = 2x \cdot e^x + x^2 \cdot e^x = e^x(2x + x^2) = e^x(x^2 + 2x)$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-deriv-5"></div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════════
+                 SECTION 3: PRIMITIVES ET INTÉGRALES
+                 ═══════════════════════════════════════════════════════════════════ -->
+            <section class="section-card" id="primitives">
+                <h2><i class="fas fa-integral"></i> 3. Primitives et Intégrales</h2>
+                
+                <h3>3.1 Qu'est-ce qu'une primitive ?</h3>
+                <p>Une <strong>primitive</strong> de $f$ est une fonction $F$ dont la dérivée est $f$ :</p>
+                
+                <div class="formula-box important">
+                    $F'(x) = f(x)$
+                    <br><br>
+                    <span style="font-size: 0.9rem;">On écrit $F(x) = \int f(x) \, dx$ (intégrale indéfinie)</span>
+                </div>
+                
+                <p><strong>Remarque importante :</strong> Une primitive n'est jamais unique ! Si $F$ est une primitive de $f$, alors $F + C$ (où $C$ est une constante) est aussi une primitive de $f$.</p>
+                
+                <div class="example-box">
+                    <h4><i class="fas fa-lightbulb"></i> Exemple</h4>
+                    <p>On cherche une primitive de $f(x) = 2x$.</p>
+                    <p>On sait que $(x^2)' = 2x$, donc $F(x) = x^2$ est une primitive de $f$.</p>
+                    <p>Plus généralement : $F(x) = x^2 + C$ pour toute constante $C$.</p>
+                </div>
+                
+                <h3>3.2 L'intégrale définie</h3>
+                <p>L'<strong>intégrale définie</strong> de $f$ entre $a$ et $b$ représente l'aire sous la courbe de $f$ entre ces bornes :</p>
+                
+                <div class="formula-box important">
+                    $$\int_a^b f(x) \, dx = F(b) - F(a)$$
+                    <br>
+                    <span style="font-size: 0.9rem;">où $F$ est une primitive quelconque de $f$</span>
+                </div>
+                
+                <div class="example-box">
+                    <h4><i class="fas fa-calculator"></i> Exemple : Calculer $\int_0^2 3x^2 \, dx$</h4>
+                    <ol>
+                        <li>Trouver une primitive de $3x^2$ : $F(x) = x^3$</li>
+                        <li>Calculer $F(2) - F(0) = 2^3 - 0^3 = 8 - 0 = 8$</li>
+                    </ol>
+                    <p><strong>Résultat :</strong> $\int_0^2 3x^2 \, dx = 8$</p>
+                </div>
+                
+                <h3>3.3 Formules de primitives</h3>
+                
+                <table class="formula-table">
+                    <thead>
+                        <tr>
+                            <th>Fonction $f(x)$</th>
+                            <th>Primitive $F(x) = \int f(x) dx$</th>
+                            <th>Condition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>$k$ (constante)</td>
+                            <td>$kx$</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>$x^n$</td>
+                            <td>$\frac{x^{n+1}}{n+1}$</td>
+                            <td>$n \neq -1$</td>
+                        </tr>
+                        <tr>
+                            <td>$\frac{1}{x}$</td>
+                            <td>$\ln|x|$</td>
+                            <td>$x \neq 0$</td>
+                        </tr>
+                        <tr>
+                            <td>$e^x$</td>
+                            <td>$e^x$</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>$e^{ax}$</td>
+                            <td>$\frac{1}{a}e^{ax}$</td>
+                            <td>$a \neq 0$</td>
+                        </tr>
+                        <tr>
+                            <td>$\sqrt{x} = x^{1/2}$</td>
+                            <td>$\frac{2}{3}x^{3/2}$</td>
+                            <td>$x > 0$</td>
+                        </tr>
+                        <tr>
+                            <td>$\frac{1}{\sqrt{x}}$</td>
+                            <td>$2\sqrt{x}$</td>
+                            <td>$x > 0$</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Exercices Primitives -->
+                <h3>🎯 Exercices - Primitives et Intégrales</h3>
+                
+                <div class="exercise-interactive" id="ex-int-1">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 1</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Trouvez une primitive de $f(x) = 5$. (Sans la constante)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-int-1" placeholder="F(x) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('int-1', '5x', ['5x', '5*x'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('int-1')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-int-1">
+                        La primitive d'une constante $k$ est $kx$.
+                    </div>
+                    <div class="exercise-feedback" id="feedback-int-1"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-int-2">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 2</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Trouvez une primitive de $f(x) = x^3$. (Sans la constante)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-int-2" placeholder="F(x) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('int-2', 'x^4/4', ['x^4/4', '(x^4)/4', '1/4*x^4', 'x4/4'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('int-2')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-int-2">
+                        Formule : $\int x^n dx = \frac{x^{n+1}}{n+1}$, ici $n=3$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-int-2"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-int-3">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 3</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_0^1 2x \, dx$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-int-3" placeholder="Résultat = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('int-3', '1')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('int-3')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-int-3">
+                        Primitive de $2x$ : $F(x) = x^2$. Calculez $F(1) - F(0) = 1 - 0$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-int-3"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-int-4">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 4</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_0^1 e^x \, dx$. (Arrondissez à 2 décimales)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-int-4" placeholder="Résultat ≈ ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('int-4', '1.72', ['1.72', '1,72', 'e-1'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('int-4')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-int-4">
+                        Primitive de $e^x$ : $F(x) = e^x$. Calculez $e^1 - e^0 = e - 1 \approx 2.718 - 1 = 1.718$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-int-4"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-int-5">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 5</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_1^e \frac{1}{x} \, dx$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-int-5" placeholder="Résultat = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('int-5', '1', ['1', 'ln(e)-ln(1)', 'ln(e)'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('int-5')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-int-5">
+                        Primitive de $\frac{1}{x}$ : $F(x) = \ln(x)$. Calculez $\ln(e) - \ln(1) = 1 - 0 = 1$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-int-5"></div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════════
+                 SECTION 4: TABLEAU RÉCAPITULATIF
+                 ═══════════════════════════════════════════════════════════════════ -->
+            <section class="section-card" id="tableau">
+                <h2><i class="fas fa-table"></i> 4. Tableau Récapitulatif</h2>
+                
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+                    <button class="print-table-btn" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimer ce tableau
+                    </button>
+                </div>
+                
+                <table class="formula-table" id="recap-table">
+                    <thead>
+                        <tr>
+                            <th>Fonction $f(x)$</th>
+                            <th>Dérivée $f'(x)$</th>
+                            <th>Primitive $\int f(x) dx$</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>$k$ (constante)</td>
+                            <td>$0$</td>
+                            <td>$kx$</td>
+                        </tr>
+                        <tr>
+                            <td>$x$</td>
+                            <td>$1$</td>
+                            <td>$\frac{x^2}{2}$</td>
+                        </tr>
+                        <tr>
+                            <td>$x^n$</td>
+                            <td>$nx^{n-1}$</td>
+                            <td>$\frac{x^{n+1}}{n+1}$ $(n \neq -1)$</td>
+                        </tr>
+                        <tr>
+                            <td>$\frac{1}{x}$</td>
+                            <td>$-\frac{1}{x^2}$</td>
+                            <td>$\ln|x|$</td>
+                        </tr>
+                        <tr>
+                            <td>$\sqrt{x}$</td>
+                            <td>$\frac{1}{2\sqrt{x}}$</td>
+                            <td>$\frac{2}{3}x\sqrt{x}$</td>
+                        </tr>
+                        <tr>
+                            <td>$e^x$</td>
+                            <td>$e^x$</td>
+                            <td>$e^x$</td>
+                        </tr>
+                        <tr>
+                            <td>$e^{ax}$</td>
+                            <td>$ae^{ax}$</td>
+                            <td>$\frac{1}{a}e^{ax}$</td>
+                        </tr>
+                        <tr>
+                            <td>$\ln(x)$</td>
+                            <td>$\frac{1}{x}$</td>
+                            <td>$x\ln(x) - x$</td>
+                        </tr>
+                        <tr>
+                            <td>$x e^x$</td>
+                            <td>$(x+1)e^x$</td>
+                            <td>$(x-1)e^x$</td>
+                        </tr>
+                        <tr>
+                            <td>$x^2 e^x$</td>
+                            <td>$(x^2+2x)e^x$</td>
+                            <td>$(x^2-2x+2)e^x$</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="formula-box important" style="margin-top: 2rem;">
+                    <strong>⚠️ Rappel essentiel pour les probabilités continues :</strong>
+                    <br><br>
+                    Pour une densité $f(x)$ : $\int_{-\infty}^{+\infty} f(x) dx = 1$
+                    <br><br>
+                    Pour une probabilité : $P(a \leq X \leq b) = \int_a^b f(x) dx$
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════════
+                 SECTION 5: INTÉGRATION PAR PARTIES
+                 ═══════════════════════════════════════════════════════════════════ -->
+            <section class="section-card" id="ipp">
+                <h2><i class="fas fa-exchange-alt"></i> 5. Intégration par Parties (IPP)</h2>
+                
+                <h3>5.1 La formule</h3>
+                <p>L'<strong>intégration par parties</strong> est une technique essentielle pour calculer des intégrales de produits de fonctions.</p>
+                
+                <div class="formula-box important">
+                    $$\int u \cdot v' \, dx = u \cdot v - \int u' \cdot v \, dx$$
+                    <br><br>
+                    Ou avec les bornes :
+                    $$\int_a^b u \cdot v' \, dx = \left[u \cdot v\right]_a^b - \int_a^b u' \cdot v \, dx$$
+                </div>
+                
+                <h3>5.2 Comment choisir $u$ et $v'$ ?</h3>
+                <p>Règle <strong>LIATE</strong> (ordre de priorité pour choisir $u$) :</p>
+                <ol>
+                    <li><strong>L</strong>ogarithmes : $\ln(x)$</li>
+                    <li><strong>I</strong>nverses trigonométriques : $\arctan(x)$, etc.</li>
+                    <li><strong>A</strong>lgébriques (polynômes) : $x$, $x^2$, etc.</li>
+                    <li><strong>T</strong>rigonométriques : $\sin(x)$, $\cos(x)$</li>
+                    <li><strong>E</strong>xponentielles : $e^x$</li>
+                </ol>
+                <p>On choisit $u$ le plus haut possible dans cette liste, et $v'$ le reste.</p>
+                
+                <div class="example-box">
+                    <h4><i class="fas fa-calculator"></i> Exemple détaillé : $\int x e^x dx$</h4>
+                    <p><strong>Étape 1 :</strong> Identifier $u$ et $v'$</p>
+                    <ul>
+                        <li>$u = x$ (algébrique) → $u' = 1$</li>
+                        <li>$v' = e^x$ (exponentielle) → $v = e^x$</li>
+                    </ul>
+                    <p><strong>Étape 2 :</strong> Appliquer la formule</p>
+                    <p>$\int x e^x dx = x \cdot e^x - \int 1 \cdot e^x dx = xe^x - e^x + C$</p>
+                    <p><strong>Résultat :</strong> $\int x e^x dx = (x-1)e^x + C$</p>
+                </div>
+                
+                <div class="example-box">
+                    <h4><i class="fas fa-calculator"></i> Exemple : $\int \ln(x) dx$</h4>
+                    <p><strong>Astuce :</strong> On écrit $\ln(x) = 1 \times \ln(x)$</p>
+                    <ul>
+                        <li>$u = \ln(x)$ → $u' = \frac{1}{x}$</li>
+                        <li>$v' = 1$ → $v = x$</li>
+                    </ul>
+                    <p>$\int \ln(x) dx = x\ln(x) - \int x \cdot \frac{1}{x} dx = x\ln(x) - \int 1 dx = x\ln(x) - x + C$</p>
+                </div>
+                
+                <div class="example-box">
+                    <h4><i class="fas fa-calculator"></i> Exemple avancé : $\int x^2 e^x dx$ (double IPP)</h4>
+                    <p><strong>1ère IPP :</strong></p>
+                    <ul>
+                        <li>$u = x^2$ → $u' = 2x$</li>
+                        <li>$v' = e^x$ → $v = e^x$</li>
+                    </ul>
+                    <p>$\int x^2 e^x dx = x^2 e^x - \int 2x e^x dx$</p>
+                    
+                    <p><strong>2ème IPP sur $\int 2x e^x dx$ :</strong></p>
+                    <p>$\int 2x e^x dx = 2(xe^x - e^x) = 2e^x(x-1)$</p>
+                    
+                    <p><strong>Résultat final :</strong></p>
+                    <p>$\int x^2 e^x dx = x^2 e^x - 2xe^x + 2e^x + C = e^x(x^2 - 2x + 2) + C$</p>
+                </div>
+                
+                <!-- Exercices IPP -->
+                <h3>🎯 Exercices - Intégration par Parties</h3>
+                
+                <div class="exercise-interactive" id="ex-ipp-1">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 1</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Dans $\int x \cos(x) dx$, que choisissez-vous pour $u$ ? (répondez "x" ou "cos(x)")
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-1" placeholder="u = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-1', 'x')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-1')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-1">
+                        Règle LIATE : Algébrique (x) vient avant Trigonométrique (cos), donc on choisit $u = x$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-1"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-ipp-2">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 2</strong></span>
+                        <span class="exercise-level easy">Facile</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_0^1 xe^x dx$. (Arrondissez à 2 décimales)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-2" placeholder="Résultat ≈ ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-2', '1', ['1', '1.00', '1,00'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-2')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-2">
+                        Primitive de $xe^x$ : $(x-1)e^x$. <br>
+                        $[(x-1)e^x]_0^1 = (1-1)e^1 - (0-1)e^0 = 0 - (-1) = 1$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-2"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-ipp-3">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 3</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_1^e \ln(x) dx$. (Arrondissez à 2 décimales)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-3" placeholder="Résultat ≈ ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-3', '1', ['1', '1.00', '1,00'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-3')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-3">
+                        Primitive de $\ln(x)$ : $x\ln(x) - x$. <br>
+                        $[x\ln(x) - x]_1^e = (e \cdot 1 - e) - (1 \cdot 0 - 1) = (e - e) - (-1) = 0 + 1 = 1$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-3"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-ipp-4">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 4</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Trouvez la primitive de $x^2 e^x$ (sous forme factorisée avec $e^x$).
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-4" placeholder="F(x) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-4', 'e^x(x^2-2x+2)', ['e^x(x^2-2x+2)', '(x^2-2x+2)e^x'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-4')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-4">
+                        Double IPP nécessaire. Après calcul : $e^x(x^2 - 2x + 2)$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-4"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-ipp-5">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 5</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_0^1 x^2 e^x dx$. (Arrondissez à 2 décimales)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-5" placeholder="Résultat ≈ ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-5', '0.72', ['0.72', '0,72', 'e-2'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-5')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-5">
+                        Primitive : $e^x(x^2 - 2x + 2)$. <br>
+                        $[e^x(x^2-2x+2)]_0^1 = e^1(1-2+2) - e^0(0-0+2) = e \cdot 1 - 1 \cdot 2 = e - 2 \approx 0.718$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-5"></div>
+                </div>
+                
+                <!-- Plus d'exercices IPP -->
+                <h3>🔥 Exercices supplémentaires - Maîtriser l'IPP</h3>
+                
+                <div class="exercise-interactive" id="ex-ipp-6">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 6</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_0^2 x e^{-x} dx$. (Arrondissez à 3 décimales)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-6" placeholder="Résultat ≈ ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-6', '0.594', ['0.594', '0,594', '0.59'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-6')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-6">
+                        $u = x$, $v' = e^{-x}$ donc $v = -e^{-x}$. <br>
+                        Primitive de $xe^{-x}$ : $-(x+1)e^{-x}$. <br>
+                        $[-(x+1)e^{-x}]_0^2 = -3e^{-2} - (-1) = 1 - 3e^{-2} \approx 0.594$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-6"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-ipp-7">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 7</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_0^{+\infty} x e^{-x} dx$ (intégrale impropre). Cette intégrale apparaît dans le calcul de $E(X)$ pour une loi exponentielle !
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-7" placeholder="Résultat = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-7', '1')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-7')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-7">
+                        $\lim_{b \to +\infty} [-(x+1)e^{-x}]_0^b = \lim_{b \to +\infty} (-(b+1)e^{-b} + 1)$. <br>
+                        Comme $(b+1)e^{-b} \to 0$ quand $b \to +\infty$, on a : résultat = $1$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-7"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-ipp-8">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 8</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_0^{+\infty} x^2 e^{-x} dx$. Cette intégrale sert à calculer $E(X^2)$ !
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-8" placeholder="Résultat = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-8', '2')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-8')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-8">
+                        Double IPP. Primitive de $x^2 e^{-x}$ : $-(x^2+2x+2)e^{-x}$. <br>
+                        $\lim_{b \to +\infty} [-(x^2+2x+2)e^{-x}]_0^b = 0 - (-2) = 2$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-8"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-ipp-9">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 9</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Pour une loi exponentielle de paramètre $\lambda = 1$, la variance est $V(X) = E(X^2) - [E(X)]^2$. Avec les résultats précédents, calculez $V(X)$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-9" placeholder="V(X) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-9', '1')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-9')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-9">
+                        $E(X) = 1$ (exercice 7), $E(X^2) = 2$ (exercice 8). <br>
+                        $V(X) = 2 - 1^2 = 2 - 1 = 1$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-9"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-ipp-10">
+                    <div class="exercise-header">
+                        <span><strong>Exercice 10</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez $\int_0^1 x \ln(x) dx$. (Arrondissez à 2 décimales)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-ipp-10" placeholder="Résultat ≈ ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('ipp-10', '-0.25', ['-0.25', '-0,25', '-1/4'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('ipp-10')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-ipp-10">
+                        $u = \ln(x)$, $v' = x$. Donc $u' = 1/x$, $v = x^2/2$. <br>
+                        $\int x\ln(x)dx = \frac{x^2}{2}\ln(x) - \int \frac{x}{2}dx = \frac{x^2}{2}\ln(x) - \frac{x^2}{4}$ <br>
+                        Note : $\lim_{x \to 0^+} x^2 \ln(x) = 0$. Calculez $[\frac{x^2}{2}\ln(x) - \frac{x^2}{4}]_0^1$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-ipp-10"></div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════════════════
+                 SECTION 6: EXERCICES RÉCAPITULATIFS
+                 ═══════════════════════════════════════════════════════════════════ -->
+            <section class="section-card" id="exercices-finaux">
+                <h2><i class="fas fa-trophy"></i> 6. Exercices Récapitulatifs</h2>
+                
+                <p>Ces exercices mélangent tous les concepts vus. Ils sont du type de ceux que vous rencontrerez dans le chapitre 4 sur les variables continues.</p>
+                
+                <div class="exercise-interactive" id="ex-final-1">
+                    <div class="exercise-header">
+                        <span><strong>Exercice Final 1</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Soit $f(x) = 2e^{-2x}$ pour $x \geq 0$. Vérifiez que c'est une densité de probabilité en calculant $\int_0^{+\infty} 2e^{-2x} dx$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-final-1" placeholder="Résultat = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('final-1', '1')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('final-1')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-final-1">
+                        Primitive de $2e^{-2x}$ : $-e^{-2x}$. <br>
+                        $[-e^{-2x}]_0^{+\infty} = 0 - (-1) = 1$ ✓
+                    </div>
+                    <div class="exercise-feedback" id="feedback-final-1"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-final-2">
+                    <div class="exercise-header">
+                        <span><strong>Exercice Final 2</strong></span>
+                        <span class="exercise-level medium">Moyen</span>
+                    </div>
+                    <div class="exercise-question">
+                        Avec $f(x) = 2e^{-2x}$ pour $x \geq 0$, calculez $P(X \leq 1) = \int_0^1 2e^{-2x} dx$. (Arrondissez à 3 décimales)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-final-2" placeholder="P(X ≤ 1) ≈ ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('final-2', '0.865', ['0.865', '0,865', '0.86'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('final-2')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-final-2">
+                        $[-e^{-2x}]_0^1 = -e^{-2} - (-1) = 1 - e^{-2} \approx 1 - 0.135 = 0.865$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-final-2"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-final-3">
+                    <div class="exercise-header">
+                        <span><strong>Exercice Final 3</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Calculez l'espérance $E(X) = \int_0^{+\infty} x \cdot 2e^{-2x} dx$. (Réponse exacte en fraction)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-final-3" placeholder="E(X) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('final-3', '1/2', ['1/2', '0.5', '0,5'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('final-3')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-final-3">
+                        C'est une loi exponentielle de paramètre $\lambda = 2$. <br>
+                        $E(X) = 1/\lambda = 1/2$ pour une loi exponentielle. <br>
+                        (Ou calculez par IPP avec $u = x$, $v' = 2e^{-2x}$)
+                    </div>
+                    <div class="exercise-feedback" id="feedback-final-3"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-final-4">
+                    <div class="exercise-header">
+                        <span><strong>Exercice Final 4</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        Soit $f(x) = \frac{1}{\sqrt{2\pi}} e^{-x^2/2}$ (densité de la loi normale centrée réduite). <br>
+                        Que vaut $\int_{-\infty}^{+\infty} f(x) dx$ ? (C'est un résultat classique à connaître)
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-final-4" placeholder="Résultat = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('final-4', '1')">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('final-4')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-final-4">
+                        Toute densité de probabilité vérifie $\int_{-\infty}^{+\infty} f(x) dx = 1$ par définition !
+                    </div>
+                    <div class="exercise-feedback" id="feedback-final-4"></div>
+                </div>
+                
+                <div class="exercise-interactive" id="ex-final-5">
+                    <div class="exercise-header">
+                        <span><strong>Exercice Final 5</strong></span>
+                        <span class="exercise-level hard">Avancé</span>
+                    </div>
+                    <div class="exercise-question">
+                        La fonction de répartition $F(x) = \int_{-\infty}^{x} f(t) dt$. Si $f(t) = e^{-t}$ pour $t \geq 0$ (et 0 sinon), trouvez $F(x)$ pour $x \geq 0$.
+                    </div>
+                    <div class="exercise-input-group">
+                        <input type="text" class="exercise-input" id="input-final-5" placeholder="F(x) = ...">
+                        <button class="exercise-btn check" onclick="checkAnswer('final-5', '1-e^{-x}', ['1-e^(-x)', '1-e^{-x}', '1-e^-x'])">Vérifier</button>
+                        <button class="exercise-btn hint" onclick="showHint('final-5')">💡 Indice</button>
+                    </div>
+                    <div class="exercise-hint" id="hint-final-5">
+                        $F(x) = \int_0^x e^{-t} dt = [-e^{-t}]_0^x = -e^{-x} - (-1) = 1 - e^{-x}$
+                    </div>
+                    <div class="exercise-feedback" id="feedback-final-5"></div>
+                </div>
+            </section>
+
+            <!-- Lien vers Chapitre 4 -->
+            <div class="section-card" style="background: var(--accent-gradient); color: white;">
+                <h2 style="color: white; border-bottom-color: rgba(255,255,255,0.3);"><i class="fas fa-arrow-right"></i> Prêt pour la suite ?</h2>
+                <p style="font-size: 1.1rem;">
+                    Maintenant que vous maîtrisez les intégrales, vous êtes prêt à aborder les 
+                    <strong>variables aléatoires continues</strong> : densités, fonctions de répartition, 
+                    espérance, variance, loi normale, loi exponentielle...
+                </p>
+                <a href="chapitre4.html" class="btn" style="background: white; color: var(--accent-primary); margin-top: 1rem;">
+                    <i class="fas fa-book-open"></i> Aller au Chapitre 4 : Variables Aléatoires Continues
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-text">
+                    © 2025 Cours de Probabilités | Créé par <strong>RD</strong>
+                </p>
+                <div class="footer-links">
+                    <a href="../index.html" class="footer-link">Accueil</a>
+                    <a href="formules.html" class="footer-link">Formules</a>
+                    <a href="../exercices/exercices.html" class="footer-link">Exercices</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Exercise checking system
+        function normalizeAnswer(answer) {
+            return answer.toLowerCase()
+                .replace(/\s+/g, '')
+                .replace(/,/g, '.')
+                .replace(/\*/g, '')
+                .replace(/×/g, '')
+                .replace(/\^/g, '^')
+                .trim();
+        }
+        
+        function checkAnswer(exerciseId, correctAnswer, alternatives = []) {
+            const input = document.getElementById(`input-${exerciseId}`);
+            const feedback = document.getElementById(`feedback-${exerciseId}`);
+            const card = document.getElementById(`ex-${exerciseId}`);
+            
+            const userAnswer = normalizeAnswer(input.value);
+            const correct = normalizeAnswer(correctAnswer);
+            const altAnswers = alternatives.map(a => normalizeAnswer(a));
+            
+            const isCorrect = userAnswer === correct || altAnswers.includes(userAnswer);
+            
+            card.classList.remove('correct', 'incorrect');
+            feedback.classList.remove('correct', 'incorrect');
+            
+            if (isCorrect) {
+                card.classList.add('correct');
+                feedback.classList.add('correct', 'show');
+                feedback.innerHTML = '<i class="fas fa-check-circle"></i> Bravo ! Réponse correcte !';
+            } else {
+                card.classList.add('incorrect');
+                feedback.classList.add('incorrect', 'show');
+                feedback.innerHTML = `<i class="fas fa-times-circle"></i> Incorrect. La bonne réponse est : <strong>${correctAnswer}</strong>`;
+            }
+            
+            // Re-render MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise([feedback]);
+            }
+        }
+        
+        function showHint(exerciseId) {
+            const hint = document.getElementById(`hint-${exerciseId}`);
+            hint.classList.toggle('show');
+            
+            // Re-render MathJax
+            if (window.MathJax && hint.classList.contains('show')) {
+                MathJax.typesetPromise([hint]);
+            }
+        }
+        
+        // Allow Enter key to check answer
+        document.querySelectorAll('.exercise-input').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const checkBtn = this.parentElement.querySelector('.exercise-btn.check');
+                    if (checkBtn) checkBtn.click();
+                }
+            });
+        });
+        
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            document.getElementById('progress').style.width = `${scrolled}%`;
+        });
+    </script>
+</body>
+</html>

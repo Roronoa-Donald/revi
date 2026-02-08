@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 7 - Projet ToDo List : Initialisation</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+<body class="chapter-page no-sandbox"> <!-- Classe no-sandbox pour désactiver le bouton Exécuter -->
+    
+    <!-- Barre de progression -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="chapterProgress"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <i class="fas fa-code"></i>
+                    <span>PHP POO</span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <a href="index.html">Accueil</a>
+                <a href="#" class="active">Chapitre 7</a>
+                <button class="btn-notes" id="showNotesBtn">
+                    <i class="fas fa-bookmark"></i> Notes
+                </button>
+                <button class="btn-theme" id="themeToggleBtn" title="Changer de thème">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Navigation Chapitres -->
+    <div class="chapter-nav">
+        <a href="chapitre6.html" class="nav-btn nav-prev">
+            <i class="fas fa-arrow-left"></i>
+            <span>Chapitre 6</span>
+        </a>
+        <div class="chapter-info">
+            <span class="chapter-number">Chapitre 7/8</span>
+            <h1>Projet ToDo List : Initialisation</h1>
+        </div>
+        <a href="chapitre8.html" class="nav-btn nav-next">
+            <span>Chapitre 8</span>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <!-- Contenu Principal -->
+    <main class="chapter-content">
+        <div class="container">
+            <aside class="sidebar">
+                <div class="sidebar-sticky">
+                    <h3><i class="fas fa-list"></i> Étapes</h3>
+                    <nav class="table-of-contents">
+                        <a href="#intro" class="toc-link active"><span class="toc-number">0</span> Introduction</a>
+                        <a href="#step-1" class="toc-link"><span class="toc-number">1</span> Base de Données</a>
+                        <a href="#step-2" class="toc-link"><span class="toc-number">2</span> Structure MVC</a>
+                        <a href="#step-3" class="toc-link"><span class="toc-number">3</span> Connexion BDD</a>
+                        <a href="#step-4" class="toc-link"><span class="toc-number">4</span> Le Modèle Task</a>
+                        <a href="#step-5" class="toc-link"><span class="toc-number">5</span> Contrôleur & Vue</a>
+                        <a href="#quiz" class="toc-link quiz-link"><i class="fas fa-question-circle"></i> Quiz</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <article class="content">
+                
+                <section id="intro" class="content-section">
+                    <div class="section-header"><h2><i class="fas fa-flag"></i> Introduction au Projet</h2></div>
+                    <div class="info-box info-intro">
+                        <h4>Objectif du "Fil Rouge"</h4>
+                        <p>Nous allons créer une application complète de <strong>Gestion de Tâches (ToDo List)</strong>. Ce projet va nous permettre d'appliquer concrètement l'architecture MVC, PDO, et la Programmation Orientée Objet.</p>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p><strong>Pré-requis :</strong> Pour ce chapitre, vous devez avoir un environnement serveur local (WAMP, XAMPP, MAMP ou Laragon) installé et lancé sur votre machine.</p>
+                    </div>
+                </section>
+
+                <section id="step-1" class="content-section">
+                    <div class="section-header"><h2>1. Préparation de la Base de Données</h2></div>
+                    <p>Ouvrez <strong>phpMyAdmin</strong> (généralement à l'adresse <code>http://localhost/phpmyadmin</code>) et exécutez le code SQL suivant pour créer la base et la table :</p>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-header"><span class="language-label">SQL</span> <button class="btn-copy">Copier</button></div>
+                        <div class="code-block">
+<pre><code class="language-sql">-- Création de la base
+CREATE DATABASE todo_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE todo_app;
+
+-- Création de la table tasks
+CREATE TABLE tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    is_done TINYINT(1) DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Données factices pour tester
+INSERT INTO tasks (title, description) VALUES 
+('Apprendre le PHP', 'Comprendre la syntaxe de base'),
+('Maîtriser la POO', 'Classes, objets et héritage'),
+('Faire le projet', 'Créer la ToDo List en MVC');</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="step-2" class="content-section">
+                    <div class="section-header"><h2>2. Structure des Dossiers (MVC)</h2></div>
+                    <p>Dans votre dossier <code>www</code> ou <code>htdocs</code>, créez un dossier <code>todo-app</code>. À l'intérieur, reproduisez cette structure :</p>
+                    
+                    <ul class="file-tree">
+                        <li><i class="fas fa-folder-open"></i> todo-app/</li>
+                        <li>
+                            <ul>
+                                <li><i class="fas fa-folder"></i> <strong>app/</strong> <span class="text-muted">(Code métier)</span>
+                                    <ul>
+                                        <li><i class="fas fa-folder"></i> <strong>Controllers/</strong></li>
+                                        <li><i class="fas fa-folder"></i> <strong>Models/</strong></li>
+                                        <li><i class="fas fa-file-code"></i> Db.php</li>
+                                    </ul>
+                                </li>
+                                <li><i class="fas fa-folder"></i> <strong>public/</strong> <span class="text-muted">(Accessible au navigateur)</span>
+                                    <ul>
+                                        <li><i class="fas fa-folder"></i> css/</li>
+                                        <li><i class="fas fa-file-code"></i> index.php</li>
+                                        <li><i class="fas fa-file-code"></i> .htaccess</li>
+                                    </ul>
+                                </li>
+                                <li><i class="fas fa-folder"></i> <strong>views/</strong> <span class="text-muted">(Fichiers HTML/PHP)</span></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <div class="exercise-box">
+                        <h3><i class="fas fa-laptop-code"></i> Exercice : Le Router (.htaccess)</h3>
+                        <p>Créez le fichier <code>/public/.htaccess</code> pour rediriger toutes les URLs vers <code>index.php</code>.</p>
+                        <button class="btn btn-sm btn-secondary btn-toggle-solution" onclick="toggleSolution('htaccess')">
+                            <i class="fas fa-eye"></i> Voir la solution
+                        </button>
+                        <div id="solution-htaccess" class="solution-content">
+                            <pre><code class="language-apache">RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="step-3" class="content-section">
+                    <div class="section-header"><h2>3. Le Singleton de Connexion</h2></div>
+                    <p>Dans <code>app/Db.php</code>, nous allons créer une classe utilisant le pattern <strong>Singleton</strong>. Cela évite de créer 50 connexions à la base si on instancie 50 modèles.</p>
+
+                    <div class="code-block-wrapper">
+                        <div class="code-header"><span class="language-label">PHP</span> <button class="btn-copy">Copier</button></div>
+                        <div class="code-block">
+<pre><code class="language-php">&lt;?php
+namespace App;
+
+use PDO;
+use PDOException;
+
+class Db {
+    private static $instance = null;
+    private $pdo;
+
+    private function __construct() {
+        try {
+            // Remplacez 'root' et '' par vos identifiants
+            $this->pdo = new PDO('mysql:host=localhost;dbname=todo_app;charset=utf8', 'root', '');
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Erreur de connexion : " . $e->getMessage());
+        }
+    }
+
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance->pdo;
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="step-4" class="content-section">
+                    <div class="section-header"><h2>4. Le Modèle : Task</h2></div>
+                    <p>Le rôle du modèle est de parler à la BDD. Créez <code>app/Models/Task.php</code>.</p>
+                    
+                    <div class="code-block-wrapper">
+                        <div class="code-header"><span class="language-label">PHP</span> <button class="btn-copy">Copier</button></div>
+                        <div class="code-block">
+<pre><code class="language-php">&lt;?php
+namespace App\Models;
+
+use App\Db;
+
+class Task {
+    // Récupérer toutes les tâches
+    public static function findAll() {
+        $pdo = Db::getInstance();
+        $stmt = $pdo->query("SELECT * FROM tasks ORDER BY created_at DESC");
+        return $stmt->fetchAll();
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="step-5" class="content-section">
+                    <div class="section-header"><h2>5. Contrôleur et Vue</h2></div>
+                    <p>Enfin, affichons le tout !</p>
+                    
+                    <h4>Le Contrôleur (app/Controllers/HomeController.php)</h4>
+                    <div class="code-block">
+<pre><code class="language-php">&lt;?php
+namespace App\Controllers;
+
+use App\Models\Task;
+
+class HomeController {
+    public function index() {
+        // 1. Demande les données au modèle
+        $tasks = Task::findAll();
+        
+        // 2. Envoie les données à la vue
+        require '../views/home.php';
+    }
+}</code></pre>
+                    </div>
+
+                    <h4>La Vue (views/home.php)</h4>
+                    <div class="code-block">
+<pre><code class="language-php">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Ma ToDo List&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Mes Tâches&lt;/h1&gt;
+    &lt;ul&gt;
+        &lt;?php foreach($tasks as $task): ?&gt;
+            &lt;li&gt;
+                &lt;strong&gt;&lt;?= htmlspecialchars($task['title']) ?&gt;&lt;/strong&gt;
+                &lt;?php if($task['is_done']): ?&gt; (Fait) &lt;?php endif; ?&gt;
+            &lt;/li&gt;
+        &lt;?php endforeach; ?&gt;
+    &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+                    
+                    <h4>Le point d'entrée (public/index.php)</h4>
+                    <p>Pour finir, il nous faut notre fichier principal qui charge tout.</p>
+                     <div class="code-block">
+<pre><code class="language-php">&lt;?php
+// Autoloader simple pour le cours (à remplacer par Composer un jour)
+spl_autoload_register(function ($class) {
+    // App\Controllers\HomeController -> app/Controllers/HomeController.php
+    $prefix = 'App\\';
+    $base_dir = __DIR__ . '/../app/';
+    
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) return;
+    
+    $relative_class = substr($class, $len);
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+    
+    if (file_exists($file)) {
+        require $file;
+    }
+});
+
+use App\Controllers\HomeController;
+
+// Route simple
+$controller = new HomeController();
+$controller->index();
+</code></pre>
+                    </div>
+                </section>
+
+                <div class="info-box info-success">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h4>Testez !</h4>
+                        <p>Ouvrez votre navigateur sur <code>http://localhost/todo-app/public/</code>. Vous devriez voir la liste des tâches que vous avez insérées dans la base de données !</p>
+                    </div>
+                </div>
+
+                <!-- Quiz -->
+                <section id="quiz" class="content-section">
+                    <div class="section-header"><h2><i class="fas fa-question-circle"></i> Quiz du Chapitre 7</h2></div>
+                    <div id="quiz-container" class="quiz-container">
+                        <div class="quiz-start">
+                             <p>Vérifions si la structure MVC est claire.</p>
+                            <button id="start-quiz-btn" class="btn-primary">Commencer le Quiz</button>
+                        </div>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container"><p>&copy; 2026 Cours PHP POO. Tous droits réservés.</p></div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup-templating.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-apacheconf.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/quiz-chapitre7.js"></script>
+</body>
+</html>

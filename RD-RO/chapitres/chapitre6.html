@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 06 : Résolution Graphique | Optimization Master</title>
+    <meta name="description" content="Module de Recherche Opérationnelle — cours interactif avec exercices et simulateurs.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    
+    <!-- Tailwind & Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' },
+                        slate: { 850: '#1a2438', 900: '#0f172a' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" aria-hidden="true"></div>
+
+    <nav class="fixed w-full z-50 glass-nav border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="../index.html" class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-slate-900 font-bold shadow-lg shadow-emerald-500/20 transition-all group-hover:scale-105 group-hover:shadow-emerald-500/40">RO</div>
+                    <span class="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-200 to-cyan-200">Recherche Ops</span>
+                </a>
+                <div class="hidden md:flex items-center gap-6 desktop-nav">
+                    <a href="chapitre5.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Précédent</a>
+                    <span class="text-sm font-medium text-emerald-500">Module 06</span>
+                    <a href="chapitre7.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Suivant</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="theme-toggle" aria-label="Changer de thème"><i class="fas fa-sun"></i></button>
+                    <button class="hamburger-btn md:hidden" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav-overlay" aria-hidden="true"></div>
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+        <div class="flex justify-between items-center mb-6">
+            <span class="font-bold text-lg">Menu</span>
+            <button onclick="document.querySelector('.mobile-nav-overlay').click()" class="text-slate-400 hover:text-white" aria-label="Fermer"><i class="fas fa-times"></i></button>
+        </div>
+        <a href="../index.html">Accueil</a>
+        <a href="formules.html">Formules</a>
+        <a href="../exercices/exercices.html">Exercices</a>
+        <a href="simulateur-examen.html">Examen</a>
+    </nav>
+
+    <section class="pt-32 pb-12 relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-pink-500/20 rounded-full blur-[120px] -z-10"></div>
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-300 text-xs font-semibold uppercase tracking-wider mb-6">
+                Module 06
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 tracking-tight">
+                La Résolution Visuelle
+            </h1>
+            <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                Avant de laisser l'ordinateur calculer à l'aveugle, dessinons le problème. C'est la seule méthode qui permet de <em>voir</em> la solution de ses propres yeux.
+            </p>
+        </div>
+    </section>
+
+    <main id="main-content" class="max-w-4xl mx-auto px-4 pb-24 space-y-8">
+
+        <!-- LIMITATION -->
+        <article class="glass-card p-4 rounded-xl border border-white/10 bg-black/40 text-center">
+            <p class="text-sm text-slate-400">
+                ⚠️ <span class="text-pink-400 font-bold">Attention</span> : Cette méthode ne marche que pour 2 variables ($x_1$ et $x_2$). Au-delà, on ne peut plus dessiner (3D, 4D...).
+            </p>
+        </article>
+
+        <!-- STEP 1 : TRACER -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10 relative">
+            <h2 class="text-2xl font-bold text-white mb-6">1. Dessiner les Clôtures (Les contraintes)</h2>
+            <p class="text-slate-300 leading-relaxed mb-6">
+                Reprenons André. Une contrainte, c'est une ligne droite qui coupe le plan en deux : le côté "Permis" et le côté "Interdit".
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-4">
+                    <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-emerald-500">
+                        <h4 class="font-bold text-emerald-300">Contrainte Bois (2x + y &le; 20)</h4>
+                        <ul class="text-sm text-slate-400 mt-2 space-y-1">
+                            <li>Si je ne fais que des Tables ($y=0$) : $2x = 20 \rightarrow$ <strong class="text-white">x = 10</strong></li>
+                            <li>Si je ne fais que des Chaises ($x=0$) : $y = 20 \rightarrow$ <strong class="text-white">y = 20</strong></li>
+                        </ul>
+                        <p class="text-xs mt-2 text-slate-500">➜ Je trace une trait entre (10,0) et (0,20).</p>
+                    </div>
+                </div>
+                
+                <!-- Visualisation simplifiée CSS -->
+                <div class="aspect-square bg-slate-900 rounded-lg border border-white/10 relative overflow-hidden p-4">
+                    <!-- Axes -->
+                    <div class="absolute bottom-4 left-4 w-full h-0.5 bg-slate-500"></div> <!-- X -->
+                    <div class="absolute bottom-4 left-4 w-0.5 h-full bg-slate-500"></div> <!-- Y -->
+                    
+                    <!-- Line -->
+                    <div class="absolute bottom-4 left-4 w-[80%] h-[80%] border-t-2 border-r-0 border-emerald-500 origin-bottom-left rotate-[116deg] translate-y-full"></div>
+                    <div class="absolute top-[20%] left-[60%] text-xs text-red-400">Espace Non-Admissible</div>
+                    <div class="absolute bottom-[20%] left-[20%] text-xs text-white font-bold">Domaine Admissible</div>
+                </div>
+            </div>
+        </article>
+
+        <!-- STEP 2 : ISO-PROFIT -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10">
+            <h2 class="text-2xl font-bold text-white mb-6">2. La Règle Magique (L'Iso-Profit)</h2>
+            <p class="text-slate-300 mb-6">
+                Une fois qu'on a notre petit polygone "Domaine Admissible", où est le trésor ?
+                <br>
+                Imaginez que le Profit $Z$ est une règle. On commence avec un profit de 0, et on fait glisser la règle vers le haut, parallèlement.
+            </p>
+            
+            <div class="bg-gradient-to-r from-pink-500/10 to-purple-500/10 p-6 rounded-xl border border-white/5 text-center">
+                <p class="text-lg font-bold text-white mb-2">Le Dernier Point Touché</p>
+                <p class="text-slate-300 text-sm">
+                    Le dernier point que touche la règle avant de sortir complètement du domaine admissible, c'est l'<strong>OPTIMUM</strong>.
+                </p>
+                <div class="mt-4 inline-block px-4 py-2 bg-pink-500/20 rounded-full text-pink-300 text-sm font-mono border border-pink-500/30">
+                    C'est TOUJOURS un Sommet (un coin).
+                </div>
+            </div>
+        </article>
+
+        <!-- Interactive Exercises Container -->
+        <article class="glass-card p-6 md:p-8 rounded-2xl border border-white/10 bg-black/20" id="interactive-exercise">
+            <!-- Injecté par exercises.js -->
+        </article>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">&copy; 2025 Optimization Master — Recherche Opérationnelle.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/simulators.js"></script>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+             const container = document.getElementById('interactive-exercise');
+             if(container) {
+                 container.innerHTML = ''; 
+                 new SimulatorManager('interactive-exercise');
+             }
+        });
+    </script>
+</body>
+</html>

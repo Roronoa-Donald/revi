@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur d'Examen | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+
+    <!-- Navbar -->
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+                <i class="fas fa-times"></i> Quitter
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-red-500">
+                <i class="fas fa-graduation-cap mr-2"></i>SIMULATEUR D'EXAMEN
+            </h1>
+            <div class="flex items-center gap-4">
+                <div class="font-mono text-xl" id="timer">--:--</div>
+                <button class="theme-toggle" onclick="toggleTheme()"><i id="theme-icon" class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Progress Dots (shown during exam) -->
+    <div id="progress-dots" class="hidden bg-slate-800/50 border-b border-slate-700 py-2 overflow-x-auto">
+        <div class="container mx-auto px-4 flex items-center justify-center gap-1 flex-wrap" id="dots-container"></div>
+    </div>
+
+    <main class="container mx-auto px-4 py-8 flex flex-col items-center justify-center flex-grow">
+        
+        <!-- ======================== CONFIG SCREEN ======================== -->
+        <div id="config-screen" class="glass-card p-10 rounded-2xl max-w-2xl w-full animate-fade-in-up">
+            <div class="text-center mb-8">
+                <i class="fas fa-graduation-cap text-6xl text-amber-500 mb-4 block"></i>
+                <h2 class="text-3xl font-bold mb-2">Simulateur d'Examen</h2>
+                <p class="text-slate-400">Configurez votre session puis testez vos connaissances SQL Server.</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Number of questions -->
+                <div>
+                    <label class="text-sm font-bold text-slate-300 mb-2 block">
+                        <i class="fas fa-list-ol mr-1 text-blue-400"></i> Nombre de questions
+                    </label>
+                    <div class="flex gap-3">
+                        <button onclick="setQCount(10)" class="qcount-btn px-5 py-2 rounded-lg bg-slate-800 border border-slate-600 hover:border-blue-500 text-sm font-bold transition-all">10</button>
+                        <button onclick="setQCount(20)" class="qcount-btn px-5 py-2 rounded-lg bg-blue-600 border border-blue-500 text-sm font-bold transition-all active">20</button>
+                        <button onclick="setQCount(30)" class="qcount-btn px-5 py-2 rounded-lg bg-slate-800 border border-slate-600 hover:border-blue-500 text-sm font-bold transition-all">30</button>
+                        <button onclick="setQCount(0)" class="qcount-btn px-5 py-2 rounded-lg bg-slate-800 border border-slate-600 hover:border-blue-500 text-sm font-bold transition-all">Toutes</button>
+                    </div>
+                </div>
+
+                <!-- Time limit -->
+                <div>
+                    <label class="text-sm font-bold text-slate-300 mb-2 block">
+                        <i class="fas fa-clock mr-1 text-amber-400"></i> Limite de temps
+                    </label>
+                    <div class="flex gap-3">
+                        <button onclick="setTimeLimit(0)" class="time-btn px-5 py-2 rounded-lg bg-slate-800 border border-slate-600 hover:border-amber-500 text-sm font-bold transition-all">Aucune</button>
+                        <button onclick="setTimeLimit(15)" class="time-btn px-5 py-2 rounded-lg bg-slate-800 border border-slate-600 hover:border-amber-500 text-sm font-bold transition-all">15 min</button>
+                        <button onclick="setTimeLimit(30)" class="time-btn px-5 py-2 rounded-lg bg-amber-600 border border-amber-500 text-sm font-bold transition-all active">30 min</button>
+                        <button onclick="setTimeLimit(60)" class="time-btn px-5 py-2 rounded-lg bg-slate-800 border border-slate-600 hover:border-amber-500 text-sm font-bold transition-all">60 min</button>
+                    </div>
+                </div>
+
+                <!-- Chapters filter -->
+                <div>
+                    <label class="text-sm font-bold text-slate-300 mb-2 block">
+                        <i class="fas fa-filter mr-1 text-emerald-400"></i> Chapitres (cliquez pour filtrer)
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="toggleChapter('all')" class="chapter-btn px-3 py-1.5 rounded text-xs font-bold bg-emerald-600 border border-emerald-500 transition-all" data-ch="all">Tous</button>
+                        <button onclick="toggleChapter('ddl')" class="chapter-btn px-3 py-1.5 rounded text-xs font-bold bg-slate-700 border border-slate-600 transition-all" data-ch="ddl">DDL</button>
+                        <button onclick="toggleChapter('contraintes')" class="chapter-btn px-3 py-1.5 rounded text-xs font-bold bg-slate-700 border border-slate-600 transition-all" data-ch="contraintes">Contraintes</button>
+                        <button onclick="toggleChapter('dml')" class="chapter-btn px-3 py-1.5 rounded text-xs font-bold bg-slate-700 border border-slate-600 transition-all" data-ch="dml">DML</button>
+                        <button onclick="toggleChapter('select')" class="chapter-btn px-3 py-1.5 rounded text-xs font-bold bg-slate-700 border border-slate-600 transition-all" data-ch="select">SELECT</button>
+                        <button onclick="toggleChapter('fonctions')" class="chapter-btn px-3 py-1.5 rounded text-xs font-bold bg-slate-700 border border-slate-600 transition-all" data-ch="fonctions">Fonctions</button>
+                        <button onclick="toggleChapter('tsql')" class="chapter-btn px-3 py-1.5 rounded text-xs font-bold bg-slate-700 border border-slate-600 transition-all" data-ch="tsql">T-SQL</button>
+                        <button onclick="toggleChapter('transactions')" class="chapter-btn px-3 py-1.5 rounded text-xs font-bold bg-slate-700 border border-slate-600 transition-all" data-ch="transactions">Transactions</button>
+                        <button onclick="toggleChapter('avance')" class="chapter-btn px-3 py-1.5 rounded text-xs font-bold bg-slate-700 border border-slate-600 transition-all" data-ch="avance">Avancé</button>
+                    </div>
+                </div>
+
+                <!-- Difficulty -->
+                <div>
+                    <label class="text-sm font-bold text-slate-300 mb-2 block">
+                        <i class="fas fa-star mr-1 text-purple-400"></i> Difficulté
+                    </label>
+                    <div class="flex gap-3">
+                        <button onclick="setDifficulty('all')" class="diff-btn px-5 py-2 rounded-lg bg-purple-600 border border-purple-500 text-sm font-bold transition-all active">Toutes</button>
+                        <button onclick="setDifficulty(1)" class="diff-btn px-5 py-2 rounded-lg bg-slate-800 border border-slate-600 text-sm font-bold transition-all">★ Facile</button>
+                        <button onclick="setDifficulty(2)" class="diff-btn px-5 py-2 rounded-lg bg-slate-800 border border-slate-600 text-sm font-bold transition-all">★★ Moyen</button>
+                        <button onclick="setDifficulty(3)" class="diff-btn px-5 py-2 rounded-lg bg-slate-800 border border-slate-600 text-sm font-bold transition-all">★★★ Difficile</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button onclick="startExam()" class="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg shadow-blue-500/20 transform transition hover:scale-105">
+                    <i class="fas fa-play mr-2"></i> Lancer l'Examen
+                </button>
+                <p class="text-xs text-slate-500 mt-3">Score minimum : <strong>70%</strong> pour obtenir la certification</p>
+            </div>
+        </div>
+
+        <!-- ======================== QUESTION SCREEN ======================== -->
+        <div id="question-screen" class="hidden glass-card p-8 rounded-2xl max-w-3xl w-full">
+            <div class="flex justify-between items-center text-slate-500 text-sm mb-2">
+                <span id="q-progress">Question 1/20</span>
+                <span id="q-chapter" class="text-xs px-2 py-1 bg-slate-800 rounded">DDL</span>
+                <span id="q-diff" class="text-xs text-amber-400">★</span>
+            </div>
+
+            <!-- Progress bar for exam -->
+            <div class="w-full h-1 bg-slate-800 rounded-full mb-6 overflow-hidden">
+                <div id="exam-progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-300 rounded-full" style="width:0%"></div>
+            </div>
+            
+            <h3 id="q-text" class="text-2xl font-bold mb-8 leading-relaxed">La question apparaîtra ici...</h3>
+            
+            <div id="q-options" class="grid grid-cols-1 gap-3">
+                <!-- Options injected by JS -->
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between items-center mt-8 pt-4 border-t border-slate-700">
+                <button onclick="goToPrev()" id="btn-prev" class="px-4 py-2 rounded border border-slate-600 hover:bg-slate-800 text-sm font-bold transition-all disabled:opacity-30" disabled>
+                    <i class="fas fa-chevron-left mr-1"></i> Précédente
+                </button>
+                <button onclick="flagQuestion()" id="btn-flag" class="px-4 py-2 rounded border border-amber-600/50 text-amber-400 hover:bg-amber-600/20 text-sm font-bold transition-all" title="Marquer pour relecture">
+                    <i class="fas fa-flag mr-1"></i> Marquer
+                </button>
+                <button onclick="goToNext()" id="btn-next" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500 text-sm font-bold transition-all">
+                    Suivante <i class="fas fa-chevron-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ======================== RESULT SCREEN ======================== -->
+        <div id="result-screen" class="hidden max-w-3xl w-full space-y-6">
+            <!-- Score Card -->
+            <div class="glass-card p-10 rounded-2xl text-center">
+                <div id="result-icon" class="text-6xl mb-4"></div>
+                <h2 class="text-3xl font-bold mb-2">Résultat Final</h2>
+                <div id="score-display" class="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-2">0%</div>
+                <p id="result-msg" class="text-slate-300 mb-2">Analyse...</p>
+                <p id="result-stats" class="text-sm text-slate-500"></p>
+                
+                <div class="flex justify-center gap-4 mt-6">
+                    <button onclick="location.reload()" class="px-6 py-2.5 border border-slate-600 rounded-lg hover:bg-slate-800 font-bold transition-all">
+                        <i class="fas fa-redo mr-2"></i>Réessayer
+                    </button>
+                    <button id="cert-btn" onclick="downloadCertificate()" class="hidden px-6 py-2.5 bg-amber-600 hover:bg-amber-500 rounded-lg font-bold text-white transition-all">
+                        <i class="fas fa-download mr-2"></i> Certificat
+                    </button>
+                    <button onclick="toggleReview()" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg font-bold transition-all">
+                        <i class="fas fa-search mr-2"></i>Revoir les réponses
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review Section -->
+            <div id="review-section" class="hidden space-y-4">
+                <h3 class="text-xl font-bold text-center text-slate-300 mb-4">Revue détaillée</h3>
+                <div id="review-container" class="space-y-3"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+    // ============================================================
+    //  EXAM ENGINE v2.0 — Configuration, Shuffle, Timer, Review
+    // ============================================================
+
+    // ---- QUESTION BANK (40 questions, categorized & with difficulty) ----
+    const questionBank = [
+        // DDL (1-5)
+        { ch:'ddl', d:1, t:"Quelle commande crée une table ?", o:["CREATE TABLE","NEW TABLE","ADD TABLE","MAKE DATA"], a:0 },
+        { ch:'ddl', d:1, t:"Pour supprimer une table et sa structure :", o:["DELETE TABLE","DROP TABLE","REMOVE TABLE","ERASE TABLE"], a:1 },
+        { ch:'ddl', d:2, t:"Quelle commande modifie la structure d'une table existante ?", o:["MODIFY TABLE","ALTER TABLE","CHANGE TABLE","UPDATE TABLE"], a:1 },
+        { ch:'ddl', d:2, t:"TRUNCATE TABLE fait quoi ?", o:["Supprime la table","Vide les données tout en gardant la structure","Renomme la table","Verrouille la table"], a:1 },
+        { ch:'ddl', d:3, t:"Quelle est la différence entre DROP et TRUNCATE ?", o:["DROP vide, TRUNCATE supprime","DROP supprime structure + données, TRUNCATE vide les données seulement","Aucune différence","DROP est plus rapide"], a:1 },
+        // Contraintes (6-10)
+        { ch:'contraintes', d:1, t:"Quelle contrainte garantit l'unicité + NOT NULL ?", o:["FOREIGN KEY","PRIMARY KEY","CHECK","UNIQUE"], a:1 },
+        { ch:'contraintes', d:1, t:"Que fait la contrainte DEFAULT ?", o:["Refuse les doublons","Force NOT NULL","Définit une valeur par défaut","Crée un index"], a:2 },
+        { ch:'contraintes', d:2, t:"Une FOREIGN KEY référence quoi dans l'autre table ?", o:["N'importe quelle colonne","La PRIMARY KEY","Le nom de la table","L'index"], a:1 },
+        { ch:'contraintes', d:2, t:"Que fait CHECK(prix > 0) ?", o:["Vérifie que prix est positif avant insertion","Affiche un avertissement","Crée un trigger","Trie par prix"], a:0 },
+        { ch:'contraintes', d:3, t:"Combien de NULL accepte une colonne UNIQUE ?", o:["Aucun","Un seul","Plusieurs","Dépend du SGBD"], a:1 },
+        // DML (11-15)
+        { ch:'dml', d:1, t:"Quelle instruction ajoute une ligne ?", o:["ADD INTO","INSERT INTO","PUSH","CREATE ROW"], a:1 },
+        { ch:'dml', d:1, t:"UPDATE sans WHERE va...", o:["Créer une erreur","Modifier la première ligne","Modifier TOUTES les lignes","Ne rien faire"], a:2 },
+        { ch:'dml', d:2, t:"Comment insérer 3 lignes en une seule instruction ?", o:["3 INSERT séparés uniquement","VALUES suivi de 3 tuples séparés par des virgules","INSERT MULTI","INSERT BATCH"], a:1 },
+        { ch:'dml', d:2, t:"Différence entre DELETE et TRUNCATE ?", o:["Aucune","DELETE est filtrable (WHERE), TRUNCATE vide tout","TRUNCATE est plus lent","DELETE réinitialise IDENTITY"], a:1 },
+        { ch:'dml', d:3, t:"Après TRUNCATE, l'IDENTITY repart à ?", o:["La dernière valeur","0","1 (valeur initiale)","NULL"], a:2 },
+        // SELECT (16-22)
+        { ch:'select', d:1, t:"Quel symbole sélectionne TOUTES les colonnes ?", o:["%","&","*","@"], a:2 },
+        { ch:'select', d:1, t:"Pour trier en ordre décroissant :", o:["DESC","ASC","DOWN","REVERSE"], a:0 },
+        { ch:'select', d:1, t:"Quelle clause filtre les résultats ?", o:["ORDER BY","WHERE","GROUP BY","FILTER"], a:1 },
+        { ch:'select', d:2, t:"Que fait DISTINCT ?", o:["Trie les résultats","Élimine les doublons","Limite les résultats","Compte les lignes"], a:1 },
+        { ch:'select', d:2, t:"Quel type de JOIN retourne TOUTES les lignes de gauche ?", o:["INNER JOIN","LEFT JOIN","RIGHT JOIN","CROSS JOIN"], a:1 },
+        { ch:'select', d:2, t:"GROUP BY s'utilise souvent avec :", o:["WHERE","Des agrégats (SUM, AVG...)","INSERT","DELETE"], a:1 },
+        { ch:'select', d:3, t:"Pour filtrer des groupes (après GROUP BY) :", o:["WHERE","HAVING","FILTER","LIMIT"], a:1 },
+        // Fonctions (23-27)
+        { ch:'fonctions', d:1, t:"GETDATE() retourne :", o:["La date d'hier","La date et l'heure actuelles","L'année seule","Le timestamp Unix"], a:1 },
+        { ch:'fonctions', d:1, t:"Le type VARCHAR stocke :", o:["Des entiers","Des dates","Du texte variable","Des booléens"], a:2 },
+        { ch:'fonctions', d:2, t:"Quel opérateur vérifie une valeur NULL ?", o:["= NULL","IS NULL","== NULL","EQUALS NULL"], a:1 },
+        { ch:'fonctions', d:2, t:"Quelle fonction compte les lignes ?", o:["SUM()","TOTAL()","COUNT()","ADD()"], a:2 },
+        { ch:'fonctions', d:3, t:"COALESCE(NULL, NULL, 'x', 'y') retourne :", o:["NULL","'x'","'y'","Erreur"], a:1 },
+        // T-SQL (28-32)
+        { ch:'tsql', d:1, t:"Comment déclarer une variable en T-SQL ?", o:["VAR x = 10","DECLARE @x INT = 10","LET @x = 10","DIM x AS INT"], a:1 },
+        { ch:'tsql', d:2, t:"Quelle structure permet de boucler en T-SQL ?", o:["FOR","FOREACH","WHILE","LOOP"], a:2 },
+        { ch:'tsql', d:2, t:"CASE WHEN age < 18 THEN 'Mineur' ELSE 'Majeur' END est :", o:["Une boucle","Une expression conditionnelle inline","Un trigger","Une procédure"], a:1 },
+        { ch:'tsql', d:3, t:"Pourquoi éviter les CURSORS ?", o:["Ils sont obsolètes","Ils sont très lents (ligne par ligne)","Ils modifient les données","Ils ne fonctionnent pas avec SQL Server"], a:1 },
+        { ch:'tsql', d:1, t:"Le sigle SQL signifie ?", o:["Structured Query Language","Strong Question Language","Simple Query Logic","Structured Quick Level"], a:0 },
+        // Transactions (33-37)
+        { ch:'transactions', d:1, t:"ACID : Que signifie le A ?", o:["Atomicité","Action","Active","Auto"], a:0 },
+        { ch:'transactions', d:1, t:"Quelle commande annule une transaction ?", o:["CANCEL","ROLLBACK","COMMIT","BACK"], a:1 },
+        { ch:'transactions', d:2, t:"Qu'est-ce qu'un dirty read ?", o:["Lire des données validées","Lire des données non validées par une autre transaction","Lire des données corrompues","Lire trop de données"], a:1 },
+        { ch:'transactions', d:2, t:"Quel niveau d'isolation empêche les dirty reads ?", o:["READ UNCOMMITTED","READ COMMITTED","SERIALIZABLE","Aucun"], a:1 },
+        { ch:'transactions', d:3, t:"SAVEPOINT permet de :", o:["Sauvegarder la base","Créer un point de restauration dans une transaction","Exporter les données","Verrouiller une table"], a:1 },
+        // Avancé (38-40)
+        { ch:'avance', d:2, t:"Une procédure stockée commence par :", o:["DECLARE PROC","CREATE PROCEDURE","NEW PROC","FUNCTION"], a:1 },
+        { ch:'avance', d:2, t:"Un Trigger AFTER INSERT se lance...", o:["Avant l'insertion","Après l'insertion","À la place de l'insertion","Le lendemain"], a:1 },
+        { ch:'avance', d:3, t:"Dans un Trigger, la table 'inserted' contient :", o:["Les anciennes valeurs","Les nouvelles valeurs ajoutées/modifiées","Toute la table","Rien"], a:1 }
+    ];
+
+    // ---- STATE ----
+    let config = { qCount: 20, timeLimit: 30, chapters: ['all'], difficulty: 'all' };
+    let activeQuestions = [];
+    let currentQ = 0;
+    let answers = [];   // user answers: index or -1 (unanswered)
+    let flagged = [];   // flagged question indices
+    let score = 0;
+    let timerInterval = null;
+    let secondsRemaining = 0;
+    let secondsElapsed = 0;
+    let examFinished = false;
+
+    // ---- CONFIG FUNCTIONS ----
+    function setQCount(n) {
+        config.qCount = n;
+        document.querySelectorAll('.qcount-btn').forEach(b => {
+            b.classList.remove('bg-blue-600','border-blue-500');
+            b.classList.add('bg-slate-800','border-slate-600');
+        });
+        event.target.classList.remove('bg-slate-800','border-slate-600');
+        event.target.classList.add('bg-blue-600','border-blue-500');
+    }
+
+    function setTimeLimit(m) {
+        config.timeLimit = m;
+        document.querySelectorAll('.time-btn').forEach(b => {
+            b.classList.remove('bg-amber-600','border-amber-500');
+            b.classList.add('bg-slate-800','border-slate-600');
+        });
+        event.target.classList.remove('bg-slate-800','border-slate-600');
+        event.target.classList.add('bg-amber-600','border-amber-500');
+    }
+
+    function toggleChapter(ch) {
+        if (ch === 'all') {
+            config.chapters = ['all'];
+        } else {
+            config.chapters = config.chapters.filter(c => c !== 'all');
+            if (config.chapters.includes(ch)) {
+                config.chapters = config.chapters.filter(c => c !== ch);
+            } else {
+                config.chapters.push(ch);
+            }
+            if (config.chapters.length === 0) config.chapters = ['all'];
+        }
+        // Update button states
+        document.querySelectorAll('.chapter-btn').forEach(b => {
+            const bCh = b.dataset.ch;
+            if (config.chapters.includes(bCh) || (config.chapters.includes('all') && bCh === 'all')) {
+                b.classList.remove('bg-slate-700','border-slate-600');
+                b.classList.add('bg-emerald-600','border-emerald-500');
+            } else {
+                b.classList.remove('bg-emerald-600','border-emerald-500');
+                b.classList.add('bg-slate-700','border-slate-600');
+            }
+        });
+    }
+
+    function setDifficulty(d) {
+        config.difficulty = d;
+        document.querySelectorAll('.diff-btn').forEach(b => {
+            b.classList.remove('bg-purple-600','border-purple-500');
+            b.classList.add('bg-slate-800','border-slate-600');
+        });
+        event.target.classList.remove('bg-slate-800','border-slate-600');
+        event.target.classList.add('bg-purple-600','border-purple-500');
+    }
+
+    // ---- SHUFFLE (Fisher-Yates) ----
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    // ---- START EXAM ----
+    function startExam() {
+        // Filter questions
+        let pool = [...questionBank];
+        if (!config.chapters.includes('all')) {
+            pool = pool.filter(q => config.chapters.includes(q.ch));
+        }
+        if (config.difficulty !== 'all') {
+            pool = pool.filter(q => q.d === config.difficulty);
+        }
+        
+        pool = shuffle(pool);
+        
+        const count = config.qCount === 0 ? pool.length : Math.min(config.qCount, pool.length);
+        activeQuestions = pool.slice(0, count);
+        
+        if (activeQuestions.length === 0) {
+            alert('Aucune question ne correspond à vos filtres. Élargissez votre sélection.');
+            return;
+        }
+
+        answers = new Array(activeQuestions.length).fill(-1);
+        flagged = new Array(activeQuestions.length).fill(false);
+        currentQ = 0;
+        score = 0;
+        examFinished = false;
+
+        // Build progress dots
+        buildDots();
+
+        // Show question screen
+        document.getElementById('config-screen').classList.add('hidden');
+        document.getElementById('question-screen').classList.remove('hidden');
+        document.getElementById('question-screen').classList.add('animate-fade-in-up');
+        document.getElementById('progress-dots').classList.remove('hidden');
+
+        // Timer
+        if (config.timeLimit > 0) {
+            secondsRemaining = config.timeLimit * 60;
+            secondsElapsed = 0;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                secondsRemaining--;
+                secondsElapsed++;
+                updateTimerDisplay();
+                if (secondsRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    finishExam();
+                }
+            }, 1000);
+        } else {
+            secondsElapsed = 0;
+            document.getElementById('timer').textContent = '∞';
+            timerInterval = setInterval(() => { secondsElapsed++; }, 1000);
+        }
+
+        loadQuestion();
+    }
+
+    function updateTimerDisplay() {
+        const min = Math.floor(secondsRemaining / 60).toString().padStart(2, '0');
+        const sec = (secondsRemaining % 60).toString().padStart(2, '0');
+        const el = document.getElementById('timer');
+        el.textContent = `${min}:${sec}`;
+        // Color warnings
+        if (secondsRemaining <= 60) {
+            el.classList.add('text-red-500');
+            el.classList.remove('text-amber-500');
+        } else if (secondsRemaining <= 300) {
+            el.classList.add('text-amber-500');
+        }
+    }
+
+    function buildDots() {
+        const container = document.getElementById('dots-container');
+        container.innerHTML = '';
+        activeQuestions.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'w-6 h-6 rounded-full bg-slate-700 border border-slate-600 text-[10px] font-bold transition-all hover:bg-slate-600 flex-shrink-0 flex items-center justify-center';
+            dot.textContent = i + 1;
+            dot.onclick = () => { currentQ = i; loadQuestion(); };
+            dot.id = `dot-${i}`;
+            container.appendChild(dot);
+        });
+    }
+
+    function updateDots() {
+        activeQuestions.forEach((_, i) => {
+            const dot = document.getElementById(`dot-${i}`);
+            if (!dot) return;
+            dot.className = 'w-6 h-6 rounded-full border text-[10px] font-bold transition-all hover:opacity-80 flex-shrink-0 flex items-center justify-center';
+            if (i === currentQ) {
+                dot.classList.add('bg-blue-600', 'border-blue-400', 'ring-2', 'ring-blue-400/30');
+            } else if (answers[i] !== -1) {
+                dot.classList.add('bg-emerald-600/50', 'border-emerald-500');
+            } else if (flagged[i]) {
+                dot.classList.add('bg-amber-600/50', 'border-amber-500');
+            } else {
+                dot.classList.add('bg-slate-700', 'border-slate-600');
+            }
+        });
+    }
+
+    // ---- LOAD QUESTION ----
+    function loadQuestion() {
+        const q = activeQuestions[currentQ];
+        document.getElementById('q-progress').textContent = `Question ${currentQ + 1}/${activeQuestions.length}`;
+        document.getElementById('q-text').textContent = q.t;
+        document.getElementById('q-chapter').textContent = q.ch.toUpperCase();
+        document.getElementById('q-diff').textContent = '★'.repeat(q.d);
+        document.getElementById('exam-progress-bar').style.width = `${((currentQ + 1) / activeQuestions.length) * 100}%`;
+
+        // Prev/Next buttons
+        document.getElementById('btn-prev').disabled = currentQ === 0;
+        document.getElementById('btn-next').textContent = currentQ === activeQuestions.length - 1 ? 'Terminer' : 'Suivante ';
+        if (currentQ < activeQuestions.length - 1) {
+            document.getElementById('btn-next').innerHTML = 'Suivante <i class="fas fa-chevron-right ml-1"></i>';
+        } else {
+            document.getElementById('btn-next').innerHTML = '<i class="fas fa-flag-checkered mr-1"></i> Terminer';
+            document.getElementById('btn-next').classList.add('bg-amber-600');
+            document.getElementById('btn-next').classList.remove('bg-blue-600');
+        }
+
+        // Flag button state
+        const flagBtn = document.getElementById('btn-flag');
+        if (flagged[currentQ]) {
+            flagBtn.classList.add('bg-amber-600/30');
+        } else {
+            flagBtn.classList.remove('bg-amber-600/30');
+        }
+
+        // Options
+        const optsDiv = document.getElementById('q-options');
+        optsDiv.innerHTML = '';
+        q.o.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = "text-left p-4 rounded-lg bg-slate-800 hover:bg-blue-900/50 border border-slate-700 hover:border-blue-500 transition-all font-semibold";
+            // Highlight if already answered
+            if (answers[currentQ] === index) {
+                btn.classList.remove('bg-slate-800', 'border-slate-700');
+                btn.classList.add('bg-blue-900', 'border-blue-500', 'ring-2', 'ring-blue-400/30');
+            }
+            btn.innerHTML = `<span class="text-slate-500 mr-2 font-mono text-sm">${String.fromCharCode(65+index)}.</span> ${opt}`;
+            btn.onclick = () => selectAnswer(index);
+            optsDiv.appendChild(btn);
+        });
+
+        updateDots();
+    }
+
+    function selectAnswer(index) {
+        answers[currentQ] = index;
+        loadQuestion(); // Refresh to show selected state
+    }
+
+    function goToNext() {
+        if (currentQ < activeQuestions.length - 1) {
+            currentQ++;
+            loadQuestion();
+        } else {
+            // Check unanswered
+            const unanswered = answers.filter(a => a === -1).length;
+            if (unanswered > 0) {
+                if (!confirm(`Vous avez ${unanswered} question(s) sans réponse. Terminer quand même ?`)) return;
+            }
+            finishExam();
+        }
+    }
+
+    function goToPrev() {
+        if (currentQ > 0) {
+            currentQ--;
+            loadQuestion();
+        }
+    }
+
+    function flagQuestion() {
+        flagged[currentQ] = !flagged[currentQ];
+        loadQuestion();
+    }
+
+    // ---- FINISH EXAM ----
+    function finishExam() {
+        if (examFinished) return;
+        examFinished = true;
+        clearInterval(timerInterval);
+
+        // Calculate score
+        score = 0;
+        activeQuestions.forEach((q, i) => {
+            if (answers[i] === q.a) score++;
+        });
+
+        const percent = Math.round((score / activeQuestions.length) * 100);
+        const elapsedMin = Math.floor(secondsElapsed / 60);
+        const elapsedSec = secondsElapsed % 60;
+
+        // Show result
+        document.getElementById('question-screen').classList.add('hidden');
+        document.getElementById('progress-dots').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('result-screen').classList.add('animate-fade-in-up');
+        
+        document.getElementById('score-display').textContent = `${percent}%`;
+        document.getElementById('result-stats').textContent = `${score}/${activeQuestions.length} correctes · Temps : ${elapsedMin}m${elapsedSec.toString().padStart(2,'0')}s`;
+
+        const msgDiv = document.getElementById('result-msg');
+        const iconDiv = document.getElementById('result-icon');
+
+        if (percent >= 90) {
+            iconDiv.innerHTML = '<i class="fas fa-crown text-amber-400"></i>';
+            msgDiv.innerHTML = `Exceptionnel ! Vous êtes un expert SQL Server !`;
+            document.getElementById('cert-btn').classList.remove('hidden');
+            confetti({ particleCount: 300, spread: 120, origin: { y: 0.6 } });
+        } else if (percent >= 70) {
+            iconDiv.innerHTML = '<i class="fas fa-award text-amber-500"></i>';
+            msgDiv.innerHTML = `Félicitations ! Certification obtenue !`;
+            document.getElementById('cert-btn').classList.remove('hidden');
+            confetti({ particleCount: 150, spread: 80 });
+        } else if (percent >= 50) {
+            iconDiv.innerHTML = '<i class="fas fa-exclamation-triangle text-amber-600"></i>';
+            msgDiv.innerHTML = `Presque ! Révisez les chapitres faibles et réessayez.`;
+        } else {
+            iconDiv.innerHTML = '<i class="fas fa-book-open text-slate-500"></i>';
+            msgDiv.innerHTML = `Il faut 70% pour certifier. Retournez étudier les modules !`;
+        }
+
+        // Build review
+        buildReview();
+    }
+
+    function buildReview() {
+        const container = document.getElementById('review-container');
+        container.innerHTML = '';
+        activeQuestions.forEach((q, i) => {
+            const isCorrect = answers[i] === q.a;
+            const card = document.createElement('div');
+            card.className = `p-4 rounded-lg border ${isCorrect ? 'bg-emerald-900/10 border-emerald-500/30' : 'bg-red-900/10 border-red-500/30'}`;
+            
+            let html = `<div class="flex items-start gap-3">`;
+            html += `<div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${isCorrect ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'}">${i+1}</div>`;
+            html += `<div class="flex-grow">`;
+            html += `<p class="font-bold text-sm mb-2">${q.t}</p>`;
+            
+            q.o.forEach((opt, oi) => {
+                let cls = 'text-xs py-1 px-2 rounded inline-block mr-1 mb-1 ';
+                if (oi === q.a) cls += 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30';
+                else if (oi === answers[i] && oi !== q.a) cls += 'bg-red-600/20 text-red-400 border border-red-500/30 line-through';
+                else cls += 'text-slate-500';
+                html += `<span class="${cls}">${opt}</span> `;
+            });
+
+            if (answers[i] === -1) {
+                html += `<span class="text-xs text-amber-400 block mt-1"><i class="fas fa-exclamation-circle mr-1"></i>Non répondue</span>`;
+            }
+            
+            html += `</div></div>`;
+            card.innerHTML = html;
+            container.appendChild(card);
+        });
+    }
+
+    function toggleReview() {
+        document.getElementById('review-section').classList.toggle('hidden');
+    }
+
+    function downloadCertificate() {
+        alert("Génération du certificat PDF... (Simulation)\n\nDans la version finale, un PDF personnalisé sera généré avec votre nom et votre score.");
+    }
+
+    // ---- THEME ----
+    function toggleTheme() {
+        const html = document.documentElement;
+        const icon = document.getElementById('theme-icon');
+        if (html.getAttribute('data-theme') === 'light') {
+            html.removeAttribute('data-theme');
+            icon.className = 'fas fa-sun';
+            localStorage.setItem('rd_sql_theme', 'dark');
+        } else {
+            html.setAttribute('data-theme', 'light');
+            icon.className = 'fas fa-moon';
+            localStorage.setItem('rd_sql_theme', 'light');
+        }
+    }
+
+    // ---- KEYBOARD SHORTCUTS ----
+    document.addEventListener('keydown', (e) => {
+        if (examFinished || document.getElementById('question-screen').classList.contains('hidden')) return;
+        if (e.key === 'ArrowRight') goToNext();
+        else if (e.key === 'ArrowLeft') goToPrev();
+        else if (e.key === 'f' || e.key === 'F') flagQuestion();
+        else if (e.key >= '1' && e.key <= '4') {
+            const idx = parseInt(e.key) - 1;
+            if (idx < activeQuestions[currentQ].o.length) selectAnswer(idx);
+        }
+    });
+
+    // ---- INIT ----
+    (function init() {
+        if (localStorage.getItem('rd_sql_theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').className = 'fas fa-moon';
+        }
+    })();
+    </script>
+</body>
+</html>

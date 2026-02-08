@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 03 : Droits & Permissions | RD Linux</title>
+    <meta name="description" content="Comprends et maîtrise les permissions Linux : chmod, chown, umask, SUID, SGID et sticky bit sous Debian 13.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#fb923c',500:'#f97316',600:'#ea580c'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-terminal"></i><span>RD Linux</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre2.html">← Module 02</a></li>
+                <li><a href="chapitre3.html" class="active">Module 03</a></li>
+                <li><a href="chapitre4.html">Suivant →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div id="user-xp-display"><i class="fas fa-bolt"></i> 0 XP</div>
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html">01 · Commandes de base</a></li>
+            <li><a href="chapitre2.html">02 · Manipulation de fichiers</a></li>
+            <li><a href="chapitre3.html" class="active">03 · Droits & Permissions</a></li>
+            <li><a href="chapitre4.html">04 · Recherche</a></li>
+            <li><a href="chapitre5.html">05 · Éditeurs Vi/Vim & Nano</a></li>
+            <li><a href="chapitre6.html">06 · Utilisateurs & Groupes</a></li>
+            <li><a href="chapitre7.html">07 · Réseau & SSH</a></li>
+            <li><a href="chapitre8.html">08 · Bash Scripting</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge">Module 03</span>
+        <h1 class="hero-title">Droits & <span class="gradient-text">Permissions</span></h1>
+        <p class="hero-description">Sami découvre pourquoi il ne peut pas tout faire — et c'est tant mieux. La sécurité fichier sous Linux.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-lock" style="color:var(--accent);margin-right:0.5rem;"></i>Comprendre les permissions</h2>
+            <p>Quand Sami tape <code>ls -l</code>, il voit quelque chose comme ça :</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="output">-rwxr-xr-- 1 sami devops 4096 jan 15 10:00 script.sh</span>
+<span class="output">drwxr-x--- 2 sami devops 4096 jan 15 09:00 projets/</span></code></pre>
+            <p>Décomposons le premier caractère et les 9 suivants :</p>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Décodage des permissions</div>
+                <p style="margin:0;font-size:0.9rem;">
+                <code>-rwxr-xr--</code> se lit en 4 parties :<br>
+                <strong>1.</strong> Type : <code>-</code> = fichier, <code>d</code> = dossier, <code>l</code> = lien symbolique<br>
+                <strong>2.</strong> Propriétaire (user) : <code>rwx</code> = lecture + écriture + exécution<br>
+                <strong>3.</strong> Groupe : <code>r-x</code> = lecture + exécution (pas d'écriture)<br>
+                <strong>4.</strong> Autres (other) : <code>r--</code> = lecture seule
+                </p>
+            </div>
+
+            <p>Chaque permission a une valeur octale :</p>
+            <pre class="code-block"><code><span class="keyword">r</span> (read)    = <span class="num">4</span>
+<span class="keyword">w</span> (write)   = <span class="num">2</span>
+<span class="keyword">x</span> (execute) = <span class="num">1</span>
+<span class="keyword">-</span> (rien)    = <span class="num">0</span>
+
+<span class="comment">Exemples :</span>
+<span class="output">rwx = 4+2+1 = 7</span>
+<span class="output">r-x = 4+0+1 = 5</span>
+<span class="output">r-- = 4+0+0 = 4</span>
+<span class="output">--- = 0+0+0 = 0</span>
+
+<span class="comment">Donc rwxr-xr-- = 754</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-key" style="color:var(--accent);margin-right:0.5rem;"></i>chmod — Modifier les permissions</h2>
+
+            <h3>Notation octale (numérique)</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">chmod</span> <span class="num">755</span> <span class="path">script.sh</span>       <span class="comment"># rwxr-xr-x (commun pour les scripts)</span>
+<span class="cmd">chmod</span> <span class="num">644</span> <span class="path">fichier.txt</span>     <span class="comment"># rw-r--r-- (commun pour les fichiers)</span>
+<span class="cmd">chmod</span> <span class="num">700</span> <span class="path">prive/</span>          <span class="comment"># rwx------ (toi seul y accèdes)</span>
+<span class="cmd">chmod</span> <span class="num">600</span> <span class="path">secret.key</span>      <span class="comment"># rw------- (fichier sensible)</span>
+<span class="cmd">chmod</span> <span class="flag">-R</span> <span class="num">755</span> <span class="path">dossier/</span>   <span class="comment"># Récursif : applique à tout le dossier</span></code></pre>
+
+            <h3>Notation symbolique</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">chmod</span> <span class="flag">u+x</span> <span class="path">script.sh</span>      <span class="comment"># Ajoute exécution pour le propriétaire</span>
+<span class="cmd">chmod</span> <span class="flag">g-w</span> <span class="path">fichier.txt</span>    <span class="comment"># Retire écriture pour le groupe</span>
+<span class="cmd">chmod</span> <span class="flag">o=r</span> <span class="path">doc.txt</span>        <span class="comment"># Fixe "autres" à lecture seule</span>
+<span class="cmd">chmod</span> <span class="flag">a+r</span> <span class="path">public.html</span>    <span class="comment"># Ajoute lecture pour tout le monde (a=all)</span>
+<span class="cmd">chmod</span> <span class="flag">u+x,g+r</span> <span class="path">fichier</span>   <span class="comment"># Plusieurs changements d'un coup</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> u, g, o, a</div>
+                <p style="margin:0;font-size:0.9rem;"><strong>u</strong> = user (propriétaire), <strong>g</strong> = group, <strong>o</strong> = other, <strong>a</strong> = all. Utilise <strong>+</strong> pour ajouter, <strong>-</strong> pour retirer, <strong>=</strong> pour fixer exactement.</p>
+            </div>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> Piège — exécution sur les dossiers</div>
+                <p style="margin:0;font-size:0.9rem;">Pour un fichier, <code>x</code> = exécutable. Pour un dossier, <code>x</code> = <strong>le droit d'y entrer</strong> (cd). Sans <code>x</code> sur un dossier, même avec <code>r</code>, tu ne peux pas lister son contenu !</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-user-shield" style="color:var(--accent);margin-right:0.5rem;"></i>chown et chgrp — Changer le propriétaire</h2>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Changer le propriétaire</span>
+<span class="cmd">sudo chown</span> <span class="var">sami</span> <span class="path">fichier.txt</span>
+
+<span class="comment"># Changer propriétaire ET groupe</span>
+<span class="cmd">sudo chown</span> <span class="var">sami:devops</span> <span class="path">fichier.txt</span>
+
+<span class="comment"># Récursif sur un dossier</span>
+<span class="cmd">sudo chown</span> <span class="flag">-R</span> <span class="var">www-data:www-data</span> <span class="path">/var/www/html/</span>
+
+<span class="comment"># Changer uniquement le groupe</span>
+<span class="cmd">sudo chgrp</span> <span class="var">devops</span> <span class="path">projet/</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Pourquoi sudo ?</div>
+                <p style="margin:0;font-size:0.9rem;">Seul root peut changer le propriétaire d'un fichier. C'est logique : sinon n'importe qui pourrait s'attribuer les fichiers des autres ! Par contre, tu peux changer le groupe d'un fichier qui t'appartient si tu fais partie du groupe cible.</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-mask" style="color:var(--accent);margin-right:0.5rem;"></i>umask — Les permissions par défaut</h2>
+            <p>Quand tu crées un fichier, il n'a pas les permissions 777. Le <code>umask</code> définit un masque qui retire des permissions :</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">umask</span>                     <span class="comment"># Affiche le masque actuel (souvent 0022)</span>
+<span class="output">0022</span>
+
+<span class="comment"># Calcul : permissions finales = permissions max - umask</span>
+<span class="comment"># Fichier : 666 - 022 = 644 (rw-r--r--)</span>
+<span class="comment"># Dossier : 777 - 022 = 755 (rwxr-xr-x)</span>
+
+<span class="cmd">umask</span> <span class="num">0077</span>                <span class="comment"># Change : fichiers = 600, dossiers = 700</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Pourquoi 666 et pas 777 pour les fichiers ?</div>
+                <p style="margin:0;font-size:0.9rem;">Par sécurité, les fichiers sont créés sans le bit <code>x</code> (exécution). Sinon tous les fichiers seraient exécutables par défaut — imaginer un fichier texte qui s'exécute comme un programme !</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-star" style="color:var(--accent);margin-right:0.5rem;"></i>Permissions spéciales (SUID, SGID, Sticky)</h2>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># SUID (Set User ID) — s'exécute avec les droits du propriétaire</span>
+<span class="cmd">chmod</span> <span class="num">4755</span> <span class="path">programme</span>      <span class="comment"># ou chmod u+s programme</span>
+<span class="comment"># Exemple : /usr/bin/passwd a le SUID pour modifier /etc/shadow</span>
+
+<span class="comment"># SGID (Set Group ID) — les fichiers créés héritent du groupe du dossier</span>
+<span class="cmd">chmod</span> <span class="num">2755</span> <span class="path">dossier/</span>      <span class="comment"># ou chmod g+s dossier/</span>
+<span class="comment"># Pratique pour les dossiers de projet partagés</span>
+
+<span class="comment"># Sticky bit — seul le propriétaire peut supprimer ses fichiers</span>
+<span class="cmd">chmod</span> <span class="num">1777</span> <span class="path">/tmp</span>          <span class="comment"># ou chmod +t /tmp</span>
+<span class="comment"># /tmp utilise le sticky bit : tout le monde écrit, personne ne supprime les fichiers des autres</span></code></pre>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> Ne pas confondre</div>
+                <p style="margin:0;font-size:0.9rem;">Le SUID sur un script est ignoré par Linux (sécurité). Il ne fonctionne que sur les binaires compilés. Ne mets JAMAIS le SUID sur un script shell !</p>
+            </div>
+        </article>
+
+        <article class="glass-card" id="interactive-exercise">
+            <h2><i class="fas fa-dumbbell" style="color:var(--accent);margin-right:0.5rem;"></i>Exercices Interactifs</h2>
+            <p style="color:var(--text-muted);">Chargement des exercices...</p>
+        </article>
+
+        <div class="chapter-nav">
+            <a href="chapitre2.html"><i class="fas fa-arrow-left"></i> Module 02 : Manipulation de fichiers</a>
+            <a href="chapitre4.html">Module 04 : Recherche <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
+        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chapitre 4 - Variables Aléatoires Continues : Densité, Fonction de répartition, Loi Normale">
+    <title>Chapitre 4 : Variables Aléatoires Continues | Probas RD</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    
+    <style>
+        /* Gaussian Curve Canvas */
+        .gaussian-canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        #gaussian-canvas {
+            width: 100%;
+            height: 300px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+        }
+        
+        /* Probability Display */
+        .prob-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        
+        .prob-item {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: var(--radius-lg);
+            text-align: center;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            min-width: 180px;
+        }
+        
+        .prob-item-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-family: var(--font-mono);
+        }
+        
+        .prob-item-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        /* Normal table */
+        .normal-table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        
+        .normal-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+        }
+        
+        .normal-table th,
+        .normal-table td {
+            padding: 0.4rem 0.6rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .normal-table th {
+            background: var(--accent-gradient);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .normal-table td:first-child {
+            background: var(--accent-gradient);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            left: 0;
+        }
+        
+        .normal-table tr:nth-child(even) {
+            background: var(--bg-tertiary);
+        }
+        
+        .normal-table td.highlighted {
+            background: var(--warning) !important;
+            color: var(--bg-primary);
+            font-weight: 700;
+        }
+        
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .stat-box {
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        
+        .stat-box-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-family: var(--font-mono);
+        }
+        
+        .stat-box-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">🎲</div>
+                <span>Probas <strong style="color: var(--accent-secondary);">RD</strong></span>
+            </a>
+            
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Accueil</a>
+                <a href="chapitre1.html" class="nav-link">Probabilités</a>
+                <a href="chapitre2.html" class="nav-link">Dénombrement</a>
+                <a href="chapitre3.html" class="nav-link">VA Discrètes</a>
+                <a href="chapitre4.html" class="nav-link active">VA Continues</a>
+                <a href="cartes.html" class="nav-link">🃏 Cartes</a>
+                <a href="../exercices/exercices.html" class="nav-link">Exercices</a>
+                <a href="formules.html" class="nav-link">📐 Formules</a>
+                <a href="rappels-integration.html" class="nav-link">∫ Intégrales</a>
+                <a href="simulateur-examen.html" class="nav-link" style="color: var(--accent-secondary);">📝 Examen</a>
+            </nav>
+            
+            <div class="flex" style="gap: 0.75rem;">
+                <button class="theme-toggle" aria-label="Changer le thème">
+                    <i class="fas fa-sun icon-sun"></i>
+                    <i class="fas fa-moon icon-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-layout">
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Chapter Header -->
+                <section class="section" style="padding-top: 2rem;">
+                    <div class="card-badge" style="margin-bottom: 1rem;">
+                        <i class="fas fa-book-open"></i>
+                        Chapitre 4
+                    </div>
+                    <h1>Variables Aléatoires Continues</h1>
+                    <p style="font-size: 1.1rem; max-width: 800px;">
+                        Contrairement aux variables discrètes, les <strong>variables continues</strong> prennent leurs valeurs 
+                        dans un intervalle de $\mathbb{R}$. On les décrit par une <em>fonction de densité</em>.
+                    </p>
+                    
+                    <div class="progress-bar" style="max-width: 400px; margin-top: 1.5rem;">
+                        <div class="progress-fill" style="width: 0%;" id="progress"></div>
+                    </div>
+                    
+                    <!-- Avertissement Intégrales -->
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05)); border: 2px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-lg);">
+                        <h4 style="color: #f59e0b; margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Prérequis : Calcul Intégral
+                        </h4>
+                        <p style="margin: 0; color: var(--text-secondary);">
+                            Ce chapitre nécessite de <strong>maîtriser les intégrales</strong> (dérivées, primitives, intégration par parties). 
+                            Si vous n'avez pas fait de maths depuis plusieurs années, consultez notre page de rappels avant de continuer.
+                        </p>
+                        <a href="rappels-integration.html" class="btn" style="margin-top: 1rem; background: linear-gradient(135deg, #f59e0b, #d97706); display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-book-open"></i>
+                            Accéder aux rappels d'intégration
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Section 1: Densité de probabilité -->
+                <section id="densite" class="section">
+                    <h2><i class="fas fa-wave-square" style="color: var(--info);"></i> I. Densité de probabilité</h2>
+                    
+                    <div class="math-definition">
+                        <h4><i class="fas fa-book"></i> Définition</h4>
+                        <p>Soit $X$ une variable aléatoire à valeurs réelles. On dit que $X$ est une <strong>variable aléatoire continue</strong> 
+                        si sa loi est donnée par une fonction $f : \mathbb{R} \to \mathbb{R}^+$ appelée <strong>densité de probabilité</strong> telle que :</p>
+                        $$ P(a \leqslant X \leqslant b) = \int_a^b f(x) \, dx $$
+                    </div>
+                    
+                    <div class="math-property">
+                        <h4><i class="fas fa-check-circle"></i> Propriétés d'une densité</h4>
+                        <ul>
+                            <li>$f(x) \geqslant 0$ pour tout $x \in \mathbb{R}$</li>
+                            <li>$\displaystyle\int_{-\infty}^{+\infty} f(x) \, dx = 1$</li>
+                            <li>$P(X = a) = 0$ pour tout $a$ (probabilité ponctuelle nulle)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="math-warning">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Attention</h4>
+                        <p>Pour une variable continue, $P(X = x) = 0$ pour toute valeur $x$ !</p>
+                        <p>Donc $P(a < X < b) = P(a \leqslant X \leqslant b)$</p>
+                    </div>
+                </section>
+
+                <!-- Section 2: Fonction de répartition -->
+                <section id="repartition" class="section">
+                    <h2><i class="fas fa-chart-line" style="color: var(--accent-secondary);"></i> II. Fonction de répartition</h2>
+                    
+                    <div class="math-definition">
+                        <h4><i class="fas fa-book"></i> Définition</h4>
+                        <p>La <strong>fonction de répartition</strong> de $X$, notée $F$, est définie par :</p>
+                        $$ F(x) = P(X \leqslant x) = \int_{-\infty}^{x} f(t) \, dt $$
+                    </div>
+                    
+                    <div class="math-property">
+                        <h4><i class="fas fa-check-circle"></i> Propriétés de F</h4>
+                        <ul>
+                            <li>$F$ est <strong>croissante</strong> sur $\mathbb{R}$</li>
+                            <li>$F$ est <strong>continue</strong> sur $\mathbb{R}$</li>
+                            <li>$\displaystyle\lim_{x \to -\infty} F(x) = 0$ et $\displaystyle\lim_{x \to +\infty} F(x) = 1$</li>
+                            <li>$F'(x) = f(x)$ là où $f$ est continue</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="math-theorem">
+                        <h4><i class="fas fa-scroll"></i> Calcul de probabilités avec F</h4>
+                        $$ P(a \leqslant X \leqslant b) = F(b) - F(a) $$
+                        $$ P(X > a) = 1 - F(a) $$
+                    </div>
+                </section>
+
+                <!-- Section 3: Espérance et Variance -->
+                <section id="moments" class="section">
+                    <h2><i class="fas fa-calculator" style="color: var(--success);"></i> III. Espérance et Variance</h2>
+                    
+                    <div class="math-definition">
+                        <h4><i class="fas fa-book"></i> Définitions</h4>
+                        <p>Si $X$ admet une densité $f$ :</p>
+                        $$ E(X) = \int_{-\infty}^{+\infty} x \cdot f(x) \, dx $$
+                        $$ V(X) = E\left[(X - E(X))^2\right] = E(X^2) - [E(X)]^2 $$
+                        <p>avec $E(X^2) = \displaystyle\int_{-\infty}^{+\infty} x^2 \cdot f(x) \, dx$</p>
+                    </div>
+                    
+                    <div class="math-example">
+                        <h4><i class="fas fa-lightbulb"></i> Exemple : Loi Uniforme sur [a, b]</h4>
+                        <p>Si $X \sim \mathcal{U}([a, b])$, alors :</p>
+                        <ul>
+                            <li>Densité : $f(x) = \frac{1}{b-a}$ si $x \in [a, b]$, 0 sinon</li>
+                            <li>$E(X) = \frac{a + b}{2}$</li>
+                            <li>$V(X) = \frac{(b - a)^2}{12}$</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Section 4: Loi Normale -->
+                <section id="normale" class="section">
+                    <h2><i class="fas fa-bell" style="color: var(--warning);"></i> IV. Loi Normale (Gaussienne)</h2>
+                    
+                    <div class="math-definition">
+                        <h4><i class="fas fa-book"></i> Définition</h4>
+                        <p>Une variable aléatoire $X$ suit une <strong>loi normale</strong> de paramètres $\mu$ (espérance) et $\sigma > 0$ (écart-type), notée $X \sim \mathcal{N}(\mu, \sigma^2)$, si sa densité est :</p>
+                        $$ f(x) = \frac{1}{\sigma\sqrt{2\pi}} \exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right) $$
+                    </div>
+                    
+                    <div class="math-property">
+                        <h4><i class="fas fa-check-circle"></i> Caractéristiques</h4>
+                        <ul>
+                            <li>$E(X) = \mu$ (centre de la courbe)</li>
+                            <li>$V(X) = \sigma^2$</li>
+                            <li>$\sigma(X) = \sigma$ (écart-type = étalement)</li>
+                            <li>La courbe est symétrique par rapport à $x = \mu$</li>
+                            <li>Points d'inflexion en $x = \mu \pm \sigma$</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="math-recall">
+                        <h4><i class="fas fa-info-circle"></i> Loi Normale Centrée Réduite</h4>
+                        <p>La <strong>loi normale centrée réduite</strong> $\mathcal{N}(0, 1)$ a pour densité :</p>
+                        $$ \varphi(x) = \frac{1}{\sqrt{2\pi}} e^{-x^2/2} $$
+                        <p>Sa fonction de répartition est notée $\Phi(x)$.</p>
+                    </div>
+                    
+                    <!-- Interactive Gaussian Curve -->
+                    <div class="simulation-container">
+                        <div class="simulation-header">
+                            <div class="simulation-title">
+                                <i class="fas fa-bell"></i>
+                                Courbe de Gauss Interactive
+                            </div>
+                            <select class="simulation-selector" id="gauss-preset">
+                                <option value="custom">Personnalisé</option>
+                                <option value="standard">N(0, 1) Standard</option>
+                                <option value="wide">N(0, 4) Large</option>
+                                <option value="shifted">N(3, 1) Décalée</option>
+                            </select>
+                        </div>
+                        <div class="simulation-body">
+                            <div class="simulation-controls">
+                                <div class="control-group">
+                                    <label>Moyenne μ</label>
+                                    <input type="range" id="gauss-mu" min="-5" max="5" step="0.1" value="0">
+                                    <span id="gauss-mu-value" style="font-weight: 600; color: var(--accent-primary);">0</span>
+                                </div>
+                                <div class="control-group">
+                                    <label>Écart-type σ</label>
+                                    <input type="range" id="gauss-sigma" min="0.5" max="3" step="0.1" value="1">
+                                    <span id="gauss-sigma-value" style="font-weight: 600; color: var(--accent-primary);">1.0</span>
+                                </div>
+                                <div class="control-group">
+                                    <label>Borne inférieure a</label>
+                                    <input type="range" id="gauss-a" min="-5" max="5" step="0.1" value="-1">
+                                    <span id="gauss-a-value" style="font-weight: 600; color: var(--success);">-1</span>
+                                </div>
+                                <div class="control-group">
+                                    <label>Borne supérieure b</label>
+                                    <input type="range" id="gauss-b" min="-5" max="5" step="0.1" value="1">
+                                    <span id="gauss-b-value" style="font-weight: 600; color: var(--error);">1</span>
+                                </div>
+                            </div>
+                            
+                            <div class="gaussian-canvas-container">
+                                <canvas id="gaussian-canvas"></canvas>
+                            </div>
+                            
+                            <div class="prob-display">
+                                <div class="prob-item">
+                                    <div class="prob-item-value" id="prob-ab">68.27%</div>
+                                    <div class="prob-item-label">P(a ≤ X ≤ b)</div>
+                                </div>
+                                <div class="prob-item">
+                                    <div class="prob-item-value" id="prob-1sigma">68.27%</div>
+                                    <div class="prob-item-label">P(μ-σ ≤ X ≤ μ+σ)</div>
+                                </div>
+                                <div class="prob-item">
+                                    <div class="prob-item-value" id="prob-2sigma">95.45%</div>
+                                    <div class="prob-item-label">P(μ-2σ ≤ X ≤ μ+2σ)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="math-theorem">
+                        <h4><i class="fas fa-scroll"></i> Centrage-Réduction</h4>
+                        <p>Si $X \sim \mathcal{N}(\mu, \sigma^2)$, alors la variable <strong>centrée réduite</strong> :</p>
+                        $$ Z = \frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1) $$
+                        <p>Cela permet d'utiliser la <strong>table de la loi normale</strong> :</p>
+                        $$ P(X \leqslant x) = P\left(Z \leqslant \frac{x - \mu}{\sigma}\right) = \Phi\left(\frac{x - \mu}{\sigma}\right) $$
+                    </div>
+                    
+                    <div class="math-property">
+                        <h4><i class="fas fa-check-circle"></i> Règle des 68-95-99.7</h4>
+                        <p>Pour $X \sim \mathcal{N}(\mu, \sigma^2)$ :</p>
+                        <ul>
+                            <li>$P(\mu - \sigma \leqslant X \leqslant \mu + \sigma) \approx 68.27\%$</li>
+                            <li>$P(\mu - 2\sigma \leqslant X \leqslant \mu + 2\sigma) \approx 95.45\%$</li>
+                            <li>$P(\mu - 3\sigma \leqslant X \leqslant \mu + 3\sigma) \approx 99.73\%$</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Normal Table -->
+                    <h3 id="table">IV.4 Table de la Loi Normale N(0,1)</h3>
+                    
+                    <div class="math-recall">
+                        <h4><i class="fas fa-info-circle"></i> Utilisation de la table</h4>
+                        <p>La table donne $\Phi(t) = P(Z \leqslant t)$ pour $Z \sim \mathcal{N}(0,1)$ et $t \geqslant 0$.</p>
+                        <p>Pour $t < 0$ : $\Phi(-t) = 1 - \Phi(t)$ (symétrie)</p>
+                    </div>
+                    
+                    <div class="simulation-container">
+                        <div class="simulation-header">
+                            <div class="simulation-title">
+                                <i class="fas fa-table"></i>
+                                Calculateur Φ(t)
+                            </div>
+                        </div>
+                        <div class="simulation-body">
+                            <div class="simulation-controls">
+                                <div class="control-group">
+                                    <label>Valeur de t</label>
+                                    <input type="number" id="phi-t" value="1.96" step="0.01" min="-4" max="4" style="width: 100px;">
+                                </div>
+                                <div class="control-group">
+                                    <label>Calculer</label>
+                                    <button class="btn btn-primary" id="phi-calc-btn">
+                                        <i class="fas fa-calculator"></i> Φ(t)
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-grid" id="phi-results">
+                                <div class="stat-box">
+                                    <div class="stat-box-value" id="phi-value">0.9750</div>
+                                    <div class="stat-box-label">Φ(t) = P(Z ≤ t)</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-box-value" id="phi-comp">0.0250</div>
+                                    <div class="stat-box-label">1 - Φ(t) = P(Z > t)</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-box-value" id="phi-sym">0.9500</div>
+                                    <div class="stat-box-label">2Φ(t) - 1 = P(|Z| ≤ t)</div>
+                                </div>
+                            </div>
+                            
+                            <div class="normal-table-container" style="max-height: 300px; overflow-y: auto;">
+                                <table class="normal-table" id="normal-table">
+                                    <!-- Generated by JS -->
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ALERT WARNING: Erreurs classiques -->
+                    <div class="alert-warning">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Erreurs classiques sur les VA continues</h4>
+                        <ul>
+                            <li><strong>$P(X = a) = 0$ pour une VA continue :</strong> La probabilité d'une valeur exacte est nulle ! Utilisez des intervalles.</li>
+                            <li><strong>Confondre densité $f$ et répartition $F$ :</strong> $F(x) = \int_{-\infty}^x f(t) \, dt$</li>
+                            <li><strong>Oublier de centrer-réduire :</strong> Pour $X \sim \mathcal{N}(\mu, \sigma^2)$, utilisez $Z = \frac{X - \mu}{\sigma}$</li>
+                            <li><strong>Table de Φ :</strong> Elle donne $P(Z \leqslant t)$, pas $P(Z \geqslant t)$ !</li>
+                        </ul>
+                    </div>
+
+                    <!-- ALERT DANGER -->
+                    <div class="alert-danger">
+                        <h4><i class="fas fa-ban"></i> Piège classique avec Φ</h4>
+                        <p>Pour les valeurs <strong>négatives</strong> de $t$, utilisez la symétrie :</p>
+                        $$ \Phi(-t) = 1 - \Phi(t) $$
+                        <p>Exemple : $\Phi(-1{,}96) = 1 - \Phi(1{,}96) = 1 - 0{,}975 = 0{,}025$</p>
+                    </div>
+
+                    <!-- EXERCICES CLASSIQUES -->
+                    <h3 id="exercices-chapitre">Exercices de fin de chapitre</h3>
+                    
+                    <div class="exercise-card">
+                        <div class="exercise-header">
+                            <span class="exercise-number">Exercice 1</span>
+                            <span class="exercise-difficulty easy">Facile</span>
+                        </div>
+                        <div class="exercise-body">
+                            <p>$X$ suit une loi uniforme sur $[2, 8]$.</p>
+                            <ol>
+                                <li>Calculer $E(X)$ et $V(X)$.</li>
+                                <li>Calculer $P(3 \leqslant X \leqslant 6)$.</li>
+                            </ol>
+                        </div>
+                        <details class="solution-details">
+                            <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+                            <div class="solution-content">
+                                <p><strong>1. Pour $X \sim \mathcal{U}([a, b])$ :</strong></p>
+                                $$ E(X) = \frac{a + b}{2} = \frac{2 + 8}{2} = \boxed{5} $$
+                                $$ V(X) = \frac{(b - a)^2}{12} = \frac{36}{12} = \boxed{3} $$
+                                
+                                <p><strong>2. Probabilité :</strong></p>
+                                $$ P(3 \leqslant X \leqslant 6) = \frac{6 - 3}{8 - 2} = \frac{3}{6} = \boxed{0{,}5} $$
+                            </div>
+                        </details>
+                    </div>
+                    
+                    <div class="exercise-card">
+                        <div class="exercise-header">
+                            <span class="exercise-number">Exercice 2</span>
+                            <span class="exercise-difficulty medium">Moyen</span>
+                        </div>
+                        <div class="exercise-body">
+                            <p>$Z \sim \mathcal{N}(0, 1)$. En utilisant la table de la loi normale, calculer :</p>
+                            <ol>
+                                <li>$P(Z \leqslant 1{,}5)$</li>
+                                <li>$P(Z > 0{,}8)$</li>
+                                <li>$P(-1 \leqslant Z \leqslant 2)$</li>
+                                <li>$P(|Z| \leqslant 1{,}96)$</li>
+                            </ol>
+                        </div>
+                        <details class="solution-details">
+                            <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+                            <div class="solution-content">
+                                <p><strong>1.</strong> $P(Z \leqslant 1{,}5) = \Phi(1{,}5) = \boxed{0{,}9332}$</p>
+                                
+                                <p><strong>2.</strong> $P(Z > 0{,}8) = 1 - \Phi(0{,}8) = 1 - 0{,}7881 = \boxed{0{,}2119}$</p>
+                                
+                                <p><strong>3.</strong> $P(-1 \leqslant Z \leqslant 2) = \Phi(2) - \Phi(-1) = \Phi(2) - (1 - \Phi(1))$</p>
+                                $$ = 0{,}9772 - (1 - 0{,}8413) = 0{,}9772 - 0{,}1587 = \boxed{0{,}8185} $$
+                                
+                                <p><strong>4.</strong> $P(|Z| \leqslant 1{,}96) = P(-1{,}96 \leqslant Z \leqslant 1{,}96) = 2\Phi(1{,}96) - 1$</p>
+                                $$ = 2 \times 0{,}975 - 1 = \boxed{0{,}95} $$
+                            </div>
+                        </details>
+                    </div>
+                    
+                    <div class="exercise-card">
+                        <div class="exercise-header">
+                            <span class="exercise-number">Exercice 3</span>
+                            <span class="exercise-difficulty hard">Difficile</span>
+                        </div>
+                        <div class="exercise-body">
+                            <p>La taille des adultes d'une population suit une loi normale $\mathcal{N}(170, 100)$ (en cm).</p>
+                            <ol>
+                                <li>Quelle est la probabilité qu'un adulte mesure entre 160 et 180 cm ?</li>
+                                <li>Quelle taille minimale ont les 5% les plus grands ?</li>
+                            </ol>
+                        </div>
+                        <details class="solution-details">
+                            <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+                            <div class="solution-content">
+                                <p><strong>Données :</strong> $X \sim \mathcal{N}(170, 100)$ donc $\mu = 170$ et $\sigma = 10$</p>
+                                
+                                <p><strong>1. Probabilité :</strong> On centre-réduit</p>
+                                $$ P(160 \leqslant X \leqslant 180) = P\left(\frac{160-170}{10} \leqslant Z \leqslant \frac{180-170}{10}\right) $$
+                                $$ = P(-1 \leqslant Z \leqslant 1) = 2\Phi(1) - 1 = 2 \times 0{,}8413 - 1 = \boxed{0{,}6826} $$
+                                
+                                <p><strong>2. Quantile :</strong> On cherche $x$ tel que $P(X > x) = 0{,}05$</p>
+                                <p>Donc $P(X \leqslant x) = 0{,}95$, soit $\Phi\left(\frac{x - 170}{10}\right) = 0{,}95$</p>
+                                <p>Dans la table : $\Phi(1{,}645) \approx 0{,}95$</p>
+                                $$ \frac{x - 170}{10} = 1{,}645 \implies x = 170 + 16{,}45 = \boxed{186{,}45 \text{ cm}} $$
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- EXERCICES AVEC INDICES -->
+                    <h3 id="exercices-indices" style="margin-top: 2rem;">
+                        <i class="fas fa-lightbulb" style="color: var(--warning);"></i>
+                        Exercices guidés avec indices
+                    </h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                        Ces exercices proposent des indices progressifs. Essayez de résoudre sans les regarder !
+                    </p>
+
+                    <!-- Exercice guidé 1 -->
+                    <div class="exercise-with-hints" id="exo-hint-4-1">
+                        <div class="exercise-title">
+                            <h4><i class="fas fa-puzzle-piece"></i> Exercice guidé 1</h4>
+                            <span class="exercise-level medium">Moyen</span>
+                        </div>
+                        <div class="exercise-statement">
+                            <p>Le temps d'attente (en minutes) à un guichet suit une loi exponentielle de paramètre $\lambda = 0{,}2$. Quelle est la probabilité d'attendre plus de 10 minutes ?</p>
+                        </div>
+                        
+                        <div class="hints-container">
+                            <div class="hints-title">
+                                <i class="fas fa-lightbulb"></i> Indices progressifs
+                                <span class="hints-counter" id="hints-counter-exo-hint-4-1">0/3 indices utilisés</span>
+                            </div>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-4-1" data-hint-number="1" id="hint-exo-hint-4-1-1">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">1</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 1 : Fonction de répartition
+                                </summary>
+                                <div class="hint-content">
+                                    Pour la loi exponentielle $\mathcal{E}(\lambda)$, la fonction de répartition est $F(x) = 1 - e^{-\lambda x}$ pour $x \geq 0$.
+                                </div>
+                            </details>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-4-1" data-hint-number="2" id="hint-exo-hint-4-1-2">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">2</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 2 : Événement complémentaire
+                                </summary>
+                                <div class="hint-content">
+                                    <p>$P(X > 10) = 1 - P(X \leq 10) = 1 - F(10)$</p>
+                                    <p>Donc $P(X > 10) = 1 - (1 - e^{-\lambda \times 10}) = e^{-\lambda \times 10}$</p>
+                                </div>
+                            </details>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-4-1" data-hint-number="3" id="hint-exo-hint-4-1-3">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">3</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 3 : Calcul numérique
+                                </summary>
+                                <div class="hint-content">
+                                    <p>$P(X > 10) = e^{-0{,}2 \times 10} = e^{-2}$</p>
+                                    <p>$e^{-2} \approx 0{,}1353$</p>
+                                </div>
+                            </details>
+                        </div>
+                        
+                        <div class="answer-section">
+                            <div class="answer-input-group">
+                                <input type="text" class="answer-input" id="answer-exo-hint-4-1" placeholder="Votre réponse (ex: 0.135)">
+                                <button class="btn-check-answer" onclick="checkExerciseAnswer('exo-hint-4-1')">
+                                    <i class="fas fa-check"></i> Vérifier
+                                </button>
+                            </div>
+                            <div class="answer-feedback" id="feedback-exo-hint-4-1"></div>
+                        </div>
+                        
+                        <details class="final-solution">
+                            <summary class="final-solution-toggle">
+                                <i class="fas fa-graduation-cap"></i> Voir la solution complète
+                            </summary>
+                            <div class="final-solution-content">
+                                <p>$P(X > 10) = e^{-0{,}2 \times 10} = e^{-2} \approx \boxed{0{,}135}$</p>
+                                <p>Il y a environ 13,5% de chances d'attendre plus de 10 minutes.</p>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Exercice guidé 2 -->
+                    <div class="exercise-with-hints" id="exo-hint-4-2">
+                        <div class="exercise-title">
+                            <h4><i class="fas fa-puzzle-piece"></i> Exercice guidé 2</h4>
+                            <span class="exercise-level hard">Difficile</span>
+                        </div>
+                        <div class="exercise-statement">
+                            <p>Les notes à un examen suivent une loi normale $\mathcal{N}(12, 9)$ (variance = 9). On décide d'admettre les 20% meilleurs étudiants. Quelle est la note minimale pour être admis ?</p>
+                        </div>
+                        
+                        <div class="hints-container">
+                            <div class="hints-title">
+                                <i class="fas fa-lightbulb"></i> Indices progressifs
+                                <span class="hints-counter" id="hints-counter-exo-hint-4-2">0/3 indices utilisés</span>
+                            </div>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-4-2" data-hint-number="1" id="hint-exo-hint-4-2-1">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">1</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 1 : Reformulation du problème
+                                </summary>
+                                <div class="hint-content">
+                                    <p>Les 20% meilleurs signifie $P(X > x) = 0{,}20$, donc $P(X \leq x) = 0{,}80$.</p>
+                                    <p>On cherche le quantile à 80% de la distribution.</p>
+                                </div>
+                            </details>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-4-2" data-hint-number="2" id="hint-exo-hint-4-2-2">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">2</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 2 : Centrer-réduire
+                                </summary>
+                                <div class="hint-content">
+                                    <p>$X \sim \mathcal{N}(12, 9)$ donc $\mu = 12$ et $\sigma = \sqrt{9} = 3$</p>
+                                    <p>$P(X \leq x) = 0{,}80$ équivaut à $\Phi\left(\frac{x - 12}{3}\right) = 0{,}80$</p>
+                                    <p>Dans la table, cherchez $t$ tel que $\Phi(t) = 0{,}80$</p>
+                                </div>
+                            </details>
+                            
+                            <details class="hint-item" data-exo-id="exo-hint-4-2" data-hint-number="3" id="hint-exo-hint-4-2-3">
+                                <summary class="hint-toggle">
+                                    <span class="hint-badge">3</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                    Indice 3 : Lecture de la table
+                                </summary>
+                                <div class="hint-content">
+                                    <p>$\Phi(0{,}84) \approx 0{,}7995 \approx 0{,}80$</p>
+                                    <p>Donc $\frac{x - 12}{3} = 0{,}84$</p>
+                                    <p>Résolvez : $x = 12 + 3 \times 0{,}84 = ?$</p>
+                                </div>
+                            </details>
+                        </div>
+                        
+                        <div class="answer-section">
+                            <div class="answer-input-group">
+                                <input type="text" class="answer-input" id="answer-exo-hint-4-2" placeholder="Votre réponse (ex: 14.52)">
+                                <button class="btn-check-answer" onclick="checkExerciseAnswer('exo-hint-4-2')">
+                                    <i class="fas fa-check"></i> Vérifier
+                                </button>
+                            </div>
+                            <div class="answer-feedback" id="feedback-exo-hint-4-2"></div>
+                        </div>
+                        
+                        <details class="final-solution">
+                            <summary class="final-solution-toggle">
+                                <i class="fas fa-graduation-cap"></i> Voir la solution complète
+                            </summary>
+                            <div class="final-solution-content">
+                                <p>$\Phi^{-1}(0{,}80) \approx 0{,}84$</p>
+                                <p>$x = \mu + \sigma \times t = 12 + 3 \times 0{,}84 = \boxed{14{,}52}$</p>
+                                <p>Il faut avoir au moins 14,52/20 pour être dans les 20% meilleurs.</p>
+                            </div>
+                        </details>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="chapter-nav">
+                    <a href="chapitre3.html" class="nav-btn prev">
+                        <i class="fas fa-arrow-left"></i>
+                        <div class="nav-btn-content">
+                            <span class="nav-btn-label">Chapitre précédent</span>
+                            <span class="nav-btn-title">VA Discrètes</span>
+                        </div>
+                    </a>
+                    <a href="../exercices/exercices.html" class="nav-btn next">
+                        <i class="fas fa-arrow-right"></i>
+                        <div class="nav-btn-content">
+                            <span class="nav-btn-label">Pratiquer</span>
+                            <span class="nav-btn-title">Exercices</span>
+                        </div>
+                    </a>
+                </div>
+            </main>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav class="toc">
+                    <h4 class="toc-title">Sommaire</h4>
+                    <ul class="toc-list">
+                        <li class="toc-item">
+                            <a href="#densite" class="toc-link active">
+                                <i class="fas fa-chevron-right"></i>
+                                I. Densité
+                            </a>
+                        </li>
+                        <li class="toc-item">
+                            <a href="#repartition" class="toc-link">
+                                <i class="fas fa-chevron-right"></i>
+                                II. Fonction de répartition
+                            </a>
+                        </li>
+                        <li class="toc-item">
+                            <a href="#moments" class="toc-link">
+                                <i class="fas fa-chevron-right"></i>
+                                III. Espérance & Variance
+                            </a>
+                        </li>
+                        <li class="toc-item">
+                            <a href="#normale" class="toc-link">
+                                <i class="fas fa-chevron-right"></i>
+                                IV. Loi Normale
+                            </a>
+                        </li>
+                        <li class="toc-item">
+                            <a href="#table" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+                                IV.4 Table N(0,1)
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <div class="card" style="margin-top: 1.5rem; padding: 1.25rem;">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">
+                        <i class="fas fa-lightbulb" style="color: var(--warning);"></i>
+                        Valeurs clés Φ(t)
+                    </h4>
+                    <div style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.8; color: var(--text-muted);">
+                        Φ(1.645) ≈ 0.95<br>
+                        Φ(1.96) ≈ 0.975<br>
+                        Φ(2.326) ≈ 0.99<br>
+                        Φ(2.576) ≈ 0.995
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section id="quiz4" class="section" style="background: linear-gradient(to bottom, #f8f9fa, white);">
+        <div class="container">
+            <div class="section-header" style="margin-bottom: 2rem;">
+                <span class="section-tag">
+                    <i class="fas fa-clipboard-check"></i> Quiz
+                </span>
+                <h2 class="section-title">Testez vos connaissances</h2>
+                <p class="section-desc">10 questions sur les variables aléatoires continues</p>
+            </div>
+
+            <div class="exercises-container">
+                <!-- Question 1 -->
+                <div class="exercise-interactive" id="q4-1">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q1</span>
+                        <span class="exercise-difficulty">Densité</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>L'intégrale d'une densité de probabilité f sur ℝ vaut combien ?</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-1" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-1', '1')" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-1" class="exercise-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="exercise-interactive" id="q4-2">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q2</span>
+                        <span class="exercise-difficulty">Répartition</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>Si F est une fonction de répartition, quelle est la limite de F(x) quand x → +∞ ?</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-2" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-2', '1')" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-2" class="exercise-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="exercise-interactive" id="q4-3">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q3</span>
+                        <span class="exercise-difficulty">Normale</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>Pour X ~ N(0,1), quelle est la valeur de Φ(0) ?</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-3" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-3', '0.5', ['1/2'])" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-3" class="exercise-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="exercise-interactive" id="q4-4">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q4</span>
+                        <span class="exercise-difficulty">Normale</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>X ~ N(μ, σ²). Quelle est l'espérance E(X) ?</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-4" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-4', 'μ', ['mu'])" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-4" class="exercise-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="exercise-interactive" id="q4-5">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q5</span>
+                        <span class="exercise-difficulty">Normale</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>X ~ N(μ, σ²). Quelle est la variance V(X) ?</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-5" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-5', 'σ²', ['sigma²', 'sigma^2', 'σ^2'])" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-5" class="exercise-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Question 6 -->
+                <div class="exercise-interactive" id="q4-6">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q6</span>
+                        <span class="exercise-difficulty">Centrage</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>Si X ~ N(5, 4), quelle est la variable centrée réduite Z = (X - μ)/σ pour X = 7 ?</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-6" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-6', '1')" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-6" class="exercise-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Question 7 -->
+                <div class="exercise-interactive" id="q4-7">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q7</span>
+                        <span class="exercise-difficulty">Uniforme</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>X ~ U([0, 10]). Quelle est l'espérance E(X) ?</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-7" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-7', '5')" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-7" class="exercise-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Question 8 -->
+                <div class="exercise-interactive" id="q4-8">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q8</span>
+                        <span class="exercise-difficulty">Exponentielle</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>X ~ Exp(λ). Quelle est l'espérance E(X) en fonction de λ ?</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-8" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-8', '1/λ', ['1/lambda'])" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-8" class="exercise-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Question 9 -->
+                <div class="exercise-interactive" id="q4-9">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q9</span>
+                        <span class="exercise-difficulty">Table</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>Φ(1.96) ≈ ? (à 3 décimales)</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-9" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-9', '0.975')" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-9" class="exercise-feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Question 10 -->
+                <div class="exercise-interactive" id="q4-10">
+                    <div class="exercise-header">
+                        <span class="exercise-number">Q10</span>
+                        <span class="exercise-difficulty">Symétrie</span>
+                    </div>
+                    <div class="exercise-body">
+                        <p>Pour X ~ N(0,1), comment exprimer P(X < -a) en fonction de Φ(a) ?</p>
+                        <div class="exercise-input-group">
+                            <input type="text" id="input-q4-10" class="exercise-input" placeholder="Votre réponse...">
+                            <button onclick="checkQuiz4('q4-10', '1-Φ(a)', ['1-φ(a)', '1-Phi(a)'])" class="exercise-btn check">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                        <div id="feedback-q4-10" class="exercise-feedback"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Score -->
+            <div id="quiz4-score" class="quiz-score" style="display: none; margin-top: 2rem; text-align: center; padding: 1.5rem; background: var(--primary-light); border-radius: 12px;">
+                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">
+                    <i class="fas fa-trophy"></i> Votre score : <span id="quiz4-result">0/10</span>
+                </h3>
+            </div>
+
+            <!-- Quiz Buttons -->
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                <button onclick="calculateQuiz4Score()" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Calculer mon score
+                </button>
+                <button onclick="resetQuiz4()" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Recommencer
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chapter Navigation -->
+    <nav class="chapter-nav">
+        <div class="container">
+            <div class="chapter-nav-content">
+                <a href="chapitre3.html" class="chapter-nav-btn prev">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Chapitre 3</span>
+                </a>
+                <div class="chapter-nav-info">
+                    <span class="chapter-nav-current">Chapitre 4 sur 4</span>
+                    <div class="chapter-nav-progress">
+                        <div class="chapter-nav-progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+                <a href="../exercices/exercices.html" class="chapter-nav-btn next">
+                    <span>Exercices</span>
+                    <i class="fas fa-dumbbell"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-text">
+                    © 2025 Cours de Probabilités | Créé par <strong>RD</strong>
+                </p>
+                <div class="footer-links">
+                    <a href="../index.html" class="footer-link">Accueil</a>
+                    <a href="formules.html" class="footer-link">Formules</a>
+                    <a href="../exercices/exercices.html" class="footer-link">Exercices</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Error function approximation (Abramowitz and Stegun)
+        function erf(x) {
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+            
+            const sign = x >= 0 ? 1 : -1;
+            x = Math.abs(x);
+            
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+            
+            return sign * y;
+        }
+        
+        // Normal CDF
+        function phi(x) {
+            return 0.5 * (1 + erf(x / Math.sqrt(2)));
+        }
+        
+        // Normal PDF
+        function normalPDF(x, mu, sigma) {
+            const z = (x - mu) / sigma;
+            return Math.exp(-0.5 * z * z) / (sigma * Math.sqrt(2 * Math.PI));
+        }
+        
+        // Normal CDF for any mu, sigma
+        function normalCDF(x, mu, sigma) {
+            return phi((x - mu) / sigma);
+        }
+        
+        // Draw Gaussian curve
+        function drawGaussian() {
+            const canvas = document.getElementById('gaussian-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            // Set canvas size
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            const width = rect.width;
+            const height = rect.height;
+            
+            // Get parameters
+            const mu = parseFloat(document.getElementById('gauss-mu').value);
+            const sigma = parseFloat(document.getElementById('gauss-sigma').value);
+            const a = parseFloat(document.getElementById('gauss-a').value);
+            const b = parseFloat(document.getElementById('gauss-b').value);
+            
+            // Update displays
+            document.getElementById('gauss-mu-value').textContent = mu.toFixed(1);
+            document.getElementById('gauss-sigma-value').textContent = sigma.toFixed(1);
+            document.getElementById('gauss-a-value').textContent = a.toFixed(1);
+            document.getElementById('gauss-b-value').textContent = b.toFixed(1);
+            
+            // Clear canvas
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            ctx.fillStyle = isDark ? '#1a1a2e' : '#f8fafc';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Drawing parameters
+            const xMin = -5;
+            const xMax = 5;
+            const yMax = 0.5;
+            
+            const padding = { left: 50, right: 20, top: 20, bottom: 40 };
+            const plotWidth = width - padding.left - padding.right;
+            const plotHeight = height - padding.top - padding.bottom;
+            
+            // Transform functions
+            const toCanvasX = (x) => padding.left + ((x - xMin) / (xMax - xMin)) * plotWidth;
+            const toCanvasY = (y) => padding.top + plotHeight - (y / yMax) * plotHeight;
+            
+            // Draw grid
+            ctx.strokeStyle = isDark ? '#333' : '#e2e8f0';
+            ctx.lineWidth = 1;
+            
+            for (let x = -4; x <= 4; x++) {
+                ctx.beginPath();
+                ctx.moveTo(toCanvasX(x), padding.top);
+                ctx.lineTo(toCanvasX(x), height - padding.bottom);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y <= 0.4; y += 0.1) {
+                ctx.beginPath();
+                ctx.moveTo(padding.left, toCanvasY(y));
+                ctx.lineTo(width - padding.right, toCanvasY(y));
+                ctx.stroke();
+            }
+            
+            // Draw axes
+            ctx.strokeStyle = isDark ? '#888' : '#64748b';
+            ctx.lineWidth = 2;
+            
+            // X axis
+            ctx.beginPath();
+            ctx.moveTo(padding.left, toCanvasY(0));
+            ctx.lineTo(width - padding.right, toCanvasY(0));
+            ctx.stroke();
+            
+            // Y axis
+            ctx.beginPath();
+            ctx.moveTo(toCanvasX(0), padding.top);
+            ctx.lineTo(toCanvasX(0), height - padding.bottom);
+            ctx.stroke();
+            
+            // Draw shaded area [a, b]
+            ctx.beginPath();
+            ctx.moveTo(toCanvasX(a), toCanvasY(0));
+            
+            for (let x = a; x <= b; x += 0.02) {
+                const y = normalPDF(x, mu, sigma);
+                ctx.lineTo(toCanvasX(x), toCanvasY(y));
+            }
+            
+            ctx.lineTo(toCanvasX(b), toCanvasY(0));
+            ctx.closePath();
+            
+            const gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.6)');
+            gradient.addColorStop(1, 'rgba(139, 92, 246, 0.2)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Draw curve
+            ctx.beginPath();
+            for (let x = xMin; x <= xMax; x += 0.02) {
+                const y = normalPDF(x, mu, sigma);
+                if (x === xMin) {
+                    ctx.moveTo(toCanvasX(x), toCanvasY(y));
+                } else {
+                    ctx.lineTo(toCanvasX(x), toCanvasY(y));
+                }
+            }
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Draw mean line
+            ctx.beginPath();
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(toCanvasX(mu), padding.top);
+            ctx.lineTo(toCanvasX(mu), height - padding.bottom);
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Labels
+            ctx.fillStyle = isDark ? '#e2e8f0' : '#1e293b';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            
+            for (let x = -4; x <= 4; x++) {
+                ctx.fillText(x.toString(), toCanvasX(x), height - padding.bottom + 20);
+            }
+            
+            ctx.textAlign = 'right';
+            for (let y = 0; y <= 0.4; y += 0.1) {
+                ctx.fillText(y.toFixed(1), padding.left - 10, toCanvasY(y) + 4);
+            }
+            
+            // μ label
+            ctx.fillStyle = '#ef4444';
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.fillText('μ=' + mu.toFixed(1), toCanvasX(mu), padding.top - 5);
+            
+            // Calculate probabilities
+            const probAB = normalCDF(b, mu, sigma) - normalCDF(a, mu, sigma);
+            const prob1Sigma = normalCDF(mu + sigma, mu, sigma) - normalCDF(mu - sigma, mu, sigma);
+            const prob2Sigma = normalCDF(mu + 2*sigma, mu, sigma) - normalCDF(mu - 2*sigma, mu, sigma);
+            
+            document.getElementById('prob-ab').textContent = (probAB * 100).toFixed(2) + '%';
+            document.getElementById('prob-1sigma').textContent = (prob1Sigma * 100).toFixed(2) + '%';
+            document.getElementById('prob-2sigma').textContent = (prob2Sigma * 100).toFixed(2) + '%';
+        }
+        
+        // Generate normal table
+        function generateNormalTable() {
+            const table = document.getElementById('normal-table');
+            if (!table) return;
+            
+            let html = '<thead><tr><th>t</th>';
+            for (let j = 0; j <= 9; j++) {
+                html += `<th>.0${j}</th>`;
+            }
+            html += '</tr></thead><tbody>';
+            
+            for (let i = 0; i <= 3; i++) {
+                for (let k = 0; k <= 9; k++) {
+                    const t = i + k * 0.1;
+                    html += `<tr><td>${t.toFixed(1)}</td>`;
+                    for (let j = 0; j <= 9; j++) {
+                        const val = t + j * 0.01;
+                        const p = phi(val);
+                        html += `<td data-t="${val.toFixed(2)}">${p.toFixed(4)}</td>`;
+                    }
+                    html += '</tr>';
+                }
+            }
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+        
+        // Phi calculator
+        function calculatePhi() {
+            const t = parseFloat(document.getElementById('phi-t').value);
+            const phiT = phi(t);
+            
+            document.getElementById('phi-value').textContent = phiT.toFixed(4);
+            document.getElementById('phi-comp').textContent = (1 - phiT).toFixed(4);
+            document.getElementById('phi-sym').textContent = (2 * phi(Math.abs(t)) - 1).toFixed(4);
+            
+            // Highlight in table
+            document.querySelectorAll('.normal-table td.highlighted').forEach(td => {
+                td.classList.remove('highlighted');
+            });
+            
+            const tRounded = Math.abs(t).toFixed(2);
+            const cell = document.querySelector(`.normal-table td[data-t="${tRounded}"]`);
+            if (cell) {
+                cell.classList.add('highlighted');
+                cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        // Event listeners
+        ['gauss-mu', 'gauss-sigma', 'gauss-a', 'gauss-b'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', drawGaussian);
+        });
+        
+        document.getElementById('phi-calc-btn')?.addEventListener('click', calculatePhi);
+        document.getElementById('phi-t')?.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') calculatePhi();
+        });
+        
+        // Presets
+        document.getElementById('gauss-preset')?.addEventListener('change', function(e) {
+            const presets = {
+                'standard': { mu: 0, sigma: 1, a: -1, b: 1 },
+                'wide': { mu: 0, sigma: 2, a: -2, b: 2 },
+                'shifted': { mu: 3, sigma: 1, a: 2, b: 4 }
+            };
+            if (presets[e.target.value]) {
+                const p = presets[e.target.value];
+                document.getElementById('gauss-mu').value = p.mu;
+                document.getElementById('gauss-sigma').value = p.sigma;
+                document.getElementById('gauss-a').value = p.a;
+                document.getElementById('gauss-b').value = p.b;
+                drawGaussian();
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            generateNormalTable();
+            drawGaussian();
+        });
+        
+        // Redraw on theme change
+        const observer = new MutationObserver(() => {
+            drawGaussian();
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        
+        // Redraw on resize
+        window.addEventListener('resize', drawGaussian);
+        
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            const progressBar = document.getElementById('progress');
+            if (progressBar) {
+                progressBar.style.width = `${scrolled}%`;
+            }
+        });
+    </script>
+    <!-- Quiz JS externe -->
+    <script src="../assets/js/quiz-chapitre4.js"></script>
+    <!-- Exercices avec indices -->
+    <script src="../assets/js/exercises-hints.js"></script>
+    <!-- Nouvelles fonctionnalités (Gamification & Simulations) -->
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/simulators.js"></script>
+    <script>
+        // Initialisation des exercices avec indices
+        document.addEventListener('DOMContentLoaded', () => {
+            initExerciseWithHints('exo-hint-4-1', '0.135', ['0.135', '0.14', '0,135', '0,14', '0.1353']);
+            initExerciseWithHints('exo-hint-4-2', '14.52', ['14.52', '14,52', '14.5', '14,5']);
+        });
+    </script>
+</body>
+</html>

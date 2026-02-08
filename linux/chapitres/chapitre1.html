@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 01 : Commandes de Base | RD Linux</title>
+    <meta name="description" content="Apprends les commandes fondamentales de Linux : navigation dans le terminal, affichage, historique et aide sous Debian 13.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ accent:{ 400:'#fb923c',500:'#f97316',600:'#ea580c' }}, fontFamily:{ sans:['Inter','sans-serif'], mono:['JetBrains Mono','monospace'] }}}}
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-terminal"></i><span>RD Linux</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="chapitre1.html" class="active">Module 01</a></li>
+                <li><a href="chapitre2.html">Suivant →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div id="user-xp-display"><i class="fas fa-bolt"></i> 0 XP</div>
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html" class="active">01 · Commandes de base</a></li>
+            <li><a href="chapitre2.html">02 · Manipulation de fichiers</a></li>
+            <li><a href="chapitre3.html">03 · Droits & Permissions</a></li>
+            <li><a href="chapitre4.html">04 · Recherche</a></li>
+            <li><a href="chapitre5.html">05 · Éditeurs Vi/Vim & Nano</a></li>
+            <li><a href="chapitre6.html">06 · Utilisateurs & Groupes</a></li>
+            <li><a href="chapitre7.html">07 · Réseau & SSH</a></li>
+            <li><a href="chapitre8.html">08 · Bash Scripting</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+            <li><a href="cartes.html"><i class="fas fa-clone"></i> Flashcards</a></li>
+        </ul>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge">Module 01</span>
+        <h1 class="hero-title">Commandes de <span class="gradient-text">Base</span></h1>
+        <p class="hero-description">Le premier jour de Sami au terminal. Navigation, affichage, aide — les fondations de tout sysadmin.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <!-- SECTION 1 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-compass" style="color:var(--accent);margin-right:0.5rem;"></i>Le terminal, ton outil numéro 1</h2>
+            <p>Imagine que Sami arrive le premier jour de son stage. Son chef lui dit : <em>"Oublie la souris, ici on fait tout au terminal."</em> Le terminal (aussi appelé shell ou console) est l'interface en ligne de commande où tu tapes des instructions que Linux exécute immédiatement.</p>
+            <p>Sous Debian 13, le shell par défaut est <strong>Bash</strong> (Bourne Again SHell). Quand tu ouvres un terminal, tu vois un <strong>prompt</strong> qui ressemble à ça :</p>
+            <pre class="code-block"><code><span class="output">sami@debian:~$</span></code></pre>
+            <p>Ce prompt te dit : l'utilisateur <code>sami</code>, sur la machine <code>debian</code>, dans le dossier <code>~</code> (ton répertoire personnel). Le <code>$</code> signifie que tu es un utilisateur normal. Si tu vois <code>#</code>, tu es root (administrateur).</p>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Définition — Shell</div>
+                <p style="margin:0;font-size:0.9rem;">Le <strong>shell</strong> est un programme qui interprète tes commandes et les transmet au noyau Linux (kernel). Bash est le shell le plus courant, mais il en existe d'autres (zsh, fish, dash).</p>
+            </div>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> Attention</div>
+                <p style="margin:0;font-size:0.9rem;">Linux est <strong>sensible à la casse</strong> (case-sensitive). <code>Fichier.txt</code> et <code>fichier.txt</code> sont deux fichiers différents. <code>LS</code> ne marchera pas, il faut taper <code>ls</code>.</p>
+            </div>
+        </article>
+
+        <!-- SECTION 2 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-folder-open" style="color:var(--accent);margin-right:0.5rem;"></i>Naviguer dans l'arborescence</h2>
+            <p>Linux organise tout dans une arborescence (un arbre inversé). La racine est <code>/</code> et tout part de là. Voici les commandes essentielles :</p>
+
+            <h3><code class="cmd">pwd</code> — Où suis-je ?</h3>
+            <p><strong>P</strong>rint <strong>W</strong>orking <strong>D</strong>irectory — affiche le chemin absolu du dossier actuel.</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">pwd</span>
+<span class="output">/home/sami</span></code></pre>
+
+            <h3><code class="cmd">ls</code> — Qu'est-ce qu'il y a ici ?</h3>
+            <p><strong>L</strong>i<strong>s</strong>t — liste le contenu du dossier courant.</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">ls</span>                 <span class="comment"># Liste simple</span>
+<span class="cmd">ls</span> <span class="flag">-l</span>              <span class="comment"># Format long (permissions, taille, date)</span>
+<span class="cmd">ls</span> <span class="flag">-la</span>             <span class="comment"># Format long + fichiers cachés (commencent par .)</span>
+<span class="cmd">ls</span> <span class="flag">-lh</span>             <span class="comment"># Format long + tailles lisibles (Ko, Mo)</span>
+<span class="cmd">ls</span> <span class="flag">-lt</span>             <span class="comment"># Trié par date de modification</span>
+<span class="cmd">ls</span> <span class="path">/etc</span>             <span class="comment"># Lister un dossier spécifique</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Astuce pro</div>
+                <p style="margin:0;font-size:0.9rem;">Crée un alias pour ne plus jamais taper <code>ls -la</code> : <code>alias ll='ls -la'</code>. Tu peux l'ajouter dans ton fichier <code>~/.bashrc</code> pour qu'il soit permanent.</p>
+            </div>
+
+            <h3><code class="cmd">cd</code> — Se déplacer</h3>
+            <p><strong>C</strong>hange <strong>D</strong>irectory — change le dossier courant.</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">cd</span> <span class="path">/var/log</span>        <span class="comment"># Aller dans /var/log (chemin absolu)</span>
+<span class="cmd">cd</span> <span class="path">Documents</span>       <span class="comment"># Entrer dans le sous-dossier Documents (relatif)</span>
+<span class="cmd">cd</span> <span class="path">..</span>              <span class="comment"># Remonter d'un niveau (dossier parent)</span>
+<span class="cmd">cd</span> <span class="path">../..</span>           <span class="comment"># Remonter de 2 niveaux</span>
+<span class="cmd">cd</span>                  <span class="comment"># Retourner dans ~ (home)</span>
+<span class="cmd">cd</span> <span class="path">~</span>               <span class="comment"># Même chose : retour au home</span>
+<span class="cmd">cd</span> <span class="path">-</span>               <span class="comment"># Retourner au dossier précédent</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Chemin absolu vs relatif</div>
+                <p style="margin:0;font-size:0.9rem;"><strong>Absolu</strong> : commence par <code>/</code> — chemin complet depuis la racine (ex: <code>/home/sami/Documents</code>).<br>
+                <strong>Relatif</strong> : part du dossier actuel (ex: <code>Documents/projet</code>). <code>.</code> = dossier actuel, <code>..</code> = dossier parent.</p>
+            </div>
+        </article>
+
+        <!-- SECTION 3 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-eye" style="color:var(--accent);margin-right:0.5rem;"></i>Afficher du contenu</h2>
+
+            <h3><code class="cmd">cat</code> — Afficher un fichier</h3>
+            <p>Con<strong>cat</strong>enate — affiche le contenu d'un fichier en entier dans le terminal.</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">cat</span> <span class="path">/etc/hostname</span>        <span class="comment"># Affiche le nom de la machine</span>
+<span class="cmd">cat</span> <span class="flag">-n</span> <span class="path">fichier.txt</span>       <span class="comment"># Avec numéros de ligne</span></code></pre>
+
+            <h3><code class="cmd">less</code> et <code class="cmd">more</code> — Lire page par page</h3>
+            <p>Pour les fichiers longs, <code>cat</code> défile tout d'un coup. Utilise <code>less</code> pour naviguer :</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">less</span> <span class="path">/var/log/syslog</span>     <span class="comment"># Navigue avec ↑↓, q pour quitter</span>
+<span class="cmd">more</span> <span class="path">/var/log/syslog</span>     <span class="comment"># Similaire mais plus ancien</span></code></pre>
+
+            <h3><code class="cmd">head</code> et <code class="cmd">tail</code> — Début et fin</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">head</span> <span class="path">fichier.txt</span>          <span class="comment"># Les 10 premières lignes</span>
+<span class="cmd">head</span> <span class="flag">-n 5</span> <span class="path">fichier.txt</span>     <span class="comment"># Les 5 premières lignes</span>
+<span class="cmd">tail</span> <span class="path">fichier.txt</span>          <span class="comment"># Les 10 dernières lignes</span>
+<span class="cmd">tail</span> <span class="flag">-f</span> <span class="path">/var/log/syslog</span>  <span class="comment"># Suivi en temps réel (follow)</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Astuce pro — tail -f</div>
+                <p style="margin:0;font-size:0.9rem;"><code>tail -f</code> est l'un des outils les plus utilisés en admin sys. Il te permet de surveiller un fichier de log en temps réel. Ctrl+C pour arrêter.</p>
+            </div>
+
+            <h3><code class="cmd">echo</code> — Afficher du texte</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">echo</span> <span class="string">"Bonjour Sami"</span>             <span class="comment"># Affiche du texte</span>
+<span class="cmd">echo</span> <span class="var">$USER</span>                      <span class="comment"># Affiche le nom d'utilisateur</span>
+<span class="cmd">echo</span> <span class="var">$HOME</span>                      <span class="comment"># Affiche le répertoire home</span>
+<span class="cmd">echo</span> <span class="var">$PATH</span>                      <span class="comment"># Affiche le PATH (chemins des exécutables)</span></code></pre>
+        </article>
+
+        <!-- SECTION 4 -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-question-circle" style="color:var(--accent);margin-right:0.5rem;"></i>Obtenir de l'aide</h2>
+
+            <h3><code class="cmd">man</code> — Le manuel</h3>
+            <p>La commande la plus importante de Linux. Quand tu ne sais pas comment fonctionne une commande, tape <code>man nom_commande</code>.</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">man</span> ls              <span class="comment"># Manuel de ls (navigue avec ↑↓, q pour quitter)</span>
+<span class="cmd">man</span> <span class="flag">-k</span> <span class="string">"copy file"</span> <span class="comment"># Chercher un mot-clé dans tous les manuels</span></code></pre>
+
+            <h3><code class="cmd">--help</code> — L'aide rapide</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">ls</span> <span class="flag">--help</span>          <span class="comment"># Aide rapide et concise</span>
+<span class="cmd">chmod</span> <span class="flag">--help</span>       <span class="comment"># Fonctionne avec la plupart des commandes</span></code></pre>
+
+            <h3>Autres commandes utiles</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">clear</span>              <span class="comment"># Efface l'écran (ou Ctrl+L)</span>
+<span class="cmd">history</span>            <span class="comment"># Affiche l'historique des commandes</span>
+<span class="cmd">!42</span>                <span class="comment"># Relance la commande n°42 de l'historique</span>
+<span class="cmd">!!</span>                 <span class="comment"># Relance la dernière commande</span>
+<span class="cmd">whoami</span>             <span class="comment"># Affiche ton nom d'utilisateur</span>
+<span class="cmd">hostname</span>           <span class="comment"># Affiche le nom de la machine</span>
+<span class="cmd">date</span>               <span class="comment"># Affiche la date et l'heure</span>
+<span class="cmd">uptime</span>             <span class="comment"># Depuis combien de temps la machine tourne</span>
+<span class="cmd">uname</span> <span class="flag">-a</span>           <span class="comment"># Infos système (noyau, architecture...)</span></code></pre>
+
+            <div class="danger-box">
+                <div class="box-title"><i class="fas fa-skull-crossbones"></i> Ne JAMAIS faire ça</div>
+                <p style="margin:0;font-size:0.9rem;">Ne tape jamais <code>rm -rf /</code> ou <code>rm -rf *</code> sans savoir exactement ce que tu fais. Ces commandes suppriment des fichiers de manière irréversible. Sami a failli le faire le premier jour — heureusement, son chef était là !</p>
+            </div>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Le pipe <code>|</code> — Un avant-goût</div>
+                <p style="margin:0;font-size:0.9rem;">Le <strong>pipe</strong> (<code>|</code>) envoie la sortie d'une commande vers l'entrée d'une autre. Exemple : <code>history | grep "ls"</code> — cherche toutes les commandes contenant "ls" dans ton historique. On approfondit ça au module 4 !</p>
+            </div>
+        </article>
+
+        <!-- ZONE EXERCICES -->
+        <article class="glass-card" id="interactive-exercise">
+            <h2><i class="fas fa-dumbbell" style="color:var(--accent);margin-right:0.5rem;"></i>Exercices Interactifs</h2>
+            <p style="color:var(--text-muted);">Chargement des exercices...</p>
+        </article>
+
+        <!-- NAVIGATION -->
+        <div class="chapter-nav">
+            <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+            <a href="chapitre2.html">Module 02 : Manipulation de fichiers <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
+        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

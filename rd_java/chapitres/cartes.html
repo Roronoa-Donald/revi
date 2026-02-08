@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards — RD Java</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#f87171',500:'#ef4444',600:'#dc2626'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fa-solid fa-mug-hot"></i><span>RD Java</span></a>
+            <ul class="nav-links">
+                <li><a href="formules.html">← Cheat Sheet</a></li>
+                <li><a href="cartes.html" class="active">Flashcards</a></li>
+                <li><a href="simulateur-examen.html">Examen →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fa-solid fa-play"></i> 1. Introduction</a></li>
+            <li><a href="chapitre2.html"><i class="fa-solid fa-database"></i> 2. Variables</a></li>
+            <li><a href="chapitre3.html"><i class="fa-solid fa-display"></i> 3. Affichages</a></li>
+            <li><a href="chapitre4.html"><i class="fa-solid fa-code-branch"></i> 4. Conditions</a></li>
+            <li><a href="chapitre5.html"><i class="fa-solid fa-arrows-spin"></i> 5. Boucles</a></li>
+            <li><a href="chapitre6.html"><i class="fa-solid fa-table-cells"></i> 6. Tableaux</a></li>
+            <li><a href="chapitre7.html"><i class="fa-solid fa-gears"></i> 7. Fonctions</a></li>
+            <li><a href="chapitre8.html"><i class="fa-solid fa-cubes"></i> 8. Classes</a></li>
+            <li><a href="chapitre9.html"><i class="fa-solid fa-lock"></i> 9. Encapsulation</a></li>
+            <li><a href="chapitre10.html"><i class="fa-solid fa-layer-group"></i> 10. Collections</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fa-solid fa-clone"></i> Révision</span>
+        <h1 class="hero-title">Flashcards <span class="gradient-text">Java</span></h1>
+        <p class="hero-description">60 cartes pour mémoriser les concepts clés. Terminez un module pour débloquer ses flashcards. <i class="fa-solid fa-lock" style="font-size:0.8em;"></i></p>
+    </section>
+
+    <main id="main-content" style="max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem;">
+        <div class="flashcard-controls" style="text-align:center;margin-bottom:2rem;display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;">
+            <button class="exercise-tab active" data-ch="all" onclick="filterCards('all',this)">Toutes (60)</button>
+            <button class="exercise-tab" data-ch="ch1" onclick="filterCards('ch1',this)">Introduction</button>
+            <button class="exercise-tab" data-ch="ch2" onclick="filterCards('ch2',this)">Variables</button>
+            <button class="exercise-tab" data-ch="ch3" onclick="filterCards('ch3',this)">Affichages</button>
+            <button class="exercise-tab" data-ch="ch4" onclick="filterCards('ch4',this)">Conditions</button>
+            <button class="exercise-tab" data-ch="ch5" onclick="filterCards('ch5',this)">Boucles</button>
+            <button class="exercise-tab" data-ch="ch6" onclick="filterCards('ch6',this)">Tableaux</button>
+            <button class="exercise-tab" data-ch="ch7" onclick="filterCards('ch7',this)">Fonctions</button>
+            <button class="exercise-tab" data-ch="ch8" onclick="filterCards('ch8',this)">Classes</button>
+            <button class="exercise-tab" data-ch="ch9" onclick="filterCards('ch9',this)">Encapsulation</button>
+            <button class="exercise-tab" data-ch="ch10" onclick="filterCards('ch10',this)">Collections</button>
+        </div>
+        <div class="flashcard-grid" id="flashcard-grid"></div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fa-solid fa-mug-hot" style="color:var(--accent);margin-right:0.4rem;"></i>RD Java</div>
+        <p class="footer-copy">© 2025 — Java Fondamentaux</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+    function getCompleted() {
+        try { return JSON.parse(localStorage.getItem('rd_java_completed')) || []; } catch { return []; }
+    }
+
+    const cards = [
+        // CH1 - Introduction & Syntaxe (6)
+        {ch:'ch1',q:"Quelle est la différence entre JDK, JRE et JVM ?",a:"JDK = outils de dev + JRE. JRE = environnement d'exécution + JVM. JVM = machine virtuelle qui exécute le bytecode."},
+        {ch:'ch1',q:"Comment compiler et exécuter un programme Java ?",a:"javac Main.java (compile → Main.class), puis java Main (exécute le bytecode)."},
+        {ch:'ch1',q:"Quelle est la structure minimale d'un programme Java ?",a:"public class NomDuFichier { public static void main(String[] args) { ... } } — Le nom de la classe = nom du fichier."},
+        {ch:'ch1',q:"3 types de commentaires en Java ?",a:"// ligne, /* bloc */, /** Javadoc */ (pour générer la documentation)."},
+        {ch:'ch1',q:"Conventions de nommage Java ?",a:"PascalCase pour les classes, camelCase pour variables/méthodes, UPPER_SNAKE_CASE pour les constantes."},
+        {ch:'ch1',q:"Pourquoi Java est multiplateforme ?",a:"Write Once, Run Anywhere : le bytecode (.class) est exécuté par la JVM, disponible sur tout OS."},
+
+        // CH2 - Variables, Types & Opérateurs (6)
+        {ch:'ch2',q:"8 types primitifs Java ?",a:"byte (1o), short (2o), int (4o), long (8o), float (4o), double (8o), boolean (1bit), char (2o)."},
+        {ch:'ch2',q:"Différence int vs double ?",a:"int = entier (42), double = décimal (3.14). int/int donne un int : 5/2 = 2, pas 2.5 !"},
+        {ch:'ch2',q:"Comment déclarer une constante ?",a:"final int MAX = 100; — Le mot-clé final empêche toute modification."},
+        {ch:'ch2',q:"Qu'est-ce que le casting ?",a:"Implicite : int → double (automatique). Explicite : double → int nécessite (int)valeur. Attention à la perte de données !"},
+        {ch:'ch2',q:"Opérateurs ++ et -- ?",a:"i++ (post) : utilise puis incrémente. ++i (pré) : incrémente puis utilise. Pareil pour --."},
+        {ch:'ch2',q:"Concaténation de String ?",a:"Avec + : \"Bonjour \" + nom. Java convertit automatiquement les autres types en String lors de la concaténation."},
+
+        // CH3 - Affichages & Entrées (6)
+        {ch:'ch3',q:"println vs print vs printf ?",a:"println = avec retour à la ligne. print = sans retour. printf = formaté avec %d, %f, %s, %n."},
+        {ch:'ch3',q:"Séquences d'échappement ?",a:"\\n (nouvelle ligne), \\t (tabulation), \\\\ (antislash), \\\" (guillemet)."},
+        {ch:'ch3',q:"Comment lire une entrée utilisateur ?",a:"Scanner sc = new Scanner(System.in); String s = sc.nextLine(); int n = sc.nextInt();"},
+        {ch:'ch3',q:"Piège du nextInt() ?",a:"nextInt() ne consomme pas le \\n. Ajouter sc.nextLine() après nextInt() avant un prochain nextLine()."},
+        {ch:'ch3',q:"Import nécessaire pour Scanner ?",a:"import java.util.Scanner; — À placer tout en haut du fichier, avant la classe."},
+        {ch:'ch3',q:"Format specifiers printf ?",a:"%d = entier, %f = décimal, %.2f = 2 décimales, %s = String, %c = char, %n = nouvelle ligne."},
+
+        // CH4 - Conditions (6)
+        {ch:'ch4',q:"Structure if / else if / else ?",a:"if (cond1) { } else if (cond2) { } else { } — Seul le premier bloc vrai s'exécute."},
+        {ch:'ch4',q:"Opérateurs logiques ?",a:"&& (ET), || (OU), ! (NON). Court-circuit : si le 1er suffit, le 2e n'est pas évalué."},
+        {ch:'ch4',q:"Opérateur ternaire ?",a:"type var = (condition) ? valeurVrai : valeurFaux; — Raccourci d'un if/else simple."},
+        {ch:'ch4',q:"switch avec String ?",a:"switch(variable) { case \"val\": ...; break; default: ...; } — Fonctionne avec int, char et String."},
+        {ch:'ch4',q:"== vs .equals() pour String ?",a:"== compare les références (adresses mémoire). .equals() compare le contenu. Toujours utiliser .equals() pour les String !"},
+        {ch:'ch4',q:"Oubli du break dans switch ?",a:"Sans break, l'exécution 'tombe' (fall-through) dans les cases suivants. Chaque case doit avoir son break."},
+
+        // CH5 - Boucles (6)
+        {ch:'ch5',q:"Quand utiliser for vs while ?",a:"for = nombre d'itérations connu. while = condition à vérifier. do-while = au moins 1 exécution garantie."},
+        {ch:'ch5',q:"Syntaxe du for-each ?",a:"for (Type element : collection) { } — Parcourt sans index, idéal pour lire tous les éléments."},
+        {ch:'ch5',q:"break vs continue ?",a:"break = sort de la boucle. continue = saute l'itération courante et passe à la suivante."},
+        {ch:'ch5',q:"Risque de boucle infinie ?",a:"Si la condition ne devient jamais false : while(true) sans break, ou for avec un compteur qui ne change pas."},
+        {ch:'ch5',q:"Syntaxe du while ?",a:"while (condition) { corps; } — Vérifie AVANT chaque itération. Peut ne jamais s'exécuter."},
+        {ch:'ch5',q:"Syntaxe du do-while ?",a:"do { corps; } while (condition); — Vérifie APRÈS. S'exécute au minimum 1 fois. N'oubliez pas le ; final !"},
+
+        // CH6 - Tableaux (6)
+        {ch:'ch6',q:"3 façons de déclarer un tableau ?",a:"int[] t = new int[5]; int[] t = {1,2,3}; int[] t = new int[]{1,2,3};"},
+        {ch:'ch6',q:"ArrayIndexOutOfBoundsException ?",a:"Accéder à un index ≥ length ou < 0. Index va de 0 à length-1."},
+        {ch:'ch6',q:"Tableau vs ArrayList ?",a:"Tableau = taille fixe, types primitifs OK. ArrayList = taille dynamique, seulement des objets (wrappers)."},
+        {ch:'ch6',q:"Méthodes utiles de Arrays ?",a:"Arrays.sort(t), Arrays.toString(t), Arrays.fill(t, val), Arrays.copyOf(t, n). Import java.util.Arrays."},
+        {ch:'ch6',q:"Comment parcourir un tableau 2D ?",a:"for (int i=0; i<tab.length; i++) for (int j=0; j<tab[i].length; j++) tab[i][j];"},
+        {ch:'ch6',q:"Méthodes ArrayList ?",a:"add(), get(i), set(i,e), remove(i), size(), contains(e), indexOf(e), isEmpty(), clear()."},
+
+        // CH7 - Fonctions & Procédures (6)
+        {ch:'ch7',q:"Fonction vs Procédure ?",a:"Fonction = retourne une valeur (return). Procédure = ne retourne rien (void). Les deux sont des méthodes en Java."},
+        {ch:'ch7',q:"Signature d'une méthode ?",a:"modificateur typeRetour nomMethode(paramètres). Ex: public static int additionner(int a, int b)."},
+        {ch:'ch7',q:"Qu'est-ce que la surcharge (overloading) ?",a:"Plusieurs méthodes avec le même nom mais des paramètres différents (nombre ou types)."},
+        {ch:'ch7',q:"Pourquoi utiliser des méthodes ?",a:"Réutilisabilité, lisibilité, maintenance, décomposition. DRY : Don't Repeat Yourself."},
+        {ch:'ch7',q:"Portée des variables ?",a:"Une variable déclarée dans une méthode n'existe que dans cette méthode (variable locale)."},
+        {ch:'ch7',q:"Peut-on retourner un tableau ?",a:"Oui ! public static int[] doubler(int[] t) { ... return resultat; }"},
+
+        // CH8 - Classes & Objets (6)
+        {ch:'ch8',q:"Classe vs Objet ?",a:"Classe = plan/moule (définition). Objet = instance concrète créée avec new. 1 classe → N objets."},
+        {ch:'ch8',q:"Rôle du constructeur ?",a:"Initialiser les attributs à la création de l'objet. Même nom que la classe, pas de type de retour."},
+        {ch:'ch8',q:"Mot-clé this ?",a:"Référence à l'objet courant. Utilisé pour distinguer attribut et paramètre de même nom : this.nom = nom;"},
+        {ch:'ch8',q:"Constructeur par défaut ?",a:"Si aucun constructeur n'est écrit, Java en crée un vide automatiquement. Dès qu'on en écrit un, il disparaît."},
+        {ch:'ch8',q:"Comment créer un objet ?",a:"NomClasse obj = new NomClasse(args); Le new appelle le constructeur et alloue la mémoire."},
+        {ch:'ch8',q:"Attributs vs Variables locales ?",a:"Attributs = déclarés dans la classe (existent tant que l'objet existe). Variables locales = dans une méthode (temporaires)."},
+
+        // CH9 - Encapsulation (6)
+        {ch:'ch9',q:"Principe de l'encapsulation ?",a:"Attributs private + accès via getters/setters publics. Protège les données et permet la validation."},
+        {ch:'ch9',q:"4 modificateurs d'accès ?",a:"private (classe), default (package), protected (+ sous-classes), public (partout). Du plus restrictif au plus ouvert."},
+        {ch:'ch9',q:"Rôle des getters/setters ?",a:"Getter = lire (getNom()). Setter = modifier avec validation (setAge() vérifie que age >= 0)."},
+        {ch:'ch9',q:"Mot-clé static ?",a:"Appartient à la classe, pas à l'instance. Partagé entre tous les objets. Accès : Classe.methode()."},
+        {ch:'ch9',q:"toString() sert à quoi ?",a:"Retourne une représentation textuelle de l'objet. Appelée automatiquement par println(). @Override pour redéfinir."},
+        {ch:'ch9',q:"@Override signifie quoi ?",a:"Annotation indiquant qu'on redéfinit une méthode héritée. Bonne pratique : le compilateur vérifie la cohérence."},
+
+        // CH10 - Collections (6)
+        {ch:'ch10',q:"ArrayList vs HashMap ?",a:"ArrayList = liste ordonnée par index. HashMap = paires clé→valeur, clés uniques, pas d'ordre garanti."},
+        {ch:'ch10',q:"Qu'est-ce qu'un Wrapper ?",a:"Classe enveloppant un primitif : int→Integer, double→Double, etc. Nécessaire pour les Collections (autoboxing)."},
+        {ch:'ch10',q:"Méthodes clés HashMap ?",a:"put(k,v), get(k), getOrDefault(k,def), remove(k), containsKey(k), keySet(), values(), entrySet()."},
+        {ch:'ch10',q:"Comment parcourir un HashMap ?",a:"for (Map.Entry<K,V> e : map.entrySet()) { e.getKey(); e.getValue(); } — Import java.util.Map."},
+        {ch:'ch10',q:"getOrDefault() ?",a:"map.getOrDefault(clé, valeurParDéfaut) — Retourne la valeur si la clé existe, sinon la valeur par défaut."},
+        {ch:'ch10',q:"Quand utiliser quelle structure ?",a:"Taille fixe → tableau. Liste dynamique → ArrayList. Clé→Valeur → HashMap. Pas de doublons → HashSet."}
+    ];
+
+    const chNames = {ch1:'Introduction',ch2:'Variables',ch3:'Affichages',ch4:'Conditions',ch5:'Boucles',ch6:'Tableaux',ch7:'Fonctions',ch8:'Classes',ch9:'Encapsulation',ch10:'Collections'};
+
+    function renderCards(filter) {
+        const grid = document.getElementById('flashcard-grid');
+        const completed = getCompleted();
+        const filtered = filter === 'all' ? cards : cards.filter(c => c.ch === filter);
+        grid.innerHTML = filtered.map(c => {
+            const chNum = parseInt(c.ch.replace('ch',''));
+            const locked = !completed.includes(chNum);
+            if (locked) {
+                return `<div class="flashcard locked">
+                    <div class="flashcard-lock-overlay"><i class="fa-solid fa-lock"></i><span>Terminez le Module ${chNum}</span></div>
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front"><span class="flashcard-chapter">${c.ch.replace('ch','Module ')}</span><p>${c.q}</p><small>🔒 Verrouillé</small></div>
+                        <div class="flashcard-back"><p>${c.a}</p></div>
+                    </div>
+                </div>`;
+            }
+            return `<div class="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front"><span class="flashcard-chapter">${c.ch.replace('ch','Module ')}</span><p>${c.q}</p><small>Clique pour retourner</small></div>
+                    <div class="flashcard-back"><p>${c.a}</p></div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function filterCards(ch, btn) {
+        document.querySelectorAll('.flashcard-controls .exercise-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderCards(ch);
+    }
+
+    function updateButtons() {
+        const completed = getCompleted();
+        document.querySelectorAll('.exercise-tab[data-ch]').forEach(btn => {
+            if (btn.dataset.ch === 'all') return;
+            const num = parseInt(btn.dataset.ch.replace('ch',''));
+            const locked = !completed.includes(num);
+            const name = chNames[btn.dataset.ch] || btn.dataset.ch;
+            const count = cards.filter(c => c.ch === btn.dataset.ch).length;
+            btn.innerHTML = locked ? `<i class="fa-solid fa-lock" style="margin-right:4px;font-size:0.75em;"></i>${name}` : `${name} (${count})`;
+        });
+        const unlocked = cards.filter(c => completed.includes(parseInt(c.ch.replace('ch','')))).length;
+        const allBtn = document.querySelector('.exercise-tab[data-ch="all"]');
+        if(allBtn) allBtn.textContent = `Toutes (${unlocked}/60)`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { renderCards('all'); updateButtons(); });
+    </script>
+</body>
+</html>

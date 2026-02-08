@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 08 : Logique de Contrôle | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+             <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-400">Module 08: Logique</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+
+            <!-- 1. Narrative Hook -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">1. Le Cerveau de SQL</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-brain text-9xl"></i></div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Jusqu'ici, SQL exécutait vos ordres sans réfléchir. Mais grâce à <strong>T-SQL</strong> (Transact-SQL),
+                        SQL Server devient un vrai langage de programmation : il peut <strong>décider</strong>, <strong>calculer</strong>,
+                        et <strong>s'adapter</strong>.
+                        <br><br>
+                        C'est comme passer du GPS basique (« Tourne à droite ») au GPS intelligent (« S'il y a un embouteillage,
+                        prends la déviation, sinon reste sur l'autoroute »).
+                    </p>
+                    <p class="text-slate-400 text-sm italic border-l-2 border-slate-600 pl-4">
+                        T-SQL = SQL standard + variables + conditions + boucles + fonctions. C'est l'extension Microsoft de SQL.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 2. Variables -->
+            <section class="animate-fade-in-up" style="animation-delay:0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">2. Les Variables</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300">En T-SQL, les variables commencent toujours par <code class="text-amber-400">@</code>. Elles stockent des valeurs temporaires.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h4 class="font-bold text-blue-400 mb-2">Déclaration</h4>
+                            <code class="text-sm text-emerald-400">DECLARE @nom VARCHAR(50) = 'Alice'<br>DECLARE @age INT<br>SET @age = 25</code>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
+                            <h4 class="font-bold text-blue-400 mb-2">Via SELECT</h4>
+                            <code class="text-sm text-emerald-400">DECLARE @total INT<br>SELECT @total = COUNT(*)<br>FROM Clients</code>
+                        </div>
+                    </div>
+                    <div class="content-box warning">
+                        <strong>Attention :</strong> Les variables n'existent que pendant le batch (lot de commandes). Si vous relancez la requête, la variable est recréée. Pas de persistance !
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. IF / ELSE -->
+            <section class="animate-fade-in-up" style="animation-delay:0.15s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">3. IF / ELSE — La Condition</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300">La structure de décision la plus fondamentale :</p>
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700 font-mono text-sm">
+                        <span class="text-amber-400">DECLARE</span> <span class="text-emerald-400">@age INT</span> = 20<br><br>
+                        <span class="text-amber-400">IF</span> (<span class="text-emerald-400">@age</span> >= 18)<br>
+                        <span class="text-amber-400">BEGIN</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">PRINT</span> <span class="text-orange-300">'Majeur — accès autorisé'</span><br>
+                        <span class="text-amber-400">END</span><br>
+                        <span class="text-amber-400">ELSE</span><br>
+                        <span class="text-amber-400">BEGIN</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">PRINT</span> <span class="text-orange-300">'Mineur — accès refusé'</span><br>
+                        <span class="text-amber-400">END</span>
+                    </div>
+                    <div class="content-box tip">
+                        <strong>Rappel :</strong> <code>BEGIN...END</code> est obligatoire si le bloc contient plus d'une instruction. Pour une seule ligne, c'est optionnel mais recommandé pour la lisibilité.
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. CASE WHEN -->
+            <section class="animate-fade-in-up" style="animation-delay:0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">4. CASE WHEN — Le Switch SQL</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300">CASE WHEN est l'équivalent d'un switch/case. Utilisable directement dans un SELECT !</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-purple-500/20">
+                            <h5 class="text-xs text-purple-400 font-mono mb-2">CASE Recherché (avec conditions)</h5>
+                            <code class="text-xs text-emerald-400">SELECT nom,<br>&nbsp;&nbsp;CASE<br>&nbsp;&nbsp;&nbsp;&nbsp;WHEN prix &lt; 10 THEN 'Pas cher'<br>&nbsp;&nbsp;&nbsp;&nbsp;WHEN prix &lt; 100 THEN 'Moyen'<br>&nbsp;&nbsp;&nbsp;&nbsp;ELSE 'Cher'<br>&nbsp;&nbsp;END AS categorie<br>FROM Produits;</code>
+                        </div>
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-purple-500/20">
+                            <h5 class="text-xs text-purple-400 font-mono mb-2">CASE Simple (avec valeur)</h5>
+                            <code class="text-xs text-emerald-400">SELECT nom,<br>&nbsp;&nbsp;CASE role<br>&nbsp;&nbsp;&nbsp;&nbsp;WHEN 'Admin' THEN 'Administrateur'<br>&nbsp;&nbsp;&nbsp;&nbsp;WHEN 'User' THEN 'Utilisateur'<br>&nbsp;&nbsp;&nbsp;&nbsp;ELSE 'Inconnu'<br>&nbsp;&nbsp;END AS role_complet<br>FROM Users;</code>
+                        </div>
+                    </div>
+                    <div class="content-box definition">
+                        <strong>Différence clé :</strong> <code>IF/ELSE</code> est pour le <em>flux de contrôle</em> (exécuter des blocs). <code>CASE WHEN</code> est une <em>expression</em> qui retourne une valeur (utilisable dans SELECT, WHERE, ORDER BY).
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Pratique -->
+            <section class="animate-fade-in-up" style="animation-delay:0.25s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">5. Labo Pratique</h2>
+                <p class="text-slate-400 mb-4">Testez les variables et conditions :</p>
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3 flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-500">sql-editor</span>
+                        <div class="flex gap-2">
+                            <button onclick="loadExample('ifelse')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">IF/ELSE</button>
+                            <button onclick="loadExample('case')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">CASE</button>
+                            <button onclick="loadExample('var')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">Variables</button>
+                        </div>
+                    </div>
+                    <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none">DECLARE @age INT = 20
+IF @age >= 18
+  PRINT 'Majeur'
+ELSE
+  PRINT 'Mineur'</textarea>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold"><i class="fas fa-play mr-1"></i> Exécuter</button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px]"></div>
+                </div>
+            </section>
+
+            <!-- 6. Quiz -->
+            <section class="animate-fade-in-up" style="animation-delay:0.3s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">6. Quiz — Logique T-SQL</h2>
+                <div id="quiz-container" class="glass-card p-6 rounded-xl"></div>
+            </section>
+
+            <!-- 7. Challenge Drag-Drop -->
+            <section class="animate-fade-in-up" style="animation-delay:0.35s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-pink-500 pl-4">7. Challenge — Glisser-Déposer</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-400 mb-4">Associez chaque concept à sa description :</p>
+                    <div id="drag-drop-exercice" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700"></div>
+                    <button onclick="validateDragDrop()" class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold"><i class="fas fa-check mr-1"></i> Vérifier</button>
+                </div>
+            </section>
+        </div>
+        <div class="hidden lg:block w-72 shrink-0">
+            <div class="sticky top-24"><div id="databot-container"></div></div>
+        </div>
+    </main>
+
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod07-dates-nulls.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 07 : Dates & Nulls</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod09-loops.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 09 : Boucles →</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const bot = new DataBot(); bot.render('databot-container');
+        bot.speak("On passe du script au programme ! T-SQL c'est du lourd.", 4000);
+
+        // Drag-Drop
+        const draggables = [
+            {id:'d1',text:'DECLARE @x'},{id:'d2',text:'IF/ELSE'},{id:'d3',text:'BEGIN...END'},
+            {id:'d4',text:'CASE WHEN'},{id:'d5',text:'SET @x = 5'},{id:'d6',text:'PRINT'}
+        ];
+        const zones = [
+            {id:'z1',label:'Créer une variable',accept:'d1'},
+            {id:'z2',label:'Condition (bloc)',accept:'d2'},
+            {id:'z3',label:'Délimiteur de bloc',accept:'d3'},
+            {id:'z4',label:'Expression conditionnelle (inline)',accept:'d4'},
+            {id:'z5',label:'Affecter une valeur',accept:'d5'},
+            {id:'z6',label:'Afficher un message',accept:'d6'}
+        ];
+        const ddEngine = new DragDropEngine('drag-drop-exercice',draggables,zones);
+
+        function validateDragDrop(){
+            if(ddEngine.validate()){
+                bot.speak("Logique impeccable ! 🧠","happy");
+                bot.awardXP(60); confetti();
+            } else {
+                bot.speak("Erreur logique... Réfléchis bien !","sad");
+            }
+        }
+
+        // Examples
+        function loadExample(type) {
+            const editor = document.getElementById('sql-input');
+            const examples = {
+                'ifelse': "DECLARE @age INT = 20\nIF @age >= 18\n  PRINT 'Majeur'\nELSE\n  PRINT 'Mineur'",
+                'case': "SELECT name,\n  CASE role\n    WHEN 'Admin' THEN 'Administrateur'\n    WHEN 'User' THEN 'Utilisateur'\n    ELSE 'Inconnu'\n  END AS role_complet\nFROM users",
+                'var': "DECLARE @compteur INT = 0\nSET @compteur = @compteur + 1\nPRINT @compteur"
+            };
+            editor.value = examples[type] || '';
+        }
+
+        function runQuery() {
+            const sql = document.getElementById('sql-input').value;
+            const upper = sql.toUpperCase();
+            const output = document.getElementById('query-output');
+
+            if (upper.includes('@AGE') && upper.includes('IF')) {
+                const ageMatch = sql.match(/@age\s*INT\s*=\s*(\d+)/i);
+                const age = ageMatch ? parseInt(ageMatch[1]) : 20;
+                const result = age >= 18 ? 'Majeur' : 'Mineur';
+                output.innerHTML = `<div class="text-slate-300">${result}</div>`;
+                bot.awardXP(15);
+            } else if (upper.includes('CASE') && upper.includes('FROM')) {
+                try {
+                    const res = new MockSQLEngine().execute(sql);
+                    if (res.success && res.data) {
+                        let html = '<table class="text-sm"><tr>';
+                        Object.keys(res.data[0]||{}).forEach(k => html += `<th class="pr-4 text-slate-500 pb-1">${k}</th>`);
+                        html += '</tr>';
+                        res.data.forEach(r => { html += '<tr>'; Object.values(r).forEach(v => html += `<td class="pr-4">${v}</td>`); html += '</tr>'; });
+                        html += '</table>';
+                        output.innerHTML = `<div class="text-green-400">${html}</div>`;
+                        bot.awardXP(20);
+                    } else { output.innerHTML = `<div class="text-red-400">${res.error || res.message}</div>`; }
+                } catch(e) { output.innerHTML = `<div class="text-red-400">${e.message}</div>`; }
+            } else if (upper.includes('PRINT') || upper.includes('@COMPTEUR')) {
+                const valMatch = sql.match(/=\s*(\d+)/);
+                output.innerHTML = `<div class="text-slate-300">${valMatch ? valMatch[1] : '(résultat)'}</div>`;
+                bot.awardXP(10);
+            } else {
+                output.innerHTML = '<div class="text-red-400">Code non reconnu par le simulateur.</div>';
+            }
+        }
+
+        // Quiz
+        const quizData = [
+            { q:"Les variables T-SQL commencent par quel symbole ?", o:["$","@","#","&"], a:1 },
+            { q:"DECLARE @x INT = 10 fait quoi ?", o:["Crée une table","Déclare une variable avec valeur 10","Crée un index","Affiche 10"], a:1 },
+            { q:"IF/ELSE est utilisé pour :", o:["Le tri des données","Le contrôle de flux","Les agrégats","Les jointures"], a:1 },
+            { q:"BEGIN...END définit :", o:["Une table","Un bloc d'instructions","Une variable","Un index"], a:1 },
+            { q:"CASE WHEN est une :", o:["Boucle","Instruction de contrôle","Expression conditionnelle","Procédure stockée"], a:2 },
+            { q:"Où peut-on utiliser CASE WHEN ?", o:["Seulement dans IF","Dans SELECT, WHERE, ORDER BY","Seulement dans les procédures","Nulle part"], a:1 },
+            { q:"SET @x = @x + 1 est :", o:["Invalide","Une incrémentation","Une déclaration","Un PRINT"], a:1 },
+            { q:"Que fait PRINT 'Hello' ?", o:["Insère dans une table","Affiche un message","Crée une variable","Modifie des données"], a:1 },
+            { q:"Les variables T-SQL persistent-elles entre sessions ?", o:["Oui toujours","Non, seulement pendant le batch","Oui si on fait COMMIT","Ça dépend du type"], a:1 },
+            { q:"CASE WHEN prix > 100 THEN 'Cher' ELSE 'OK' END retourne :", o:["Un booléen","Une valeur textuelle","NULL","Une erreur"], a:1 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            let html = '';
+            quizData.forEach((q, qi) => {
+                html += `<div class="mb-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <p class="font-bold mb-3 text-sm">${qi+1}. ${q.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+                q.o.forEach((opt, oi) => {
+                    html += `<button onclick="checkQuiz(${qi},${oi},this)" class="quiz-option text-left text-sm p-3 rounded border border-slate-600 bg-slate-800 hover:border-blue-500 transition-all">${opt}</button>`;
+                });
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function checkQuiz(qi, oi, btn) {
+            const correct = quizData[qi].a === oi;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('button').forEach((b, i) => {
+                b.disabled = true;
+                b.classList.remove('hover:border-blue-500');
+                if (i === quizData[qi].a) b.classList.add('border-emerald-500','bg-emerald-900/30','text-emerald-300');
+                else if (i === oi && !correct) b.classList.add('border-red-500','bg-red-900/30','text-red-300','line-through');
+            });
+            if (correct) { bot.awardXP(10); bot.speak("Exact !","happy"); }
+            else { bot.speak("Pas tout à fait...","sad"); }
+        }
+
+        renderQuiz();
+        if(localStorage.getItem('rd_sql_theme')==='light') document.documentElement.setAttribute('data-theme','light');
+    </script>
+</body>
+</html>

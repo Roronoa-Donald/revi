@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 07 : Réseau Statique & SSH | RD Linux</title>
+    <meta name="description" content="Configure une adresse IP statique sur Debian 13, le DNS et connecte-toi à distance avec SSH.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#fb923c',500:'#f97316',600:'#ea580c'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-terminal"></i><span>RD Linux</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre6.html">← Module 06</a></li>
+                <li><a href="chapitre7.html" class="active">Module 07</a></li>
+                <li><a href="chapitre8.html">Suivant →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div id="user-xp-display"><i class="fas fa-bolt"></i> 0 XP</div>
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html">01 · Commandes de base</a></li>
+            <li><a href="chapitre2.html">02 · Manipulation de fichiers</a></li>
+            <li><a href="chapitre3.html">03 · Droits & Permissions</a></li>
+            <li><a href="chapitre4.html">04 · Recherche</a></li>
+            <li><a href="chapitre5.html">05 · Éditeurs Vi/Vim & Nano</a></li>
+            <li><a href="chapitre6.html">06 · Utilisateurs & Groupes</a></li>
+            <li><a href="chapitre7.html" class="active">07 · Réseau & SSH</a></li>
+            <li><a href="chapitre8.html">08 · Bash Scripting</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge">Module 07</span>
+        <h1 class="hero-title">Réseau Statique <span class="gradient-text">& SSH</span></h1>
+        <p class="hero-description">Sami doit configurer l'adresse IP d'un serveur et s'y connecter à distance. On entre dans le vrai monde de l'administration système !</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-network-wired" style="color:var(--accent);margin-right:0.5rem;"></i>Diagnostiquer le réseau</h2>
+            <p>Avant de configurer, il faut savoir lire l'état actuel du réseau :</p>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Voir les interfaces réseau et leurs IP</span>
+<span class="cmd">ip</span> <span class="flag">addr</span>                     <span class="comment"># ou ip a (forme courte)</span>
+
+<span class="comment"># Voir la table de routage</span>
+<span class="cmd">ip</span> <span class="flag">route</span>                    <span class="comment"># ou ip r</span>
+
+<span class="comment"># Voir les DNS configurés</span>
+<span class="cmd">cat</span> <span class="path">/etc/resolv.conf</span>
+
+<span class="comment"># Tester la connectivité</span>
+<span class="cmd">ping</span> <span class="flag">-c 4</span> <span class="path">8.8.8.8</span>          <span class="comment"># Ping Google DNS (4 paquets)</span>
+<span class="cmd">ping</span> <span class="flag">-c 4</span> <span class="path">google.fr</span>         <span class="comment"># Teste aussi la résolution DNS</span>
+
+<span class="comment"># Voir les ports ouverts / connexions actives</span>
+<span class="cmd">ss</span> <span class="flag">-tulnp</span>                   <span class="comment"># Ports TCP/UDP en écoute</span>
+
+<span class="comment"># Voir le nom d'hôte</span>
+<span class="cmd">hostname</span>
+<span class="cmd">hostnamectl</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Interfaces courantes</div>
+                <p style="margin:0;font-size:0.9rem;">
+                <strong>lo</strong> = loopback (127.0.0.1, interface locale)<br>
+                <strong>eth0</strong> ou <strong>ens33</strong> = carte réseau filaire (le nom varie selon le matériel)<br>
+                <strong>wlan0</strong> = carte Wi-Fi<br>
+                Utilise <code>ip addr</code> pour identifier le nom exact de ton interface.
+                </p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-cog" style="color:var(--accent);margin-right:0.5rem;"></i>Configuration IP statique (Debian)</h2>
+            <p>Sur Debian 13, la configuration réseau se fait dans le fichier <code>/etc/network/interfaces</code> :</p>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Éditer le fichier de configuration réseau</span>
+<span class="cmd">sudo nano</span> <span class="path">/etc/network/interfaces</span></code></pre>
+
+            <h3>Contenu pour une IP statique</h3>
+            <pre class="code-block"><span class="code-label">/etc/network/interfaces</span><code><span class="comment"># Loopback</span>
+<span class="keyword">auto</span> lo
+<span class="keyword">iface</span> lo <span class="keyword">inet</span> loopback
+
+<span class="comment"># Interface réseau principale (adapter le nom !)</span>
+<span class="keyword">auto</span> ens33
+<span class="keyword">iface</span> ens33 <span class="keyword">inet</span> <span class="string">static</span>
+    <span class="var">address</span>   <span class="num">192.168.1.100</span>
+    <span class="var">netmask</span>   <span class="num">255.255.255.0</span>
+    <span class="var">gateway</span>   <span class="num">192.168.1.1</span>
+    <span class="var">dns-nameservers</span> <span class="num">8.8.8.8</span> <span class="num">8.8.4.4</span></code></pre>
+
+            <h3>Contenu pour DHCP (automatique)</h3>
+            <pre class="code-block"><span class="code-label">/etc/network/interfaces</span><code><span class="keyword">auto</span> ens33
+<span class="keyword">iface</span> ens33 <span class="keyword">inet</span> <span class="string">dhcp</span></code></pre>
+
+            <h3>Appliquer les changements</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Redémarrer le service réseau</span>
+<span class="cmd">sudo systemctl restart</span> <span class="path">networking</span>
+
+<span class="comment"># OU redémarrer une interface spécifique</span>
+<span class="cmd">sudo ifdown</span> <span class="path">ens33</span> <span class="keyword">&&</span> <span class="cmd">sudo ifup</span> <span class="path">ens33</span>
+
+<span class="comment"># Vérifier que la config est appliquée</span>
+<span class="cmd">ip</span> <span class="flag">addr show</span> <span class="path">ens33</span></code></pre>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> Attention en SSH !</div>
+                <p style="margin:0;font-size:0.9rem;">Si tu es connecté en SSH et que tu changes l'adresse IP, tu seras <strong>déconnecté</strong> ! Assure-toi d'avoir un accès console (écran + clavier) au serveur avant de modifier la config réseau à distance.</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-globe" style="color:var(--accent);margin-right:0.5rem;"></i>Configuration DNS</h2>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Voir les serveurs DNS actuels</span>
+<span class="cmd">cat</span> <span class="path">/etc/resolv.conf</span>
+
+<span class="comment"># Fichier hosts local (résolution manuelle)</span>
+<span class="cmd">sudo nano</span> <span class="path">/etc/hosts</span></code></pre>
+
+            <h3>Le fichier /etc/hosts</h3>
+            <pre class="code-block"><span class="code-label">/etc/hosts</span><code><span class="num">127.0.0.1</span>       localhost
+<span class="num">127.0.1.1</span>       debian-server
+
+<span class="comment"># Ajouts personnalisés</span>
+<span class="num">192.168.1.200</span>   serveur-web
+<span class="num">192.168.1.201</span>   serveur-bdd</code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> /etc/hosts vs DNS</div>
+                <p style="margin:0;font-size:0.9rem;">Le fichier <code>/etc/hosts</code> est consulté <strong>avant</strong> les serveurs DNS. C'est pratique pour définir des noms locaux sans configurer un serveur DNS complet. Exemple : tu peux accéder à <code>serveur-web</code> au lieu de taper <code>192.168.1.200</code>.</p>
+            </div>
+
+            <h3>Changer le hostname</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Voir le hostname actuel</span>
+<span class="cmd">hostnamectl</span>
+
+<span class="comment"># Changer le hostname (persistant)</span>
+<span class="cmd">sudo hostnamectl set-hostname</span> <span class="path">serveur-debian</span>
+
+<span class="comment"># Mettre à jour /etc/hosts en conséquence</span>
+<span class="cmd">sudo nano</span> <span class="path">/etc/hosts</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-lock" style="color:var(--accent);margin-right:0.5rem;"></i>SSH — Connexion à distance</h2>
+
+            <h3>Installer le serveur SSH</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Installer le serveur OpenSSH</span>
+<span class="cmd">sudo apt install</span> <span class="path">openssh-server</span>
+
+<span class="comment"># Vérifier que le service est actif</span>
+<span class="cmd">sudo systemctl status</span> <span class="path">ssh</span>
+
+<span class="comment"># Démarrer / arrêter / redémarrer</span>
+<span class="cmd">sudo systemctl start</span> <span class="path">ssh</span>
+<span class="cmd">sudo systemctl stop</span> <span class="path">ssh</span>
+<span class="cmd">sudo systemctl restart</span> <span class="path">ssh</span>
+
+<span class="comment"># Activer au démarrage</span>
+<span class="cmd">sudo systemctl enable</span> <span class="path">ssh</span></code></pre>
+
+            <h3>Se connecter en SSH</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Connexion basique (depuis un autre PC)</span>
+<span class="cmd">ssh</span> <span class="path">sami@192.168.1.100</span>
+
+<span class="comment"># Avec un port différent</span>
+<span class="cmd">ssh</span> <span class="flag">-p</span> <span class="num">2222</span> <span class="path">sami@192.168.1.100</span>
+
+<span class="comment"># Exécuter une commande à distance (sans session interactive)</span>
+<span class="cmd">ssh</span> <span class="path">sami@192.168.1.100</span> <span class="string">"uptime"</span>
+
+<span class="comment"># Copier des fichiers via SCP</span>
+<span class="cmd">scp</span> <span class="path">fichier.txt</span> <span class="path">sami@192.168.1.100:/home/sami/</span>
+<span class="cmd">scp</span> <span class="flag">-r</span> <span class="path">dossier/</span> <span class="path">sami@192.168.1.100:/home/sami/</span>    <span class="comment"># Dossier récursif</span>
+
+<span class="comment"># Télécharger un fichier depuis le serveur</span>
+<span class="cmd">scp</span> <span class="path">sami@192.168.1.100:/home/sami/log.txt</span> <span class="path">./</span></code></pre>
+
+            <h3>Authentification par clé SSH (sans mot de passe)</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># 1. Générer une paire de clés (sur ta machine locale)</span>
+<span class="cmd">ssh-keygen</span> <span class="flag">-t ed25519</span> <span class="flag">-C</span> <span class="string">"sami@monpc"</span>
+<span class="comment"># Entrée pour le chemin par défaut, puis un passphrase (optionnel)</span>
+
+<span class="comment"># 2. Copier la clé publique sur le serveur</span>
+<span class="cmd">ssh-copy-id</span> <span class="path">sami@192.168.1.100</span>
+
+<span class="comment"># 3. Se connecter sans mot de passe !</span>
+<span class="cmd">ssh</span> <span class="path">sami@192.168.1.100</span>
+<span class="comment"># → Connexion directe 🎉</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Clés SSH = Sécurité + Confort</div>
+                <p style="margin:0;font-size:0.9rem;">Les clés SSH sont <strong>plus sécurisées</strong> que les mots de passe et permettent l'automatisation (scripts, déploiements). La clé privée (<code>~/.ssh/id_ed25519</code>) reste sur ta machine. La clé publique (<code>~/.ssh/id_ed25519.pub</code>) va sur le serveur (<code>~/.ssh/authorized_keys</code>).</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-shield-alt" style="color:var(--accent);margin-right:0.5rem;"></i>Sécuriser SSH</h2>
+            <p>Le fichier de configuration du serveur SSH :</p>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="cmd">sudo nano</span> <span class="path">/etc/ssh/sshd_config</span></code></pre>
+
+            <h3>Modifications recommandées</h3>
+            <pre class="code-block"><span class="code-label">/etc/ssh/sshd_config</span><code><span class="comment"># Changer le port par défaut (22 → 2222)</span>
+<span class="var">Port</span> <span class="num">2222</span>
+
+<span class="comment"># Interdire la connexion root</span>
+<span class="var">PermitRootLogin</span> <span class="string">no</span>
+
+<span class="comment"># N'autoriser que certains utilisateurs</span>
+<span class="var">AllowUsers</span> <span class="string">sami alice</span>
+
+<span class="comment"># Désactiver l'authentification par mot de passe</span>
+<span class="comment"># (seulement après avoir configuré les clés SSH !)</span>
+<span class="var">PasswordAuthentication</span> <span class="string">no</span>
+
+<span class="comment"># Limiter les tentatives de connexion</span>
+<span class="var">MaxAuthTries</span> <span class="num">3</span></code></pre>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Appliquer les changements</span>
+<span class="cmd">sudo systemctl restart</span> <span class="path">ssh</span></code></pre>
+
+            <div class="danger-box">
+                <div class="box-title"><i class="fas fa-skull-crossbones"></i> Ne te verrouille pas !</div>
+                <p style="margin:0;font-size:0.9rem;">Avant de désactiver <code>PasswordAuthentication</code>, vérifie que ta clé SSH fonctionne ! Ouvre une <strong>deuxième session SSH</strong> pour tester avant de fermer la première. Si les clés ne marchent pas et que les mots de passe sont désactivés, tu seras bloqué !</p>
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-server" style="color:var(--accent);margin-right:0.5rem;"></i>Services avec systemctl</h2>
+            <p>Sami doit gérer des services (SSH, Apache, MySQL...) avec <code>systemctl</code> :</p>
+
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Voir l'état d'un service</span>
+<span class="cmd">sudo systemctl status</span> <span class="path">ssh</span>
+
+<span class="comment"># Démarrer / Arrêter / Redémarrer</span>
+<span class="cmd">sudo systemctl start</span> <span class="path">ssh</span>
+<span class="cmd">sudo systemctl stop</span> <span class="path">ssh</span>
+<span class="cmd">sudo systemctl restart</span> <span class="path">ssh</span>
+
+<span class="comment"># Recharger la config (sans couper le service)</span>
+<span class="cmd">sudo systemctl reload</span> <span class="path">ssh</span>
+
+<span class="comment"># Activer / Désactiver au démarrage</span>
+<span class="cmd">sudo systemctl enable</span> <span class="path">ssh</span>     <span class="comment"># Démarre auto au boot</span>
+<span class="cmd">sudo systemctl disable</span> <span class="path">ssh</span>    <span class="comment"># Ne démarre plus au boot</span>
+
+<span class="comment"># Lister tous les services actifs</span>
+<span class="cmd">systemctl list-units</span> <span class="flag">--type=service --state=running</span></code></pre>
+        </article>
+
+        <article class="glass-card" id="interactive-exercise">
+            <h2><i class="fas fa-dumbbell" style="color:var(--accent);margin-right:0.5rem;"></i>Exercices Interactifs</h2>
+            <p style="color:var(--text-muted);">Chargement des exercices...</p>
+        </article>
+
+        <div class="chapter-nav">
+            <a href="chapitre6.html"><i class="fas fa-arrow-left"></i> Module 06 : Utilisateurs & Groupes</a>
+            <a href="chapitre8.html">Module 08 : Bash Scripting <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
+        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

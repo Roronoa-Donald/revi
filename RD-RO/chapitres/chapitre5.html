@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 05 : Les Types de Solutions | Optimization Master</title>
+    <meta name="description" content="Module de Recherche Opérationnelle — cours interactif avec exercices et simulateurs.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    
+    <!-- Tailwind & Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' },
+                        slate: { 850: '#1a2438', 900: '#0f172a' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" aria-hidden="true"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-nav border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="../index.html" class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-slate-900 font-bold shadow-lg shadow-emerald-500/20 transition-all group-hover:scale-105 group-hover:shadow-emerald-500/40">
+                        RO
+                    </div>
+                    <span class="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-200 to-cyan-200">
+                        Recherche Ops
+                    </span>
+                </a>
+                <div class="hidden md:flex items-center gap-6 desktop-nav">
+                    <a href="chapitre4.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Précédent</a>
+                    <span class="text-sm font-medium text-emerald-500">Module 05</span>
+                    <a href="chapitre6.html" class="text-sm font-medium text-slate-400 hover:text-emerald-300 transition-colors">Suivant</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="theme-toggle" aria-label="Changer de thème"><i class="fas fa-sun"></i></button>
+                    <button class="hamburger-btn md:hidden" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav-overlay" aria-hidden="true"></div>
+    <nav class="mobile-nav-panel" aria-label="Menu mobile">
+        <div class="flex justify-between items-center mb-6">
+            <span class="font-bold text-lg">Menu</span>
+            <button onclick="document.querySelector('.mobile-nav-overlay').click()" class="text-slate-400 hover:text-white" aria-label="Fermer"><i class="fas fa-times"></i></button>
+        </div>
+        <a href="../index.html">Accueil</a>
+        <a href="formules.html">Formules</a>
+        <a href="../exercices/exercices.html">Exercices</a>
+        <a href="simulateur-examen.html">Examen</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-12 relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-emerald-500/20 rounded-full blur-[120px] -z-10"></div>
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-6">
+                Module 05
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 tracking-tight">
+                Les Types de Solutions
+            </h1>
+            <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                Dans l'univers de l'optimisation, toutes les solutions ne se valent pas. Certaines sont impossibles (illégales), d'autres sont possibles mais médiocres, et une seule est "optimale".
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-4xl mx-auto px-4 pb-24 space-y-8">
+
+        <!-- VOCABULARY -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10 relative">
+            <h2 class="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+                <i class="fas fa-book text-emerald-500"></i> Vocabulaire Essentiel
+            </h2>
+            
+            <div class="grid md:grid-cols-1 gap-6">
+                <!-- Solution Réalisable -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border-l-4 border-emerald-500">
+                    <h3 class="font-bold text-lg text-white mb-2 flex items-center gap-2">
+                        <i class="fas fa-check-circle text-emerald-400"></i> Solution Réalisable
+                    </h3>
+                    <p class="text-slate-300 text-sm mb-3">Tout point qui respecte <strong>TOUTES</strong> les contraintes (y compris de positivité).</p>
+                    <div class="inline-block bg-emerald-500/10 text-emerald-300 text-xs font-bold px-2 py-1 rounded">C'est un "candidat légal".</div>
+                </div>
+
+                <!-- Solution de Base -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border-l-4 border-amber-500">
+                    <h3 class="font-bold text-lg text-white mb-2 flex items-center gap-2">
+                        <i class="fas fa-project-diagram text-amber-400"></i> Solution de Base
+                    </h3>
+                    <p class="text-slate-300 text-sm mb-3">Un point d'intersection des contraintes. En géométrie, c'est un <strong>SOMMET</strong> (un coin) du polygone.</p>
+                    <div class="inline-block bg-amber-500/10 text-amber-300 text-xs font-bold px-2 py-1 rounded">L'optimum est toujours ici !</div>
+                </div>
+
+                <!-- Solution Optimale -->
+                <div class="bg-slate-800/50 p-6 rounded-xl border-l-4 border-purple-500">
+                    <h3 class="font-bold text-lg text-white mb-2 flex items-center gap-2">
+                        <i class="fas fa-trophy text-purple-400"></i> Solution Optimale
+                    </h3>
+                    <p class="text-slate-300 text-sm">La solution réalisable qui donne la meilleure valeur de $Z$ (Min ou Max).</p>
+                </div>
+            </div>
+        </article>
+
+        <!-- THEOREM -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 text-9xl text-white/5 opacity-50 select-none">
+                <i class="fas fa-quote-right"></i>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-white mb-8">Le Théorème Fondamental</h2>
+            
+            <figure class="relative z-10 text-center mx-auto max-w-2xl">
+                <blockquote class="text-xl md:text-2xl font-serif italic text-emerald-100 mb-4 leading-normal">
+                    "Si un programme linéaire admet une solution optimale, alors cette solution se trouve obligatoirement sur l'un des sommets (coins) du domaine réalisable."
+                </blockquote>
+                <figcaption class="text-emerald-400/60 font-medium">— Fondement du Simplexe</figcaption>
+            </figure>
+
+            <div class="mt-8 bg-slate-800/50 p-4 rounded-lg flex items-start gap-4 border border-white/5">
+                <i class="fas fa-lightbulb text-yellow-400 mt-1"></i>
+                <p class="text-slate-400 text-sm">
+                    Cela simplifie tout ! Au lieu de chercher parmi une infinité de points, il suffit de tester les coins.
+                </p>
+            </div>
+        </article>
+
+        <!-- Interactive Exercises Container -->
+        <article class="glass-card p-6 md:p-8 rounded-2xl border border-white/10 bg-black/20" id="interactive-exercise">
+            <!-- Injecté par exercises.js -->
+        </article>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">&copy; 2025 Optimization Master — Recherche Opérationnelle.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

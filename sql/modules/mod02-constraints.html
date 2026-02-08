@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 02 : Contraintes & Clés | RD-SQL</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+    <nav class="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
+                <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
+            </a>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Module 02: Contraintes</h1>
+            <div class="flex items-center gap-4">
+                <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
+                <button class="theme-toggle" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+            
+            <!-- Intro Section: Narrative Hook -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">1. Le Gardien du Temple</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas fa-shield-alt text-9xl"></i>
+                    </div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        Une base de données n'est pas une simple poubelle où l'on jette des données en vrac. C'est un coffre-fort organisé.
+                        <br><br>
+                        Imaginez que vous gérez les comptes bancaires. Pouvez-vous accepter une transaction sans montant ? Un client sans nom ? Deux clients avec le même identifiant ?
+                        <br>
+                        <strong>Non.</strong> C'est là qu'interviennent les <strong class="text-blue-400">Contraintes</strong>. Ce sont les gardes du corps de vos données.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Concept 1: Primary Key -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-yellow-500 pl-4">2. L'Identité Unique (Primary Key)</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <div class="flex flex-col md:flex-row gap-8 items-center">
+                        <div class="w-full md:w-1/3 text-center">
+                            <i class="fas fa-fingerprint text-8xl text-yellow-500/80 mb-4 animate-pulse"></i>
+                            <div class="text-sm text-slate-400">Chaque ligne est unique</div>
+                        </div>
+                        <div class="w-full md:w-2/3">
+                            <h3 class="text-xl font-bold text-white mb-3">Le Problème des Homonymes</h3>
+                            <p class="text-slate-300 mb-4">
+                                Imaginez deux clients nommés "Thomas Dupont". Si l'un d'eux appelle pour résilier, comment savoir lequel c'est ?
+                            </p>
+                            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                                <ul class="space-y-3">
+                                    <li class="flex items-center gap-3">
+                                        <span class="bg-red-500/20 text-red-400 px-2 py-1 rounded text-xs font-bold">SANS PK</span>
+                                        <span class="text-slate-400 text-sm">Thomas Dupont (Paris) / Thomas Dupont (Lyon) -> <strong>Confusion !</strong></span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <span class="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs font-bold">AVEC PK</span>
+                                        <span class="text-slate-400 text-sm">Client <strong class="text-yellow-400">#1024</strong> vs Client <strong class="text-yellow-400">#4598</strong> -> <strong>Clair !</strong></span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <p class="mt-4 text-slate-300">
+                                La <strong>Clé Primaire (PK)</strong> est un numéro unique (souvent un ID) qui identifie formellement une ligne.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Concept 2: Foreign Key -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">3. Le Lien Familial (Foreign Key)</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-300 mb-6">
+                        Les tables ne vivent pas en solitaire. Elles discutent entre elles.
+                        Comment dire que la "Commande #555" appartient au "Client #1024" ?
+                    </p>
+
+                    <div class="relative bg-slate-900 p-8 rounded-xl border border-slate-700 mb-6 overflow-hidden">
+                        <!-- Visualisation Tables -->
+                        <div class="flex justify-between items-center relative z-10">
+                            <!-- Table Parents -->
+                            <div class="bg-slate-800 p-4 rounded border border-blue-500 w-1/3 text-center">
+                                <div class="font-bold text-blue-400 mb-2"><i class="fas fa-user"></i> Clients</div>
+                                <div class="bg-blue-600 text-white text-xs px-2 py-1 rounded-full inline-block">ID: 1024</div>
+                                <div class="text-xs text-slate-400 mt-1">Thomas</div>
+                            </div>
+
+                            <!-- Connection Line -->
+                            <div class="flex-grow h-1 bg-slate-600 relative mx-4">
+                                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 px-2 text-xs text-slate-400">Relation</div>
+                                <i class="fas fa-link absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-slate-500 bg-slate-900 p-1"></i>
+                            </div>
+
+                            <!-- Table Enfants -->
+                            <div class="bg-slate-800 p-4 rounded border border-emerald-500 w-1/3 text-center">
+                                <div class="font-bold text-emerald-400 mb-2"><i class="fas fa-shopping-cart"></i> Commandes</div>
+                                <div class="text-xs text-slate-400 mb-1">Cmd: #555</div>
+                                <div class="bg-emerald-600 text-white text-xs px-2 py-1 rounded-full inline-block">client_id: 1024</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-slate-300">
+                        La <strong>Clé Étrangère (FK)</strong> est une colonne dans la table enfant qui contient la carte de visite du parent.
+                        <br>
+                        <span class="text-red-400 font-bold"><i class="fas fa-ban"></i> Règle d'or :</span> Vous ne pouvez pas créer une commande pour le client #9999 si le client #9999 n'existe pas !
+                    </p>
+                </div>
+            </section>
+
+            <!-- Pratique avec Mission -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.3s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">4. Mission : Sécuriser la Table</h2>
+                <div class="bg-blue-600/10 border border-blue-500 p-4 rounded-lg mb-6 flex gap-4">
+                    <div class="text-3xl">🛡️</div>
+                    <div>
+                        <h4 class="font-bold text-white">Votre Mission</h4>
+                        <p class="text-slate-300 text-sm">
+                            Nous avons une table <code>users</code> existante qui n'a pas de protection.
+                            Votre but : Ajouter une contrainte de <strong>Clé Primaire</strong> sur la colonne <code>id</code> pour empêcher les doublons.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3 flex items-center justify-between">
+                         <span class="text-xs font-mono text-slate-500">sql-server-v19.exe</span>
+                    </div>
+                    <div class="relative group">
+                        <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none" spellcheck="false" placeholder="Tapez votre code ici...">ALTER TABLE users 
+ADD CONSTRAINT pk_user_id PRIMARY KEY (id)</textarea>
+                    </div>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold flex items-center gap-2">
+                            <i class="fas fa-play"></i> Exécuter
+                        </button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px]">
+                         <div class="flex items-center gap-2 text-slate-500">
+                            <i class="fas fa-terminal"></i>
+                            <span>En attente...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Challenge Drag Drop removed from here to rely on bottom section -->
+            
+            <!-- Section Approfondissement (Expert) -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.4s;">
+                <h2 class="text-2xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">
+                    <i class="fas fa-microscope text-purple-400 mr-2"></i> Zoom : Le Drame de la Suppression
+                </h2>
+                <div class="bg-slate-800/50 border border-purple-500/30 rounded-xl p-8">
+                    <h3 class="font-bold text-lg mb-6 text-purple-300">Que se passe-t-il si j'efface le Papa ?</h3>
+                    <p class="text-slate-300 mb-6 leading-relaxed">
+                        C'est la question critique de l'intégrité référentielle. Si je supprime le Client #1024, que deviennent ses commandes ?
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Scenario 1 -->
+                        <div class="bg-slate-900 p-6 rounded-xl border border-red-500/30 hover:border-red-500 transition-colors">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-red-400">RESTRICT (Par défaut)</h4>
+                                <i class="fas fa-hand-paper text-red-500 text-2xl"></i>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-4">
+                                SQL Server vous dit <strong>STOP</strong>.
+                                "Je ne peux pas supprimer ce client car il a des commandes actives. Occupe-toi des commandes d'abord."
+                            </p>
+                            <div class="bg-black p-2 rounded text-xs font-mono text-red-400">
+                                DELETE statement conflicted with REFERENCE constraint...
+                            </div>
+                        </div>
+
+                        <!-- Scenario 2 -->
+                        <div class="bg-slate-900 p-6 rounded-xl border border-orange-500/30 hover:border-orange-500 transition-colors">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-orange-400">CASCADE (Dangereux)</h4>
+                                <i class="fas fa-bomb text-orange-500 text-2xl"></i>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-4">
+                                SQL Server dit <strong>OK</strong>.
+                                Il supprime le client ET automatiquement toutes ses commandes liées. Le ménage par le vide.
+                            </p>
+                            <div class="bg-black p-2 rounded text-xs font-mono text-green-400">
+                                (124 rows affected) <span class="text-slate-500">// Oups, tout est parti !</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section Exercices de Fin de Chapitre (COMPLET 10 Quiz / 5 Exos / 3 DragDrop) -->
+            <section class="animate-fade-in-up" style="animation-delay: 0.4s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-yellow-500 pl-4">
+                    <i class="fas fa-dumbbell text-yellow-400 mr-2"></i> Zone d'Entraînement Intensive
+                </h2>
+                
+                <!-- Tabs Navigation -->
+                <div class="flex gap-4 mb-6 border-b border-slate-700 pb-2">
+                    <button onclick="switchTab('quiz')" id="tab-quiz" class="text-blue-400 font-bold border-b-2 border-blue-400 pb-2">Quiz (10)</button>
+                    <button onclick="switchTab('exos')" id="tab-exos" class="text-slate-400 hover:text-white pb-2">Exercices (5)</button>
+                    <button onclick="switchTab('drag')" id="tab-drag" class="text-slate-400 hover:text-white pb-2">Drag & Drop (3)</button>
+                </div>
+
+                <!-- 1. QUIZ SECTION (10 Questions) -->
+                <div id="content-quiz" class="glass-card p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Quiz de Validation (10 Questions)</h3>
+                    <div id="quiz-container" class="space-y-6"></div>
+                    <div class="mt-6 border-t border-slate-700 pt-4 flex justify-between items-center">
+                        <div id="quiz-score" class="text-xl font-bold text-slate-400">Score: 0/10</div>
+                        <button onclick="checkQuiz()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold">Valider le Quiz</button>
+                    </div>
+                </div>
+
+                <!-- 2. EXERCICES SECTION (5 Exercices) -->
+                <div id="content-exos" class="hidden space-y-6">
+                    <!-- Exo 1 -->
+                    <div class="glass-card p-4 rounded-xl">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="toggleSol('sol-1')">
+                            <h4 class="font-bold text-white"><i class="fas fa-key text-yellow-500 mr-2"></i> 1. Clé Primaire</h4>
+                            <span class="text-xs bg-slate-700 px-2 py-1 rounded">Solution</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mt-2">Créez une table 'Etudiants' avec 'matricule' (VARCHAR 10) comme clé primaire.</p>
+                        <div id="sol-1" class="hidden mt-3 bg-black p-3 rounded font-mono text-sm text-green-400">
+                            CREATE TABLE Etudiants (<br>
+                            &nbsp;&nbsp;matricule VARCHAR(10) PRIMARY KEY,<br>
+                            &nbsp;&nbsp;nom VARCHAR(50)<br>
+                            );
+                        </div>
+                    </div>
+
+                    <!-- Exo 2 -->
+                    <div class="glass-card p-4 rounded-xl">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="toggleSol('sol-2')">
+                            <h4 class="font-bold text-white"><i class="fas fa-link text-blue-500 mr-2"></i> 2. Clé Étrangère</h4>
+                            <span class="text-xs bg-slate-700 px-2 py-1 rounded">Solution</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mt-2">Reliez 'Commande' à 'Client' (id) via client_id.</p>
+                        <div id="sol-2" class="hidden mt-3 bg-black p-3 rounded font-mono text-sm text-green-400">
+                            ALTER TABLE Commande ADD CONSTRAINT fk_cli<br>
+                            FOREIGN KEY (client_id) REFERENCES Client(id);
+                        </div>
+                    </div>
+
+                    <!-- Exo 3 -->
+                    <div class="glass-card p-4 rounded-xl">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="toggleSol('sol-3')">
+                            <h4 class="font-bold text-white"><i class="fas fa-ban text-red-500 mr-2"></i> 3. NOT NULL</h4>
+                            <span class="text-xs bg-slate-700 px-2 py-1 rounded">Solution</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mt-2">Forcez l'email à ne jamais être vide lors de la création.</p>
+                        <div id="sol-3" class="hidden mt-3 bg-black p-3 rounded font-mono text-sm text-green-400">
+                            email VARCHAR(100) NOT NULL
+                        </div>
+                    </div>
+
+                    <!-- Exo 4 -->
+                    <div class="glass-card p-4 rounded-xl">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="toggleSol('sol-4')">
+                            <h4 class="font-bold text-white"><i class="fas fa-fingerprint text-purple-500 mr-2"></i> 4. UNIQUE</h4>
+                            <span class="text-xs bg-slate-700 px-2 py-1 rounded">Solution</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mt-2">Assurez-vous qu'on ne puisse pas avoir deux fois le même email.</p>
+                        <div id="sol-4" class="hidden mt-3 bg-black p-3 rounded font-mono text-sm text-green-400">
+                            ALTER TABLE Users ADD CONSTRAINT uq_email UNIQUE (email);
+                        </div>
+                    </div>
+
+                    <!-- Exo 5 -->
+                    <div class="glass-card p-4 rounded-xl">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="toggleSol('sol-5')">
+                            <h4 class="font-bold text-white"><i class="fas fa-check-square text-green-500 mr-2"></i> 5. CHECK</h4>
+                            <span class="text-xs bg-slate-700 px-2 py-1 rounded">Solution</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mt-2">Interdire un âge négatif.</p>
+                        <div id="sol-5" class="hidden mt-3 bg-black p-3 rounded text-sm text-slate-300 font-mono text-green-400">
+                            CHECK (age >= 0)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. DRAG & DROP SECTION (3 Activities) -->
+                <div id="content-drag" class="hidden space-y-8">
+                    
+                    <!-- Drag 1 : Icones -->
+                    <div class="glass-card p-6 rounded-xl relative">
+                        <span class="absolute top-4 right-4 text-xs font-bold bg-blue-600 px-2 py-1 rounded">Jeu 1</span>
+                        <h4 class="font-bold text-white mb-4">Les Symboles</h4>
+                        <div id="drag-drop-1" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700 min-h-[150px]"></div>
+                        <button onclick="verifyDD(1)" class="mt-2 text-sm bg-blue-600 px-4 py-1 rounded hover:bg-blue-500">Vérifier</button>
+                    </div>
+
+                    <!-- Drag 2 : Comportement -->
+                    <div class="glass-card p-6 rounded-xl relative">
+                        <span class="absolute top-4 right-4 text-xs font-bold bg-purple-600 px-2 py-1 rounded">Jeu 2</span>
+                        <h4 class="font-bold text-white mb-4">Conséquences</h4>
+                        <div id="drag-drop-2" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700 min-h-[150px]"></div>
+                        <button onclick="verifyDD(2)" class="mt-2 text-sm bg-purple-600 px-4 py-1 rounded hover:bg-purple-500">Vérifier</button>
+                    </div>
+
+                    <!-- Drag 3 : Définitions -->
+                    <div class="glass-card p-6 rounded-xl relative">
+                        <span class="absolute top-4 right-4 text-xs font-bold bg-green-600 px-2 py-1 rounded">Jeu 3</span>
+                        <h4 class="font-bold text-white mb-4">Vrai ou Faux ?</h4>
+                        <div id="drag-drop-3" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700 min-h-[150px]"></div>
+                        <button onclick="verifyDD(3)" class="mt-2 text-sm bg-green-600 px-4 py-1 rounded hover:bg-green-500">Vérifier</button>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+
+            <div class="sticky top-24 space-y-6">
+                <div id="databot-container"></div>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+
+    <script>
+        // --- 1. QUIZ ENGINE ---
+        const quizData = [
+            { q: "Qu'est-ce qu'une PK ?", o: ["Primary Key", "Private Key", "Public Key"], a: 0 },
+            { q: "Une PK peut-elle être NULL ?", o: ["Oui", "Non", "Parfois"], a: 1 },
+            { q: "À quoi sert une FK ?", o: ["Trier les données", "Lier deux tables", "Crypter les données"], a: 1 },
+            { q: "Constraint NOT NULL signifie :", o: ["Valeur obligatoire", "Valeur vide", "Valeur zéro"], a: 0 },
+            { q: "Unicité est garantie par :", o: ["UNIQUE", "INDEX", "SELECT"], a: 0 },
+            { q: "Une table peut avoir :", o: ["Plusieurs PK", "Une seule PK", "Aucune PK (déconseillé)"], a: 1 },
+            { q: "CHECK permet de :", o: ["Vérifier une condition", "Vérifier l'orthographe", "Vérifier la date"], a: 0 },
+            { q: "FK pointe vers :", o: ["Une PK d'une autre table", "Un fichier texte", "Une colonne aléatoire"], a: 0 },
+            { q: "DEFAULT sert à :", o: ["Donner une valeur si non précisée", "Forcer une valeur", "Annuler l'insertion"], a: 0 },
+            { q: "En cas d'erreur de contrainte :", o: ["L'insertion échoue", "L'insertion force", "La table est effacée"], a: 0 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = quizData.map((item, idx) => `
+                <div class="q-item border-l-2 border-slate-700 pl-4">
+                    <p class="font-bold text-slate-200 mb-2">${idx + 1}. ${item.q}</p>
+                    <div class="flex gap-4 flex-wrap">
+                        ${item.o.map((opt, oIdx) => `
+                            <label class="flex items-center gap-2 cursor-pointer bg-slate-800 px-3 py-1 rounded hover:bg-slate-700">
+                                <input type="radio" name="q${idx}" value="${oIdx}">
+                                <span class="text-sm">${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function checkQuiz() {
+            let score = 0;
+            quizData.forEach((item, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                const parent = document.querySelectorAll('.q-item')[idx];
+                if (selected) {
+                    if (parseInt(selected.value) === item.a) {
+                        score++;
+                        parent.classList.remove('border-red-500', 'border-slate-700');
+                        parent.classList.add('border-green-500');
+                    } else {
+                        parent.classList.remove('border-green-500', 'border-slate-700');
+                        parent.classList.add('border-red-500');
+                    }
+                }
+            });
+            document.getElementById('quiz-score').innerText = `Score: ${score}/10`;
+            if (score >= 7) {
+                bot.speak(`Super ! Score de ${score}/10 !`, "happy");
+                confetti();
+            } else {
+                bot.speak(`Score de ${score}/10. Révise les contraintes.`, "sad");
+            }
+        }
+
+        // --- 2. TABS LOGIC ---
+        function switchTab(tab) {
+            ['quiz', 'exos', 'drag'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-400');
+            });
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('text-blue-400', 'border-b-2', 'border-blue-400', 'font-bold');
+            document.getElementById(`tab-${tab}`).classList.remove('text-slate-400');
+        }
+
+        function toggleSol(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        // --- 3. DRAG & DROP LOGIC ---
+        
+        // Game 1
+        const dd1 = new DragDropEngine('drag-drop-1', 
+            [{id:'c1', text:'PK'}, {id:'c2', text:'FK'}, {id:'c3', text:'CHECK'}], 
+            [{id:'z1', label:'Clé identifiant unique', accept:'c1'}, {id:'z2', label:'Lien vers parent', accept:'c2'}, {id:'z3', label:'Règle métier', accept:'c3'}]
+        );
+        // Game 2
+        const dd2 = new DragDropEngine('drag-drop-2', 
+            [{id:'t1', text:'Erreur!'}, {id:'t2', text:'Ok'}, {id:'t3', text:'NULL'}], 
+            [{id:'z1', label:'Insert doublon PK', accept:'t1'}, {id:'z2', label:'Insert unique', accept:'t2'}, {id:'z3', label:'Insert sans valeur', accept:'t3'}]
+        );
+        // Game 3
+        const dd3 = new DragDropEngine('drag-drop-3', 
+            [{id:'h1', text:'1-N'}, {id:'h2', text:'N-N'}, {id:'h3', text:'1-1'}], 
+            [{id:'z1', label:'Client -> Commandes', accept:'h1'}, {id:'z2', label:'Eleves -> Cours', accept:'h2'}, {id:'z3', label:'Homme -> ADN', accept:'h3'}]
+        );
+
+        function verifyDD(id) {
+            let engine = (id===1) ? dd1 : (id===2) ? dd2 : dd3;
+            if (engine.validate()) {
+                bot.speak("Très bien !", "happy");
+                bot.awardXP(20);
+            } else {
+                bot.speak("Essaie encore.", "sad");
+            }
+        }
+
+        // --- INIT ---
+        const bot = new DataBot();
+        bot.render('databot-container');
+        bot.speak("Les clés sont essentielles pour l'intégrité des données !", 4000);
+        
+        renderQuiz();
+
+        // 4. SQL Engine logic
+        function runQuery() {
+            const sql = document.getElementById('sql-input').value;
+            const output = document.getElementById('query-output');
+            if(sql.toLowerCase().includes('primary key')) {
+                output.innerHTML = '<div class="text-green-400">Contrainte ajoutée avec succès ! (Simulation)</div>';
+                bot.awardXP(30);
+            } else {
+                output.innerHTML = '<div class="text-red-400">Erreur de syntaxe.</div>';
+            }
+        }
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod01-ddl.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 01 : Fondations & DDL</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod03-dml.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 03 : DML →</a>
+    </div>
+    <script>if(localStorage.getItem('rd_sql_theme')==='light')document.documentElement.setAttribute('data-theme','light');</script>
+</body>
+</html>
