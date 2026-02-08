@@ -372,9 +372,9 @@ function init() {
     container.innerHTML = `
         <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:1rem;">🎯 ${data.title} — Exercices interactifs</h2>
         <div class="exercise-tabs">
-            <button class="active" onclick="ExerciseEngine.switchTab('guided')">📝 Guidés</button>
-            <button onclick="ExerciseEngine.switchTab('quiz')">❓ Quiz</button>
-            <button onclick="ExerciseEngine.switchTab('drag')">🔗 Glisser-déposer</button>
+            <button class="active" onclick="ExerciseEngine.switchTab('guided', event)">📝 Guidés</button>
+            <button onclick="ExerciseEngine.switchTab('quiz', event)">❓ Quiz</button>
+            <button onclick="ExerciseEngine.switchTab('drag', event)">🔗 Glisser-déposer</button>
         </div>
         <div id="tab-guided" class="exercise-block active"></div>
         <div id="tab-quiz" class="exercise-block"></div>
@@ -390,11 +390,11 @@ document.addEventListener('DOMContentLoaded', init);
 
 /* ---------- API PUBLIQUE ---------- */
 return {
-    switchTab(tab) {
+    switchTab(tab, evt) {
         document.querySelectorAll('.exercise-block').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.exercise-tabs button').forEach(b => b.classList.remove('active'));
         document.getElementById('tab-' + tab)?.classList.add('active');
-        event.target.classList.add('active');
+        if (evt && evt.target) evt.target.classList.add('active');
     },
     showGuidedAnswer(btn) {
         const hint = btn.nextElementSibling;
@@ -411,11 +411,13 @@ return {
     selectQuiz(option, index) {
         const parent = option.closest('.quiz-exercise');
         const answer = parseInt(parent.dataset.answer);
+        const isCorrect = index === answer;
         parent.querySelectorAll('.quiz-option').forEach((o, i) => {
             o.classList.remove('selected', 'correct', 'wrong');
             if (i === answer) o.classList.add('correct');
             else if (i === index && i !== answer) o.classList.add('wrong');
         });
+        if (typeof GameEngine !== 'undefined') GameEngine.exerciseCompleted(isCorrect);
     },
     handleDragStart(e) {
         e.dataTransfer.setData('text/plain', e.target.textContent);

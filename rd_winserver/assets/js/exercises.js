@@ -359,7 +359,7 @@ const ExerciseEngine = (() => {
             answer.classList.add('show');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-check"></i> Correction affichée';
-            if (typeof GameEngine !== 'undefined') GameEngine.addXP(10);
+            if (typeof GameEngine !== 'undefined') { GameEngine.addXP(10); GameEngine.exerciseCompleted(true); }
         },
         checkQuiz(btn, idx, correct) {
             const card = btn.closest('.exercise-card');
@@ -375,9 +375,10 @@ const ExerciseEngine = (() => {
             });
             if (val === correct) {
                 feedback.innerHTML = '<span class="feedback-correct">✅ Bonne réponse !</span>';
-                if (typeof GameEngine !== 'undefined') GameEngine.addXP(15);
+                if (typeof GameEngine !== 'undefined') { GameEngine.addXP(15); GameEngine.exerciseCompleted(true); }
             } else {
                 feedback.innerHTML = '<span class="feedback-wrong">❌ Mauvaise réponse.</span>';
+                if (typeof GameEngine !== 'undefined') GameEngine.exerciseCompleted(false);
             }
             feedback.classList.add('show');
             btn.disabled = true;
@@ -415,7 +416,7 @@ const ExerciseEngine = (() => {
             if (correct === pairs.length) {
                 feedback.innerHTML = '<span class="feedback-correct">✅ Tout est correct !</span>';
                 btn.disabled = true;
-                if (typeof GameEngine !== 'undefined') GameEngine.addXP(20);
+                if (typeof GameEngine !== 'undefined') { GameEngine.addXP(20); GameEngine.exerciseCompleted(true); }
             } else {
                 feedback.innerHTML = `<span class="feedback-wrong">❌ ${correct}/${pairs.length} correct(s). Corrige les réponses en rouge et réessaie !</span>`;
                 // Reset wrong answers so user can retry

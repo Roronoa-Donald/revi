@@ -33,8 +33,8 @@
     </nav>
 
     <div class="mobile-nav-overlay"></div>
-    <div class="mobile-nav-panel">
-        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+    <div class="mobile-nav-panel" role="dialog" aria-label="Menu de navigation">
+        <button class="mobile-nav-close" aria-label="Fermer le menu"><i class="fas fa-times"></i></button>
         <ul>
             <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
             <li><a href="chapitre1.html">01 · Commandes de base</a></li>
@@ -177,6 +177,94 @@
 <span class="cmd">echo</span> <span class="string">'export EDITOR=nano'</span> <span class="keyword">>></span> <span class="path">~/.bashrc</span></code></pre>
         </article>
 
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-box-open" style="color:var(--accent);margin-right:0.5rem;"></i>Gestion de paquets — APT & dpkg</h2>
+            <p>Sur Debian/Ubuntu, les logiciels sont distribués sous forme de <strong>paquets</strong> (<code>.deb</code>). Le gestionnaire <strong>APT</strong> (Advanced Package Tool) permet de les installer, mettre à jour et supprimer automatiquement, en gérant les dépendances.</p>
+
+            <h3>apt — Le gestionnaire principal</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Mettre à jour la liste des paquets disponibles</span>
+<span class="cmd">sudo apt update</span>
+
+<span class="comment"># Mettre à jour tous les paquets installés</span>
+<span class="cmd">sudo apt upgrade</span>
+
+<span class="comment"># Mettre à jour + gérer les nouvelles dépendances</span>
+<span class="cmd">sudo apt full-upgrade</span>
+
+<span class="comment"># Installer un paquet</span>
+<span class="cmd">sudo apt install</span> <span class="path">htop</span>
+
+<span class="comment"># Installer plusieurs paquets d'un coup</span>
+<span class="cmd">sudo apt install</span> <span class="path">vim curl wget git</span>
+
+<span class="comment"># Supprimer un paquet (garde les fichiers de config)</span>
+<span class="cmd">sudo apt remove</span> <span class="path">htop</span>
+
+<span class="comment"># Supprimer un paquet ET ses fichiers de config</span>
+<span class="cmd">sudo apt purge</span> <span class="path">htop</span>
+
+<span class="comment"># Supprimer les paquets orphelins (dépendances inutilisées)</span>
+<span class="cmd">sudo apt autoremove</span>
+
+<span class="comment"># Rechercher un paquet dans les dépôts</span>
+<span class="cmd">apt search</span> <span class="string">serveur web</span>
+
+<span class="comment"># Afficher les infos d'un paquet</span>
+<span class="cmd">apt show</span> <span class="path">nginx</span>
+
+<span class="comment"># Lister les paquets installés</span>
+<span class="cmd">apt list</span> <span class="flag">--installed</span>
+
+<span class="comment"># Lister les paquets avec mises à jour disponibles</span>
+<span class="cmd">apt list</span> <span class="flag">--upgradable</span></code></pre>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> update ≠ upgrade</div>
+                <p style="margin:0;font-size:0.9rem;"><code>apt update</code> met à jour la <strong>liste</strong> des paquets (comme vérifier le catalogue). <code>apt upgrade</code> <strong>installe</strong> les nouvelles versions. Toujours faire <code>update</code> avant <code>upgrade</code> !</p>
+            </div>
+
+            <h3>dpkg — Gestion bas niveau</h3>
+            <p><code>dpkg</code> est l'outil bas niveau qui gère directement les fichiers <code>.deb</code>. APT l'utilise en interne, mais parfois tu dois l'utiliser directement.</p>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Installer un paquet .deb téléchargé manuellement</span>
+<span class="cmd">sudo dpkg</span> <span class="flag">-i</span> <span class="path">paquet.deb</span>
+
+<span class="comment"># Si des dépendances manquent après dpkg -i</span>
+<span class="cmd">sudo apt install</span> <span class="flag">-f</span>
+
+<span class="comment"># Lister tous les paquets installés</span>
+<span class="cmd">dpkg</span> <span class="flag">-l</span>
+
+<span class="comment"># Vérifier si un paquet est installé</span>
+<span class="cmd">dpkg</span> <span class="flag">-l</span> <span class="keyword">|</span> <span class="cmd">grep</span> <span class="path">nginx</span>
+
+<span class="comment"># Voir les fichiers installés par un paquet</span>
+<span class="cmd">dpkg</span> <span class="flag">-L</span> <span class="path">nginx</span>
+
+<span class="comment"># Trouver à quel paquet appartient un fichier</span>
+<span class="cmd">dpkg</span> <span class="flag">-S</span> <span class="path">/usr/bin/vim</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Scénario de Sami</div>
+                <p style="margin:0;font-size:0.9rem;">
+                Son chef lui demande d'installer un serveur web. Sami tape :<br>
+                <code>sudo apt update</code> → met à jour le catalogue<br>
+                <code>sudo apt install nginx</code> → installe Nginx + toutes ses dépendances<br>
+                <code>dpkg -l | grep nginx</code> → vérifie que c'est bien installé<br>
+                Et voilà, le serveur web tourne !
+                </p>
+            </div>
+
+            <h3>Les dépôts — /etc/apt/sources.list</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Voir les dépôts configurés</span>
+<span class="cmd">cat</span> <span class="path">/etc/apt/sources.list</span>
+
+<span class="comment"># Les dépôts additionnels sont dans :</span>
+<span class="cmd">ls</span> <span class="path">/etc/apt/sources.list.d/</span>
+
+<span class="comment"># Après avoir modifié les sources, toujours :</span>
+<span class="cmd">sudo apt update</span></code></pre>
+        </article>
+
         <article class="glass-card" id="interactive-exercise">
             <h2><i class="fas fa-dumbbell" style="color:var(--accent);margin-right:0.5rem;"></i>Exercices Interactifs</h2>
             <p style="color:var(--text-muted);">Chargement des exercices...</p>
@@ -190,7 +278,7 @@
 
     <footer class="site-footer">
         <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
-        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+        <p class="footer-copy">© 2026 — Debian 13 · Bash · Terminal</p>
     </footer>
 
     <script src="../assets/js/exercises.js"></script>

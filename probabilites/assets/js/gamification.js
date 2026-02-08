@@ -21,7 +21,7 @@ const GameEngine = {
     // Initialisation
     init() {
         this.loadProgress();
-        this.renderInterface();
+        this.updateUI();
         this.setupFilRouge();
     },
 

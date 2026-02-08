@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Référence complète des jeux de cartes : 52 cartes et 32 cartes (Belote) avec statistiques et probabilités">
+    <title>Référence Cartes | Probas RD</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>�</text></svg>">
+    
+    <style>
+        /* Card Display Styles */
+        .card-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .control-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .control-select {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-weight: 500;
+            min-width: 180px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-select:hover, .control-select:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+        }
+        
+        /* Stats Dashboard */
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .stat-card-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-card-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        .stat-card-detail {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Card Suits */
+        .suits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .suit-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+        
+        .suit-header {
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .suit-header.spade { background: linear-gradient(135deg, rgba(30,30,30,0.1), rgba(50,50,50,0.05)); }
+        .suit-header.heart { background: linear-gradient(135deg, rgba(220,38,38,0.1), rgba(248,113,113,0.05)); }
+        .suit-header.diamond { background: linear-gradient(135deg, rgba(234,88,12,0.1), rgba(251,146,60,0.05)); }
+        .suit-header.club { background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(74,222,128,0.05)); }
+        
+        .suit-symbol {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+        
+        .suit-info h3 {
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        .suit-info span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .suit-body {
+            padding: 1rem;
+        }
+        
+        .cards-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        .playing-card {
+            width: 50px;
+            height: 70px;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            cursor: default;
+            position: relative;
+        }
+        
+        .playing-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+        
+        .playing-card.red { color: #dc2626; }
+        .playing-card.black { color: #1e1e1e; }
+        
+        .playing-card.figure {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+        }
+        
+        .playing-card.excluded {
+            opacity: 0.3;
+            background: #e5e7eb;
+        }
+        
+        .playing-card .card-value {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+        
+        .playing-card .card-suit {
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+        
+        /* Probability Tables */
+        .prob-section {
+            margin-bottom: 2rem;
+        }
+        
+        .prob-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        
+        .prob-table th, .prob-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .prob-table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .prob-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .prob-table .prob-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+        
+        .prob-table .fraction {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Legend */
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .legend-sample {
+            width: 35px;
+            height: 50px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 2px solid var(--border-color);
+        }
+        
+        .legend-sample.normal { background: white; }
+        .legend-sample.figure { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+        .legend-sample.excluded { background: #e5e7eb; opacity: 0.5; }
+        
+        .legend-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Info callout */
+        .info-callout {
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-lg);
+            margin-bottom: 2rem;
+        }
+        
+        .info-callout-icon {
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+        }
+        
+        .info-callout-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--accent-primary);
+        }
+        
+        .info-callout-content p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        /* Quick reference */
+        .quick-ref {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-ref-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+        }
+        
+        .quick-ref-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 0 1rem 0;
+            color: var(--text-primary);
+        }
+        
+        .quick-ref-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .quick-ref-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .quick-ref-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .quick-ref-list .label {
+            color: var(--text-secondary);
+        }
+        
+        .quick-ref-list .value {
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-primary);
+        }
+
+        /* Formula box */
+        .formula-box {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-primary);
+            padding: 1rem 1.25rem;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin: 1rem 0;
+        }
+        
+        .formula-box code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">🃏</div>
+                <span>Probas <strong style="color: var(--accent-secondary);">RD</strong></span>
+            </a>
+            
+            <nav class="nav">
+                <a href="../index.html" class="nav-link">Accueil</a>
+                <a href="chapitre1.html" class="nav-link">Probabilités</a>
+                <a href="chapitre2.html" class="nav-link">Dénombrement</a>
+                <a href="chapitre3.html" class="nav-link">VA Discrètes</a>
+                <a href="chapitre4.html" class="nav-link">VA Continues</a>
+                <a href="cartes.html" class="nav-link active">Cartes</a>
+                <a href="../exercices/exercices.html" class="nav-link">Exercices</a>
+                <a href="formules.html" class="nav-link">📐 Formules</a>
+                <a href="rappels-integration.html" class="nav-link">∫ Intégrales</a>
+                <a href="simulateur-examen.html" class="nav-link" style="color: var(--accent-secondary);">📝 Examen</a>
+            </nav>
+            
+            <div class="flex" style="gap: 0.75rem;">
+                <button class="theme-toggle" aria-label="Changer le thème">
+                    <i class="fas fa-sun icon-sun"></i>
+                    <i class="fas fa-moon icon-moon"></i>
+                </button>
+                
+                <button class="menu-toggle" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <main class="main-content" style="max-width: 1200px; margin: 0 auto;">
+            
+            <!-- Page Header -->
+            <section class="section" style="padding-top: 2rem;">
+                <div class="card-badge" style="margin-bottom: 1rem;">
+                    <i class="fas fa-book-open"></i>
+                    Référence
+                </div>
+                <h1>🃏 Jeux de Cartes</h1>
+                <p style="font-size: 1.1rem; max-width: 800px;">
+                    Guide complet des jeux de cartes utilisés en probabilités. 
+                    Visualisez toutes les cartes, leurs caractéristiques et les probabilités associées.
+                </p>
+            </section>
+
+            <!-- Controls -->
+            <section class="section">
+                <div class="card-controls">
+                    <div class="control-group">
+                        <label class="control-label">Type de jeu</label>
+                        <select class="control-select" id="deck-type">
+                            <option value="52">Jeu de 52 cartes (standard)</option>
+                            <option value="32">Jeu de 32 cartes (Belote)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Afficher</label>
+                        <select class="control-select" id="filter-type">
+                            <option value="all">Toutes les cartes</option>
+                            <option value="figures">Figures uniquement (R, D, V)</option>
+                            <option value="as">As uniquement</option>
+                            <option value="rouges">Cartes rouges (♥ ♦)</option>
+                            <option value="noires">Cartes noires (♠ ♣)</option>
+                            <option value="nombres">Cartes numériques</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Tirage</label>
+                        <select class="control-select" id="draw-count">
+                            <option value="1">1 carte</option>
+                            <option value="2">2 cartes</option>
+                            <option value="3">3 cartes</option>
+                            <option value="5">5 cartes (Poker)</option>
+                            <option value="8">8 cartes (Belote)</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Info Box -->
+            <section class="section">
+                <div class="info-callout">
+                    <div class="info-callout-icon">💡</div>
+                    <div class="info-callout-content">
+                        <h4>Comprendre les jeux de cartes</h4>
+                        <p id="deck-info">
+                            Le <strong>jeu de 52 cartes</strong> est le jeu standard international. Il contient 4 couleurs (enseignes) 
+                            de 13 cartes chacune : As, 2, 3, 4, 5, 6, 7, 8, 9, 10, Valet, Dame, Roi.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Dashboard -->
+            <section class="section">
+                <h2><i class="fas fa-chart-pie" style="color: var(--accent-primary);"></i> Statistiques du jeu</h2>
+                
+                <div class="stats-dashboard" id="stats-dashboard">
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-total">52</div>
+                        <div class="stat-card-label">Cartes totales</div>
+                        <div class="stat-card-detail" id="stat-total-detail">4 couleurs × 13</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-figures">12</div>
+                        <div class="stat-card-label">Figures</div>
+                        <div class="stat-card-detail">R, D, V × 4</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-per-suit">13</div>
+                        <div class="stat-card-label">Par couleur</div>
+                        <div class="stat-card-detail" id="stat-suit-detail">A → K</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-red">26</div>
+                        <div class="stat-card-label">Rouges ♥♦</div>
+                        <div class="stat-card-detail">50%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-black">26</div>
+                        <div class="stat-card-label">Noires ♠♣</div>
+                        <div class="stat-card-detail">50%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="stat-as">4</div>
+                        <div class="stat-card-label">As</div>
+                        <div class="stat-card-detail" id="stat-as-prob">P = 1/13</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Legend -->
+            <section class="section">
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <div class="legend-sample normal black">7♠</div>
+                        <div class="legend-text">Carte numérique standard</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-sample figure red">D♥</div>
+                        <div class="legend-text">Figure (fond doré) - Roi, Dame, Valet</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-sample excluded">2♣</div>
+                        <div class="legend-text">Carte exclue (jeu de 32)</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cards by Suit -->
+            <section class="section">
+                <h2><i class="fas fa-layer-group" style="color: var(--info);"></i> Cartes par couleur</h2>
+                
+                <div class="suits-grid" id="suits-grid">
+                    <!-- Pique -->
+                    <div class="suit-card">
+                        <div class="suit-header spade">
+                            <div class="suit-symbol">♠</div>
+                            <div class="suit-info">
+                                <h3>Pique</h3>
+                                <span id="spade-count">13 cartes • Noire</span>
+                            </div>
+                        </div>
+                        <div class="suit-body">
+                            <div class="cards-display" id="spade-cards"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Coeur -->
+                    <div class="suit-card">
+                        <div class="suit-header heart">
+                            <div class="suit-symbol">♥</div>
+                            <div class="suit-info">
+                                <h3>Cœur</h3>
+                                <span id="heart-count">13 cartes • Rouge</span>
+                            </div>
+                        </div>
+                        <div class="suit-body">
+                            <div class="cards-display" id="heart-cards"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Carreau -->
+                    <div class="suit-card">
+                        <div class="suit-header diamond">
+                            <div class="suit-symbol">♦</div>
+                            <div class="suit-info">
+                                <h3>Carreau</h3>
+                                <span id="diamond-count">13 cartes • Rouge</span>
+                            </div>
+                        </div>
+                        <div class="suit-body">
+                            <div class="cards-display" id="diamond-cards"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trèfle -->
+                    <div class="suit-card">
+                        <div class="suit-header club">
+                            <div class="suit-symbol">♣</div>
+                            <div class="suit-info">
+                                <h3>Trèfle</h3>
+                                <span id="club-count">13 cartes • Noire</span>
+                            </div>
+                        </div>
+                        <div class="suit-body">
+                            <div class="cards-display" id="club-cards"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Reference -->
+            <section class="section">
+                <h2><i class="fas fa-list-check" style="color: var(--success);"></i> Récapitulatif rapide</h2>
+                
+                <div class="quick-ref">
+                    <div class="quick-ref-card">
+                        <h4><i class="fas fa-dice"></i> Composition du jeu</h4>
+                        <ul class="quick-ref-list" id="composition-list">
+                            <li><span class="label">Total cartes</span><span class="value">52</span></li>
+                            <li><span class="label">Couleurs</span><span class="value">4</span></li>
+                            <li><span class="label">Par couleur</span><span class="value">13</span></li>
+                            <li><span class="label">Figures (R, D, V)</span><span class="value">12</span></li>
+                            <li><span class="label">As</span><span class="value">4</span></li>
+                            <li><span class="label">Cartes numériques</span><span class="value">36</span></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="quick-ref-card">
+                        <h4><i class="fas fa-palette"></i> Par couleur</h4>
+                        <ul class="quick-ref-list" id="color-list">
+                            <li><span class="label">♠ Pique (noire)</span><span class="value">13</span></li>
+                            <li><span class="label">♥ Cœur (rouge)</span><span class="value">13</span></li>
+                            <li><span class="label">♦ Carreau (rouge)</span><span class="value">13</span></li>
+                            <li><span class="label">♣ Trèfle (noire)</span><span class="value">13</span></li>
+                            <li><span class="label">Total rouges</span><span class="value">26</span></li>
+                            <li><span class="label">Total noires</span><span class="value">26</span></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="quick-ref-card">
+                        <h4><i class="fas fa-crown"></i> Types de cartes</h4>
+                        <ul class="quick-ref-list" id="types-list">
+                            <li><span class="label">As (A)</span><span class="value">4 cartes</span></li>
+                            <li><span class="label">Roi (R/K)</span><span class="value">4 cartes</span></li>
+                            <li><span class="label">Dame (D/Q)</span><span class="value">4 cartes</span></li>
+                            <li><span class="label">Valet (V/J)</span><span class="value">4 cartes</span></li>
+                            <li><span class="label">10</span><span class="value">4 cartes</span></li>
+                            <li><span class="label">2 à 9</span><span class="value">32 cartes</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Probability Table -->
+            <section class="section prob-section">
+                <h2><i class="fas fa-calculator" style="color: var(--warning);"></i> Probabilités de tirage (1 carte)</h2>
+                
+                <div class="formula-box">
+                    <strong>Formule :</strong> $P(\text{événement}) = \dfrac{\text{cas favorables}}{\text{cas possibles}}$
+                </div>
+                
+                <table class="prob-table" id="prob-table-1">
+                    <thead>
+                        <tr>
+                            <th>Événement</th>
+                            <th>Cas favorables</th>
+                            <th>Probabilité</th>
+                            <th>Décimal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prob-table-body-1">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Probability Table 2+ cards -->
+            <section class="section prob-section">
+                <h2><i class="fas fa-layer-group" style="color: var(--error);"></i> Probabilités de tirage (<span id="draw-label">2</span> cartes)</h2>
+                
+                <div class="formula-box">
+                    <strong>Combinaisons :</strong> $C_n^k = \binom{n}{k} = \dfrac{n!}{k!(n-k)!}$ 
+                    &nbsp;—&nbsp; Nombre de façons de choisir <code>k</code> éléments parmi <code>n</code>
+                </div>
+                
+                <table class="prob-table" id="prob-table-multi">
+                    <thead>
+                        <tr>
+                            <th>Événement</th>
+                            <th>Calcul</th>
+                            <th>Probabilité</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prob-table-body-multi">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Comparaison 52 vs 32 -->
+            <section class="section">
+                <h2><i class="fas fa-balance-scale" style="color: var(--accent-primary);"></i> Comparaison 52 vs 32 cartes</h2>
+                
+                <div class="card" style="overflow-x: auto;">
+                    <table class="prob-table">
+                        <thead>
+                            <tr>
+                                <th>Caractéristique</th>
+                                <th>Jeu de 52</th>
+                                <th>Jeu de 32 (Belote)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Cartes totales</td>
+                                <td class="prob-value">52</td>
+                                <td class="prob-value">32</td>
+                            </tr>
+                            <tr>
+                                <td>Par couleur</td>
+                                <td class="prob-value">13</td>
+                                <td class="prob-value">8</td>
+                            </tr>
+                            <tr>
+                                <td>Valeurs</td>
+                                <td>A, 2, 3, 4, 5, 6, 7, 8, 9, 10, V, D, R</td>
+                                <td>A, 7, 8, 9, 10, V, D, R</td>
+                            </tr>
+                            <tr>
+                                <td>Cartes exclues</td>
+                                <td>Aucune</td>
+                                <td>2, 3, 4, 5, 6 (×4 = 20 cartes)</td>
+                            </tr>
+                            <tr>
+                                <td>P(tirer un As)</td>
+                                <td class="prob-value">4/52 = 1/13 ≈ 7,7%</td>
+                                <td class="prob-value">4/32 = 1/8 = 12,5%</td>
+                            </tr>
+                            <tr>
+                                <td>P(tirer une figure)</td>
+                                <td class="prob-value">12/52 = 3/13 ≈ 23%</td>
+                                <td class="prob-value">12/32 = 3/8 = 37,5%</td>
+                            </tr>
+                            <tr>
+                                <td>P(tirer ♠)</td>
+                                <td class="prob-value">13/52 = 1/4 = 25%</td>
+                                <td class="prob-value">8/32 = 1/4 = 25%</td>
+                            </tr>
+                            <tr>
+                                <td>P(carte rouge)</td>
+                                <td class="prob-value">26/52 = 1/2 = 50%</td>
+                                <td class="prob-value">16/32 = 1/2 = 50%</td>
+                            </tr>
+                            <tr>
+                                <td>Jeux associés</td>
+                                <td>Poker, Blackjack, Bridge, Rami</td>
+                                <td>Belote, Coinche, Manille, Piquet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Formulas -->
+            <section class="section">
+                <h2><i class="fas fa-square-root-alt" style="color: var(--info);"></i> Formules essentielles</h2>
+                
+                <div class="math-definition">
+                    <h4><i class="fas fa-book"></i> Rappels de dénombrement</h4>
+                    
+                    <div style="display: grid; gap: 1rem;">
+                        <div class="formula-box">
+                            <strong>Combinaisons (ordre non important, sans répétition) :</strong><br>
+                            $C_n^k = \binom{n}{k} = \dfrac{n!}{k!(n-k)!}$
+                        </div>
+                        
+                        <div class="formula-box">
+                            <strong>Arrangements (ordre important, sans répétition) :</strong><br>
+                            $A_n^k = \dfrac{n!}{(n-k)!} = n \times (n-1) \times \ldots \times (n-k+1)$
+                        </div>
+                        
+                        <div class="formula-box">
+                            <strong>Tirage avec remise :</strong><br>
+                            $n^k$ possibilités (chaque tirage parmi $n$ éléments, $k$ fois)
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // Card data
+        const DECK_52 = {
+            values: ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'V', 'D', 'R'],
+            figures: ['V', 'D', 'R'],
+            excluded: []
+        };
+        
+        const DECK_32 = {
+            values: ['A', '7', '8', '9', '10', 'V', 'D', 'R'],
+            figures: ['V', 'D', 'R'],
+            excluded: ['2', '3', '4', '5', '6']
+        };
+        
+        const SUITS = [
+            { id: 'spade', symbol: '♠', name: 'Pique', color: 'black' },
+            { id: 'heart', symbol: '♥', name: 'Cœur', color: 'red' },
+            { id: 'diamond', symbol: '♦', name: 'Carreau', color: 'red' },
+            { id: 'club', symbol: '♣', name: 'Trèfle', color: 'black' }
+        ];
+        
+        // Factorial and Combination functions
+        function factorial(n) {
+            if (n <= 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) result *= i;
+            return result;
+        }
+        
+        function C(n, k) {
+            if (k > n || k < 0) return 0;
+            return factorial(n) / (factorial(k) * factorial(n - k));
+        }
+        
+        function formatProb(num, den) {
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const g = gcd(num, den);
+            return `${num/g}/${den/g}`;
+        }
+        
+        // Current state
+        let currentDeck = 52;
+        let currentFilter = 'all';
+        let currentDraw = 1;
+        
+        // Generate card HTML
+        function createCardHTML(value, suit, isExcluded = false, showCard = true) {
+            const isFigure = ['V', 'D', 'R'].includes(value);
+            const classes = [
+                'playing-card',
+                suit.color,
+                isFigure ? 'figure' : '',
+                isExcluded ? 'excluded' : '',
+                !showCard ? 'excluded' : ''
+            ].filter(Boolean).join(' ');
+            
+            return `<div class="${classes}" title="${getCardName(value)} de ${suit.name}">
+                <span class="card-value">${value}</span>
+                <span class="card-suit">${suit.symbol}</span>
+            </div>`;
+        }
+        
+        function getCardName(value) {
+            const names = {
+                'A': 'As', 'V': 'Valet', 'D': 'Dame', 'R': 'Roi',
+                '2': 'Deux', '3': 'Trois', '4': 'Quatre', '5': 'Cinq',
+                '6': 'Six', '7': 'Sept', '8': 'Huit', '9': 'Neuf', '10': 'Dix'
+            };
+            return names[value] || value;
+        }
+        
+        // Check if card should be shown based on filter
+        function shouldShowCard(value, suit) {
+            if (currentFilter === 'all') return true;
+            if (currentFilter === 'figures') return ['V', 'D', 'R'].includes(value);
+            if (currentFilter === 'as') return value === 'A';
+            if (currentFilter === 'rouges') return suit.color === 'red';
+            if (currentFilter === 'noires') return suit.color === 'black';
+            if (currentFilter === 'nombres') return !['A', 'V', 'D', 'R'].includes(value);
+            return true;
+        }
+        
+        // Render all cards
+        function renderCards() {
+            const deck = currentDeck === 52 ? DECK_52 : DECK_32;
+            const allValues = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'V', 'D', 'R'];
+            
+            SUITS.forEach(suit => {
+                const container = document.getElementById(`${suit.id}-cards`);
+                let html = '';
+                let count = 0;
+                
+                allValues.forEach(value => {
+                    const isExcluded = !deck.values.includes(value);
+                    const showCard = shouldShowCard(value, suit);
+                    
+                    if (currentDeck === 32 && isExcluded) {
+                        html += createCardHTML(value, suit, true, showCard);
+                    } else {
+                        html += createCardHTML(value, suit, false, showCard);
+                        if (showCard && !isExcluded) count++;
+                    }
+                });
+                
+                container.innerHTML = html;
+                
+                // Update count
+                const countEl = document.getElementById(`${suit.id}-count`);
+                const total = currentDeck === 52 ? 13 : 8;
+                countEl.textContent = `${total} cartes • ${suit.color === 'red' ? 'Rouge' : 'Noire'}`;
+            });
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const is32 = currentDeck === 32;
+            const total = is32 ? 32 : 52;
+            const perSuit = is32 ? 8 : 13;
+            const figures = 12;
+            const red = total / 2;
+            const black = total / 2;
+            const as = 4;
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-total-detail').textContent = is32 ? '4 couleurs × 8' : '4 couleurs × 13';
+            document.getElementById('stat-figures').textContent = figures;
+            document.getElementById('stat-per-suit').textContent = perSuit;
+            document.getElementById('stat-suit-detail').textContent = is32 ? 'A, 7-10, V, D, R' : 'A → K';
+            document.getElementById('stat-red').textContent = red;
+            document.getElementById('stat-black').textContent = black;
+            document.getElementById('stat-as').textContent = as;
+            document.getElementById('stat-as-prob').textContent = is32 ? 'P = 1/8' : 'P = 1/13';
+            
+            // Update info box
+            const infoEl = document.getElementById('deck-info');
+            if (is32) {
+                infoEl.innerHTML = `Le <strong>jeu de 32 cartes</strong> (Belote, Piquet) retire les cartes 2, 3, 4, 5, 6 du jeu standard. 
+                    Il ne garde que : <strong>As, 7, 8, 9, 10, Valet, Dame, Roi</strong> pour chaque couleur.`;
+            } else {
+                infoEl.innerHTML = `Le <strong>jeu de 52 cartes</strong> est le jeu standard international. Il contient 4 couleurs (enseignes) 
+                    de 13 cartes chacune : <strong>As, 2, 3, 4, 5, 6, 7, 8, 9, 10, Valet, Dame, Roi</strong>.`;
+            }
+            
+            // Update quick reference
+            updateQuickRef();
+        }
+        
+        // Update quick reference lists
+        function updateQuickRef() {
+            const is32 = currentDeck === 32;
+            const total = is32 ? 32 : 52;
+            const perSuit = is32 ? 8 : 13;
+            const numCards = is32 ? 16 : 36; // Non-figure, non-As cards
+            
+            document.getElementById('composition-list').innerHTML = `
+                <li><span class="label">Total cartes</span><span class="value">${total}</span></li>
+                <li><span class="label">Couleurs</span><span class="value">4</span></li>
+                <li><span class="label">Par couleur</span><span class="value">${perSuit}</span></li>
+                <li><span class="label">Figures (R, D, V)</span><span class="value">12</span></li>
+                <li><span class="label">As</span><span class="value">4</span></li>
+                <li><span class="label">Cartes numériques</span><span class="value">${numCards}</span></li>
+            `;
+            
+            document.getElementById('color-list').innerHTML = `
+                <li><span class="label">♠ Pique (noire)</span><span class="value">${perSuit}</span></li>
+                <li><span class="label">♥ Cœur (rouge)</span><span class="value">${perSuit}</span></li>
+                <li><span class="label">♦ Carreau (rouge)</span><span class="value">${perSuit}</span></li>
+                <li><span class="label">♣ Trèfle (noire)</span><span class="value">${perSuit}</span></li>
+                <li><span class="label">Total rouges</span><span class="value">${total/2}</span></li>
+                <li><span class="label">Total noires</span><span class="value">${total/2}</span></li>
+            `;
+            
+            const numRange = is32 ? '7 à 10' : '2 à 10';
+            const numCount = is32 ? '16 cartes' : '36 cartes';
+            document.getElementById('types-list').innerHTML = `
+                <li><span class="label">As (A)</span><span class="value">4 cartes</span></li>
+                <li><span class="label">Roi (R/K)</span><span class="value">4 cartes</span></li>
+                <li><span class="label">Dame (D/Q)</span><span class="value">4 cartes</span></li>
+                <li><span class="label">Valet (V/J)</span><span class="value">4 cartes</span></li>
+                <li><span class="label">10</span><span class="value">4 cartes</span></li>
+                <li><span class="label">${numRange}</span><span class="value">${numCount}</span></li>
+            `;
+        }
+        
+        // Update probability table for 1 card
+        function updateProbTable1() {
+            const total = currentDeck;
+            const perSuit = currentDeck === 52 ? 13 : 8;
+            const numCards = currentDeck === 52 ? 36 : 16;
+            
+            const events = [
+                { name: 'Tirer un As', favorable: 4 },
+                { name: 'Tirer un Roi', favorable: 4 },
+                { name: 'Tirer une figure (V, D, R)', favorable: 12 },
+                { name: 'Tirer un ♠ (Pique)', favorable: perSuit },
+                { name: 'Tirer un ♥ (Cœur)', favorable: perSuit },
+                { name: 'Tirer une carte rouge (♥ ou ♦)', favorable: total / 2 },
+                { name: 'Tirer une carte noire (♠ ou ♣)', favorable: total / 2 },
+                { name: 'Tirer l\'As de ♠', favorable: 1 },
+                { name: 'Tirer une carte numérique', favorable: numCards },
+                { name: 'Tirer un 10', favorable: 4 }
+            ];
+            
+            let html = '';
+            events.forEach(evt => {
+                const prob = evt.favorable / total;
+                const fraction = formatProb(evt.favorable, total);
+                html += `<tr>
+                    <td>${evt.name}</td>
+                    <td>${evt.favorable} / ${total}</td>
+                    <td class="prob-value">${fraction}</td>
+                    <td class="fraction">${(prob * 100).toFixed(2)}%</td>
+                </tr>`;
+            });
+            
+            document.getElementById('prob-table-body-1').innerHTML = html;
+        }
+        
+        // Update probability table for multiple cards
+        function updateProbTableMulti() {
+            const n = currentDeck;
+            const k = currentDraw;
+            const perSuit = currentDeck === 52 ? 13 : 8;
+            
+            document.getElementById('draw-label').textContent = k;
+            
+            const totalWays = C(n, k);
+            
+            const events = [];
+            
+            if (k >= 2) {
+                // 2 As
+                events.push({
+                    name: 'Obtenir exactement 2 As',
+                    calc: `C(4,2) × C(${n-4},${k-2}) / C(${n},${k})`,
+                    prob: (C(4, 2) * C(n - 4, k - 2)) / totalWays
+                });
+                
+                // All same suit
+                events.push({
+                    name: `${k} cartes de même couleur`,
+                    calc: `4 × C(${perSuit},${k}) / C(${n},${k})`,
+                    prob: (4 * C(perSuit, k)) / totalWays
+                });
+                
+                // All red
+                events.push({
+                    name: `${k} cartes rouges`,
+                    calc: `C(${n/2},${k}) / C(${n},${k})`,
+                    prob: C(n / 2, k) / totalWays
+                });
+                
+                // At least one As
+                const noAs = C(n - 4, k) / totalWays;
+                events.push({
+                    name: 'Au moins un As',
+                    calc: `1 - C(${n-4},${k}) / C(${n},${k})`,
+                    prob: 1 - noAs
+                });
+                
+                // All figures
+                if (k <= 12) {
+                    events.push({
+                        name: `${k} figures (V, D, R)`,
+                        calc: `C(12,${k}) / C(${n},${k})`,
+                        prob: C(12, k) / totalWays
+                    });
+                }
+            }
+            
+            if (k >= 3) {
+                // 3 of a kind (3 same value)
+                const numValues = currentDeck === 52 ? 13 : 8;
+                events.push({
+                    name: 'Brelan (3 cartes de même valeur)',
+                    calc: `${numValues} × C(4,3) × C(${n-4},${k-3}) / C(${n},${k})`,
+                    prob: (numValues * C(4, 3) * C(n - 4, k - 3)) / totalWays
+                });
+            }
+            
+            if (k >= 4) {
+                // 4 As
+                events.push({
+                    name: 'Les 4 As',
+                    calc: `C(4,4) × C(${n-4},${k-4}) / C(${n},${k})`,
+                    prob: (C(4, 4) * C(n - 4, k - 4)) / totalWays
+                });
+            }
+            
+            if (k === 5 && currentDeck === 52) {
+                // Poker hands
+                events.push({
+                    name: 'Couleur (5 cartes même enseigne)',
+                    calc: `4 × C(13,5) / C(52,5)`,
+                    prob: (4 * C(13, 5)) / C(52, 5)
+                });
+                
+                events.push({
+                    name: 'Full (brelan + paire)',
+                    calc: `13 × C(4,3) × 12 × C(4,2) / C(52,5)`,
+                    prob: (13 * C(4, 3) * 12 * C(4, 2)) / C(52, 5)
+                });
+                
+                events.push({
+                    name: 'Carré',
+                    calc: `13 × C(4,4) × 48 / C(52,5)`,
+                    prob: (13 * C(4, 4) * 48) / C(52, 5)
+                });
+            }
+            
+            let html = '';
+            events.forEach(evt => {
+                html += `<tr>
+                    <td>${evt.name}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">${evt.calc}</td>
+                    <td class="prob-value">${(evt.prob * 100).toFixed(4)}%</td>
+                </tr>`;
+            });
+            
+            if (events.length === 0) {
+                html = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Sélectionnez 2 cartes ou plus pour voir les probabilités</td></tr>';
+            }
+            
+            document.getElementById('prob-table-body-multi').innerHTML = html;
+        }
+        
+        // Update everything
+        function updateAll() {
+            renderCards();
+            updateStats();
+            updateProbTable1();
+            updateProbTableMulti();
+        }
+        
+        // Event listeners
+        document.getElementById('deck-type').addEventListener('change', function(e) {
+            currentDeck = parseInt(e.target.value);
+            updateAll();
+        });
+        
+        document.getElementById('filter-type').addEventListener('change', function(e) {
+            currentFilter = e.target.value;
+            renderCards();
+        });
+        
+        document.getElementById('draw-count').addEventListener('change', function(e) {
+            currentDraw = parseInt(e.target.value);
+            updateProbTableMulti();
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', updateAll);
+        
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = (window.scrollY / docHeight) * 100;
+            const progressBar = document.getElementById('progress');
+            if (progressBar) {
+                progressBar.style.width = `${scrolled}%`;
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-graduation-cap"></i> Probas RD</h4>
+                    <p>Un cours interactif pour maîtriser les probabilités, de l'initiation aux concepts avancés.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+                        <li><a href="chapitre1.html"><i class="fas fa-book"></i> Chapitres</a></li>
+                        <li><a href="../exercices/exercices.html"><i class="fas fa-pencil-alt"></i> Exercices</a></li>
+                        <li><a href="formules.html"><i class="fas fa-calculator"></i> Formules</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Ressources</h4>
+                    <ul>
+                        <li><a href="cartes.html"><i class="fas fa-clone"></i> Jeux de cartes</a></li>
+                        <li><a href="simulateur-examen.html"><i class="fas fa-stopwatch"></i> Simulateur d'examen</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Cours de Probabilités. Créé par <strong>RD</strong> <i class="fas fa-code" style="color: var(--accent-primary);"></i></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

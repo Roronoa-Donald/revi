@@ -6,7 +6,7 @@
 // ============ THEME MANAGER ============
 class ThemeManager {
     constructor() {
-        this.theme = localStorage.getItem('rd-sql-theme') || this.getSystemPreference();
+        this.theme = localStorage.getItem('rd_sql_theme') || this.getSystemPreference();
         this.apply();
         this.bindToggle();
     }
@@ -35,7 +35,7 @@ class ThemeManager {
 
     toggle() {
         this.theme = this.theme === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('rd-sql-theme', this.theme);
+        localStorage.setItem('rd_sql_theme', this.theme);
         this.apply();
         document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: this.theme } }));
     }

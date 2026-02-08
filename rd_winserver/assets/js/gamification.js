@@ -124,6 +124,24 @@ const GameEngine = {
         if (this.data.streak >= 7) this.unlockBadge('streak_7');
     },
 
+    completeChapter(chapterNum) {
+        if (!this.data.chaptersCompleted) this.data.chaptersCompleted = [];
+        if (!this.data.chaptersCompleted.includes(chapterNum)) {
+            this.data.chaptersCompleted.push(chapterNum);
+            const chapterBadges = {2:'ad_master',3:'gpo_guru',4:'network_pro',5:'backup_hero',6:'ha_expert',7:'maintainer',8:'vm_wizard'};
+            if (chapterBadges[chapterNum]) this.unlockBadge(chapterBadges[chapterNum]);
+            if (this.data.chaptersCompleted.length >= 4) this.unlockBadge('half_way');
+            if (this.data.chaptersCompleted.length >= 7) this.unlockBadge('almost_done');
+            if (this.data.chaptersCompleted.length >= 8) this.unlockBadge('legend');
+            this.save();
+        }
+    },
+
+    certifyExam() {
+        this.unlockBadge('certified');
+        this.save();
+    },
+
     renderXPBar() {
         const container = document.querySelector('.xp-bar-container');
         if (!container) return;

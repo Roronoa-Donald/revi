@@ -12,20 +12,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+    
     <script>
-        MathJax = {
+        window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']],
                 processEscapes: true
             },
-            svg: { fontCache: 'global' }
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
         };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <style>
         .formula-grid {
@@ -218,12 +223,16 @@
                 </ul>
             </div>
 
-            <!-- Chapter 1: Basics -->
+            <!-- Chapter 1: Probabilités et Bayes -->
             <section class="chapter-section" data-chapter="1">
                 <h2>
                     <span class="chapter-badge">Chapitre 1</span>
-                    Probabilités de Base
+                    Probabilités et Bayes
                 </h2>
+
+                <h3 style="margin: 0 0 1rem; color: var(--accent-secondary);">
+                    <i class="fas fa-percentage"></i> Probabilités de Base
+                </h3>
                 
                 <div class="formula-grid">
                     <div class="formula-card">
@@ -258,14 +267,10 @@
                         <p class="formula-note">Deux événements qui ne peuvent pas se produire en même temps</p>
                     </div>
                 </div>
-            </section>
 
-            <!-- Chapter 2: Conditional -->
-            <section class="chapter-section" data-chapter="2">
-                <h2>
-                    <span class="chapter-badge">Chapitre 2</span>
-                    Probabilités Conditionnelles
-                </h2>
+                <h3 style="margin: 2rem 0 1rem; color: var(--accent-secondary);">
+                    <i class="fas fa-code-branch"></i> Probabilités Conditionnelles et Bayes
+                </h3>
                 
                 <div class="formula-grid">
                     <div class="formula-card">
@@ -310,10 +315,10 @@
                 </div>
             </section>
 
-            <!-- Chapter 3: Counting -->
-            <section class="chapter-section" data-chapter="3">
+            <!-- Chapter 2: Dénombrement -->
+            <section class="chapter-section" data-chapter="2">
                 <h2>
-                    <span class="chapter-badge">Chapitre 3</span>
+                    <span class="chapter-badge">Chapitre 2</span>
                     Dénombrement
                 </h2>
                 
@@ -368,11 +373,11 @@
                 </div>
             </section>
 
-            <!-- Chapter 4: Random Variables -->
-            <section class="chapter-section" data-chapter="4">
+            <!-- Chapter 3: Variables Aléatoires Discrètes -->
+            <section class="chapter-section" data-chapter="3">
                 <h2>
-                    <span class="chapter-badge">Chapitre 4</span>
-                    Variables Aléatoires
+                    <span class="chapter-badge">Chapitre 3</span>
+                    Variables Aléatoires Discrètes
                 </h2>
                 
                 <div class="formula-grid">
@@ -448,11 +453,11 @@
                 </div>
             </section>
 
-            <!-- Dérivées et Primitives -->
-            <section class="chapter-section">
+            <!-- Chapter 4: Variables Aléatoires Continues -->
+            <section class="chapter-section" data-chapter="4">
                 <h2>
-                    <span class="chapter-badge">∫</span>
-                    Dérivées & Primitives (pour VA Continues)
+                    <span class="chapter-badge">Chapitre 4</span>
+                    Variables Aléatoires Continues — Dérivées & Primitives
                 </h2>
                 
                 <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
@@ -599,6 +604,11 @@
         <i class="fas fa-print"></i>
     </button>
 
+    <!-- Download Button -->
+    <button class="print-btn" data-download="cours-complet" title="Télécharger le récapitulatif" style="bottom: 6.5rem;">
+        <i class="fas fa-download"></i>
+    </button>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -625,12 +635,13 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Cours de Probabilités. Créé par <strong>RD</strong> <i class="fas fa-code" style="color: var(--accent-primary);"></i></p>
+                <p>&copy; 2026 Cours de Probabilités | Créé par <strong>RD</strong></p>
             </div>
         </div>
     </footer>
 
     <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/exercises.js"></script>
     <script>
         // Progress bar
         window.addEventListener('scroll', () => {
@@ -639,26 +650,7 @@
             document.getElementById('progress').style.width = `${scrolled}%`;
         });
 
-        // Lock sections for incomplete chapters
-        (function() {
-            const names = {1:'Probabilités de Base',2:'Probabilités Conditionnelles',3:'Dénombrement',4:'Variables Aléatoires'};
-            const completed = JSON.parse(localStorage.getItem('rd_proba_completed') || '[]');
-            document.querySelectorAll('[data-chapter]').forEach(sec => {
-                const ch = parseInt(sec.getAttribute('data-chapter'));
-                if (completed.includes(ch)) return;
-                sec.style.position = 'relative';
-                sec.style.overflow = 'hidden';
-                sec.style.maxHeight = '180px';
-                sec.style.pointerEvents = 'none';
-                sec.style.userSelect = 'none';
-                const overlay = document.createElement('div');
-                overlay.style.cssText = 'position:absolute;inset:0;background:linear-gradient(transparent 20%,rgba(15,23,42,.95) 70%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:24px;pointer-events:auto;z-index:5;';
-                overlay.innerHTML = '<i class="fas fa-lock" style="font-size:1.8rem;color:#f59e0b;margin-bottom:8px"></i>'
-                    + '<span style="color:#94a3b8;font-size:.9rem">Terminez le chapitre ' + ch + ' (' + (names[ch]||'') + ') pour débloquer</span>'
-                    + '<a href="chapitre' + ch + '.html" style="margin-top:8px;color:#60a5fa;font-size:.85rem;text-decoration:underline;pointer-events:auto">Aller au chapitre →</a>';
-                sec.appendChild(overlay);
-            });
-        })();
+        // Formulas are always accessible (reference page)
     </script>
 </body>
 </html>

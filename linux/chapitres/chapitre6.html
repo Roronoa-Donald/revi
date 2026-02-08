@@ -256,6 +256,103 @@
             </div>
         </article>
 
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-cogs" style="color:var(--accent);margin-right:0.5rem;"></i>Gestion des processus</h2>
+            <p>En plus de gérer les utilisateurs, un admin doit surveiller et contrôler les <strong>processus</strong> (programmes en cours d'exécution). Chaque processus a un PID (Process ID) unique.</p>
+
+            <h3>Voir les processus</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Lister les processus de l'utilisateur courant</span>
+<span class="cmd">ps</span>
+
+<span class="comment"># Lister TOUS les processus du système (format détaillé)</span>
+<span class="cmd">ps</span> <span class="flag">aux</span>
+
+<span class="comment"># Filtrer : chercher un processus par nom</span>
+<span class="cmd">ps</span> <span class="flag">aux</span> <span class="keyword">|</span> <span class="cmd">grep</span> <span class="path">nginx</span>
+
+<span class="comment"># Afficher les processus en arborescence (parent → enfants)</span>
+<span class="cmd">ps</span> <span class="flag">auxf</span>
+<span class="cmd">pstree</span>              <span class="comment"># Version arbre plus lisible</span></code></pre>
+
+            <h3>top & htop — Surveillance en temps réel</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Moniteur de processus en temps réel</span>
+<span class="cmd">top</span>
+<span class="comment"># Dans top : q = quitter, k = tuer, M = trier par mémoire, P = trier par CPU</span>
+
+<span class="comment"># Version améliorée (plus lisible, colorée)</span>
+<span class="cmd">sudo apt install</span> <span class="path">htop</span>
+<span class="cmd">htop</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Lire la sortie de ps aux</div>
+                <p style="margin:0;font-size:0.9rem;">
+                <strong>USER</strong> = propriétaire, <strong>PID</strong> = identifiant, <strong>%CPU</strong> / <strong>%MEM</strong> = utilisation,<br>
+                <strong>STAT</strong> = état (R=running, S=sleeping, Z=zombie, T=stopped),<br>
+                <strong>COMMAND</strong> = la commande qui a lancé le processus.
+                </p>
+            </div>
+
+            <h3>Tuer un processus — kill, killall</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Terminer proprement un processus (signal SIGTERM)</span>
+<span class="cmd">kill</span> <span class="num">1234</span>             <span class="comment"># 1234 = PID du processus</span>
+
+<span class="comment"># Forcer l'arrêt (signal SIGKILL — dernier recours)</span>
+<span class="cmd">kill</span> <span class="flag">-9</span> <span class="num">1234</span>
+
+<span class="comment"># Tuer tous les processus d'un programme par nom</span>
+<span class="cmd">killall</span> <span class="path">firefox</span>
+
+<span class="comment"># Tuer par nom avec recherche (plus flexible)</span>
+<span class="cmd">pkill</span> <span class="path">nginx</span>
+
+<span class="comment"># Trouver le PID d'un processus par nom</span>
+<span class="cmd">pidof</span> <span class="path">nginx</span>
+<span class="cmd">pgrep</span> <span class="flag">-l</span> <span class="path">nginx</span>       <span class="comment"># Avec le nom du processus</span></code></pre>
+
+            <div class="danger-box">
+                <div class="box-title"><i class="fas fa-skull-crossbones"></i> kill -9 est brutal</div>
+                <p style="margin:0;font-size:0.9rem;"><code>kill -9</code> (SIGKILL) force l'arrêt immédiat sans laisser le processus sauvegarder ses données. Essaie toujours <code>kill</code> (SIGTERM) d'abord, qui laisse le processus se terminer proprement.</p>
+            </div>
+
+            <h3>Processus en arrière-plan — bg, fg, jobs, nohup</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Lancer une commande en arrière-plan avec &</span>
+<span class="cmd">./script_long.sh</span> <span class="keyword">&</span>
+
+<span class="comment"># Mettre en pause le processus en cours (Ctrl+Z), puis :</span>
+<span class="cmd">bg</span>                  <span class="comment"># Le reprendre en arrière-plan (background)</span>
+<span class="cmd">fg</span>                  <span class="comment"># Le remettre en premier plan (foreground)</span>
+
+<span class="comment"># Voir les jobs (processus lancés depuis ce terminal)</span>
+<span class="cmd">jobs</span>
+<span class="output">[1]+  Running   ./script_long.sh &</span>
+
+<span class="comment"># Remettre un job spécifique en premier plan</span>
+<span class="cmd">fg</span> <span class="num">%1</span>
+
+<span class="comment"># Lancer un processus qui survit à la fermeture du terminal</span>
+<span class="cmd">nohup</span> <span class="path">./backup.sh</span> <span class="keyword">&</span>
+<span class="comment"># La sortie est redirigée dans nohup.out</span></code></pre>
+
+            <h3>Priorité des processus — nice, renice</h3>
+            <pre class="code-block"><span class="code-label">bash</span><code><span class="comment"># Lancer un programme avec une priorité basse (nice = gentil)</span>
+<span class="comment"># Valeurs de -20 (haute priorité) à +19 (basse priorité)</span>
+<span class="cmd">nice</span> <span class="flag">-n 10</span> <span class="path">./traitement_lourd.sh</span>
+
+<span class="comment"># Changer la priorité d'un processus en cours</span>
+<span class="cmd">sudo renice</span> <span class="flag">-n 5</span> <span class="flag">-p</span> <span class="num">1234</span>     <span class="comment"># Baisser la priorité du PID 1234</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Scénario de Sami</div>
+                <p style="margin:0;font-size:0.9rem;">
+                Le serveur rame. Sami diagnostique :<br>
+                <code>top</code> → identifie un processus qui consomme 95% du CPU<br>
+                <code>kill 5678</code> → essaie de l'arrêter proprement<br>
+                Ça ne marche pas → <code>kill -9 5678</code> → arrêt forcé<br>
+                Ou plus simplement : <code>htop</code> → sélectionne le processus → F9 pour le tuer
+                </p>
+            </div>
+        </article>
+
         <article class="glass-card" id="interactive-exercise">
             <h2><i class="fas fa-dumbbell" style="color:var(--accent);margin-right:0.5rem;"></i>Exercices Interactifs</h2>
             <p style="color:var(--text-muted);">Chargement des exercices...</p>
@@ -269,7 +366,7 @@
 
     <footer class="site-footer">
         <div class="footer-logo"><i class="fas fa-terminal" style="color:var(--accent);margin-right:0.4rem;"></i>RD Linux</div>
-        <p class="footer-copy">© 2025 — Debian 13 · Bash · Terminal</p>
+        <p class="footer-copy">© 2026 — Debian 13 · Bash · Terminal</p>
     </footer>
 
     <script src="../assets/js/exercises.js"></script>

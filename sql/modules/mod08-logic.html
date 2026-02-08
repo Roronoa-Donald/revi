@@ -139,9 +139,98 @@ ELSE
                 <div id="quiz-container" class="glass-card p-6 rounded-xl"></div>
             </section>
 
-            <!-- 7. Challenge Drag-Drop -->
+            <!-- 7. Sous-requêtes (Subqueries) -->
+            <section class="animate-fade-in-up" style="animation-delay:0.33s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-indigo-500 pl-4">7. Introduction aux Sous-requêtes</h2>
+                <div class="glass-card p-6 rounded-xl space-y-6">
+                    <p class="text-slate-300">
+                        Une <strong>sous-requête</strong> (subquery) est un <code>SELECT</code> imbriqué dans un autre <code>SELECT</code>,
+                        <code>WHERE</code>, <code>FROM</code> ou <code>HAVING</code>. C'est un outil puissant pour écrire des
+                        requêtes complexes.
+                    </p>
+
+                    <!-- 7.1 Sous-requête dans WHERE ... IN -->
+                    <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700">
+                        <h4 class="font-bold text-indigo-300 mb-3"><i class="fas fa-filter mr-2"></i>7.1 Sous-requête avec WHERE ... IN</h4>
+                        <p class="text-slate-400 text-sm mb-3">Filtrer les lignes selon une liste dynamique calculée par une autre requête.</p>
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300">-- Clients ayant au moins une commande > 500 €
+SELECT Nom, Email
+FROM Clients
+WHERE ClientID IN (
+    SELECT ClientID
+    FROM Commandes
+    WHERE Montant > 500
+);</code></pre>
+                    </div>
+
+                    <!-- 7.2 Sous-requête corrélée -->
+                    <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700">
+                        <h4 class="font-bold text-purple-300 mb-3"><i class="fas fa-sync-alt mr-2"></i>7.2 Sous-requête corrélée</h4>
+                        <p class="text-slate-400 text-sm mb-3">La sous-requête fait référence à l'alias de la requête externe. Elle est réévaluée pour chaque ligne.</p>
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300">-- Produits dont le prix est supérieur à la moyenne de leur catégorie
+SELECT P.NomProduit, P.Prix, P.CategorieID
+FROM Produits P
+WHERE P.Prix > (
+    SELECT AVG(P2.Prix)
+    FROM Produits P2
+    WHERE P2.CategorieID = P.CategorieID
+);</code></pre>
+                    </div>
+
+                    <!-- 7.3 EXISTS / NOT EXISTS -->
+                    <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700">
+                        <h4 class="font-bold text-emerald-300 mb-3"><i class="fas fa-check-double mr-2"></i>7.3 EXISTS / NOT EXISTS</h4>
+                        <p class="text-slate-400 text-sm mb-3"><code>EXISTS</code> teste si la sous-requête retourne au moins une ligne. Plus performant que <code>IN</code> sur de grands jeux de données.</p>
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300">-- Clients avec au moins une commande (EXISTS)
+SELECT C.Nom
+FROM Clients C
+WHERE EXISTS (
+    SELECT 1 FROM Commandes O
+    WHERE O.ClientID = C.ClientID
+);
+
+-- Clients sans AUCUNE commande (NOT EXISTS)
+SELECT C.Nom
+FROM Clients C
+WHERE NOT EXISTS (
+    SELECT 1 FROM Commandes O
+    WHERE O.ClientID = C.ClientID
+);</code></pre>
+                    </div>
+
+                    <!-- 7.4 Sous-requête dans FROM (table dérivée) -->
+                    <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-700">
+                        <h4 class="font-bold text-amber-300 mb-3"><i class="fas fa-table mr-2"></i>7.4 Sous-requête dans FROM (table dérivée)</h4>
+                        <p class="text-slate-400 text-sm mb-3">On peut utiliser un <code>SELECT</code> comme une « table temporaire » dans le <code>FROM</code>.</p>
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300">-- Classement des catégories par chiffre d'affaires
+SELECT Classement.Categorie, Classement.CA
+FROM (
+    SELECT 
+        C.NomCategorie AS Categorie,
+        SUM(P.Prix * LC.Quantite) AS CA
+    FROM Categories C
+    INNER JOIN Produits P ON C.CategorieID = P.CategorieID
+    INNER JOIN LignesCommande LC ON P.ProduitID = LC.ProduitID
+    GROUP BY C.NomCategorie
+) AS Classement
+WHERE Classement.CA > 10000
+ORDER BY Classement.CA DESC;</code></pre>
+                    </div>
+
+                    <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-indigo-500">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-lightbulb text-amber-400 mr-2"></i>
+                            <strong>Conseil :</strong> Préférez <code>EXISTS</code> à <code>IN</code> pour de meilleures
+                            performances. Les CTE (<code>WITH ... AS</code>) sont souvent plus lisibles que les
+                            tables dérivées dans le <code>FROM</code>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Challenge Drag-Drop -->
             <section class="animate-fade-in-up" style="animation-delay:0.35s;">
-                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-pink-500 pl-4">7. Challenge — Glisser-Déposer</h2>
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-pink-500 pl-4">8. Challenge — Glisser-Déposer</h2>
                 <div class="glass-card p-6 rounded-xl">
                     <p class="text-slate-400 mb-4">Associez chaque concept à sa description :</p>
                     <div id="drag-drop-exercice" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700"></div>
@@ -168,7 +257,7 @@ ELSE
     <script src="../assets/js/main.js"></script>
     <script>
         const bot = new DataBot(); bot.render('databot-container');
-        bot.speak("On passe du script au programme ! T-SQL c'est du lourd.", 4000);
+        bot.speak("On passe du script au programme ! T-SQL c'est du lourd.", "excited");
 
         // Drag-Drop
         const draggables = [
@@ -218,7 +307,7 @@ ELSE
                 bot.awardXP(15);
             } else if (upper.includes('CASE') && upper.includes('FROM')) {
                 try {
-                    const res = new MockSQLEngine().execute(sql);
+                    const res = executeSQL(sql);
                     if (res.success && res.data) {
                         let html = '<table class="text-sm"><tr>';
                         Object.keys(res.data[0]||{}).forEach(k => html += `<th class="pr-4 text-slate-500 pb-1">${k}</th>`);
@@ -241,14 +330,14 @@ ELSE
         // Quiz
         const quizData = [
             { q:"Les variables T-SQL commencent par quel symbole ?", o:["$","@","#","&"], a:1 },
-            { q:"DECLARE @x INT = 10 fait quoi ?", o:["Crée une table","Déclare une variable avec valeur 10","Crée un index","Affiche 10"], a:1 },
-            { q:"IF/ELSE est utilisé pour :", o:["Le tri des données","Le contrôle de flux","Les agrégats","Les jointures"], a:1 },
-            { q:"BEGIN...END définit :", o:["Une table","Un bloc d'instructions","Une variable","Un index"], a:1 },
+            { q:"DECLARE @x INT = 10 fait quoi ?", o:["Crée une table","Crée un index","Affiche 10","Déclare une variable avec valeur 10"], a:3 },
+            { q:"IF/ELSE est utilisé pour :", o:["Le contrôle de flux","Le tri des données","Les agrégats","Les jointures"], a:0 },
+            { q:"BEGIN...END définit :", o:["Une table","Une variable","Un bloc d'instructions","Un index"], a:2 },
             { q:"CASE WHEN est une :", o:["Boucle","Instruction de contrôle","Expression conditionnelle","Procédure stockée"], a:2 },
-            { q:"Où peut-on utiliser CASE WHEN ?", o:["Seulement dans IF","Dans SELECT, WHERE, ORDER BY","Seulement dans les procédures","Nulle part"], a:1 },
-            { q:"SET @x = @x + 1 est :", o:["Invalide","Une incrémentation","Une déclaration","Un PRINT"], a:1 },
-            { q:"Que fait PRINT 'Hello' ?", o:["Insère dans une table","Affiche un message","Crée une variable","Modifie des données"], a:1 },
-            { q:"Les variables T-SQL persistent-elles entre sessions ?", o:["Oui toujours","Non, seulement pendant le batch","Oui si on fait COMMIT","Ça dépend du type"], a:1 },
+            { q:"Où peut-on utiliser CASE WHEN ?", o:["Seulement dans IF","Seulement dans les procédures","Nulle part","Dans SELECT, WHERE, ORDER BY"], a:3 },
+            { q:"SET @x = @x + 1 est :", o:["Invalide","Une déclaration","Une incrémentation","Un PRINT"], a:2 },
+            { q:"Que fait PRINT 'Hello' ?", o:["Affiche un message","Insère dans une table","Crée une variable","Modifie des données"], a:0 },
+            { q:"Les variables T-SQL persistent-elles entre sessions ?", o:["Oui toujours","Oui si on fait COMMIT","Non, seulement pendant le batch","Ça dépend du type"], a:2 },
             { q:"CASE WHEN prix > 100 THEN 'Cher' ELSE 'OK' END retourne :", o:["Un booléen","Une valeur textuelle","NULL","Une erreur"], a:1 }
         ];
 

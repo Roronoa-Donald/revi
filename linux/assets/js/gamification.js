@@ -101,6 +101,15 @@ const GameEngine = {
         this.updateUI();
     },
 
+    completeChapter(chapter) {
+        if (!this.state.completed) this.state.completed = [];
+        if (!this.state.completed.includes(chapter)) {
+            this.state.completed.push(chapter);
+            this.checkBadges();
+            this.save();
+        }
+    },
+
     checkLevelUp() {
         const needed = this.state.level * 100;
         if (this.state.xp >= needed) {

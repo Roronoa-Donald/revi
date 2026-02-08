@@ -318,7 +318,7 @@ const ExerciseEngine = {
         if (userAns === correct) {
           fb.innerHTML = '<span class="correct">✅ Correct ! +15 XP</span>';
           fb.className = 'guided-feedback correct';
-          if (typeof GameEngine !== 'undefined') GameEngine.addXP(15);
+          if (typeof GameEngine !== 'undefined') GameEngine.addXP(15, 'Exercice guidé réussi');
         } else {
           fb.innerHTML = `<span class="incorrect">❌ Pas tout à fait. La réponse est : <code>${this.data.guided[i].answer}</code></span>`;
           fb.className = 'guided-feedback incorrect';
@@ -372,7 +372,11 @@ const ExerciseEngine = {
           btn.classList.add('correct');
           fb.innerHTML = '✅ Bonne réponse ! +10 XP';
           fb.className = 'quiz-feedback correct';
-          if (typeof GameEngine !== 'undefined') GameEngine.addXP(10);
+          if (typeof GameEngine !== 'undefined') {
+            GameEngine.addXP(10, 'Quiz réussi');
+            GameEngine.state.quizCorrect++;
+            GameEngine.save();
+          }
         } else {
           btn.classList.add('incorrect');
           btns[this.data.quiz[qi].correct].classList.add('correct');
@@ -391,7 +395,11 @@ const ExerciseEngine = {
         if (correct.some(c => userAns.includes(c) || c.includes(userAns))) {
           fb.innerHTML = '✅ Correct ! +10 XP';
           fb.className = 'quiz-feedback correct';
-          if (typeof GameEngine !== 'undefined') GameEngine.addXP(10);
+          if (typeof GameEngine !== 'undefined') {
+            GameEngine.addXP(10, 'Réponse correcte');
+            GameEngine.state.quizCorrect++;
+            GameEngine.save();
+          }
         } else {
           fb.innerHTML = `❌ Réponse attendue : <code>${this.data.quiz[i].answer[0]}</code>`;
           fb.className = 'quiz-feedback incorrect';
@@ -505,7 +513,11 @@ const ExerciseEngine = {
         if (correct === zones.length) {
           fb.innerHTML = `✅ Parfait ! ${correct}/${zones.length} — +20 XP`;
           fb.className = 'dd-feedback correct';
-          if (typeof GameEngine !== 'undefined') GameEngine.addXP(20);
+          if (typeof GameEngine !== 'undefined') {
+            GameEngine.addXP(20, 'Drag & Drop parfait');
+            GameEngine.state.dragDropWins++;
+            GameEngine.save();
+          }
         } else {
           fb.innerHTML = `❌ ${correct}/${zones.length} correct(s). Réessaie !`;
           fb.className = 'dd-feedback incorrect';

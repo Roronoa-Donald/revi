@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setTheme(mode) {
         document.documentElement.setAttribute('data-theme', mode);
+        document.documentElement.classList.toggle('dark', mode === 'dark');
         localStorage.setItem(THEME_KEY, mode);
         document.querySelectorAll('.theme-toggle').forEach(btn => {
             btn.innerHTML = mode === 'dark'

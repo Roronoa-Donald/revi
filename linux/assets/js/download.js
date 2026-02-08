@@ -33,9 +33,9 @@ class CourseDownloader {
                     <i class="fas fa-file-pdf"></i>
                     <div><strong>PDF</strong><br><small style="color:var(--text-muted)">Via l'impression du navigateur</small></div>
                 </div>
-                <div class="download-option" data-format="docx">
-                    <i class="fas fa-file-word"></i>
-                    <div><strong>DOCX</strong><br><small style="color:var(--text-muted)">Document Word</small></div>
+                <div class="download-option" data-format="md">
+                    <i class="fas fa-file-code"></i>
+                    <div><strong>Markdown</strong><br><small style="color:var(--text-muted)">Format Markdown (.md)</small></div>
                 </div>
                 <div class="download-option" data-format="txt">
                     <i class="fas fa-file-alt"></i>
@@ -53,7 +53,7 @@ class CourseDownloader {
             opt.addEventListener('click', () => {
                 const format = opt.dataset.format;
                 if (format === 'pdf') this.exportPDF();
-                else if (format === 'docx') this.exportDOCX();
+                else if (format === 'md') this.exportMD();
                 else if (format === 'txt') this.exportTXT();
                 this.close();
             });
@@ -65,20 +65,27 @@ class CourseDownloader {
 
     exportPDF() { window.print(); }
 
-    exportDOCX() {
-        const main = document.querySelector('main') || document.querySelector('.glass-card') || document.body;
+    exportMD() {
+        const main = document.querySelector('main') || document.body;
         const title = document.title || 'Cours Linux';
-        const html = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office"
-                  xmlns:w="urn:schemas-microsoft-com:office:word"
-                  xmlns="http://www.w3.org/TR/REC-html40">
-            <head><meta charset="utf-8"><title>${title}</title>
-            <style>body{font-family:Calibri,sans-serif;font-size:12pt;line-height:1.6;}
-            h1,h2,h3{color:#1e293b;}pre{background:#f1f5f9;padding:10px;border:1px solid #ddd;font-family:Consolas,monospace;font-size:10pt;}
-            code{font-family:Consolas,monospace;}</style></head>
-            <body>${main.innerHTML}</body></html>`;
-        const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-        this.download(blob, `${title.replace(/[^a-zA-Z0-9]/g, '_')}.doc`);
+        const elements = main.querySelectorAll('h1,h2,h3,h4,p,pre,li,code,td,th');
+        let md = `# ${title}\n\n`;
+        elements.forEach(el => {
+            const text = el.textContent.trim();
+            if (!text) return;
+            switch (el.tagName) {
+                case 'H1': md += `# ${text}\n\n`; break;
+                case 'H2': md += `## ${text}\n\n`; break;
+                case 'H3': md += `### ${text}\n\n`; break;
+                case 'H4': md += `#### ${text}\n\n`; break;
+                case 'PRE': md += `\`\`\`\n${text}\n\`\`\`\n\n`; break;
+                case 'LI': md += `- ${text}\n`; break;
+                case 'P': md += `${text}\n\n`; break;
+                default: break;
+            }
+        });
+        const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+        this.download(blob, `${title.replace(/[^a-zA-Z0-9]/g, '_')}.md`);
     }
 
     exportTXT() {
