@@ -19,14 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.setAttribute('aria-label', dark ? 'Mode clair' : 'Mode sombre');
             }
         };
-        const saved = localStorage.getItem(KEY);
+        const saved = (() => { try { return localStorage.getItem(KEY); } catch(e) { return null; } })();
         const prefersDark = saved ? saved === 'dark'
                            : window.matchMedia('(prefers-color-scheme:dark)').matches;
         apply(prefersDark);
         if (btn) btn.addEventListener('click', () => {
             const dark = !html.classList.contains('dark');
             apply(dark);
-            localStorage.setItem(KEY, dark ? 'dark' : 'light');
+            try { localStorage.setItem(KEY, dark ? 'dark' : 'light'); } catch(e) {}
         });
     })();
 
@@ -91,10 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
             if (pct >= 0.85) {
                 scrolled85 = true;
-                const done = JSON.parse(localStorage.getItem(KEY) || '[]');
+                const done = JSON.parse((() => { try { return localStorage.getItem(KEY); } catch(e) { return null; } })() || '[]');
                 if (!done.includes(chNum)) {
                     done.push(chNum);
-                    localStorage.setItem(KEY, JSON.stringify(done));
+                    try { localStorage.setItem(KEY, JSON.stringify(done)); } catch(e) {}
                 }
             }
         };

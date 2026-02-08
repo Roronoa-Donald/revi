@@ -263,28 +263,10 @@ class ScrollAnimations {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// MATHJAX CONFIGURATION
+// MATHJAX — config is in each chapter's <head> (inline script).
+// Do NOT duplicate here: MathJax reads window.MathJax on load (async),
+// which happens before this file executes.
 // ─────────────────────────────────────────────────────────────────────────
-window.MathJax = {
-    tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
-        processEscapes: true,
-        processEnvironments: true
-    },
-    options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
-        ignoreHtmlClass: 'tex2jax_ignore'
-    },
-    startup: {
-        ready: () => {
-            MathJax.startup.defaultReady();
-            MathJax.startup.promise.then(() => {
-                console.log('MathJax ready!');
-            });
-        }
-    }
-};
 
 // ─────────────────────────────────────────────────────────────────────────
 // UTILITIES

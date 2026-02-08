@@ -60,7 +60,8 @@ const GameEngine = {
     },
 
     load() {
-        const raw = localStorage.getItem(this.storageKey);
+        let raw = null;
+        try { raw = localStorage.getItem(this.storageKey); } catch(e) {}
         this.data = raw ? JSON.parse(raw) : {
             xp: 0, badges: [], exercisesCompleted: 0,
             quizCorrect: 0, perfectStreak: 0,
@@ -75,7 +76,7 @@ const GameEngine = {
         }
     },
 
-    save() { localStorage.setItem(this.storageKey, JSON.stringify(this.data)); },
+    save() { try { localStorage.setItem(this.storageKey, JSON.stringify(this.data)); } catch(e) {} },
 
     addXP(amount) {
         const oldLevel = this.getLevel();
