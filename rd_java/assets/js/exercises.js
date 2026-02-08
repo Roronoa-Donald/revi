@@ -403,10 +403,14 @@ return {
     },
     checkGuided(btn) {
         const input = btn.previousElementSibling;
-        const correct = input.dataset.answer.trim().toLowerCase();
-        const userVal = input.value.trim().toLowerCase();
+        const normalize = s => s.trim().toLowerCase().replace(/\s+/g, '');
+        const correct = normalize(input.dataset.answer);
+        const userVal = normalize(input.value);
+        const altAnswers = input.dataset.alt ? input.dataset.alt.split('|').map(normalize) : [];
+        const isCorrect = userVal === correct || altAnswers.includes(userVal);
         input.classList.remove('correct', 'wrong');
-        input.classList.add(userVal === correct ? 'correct' : 'wrong');
+        input.classList.add(isCorrect ? 'correct' : 'wrong');
+        if (typeof GameEngine !== 'undefined') GameEngine.exerciseCompleted(isCorrect);
     },
     selectQuiz(option, index) {
         const parent = option.closest('.quiz-exercise');
