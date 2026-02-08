@@ -5,12 +5,6 @@
 
 let quiz2Answers = {};
 
-function normalizeAnswer(answer) {
-    return answer.toLowerCase()
-        .replace(/\s+/g, '')
-        .replace(/,/g, '.')
-        .trim();
-}
 
 function checkQuiz2(questionId, correctAnswer, alternatives = []) {
     const input = document.getElementById(`input-${questionId}`);
