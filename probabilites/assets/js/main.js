@@ -359,14 +359,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pct > 0.85) {
                 done = true;
                 const arr = JSON.parse(localStorage.getItem('proba_rd_completed') || '[]');
-                if (!arr.includes(num)) { arr.push(num); localStorage.setItem('proba_rd_completed', JSON.stringify(arr)); }
+                if (!arr.includes(num)) {
+                    arr.push(num);
+                    localStorage.setItem('proba_rd_completed', JSON.stringify(arr));
+                    if (typeof GameEngine !== 'undefined') GameEngine.completeChapter(num);
+                }
             }
         };
         window.addEventListener('scroll', check);
         setTimeout(check, 2000);
     })();
-
-    console.log('🎲 Probas RD - Initialized!');
 });
 
 // ─────────────────────────────────────────────────────────────────────────

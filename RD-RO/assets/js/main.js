@@ -118,7 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pct > 0.85) {
                 done = true;
                 const arr = JSON.parse(localStorage.getItem('rd_ro_completed') || '[]');
-                if (!arr.includes(num)) { arr.push(num); localStorage.setItem('rd_ro_completed', JSON.stringify(arr)); }
+                if (!arr.includes(num)) {
+                    arr.push(num);
+                    localStorage.setItem('rd_ro_completed', JSON.stringify(arr));
+                    if (typeof GameEngine !== 'undefined') GameEngine.completeChapter(num);
+                }
             }
         };
         window.addEventListener('scroll', check);

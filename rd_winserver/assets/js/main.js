@@ -102,6 +102,7 @@ const ChapterTracker = {
         if (!arr.includes(n)) {
             arr.push(n);
             localStorage.setItem(this.key, JSON.stringify(arr));
+            if (typeof GameEngine !== 'undefined') GameEngine.completeChapter(n);
         }
     },
     getAll() {

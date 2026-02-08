@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!done.includes(chNum)) {
                     done.push(chNum);
                     try { localStorage.setItem(KEY, JSON.stringify(done)); } catch(e) {}
+                    if (typeof GameEngine !== 'undefined') GameEngine.completeChapter(chNum);
                 }
             }
         };

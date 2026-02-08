@@ -849,7 +849,6 @@ window.addEventListener('scroll', debounce(() => {
     saveChapterProgress();
 }, 300));
 
-console.log('📚 Cours PHP POO chargé avec succès !');
 
 // ===============================================
 // 1. SYSTÈME DE BADGES (TROPHEES)

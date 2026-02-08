@@ -240,10 +240,14 @@ class GamificationBridge {
             if (xpEl) xpEl.textContent = `Lvl ${state.level} | XP: ${state.xp}`;
 
             // Update module completion on index
-            if (state.completed && Array.isArray(state.completed)) {
-                const completedCount = document.getElementById('completed-count');
-                if (completedCount) completedCount.textContent = state.completed.length;
-            }
+            const completedArr = state.completed && Array.isArray(state.completed) ? state.completed : [];
+            // Also merge from rd_sql_completed tracker
+            try {
+                const tracked = JSON.parse(localStorage.getItem('rd_sql_completed') || '[]');
+                tracked.forEach(n => { if (!completedArr.includes(n)) completedArr.push(n); });
+            } catch(e) {}
+            const completedCount = document.getElementById('completed-count');
+            if (completedCount) completedCount.textContent = completedArr.length;
         } catch (e) { /* silent */ }
     }
 }
@@ -306,7 +310,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pct > 0.85) {
                 done = true;
                 const arr = JSON.parse(localStorage.getItem('rd_sql_completed') || '[]');
-                if (!arr.includes(num)) { arr.push(num); localStorage.setItem('rd_sql_completed', JSON.stringify(arr)); }
+                if (!arr.includes(num)) {
+                    arr.push(num);
+                    localStorage.setItem('rd_sql_completed', JSON.stringify(arr));
+                    // Sync with gamification progress
+                    try {
+                        const progress = JSON.parse(localStorage.getItem('rd_sql_progress') || '{}');
+                        if (!progress.completed) progress.completed = [];
+                        if (!progress.completed.includes(num)) progress.completed.push(num);
+                        localStorage.setItem('rd_sql_progress', JSON.stringify(progress));
+                    } catch(e) {}
+                    if (typeof DataBot !== 'undefined') DataBot.addXP(20, 'Module complété');
+                }
             }
         };
         window.addEventListener('scroll', check);

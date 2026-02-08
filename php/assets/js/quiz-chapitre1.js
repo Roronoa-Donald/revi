@@ -446,4 +446,3 @@ quizStyles.textContent = `
 `;
 document.head.appendChild(quizStyles);
 
-console.log('✅ Quiz Chapitre 1 chargé !');
