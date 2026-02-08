@@ -17,6 +17,7 @@ class ThemeManager {
 
     apply() {
         document.documentElement.setAttribute('data-theme', this.theme);
+        document.documentElement.classList.toggle('dark', this.theme === 'dark');
         // Update Tailwind bg classes
         const body = document.body;
         if (this.theme === 'light') {

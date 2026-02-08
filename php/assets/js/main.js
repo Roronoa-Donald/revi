@@ -1118,12 +1118,14 @@ function initThemeToggle() {
     const savedTheme = localStorage.getItem('phpCourseTheme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
+        document.documentElement.classList.add('dark');
         updateThemeIcon(toggleBtn, true);
     }
     
     // Event listener
     toggleBtn.addEventListener('click', () => {
         const isDark = document.body.classList.toggle('dark-mode');
+        document.documentElement.classList.toggle('dark', isDark);
         localStorage.setItem('phpCourseTheme', isDark ? 'dark' : 'light');
         updateThemeIcon(toggleBtn, isDark);
     });

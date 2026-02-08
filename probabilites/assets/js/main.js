@@ -18,8 +18,7 @@ class ThemeManager {
     init() {
         // Apply saved theme
         document.documentElement.setAttribute('data-theme', this.theme);
-        
-        // Setup toggle button
+        document.documentElement.classList.toggle('dark', this.theme === 'dark');
         const toggleBtn = document.querySelector('.theme-toggle');
         if (toggleBtn) {
             toggleBtn.addEventListener('click', () => this.toggle());
@@ -30,6 +29,7 @@ class ThemeManager {
             if (!localStorage.getItem('theme')) {
                 this.theme = e.matches ? 'dark' : 'light';
                 document.documentElement.setAttribute('data-theme', this.theme);
+                document.documentElement.classList.toggle('dark', this.theme === 'dark');
             }
         });
     }
@@ -37,6 +37,7 @@ class ThemeManager {
     toggle() {
         this.theme = this.theme === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', this.theme);
+        document.documentElement.classList.toggle('dark', this.theme === 'dark');
         localStorage.setItem('theme', this.theme);
         
         // Trigger custom event
