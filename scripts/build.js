@@ -21,7 +21,7 @@ const PUBLIC_DIR = path.join(ROOT, 'public');
 const COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'RD-RO', 'sql'];
 
 // Fichiers/dossiers racine à copier (en plus des cours)
-const ROOT_FILES = ['index.html', 'robots.txt', 'sitemap.xml', '404.html'];
+const ROOT_FILES = ['index.html', 'robots.txt', 'sitemap.xml', '404.html', 'rd-ai-chat.js'];
 
 // Dossiers à ne jamais copier
 const SKIP_DIRS = ['node_modules', '.git', 'server', 'api', 'scripts', 'dist', 'public', 'cours windows'];
@@ -31,7 +31,7 @@ const BINARY_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.we
 
 // Injection HTML
 const AUTH_INJECT_HEAD = '<link rel="stylesheet" href="/_auth/css/auth-styles.css">';
-const AUTH_INJECT_BODY = '<script src="/_auth/js/fingerprint.js"></script>\n<script src="/_auth/js/auth-check.js"></script>';
+const AUTH_INJECT_BODY = '<script src="/_auth/js/fingerprint.js"></script>\n<script src="/_auth/js/auth-check.js"></script>\n<script src="/rd-ai-chat.js"></script>';
 
 // ========================
 // Fonctions utilitaires

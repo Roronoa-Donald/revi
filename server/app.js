@@ -38,6 +38,7 @@ function buildApp(opts = {}) {
   // ========================
   fastify.register(require('./routes/auth'), { prefix: '/api' });
   fastify.register(require('./routes/admin'), { prefix: '/api/admin' });
+  fastify.register(require('./routes/ai-chat'), { prefix: '/api' });
 
   return fastify;
 }

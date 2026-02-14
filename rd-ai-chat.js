@@ -10,8 +10,7 @@
     // 1. CONFIGURATION
     // ================================================================
     const CONFIG = {
-        apiKey: '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',
-        apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
+        apiUrl: '/api/ai-chat',
         model: 'deepseek/deepseek-chat',
         maxTokens: 2048,
         temperature: 0.7,
@@ -854,8 +853,7 @@ body.dark-mode .rdai-code-block {
             const response = await fetch(CONFIG.apiUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${CONFIG.apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     model: CONFIG.model,
