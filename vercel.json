@@ -1,37 +1,46 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "node scripts/build.js",
-  "outputDirectory": "dist",
-  "functions": {
-    "api/index.js": {
-      "maxDuration": 10,
-      "memory": 256
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     }
-  },
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index.js" }
   ],
-  "headers": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Referrer-Policy", "value": "no-referrer" }
-      ]
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
     },
     {
-      "source": "/_auth/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
-      ]
+      "src": "/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Referrer-Policy": "no-referrer"
+      },
+      "continue": true
     },
     {
-      "source": "/(linux|php|probabilites|rd_java|rd_winserver|RD-RO|sql)/assets/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400, immutable" }
-      ]
+      "src": "/_auth/(.*)",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      },
+      "continue": true
+    },
+    {
+      "src": "/(linux|php|probabilites|rd_java|rd_winserver|RD-RO|sql)/assets/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=86400, immutable"
+      },
+      "continue": true
     }
   ]
 }
