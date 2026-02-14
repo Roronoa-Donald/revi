@@ -15,39 +15,796 @@
              <a href="../index.html" class="flex items-center gap-2 text-blue-400 hover:text-blue-300">
                 <i class="fas fa-chevron-left"></i> <span class="font-bold">Tableau de Bord</span>
             </a>
-            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Module 07: Les Jointures SQL</h1>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Module 07: Les Jointures</h1>
             <div class="flex items-center gap-4">
                 <div id="user-xp" class="text-sm font-mono text-amber-400">XP: 0</div>
                 <button class="theme-toggle" aria-label="Changer de thème" onclick="if(document.documentElement.getAttribute('data-theme')==='light'){document.documentElement.removeAttribute('data-theme');localStorage.setItem('rd_sql_theme','dark')}else{document.documentElement.setAttribute('data-theme','light');localStorage.setItem('rd_sql_theme','light')}"><i class="fas fa-sun"></i></button>
             </div>
         </div>
     </nav>
-    <main class="container mx-auto px-4 py-8 flex flex-col items-center justify-center" style="min-height: 60vh;">
-        <div class="glass-card p-12 text-center max-w-2xl">
-            <div class="text-6xl mb-6">🔗</div>
-            <h2 class="text-3xl font-bold text-white mb-4">Module en cours de rédaction</h2>
-            <p class="text-slate-400 text-lg mb-6">
-                Le module sur les <strong class="text-purple-400">Jointures SQL</strong> (INNER, LEFT, RIGHT, FULL OUTER, CROSS JOIN, self-joins) sera bientôt disponible.
-            </p>
-            <div class="flex flex-wrap gap-3 justify-center mb-8">
-                <span class="topic-tag">INNER JOIN</span>
-                <span class="topic-tag">LEFT JOIN</span>
-                <span class="topic-tag">RIGHT JOIN</span>
-                <span class="topic-tag">FULL OUTER JOIN</span>
-                <span class="topic-tag">CROSS JOIN</span>
-                <span class="topic-tag">Self-JOIN</span>
-                <span class="topic-tag">Multi-tables</span>
-            </div>
-            <a href="../index.html" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-xl transition-all">
-                <i class="fas fa-arrow-left"></i> Retour au tableau de bord
-            </a>
+    <main class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow space-y-12 max-w-4xl">
+
+            <!-- 1. Narrative Hook -->
+            <section class="animate-fade-in-up">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-purple-500 pl-4">1. Pourquoi les Jointures ?</h2>
+                <div class="glass-card p-8 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-link text-9xl"></i></div>
+                    <p class="text-lg text-slate-300 mb-6 leading-relaxed">
+                        En bases de données relationnelles, les données sont <strong>réparties dans plusieurs tables</strong> pour éviter la redondance.
+                        Une table <code class="text-amber-400">Clients</code>, une table <code class="text-amber-400">Commandes</code>, une table <code class="text-amber-400">Produits</code>...
+                        <br><br>
+                        Mais comment afficher <em>"le nom du client avec ses commandes"</em> si ces infos sont dans des tables séparées ?
+                        C'est exactement le rôle des <strong class="text-purple-400">JOIN</strong> : <strong>relier les tables entre elles</strong>.
+                    </p>
+                    <p class="text-slate-400 text-sm italic border-l-2 border-slate-600 pl-4">
+                        🔗 Sans les JOIN, SQL ne serait qu'un tableur glorifié. Avec les JOIN, c'est un moteur de requêtes relationnelles surpuissant.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 2. Les données d'exemple -->
+            <section class="animate-fade-in-up" style="animation-delay:0.05s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">2. Nos Données d'Exemple</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <p class="text-slate-300">Tout au long de ce module, nous utiliserons ces deux tables :</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Table Clients -->
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-blue-500/30">
+                            <h4 class="font-bold text-blue-400 mb-3"><i class="fas fa-users mr-2"></i>Clients</h4>
+                            <table class="w-full text-sm">
+                                <thead><tr class="text-slate-500 border-b border-slate-700">
+                                    <th class="text-left py-1">ClientID</th><th class="text-left py-1">Nom</th><th class="text-left py-1">Ville</th>
+                                </tr></thead>
+                                <tbody class="font-mono text-emerald-400">
+                                    <tr><td class="py-1">1</td><td>Alice</td><td>Paris</td></tr>
+                                    <tr><td class="py-1">2</td><td>Bob</td><td>Lyon</td></tr>
+                                    <tr><td class="py-1">3</td><td>Charlie</td><td>Marseille</td></tr>
+                                    <tr><td class="py-1">4</td><td>Diana</td><td>Bordeaux</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Table Commandes -->
+                        <div class="bg-slate-800/60 p-4 rounded-lg border border-purple-500/30">
+                            <h4 class="font-bold text-purple-400 mb-3"><i class="fas fa-shopping-bag mr-2"></i>Commandes</h4>
+                            <table class="w-full text-sm">
+                                <thead><tr class="text-slate-500 border-b border-slate-700">
+                                    <th class="text-left py-1">CmdID</th><th class="text-left py-1">ClientID</th><th class="text-left py-1">Montant</th>
+                                </tr></thead>
+                                <tbody class="font-mono text-emerald-400">
+                                    <tr><td class="py-1">101</td><td>1</td><td>250 €</td></tr>
+                                    <tr><td class="py-1">102</td><td>2</td><td>430 €</td></tr>
+                                    <tr><td class="py-1">103</td><td>1</td><td>120 €</td></tr>
+                                    <tr><td class="py-1">104</td><td>5</td><td>80 €</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-purple-500">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-eye text-purple-400 mr-2"></i>
+                            <strong>Remarquez :</strong> Alice (ID=1) a 2 commandes, Bob (ID=2) en a 1, Charlie (ID=3) et Diana (ID=4) n'en ont <strong>aucune</strong>,
+                            et la commande 104 référence un ClientID=5 qui <strong>n'existe pas</strong>. Ces cas sont essentiels pour comprendre les différences entre les types de JOIN.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. INNER JOIN -->
+            <section class="animate-fade-in-up" style="animation-delay:0.1s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">3. INNER JOIN — L'Intersection</h2>
+                <div class="glass-card p-6 rounded-xl space-y-5">
+                    <p class="text-slate-300">
+                        Le <code class="text-emerald-400">INNER JOIN</code> retourne <strong>uniquement les lignes qui ont une correspondance dans les deux tables</strong>.
+                        C'est la jointure la plus courante et la plus utilisée.
+                    </p>
+
+                    <!-- Diagramme visuel -->
+                    <div class="flex justify-center">
+                        <div class="relative w-80 h-48">
+                            <div class="absolute left-0 top-0 w-48 h-48 rounded-full border-2 border-blue-500 bg-blue-500/5 flex items-center justify-start pl-6">
+                                <span class="text-blue-400 text-sm font-bold">Clients</span>
+                            </div>
+                            <div class="absolute right-0 top-0 w-48 h-48 rounded-full border-2 border-purple-500 bg-purple-500/5 flex items-center justify-end pr-6">
+                                <span class="text-purple-400 text-sm font-bold">Commandes</span>
+                            </div>
+                            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-emerald-500/30 text-emerald-300 font-bold text-xs px-3 py-2 rounded-lg border border-emerald-500/50">
+                                INNER JOIN<br>
+                                <span class="text-[10px] text-emerald-400/70">correspondances</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700">
+                        <h4 class="font-bold text-emerald-400 mb-2"><i class="fas fa-code mr-2"></i>Syntaxe</h4>
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300"><span class="text-blue-400">SELECT</span> C.Nom, C.Ville, O.CmdID, O.Montant
+<span class="text-blue-400">FROM</span> Clients C
+<span class="text-emerald-400">INNER JOIN</span> Commandes O <span class="text-amber-400">ON</span> C.ClientID = O.ClientID;</code></pre>
+                    </div>
+
+                    <!-- Résultat -->
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-emerald-500/20">
+                        <h5 class="text-xs text-emerald-400 font-mono mb-2"><i class="fas fa-table mr-1"></i> Résultat (3 lignes)</h5>
+                        <table class="w-full text-sm font-mono">
+                            <thead><tr class="text-slate-500 border-b border-slate-700">
+                                <th class="text-left py-1">Nom</th><th class="text-left py-1">Ville</th><th class="text-left py-1">CmdID</th><th class="text-left py-1">Montant</th>
+                            </tr></thead>
+                            <tbody class="text-emerald-400">
+                                <tr><td class="py-1">Alice</td><td>Paris</td><td>101</td><td>250 €</td></tr>
+                                <tr><td class="py-1">Alice</td><td>Paris</td><td>103</td><td>120 €</td></tr>
+                                <tr><td class="py-1">Bob</td><td>Lyon</td><td>102</td><td>430 €</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-amber-900/10 p-4 rounded-lg border-l-4 border-amber-500">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-exclamation-triangle text-amber-400 mr-2"></i>
+                            <strong>Charlie et Diana</strong> ont disparu (pas de commandes).
+                            La commande 104 (ClientID=5) a aussi disparu (pas de client correspondant).
+                            INNER JOIN = <strong>uniquement les correspondances</strong>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. LEFT JOIN -->
+            <section class="animate-fade-in-up" style="animation-delay:0.15s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-blue-500 pl-4">4. LEFT JOIN — Tout à Gauche</h2>
+                <div class="glass-card p-6 rounded-xl space-y-5">
+                    <p class="text-slate-300">
+                        Le <code class="text-blue-400">LEFT JOIN</code> (ou <code>LEFT OUTER JOIN</code>) retourne <strong>TOUTES les lignes de la table de gauche</strong>,
+                        même si elles n'ont pas de correspondance dans la table de droite. Les colonnes manquantes seront remplies de <code class="text-amber-400">NULL</code>.
+                    </p>
+
+                    <!-- Diagramme visuel -->
+                    <div class="flex justify-center">
+                        <div class="relative w-80 h-48">
+                            <div class="absolute left-0 top-0 w-48 h-48 rounded-full border-2 border-blue-500 bg-blue-500/20 flex items-center justify-start pl-6">
+                                <span class="text-blue-300 text-sm font-bold">Clients<br><span class="text-[10px]">(TOUT)</span></span>
+                            </div>
+                            <div class="absolute right-0 top-0 w-48 h-48 rounded-full border-2 border-purple-500 bg-purple-500/5 flex items-center justify-end pr-6">
+                                <span class="text-purple-400 text-sm font-bold">Commandes</span>
+                            </div>
+                            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500/30 text-blue-200 font-bold text-xs px-3 py-2 rounded-lg border border-blue-500/50">
+                                LEFT JOIN<br>
+                                <span class="text-[10px] text-blue-300/70">gauche = prioritaire</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700">
+                        <h4 class="font-bold text-blue-400 mb-2"><i class="fas fa-code mr-2"></i>Syntaxe</h4>
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300"><span class="text-blue-400">SELECT</span> C.Nom, C.Ville, O.CmdID, O.Montant
+<span class="text-blue-400">FROM</span> Clients C
+<span class="text-blue-400">LEFT JOIN</span> Commandes O <span class="text-amber-400">ON</span> C.ClientID = O.ClientID;</code></pre>
+                    </div>
+
+                    <!-- Résultat -->
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-blue-500/20">
+                        <h5 class="text-xs text-blue-400 font-mono mb-2"><i class="fas fa-table mr-1"></i> Résultat (5 lignes)</h5>
+                        <table class="w-full text-sm font-mono">
+                            <thead><tr class="text-slate-500 border-b border-slate-700">
+                                <th class="text-left py-1">Nom</th><th class="text-left py-1">Ville</th><th class="text-left py-1">CmdID</th><th class="text-left py-1">Montant</th>
+                            </tr></thead>
+                            <tbody class="text-emerald-400">
+                                <tr><td class="py-1">Alice</td><td>Paris</td><td>101</td><td>250 €</td></tr>
+                                <tr><td class="py-1">Alice</td><td>Paris</td><td>103</td><td>120 €</td></tr>
+                                <tr><td class="py-1">Bob</td><td>Lyon</td><td>102</td><td>430 €</td></tr>
+                                <tr class="text-amber-400/80"><td class="py-1">Charlie</td><td>Marseille</td><td>NULL</td><td>NULL</td></tr>
+                                <tr class="text-amber-400/80"><td class="py-1">Diana</td><td>Bordeaux</td><td>NULL</td><td>NULL</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-blue-900/10 p-4 rounded-lg border-l-4 border-blue-500">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-lightbulb text-blue-400 mr-2"></i>
+                            <strong>Cas d'usage typique :</strong> Trouver les clients <strong>sans commande</strong> :
+                        </p>
+                        <pre class="bg-black rounded-lg p-3 text-xs mt-2 overflow-x-auto"><code class="text-slate-300"><span class="text-blue-400">SELECT</span> C.Nom
+<span class="text-blue-400">FROM</span> Clients C
+<span class="text-blue-400">LEFT JOIN</span> Commandes O <span class="text-amber-400">ON</span> C.ClientID = O.ClientID
+<span class="text-blue-400">WHERE</span> O.CmdID <span class="text-amber-400">IS NULL</span>;</code></pre>
+                        <p class="text-xs text-slate-400 mt-2">→ Retourne : Charlie, Diana (ceux sans commande)</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. RIGHT JOIN -->
+            <section class="animate-fade-in-up" style="animation-delay:0.2s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-pink-500 pl-4">5. RIGHT JOIN — Tout à Droite</h2>
+                <div class="glass-card p-6 rounded-xl space-y-5">
+                    <p class="text-slate-300">
+                        Le <code class="text-pink-400">RIGHT JOIN</code> est le miroir du LEFT JOIN : il retourne <strong>TOUTES les lignes de la table de droite</strong>,
+                        avec <code class="text-amber-400">NULL</code> si aucune correspondance dans la table de gauche.
+                    </p>
+
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700">
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300"><span class="text-blue-400">SELECT</span> C.Nom, O.CmdID, O.Montant
+<span class="text-blue-400">FROM</span> Clients C
+<span class="text-pink-400">RIGHT JOIN</span> Commandes O <span class="text-amber-400">ON</span> C.ClientID = O.ClientID;</code></pre>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-pink-500/20">
+                        <h5 class="text-xs text-pink-400 font-mono mb-2"><i class="fas fa-table mr-1"></i> Résultat (4 lignes)</h5>
+                        <table class="w-full text-sm font-mono">
+                            <thead><tr class="text-slate-500 border-b border-slate-700">
+                                <th class="text-left py-1">Nom</th><th class="text-left py-1">CmdID</th><th class="text-left py-1">Montant</th>
+                            </tr></thead>
+                            <tbody class="text-emerald-400">
+                                <tr><td class="py-1">Alice</td><td>101</td><td>250 €</td></tr>
+                                <tr><td class="py-1">Bob</td><td>102</td><td>430 €</td></tr>
+                                <tr><td class="py-1">Alice</td><td>103</td><td>120 €</td></tr>
+                                <tr class="text-amber-400/80"><td class="py-1">NULL</td><td>104</td><td>80 €</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-pink-900/10 p-4 rounded-lg border-l-4 border-pink-500">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-info-circle text-pink-400 mr-2"></i>
+                            La commande 104 (ClientID=5) apparaît avec <code>NULL</code> comme Nom car aucun client n'a l'ID 5.
+                            En pratique, <strong>on utilise rarement RIGHT JOIN</strong> — un <code>LEFT JOIN</code> en inversant les tables fait la même chose et est plus lisible.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. FULL OUTER JOIN -->
+            <section class="animate-fade-in-up" style="animation-delay:0.25s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">6. FULL OUTER JOIN — L'Union Totale</h2>
+                <div class="glass-card p-6 rounded-xl space-y-5">
+                    <p class="text-slate-300">
+                        Le <code class="text-amber-400">FULL OUTER JOIN</code> combine LEFT et RIGHT : il retourne <strong>toutes les lignes des deux tables</strong>,
+                        avec <code class="text-amber-400">NULL</code> là où il n'y a pas de correspondance.
+                    </p>
+
+                    <!-- Diagramme visuel -->
+                    <div class="flex justify-center">
+                        <div class="relative w-80 h-48">
+                            <div class="absolute left-0 top-0 w-48 h-48 rounded-full border-2 border-blue-500 bg-blue-500/15 flex items-center justify-start pl-6">
+                                <span class="text-blue-300 text-sm font-bold">Clients<br><span class="text-[10px]">(TOUT)</span></span>
+                            </div>
+                            <div class="absolute right-0 top-0 w-48 h-48 rounded-full border-2 border-purple-500 bg-purple-500/15 flex items-center justify-end pr-6">
+                                <span class="text-purple-300 text-sm font-bold">Commandes<br><span class="text-[10px]">(TOUT)</span></span>
+                            </div>
+                            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-500/30 text-amber-200 font-bold text-xs px-3 py-2 rounded-lg border border-amber-500/50">
+                                FULL OUTER<br>
+                                <span class="text-[10px] text-amber-300/70">tout le monde</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700">
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300"><span class="text-blue-400">SELECT</span> C.Nom, C.Ville, O.CmdID, O.Montant
+<span class="text-blue-400">FROM</span> Clients C
+<span class="text-amber-400">FULL OUTER JOIN</span> Commandes O <span class="text-amber-400">ON</span> C.ClientID = O.ClientID;</code></pre>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-amber-500/20">
+                        <h5 class="text-xs text-amber-400 font-mono mb-2"><i class="fas fa-table mr-1"></i> Résultat (6 lignes)</h5>
+                        <table class="w-full text-sm font-mono">
+                            <thead><tr class="text-slate-500 border-b border-slate-700">
+                                <th class="text-left py-1">Nom</th><th class="text-left py-1">Ville</th><th class="text-left py-1">CmdID</th><th class="text-left py-1">Montant</th>
+                            </tr></thead>
+                            <tbody class="text-emerald-400">
+                                <tr><td class="py-1">Alice</td><td>Paris</td><td>101</td><td>250 €</td></tr>
+                                <tr><td class="py-1">Alice</td><td>Paris</td><td>103</td><td>120 €</td></tr>
+                                <tr><td class="py-1">Bob</td><td>Lyon</td><td>102</td><td>430 €</td></tr>
+                                <tr class="text-amber-400/80"><td class="py-1">Charlie</td><td>Marseille</td><td>NULL</td><td>NULL</td></tr>
+                                <tr class="text-amber-400/80"><td class="py-1">Diana</td><td>Bordeaux</td><td>NULL</td><td>NULL</td></tr>
+                                <tr class="text-amber-400/80"><td class="py-1">NULL</td><td>NULL</td><td>104</td><td>80 €</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-amber-900/10 p-4 rounded-lg border-l-4 border-amber-500">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-lightbulb text-amber-400 mr-2"></i>
+                            <strong>Cas d'usage :</strong> Détecter les <strong>orphelins</strong> des deux côtés — clients sans commande ET commandes sans client valide.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. CROSS JOIN -->
+            <section class="animate-fade-in-up" style="animation-delay:0.28s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-red-500 pl-4">7. CROSS JOIN — Le Produit Cartésien</h2>
+                <div class="glass-card p-6 rounded-xl space-y-5">
+                    <p class="text-slate-300">
+                        Le <code class="text-red-400">CROSS JOIN</code> combine <strong>chaque ligne de la première table avec chaque ligne de la deuxième</strong>.
+                        Pas de clause <code>ON</code> ! Si table A a 4 lignes et table B a 4 lignes : le résultat a <strong>4 × 4 = 16 lignes</strong>.
+                    </p>
+
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700">
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300"><span class="text-blue-400">SELECT</span> C.Nom, P.NomProduit
+<span class="text-blue-400">FROM</span> Clients C
+<span class="text-red-400">CROSS JOIN</span> Produits P;</code></pre>
+                    </div>
+
+                    <div class="bg-red-900/10 p-4 rounded-lg border-l-4 border-red-500">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-skull-crossbones text-red-400 mr-2"></i>
+                            <strong>Danger !</strong> 1 000 clients × 10 000 produits = <strong>10 millions de lignes</strong>.
+                            N'utilisez CROSS JOIN que pour de petites tables ou des cas très spécifiques (génération de combinaisons, calendriers, etc.).
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-emerald-500/20">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-check text-emerald-400 mr-2"></i>
+                            <strong>Cas utile :</strong> Générer toutes les combinaisons possibles taille/couleur :
+                        </p>
+                        <pre class="bg-black rounded-lg p-3 text-xs mt-2 overflow-x-auto"><code class="text-slate-300"><span class="text-blue-400">SELECT</span> T.Taille, Co.Couleur
+<span class="text-blue-400">FROM</span> Tailles T
+<span class="text-red-400">CROSS JOIN</span> Couleurs Co;
+<span class="text-slate-500">-- S-Rouge, S-Bleu, M-Rouge, M-Bleu, L-Rouge, L-Bleu...</span></code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Self-JOIN -->
+            <section class="animate-fade-in-up" style="animation-delay:0.3s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-cyan-500 pl-4">8. Self-JOIN — La Table contre Elle-même</h2>
+                <div class="glass-card p-6 rounded-xl space-y-5">
+                    <p class="text-slate-300">
+                        Un <strong>Self-JOIN</strong> est une jointure d'une table <strong>avec elle-même</strong>. C'est utile quand une table contient
+                        des relations hiérarchiques (employé → manager, catégorie → sous-catégorie).
+                    </p>
+
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-cyan-500/20">
+                        <h5 class="text-xs text-cyan-400 font-mono mb-2"><i class="fas fa-sitemap mr-1"></i> Table Employes</h5>
+                        <table class="w-full text-sm font-mono">
+                            <thead><tr class="text-slate-500 border-b border-slate-700">
+                                <th class="text-left py-1">EmpID</th><th class="text-left py-1">Nom</th><th class="text-left py-1">ManagerID</th>
+                            </tr></thead>
+                            <tbody class="text-emerald-400">
+                                <tr><td class="py-1">1</td><td>PDG</td><td class="text-amber-400">NULL</td></tr>
+                                <tr><td class="py-1">2</td><td>Alice</td><td>1</td></tr>
+                                <tr><td class="py-1">3</td><td>Bob</td><td>1</td></tr>
+                                <tr><td class="py-1">4</td><td>Charlie</td><td>2</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700">
+                        <h4 class="font-bold text-cyan-400 mb-2"><i class="fas fa-code mr-2"></i>Trouver le manager de chaque employé</h4>
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300"><span class="text-blue-400">SELECT</span> 
+    E.Nom <span class="text-amber-400">AS</span> Employe,
+    M.Nom <span class="text-amber-400">AS</span> Manager
+<span class="text-blue-400">FROM</span> Employes E
+<span class="text-blue-400">LEFT JOIN</span> Employes M <span class="text-amber-400">ON</span> E.ManagerID = M.EmpID;</code></pre>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-4 rounded-lg border border-cyan-500/20">
+                        <h5 class="text-xs text-cyan-400 font-mono mb-2"><i class="fas fa-table mr-1"></i> Résultat</h5>
+                        <table class="w-full text-sm font-mono">
+                            <thead><tr class="text-slate-500 border-b border-slate-700">
+                                <th class="text-left py-1">Employe</th><th class="text-left py-1">Manager</th>
+                            </tr></thead>
+                            <tbody class="text-emerald-400">
+                                <tr><td class="py-1">PDG</td><td class="text-amber-400">NULL</td></tr>
+                                <tr><td class="py-1">Alice</td><td>PDG</td></tr>
+                                <tr><td class="py-1">Bob</td><td>PDG</td></tr>
+                                <tr><td class="py-1">Charlie</td><td>Alice</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-cyan-900/10 p-4 rounded-lg border-l-4 border-cyan-500">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-key text-cyan-400 mr-2"></i>
+                            <strong>Astuce :</strong> Les <strong>alias</strong> sont <strong>obligatoires</strong> en Self-JOIN pour distinguer les deux « copies » de la même table (<code>E</code> pour employé, <code>M</code> pour manager).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Jointures multiples -->
+            <section class="animate-fade-in-up" style="animation-delay:0.33s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-indigo-500 pl-4">9. Jointures Multi-Tables</h2>
+                <div class="glass-card p-6 rounded-xl space-y-5">
+                    <p class="text-slate-300">
+                        En pratique, on joint souvent <strong>3 tables ou plus</strong>. Il suffit d'enchaîner les <code>JOIN</code> :
+                    </p>
+
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700">
+                        <h4 class="font-bold text-indigo-400 mb-2"><i class="fas fa-project-diagram mr-2"></i>Clients + Commandes + Produits</h4>
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300"><span class="text-blue-400">SELECT</span> 
+    C.Nom <span class="text-amber-400">AS</span> Client,
+    O.CmdID,
+    P.NomProduit,
+    LC.Quantite,
+    P.Prix * LC.Quantite <span class="text-amber-400">AS</span> SousTotal
+<span class="text-blue-400">FROM</span> Clients C
+<span class="text-emerald-400">INNER JOIN</span> Commandes O <span class="text-amber-400">ON</span> C.ClientID = O.ClientID
+<span class="text-emerald-400">INNER JOIN</span> LignesCommande LC <span class="text-amber-400">ON</span> O.CmdID = LC.CmdID
+<span class="text-emerald-400">INNER JOIN</span> Produits P <span class="text-amber-400">ON</span> LC.ProduitID = P.ProduitID
+<span class="text-blue-400">ORDER BY</span> C.Nom, O.CmdID;</code></pre>
+                    </div>
+
+                    <div class="bg-indigo-900/10 p-4 rounded-lg border-l-4 border-indigo-500">
+                        <p class="text-sm text-slate-300">
+                            <i class="fas fa-lightbulb text-indigo-400 mr-2"></i>
+                            <strong>Ordre de lecture SQL :</strong> FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY.
+                            Les jointures sont résolues <strong>avant</strong> le filtrage WHERE.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-5 rounded-lg border border-slate-700">
+                        <h4 class="font-bold text-indigo-400 mb-2"><i class="fas fa-code mr-2"></i>JOIN avec agrégats</h4>
+                        <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-slate-300"><span class="text-slate-500">-- Total des commandes par client</span>
+<span class="text-blue-400">SELECT</span> 
+    C.Nom,
+    <span class="text-pink-400">COUNT</span>(O.CmdID) <span class="text-amber-400">AS</span> NbCommandes,
+    <span class="text-pink-400">SUM</span>(O.Montant) <span class="text-amber-400">AS</span> TotalDepense
+<span class="text-blue-400">FROM</span> Clients C
+<span class="text-blue-400">LEFT JOIN</span> Commandes O <span class="text-amber-400">ON</span> C.ClientID = O.ClientID
+<span class="text-blue-400">GROUP BY</span> C.Nom
+<span class="text-blue-400">ORDER BY</span> TotalDepense <span class="text-blue-400">DESC</span>;</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. Tableau Récapitulatif -->
+            <section class="animate-fade-in-up" style="animation-delay:0.35s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">10. Tableau Récapitulatif</h2>
+                <div class="glass-card p-6 rounded-xl overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-slate-700">
+                                <th class="text-left py-3 px-2">Type de JOIN</th>
+                                <th class="text-left py-3 px-2">Retourne quoi ?</th>
+                                <th class="text-left py-3 px-2">NULL possible ?</th>
+                                <th class="text-left py-3 px-2">Clause ON ?</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-300">
+                            <tr class="border-b border-slate-800 hover:bg-slate-800/50">
+                                <td class="py-3 px-2 font-bold text-emerald-400">INNER JOIN</td>
+                                <td class="py-3 px-2">Correspondances des 2 côtés</td>
+                                <td class="py-3 px-2">Non</td>
+                                <td class="py-3 px-2 text-emerald-400">Oui</td>
+                            </tr>
+                            <tr class="border-b border-slate-800 hover:bg-slate-800/50">
+                                <td class="py-3 px-2 font-bold text-blue-400">LEFT JOIN</td>
+                                <td class="py-3 px-2">Toute la table gauche + correspondances droite</td>
+                                <td class="py-3 px-2">Oui (côté droit)</td>
+                                <td class="py-3 px-2 text-emerald-400">Oui</td>
+                            </tr>
+                            <tr class="border-b border-slate-800 hover:bg-slate-800/50">
+                                <td class="py-3 px-2 font-bold text-pink-400">RIGHT JOIN</td>
+                                <td class="py-3 px-2">Toute la table droite + correspondances gauche</td>
+                                <td class="py-3 px-2">Oui (côté gauche)</td>
+                                <td class="py-3 px-2 text-emerald-400">Oui</td>
+                            </tr>
+                            <tr class="border-b border-slate-800 hover:bg-slate-800/50">
+                                <td class="py-3 px-2 font-bold text-amber-400">FULL OUTER JOIN</td>
+                                <td class="py-3 px-2">Toutes les lignes des 2 tables</td>
+                                <td class="py-3 px-2">Oui (des 2 côtés)</td>
+                                <td class="py-3 px-2 text-emerald-400">Oui</td>
+                            </tr>
+                            <tr class="border-b border-slate-800 hover:bg-slate-800/50">
+                                <td class="py-3 px-2 font-bold text-red-400">CROSS JOIN</td>
+                                <td class="py-3 px-2">Produit cartésien (N × M lignes)</td>
+                                <td class="py-3 px-2">Non</td>
+                                <td class="py-3 px-2 text-red-400">Non !</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="py-3 px-2 font-bold text-cyan-400">Self-JOIN</td>
+                                <td class="py-3 px-2">Table jointe avec elle-même</td>
+                                <td class="py-3 px-2">Selon le type de JOIN</td>
+                                <td class="py-3 px-2 text-emerald-400">Oui</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 11. Erreurs courantes -->
+            <section class="animate-fade-in-up" style="animation-delay:0.37s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-red-500 pl-4">11. Pièges et Erreurs Courantes</h2>
+                <div class="glass-card p-6 rounded-xl space-y-4">
+                    <div class="bg-red-900/10 p-4 rounded-lg border border-red-500/20">
+                        <h4 class="font-bold text-red-400 mb-2"><i class="fas fa-times-circle mr-2"></i>Oublier la clause ON</h4>
+                        <p class="text-sm text-slate-400">Sans <code>ON</code>, un INNER JOIN devient un CROSS JOIN — explosion de lignes !</p>
+                        <pre class="bg-black rounded p-2 text-xs mt-2 overflow-x-auto"><code class="text-red-400">-- MAUVAIS : produit cartésien involontaire
+SELECT * FROM Clients JOIN Commandes; -- Manque le ON !</code></pre>
+                    </div>
+
+                    <div class="bg-red-900/10 p-4 rounded-lg border border-red-500/20">
+                        <h4 class="font-bold text-red-400 mb-2"><i class="fas fa-times-circle mr-2"></i>Colonnes ambiguës</h4>
+                        <p class="text-sm text-slate-400">Si deux tables ont une colonne de même nom, le SGBD ne sait pas laquelle choisir.</p>
+                        <pre class="bg-black rounded p-2 text-xs mt-2 overflow-x-auto"><code><span class="text-red-400">-- ERREUR : ambiguous column 'ClientID'</span>
+<span class="text-slate-400">SELECT ClientID FROM Clients JOIN Commandes ON ...</span>
+
+<span class="text-emerald-400">-- CORRECT : utiliser l'alias</span>
+<span class="text-slate-300">SELECT C.ClientID FROM Clients C JOIN Commandes O ON ...</span></code></pre>
+                    </div>
+
+                    <div class="bg-red-900/10 p-4 rounded-lg border border-red-500/20">
+                        <h4 class="font-bold text-red-400 mb-2"><i class="fas fa-times-circle mr-2"></i>WHERE qui annule le LEFT JOIN</h4>
+                        <p class="text-sm text-slate-400">Filtrer sur une colonne de la table de droite dans le WHERE transforme un LEFT JOIN en INNER JOIN.</p>
+                        <pre class="bg-black rounded p-2 text-xs mt-2 overflow-x-auto"><code><span class="text-red-400">-- MAUVAIS : le WHERE élimine les NULL → LEFT JOIN = INNER JOIN</span>
+<span class="text-slate-400">SELECT C.Nom, O.Montant
+FROM Clients C LEFT JOIN Commandes O ON C.ClientID = O.ClientID
+WHERE O.Montant > 100;</span>
+
+<span class="text-emerald-400">-- CORRECT : condition dans le ON</span>
+<span class="text-slate-300">SELECT C.Nom, O.Montant
+FROM Clients C LEFT JOIN Commandes O 
+  ON C.ClientID = O.ClientID AND O.Montant > 100;</span></code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 12. Labo Pratique -->
+            <section class="animate-fade-in-up" style="animation-delay:0.4s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-emerald-500 pl-4">12. Labo Pratique</h2>
+                <p class="text-slate-400 mb-4">Testez les jointures dans l'éditeur SQL :</p>
+                <div class="glass-card p-0 overflow-hidden divide-y divide-slate-700 shadow-2xl">
+                    <div class="bg-slate-950 p-3 flex justify-between items-center">
+                        <span class="text-xs font-mono text-slate-500">sql-editor</span>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="loadExample('inner')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">INNER</button>
+                            <button onclick="loadExample('left')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">LEFT</button>
+                            <button onclick="loadExample('right')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">RIGHT</button>
+                            <button onclick="loadExample('full')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">FULL</button>
+                            <button onclick="loadExample('self')" class="text-xs px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-400">Self</button>
+                        </div>
+                    </div>
+                    <textarea id="sql-input" class="w-full h-40 bg-[#1e1e1e] text-emerald-400 p-4 focus:outline-none font-mono text-sm resize-none">SELECT C.Nom, C.Ville, O.CmdID, O.Montant
+FROM Clients C
+INNER JOIN Commandes O ON C.ClientID = O.ClientID;</textarea>
+                    <div class="bg-slate-800 p-3 flex justify-end">
+                        <button onclick="runQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-bold"><i class="fas fa-play mr-1"></i> Exécuter</button>
+                    </div>
+                    <div id="query-output" class="p-4 bg-[#0d0d0d] text-slate-300 font-mono text-sm min-h-[100px]"></div>
+                </div>
+            </section>
+
+            <!-- 13. Quiz -->
+            <section class="animate-fade-in-up" style="animation-delay:0.45s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-amber-500 pl-4">13. Quiz — Les Jointures</h2>
+                <div id="quiz-container" class="glass-card p-6 rounded-xl"></div>
+            </section>
+
+            <!-- 14. Challenge Drag-Drop -->
+            <section class="animate-fade-in-up" style="animation-delay:0.5s;">
+                <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-pink-500 pl-4">14. Challenge — Glisser-Déposer</h2>
+                <div class="glass-card p-6 rounded-xl">
+                    <p class="text-slate-400 mb-4">Associez chaque type de jointure à sa description :</p>
+                    <div id="drag-drop-exercice" class="bg-slate-900/50 p-4 rounded-xl border border-dashed border-slate-700"></div>
+                    <button onclick="validateDragDrop()" class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold"><i class="fas fa-check mr-1"></i> Vérifier</button>
+                </div>
+            </section>
+
+        </div>
+        <!-- DataBot sidebar -->
+        <div class="hidden lg:block w-72 shrink-0">
+            <div class="sticky top-24"><div id="databot-container"></div></div>
         </div>
     </main>
+
+    <!-- Chapter Navigation -->
+    <div class="container mx-auto px-4 py-6 flex justify-between items-center border-t border-slate-700 mt-8">
+        <a href="mod07-dates-nulls.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">← Module 07 : Dates & Nulls</a>
+        <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fas fa-th-large mr-1"></i> Tous les modules</a>
+        <a href="mod08-logic.html" class="text-blue-400 hover:text-blue-300 font-bold text-sm">Module 08 : Logique →</a>
+    </div>
+
     <footer class="mt-auto border-t border-slate-700 py-6 text-center text-sm text-slate-500">
         <p>&copy; 2025-2026 RD-SQL | Tous droits réservés</p>
     </footer>
-    <script src="../assets/js/main.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="../assets/js/gamification.js"></script>
-<script src="../../rd-ai-chat.js"></script>
+    <script src="../assets/js/sql-engine.js"></script>
+    <script src="../assets/js/drag-drop.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const bot = new DataBot(); bot.render('databot-container');
+        bot.speak("Les jointures sont le cœur du SQL relationnel ! C'est parti !", "excited");
+
+        // ============ EXAMPLES ============
+        function loadExample(type) {
+            const editor = document.getElementById('sql-input');
+            const examples = {
+                'inner': "SELECT C.Nom, C.Ville, O.CmdID, O.Montant\nFROM Clients C\nINNER JOIN Commandes O ON C.ClientID = O.ClientID;",
+                'left': "SELECT C.Nom, C.Ville, O.CmdID, O.Montant\nFROM Clients C\nLEFT JOIN Commandes O ON C.ClientID = O.ClientID;",
+                'right': "SELECT C.Nom, O.CmdID, O.Montant\nFROM Clients C\nRIGHT JOIN Commandes O ON C.ClientID = O.ClientID;",
+                'full': "SELECT C.Nom, C.Ville, O.CmdID, O.Montant\nFROM Clients C\nFULL OUTER JOIN Commandes O ON C.ClientID = O.ClientID;",
+                'self': "SELECT E.Nom AS Employe, M.Nom AS Manager\nFROM Employes E\nLEFT JOIN Employes M ON E.ManagerID = M.EmpID;"
+            };
+            editor.value = examples[type] || '';
+        }
+
+        // ============ SQL SIMULATOR ============
+        const mockDB = {
+            clients: [
+                { ClientID: 1, Nom: 'Alice', Ville: 'Paris' },
+                { ClientID: 2, Nom: 'Bob', Ville: 'Lyon' },
+                { ClientID: 3, Nom: 'Charlie', Ville: 'Marseille' },
+                { ClientID: 4, Nom: 'Diana', Ville: 'Bordeaux' }
+            ],
+            commandes: [
+                { CmdID: 101, ClientID: 1, Montant: 250 },
+                { CmdID: 102, ClientID: 2, Montant: 430 },
+                { CmdID: 103, ClientID: 1, Montant: 120 },
+                { CmdID: 104, ClientID: 5, Montant: 80 }
+            ],
+            employes: [
+                { EmpID: 1, Nom: 'PDG', ManagerID: null },
+                { EmpID: 2, Nom: 'Alice', ManagerID: 1 },
+                { EmpID: 3, Nom: 'Bob', ManagerID: 1 },
+                { EmpID: 4, Nom: 'Charlie', ManagerID: 2 }
+            ]
+        };
+
+        function runQuery() {
+            const sql = document.getElementById('sql-input').value.toUpperCase();
+            const output = document.getElementById('query-output');
+            let result = [];
+
+            try {
+                if (sql.includes('EMPLOYES') || sql.includes('MANAGER')) {
+                    // Self-join simulation
+                    result = mockDB.employes.map(e => {
+                        const mgr = mockDB.employes.find(m => m.EmpID === e.ManagerID);
+                        return { Employe: e.Nom, Manager: mgr ? mgr.Nom : 'NULL' };
+                    });
+                } else if (sql.includes('FULL OUTER JOIN') || sql.includes('FULL JOIN')) {
+                    const matched = new Set();
+                    mockDB.clients.forEach(c => {
+                        const orders = mockDB.commandes.filter(o => o.ClientID === c.ClientID);
+                        if (orders.length > 0) {
+                            orders.forEach(o => { result.push({ Nom: c.Nom, Ville: c.Ville, CmdID: o.CmdID, Montant: o.Montant + ' €' }); matched.add(o.CmdID); });
+                        } else {
+                            result.push({ Nom: c.Nom, Ville: c.Ville, CmdID: 'NULL', Montant: 'NULL' });
+                        }
+                    });
+                    mockDB.commandes.filter(o => !matched.has(o.CmdID)).forEach(o => {
+                        result.push({ Nom: 'NULL', Ville: 'NULL', CmdID: o.CmdID, Montant: o.Montant + ' €' });
+                    });
+                } else if (sql.includes('INNER JOIN')) {
+                    mockDB.clients.forEach(c => {
+                        mockDB.commandes.filter(o => o.ClientID === c.ClientID).forEach(o => {
+                            result.push({ Nom: c.Nom, Ville: c.Ville, CmdID: o.CmdID, Montant: o.Montant + ' €' });
+                        });
+                    });
+                } else if (sql.includes('RIGHT JOIN')) {
+                    mockDB.commandes.forEach(o => {
+                        const client = mockDB.clients.find(c => c.ClientID === o.ClientID);
+                        result.push({ Nom: client ? client.Nom : 'NULL', CmdID: o.CmdID, Montant: o.Montant + ' €' });
+                    });
+                } else if (sql.includes('LEFT JOIN')) {
+                    mockDB.clients.forEach(c => {
+                        const orders = mockDB.commandes.filter(o => o.ClientID === c.ClientID);
+                        if (orders.length > 0) {
+                            orders.forEach(o => {
+                                result.push({ Nom: c.Nom, Ville: c.Ville, CmdID: o.CmdID, Montant: o.Montant + ' €' });
+                            });
+                        } else {
+                            result.push({ Nom: c.Nom, Ville: c.Ville, CmdID: 'NULL', Montant: 'NULL' });
+                        }
+                    });
+                } else if (sql.includes('CROSS JOIN')) {
+                    mockDB.clients.forEach(c => {
+                        mockDB.commandes.forEach(o => {
+                            result.push({ Client: c.Nom, CmdID: o.CmdID });
+                        });
+                    });
+                } else {
+                    output.innerHTML = '<div class="text-amber-400"><i class="fas fa-info-circle mr-1"></i> Essayez un des exemples prédéfinis (INNER, LEFT, RIGHT, FULL, Self).</div>';
+                    return;
+                }
+
+                if (result.length === 0) {
+                    output.innerHTML = '<div class="text-amber-400">Aucun résultat.</div>';
+                    return;
+                }
+
+                const keys = Object.keys(result[0]);
+                let html = '<table class="w-full text-sm"><thead><tr>';
+                keys.forEach(k => html += `<th class="text-left pr-4 pb-2 text-slate-500 font-mono text-xs">${k}</th>`);
+                html += '</tr></thead><tbody>';
+                result.forEach(row => {
+                    html += '<tr>';
+                    keys.forEach(k => {
+                        const val = row[k];
+                        const cls = val === 'NULL' ? 'text-amber-400/70 italic' : 'text-emerald-400';
+                        html += `<td class="pr-4 py-1 ${cls}">${val}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                html += `<div class="mt-2 text-xs text-slate-500">${result.length} ligne(s) retournée(s)</div>`;
+                output.innerHTML = html;
+                bot.awardXP(20);
+                bot.speak("Requête exécutée ! Analysez les résultats.", "happy");
+
+            } catch (e) {
+                output.innerHTML = `<div class="text-red-400"><i class="fas fa-exclamation-circle mr-1"></i> ${e.message}</div>`;
+            }
+        }
+
+        // ============ QUIZ ============
+        const quizData = [
+            { q: "INNER JOIN retourne quelles lignes ?", o: ["Toutes les lignes des 2 tables", "Uniquement les correspondances des 2 côtés", "Toutes les lignes de gauche", "Un produit cartésien"], a: 1 },
+            { q: "Quel JOIN retourne TOUTES les lignes de la table de gauche ?", o: ["INNER JOIN", "RIGHT JOIN", "LEFT JOIN", "CROSS JOIN"], a: 2 },
+            { q: "Que contient la colonne jointe quand il n'y a pas de correspondance dans un LEFT JOIN ?", o: ["0", "Rien", "NULL", "Erreur"], a: 2 },
+            { q: "CROSS JOIN nécessite une clause ON ?", o: ["Oui toujours", "Non jamais", "Seulement pour FULL", "Optionnel"], a: 1 },
+            { q: "Un Self-JOIN implique :", o: ["2 tables différentes", "3 tables", "La même table jointe avec elle-même", "Aucune jointure"], a: 2 },
+            { q: "FULL OUTER JOIN combine :", o: ["Seulement LEFT", "Seulement RIGHT", "LEFT + RIGHT (toutes les lignes)", "INNER + CROSS"], a: 2 },
+            { q: "Pour trouver les clients SANS commande, on utilise :", o: ["INNER JOIN + WHERE", "LEFT JOIN + WHERE ... IS NULL", "CROSS JOIN", "RIGHT JOIN + DISTINCT"], a: 1 },
+            { q: "Que produit un CROSS JOIN entre 10 lignes et 5 lignes ?", o: ["15 lignes", "10 lignes", "50 lignes", "5 lignes"], a: 2 },
+            { q: "Mettre un WHERE sur la table droite d'un LEFT JOIN le transforme en :", o: ["FULL OUTER JOIN", "CROSS JOIN", "INNER JOIN (implicitement)", "RIGHT JOIN"], a: 2 },
+            { q: "Les alias sont obligatoires pour quel type de JOIN ?", o: ["INNER JOIN", "LEFT JOIN", "Self-JOIN", "CROSS JOIN"], a: 2 }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            let html = '';
+            quizData.forEach((q, qi) => {
+                html += `<div class="mb-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <p class="font-bold mb-3 text-sm">${qi + 1}. ${q.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+                q.o.forEach((opt, oi) => {
+                    html += `<button onclick="checkQuiz(${qi},${oi},this)" class="quiz-option text-left text-sm p-3 rounded border border-slate-600 bg-slate-800 hover:border-blue-500 transition-all">${opt}</button>`;
+                });
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function checkQuiz(qi, oi, btn) {
+            const correct = quizData[qi].a === oi;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('button').forEach((b, i) => {
+                b.disabled = true;
+                b.classList.remove('hover:border-blue-500');
+                if (i === quizData[qi].a) b.classList.add('border-emerald-500', 'bg-emerald-900/30', 'text-emerald-300');
+                else if (i === oi && !correct) b.classList.add('border-red-500', 'bg-red-900/30', 'text-red-300', 'line-through');
+            });
+            if (correct) { bot.awardXP(10); bot.speak("Exact !", "happy"); }
+            else { bot.speak("Pas tout à fait... Relisez le tableau récapitulatif.", "sad"); }
+        }
+
+        renderQuiz();
+
+        // ============ DRAG & DROP ============
+        const draggables = [
+            { id: 'd1', text: 'INNER JOIN' },
+            { id: 'd2', text: 'LEFT JOIN' },
+            { id: 'd3', text: 'RIGHT JOIN' },
+            { id: 'd4', text: 'FULL OUTER JOIN' },
+            { id: 'd5', text: 'CROSS JOIN' },
+            { id: 'd6', text: 'Self-JOIN' }
+        ];
+        const zones = [
+            { id: 'z1', label: 'Correspondances des 2 côtés uniquement', accept: 'd1' },
+            { id: 'z2', label: 'Toutes les lignes de gauche + correspondances', accept: 'd2' },
+            { id: 'z3', label: 'Toutes les lignes de droite + correspondances', accept: 'd3' },
+            { id: 'z4', label: 'Toutes les lignes des 2 tables', accept: 'd4' },
+            { id: 'z5', label: 'Produit cartésien (N × M lignes)', accept: 'd5' },
+            { id: 'z6', label: 'Table jointe avec elle-même', accept: 'd6' }
+        ];
+        const ddEngine = new DragDropEngine('drag-drop-exercice', draggables, zones);
+
+        function validateDragDrop() {
+            if (ddEngine.validate()) {
+                bot.speak("Parfait ! Tu maîtrises les types de jointures !", "happy");
+                bot.awardXP(60);
+                confetti();
+            } else {
+                bot.speak("Pas encore... Relis le tableau récapitulatif !", "sad");
+            }
+        }
+
+        // ============ INIT ============
+        if (localStorage.getItem('rd_sql_theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    </script>
+    <script src="../../rd-ai-chat.js"></script>
 </body>
 </html>

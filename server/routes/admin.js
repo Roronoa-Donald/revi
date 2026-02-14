@@ -1,0 +1,346 @@
+const jwt = require('jsonwebtoken');
+const db = require('../db');
+const { generateActivationKey } = require('../utils/keygen');
+const { COURSES } = require('../middleware/access-control');
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+/**
+ * Vérifie le token admin. Retourne true si valide, false sinon.
+ */
+function verifyAdmin(request) {
+  try {
+    const token = request.cookies.admin_token;
+    if (!token) return false;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    return decoded.admin === true;
+  } catch {
+    return false;
+  }
+}
+
+module.exports = async function adminRoutes(fastify) {
+
+  // Hook de pré-validation : protéger toutes les routes admin sauf /login
+  fastify.addHook('onRequest', async (request, reply) => {
+    // Autoriser /api/admin/login sans authentification
+    if (request.url === '/api/admin/login' && request.method === 'POST') return;
+    // Autoriser la page de login (GET)
+    if (request.url.startsWith('/api/admin/courses')) return;
+
+    if (!verifyAdmin(request)) {
+      return reply.code(401).send({ success: false, message: 'Non autorisé' });
+    }
+  });
+
+  /**
+   * POST /api/admin/login
+   * Rate-limit : 5 tentatives/minute
+   */
+  fastify.post('/login', {
+    config: {
+      rateLimit: {
+        max: 5,
+        timeWindow: '1 minute'
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { username, password } = request.body || {};
+
+      if (
+        username === process.env.ADMIN_USERNAME &&
+        password === process.env.ADMIN_PASSWORD
+      ) {
+        const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '8h' });
+
+        reply.setCookie('admin_token', token, {
+          httpOnly: true,
+          secure: IS_PROD,
+          sameSite: 'lax',
+          path: '/',
+          maxAge: 8 * 60 * 60,
+          domain: process.env.COOKIE_DOMAIN || undefined
+        });
+
+        await db.logActivity('admin_login', {
+          ip: request.ip,
+          details: 'Connexion admin réussie'
+        });
+
+        return reply.send({ success: true, message: 'Connexion réussie' });
+      }
+
+      await db.logActivity('admin_login_failed', {
+        ip: request.ip,
+        details: 'Tentative de connexion échouée - user: ' + (username || '(vide)')
+      });
+
+      return reply.code(401).send({
+        success: false,
+        message: 'Identifiants incorrects'
+      });
+
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ success: false, message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * POST /api/admin/logout
+   */
+  fastify.post('/logout', async (request, reply) => {
+    reply.clearCookie('admin_token', { path: '/' });
+    return reply.send({ success: true });
+  });
+
+  /**
+   * GET /api/admin/verify
+   */
+  fastify.get('/verify', async (request, reply) => {
+    return reply.send({ authenticated: true });
+  });
+
+  /**
+   * GET /api/admin/courses
+   * Liste des cours disponibles (pour le formulaire de création)
+   */
+  fastify.get('/courses', async (request, reply) => {
+    return reply.send(COURSES);
+  });
+
+  /**
+   * GET /api/admin/stats
+   */
+  fastify.get('/stats', async (request, reply) => {
+    try {
+      const stats = await db.getStats();
+      return reply.send(stats);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * GET /api/admin/keys
+   * Liste toutes les clés avec filtre et recherche optionnels
+   */
+  fastify.get('/keys', async (request, reply) => {
+    try {
+      const { filter, search } = request.query;
+      const keys = await db.getAllKeys(filter, search);
+      return reply.send(keys);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * POST /api/admin/keys
+   * Créer une ou plusieurs clés
+   */
+  fastify.post('/keys', async (request, reply) => {
+    try {
+      const { scope = 'all', note = '', count = 1, expiresIn = null } = request.body || {};
+      const numKeys = Math.min(Math.max(1, parseInt(count) || 1), 50); // Max 50 clés à la fois
+
+      // Calculer la date d'expiration si spécifiée
+      let expiresAt = null;
+      if (expiresIn && expiresIn !== 'never') {
+        const now = new Date();
+        const durations = {
+          '7d': 7 * 24 * 60 * 60 * 1000,
+          '30d': 30 * 24 * 60 * 60 * 1000,
+          '90d': 90 * 24 * 60 * 60 * 1000,
+          '180d': 180 * 24 * 60 * 60 * 1000,
+          '365d': 365 * 24 * 60 * 60 * 1000
+        };
+        if (durations[expiresIn]) {
+          expiresAt = new Date(now.getTime() + durations[expiresIn]);
+        }
+      }
+
+      const createdKeys = [];
+      for (let i = 0; i < numKeys; i++) {
+        const keyCode = generateActivationKey();
+        const key = await db.createKey(keyCode, scope, note, expiresAt);
+        createdKeys.push(key);
+      }
+
+      return reply.send({
+        success: true,
+        message: `${numKeys} clé(s) créée(s)`,
+        keys: createdKeys
+      });
+
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ success: false, message: 'Erreur lors de la création' });
+    }
+  });
+
+  /**
+   * POST /api/admin/keys/:id/reset
+   * Réinitialise une clé (la rend réutilisable sur une nouvelle machine)
+   */
+  fastify.post('/keys/:id/reset', async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const key = await db.resetKey(parseInt(id));
+
+      if (!key) {
+        return reply.code(404).send({ success: false, message: 'Clé introuvable' });
+      }
+
+      return reply.send({
+        success: true,
+        message: 'Clé réinitialisée. L\'ancienne session a été invalidée.',
+        key
+      });
+
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ success: false, message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * POST /api/admin/keys/:id/revoke
+   * Révoque une clé (désactivation complète)
+   */
+  fastify.post('/keys/:id/revoke', async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const key = await db.revokeKey(parseInt(id));
+
+      if (!key) {
+        return reply.code(404).send({ success: false, message: 'Clé introuvable' });
+      }
+
+      return reply.send({
+        success: true,
+        message: 'Clé révoquée et sessions invalidées.',
+        key
+      });
+
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ success: false, message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * POST /api/admin/keys/:id/reactivate
+   * Réactive une clé précédemment révoquée
+   */
+  fastify.post('/keys/:id/reactivate', async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const key = await db.reactivateKey(parseInt(id));
+
+      if (!key) {
+        return reply.code(404).send({ success: false, message: 'Clé introuvable' });
+      }
+
+      return reply.send({
+        success: true,
+        message: 'Clé réactivée.',
+        key
+      });
+
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ success: false, message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * DELETE /api/admin/keys/:id
+   * Supprime définitivement une clé
+   */
+  fastify.delete('/keys/:id', async (request, reply) => {
+    try {
+      const { id } = request.params;
+      await db.deleteKey(parseInt(id));
+      return reply.send({ success: true, message: 'Clé supprimée définitivement' });
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ success: false, message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * GET /api/admin/sessions
+   * Liste toutes les sessions
+   */
+  fastify.get('/sessions', async (request, reply) => {
+    try {
+      const sessions = await db.getAllSessions();
+      return reply.send(sessions);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * POST /api/admin/sessions/:id/revoke
+   * Révoque une session spécifique
+   */
+  fastify.post('/sessions/:id/revoke', async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const session = await db.revokeSession(parseInt(id));
+
+      if (!session) {
+        return reply.code(404).send({ success: false, message: 'Session introuvable' });
+      }
+
+      return reply.send({
+        success: true,
+        message: 'Session révoquée.',
+        session
+      });
+
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ success: false, message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * GET /api/admin/stats/courses
+   * Statistiques détaillées par cours
+   */
+  fastify.get('/stats/courses', async (request, reply) => {
+    try {
+      const stats = await db.getStatsByCourse();
+      return reply.send(stats);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * GET /api/admin/logs
+   * Journal d'activité avec pagination et filtre
+   */
+  fastify.get('/logs', async (request, reply) => {
+    try {
+      const { limit = 100, offset = 0, type = null } = request.query;
+      const [logs, total] = await Promise.all([
+        db.getActivityLogs(parseInt(limit), parseInt(offset), type || null),
+        db.getActivityLogsCount(type || null)
+      ]);
+      return reply.send({ logs, total, limit: parseInt(limit), offset: parseInt(offset) });
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ message: 'Erreur serveur' });
+    }
+  });
+};

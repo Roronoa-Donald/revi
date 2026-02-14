@@ -340,7 +340,7 @@
         <!-- SETUP SCREEN -->
         <div id="setup-screen" class="setup-screen">
             <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: white;">Simulateur d'Examen</h1>
-            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Paramétrez votre épreuve : Exercices de Modélisation & Quiz Théorique</p>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">150+ questions — Modélisation, Formes, Résolution graphique, Simplexe & plus</p>
             
             <div class="setup-options">
                 <div class="setup-option">
@@ -351,6 +351,7 @@
                         <option value="20">20 Questions (Complet)</option>
                         <option value="30">30 Questions (Intensif)</option>
                         <option value="50">50 Questions (Examen)</option>
+                        <option value="100">100 Questions (Marathon)</option>
                     </select>
                 </div>
                 
@@ -376,12 +377,13 @@
                 <div class="setup-option">
                     <label><i class="fas fa-filter"></i> Chapitres</label>
                     <select id="chapters">
-                        <option value="all" selected>Tous les chapitres</option>
-                        <option value="1-2">Ch.1-2 : Intro & Concepts</option>
-                        <option value="3-4">Ch.3-4 : Modélisation & Forme standard</option>
-                        <option value="5-6">Ch.5-6 : Résolution graphique</option>
-                        <option value="7">Ch.7 : Simplexe</option>
-                        <option value="8">Ch.8 : Dualité</option>
+                        <option value="all" selected>Tous les thèmes</option>
+                        <option value="3">Modélisation</option>
+                        <option value="4">Formes (canonique & standard)</option>
+                        <option value="5">Résolution graphique</option>
+                        <option value="7">Simplexe</option>
+                        <option value="1-2">Intro & Concepts (legacy)</option>
+                        <option value="8">Dualité (legacy)</option>
                     </select>
                 </div>
             </div>
@@ -448,9 +450,16 @@
     </div>
 
     <script src="../assets/js/download.js"></script>
+    <script src="../qcm-ro.js"></script>
     <script>
-        // --- DATA BANK (52 questions — Chapitres 1-8) ---
-        const questionBank = [
+        // --- DATA BANK : 100 questions depuis qcm-ro.js (qcmRO) ---
+        const questionBank = qcmRO.map(q => ({
+            ...q,
+            type: 'quiz',
+            chapter: q.theme === 'Modélisation' ? 3 : q.theme === 'Formes' ? 4 : q.theme === 'Résolution graphique' ? 5 : 7
+        }));
+
+        const legacyBank = [
             // ========== CHAPITRE 1 — Introduction à la RO (5 questions) ==========
             {
                 id: 1, type: 'quiz', chapter: 1,
@@ -852,6 +861,9 @@
             }
         ];
 
+        // Merge: 100 QCM + 52 legacy = 152 total
+        const fullBank = questionBank.concat(legacyBank);
+
         // --- EXAM LOGIC ---
         let state = {
             questions: [],
@@ -871,7 +883,7 @@
                 const chapterPref = document.getElementById('chapters').value;
 
                 // Filter
-                let pool = questionBank.filter(q => {
+                let pool = fullBank.filter(q => {
                     let typeMatch = (typePref === 'mix') ? true : q.type === typePref;
                     let chapMatch = true;
                     if (chapterPref !== 'all') {
