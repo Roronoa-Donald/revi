@@ -111,7 +111,7 @@ module.exports = async function authRoutes(fastify) {
       const jti = generateJti();
       await db.createSession(keyRecord.id, jti, fpHash);
 
-      // Générer le JWT
+      // Générer le JWT (1 an — seule la déconnexion manuelle y met fin)
       const token = jwt.sign(
         {
           keyId: keyRecord.id,
@@ -119,7 +119,7 @@ module.exports = async function authRoutes(fastify) {
           jti: jti
         },
         JWT_SECRET,
-        { expiresIn: '30d' }
+        { expiresIn: '365d' }
       );
 
       // Placer le JWT dans un cookie httpOnly
@@ -128,7 +128,7 @@ module.exports = async function authRoutes(fastify) {
         secure: IS_PROD,
         sameSite: 'lax',
         path: '/',
-        maxAge: 30 * 24 * 60 * 60, // 30 jours
+        maxAge: 365 * 24 * 60 * 60, // 1 an
         domain: process.env.COOKIE_DOMAIN || undefined
       });
 
@@ -183,10 +183,8 @@ module.exports = async function authRoutes(fastify) {
         return reply.send({ authenticated: false });
       }
 
-      // Vérifier si la clé est expirée
-      if (keyRecord.expires_at && new Date(keyRecord.expires_at) < new Date()) {
-        return reply.send({ authenticated: false, reason: 'expired' });
-      }
+      // Note : on ne vérifie PAS l'expiration ici.
+      // Seule la déconnexion manuelle ou la révocation admin coupe l'accès.
 
       // Mettre à jour last_verified
       await db.updateSessionVerified(decoded.jti);
@@ -204,36 +202,11 @@ module.exports = async function authRoutes(fastify) {
 
   /**
    * POST /api/verify-fingerprint
-   * Vérifie le fingerprint actuel vs. celui stocké
+   * Désactivé : ne révoque plus jamais la session.
+   * Seule la déconnexion manuelle coupe l'accès.
    */
   fastify.post('/verify-fingerprint', async (request, reply) => {
-    try {
-      const token = request.cookies.auth_token;
-      const { fingerprint } = request.body || {};
-
-      if (!token || !fingerprint) {
-        return reply.send({ valid: false });
-      }
-
-      const decoded = jwt.verify(token, JWT_SECRET);
-      const session = await db.getSessionByJti(decoded.jti);
-
-      if (!session || !session.is_valid) {
-        return reply.send({ valid: false });
-      }
-
-      const fpHash = hashFingerprint(fingerprint);
-      if (session.machine_fingerprint !== fpHash) {
-        // Fingerprint différent → invalider la session
-        await db.revokeSessionByJti(decoded.jti);
-        return reply.send({ valid: false, reason: 'fingerprint_mismatch' });
-      }
-
-      return reply.send({ valid: true });
-
-    } catch (err) {
-      return reply.send({ valid: false });
-    }
+    return reply.send({ valid: true });
   });
 
   /**

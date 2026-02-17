@@ -1,1637 +1,3281 @@
 <!DOCTYPE html>
+
 <html lang="fr" data-theme="light">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <meta name="description" content="Chapitre 1 - Probabilités : Vocabulaire, calcul de probabilités et probabilités conditionnelles">
+
     <title>Chapitre 1 : Probabilités | Probas RD</title>
+
     
+
     <!-- Fonts -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     
+
     <!-- Icons -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     
+
+    <!-- Anti-flash : thème + CSS critique AVANT le chargement externe -->
+    <script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+    <style>
+        [data-theme="dark"] { color-scheme: dark; }
+        [data-theme="dark"] body { background: #0f172a; color: #f1f5f9; }
+        [data-theme="dark"] .header { background: rgba(15,23,42,0.85); }
+    </style>
+
     <!-- Styles -->
     <link rel="stylesheet" href="../assets/css/style.css">
-    
+
     <!-- MathJax -->
+
     <script>
+
         window.MathJax = {
+
             tex: {
+
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
+
                 displayMath: [['$$', '$$'], ['\\[', '\\]']]
+
             },
+
             options: {
+
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+
             }
+
         };
+
     </script>
+
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     
+
     <!-- Favicon -->
+
     <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+
 </head>
+
 <body>
+
     <!-- Header -->
+
     <header class="header">
+
         <div class="header-content">
+
             <a href="../index.html" class="logo">
+
                 <div class="logo-icon">🎲</div>
+
                 <span>Probas <strong style="color: var(--accent-secondary);">RD</strong></span>
+
             </a>
+
             
+
             <nav class="nav">
+
                 <a href="../index.html" class="nav-link">Accueil</a>
+
                 <a href="chapitre1.html" class="nav-link active">Probabilités</a>
+
                 <a href="chapitre2.html" class="nav-link">Dénombrement</a>
+
                 <a href="chapitre3.html" class="nav-link">VA Discrètes</a>
+
                 <a href="chapitre4.html" class="nav-link">VA Continues</a>
+
                 <a href="cartes.html" class="nav-link">🃏 Cartes</a>
+
                 <a href="../exercices/exercices.html" class="nav-link">Exercices</a>
+
+                <a href="../exercices/exo_exam.html" class="nav-link">📋 Exo VA</a>
+
                 <a href="formules.html" class="nav-link">📐 Formules</a>
+
                 <a href="rappels-integration.html" class="nav-link">∫ Intégrales</a>
-                <a href="simulateur-examen.html" class="nav-link" style="color: var(--accent-secondary);">📝 Examen</a>
+
+                <a href="simulateur-examen.html" class="nav-link" style="color: var(--accent-secondary);">📝 Examen Final</a>
+
             </nav>
+
             
+
             <div class="flex" style="gap: 0.75rem;">
+
                 <button class="theme-toggle" aria-label="Changer le thème">
+
                     <i class="fas fa-sun icon-sun"></i>
+
                     <i class="fas fa-moon icon-moon"></i>
+
                 </button>
+
                 
+
                 <button class="menu-toggle" aria-expanded="false" aria-label="Menu">
+
                     <span></span>
+
                     <span></span>
+
                     <span></span>
+
                 </button>
+
             </div>
+
         </div>
+
     </header>
 
+
+
     <div class="container">
+
         <div class="page-layout">
+
             <!-- Main Content -->
+
             <main class="main-content">
+
                 <!-- Chapter Header -->
+
                 <section class="section" style="padding-top: 2rem;">
+
                     <div class="card-badge" style="margin-bottom: 1rem;">
+
                         <i class="fas fa-book-open"></i>
+
                         Chapitre 1
+
                     </div>
+
                     <h1>Probabilités</h1>
+
                     <p style="font-size: 1.1rem; max-width: 800px;">
+
                         Le calcul des probabilités a pour but de <strong>rationaliser le hasard</strong> : 
+
                         quelles sont les chances d'obtenir un résultat suite à une expérience aléatoire ?
+
                     </p>
+
                     
+
                     <div class="progress-bar" style="max-width: 400px; margin-top: 1.5rem;">
+
                         <div class="progress-fill" style="width: 0%;" id="progress"></div>
+
                     </div>
+
                 </section>
+
+
 
                 <!-- Section 1: Vocabulaire -->
+
                 <section id="vocabulaire" class="section">
+
                     <h2><i class="fas fa-book" style="color: var(--info);"></i> I. Vocabulaire des événements</h2>
+
                     
+
                     <h3 id="vocabulaire-base">I.1 Vocabulaire de base</h3>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définitions fondamentales</h4>
+
                         <ul style="list-style: none; padding: 0;">
+
                             <li style="margin-bottom: 0.75rem;">
+
                                 <strong>Éventualité :</strong> Chaque résultat possible et prévisible d'une expérience aléatoire.
+
                             </li>
+
                             <li style="margin-bottom: 0.75rem;">
+
                                 <strong>Univers (noté $\Omega$) :</strong> L'ensemble formé par toutes les éventualités.
+
                             </li>
+
                             <li style="margin-bottom: 0.75rem;">
+
                                 <strong>Événement :</strong> Une partie quelconque de l'univers $\Omega$.
+
                             </li>
+
                             <li style="margin-bottom: 0.75rem;">
+
                                 <strong>Événement élémentaire :</strong> Un événement ne comprenant qu'une seule éventualité.
+
                             </li>
+
                             <li style="margin-bottom: 0.75rem;">
+
                                 <strong>Événement impossible (noté $\varnothing$) :</strong> L'événement qui ne contient aucune éventualité.
+
                             </li>
+
                             <li style="margin-bottom: 0.75rem;">
+
                                 <strong>Événement certain :</strong> L'événement composé de toutes les éventualités, égal à $\Omega$.
+
                             </li>
+
                             <li>
+
                                 <strong>Événement contraire (noté $\bar{A}$) :</strong> Pour tout événement $A$, l'ensemble des éléments de $\Omega$ qui ne sont pas dans $A$.
+
                             </li>
+
                         </ul>
+
                     </div>
+
                     
+
                     <div class="math-property">
+
                         <h4><i class="fas fa-check-circle"></i> Propriétés de l'événement contraire</h4>
+
                         <p>Pour tout événement $A$ :</p>
+
                         $$ A \cup \bar{A} = \Omega \qquad \text{et} \qquad A \cap \bar{A} = \varnothing $$
+
                     </div>
+
                     
+
                     <div class="math-example">
+
                         <h4><i class="fas fa-lightbulb"></i> Exemple : Lancer d'un dé à 6 faces</h4>
+
                         <ul>
+
                             <li><strong>Univers :</strong> $\Omega = \{1, 2, 3, 4, 5, 6\}$</li>
+
                             <li><strong>"Obtenir 2"</strong> est une éventualité</li>
+
                             <li>$A$ = "Obtenir un 5" est un <em>événement élémentaire</em> : $A = \{5\}$</li>
+
                             <li>$B$ = "Obtenir un numéro pair" est un événement : $B = \{2, 4, 6\}$</li>
+
                             <li>"Obtenir 7" est un <em>événement impossible</em></li>
+
                             <li>$\bar{B}$ = "Obtenir un nombre impair" = $\{1, 3, 5\}$</li>
+
                         </ul>
+
                     </div>
+
+
 
                     <h3 id="intersection-reunion">I.2 Intersection et réunion d'événements</h3>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition</h4>
+
                         <p>Soient $A$ et $B$ deux événements :</p>
+
                         <ul>
+
                             <li><strong>Intersection</strong> $A \cap B$ (lire "A inter B" ou "A et B") : événement constitué des éventualités appartenant à $A$ <em>et</em> à $B$.</li>
+
                             <li><strong>Réunion</strong> $A \cup B$ (lire "A union B" ou "A ou B") : événement constitué des éventualités appartenant à $A$ <em>ou</em> à $B$.</li>
+
                         </ul>
+
                     </div>
+
                     
+
                     <div class="math-warning">
+
                         <h4><i class="fas fa-exclamation-triangle"></i> Attention</h4>
+
                         <p>Si $A \cap B = \varnothing$, on dit que les événements sont <strong>disjoints</strong> ou <strong>incompatibles</strong>.</p>
+
                     </div>
+
+
 
                     <!-- Interactive Simulation: Venn Diagram -->
+
                     <div class="simulation-container">
+
                         <div class="simulation-header">
+
                             <div class="simulation-title">
+
                                 <i class="fas fa-play-circle"></i>
+
                                 Simulation Interactive
+
                             </div>
+
                             <select class="simulation-selector" id="venn-selector">
+
                                 <option value="intersection">Intersection A ∩ B</option>
+
                                 <option value="union">Réunion A ∪ B</option>
+
                                 <option value="complement">Complémentaire Ā</option>
+
                                 <option value="difference">Différence A \ B</option>
+
                             </select>
+
                         </div>
+
                         <div class="simulation-body">
+
                             <div class="simulation-canvas" id="venn-canvas" style="min-height: 350px;">
+
                                 <svg viewBox="0 0 400 300" style="width: 100%; max-width: 500px;">
+
                                     <!-- Universe Rectangle -->
+
                                     <rect x="20" y="20" width="360" height="260" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="5,5" rx="10"/>
+
                                     <text x="35" y="45" fill="var(--text-secondary)" font-size="14" font-weight="600">Ω</text>
+
                                     
+
                                     <!-- Set A -->
+
                                     <circle id="circle-a" cx="150" cy="150" r="80" fill="rgba(99, 102, 241, 0.3)" stroke="var(--accent-primary)" stroke-width="3"/>
+
                                     <text x="100" y="150" fill="var(--accent-primary)" font-size="20" font-weight="700">A</text>
+
                                     
+
                                     <!-- Set B -->
+
                                     <circle id="circle-b" cx="250" cy="150" r="80" fill="rgba(16, 185, 129, 0.3)" stroke="var(--success)" stroke-width="3"/>
+
                                     <text x="280" y="150" fill="var(--success)" font-size="20" font-weight="700">B</text>
+
                                     
+
                                     <!-- Highlighted region (intersection by default) -->
+
                                     <clipPath id="clip-a">
+
                                         <circle cx="150" cy="150" r="80"/>
+
                                     </clipPath>
+
                                     <circle id="highlight" cx="250" cy="150" r="80" fill="rgba(139, 92, 246, 0.6)" clip-path="url(#clip-a)"/>
+
                                 </svg>
+
                             </div>
+
                             <div class="simulation-results">
+
                                 <div class="result-grid">
+
                                     <div class="result-item">
+
                                         <div class="result-value" id="venn-result">A ∩ B</div>
+
                                         <div class="result-label">Opération sélectionnée</div>
+
                                     </div>
+
                                     <div class="result-item">
+
                                         <div class="result-value" style="font-size: 1rem; line-height: 1.5;" id="venn-description">Éléments appartenant à A ET à B</div>
+
                                         <div class="result-label">Interprétation</div>
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </section>
+
+
 
                 <!-- Section 2: Calcul de probabilités -->
+
                 <section id="calcul" class="section">
+
                     <h2><i class="fas fa-calculator" style="color: var(--accent-secondary);"></i> II. Calcul de probabilités</h2>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition</h4>
+
                         <ul>
+
                             <li>La <strong>probabilité d'un événement</strong> d'univers $\Omega$ est la somme des probabilités des événements élémentaires qui le constituent.</li>
+
                             <li>On dit qu'il y a <strong>équiprobabilité</strong> lorsque tous les événements élémentaires ont la même probabilité.</li>
+
                         </ul>
+
                         <p>Dans ce cas :</p>
+
                         $$ P(A) = \frac{\text{nombre d'éléments de } A}{\text{nombre d'éléments de } \Omega} = \frac{\text{Card}(A)}{\text{Card}(\Omega)} $$
+
                     </div>
+
                     
+
                     <div class="math-recall">
+
                         <h4><i class="fas fa-info-circle"></i> Rappel : Indices d'équiprobabilité</h4>
+
                         <p>Dans un exercice, pour signifier qu'on est en équiprobabilité, on trouve généralement :</p>
+
                         <ul>
+
                             <li>« On lance un dé <em>non pipé</em> »</li>
+
                             <li>« Dans une urne, il y a des boules <em>indiscernables au toucher</em> »</li>
+
                             <li>« On rencontre <em>au hasard</em> une personne parmi... »</li>
+
                         </ul>
+
                     </div>
+
                     
+
                     <div class="math-theorem">
+
                         <h4><i class="fas fa-scroll"></i> Propriétés fondamentales</h4>
+
                         <p>Soient $A$ et $B$ deux événements :</p>
+
                         <ul style="list-style: none; padding: 0;">
+
                             <li style="padding: 0.5rem 0;">$\bullet \quad P(\varnothing) = 0$</li>
+
                             <li style="padding: 0.5rem 0;">$\bullet \quad P(\Omega) = 1$</li>
+
                             <li style="padding: 0.5rem 0;">$\bullet \quad 0 \leqslant P(A) \leqslant 1$</li>
+
                             <li style="padding: 0.5rem 0;">$\bullet \quad P(\bar{A}) = 1 - P(A)$</li>
+
                             <li style="padding: 0.5rem 0; font-weight: 600; color: var(--accent-primary);">$\bullet \quad P(A \cup B) = P(A) + P(B) - P(A \cap B)$</li>
+
                         </ul>
+
                     </div>
+
                     
+
                     <div class="math-example">
+
                         <h4><i class="fas fa-lightbulb"></i> Exemple</h4>
+
                         <p>On considère l'ensemble $E$ des entiers de 1 à 20. On choisit l'un de ces nombres au hasard.</p>
+
                         <p>$A$ = "le nombre est multiple de 3" : $A = \{3, 6, 9, 12, 15, 18\}$</p>
+
                         <p>$B$ = "le nombre est multiple de 2" : $B = \{2, 4, 6, 8, 10, 12, 14, 16, 18, 20\}$</p>
+
                         
+
                         <p><strong>Calculs :</strong></p>
+
                         <ul>
+
                             <li>$P(A) = \frac{6}{20} = \frac{3}{10} = 0{,}3$</li>
+
                             <li>$P(\bar{A}) = 1 - P(A) = 1 - 0{,}3 = 0{,}7$</li>
+
                             <li>$P(B) = \frac{10}{20} = \frac{1}{2} = 0{,}5$</li>
+
                             <li>$A \cap B = \{6, 12, 18\}$ donc $P(A \cap B) = \frac{3}{20} = 0{,}15$</li>
+
                             <li>$P(A \cup B) = P(A) + P(B) - P(A \cap B) = \frac{6}{20} + \frac{10}{20} - \frac{3}{20} = \frac{13}{20} = 0{,}65$</li>
+
                         </ul>
+
                     </div>
+
+
 
                     <!-- ALERT WARNING: Erreurs classiques -->
+
                     <div class="alert-warning">
+
                         <h4><i class="fas fa-exclamation-triangle"></i> Erreurs classiques à éviter</h4>
+
                         <ul>
+
                             <li><strong>Oublier de soustraire l'intersection :</strong> $P(A \cup B) \neq P(A) + P(B)$ sauf si $A$ et $B$ sont disjoints !</li>
+
                             <li><strong>Confondre $\bar{A}$ et $A$ :</strong> Vérifiez toujours que $P(A) + P(\bar{A}) = 1$</li>
+
                             <li><strong>Probabilité > 1 :</strong> Si vous trouvez $P > 1$, c'est une erreur de calcul !</li>
+
                         </ul>
+
                     </div>
+
+
 
                     <!-- Interactive Simulation: Dice -->
+
                     <div class="simulation-container">
+
                         <div class="simulation-header">
+
                             <div class="simulation-title">
+
                                 <i class="fas fa-dice"></i>
+
                                 Simulateur de Dés
+
                             </div>
+
                             <select class="simulation-selector" id="dice-type-selector">
+
                                 <option value="1">1 dé</option>
+
                                 <option value="2">2 dés</option>
+
                                 <option value="3">3 dés</option>
+
                             </select>
+
                         </div>
+
                         <div class="simulation-body">
+
                             <div class="simulation-controls">
+
                                 <div class="control-group">
+
                                     <label>Nombre de lancers</label>
+
                                     <input type="number" id="dice-rolls" value="100" min="1" max="10000">
+
                                 </div>
+
                                 <div class="control-group">
+
                                     <label>Action</label>
+
                                     <button class="btn btn-primary" id="roll-dice-btn">
+
                                         <i class="fas fa-dice"></i> Lancer
+
                                     </button>
+
                                 </div>
+
                                 <div class="control-group">
+
                                     <label>Réinitialiser</label>
+
                                     <button class="btn btn-secondary" id="reset-dice-btn">
+
                                         <i class="fas fa-redo"></i> Reset
+
                                     </button>
+
                                 </div>
+
                             </div>
+
                             
+
                             <div class="simulation-canvas" id="dice-canvas" style="display: flex; justify-content: center; padding: 2rem;">
+
                                 <div class="dice-container" id="dice-display">
+
                                     <div class="dice" id="die1">?</div>
+
                                 </div>
+
                             </div>
+
                             
+
                             <div class="histogram" id="dice-histogram" style="margin-top: 1rem; min-height: 280px; padding-bottom: 30px;">
+
                                 <!-- Bars will be generated by JS -->
+
                             </div>
+
                             
+
                             <div class="simulation-results">
+
                                 <div class="result-grid">
+
                                     <div class="result-item">
+
                                         <div class="result-value" id="dice-total-rolls">0</div>
+
                                         <div class="result-label">Lancers effectués</div>
+
                                     </div>
+
                                     <div class="result-item">
+
                                         <div class="result-value" id="dice-average">-</div>
+
                                         <div class="result-label">Moyenne observée</div>
+
                                     </div>
+
                                     <div class="result-item">
+
                                         <div class="result-value" id="dice-expected">3.5</div>
+
                                         <div class="result-label">Espérance théorique</div>
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </section>
+
+
 
                 <!-- Section 3: Probabilités conditionnelles -->
+
                 <section id="conditionnelles" class="section">
+
                     <h2><i class="fas fa-code-branch" style="color: var(--success);"></i> III. Probabilités conditionnelles</h2>
+
                     
+
                     <h3 id="definition-cond">III.1 Définition</h3>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition</h4>
+
                         <p>On suppose que $P(B) \neq 0$.</p>
+
                         <p>On appelle <strong>probabilité conditionnelle de $A$ sachant $B$</strong> la probabilité que l'événement $A$ se réalise sachant que $B$ est réalisé.</p>
+
                         $$ P_B(A) = P(A|B) = \frac{P(A \cap B)}{P(B)} $$
+
                     </div>
+
                     
+
                     <div class="math-example">
+
                         <h4><i class="fas fa-lightbulb"></i> Exemple</h4>
+
                         <p>On lance un dé à 6 faces équilibré. On définit :</p>
+
                         <ul>
+
                             <li>$B$ : "la face obtenue porte un numéro pair" = $\{2, 4, 6\}$</li>
+
                             <li>$A$ : "la face obtenue porte un numéro multiple de 3" = $\{3, 6\}$</li>
+
                         </ul>
+
                         <p><strong>Calculons</strong> $P_B(A)$ = probabilité d'obtenir un multiple de 3 sachant qu'on a un nombre pair.</p>
+
                         
+
                         <p><em>Méthode 1 :</em> Parmi les issues de $B = \{2, 4, 6\}$, seule l'issue "6" correspond. Donc $P_B(A) = \frac{1}{3}$.</p>
+
                         
+
                         <p><em>Méthode 2 :</em> $P(B) = \frac{3}{6} = \frac{1}{2}$ et $P(A \cap B) = P(\{6\}) = \frac{1}{6}$</p>
+
                         $$ P_B(A) = \frac{P(A \cap B)}{P(B)} = \frac{\frac{1}{6}}{\frac{1}{2}} = \frac{1}{3} $$
+
                     </div>
+
                     
+
                     <h3 id="proprietes-cond">III.2 Propriétés</h3>
+
                     
+
                     <div class="math-theorem">
+
                         <h4><i class="fas fa-scroll"></i> Formule des probabilités composées</h4>
+
                         <p>Pour tous événements $A$ et $B$ de probabilité non nulle :</p>
+
                         $$ P(A \cap B) = P(B) \cdot P_B(A) = P(A) \cdot P_A(B) $$
+
                     </div>
+
                     
+
                     <div class="math-theorem">
+
                         <h4><i class="fas fa-scroll"></i> Formule des probabilités totales</h4>
+
                         <p>Pour tous $A$ et $B$ de probabilité non nulle :</p>
+
                         $$ P(A) = P_B(A) \cdot P(B) + P_{\bar{B}}(A) \cdot P(\bar{B}) $$
+
                     </div>
+
                     
+
                     <div class="math-property">
+
                         <h4><i class="fas fa-check-circle"></i> Propriétés des probabilités conditionnelles</h4>
+
                         <p>Soit $S$ un événement de probabilité non nulle :</p>
+
                         <ul style="list-style: none; padding: 0;">
+
                             <li style="padding: 0.4rem 0;">$\bullet \quad 0 \leqslant P_S(A) \leqslant 1$</li>
+
                             <li style="padding: 0.4rem 0;">$\bullet \quad P_S(\Omega) = 1$</li>
+
                             <li style="padding: 0.4rem 0;">$\bullet \quad P_S(\varnothing) = 0$</li>
+
                             <li style="padding: 0.4rem 0;">$\bullet \quad P_S(\bar{A}) = 1 - P_S(A)$</li>
+
                             <li style="padding: 0.4rem 0;">$\bullet \quad P_S(A \cup B) = P_S(A) + P_S(B) - P_S(A \cap B)$</li>
+
                         </ul>
+
                     </div>
+
+
 
                     <h3 id="exemple-complet">III.3 Exemple complet avec arbres et tableaux</h3>
+
                     
+
                     <div class="math-example">
+
                         <h4><i class="fas fa-industry"></i> Problème : Contrôle qualité</h4>
+
                         <p>Dans un atelier, deux machines $M_1$ et $M_2$ découpent des pièces métalliques :</p>
+
                         <ul>
+
                             <li>$M_1$ fournit <strong>60%</strong> de la production, dont <strong>6,3%</strong> sont défectueuses.</li>
+
                             <li>$M_2$ fournit le reste (<strong>40%</strong>), dont <strong>4%</strong> sont défectueuses.</li>
+
                         </ul>
+
                         <p>On tire une pièce au hasard. Quelle est la probabilité qu'elle soit défectueuse ?</p>
+
                     </div>
+
+
 
                     <!-- Interactive Tree -->
+
                     <div class="simulation-container">
+
                         <div class="simulation-header">
+
                             <div class="simulation-title">
+
                                 <i class="fas fa-sitemap"></i>
+
                                 Arbre de Probabilités
+
                             </div>
+
                             <select class="simulation-selector" id="tree-selector">
+
                                 <option value="machines">Exemple Machines</option>
+
                                 <option value="medical">Test Médical</option>
+
                                 <option value="urne">Tirages Urne</option>
+
                             </select>
+
                         </div>
+
                         <div class="simulation-body">
+
                             <div class="simulation-canvas" id="tree-canvas" style="min-height: 400px; overflow-x: auto;">
+
                                 <svg viewBox="0 0 600 350" style="width: 100%; min-width: 550px;">
+
                                     <!-- Root -->
+
                                     <circle cx="50" cy="175" r="8" fill="var(--accent-primary)"/>
+
                                     
+
                                     <!-- Branch M1 -->
+
                                     <line x1="58" y1="175" x2="180" y2="80" stroke="var(--accent-primary)" stroke-width="2"/>
+
                                     <text x="100" y="110" fill="var(--text-secondary)" font-size="12">0,6</text>
+
                                     <circle cx="180" cy="80" r="8" fill="var(--info)"/>
+
                                     <text x="175" y="60" fill="var(--info)" font-size="14" font-weight="600">M₁</text>
+
                                     
+
                                     <!-- M1 -> D -->
+
                                     <line x1="188" y1="80" x2="320" y2="40" stroke="var(--error)" stroke-width="2"/>
+
                                     <text x="235" y="45" fill="var(--text-secondary)" font-size="11">0,063</text>
+
                                     <circle cx="320" cy="40" r="6" fill="var(--error)"/>
+
                                     <text x="335" y="45" fill="var(--error)" font-size="12" font-weight="600">D</text>
+
                                     
+
                                     <!-- M1 -> D̄ -->
+
                                     <line x1="188" y1="80" x2="320" y2="100" stroke="var(--success)" stroke-width="2"/>
+
                                     <text x="235" y="100" fill="var(--text-secondary)" font-size="11">0,937</text>
+
                                     <circle cx="320" cy="100" r="6" fill="var(--success)"/>
+
                                     <text x="335" y="105" fill="var(--success)" font-size="12" font-weight="600">D̄</text>
+
                                     
+
                                     <!-- Branch M2 -->
+
                                     <line x1="58" y1="175" x2="180" y2="270" stroke="var(--accent-primary)" stroke-width="2"/>
+
                                     <text x="100" y="240" fill="var(--text-secondary)" font-size="12">0,4</text>
+
                                     <circle cx="180" cy="270" r="8" fill="var(--warning)"/>
+
                                     <text x="175" y="295" fill="var(--warning)" font-size="14" font-weight="600">M₂</text>
+
                                     
+
                                     <!-- M2 -> D -->
+
                                     <line x1="188" y1="270" x2="320" y2="240" stroke="var(--error)" stroke-width="2"/>
+
                                     <text x="235" y="245" fill="var(--text-secondary)" font-size="11">0,04</text>
+
                                     <circle cx="320" cy="240" r="6" fill="var(--error)"/>
+
                                     <text x="335" y="245" fill="var(--error)" font-size="12" font-weight="600">D</text>
+
                                     
+
                                     <!-- M2 -> D̄ -->
+
                                     <line x1="188" y1="270" x2="320" y2="300" stroke="var(--success)" stroke-width="2"/>
+
                                     <text x="235" y="295" fill="var(--text-secondary)" font-size="11">0,96</text>
+
                                     <circle cx="320" cy="300" r="6" fill="var(--success)"/>
+
                                     <text x="335" y="305" fill="var(--success)" font-size="12" font-weight="600">D̄</text>
+
                                     
+
                                     <!-- Calculations -->
+
                                     <text x="400" y="40" fill="var(--text-primary)" font-size="11">P(M₁∩D) = 0,6 × 0,063 = 0,0378</text>
+
                                     <text x="400" y="100" fill="var(--text-muted)" font-size="11">P(M₁∩D̄) = 0,6 × 0,937 = 0,5622</text>
+
                                     <text x="400" y="240" fill="var(--text-primary)" font-size="11">P(M₂∩D) = 0,4 × 0,04 = 0,016</text>
+
                                     <text x="400" y="300" fill="var(--text-muted)" font-size="11">P(M₂∩D̄) = 0,4 × 0,96 = 0,384</text>
+
                                 </svg>
+
                             </div>
+
                             <div class="simulation-results">
+
                                 <div class="result-grid">
+
                                     <div class="result-item">
+
                                         <div class="result-value">0,0538</div>
+
                                         <div class="result-label">P(D) = P(M₁∩D) + P(M₂∩D)</div>
+
                                     </div>
+
                                     <div class="result-item">
+
                                         <div class="result-value">5,38%</div>
+
                                         <div class="result-label">Taux de défectueux</div>
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
                     
+
                     <h3 id="independance">III.4 Événements indépendants</h3>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition</h4>
+
                         <p>On dit que $A$ et $B$ sont des <strong>événements indépendants</strong> si et seulement si :</p>
+
                         $$ P(A \cap B) = P(A) \times P(B) $$
+
                     </div>
+
                     
+
                     <div class="math-property">
+
                         <h4><i class="fas fa-check-circle"></i> Conséquences de l'indépendance</h4>
+
                         <p>Si $A$ et $B$ sont indépendants avec $P(A) \neq 0$ et $P(B) \neq 0$ :</p>
+
                         <ul>
+
                             <li>$P_B(A) = P(A)$ (savoir que $B$ se réalise ne change pas la probabilité de $A$)</li>
+
                             <li>$P_A(B) = P(B)$</li>
+
                             <li>$A$ et $\bar{B}$ sont indépendants</li>
+
                             <li>$\bar{A}$ et $B$ sont indépendants</li>
+
                             <li>$\bar{A}$ et $\bar{B}$ sont indépendants</li>
+
                         </ul>
+
                     </div>
+
                     
+
                     <div class="math-example">
+
                         <h4><i class="fas fa-lightbulb"></i> Exemple : Jeu de 32 cartes</h4>
+
                         <p>On tire une carte au hasard. On pose :</p>
+
                         <ul>
+
                             <li>$A$ = "Tirer un as" → $P(A) = \frac{4}{32} = \frac{1}{8}$</li>
+
                             <li>$B$ = "Tirer un cœur" → $P(B) = \frac{8}{32} = \frac{1}{4}$</li>
+
                             <li>$C$ = "Tirer un as rouge" → $P(C) = \frac{2}{32} = \frac{1}{16}$</li>
+
                         </ul>
+
                         
+
                         <p><strong>$A$ et $B$ sont-ils indépendants ?</strong></p>
+
                         <p>$P(A \cap B) = P(\text{"as de cœur"}) = \frac{1}{32}$</p>
+
                         <p>$P(A) \times P(B) = \frac{1}{8} \times \frac{1}{4} = \frac{1}{32}$ ✓</p>
+
                         <p>Donc <strong>$A$ et $B$ sont indépendants</strong>.</p>
+
                         
+
                         <p><strong>$B$ et $C$ sont-ils indépendants ?</strong></p>
+
                         <p>$P(B \cap C) = P(\text{"as de cœur"}) = \frac{1}{32}$</p>
+
                         <p>$P(B) \times P(C) = \frac{1}{4} \times \frac{1}{16} = \frac{1}{64} \neq \frac{1}{32}$</p>
+
                         <p>Donc <strong>$B$ et $C$ ne sont PAS indépendants</strong>.</p>
+
                     </div>
+
+
 
                     <!-- ALERT DANGER: Confusion indépendance -->
+
                     <div class="alert-danger">
+
                         <h4><i class="fas fa-ban"></i> Attention : Ne confondez jamais !</h4>
+
                         <p><strong>Événements indépendants ≠ Événements incompatibles</strong></p>
+
                         <ul>
+
                             <li><strong>Incompatibles :</strong> $A \cap B = \varnothing$ (ne peuvent pas se produire ensemble)</li>
+
                             <li><strong>Indépendants :</strong> $P(A \cap B) = P(A) \times P(B)$ (l'un n'influence pas l'autre)</li>
+
                         </ul>
+
                         <p>Des événements incompatibles (sauf si l'un a probabilité 0) ne sont <strong>jamais</strong> indépendants !</p>
+
                     </div>
+
+
 
                     <!-- LABORATOIRE VIRTUEL -->
+
                     <div id="sim-urne-container" style="margin: 3rem 0;"></div>
 
+
+
                     <!-- EXERCICES CLASSIQUES -->
+
                     <h3 id="exercices-chapitre">Exercices de fin de chapitre</h3>
+
                     
+
                     <div class="exercise-card">
+
                         <div class="exercise-header">
+
                             <span class="exercise-number">Exercice 1</span>
+
                             <span class="exercise-difficulty easy">Facile</span>
+
                         </div>
+
                         <div class="exercise-body">
+
                             <p>On lance un dé équilibré à 6 faces. Soit $A$ l'événement "obtenir un nombre pair" et $B$ l'événement "obtenir un multiple de 3".</p>
+
                             <ol>
+
                                 <li>Calculer $P(A)$, $P(B)$ et $P(A \cap B)$.</li>
+
                                 <li>En déduire $P(A \cup B)$.</li>
+
                                 <li>Les événements $A$ et $B$ sont-ils indépendants ?</li>
+
                             </ol>
+
                         </div>
+
                         <details class="solution-details">
+
                             <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+
                             <div class="solution-content">
+
                                 <p><strong>1. Calcul des probabilités :</strong></p>
+
                                 <ul>
+
                                     <li>$A = \{2, 4, 6\}$ donc $P(A) = \frac{3}{6} = \frac{1}{2}$</li>
+
                                     <li>$B = \{3, 6\}$ donc $P(B) = \frac{2}{6} = \frac{1}{3}$</li>
+
                                     <li>$A \cap B = \{6\}$ donc $P(A \cap B) = \frac{1}{6}$</li>
+
                                 </ul>
+
                                 
+
                                 <p><strong>2. Union :</strong></p>
+
                                 <p>$P(A \cup B) = P(A) + P(B) - P(A \cap B) = \frac{1}{2} + \frac{1}{3} - \frac{1}{6} = \frac{3+2-1}{6} = \frac{4}{6} = \frac{2}{3}$</p>
+
                                 
+
                                 <p><strong>3. Indépendance :</strong></p>
+
                                 <p>$P(A) \times P(B) = \frac{1}{2} \times \frac{1}{3} = \frac{1}{6} = P(A \cap B)$</p>
+
                                 <p><strong>Conclusion : $A$ et $B$ sont indépendants.</strong></p>
+
                             </div>
+
                         </details>
+
                     </div>
+
                     
+
                     <div class="exercise-card">
+
                         <div class="exercise-header">
+
                             <span class="exercise-number">Exercice 2</span>
+
                             <span class="exercise-difficulty medium">Moyen</span>
+
                         </div>
+
                         <div class="exercise-body">
+
                             <p>Un test de dépistage a les caractéristiques suivantes :</p>
+
                             <ul>
+
                                 <li>Si la personne est malade, le test est positif dans 95% des cas.</li>
+
                                 <li>Si la personne est saine, le test est négatif dans 90% des cas.</li>
+
                                 <li>Dans la population, 2% des personnes sont malades.</li>
+
                             </ul>
+
                             <p>Une personne passe le test et il est positif. Quelle est la probabilité qu'elle soit effectivement malade ?</p>
+
                         </div>
+
                         <details class="solution-details">
+
                             <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+
                             <div class="solution-content">
+
                                 <p><strong>Notations :</strong> $M$ = malade, $T^+$ = test positif</p>
+
                                 
+
                                 <p><strong>Données :</strong></p>
+
                                 <ul>
+
                                     <li>$P(M) = 0{,}02$ et $P(\bar{M}) = 0{,}98$</li>
+
                                     <li>$P(T^+ | M) = 0{,}95$ (sensibilité)</li>
+
                                     <li>$P(T^- | \bar{M}) = 0{,}90$ donc $P(T^+ | \bar{M}) = 0{,}10$ (faux positifs)</li>
+
                                 </ul>
+
                                 
+
                                 <p><strong>Formule de Bayes :</strong></p>
+
                                 $$ P(M | T^+) = \frac{P(T^+ | M) \times P(M)}{P(T^+)} $$
+
                                 
+
                                 <p><strong>Calcul de $P(T^+)$ :</strong></p>
+
                                 $$ P(T^+) = P(T^+ | M) \times P(M) + P(T^+ | \bar{M}) \times P(\bar{M}) $$
+
                                 $$ P(T^+) = 0{,}95 \times 0{,}02 + 0{,}10 \times 0{,}98 = 0{,}019 + 0{,}098 = 0{,}117 $$
+
                                 
+
                                 <p><strong>Conclusion :</strong></p>
+
                                 $$ P(M | T^+) = \frac{0{,}019}{0{,}117} \approx 0{,}162 \approx \boxed{16{,}2\%} $$
+
                                 <p>Malgré un test positif, il n'y a que 16% de chances d'être malade !</p>
+
                             </div>
+
                         </details>
+
                     </div>
+
                     
+
                     <div class="exercise-card">
+
                         <div class="exercise-header">
+
                             <span class="exercise-number">Exercice 3</span>
+
                             <span class="exercise-difficulty hard">Difficile</span>
+
                         </div>
+
                         <div class="exercise-body">
+
                             <p>On dispose de 3 urnes :</p>
+
                             <ul>
+
                                 <li>Urne 1 : 2 boules blanches, 3 boules noires</li>
+
                                 <li>Urne 2 : 4 boules blanches, 1 boule noire</li>
+
                                 <li>Urne 3 : 1 boule blanche, 4 boules noires</li>
+
                             </ul>
+
                             <p>On choisit une urne au hasard, puis on tire une boule. Elle est blanche.</p>
+
                             <p>Quelle est la probabilité qu'elle provienne de l'urne 2 ?</p>
+
                         </div>
+
                         <details class="solution-details">
+
                             <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+
                             <div class="solution-content">
+
                                 <p><strong>Notations :</strong> $U_i$ = urne $i$ choisie, $B$ = boule blanche</p>
+
                                 
+
                                 <p><strong>Données :</strong></p>
+
                                 <ul>
+
                                     <li>$P(U_1) = P(U_2) = P(U_3) = \frac{1}{3}$</li>
+
                                     <li>$P(B | U_1) = \frac{2}{5}$, $P(B | U_2) = \frac{4}{5}$, $P(B | U_3) = \frac{1}{5}$</li>
+
                                 </ul>
+
                                 
+
                                 <p><strong>Probabilité totale :</strong></p>
+
                                 $$ P(B) = \sum_{i=1}^{3} P(B | U_i) \times P(U_i) = \frac{1}{3}\left(\frac{2}{5} + \frac{4}{5} + \frac{1}{5}\right) = \frac{1}{3} \times \frac{7}{5} = \frac{7}{15} $$
+
                                 
+
                                 <p><strong>Formule de Bayes :</strong></p>
+
                                 $$ P(U_2 | B) = \frac{P(B | U_2) \times P(U_2)}{P(B)} = \frac{\frac{4}{5} \times \frac{1}{3}}{\frac{7}{15}} = \frac{\frac{4}{15}}{\frac{7}{15}} = \boxed{\frac{4}{7}} $$
+
                             </div>
+
                         </details>
+
                     </div>
+
+
 
                     <!-- EXERCICES AVEC INDICES -->
+
                     <h3 id="exercices-indices" style="margin-top: 2rem;">
+
                         <i class="fas fa-lightbulb" style="color: var(--warning);"></i>
+
                         Exercices guidés avec indices
+
                     </h3>
+
                     <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+
                         Ces exercices proposent des indices progressifs. Essayez de résoudre sans les regarder !
+
                     </p>
+
+
 
                     <!-- Exercice guidé 1 -->
+
                     <div class="exercise-with-hints" id="exo-hint-1-1">
+
                         <div class="exercise-title">
+
                             <h4><i class="fas fa-puzzle-piece"></i> Exercice guidé 1</h4>
+
                             <span class="exercise-level medium">Moyen</span>
+
                         </div>
+
                         <div class="exercise-statement">
+
                             <p>On tire successivement et sans remise 2 cartes d'un jeu de 32 cartes. Quelle est la probabilité d'obtenir exactement un As ?</p>
+
                         </div>
+
                         
+
                         <div class="hints-container">
+
                             <div class="hints-title">
+
                                 <i class="fas fa-lightbulb"></i> Indices progressifs
+
                                 <span class="hints-counter" id="hints-counter-exo-hint-1-1">0/3 indices utilisés</span>
+
                             </div>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-1-1" data-hint-number="1" id="hint-exo-hint-1-1-1">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">1</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 1 : Quelle méthode utiliser ?
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     Pensez à décomposer "exactement un As" en deux cas : As au 1er tirage OU As au 2e tirage. Utilisez les probabilités conditionnelles.
+
                                 </div>
+
                             </details>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-1-1" data-hint-number="2" id="hint-exo-hint-1-1-2">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">2</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 2 : Les probabilités élémentaires
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     <p>Il y a 4 As dans un jeu de 32 cartes.</p>
+
                                     <ul>
+
                                         <li>$P(\text{As au 1er tirage}) = \frac{4}{32}$</li>
+
                                         <li>Si As au 1er, $P(\text{pas As au 2e}) = \frac{28}{31}$</li>
+
                                         <li>Si pas As au 1er, $P(\text{As au 2e}) = \frac{4}{31}$</li>
+
                                     </ul>
+
                                 </div>
+
                             </details>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-1-1" data-hint-number="3" id="hint-exo-hint-1-1-3">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">3</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 3 : Le calcul final
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     <p>$P(\text{exactement 1 As}) = P(A_1 \cap \bar{A}_2) + P(\bar{A}_1 \cap A_2)$</p>
+
                                     <p>$= \frac{4}{32} \times \frac{28}{31} + \frac{28}{32} \times \frac{4}{31}$</p>
+
                                     <p>Simplifiez cette expression...</p>
+
                                 </div>
+
                             </details>
+
                         </div>
+
                         
+
                         <div class="answer-section">
+
                             <div class="answer-input-group">
+
                                 <input type="text" class="answer-input" id="answer-exo-hint-1-1" placeholder="Votre réponse (ex: 7/31)">
+
                                 <button class="btn-check-answer" onclick="checkExerciseAnswer('exo-hint-1-1')">
+
                                     <i class="fas fa-check"></i> Vérifier
+
                                 </button>
+
                             </div>
+
                             <div class="answer-feedback" id="feedback-exo-hint-1-1"></div>
+
                         </div>
+
                         
+
                         <details class="final-solution">
+
                             <summary class="final-solution-toggle">
+
                                 <i class="fas fa-graduation-cap"></i> Voir la solution complète
+
                             </summary>
+
                             <div class="final-solution-content">
+
                                 <p>$P = \frac{4}{32} \times \frac{28}{31} + \frac{28}{32} \times \frac{4}{31} = \frac{112 + 112}{32 \times 31} = \frac{224}{992} = \boxed{\frac{7}{31}}$</p>
+
                             </div>
+
                         </details>
+
                     </div>
+
+
 
                     <!-- Exercice guidé 2 -->
+
                     <div class="exercise-with-hints" id="exo-hint-1-2">
+
                         <div class="exercise-title">
+
                             <h4><i class="fas fa-puzzle-piece"></i> Exercice guidé 2</h4>
+
                             <span class="exercise-level hard">Difficile</span>
+
                         </div>
+
                         <div class="exercise-statement">
+
                             <p>Une urne contient 5 boules rouges et 3 boules vertes. On tire 3 boules successivement avec remise. Quelle est la probabilité d'obtenir au moins une boule verte ?</p>
+
                         </div>
+
                         
+
                         <div class="hints-container">
+
                             <div class="hints-title">
+
                                 <i class="fas fa-lightbulb"></i> Indices progressifs
+
                                 <span class="hints-counter" id="hints-counter-exo-hint-1-2">0/3 indices utilisés</span>
+
                             </div>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-1-2" data-hint-number="1" id="hint-exo-hint-1-2-1">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">1</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 1 : Événement complémentaire
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     "Au moins une verte" est le contraire de "aucune verte" (toutes rouges). Utilisez $P(A) = 1 - P(\bar{A})$.
+
                                 </div>
+
                             </details>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-1-2" data-hint-number="2" id="hint-exo-hint-1-2-2">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">2</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 2 : Avec remise = indépendance
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     <p>Avec remise, les tirages sont indépendants.</p>
+
                                     <p>$P(\text{3 rouges}) = P(\text{rouge})^3$</p>
+
                                     <p>Calculez $P(\text{rouge})$ pour un tirage...</p>
+
                                 </div>
+
                             </details>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-1-2" data-hint-number="3" id="hint-exo-hint-1-2-3">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">3</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 3 : Application numérique
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     <p>$P(\text{rouge}) = \frac{5}{8}$ donc $P(\text{3 rouges}) = \left(\frac{5}{8}\right)^3 = \frac{125}{512}$</p>
+
                                     <p>Donc $P(\text{au moins 1 verte}) = 1 - \frac{125}{512} = ?$</p>
+
                                 </div>
+
                             </details>
+
                         </div>
+
                         
+
                         <div class="answer-section">
+
                             <div class="answer-input-group">
+
                                 <input type="text" class="answer-input" id="answer-exo-hint-1-2" placeholder="Votre réponse (ex: 387/512)">
+
                                 <button class="btn-check-answer" onclick="checkExerciseAnswer('exo-hint-1-2')">
+
                                     <i class="fas fa-check"></i> Vérifier
+
                                 </button>
+
                             </div>
+
                             <div class="answer-feedback" id="feedback-exo-hint-1-2"></div>
+
                         </div>
+
                         
+
                         <details class="final-solution">
+
                             <summary class="final-solution-toggle">
+
                                 <i class="fas fa-graduation-cap"></i> Voir la solution complète
+
                             </summary>
+
                             <div class="final-solution-content">
+
                                 <p>$P(\text{au moins 1 verte}) = 1 - P(\text{3 rouges}) = 1 - \left(\frac{5}{8}\right)^3 = 1 - \frac{125}{512} = \boxed{\frac{387}{512}}$</p>
+
                             </div>
+
                         </details>
+
                     </div>
+
                 </section>
+
+
 
                 <!-- Section Approfondissement (Expert) -->
+
                 <section class="section" style="background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 2rem; margin-top: 3rem; border: 1px solid var(--border-color);">
+
                     <h2><i class="fas fa-microscope" style="color: var(--accent-primary);"></i> Approfondissement : Le Théorème de Bayes</h2>
+
                     <p>Pour aller plus loin que les definitions simples, analysons un cas concret souvent contre-intuitif : le dépistage médical.</p>
+
                     
+
                     <div class="math-theorem">
+
                         <h4><i class="fas fa-scroll"></i> Formule de Bayes</h4>
+
                         $$ P(A|B) = \frac{P(B|A) \times P(A)}{P(B)} $$
+
                         <p style="font-size: 0.9em; margin-top: 0.5rem; color: var(--text-secondary);">
+
                             Cette formule permet d'inverser le conditionnement : on connait $P(B|A)$ et on cherche $P(A|B)$.
+
                         </p>
+
                     </div>
+
+
 
                     <div class="example-box">
+
                         <h3><i class="fas fa-lightbulb"></i> Exemple Détaillé : Le Test Médical</h3>
+
                         <p><strong>Énoncé :</strong> Une maladie touche 1% de la population ($P(M) = 0.01$). Un test de dépistage est fiable à 95% si on est malade ($P(T+|M) = 0.95$) et a 5% de faux positifs si on est sain ($P(T+|S) = 0.05$).</p>
+
                         <p><strong>Question :</strong> Votre test est positif. Quelle est la probabilité que vous soyez réellement malade ?</p>
+
                         
+
                         <div class="solution-step">
+
                             <p><strong>Étape 1 : Identifier les événements</strong></p>
+
                             <ul>
+
                                 <li>$M$ : La personne est malade. $P(M) = 0.01$.</li>
+
                                 <li>$S$ : La personne est saine ($M^c$). $P(S) = 1 - 0.01 = 0.99$.</li>
+
                                 <li>$T+$ : Le test est positif.</li>
+
                             </ul>
+
                         </div>
 
+
+
                         <div class="solution-step">
+
                             <p><strong>Étape 2 : Calculer $P(T+)$ (Probabilité totale)</strong></p>
+
                             <p>On utilise la formule des probabilités totales :</p>
+
                             $$ P(T+) = P(T+|M)P(M) + P(T+|S)P(S) $$
+
                             $$ P(T+) = 0.95 \times 0.01 + 0.05 \times 0.99 $$
+
                             $$ P(T+) = 0.0095 + 0.0495 = 0.059 $$
+
                         </div>
 
+
+
                         <div class="solution-step">
+
                             <p><strong>Étape 3 : Appliquer Bayes</strong></p>
+
                             $$ P(M|T+) = \frac{P(T+|M)P(M)}{P(T+)} = \frac{0.0095}{0.059} \approx 0.161 $$
+
                         </div>
+
+
 
                         <div class="alert-box warning">
+
                             <i class="fas fa-exclamation-triangle"></i>
+
                             <strong>Conclusion Surprenante :</strong> Même avec un test positif, vous n'avez que **16%** de chance d'être malade ! C'est dû à la rareté de la maladie (1%). C'est pourquoi les médecins font souvent un deuxième test.
+
                         </div>
+
                     </div>
+
                 </section>
+
+
 
                 <!-- Section Exercices de Fin de Chapitre -->
+
                 <section id="exercices-chapitre" class="section" style="margin-top: 3rem;">
+
                     <h2><i class="fas fa-dumbbell" style="color: var(--success);"></i> Exercices d'Entraînement</h2>
+
                     <p>Mettez en pratique vos connaissances avec ces exercices progressifs.</p>
 
+
+
                     <!-- Exercice 1 -->
+
                     <div class="exercise-card">
+
                         <div class="exercise-header">
+
                             <span class="badge badge-easy">Facile</span>
+
                             <h3>Exercice 1 : Lancer de Dés</h3>
+
                         </div>
+
                         <p>On lance deux dés équilibrés à 6 faces. Quelle est la probabilité que la somme des dés soit égale à 7 ?</p>
+
                         
+
                         <details>
+
                             <summary class="btn-solution"><i class="fas fa-eye"></i> Voir la solution détaillée</summary>
+
                             <div class="solution-content">
+
                                 <p><strong>1. Espace fondamental $\Omega$ :</strong> Il y a $6 \times 6 = 36$ issues possibles (couples $(d_1, d_2)$).</p>
+
                                 <p><strong>2. Cas favorables $A$ :</strong> On cherche les couples somme = 7 :</p>
+
                                 <ul>
+
                                     <li>(1, 6), (2, 5), (3, 4), (4, 3), (5, 2), (6, 1)</li>
+
                                 </ul>
+
                                 <p>Il y a donc 6 cas favorables.</p>
+
                                 <p><strong>3. Calcul :</strong></p>
+
                                 $$ P(S=7) = \frac{\text{Nb cas favorables}}{\text{Nb cas total}} = \frac{6}{36} = \frac{1}{6} $$
+
                             </div>
+
                         </details>
+
                     </div>
+
+
 
                     <!-- Exercice 2 -->
+
                     <div class="exercise-card">
+
                         <div class="exercise-header">
+
                             <span class="badge badge-medium">Moyen</span>
+
                             <h3>Exercice 2 : Tirage de Cartes</h3>
+
                         </div>
+
                         <p>Dans un jeu de 32 cartes, on tire 3 cartes simultanément (combi). Quelle est la probabilité d'avoir exactement 2 As ?</p>
+
                         
+
                         <details>
+
                             <summary class="btn-solution"><i class="fas fa-eye"></i> Voir la solution détaillée</summary>
+
                             <div class="solution-content">
+
                                 <p><strong>1. Nombre total de tirages :</strong> C'est une combinaison de 3 parmi 32.</p>
-                                $$ \binom{32}{3} = \frac{32 \times 31 \times 30}{3 \times 2 \times 1} = 4960 $$
+
+                                $$ C_{32}^3 = \frac{32 \times 31 \times 30}{3 \times 2 \times 1} = 4960 $$
+
                                 <p><strong>2. Analyser l'événement :</strong> On veut "Exactement 2 As". Cela signifie :</p>
+
                                 <ul>
-                                    <li>Choisir 2 As parmi les 4 disponibles : $\binom{4}{2} = 6$ façons.</li>
-                                    <li>Choisir 1 "Non-As" parmi les 28 autres cartes : $\binom{28}{1} = 28$ façons.</li>
+
+                                    <li>Choisir 2 As parmi les 4 disponibles : $C_4^2 = 6$ façons.</li>
+
+                                    <li>Choisir 1 "Non-As" parmi les 28 autres cartes : $C_{28}^1 = 28$ façons.</li>
+
                                 </ul>
+
                                 <p>Nombre de mains favorables = $6 \times 28 = 168$.</p>
+
                                 <p><strong>3. Probabilité :</strong></p>
+
                                 $$ P(2\text{ As}) = \frac{168}{4960} \approx 0.0338 \text{ (soit } 3.4\%) $$
+
                             </div>
+
                         </details>
+
                     </div>
+
+
 
                     <!-- Exercice 3 -->
+
                     <div class="exercise-card">
+
                         <div class="exercise-header">
+
                             <span class="badge badge-hard">Difficile</span>
+
                             <h3>Exercice 3 : Probabilités Conditionnelles</h3>
+
                         </div>
+
                         <p>Une urne contient 5 boules Blanches et 3 Noires. On tire une boule, <strong>on note sa couleur et on la remet avec 2 autres boules de la même couleur</strong>. Puis on tire une seconde boule. Quelle est la probabilité que la première boule tirée soit Blanche sachant que la deuxième est Blanche ?</p>
+
                         
+
                         <details>
+
                             <summary class="btn-solution"><i class="fas fa-eye"></i> Voir la solution détaillée</summary>
+
                             <div class="solution-content">
+
                                 <p>Notons $B_1$ "1ère Blanche", $B_2$ "2ème Blanche".</p>
+
                                 <p><strong>1. Arbre des probabilités :</strong></p>
+
                                 <ul>
+
                                     <li>Au départ : 5B, 3N (Total 8). $P(B_1) = 5/8$.</li>
+
                                     <li>Si $B_1$ : On ajoute 2B. Urne = 7B, 3N (Total 10). Alors $P(B_2|B_1) = 7/10$.</li>
+
                                     <li>Si $N_1$ : On ajoute 2N. Urne = 5B, 5N (Total 10). Alors $P(B_2|N_1) = 5/10$.</li>
+
                                 </ul>
+
                                 <p><strong>2. On cherche $P(B_1|B_2)$. Par Bayes :</strong></p>
+
                                 $$ P(B_1|B_2) = \frac{P(B_2|B_1)P(B_1)}{P(B_2)} $$
+
                                 <p>Calculons le dénominateur $P(B_2)$ (Proba Totale) :</p>
+
                                 $$ P(B_2) = P(B_2|B_1)P(B_1) + P(B_2|N_1)P(N_1) $$
+
                                 $$ P(B_2) = \frac{7}{10} \times \frac{5}{8} + \frac{5}{10} \times \frac{3}{8} = \frac{35}{80} + \frac{15}{80} = \frac{50}{80} = \frac{5}{8} $$
+
                                 <p><strong>3. Application :</strong></p>
+
                                 $$ P(B_1|B_2) = \frac{\frac{7}{10} \times \frac{5}{8}}{\frac{5}{8}} = \frac{7}{10} = 0.7 $$
+
                             </div>
+
                         </details>
+
                     </div>
+
                 </section>
 
+
+
                 <!-- Navigation -->
+
                 <div class="chapter-nav">
+
                     <a href="../index.html" class="nav-btn prev">
+
                         <i class="fas fa-home"></i>
+
                         <div class="nav-btn-content">
+
                             <span class="nav-btn-label">Retour</span>
+
                             <span class="nav-btn-title">Accueil</span>
+
                         </div>
+
                     </a>
+
                     <a href="chapitre2.html" class="nav-btn next">
+
                         <i class="fas fa-arrow-right"></i>
+
                         <div class="nav-btn-content">
+
                             <span class="nav-btn-label">Chapitre suivant</span>
+
                             <span class="nav-btn-title">Dénombrement</span>
+
                         </div>
+
                     </a>
+
                 </div>
+
             </main>
 
+
+
             <!-- Sidebar -->
+
             <aside class="sidebar">
+
                 <nav class="toc">
+
                     <h4 class="toc-title">Sommaire</h4>
+
                     <ul class="toc-list">
+
                         <li class="toc-item">
+
                             <a href="#vocabulaire" class="toc-link active">
+
                                 <i class="fas fa-chevron-right"></i>
+
                                 I. Vocabulaire
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#vocabulaire-base" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+
                                 I.1 Vocabulaire de base
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#intersection-reunion" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+
                                 I.2 Intersection et réunion
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#calcul" class="toc-link">
+
                                 <i class="fas fa-chevron-right"></i>
+
                                 II. Calcul de probabilités
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#conditionnelles" class="toc-link">
+
                                 <i class="fas fa-chevron-right"></i>
+
                                 III. Probabilités conditionnelles
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#definition-cond" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+
                                 III.1 Définition
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#proprietes-cond" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+
                                 III.2 Propriétés
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#exemple-complet" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+
                                 III.3 Exemple complet
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#independance" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+
                                 III.4 Indépendance
+
                             </a>
+
                         </li>
+
                     </ul>
+
                 </nav>
+
                 
+
                 <div class="card" style="margin-top: 1.5rem; padding: 1.25rem;">
+
                     <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">
+
                         <i class="fas fa-tasks" style="color: var(--accent-primary);"></i>
+
                         Exercices
+
                     </h4>
+
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+
                         Mettez en pratique les concepts de ce chapitre.
+
                     </p>
+
                     <a href="../exercices/exercices.html#chapitre1" class="btn btn-primary btn-sm" style="width: 100%;">
+
                         Voir les exercices
+
                     </a>
+
                 </div>
+
             </aside>
+
         </div>
+
     </div>
 
+
+
     <!-- Quiz Section -->
+
     <section class="section" style="background: var(--bg-secondary); padding: 3rem 0; margin-top: 2rem;">
+
         <div class="container">
+
             <div class="quiz-section" id="quiz-chapitre1">
+
                 <div class="quiz-header-section">
+
                     <h2 style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+
                         <i class="fas fa-question-circle" style="color: var(--accent-primary);"></i>
+
                         Quiz - Chapitre 1
+
                     </h2>
+
                     <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+
                         Testez vos connaissances sur les probabilités avec ce quiz de 10 questions. 
+
                         Répondez à toutes les questions puis vérifiez vos réponses !
+
                     </p>
+
                     <div class="quiz-score-display" id="quiz1-score" style="display: none; padding: 1.5rem; background: var(--bg-primary); border-radius: var(--radius-xl); margin-bottom: 2rem; text-align: center;">
+
                         <h3 style="margin: 0;">Votre score : <span id="quiz1-result" style="color: var(--accent-primary);">0/10</span></h3>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 1 -->
+
                 <div class="exercise-interactive" id="q1-1">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 1</strong></span>
+
                         <span class="exercise-level easy">Facile</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         Si on lance un dé équilibré, quelle est la probabilité d'obtenir un 6 ?
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-1" placeholder="Votre réponse (ex: 1/6)">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-1', '1/6', ['1/6', '0.167', '0.17'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-1"></div>
+
                 </div>
+
+
 
                 <!-- Question 2 -->
+
                 <div class="exercise-interactive" id="q1-2">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 2</strong></span>
+
                         <span class="exercise-level easy">Facile</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         Si $P(A) = 0.3$, quelle est la probabilité de l'événement contraire $P(\bar{A})$ ?
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-2" placeholder="Votre réponse">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-2', '0.7', ['0.7', '0,7', '7/10'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-2"></div>
+
                 </div>
+
+
 
                 <!-- Question 3 -->
+
                 <div class="exercise-interactive" id="q1-3">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 3</strong></span>
+
                         <span class="exercise-level easy">Facile</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         Deux événements sont <strong>incompatibles</strong> si leur intersection est... (répondez en un mot)
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-3" placeholder="Votre réponse">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-3', 'vide', ['vide', 'nulle', 'ø', '∅', 'ensemble vide'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-3"></div>
+
                 </div>
+
+
 
                 <!-- Question 4 -->
+
                 <div class="exercise-interactive" id="q1-4">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 4</strong></span>
+
                         <span class="exercise-level medium">Moyen</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         Formule de l'union : $P(A \cup B) = P(A) + P(B) - \,?$
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-4" placeholder="P(...)">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-4', 'P(A∩B)', ['p(a∩b)', 'p(a ∩ b)', 'p(a inter b)', 'p(a et b)', 'p(a∩b)'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-4"></div>
+
                 </div>
+
+
 
                 <!-- Question 5 -->
+
                 <div class="exercise-interactive" id="q1-5">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 5</strong></span>
+
                         <span class="exercise-level medium">Moyen</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         Si $P(A) = 0.5$, $P(B) = 0.4$ et $P(A \cap B) = 0.2$, calculez $P(A \cup B)$.
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-5" placeholder="Votre réponse">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-5', '0.7', ['0.7', '0,7', '7/10'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-5"></div>
+
                 </div>
+
+
 
                 <!-- Question 6 -->
+
                 <div class="exercise-interactive" id="q1-6">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 6</strong></span>
+
                         <span class="exercise-level medium">Moyen</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         Quelle est la formule de la probabilité conditionnelle $P(B|A)$ ?
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-6" placeholder="P(B|A) = ...">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-6', 'P(A∩B)/P(A)', ['p(a∩b)/p(a)', 'p(a ∩ b)/p(a)', 'p(a inter b)/p(a)', 'p(anb)/p(a)'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-6"></div>
+
                 </div>
+
+
 
                 <!-- Question 7 -->
+
                 <div class="exercise-interactive" id="q1-7">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 7</strong></span>
+
                         <span class="exercise-level medium">Moyen</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         Si $P(A) = 0.6$ et $P(B|A) = 0.5$, calculez $P(A \cap B)$.
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-7" placeholder="Votre réponse">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-7', '0.3', ['0.3', '0,3', '3/10'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-7"></div>
+
                 </div>
+
+
 
                 <!-- Question 8 -->
+
                 <div class="exercise-interactive" id="q1-8">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 8</strong></span>
+
                         <span class="exercise-level hard">Difficile</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         A et B sont indépendants si et seulement si $P(A \cap B) = \,?$
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-8" placeholder="Votre réponse">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-8', 'P(A)×P(B)', ['p(a)×p(b)', 'p(a)*p(b)', 'p(a).p(b)', 'p(a)p(b)', 'p(a) x p(b)'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-8"></div>
+
                 </div>
+
+
 
                 <!-- Question 9 -->
+
                 <div class="exercise-interactive" id="q1-9">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 9</strong></span>
+
                         <span class="exercise-level hard">Difficile</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         Formule de Bayes : $P(A|B) = \frac{P(B|A) \times P(A)}{?}$
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-9" placeholder="Dénominateur = ...">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-9', 'P(B)', ['p(b)'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-9"></div>
+
                 </div>
+
+
 
                 <!-- Question 10 -->
+
                 <div class="exercise-interactive" id="q1-10">
+
                     <div class="exercise-header">
+
                         <span><strong>Question 10</strong></span>
+
                         <span class="exercise-level hard">Difficile</span>
+
                     </div>
+
                     <div class="exercise-question">
+
                         Un test médical a une sensibilité de 95% ($P(+|M) = 0.95$). La maladie touche 1% de la population. 
+
                         Si le test est positif, la probabilité d'être malade est... (supérieure/inférieure) à 50% ?
+
                     </div>
+
                     <div class="exercise-input-group">
+
                         <input type="text" class="exercise-input" id="input-q1-10" placeholder="supérieure ou inférieure">
+
                         <button class="exercise-btn check" onclick="checkQuiz1('q1-10', 'inférieure', ['inférieure', 'inferieure', 'inf', 'moins'])">Vérifier</button>
+
                     </div>
+
                     <div class="exercise-feedback" id="feedback-q1-10"></div>
+
                 </div>
+
+
 
                 <div style="text-align: center; margin-top: 2rem;">
+
                     <button class="btn btn-primary" onclick="calculateQuiz1Score()" style="padding: 1rem 2rem;">
+
                         <i class="fas fa-calculator"></i> Calculer mon score
+
                     </button>
+
                     <button class="btn" onclick="resetQuiz1()" style="padding: 1rem 2rem; margin-left: 1rem;">
+
                         <i class="fas fa-redo"></i> Recommencer
+
                     </button>
+
                 </div>
+
             </div>
+
         </div>
+
     </section>
 
+
+
     <!-- Chapter Navigation -->
+
     <nav class="chapter-nav">
+
         <div class="container">
+
             <div class="chapter-nav-content">
+
                 <a href="../index.html" class="chapter-nav-btn prev">
+
                     <i class="fas fa-home"></i>
+
                     <span>Accueil</span>
+
                 </a>
+
                 <div class="chapter-nav-info">
+
                     <span class="chapter-nav-current">Chapitre 1 sur 4</span>
+
                     <div class="chapter-nav-progress">
+
                         <div class="chapter-nav-progress-fill" style="width: 25%;"></div>
+
                     </div>
+
                 </div>
+
                 <a href="chapitre2.html" class="chapter-nav-btn next">
+
                     <span>Chapitre 2</span>
+
                     <i class="fas fa-arrow-right"></i>
+
                 </a>
+
             </div>
+
         </div>
+
     </nav>
 
+
+
     <!-- Footer -->
+
     <footer class="footer">
+
         <div class="container">
+
             <div class="footer-content">
+
                 <p class="footer-text">
+
                     © 2025-2026 Cours de Probabilités | Créé par <strong>RD</strong>
+
                 </p>
+
                 <div class="footer-links">
+
                     <a href="../index.html" class="footer-link">Accueil</a>
+
                     <a href="formules.html" class="footer-link">Formules</a>
+
                     <a href="../exercices/exercices.html" class="footer-link">Exercices</a>
+
                 </div>
+
             </div>
+
         </div>
+
     </footer>
 
+
+
     <!-- Scripts -->
+
     <script src="../assets/js/main.js"></script>
+
     <script>
+
         // Venn Diagram Selector with SVG update
+
         function updateVennDiagram(value) {
+
             const resultEl = document.getElementById('venn-result');
+
             const descEl = document.getElementById('venn-description');
+
             const canvas = document.getElementById('venn-canvas');
+
             
+
             const options = {
+
                 intersection: { symbol: 'A ∩ B', desc: 'Éléments appartenant à A ET à B' },
+
                 union: { symbol: 'A ∪ B', desc: 'Éléments appartenant à A OU à B' },
+
                 complement: { symbol: 'Ā', desc: 'Éléments n\'appartenant PAS à A' },
+
                 difference: { symbol: 'A \\ B', desc: 'Éléments de A qui ne sont pas dans B' }
+
             };
+
             
+
             if (options[value]) {
+
                 resultEl.textContent = options[value].symbol;
+
                 descEl.textContent = options[value].desc;
+
             }
+
             
+
             // Update SVG
+
             const svgHTML = {
+
                 intersection: `
+
                     <rect x="20" y="20" width="360" height="260" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="5,5" rx="10"/>
+
                     <text x="35" y="45" fill="var(--text-secondary)" font-size="14" font-weight="600">Ω</text>
+
                     <circle cx="150" cy="150" r="80" fill="rgba(99, 102, 241, 0.2)" stroke="var(--accent-primary)" stroke-width="3"/>
+
                     <text x="90" y="150" fill="var(--accent-primary)" font-size="20" font-weight="700">A</text>
+
                     <circle cx="250" cy="150" r="80" fill="rgba(16, 185, 129, 0.2)" stroke="var(--success)" stroke-width="3"/>
+
                     <text x="290" y="150" fill="var(--success)" font-size="20" font-weight="700">B</text>
+
                     <clipPath id="clip-a"><circle cx="150" cy="150" r="80"/></clipPath>
+
                     <circle cx="250" cy="150" r="80" fill="rgba(139, 92, 246, 0.7)" clip-path="url(#clip-a)"/>
+
                 `,
+
                 union: `
+
                     <rect x="20" y="20" width="360" height="260" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="5,5" rx="10"/>
+
                     <text x="35" y="45" fill="var(--text-secondary)" font-size="14" font-weight="600">Ω</text>
+
                     <circle cx="150" cy="150" r="80" fill="rgba(139, 92, 246, 0.6)" stroke="var(--accent-primary)" stroke-width="3"/>
+
                     <circle cx="250" cy="150" r="80" fill="rgba(139, 92, 246, 0.6)" stroke="var(--success)" stroke-width="3"/>
+
                     <text x="90" y="150" fill="white" font-size="20" font-weight="700">A</text>
+
                     <text x="290" y="150" fill="white" font-size="20" font-weight="700">B</text>
+
                 `,
+
                 complement: `
+
                     <rect x="20" y="20" width="360" height="260" fill="rgba(139, 92, 246, 0.5)" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="5,5" rx="10"/>
+
                     <text x="35" y="45" fill="white" font-size="14" font-weight="600">Ω</text>
+
                     <circle cx="150" cy="150" r="80" fill="var(--bg-secondary)" stroke="var(--accent-primary)" stroke-width="3"/>
+
                     <text x="90" y="150" fill="var(--accent-primary)" font-size="20" font-weight="700">A</text>
+
                     <circle cx="250" cy="150" r="80" fill="rgba(139, 92, 246, 0.5)" stroke="var(--success)" stroke-width="3"/>
+
                     <text x="290" y="150" fill="white" font-size="20" font-weight="700">B</text>
+
                 `,
+
                 difference: `
+
                     <rect x="20" y="20" width="360" height="260" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-dasharray="5,5" rx="10"/>
+
                     <text x="35" y="45" fill="var(--text-secondary)" font-size="14" font-weight="600">Ω</text>
+
                     <defs>
+
                         <mask id="mask-diff">
+
                             <rect x="0" y="0" width="400" height="300" fill="white"/>
+
                             <circle cx="250" cy="150" r="80" fill="black"/>
+
                         </mask>
+
                     </defs>
+
                     <circle cx="150" cy="150" r="80" fill="rgba(139, 92, 246, 0.7)" stroke="var(--accent-primary)" stroke-width="3" mask="url(#mask-diff)"/>
+
                     <circle cx="150" cy="150" r="80" fill="none" stroke="var(--accent-primary)" stroke-width="3"/>
+
                     <circle cx="250" cy="150" r="80" fill="rgba(16, 185, 129, 0.2)" stroke="var(--success)" stroke-width="3"/>
+
                     <text x="75" y="150" fill="white" font-size="20" font-weight="700">A</text>
+
                     <text x="290" y="150" fill="var(--success)" font-size="20" font-weight="700">B</text>
+
                 `
+
             };
+
             
+
             if (svgHTML[value]) {
+
                 const svg = canvas.querySelector('svg');
+
                 if (svg) {
+
                     svg.innerHTML = svgHTML[value];
+
                 }
+
             }
+
         }
+
         
+
         document.getElementById('venn-selector')?.addEventListener('change', function(e) {
+
             updateVennDiagram(e.target.value);
+
         });
+
         
+
         // Dice Simulation
+
         const diceData = { rolls: [], counts: {} };
+
         
+
         function initDiceHistogram(numDice) {
+
             const container = document.getElementById('dice-histogram');
+
             container.innerHTML = '';
+
             
+
             const min = numDice;
+
             const max = numDice * 6;
+
             
+
             for (let i = min; i <= max; i++) {
+
                 diceData.counts[i] = 0;
+
                 const bar = document.createElement('div');
+
                 bar.className = 'histogram-bar';
+
                 bar.id = `bar-${i}`;
+
                 bar.style.height = '2px';
+
                 bar.setAttribute('data-value', '0');
+
                 
+
                 const label = document.createElement('span');
+
                 label.className = 'histogram-label';
+
                 label.textContent = i;
+
                 bar.appendChild(label);
+
                 
+
                 container.appendChild(bar);
+
             }
+
         }
+
         
+
         function updateDiceDisplay(numDice) {
+
             const container = document.getElementById('dice-display');
+
             container.innerHTML = '';
+
             
+
             for (let i = 1; i <= numDice; i++) {
+
                 const die = document.createElement('div');
+
                 die.className = 'dice';
+
                 die.id = `die${i}`;
+
                 die.textContent = '?';
+
                 container.appendChild(die);
+
             }
+
         }
+
         
+
         function rollDice() {
+
             const numDice = parseInt(document.getElementById('dice-type-selector').value);
+
             const numRolls = parseInt(document.getElementById('dice-rolls').value) || 1;
+
             
+
             // Animate dice
+
             const diceElements = document.querySelectorAll('.dice');
+
             diceElements.forEach(die => die.classList.add('rolling'));
+
             
+
             setTimeout(() => {
+
                 let totalSum = 0;
+
                 
+
                 for (let roll = 0; roll < numRolls; roll++) {
+
                     let sum = 0;
+
                     const results = [];
+
                     
+
                     for (let i = 0; i < numDice; i++) {
+
                         const value = Math.floor(Math.random() * 6) + 1;
+
                         results.push(value);
+
                         sum += value;
+
                     }
+
                     
+
                     diceData.rolls.push(sum);
+
                     diceData.counts[sum] = (diceData.counts[sum] || 0) + 1;
+
                     totalSum += sum;
+
                     
+
                     // Display last roll
+
                     if (roll === numRolls - 1) {
+
                         results.forEach((val, idx) => {
+
                             const die = document.getElementById(`die${idx + 1}`);
+
                             if (die) die.textContent = val;
+
                         });
+
                     }
+
                 }
+
                 
+
                 diceElements.forEach(die => die.classList.remove('rolling'));
+
                 
+
                 // Update histogram
+
                 updateHistogram(numDice);
+
                 
+
                 // Update stats
+
                 document.getElementById('dice-total-rolls').textContent = diceData.rolls.length;
+
                 const avg = diceData.rolls.reduce((a, b) => a + b, 0) / diceData.rolls.length;
+
                 document.getElementById('dice-average').textContent = avg.toFixed(3);
+
                 document.getElementById('dice-expected').textContent = (3.5 * numDice).toFixed(1);
+
                 
+
             }, 500);
+
         }
+
         
+
         function updateHistogram(numDice) {
+
             const max = Math.max(...Object.values(diceData.counts), 1);
+
             const min = numDice;
+
             const maxVal = numDice * 6;
+
             
+
             for (let i = min; i <= maxVal; i++) {
+
                 const bar = document.getElementById(`bar-${i}`);
+
                 if (bar) {
+
                     const count = diceData.counts[i] || 0;
+
                     const height = (count / max) * 200;
+
                     bar.style.height = `${Math.max(height, 2)}px`;
+
                     bar.setAttribute('data-value', count);
+
                 }
+
             }
+
         }
+
         
+
         function resetDice() {
+
             const numDice = parseInt(document.getElementById('dice-type-selector').value);
+
             diceData.rolls = [];
+
             diceData.counts = {};
+
             
+
             initDiceHistogram(numDice);
+
             updateDiceDisplay(numDice);
+
             
+
             document.getElementById('dice-total-rolls').textContent = '0';
+
             document.getElementById('dice-average').textContent = '-';
+
             
+
             const diceElements = document.querySelectorAll('.dice');
+
             diceElements.forEach(die => die.textContent = '?');
+
         }
+
         
+
         // Event listeners
+
         document.getElementById('roll-dice-btn')?.addEventListener('click', rollDice);
+
         document.getElementById('reset-dice-btn')?.addEventListener('click', resetDice);
+
         document.getElementById('dice-type-selector')?.addEventListener('change', function() {
+
             resetDice();
+
         });
+
         
+
         // Tree Selector - Probability Trees
+
         function updateTree(value) {
+
             const canvas = document.getElementById('tree-canvas');
+
             if (!canvas) return;
+
             
+
             const trees = {
+
                 machines: `
+
                     <svg viewBox="0 0 600 350" style="width: 100%; min-width: 550px;">
+
                         <circle cx="50" cy="175" r="8" fill="var(--accent-primary)"/>
+
                         <line x1="58" y1="175" x2="180" y2="80" stroke="var(--accent-primary)" stroke-width="2"/>
+
                         <text x="100" y="110" fill="var(--text-secondary)" font-size="12">0,6</text>
+
                         <circle cx="180" cy="80" r="8" fill="var(--info)"/>
+
                         <text x="175" y="60" fill="var(--info)" font-size="14" font-weight="600">M₁</text>
+
                         <line x1="188" y1="80" x2="320" y2="40" stroke="var(--error)" stroke-width="2"/>
+
                         <text x="235" y="45" fill="var(--text-secondary)" font-size="11">0,063</text>
+
                         <circle cx="320" cy="40" r="6" fill="var(--error)"/>
+
                         <text x="335" y="45" fill="var(--error)" font-size="12" font-weight="600">D</text>
+
                         <line x1="188" y1="80" x2="320" y2="100" stroke="var(--success)" stroke-width="2"/>
+
                         <text x="235" y="100" fill="var(--text-secondary)" font-size="11">0,937</text>
+
                         <circle cx="320" cy="100" r="6" fill="var(--success)"/>
+
                         <text x="335" y="105" fill="var(--success)" font-size="12" font-weight="600">D̄</text>
+
                         <line x1="58" y1="175" x2="180" y2="270" stroke="var(--accent-primary)" stroke-width="2"/>
+
                         <text x="100" y="240" fill="var(--text-secondary)" font-size="12">0,4</text>
+
                         <circle cx="180" cy="270" r="8" fill="var(--warning)"/>
+
                         <text x="175" y="295" fill="var(--warning)" font-size="14" font-weight="600">M₂</text>
+
                         <line x1="188" y1="270" x2="320" y2="240" stroke="var(--error)" stroke-width="2"/>
+
                         <text x="235" y="245" fill="var(--text-secondary)" font-size="11">0,04</text>
+
                         <circle cx="320" cy="240" r="6" fill="var(--error)"/>
+
                         <text x="335" y="245" fill="var(--error)" font-size="12" font-weight="600">D</text>
+
                         <line x1="188" y1="270" x2="320" y2="300" stroke="var(--success)" stroke-width="2"/>
+
                         <text x="235" y="295" fill="var(--text-secondary)" font-size="11">0,96</text>
+
                         <circle cx="320" cy="300" r="6" fill="var(--success)"/>
+
                         <text x="335" y="305" fill="var(--success)" font-size="12" font-weight="600">D̄</text>
+
                         <text x="400" y="40" fill="var(--text-primary)" font-size="11">P(M₁∩D) = 0,6 × 0,063 = 0,0378</text>
+
                         <text x="400" y="100" fill="var(--text-muted)" font-size="11">P(M₁∩D̄) = 0,6 × 0,937 = 0,5622</text>
+
                         <text x="400" y="240" fill="var(--text-primary)" font-size="11">P(M₂∩D) = 0,4 × 0,04 = 0,016</text>
+
                         <text x="400" y="300" fill="var(--text-muted)" font-size="11">P(M₂∩D̄) = 0,4 × 0,96 = 0,384</text>
+
                     </svg>
+
                 `,
+
                 medical: `
+
                     <svg viewBox="0 0 650 350" style="width: 100%; min-width: 600px;">
+
                         <text x="30" y="20" fill="var(--text-secondary)" font-size="11" font-style="italic">Test médical : sensibilité 95%, spécificité 90%, prévalence 1%</text>
+
                         <circle cx="50" cy="175" r="8" fill="var(--accent-primary)"/>
+
                         <text x="42" y="200" fill="var(--text-muted)" font-size="10">Pop.</text>
+
                         
+
                         <line x1="58" y1="175" x2="180" y2="80" stroke="var(--error)" stroke-width="2"/>
+
                         <text x="95" y="105" fill="var(--text-secondary)" font-size="12">0,01</text>
+
                         <circle cx="180" cy="80" r="8" fill="var(--error)"/>
+
                         <text x="168" y="55" fill="var(--error)" font-size="14" font-weight="600">M+</text>
+
                         <text x="165" y="70" fill="var(--text-muted)" font-size="9">(malade)</text>
+
                         
+
                         <line x1="188" y1="80" x2="320" y2="40" stroke="var(--success)" stroke-width="2"/>
+
                         <text x="235" y="45" fill="var(--text-secondary)" font-size="11">0,95</text>
+
                         <circle cx="320" cy="40" r="6" fill="var(--success)"/>
+
                         <text x="335" y="45" fill="var(--success)" font-size="12" font-weight="600">T+</text>
+
                         
+
                         <line x1="188" y1="80" x2="320" y2="100" stroke="var(--warning)" stroke-width="2"/>
+
                         <text x="235" y="100" fill="var(--text-secondary)" font-size="11">0,05</text>
+
                         <circle cx="320" cy="100" r="6" fill="var(--warning)"/>
+
                         <text x="335" y="105" fill="var(--warning)" font-size="12" font-weight="600">T-</text>
+
                         
+
                         <line x1="58" y1="175" x2="180" y2="270" stroke="var(--success)" stroke-width="2"/>
+
                         <text x="95" y="245" fill="var(--text-secondary)" font-size="12">0,99</text>
+
                         <circle cx="180" cy="270" r="8" fill="var(--success)"/>
+
                         <text x="168" y="295" fill="var(--success)" font-size="14" font-weight="600">M-</text>
+
                         <text x="165" y="310" fill="var(--text-muted)" font-size="9">(sain)</text>
+
                         
+
                         <line x1="188" y1="270" x2="320" y2="240" stroke="var(--error)" stroke-width="2"/>
+
                         <text x="235" y="245" fill="var(--text-secondary)" font-size="11">0,10</text>
+
                         <circle cx="320" cy="240" r="6" fill="var(--error)"/>
+
                         <text x="335" y="245" fill="var(--error)" font-size="12" font-weight="600">T+</text>
+
                         
+
                         <line x1="188" y1="270" x2="320" y2="300" stroke="var(--success)" stroke-width="2"/>
+
                         <text x="235" y="295" fill="var(--text-secondary)" font-size="11">0,90</text>
+
                         <circle cx="320" cy="300" r="6" fill="var(--success)"/>
+
                         <text x="335" y="305" fill="var(--success)" font-size="12" font-weight="600">T-</text>
+
                         
+
                         <text x="400" y="40" fill="var(--success)" font-size="11">P(M+∩T+) = 0,01 × 0,95 = 0,0095</text>
+
                         <text x="400" y="100" fill="var(--warning)" font-size="11">P(M+∩T-) = 0,01 × 0,05 = 0,0005</text>
+
                         <text x="400" y="240" fill="var(--error)" font-size="11">P(M-∩T+) = 0,99 × 0,10 = 0,099</text>
+
                         <text x="400" y="300" fill="var(--text-muted)" font-size="11">P(M-∩T-) = 0,99 × 0,90 = 0,891</text>
+
                         
+
                         <rect x="400" y="315" width="230" height="30" fill="var(--bg-tertiary)" rx="5"/>
+
                         <text x="410" y="335" fill="var(--accent-primary)" font-size="11" font-weight="600">P(M+|T+) = 0,0095/(0,0095+0,099) ≈ 8,7%</text>
+
                     </svg>
+
                 `,
+
                 urne: `
+
                     <svg viewBox="0 0 650 380" style="width: 100%; min-width: 600px;">
+
                         <text x="30" y="20" fill="var(--text-secondary)" font-size="11" font-style="italic">Urne : 3 boules rouges, 2 boules vertes - Tirage sans remise</text>
+
                         <circle cx="50" cy="190" r="8" fill="var(--accent-primary)"/>
+
                         <text x="35" y="215" fill="var(--text-muted)" font-size="10">Urne</text>
+
                         
+
                         <line x1="58" y1="190" x2="150" y2="100" stroke="var(--error)" stroke-width="2"/>
+
                         <text x="85" y="130" fill="var(--text-secondary)" font-size="12">3/5</text>
+
                         <circle cx="150" cy="100" r="8" fill="var(--error)"/>
+
                         <text x="143" y="75" fill="var(--error)" font-size="14" font-weight="600">R₁</text>
+
                         
+
                         <line x1="158" y1="100" x2="260" y2="50" stroke="var(--error)" stroke-width="2"/>
+
                         <text x="195" y="60" fill="var(--text-secondary)" font-size="11">2/4</text>
+
                         <circle cx="260" cy="50" r="6" fill="var(--error)"/>
+
                         <text x="275" y="55" fill="var(--error)" font-size="12">R₂</text>
+
                         
+
                         <line x1="158" y1="100" x2="260" y2="130" stroke="var(--success)" stroke-width="2"/>
+
                         <text x="195" y="125" fill="var(--text-secondary)" font-size="11">2/4</text>
+
                         <circle cx="260" cy="130" r="6" fill="var(--success)"/>
+
                         <text x="275" y="135" fill="var(--success)" font-size="12">V₂</text>
+
                         
+
                         <line x1="58" y1="190" x2="150" y2="280" stroke="var(--success)" stroke-width="2"/>
+
                         <text x="85" y="255" fill="var(--text-secondary)" font-size="12">2/5</text>
+
                         <circle cx="150" cy="280" r="8" fill="var(--success)"/>
+
                         <text x="143" y="305" fill="var(--success)" font-size="14" font-weight="600">V₁</text>
+
                         
+
                         <line x1="158" y1="280" x2="260" y2="250" stroke="var(--error)" stroke-width="2"/>
+
                         <text x="195" y="255" fill="var(--text-secondary)" font-size="11">3/4</text>
+
                         <circle cx="260" cy="250" r="6" fill="var(--error)"/>
+
                         <text x="275" y="255" fill="var(--error)" font-size="12">R₂</text>
+
                         
+
                         <line x1="158" y1="280" x2="260" y2="310" stroke="var(--success)" stroke-width="2"/>
+
                         <text x="195" y="305" fill="var(--text-secondary)" font-size="11">1/4</text>
+
                         <circle cx="260" cy="310" r="6" fill="var(--success)"/>
+
                         <text x="275" y="315" fill="var(--success)" font-size="12">V₂</text>
+
                         
+
                         <text x="350" y="50" fill="var(--error)" font-size="11">P(R₁∩R₂) = 3/5 × 2/4 = 6/20 = 0,30</text>
+
                         <text x="350" y="130" fill="var(--text-primary)" font-size="11">P(R₁∩V₂) = 3/5 × 2/4 = 6/20 = 0,30</text>
+
                         <text x="350" y="250" fill="var(--text-primary)" font-size="11">P(V₁∩R₂) = 2/5 × 3/4 = 6/20 = 0,30</text>
+
                         <text x="350" y="310" fill="var(--success)" font-size="11">P(V₁∩V₂) = 2/5 × 1/4 = 2/20 = 0,10</text>
+
                         
+
                         <rect x="350" y="335" width="280" height="35" fill="var(--bg-tertiary)" rx="5"/>
+
                         <text x="360" y="352" fill="var(--accent-primary)" font-size="10" font-weight="600">P(même couleur) = 0,30 + 0,10 = 0,40</text>
+
                         <text x="360" y="365" fill="var(--warning)" font-size="10" font-weight="600">P(couleurs diff.) = 0,30 + 0,30 = 0,60</text>
+
                     </svg>
+
                 `
+
             };
+
             
+
             if (trees[value]) {
+
                 canvas.innerHTML = trees[value];
+
             }
+
         }
+
         
+
         document.getElementById('tree-selector')?.addEventListener('change', function(e) {
+
             updateTree(e.target.value);
+
         });
+
         
+
         // Initialize
+
         document.addEventListener('DOMContentLoaded', () => {
+
             initDiceHistogram(1);
+
             updateDiceDisplay(1);
+
         });
+
         
+
         // Progress bar update on scroll
+
         window.addEventListener('scroll', () => {
+
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
             const scrolled = (window.scrollY / docHeight) * 100;
+
             const progressBar = document.getElementById('progress');
+
             if (progressBar) {
+
                 progressBar.style.width = `${scrolled}%`;
+
             }
+
         });
+
     </script>
 
+
+
     <!-- Quiz JS externe -->
+
     <script src="../assets/js/quiz-utils.js"></script>
+
     <script src="../assets/js/quiz-chapitre1.js"></script>
+
     <!-- Exercices avec indices -->
+
     <script src="../assets/js/exercises-hints.js"></script>
+
     <script>
+
         // Initialisation des exercices avec indices
+
         document.addEventListener('DOMContentLoaded', () => {
+
             initExerciseWithHints('exo-hint-1-1', '7/31', ['7/31', '0.226', '0.23']);
+
             initExerciseWithHints('exo-hint-1-2', '387/512', ['387/512', '0.756', '0.76']);
+
         });
+
     </script>
+
     <!-- Nouvelles fonctionnalités (Gamification & Simulations) -->
+
     <script src="../assets/js/gamification.js"></script>
+
     <script src="../assets/js/simulators.js"></script>
+
 </body>
+
 </html>
+

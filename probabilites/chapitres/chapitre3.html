@@ -1,1273 +1,2553 @@
 <!DOCTYPE html>
+
 <html lang="fr" data-theme="light">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <meta name="description" content="Chapitre 3 - Variables Aléatoires Discrètes : Loi, Espérance, Variance, Bernoulli, Binomiale, Poisson">
+
     <title>Chapitre 3 : Variables Aléatoires Discrètes | Probas RD</title>
+
     
+
     <!-- Fonts -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     
+
     <!-- Icons -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     
+
+    <!-- Anti-flash : thème + CSS critique AVANT le chargement externe -->
+    <script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+    <style>
+        [data-theme="dark"] { color-scheme: dark; }
+        [data-theme="dark"] body { background: #0f172a; color: #f1f5f9; }
+        [data-theme="dark"] .header { background: rgba(15,23,42,0.85); }
+    </style>
+
     <!-- Styles -->
     <link rel="stylesheet" href="../assets/css/style.css">
-    
+
     <!-- MathJax -->
+
     <script>
+
         window.MathJax = {
+
             tex: {
+
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
+
                 displayMath: [['$$', '$$'], ['\\[', '\\]']]
+
             },
+
             options: {
+
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+
             }
+
         };
+
     </script>
+
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     
+
     <!-- Favicon -->
+
     <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg">
+
     
+
     <style>
+
         /* Distribution Chart */
+
         .distribution-chart {
+
             display: flex;
+
             align-items: flex-end;
+
             justify-content: center;
+
             gap: 8px;
+
             height: 250px;
+
             padding: 1rem 0;
+
             margin: 1.5rem 0;
+
         }
+
         
+
         .chart-bar {
+
             display: flex;
+
             flex-direction: column;
+
             align-items: center;
+
             gap: 8px;
+
         }
+
         
+
         .chart-bar-fill {
+
             width: 35px;
+
             background: var(--accent-gradient);
+
             border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+
             transition: all 0.5s ease;
+
             position: relative;
+
             min-height: 4px;
+
         }
+
         
+
         .chart-bar-fill::after {
+
             content: attr(data-value);
+
             position: absolute;
+
             top: -25px;
+
             left: 50%;
+
             transform: translateX(-50%);
+
             font-size: 0.75rem;
+
             font-weight: 600;
+
             color: var(--accent-primary);
+
         }
+
         
+
         .chart-bar-label {
+
             font-size: 0.8rem;
+
             font-weight: 600;
+
             color: var(--text-secondary);
+
         }
+
         
+
         /* Distribution Table */
+
         .distribution-table {
+
             width: 100%;
+
             border-collapse: collapse;
+
             margin: 1rem 0;
+
             background: var(--bg-primary);
+
             border-radius: var(--radius-lg);
+
             overflow: hidden;
+
         }
+
         
+
         .distribution-table th,
+
         .distribution-table td {
+
             padding: 0.75rem 1rem;
+
             text-align: center;
+
             border: 1px solid var(--border-color);
+
         }
+
         
+
         .distribution-table th {
+
             background: var(--accent-gradient);
+
             color: white;
+
             font-weight: 600;
+
         }
+
         
+
         .distribution-table tr:nth-child(even) {
+
             background: var(--bg-tertiary);
+
         }
+
         
+
         /* Stats Display */
+
         .stats-display {
+
             display: grid;
+
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
             gap: 1rem;
+
             margin: 1.5rem 0;
+
         }
+
         
+
         .stat-card {
+
             padding: 1.25rem;
+
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+
             border-radius: var(--radius-lg);
+
             text-align: center;
+
             border: 1px solid rgba(99, 102, 241, 0.2);
+
         }
+
         
+
         .stat-card-value {
+
             font-size: 1.5rem;
+
             font-weight: 700;
+
             color: var(--accent-primary);
+
             font-family: var(--font-mono);
+
         }
+
         
+
         .stat-card-label {
+
             font-size: 0.85rem;
+
             color: var(--text-muted);
+
             margin-top: 0.25rem;
+
         }
+
         
+
         /* Slider range */
+
         input[type="range"] {
+
             -webkit-appearance: none;
+
             appearance: none;
+
             width: 100%;
+
             height: 8px;
+
             background: var(--bg-tertiary);
+
             border-radius: 4px;
+
             outline: none;
+
         }
+
         
+
         input[type="range"]::-webkit-slider-thumb {
+
             -webkit-appearance: none;
+
             appearance: none;
+
             width: 20px;
+
             height: 20px;
+
             background: var(--accent-gradient);
+
             border-radius: 50%;
+
             cursor: pointer;
+
             box-shadow: 0 2px 8px var(--accent-glow);
+
         }
+
     </style>
+
 </head>
+
 <body>
+
     <!-- Header -->
+
     <header class="header">
+
         <div class="header-content">
+
             <a href="../index.html" class="logo">
+
                 <div class="logo-icon">🎲</div>
+
                 <span>Probas <strong style="color: var(--accent-secondary);">RD</strong></span>
+
             </a>
+
             
+
             <nav class="nav">
+
                 <a href="../index.html" class="nav-link">Accueil</a>
+
                 <a href="chapitre1.html" class="nav-link">Probabilités</a>
+
                 <a href="chapitre2.html" class="nav-link">Dénombrement</a>
+
                 <a href="chapitre3.html" class="nav-link active">VA Discrètes</a>
+
                 <a href="chapitre4.html" class="nav-link">VA Continues</a>
+
                 <a href="cartes.html" class="nav-link">🃏 Cartes</a>
+
                 <a href="../exercices/exercices.html" class="nav-link">Exercices</a>
+
+                <a href="../exercices/exo_exam.html" class="nav-link">📋 Exo VA</a>
+
                 <a href="formules.html" class="nav-link">📐 Formules</a>
+
                 <a href="rappels-integration.html" class="nav-link">∫ Intégrales</a>
-                <a href="simulateur-examen.html" class="nav-link" style="color: var(--accent-secondary);">📝 Examen</a>
+
+                <a href="simulateur-examen.html" class="nav-link" style="color: var(--accent-secondary);">📝 Examen Final</a>
+
             </nav>
+
             
+
             <div class="flex" style="gap: 0.75rem;">
+
                 <button class="theme-toggle" aria-label="Changer le thème">
+
                     <i class="fas fa-sun icon-sun"></i>
+
                     <i class="fas fa-moon icon-moon"></i>
+
                 </button>
+
                 
+
                 <button class="menu-toggle" aria-expanded="false" aria-label="Menu">
+
                     <span></span>
+
                     <span></span>
+
                     <span></span>
+
                 </button>
+
             </div>
+
         </div>
+
     </header>
 
+
+
     <div class="container">
+
         <div class="page-layout">
+
             <!-- Main Content -->
+
             <main class="main-content">
+
                 <!-- Chapter Header -->
+
                 <section class="section" style="padding-top: 2rem;">
+
                     <div class="card-badge" style="margin-bottom: 1rem;">
+
                         <i class="fas fa-book-open"></i>
+
                         Chapitre 3
+
                     </div>
+
                     <h1>Variables Aléatoires Discrètes</h1>
+
                     <p style="font-size: 1.1rem; max-width: 800px;">
+
                         Une <strong>variable aléatoire</strong> associe une valeur numérique à chaque issue d'une expérience aléatoire.
+
                         Elle permet de passer du qualitatif au quantitatif.
+
                     </p>
+
                     
+
                     <div class="progress-bar" style="max-width: 400px; margin-top: 1.5rem;">
+
                         <div class="progress-fill" style="width: 0%;" id="progress"></div>
+
                     </div>
+
                 </section>
+
+
 
                 <!-- Section 1: Définitions -->
+
                 <section id="definitions" class="section">
+
                     <h2><i class="fas fa-book" style="color: var(--info);"></i> I. Loi de probabilité</h2>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition : Variable aléatoire discrète</h4>
+
                         <p>Une <strong>variable aléatoire discrète</strong> $X$ est une fonction définie sur l'univers $\Omega$ d'une expérience aléatoire, à valeurs dans un ensemble <strong>fini ou dénombrable</strong> $\{x_1, x_2, \ldots, x_n, \ldots\}$.</p>
+
                     </div>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition : Loi de probabilité</h4>
+
                         <p>La <strong>loi de probabilité</strong> de $X$ est la donnée des probabilités $P(X = x_i)$ pour chaque valeur $x_i$ prise par $X$.</p>
+
                         <p>On la représente souvent sous forme de tableau :</p>
+
                         
+
                         <table class="distribution-table">
+
                             <tr>
+
                                 <th>$x_i$</th>
+
                                 <td>$x_1$</td>
+
                                 <td>$x_2$</td>
+
                                 <td>$\cdots$</td>
+
                                 <td>$x_n$</td>
+
                             </tr>
+
                             <tr>
+
                                 <th>$P(X = x_i)$</th>
+
                                 <td>$p_1$</td>
+
                                 <td>$p_2$</td>
+
                                 <td>$\cdots$</td>
+
                                 <td>$p_n$</td>
+
                             </tr>
+
                         </table>
+
                         
+
                         <p style="margin-top: 1rem;">Avec : $\displaystyle\sum_{i} p_i = 1$ et $\forall i, \; p_i \geqslant 0$</p>
+
                     </div>
+
                     
+
                     <div class="math-example">
+
                         <h4><i class="fas fa-lightbulb"></i> Exemple : Lancer de deux dés</h4>
+
                         <p>On lance deux dés et on note $X$ la somme des résultats.</p>
+
                         <p>$X$ prend les valeurs $\{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12\}$ :</p>
+
                         <ul>
+
                             <li>$P(X = 2) = P(X = 12) = \frac{1}{36}$</li>
+
                             <li>$P(X = 7) = \frac{6}{36} = \frac{1}{6}$ (maximum)</li>
+
                         </ul>
+
                     </div>
+
                 </section>
+
+
 
                 <!-- Section 2: Espérance et Variance -->
+
                 <section id="esperance" class="section">
+
                     <h2><i class="fas fa-chart-bar" style="color: var(--accent-secondary);"></i> II. Espérance et Variance</h2>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition : Espérance</h4>
+
                         <p>L'<strong>espérance</strong> de $X$, notée $E(X)$ ou $\mu$, est la moyenne pondérée des valeurs de $X$ :</p>
+
                         $$ E(X) = \sum_{i} x_i \cdot P(X = x_i) = \sum_{i} x_i \cdot p_i $$
+
                         <p><em>Interprétation :</em> c'est la valeur « moyenne » attendue sur un grand nombre de répétitions.</p>
+
                     </div>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition : Variance et Écart-type</h4>
+
                         <p>La <strong>variance</strong> de $X$, notée $V(X)$ ou $\sigma^2$, mesure la dispersion autour de l'espérance :</p>
+
                         $$ V(X) = E\left[(X - E(X))^2\right] = \sum_{i} (x_i - \mu)^2 \cdot p_i $$
+
                         <p>L'<strong>écart-type</strong> est $\sigma(X) = \sqrt{V(X)}$</p>
+
                     </div>
+
                     
+
                     <div class="math-theorem">
+
                         <h4><i class="fas fa-scroll"></i> Formule de König-Huygens</h4>
+
                         <p>Une formule pratique pour calculer la variance :</p>
+
                         $$ V(X) = E(X^2) - [E(X)]^2 $$
+
                         <p>Où $E(X^2) = \sum_i x_i^2 \cdot p_i$</p>
+
                     </div>
+
                     
+
                     <div class="math-property">
+
                         <h4><i class="fas fa-check-circle"></i> Propriétés</h4>
+
                         <p>Pour tous réels $a$ et $b$ :</p>
+
                         <ul>
+
                             <li>$E(aX + b) = aE(X) + b$ (linéarité)</li>
+
                             <li>$V(aX + b) = a^2 V(X)$</li>
+
                             <li>$\sigma(aX + b) = |a| \sigma(X)$</li>
+
                         </ul>
+
                     </div>
+
                 </section>
+
+
 
                 <!-- Section 3: Lois Usuelles -->
+
                 <section id="lois" class="section">
+
                     <h2><i class="fas fa-dice" style="color: var(--success);"></i> III. Lois Usuelles</h2>
+
                     
+
                     <!-- Loi de Bernoulli -->
+
                     <h3 id="bernoulli">III.1 Loi de Bernoulli $\mathcal{B}(p)$</h3>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition</h4>
+
                         <p>Une variable aléatoire $X$ suit une loi de <strong>Bernoulli de paramètre $p$</strong> si elle ne prend que deux valeurs :</p>
+
                         <ul>
+
                             <li>$P(X = 1) = p$ (succès)</li>
+
                             <li>$P(X = 0) = 1 - p = q$ (échec)</li>
+
                         </ul>
+
                         <p>On note $X \sim \mathcal{B}(p)$</p>
+
                     </div>
+
                     
+
                     <div class="math-property">
+
                         <h4><i class="fas fa-check-circle"></i> Caractéristiques</h4>
+
                         <ul>
+
                             <li>$E(X) = p$</li>
+
                             <li>$V(X) = p(1-p) = pq$</li>
+
                             <li>$\sigma(X) = \sqrt{pq}$</li>
+
                         </ul>
+
                     </div>
+
                     
+
                     <!-- Loi Binomiale -->
+
                     <h3 id="binomiale">III.2 Loi Binomiale $\mathcal{B}(n, p)$</h3>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition</h4>
+
                         <p>Soit $n$ épreuves de Bernoulli <strong>indépendantes</strong> de paramètre $p$.</p>
+
                         <p>$X$ = « nombre de succès » suit une <strong>loi binomiale</strong> de paramètres $(n, p)$ :</p>
-                        $$ P(X = k) = \binom{n}{k} p^k (1-p)^{n-k} \quad \text{pour } k \in \{0, 1, \ldots, n\} $$
+
+                        $$ P(X = k) = C_n^k p^k (1-p)^{n-k} \quad \text{pour } k \in \{0, 1, \ldots, n\} $$
+
                         <p>On note $X \sim \mathcal{B}(n, p)$</p>
+
                     </div>
+
                     
+
                     <div class="math-property">
+
                         <h4><i class="fas fa-check-circle"></i> Caractéristiques</h4>
+
                         <ul>
+
                             <li>$E(X) = np$</li>
+
                             <li>$V(X) = np(1-p) = npq$</li>
+
                             <li>$\sigma(X) = \sqrt{npq}$</li>
+
                         </ul>
+
                     </div>
+
                     
+
                     <!-- Interactive Binomial Simulator -->
+
                     <div class="simulation-container">
+
                         <div class="simulation-header">
+
                             <div class="simulation-title">
+
                                 <i class="fas fa-chart-bar"></i>
+
                                 Simulateur de Loi Binomiale
+
                             </div>
+
                             <select class="simulation-selector" id="binom-preset">
+
                                 <option value="custom">Personnalisé</option>
+
                                 <option value="coin10">Pièce (n=10, p=0.5)</option>
+
                                 <option value="dice20">Dé (n=20, p=1/6)</option>
+
                                 <option value="exam30">QCM (n=30, p=0.25)</option>
+
                             </select>
+
                         </div>
+
                         <div class="simulation-body">
+
                             <div class="simulation-controls">
+
                                 <div class="control-group">
+
                                     <label>Nombre d'essais n</label>
+
                                     <input type="range" id="binom-n" min="1" max="50" value="10">
+
                                     <span id="binom-n-value" style="font-weight: 600; color: var(--accent-primary);">10</span>
+
                                 </div>
+
                                 <div class="control-group">
+
                                     <label>Probabilité p</label>
+
                                     <input type="range" id="binom-p" min="0" max="100" value="50">
+
                                     <span id="binom-p-value" style="font-weight: 600; color: var(--accent-primary);">0.50</span>
+
                                 </div>
+
                             </div>
+
                             
+
                             <div class="distribution-chart" id="binom-chart">
+
                                 <!-- Generated by JS -->
+
                             </div>
+
                             
+
                             <div class="stats-display">
+
                                 <div class="stat-card">
+
                                     <div class="stat-card-value" id="binom-mean">5.00</div>
+
                                     <div class="stat-card-label">E(X) = np</div>
+
                                 </div>
+
                                 <div class="stat-card">
+
                                     <div class="stat-card-value" id="binom-var">2.50</div>
+
                                     <div class="stat-card-label">V(X) = npq</div>
+
                                 </div>
+
                                 <div class="stat-card">
+
                                     <div class="stat-card-value" id="binom-std">1.58</div>
+
                                     <div class="stat-card-label">σ(X)</div>
+
                                 </div>
+
                                 <div class="stat-card">
+
                                     <div class="stat-card-value" id="binom-mode">5</div>
+
                                     <div class="stat-card-label">Mode</div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
                     
+
                     <!-- Loi de Poisson -->
+
                     <h3 id="poisson">III.3 Loi de Poisson $\mathcal{P}(\lambda)$</h3>
+
                     
+
                     <div class="math-definition">
+
                         <h4><i class="fas fa-book"></i> Définition</h4>
+
                         <p>Une variable aléatoire $X$ suit une <strong>loi de Poisson de paramètre $\lambda > 0$</strong> si :</p>
+
                         $$ P(X = k) = e^{-\lambda} \frac{\lambda^k}{k!} \quad \text{pour } k \in \mathbb{N} $$
+
                         <p>On note $X \sim \mathcal{P}(\lambda)$</p>
+
                     </div>
+
                     
+
                     <div class="math-recall">
+
                         <h4><i class="fas fa-info-circle"></i> Utilisation</h4>
+
                         <p>La loi de Poisson modélise le <strong>nombre d'occurrences</strong> d'un événement rare dans un intervalle donné (temps, espace...) :</p>
+
                         <ul>
+
                             <li>Nombre d'appels reçus en une heure</li>
+
                             <li>Nombre d'accidents par jour</li>
+
                             <li>Nombre de défauts par mètre de fil</li>
+
                         </ul>
+
                     </div>
+
                     
+
                     <div class="math-property">
+
                         <h4><i class="fas fa-check-circle"></i> Caractéristiques remarquables</h4>
+
                         <ul>
+
                             <li>$E(X) = \lambda$</li>
+
                             <li>$V(X) = \lambda$</li>
+
                             <li>$\sigma(X) = \sqrt{\lambda}$</li>
+
                         </ul>
+
                         <p><strong>Note :</strong> Espérance = Variance = $\lambda$ (propriété caractéristique)</p>
+
                     </div>
+
                     
+
                     <!-- Interactive Poisson Simulator -->
+
                     <div class="simulation-container">
+
                         <div class="simulation-header">
+
                             <div class="simulation-title">
+
                                 <i class="fas fa-chart-area"></i>
+
                                 Simulateur de Loi de Poisson
+
                             </div>
+
                             <select class="simulation-selector" id="poisson-preset">
+
                                 <option value="custom">Personnalisé</option>
+
                                 <option value="low">Événement rare (λ=1)</option>
+
                                 <option value="medium">Moyen (λ=5)</option>
+
                                 <option value="high">Fréquent (λ=10)</option>
+
                             </select>
+
                         </div>
+
                         <div class="simulation-body">
+
                             <div class="simulation-controls">
+
                                 <div class="control-group">
+
                                     <label>Paramètre λ</label>
+
                                     <input type="range" id="poisson-lambda" min="0.5" max="20" step="0.5" value="5">
+
                                     <span id="poisson-lambda-value" style="font-weight: 600; color: var(--accent-primary);">5.0</span>
+
                                 </div>
+
                             </div>
+
                             
+
                             <div class="distribution-chart" id="poisson-chart">
+
                                 <!-- Generated by JS -->
+
                             </div>
+
                             
+
                             <div class="stats-display">
+
                                 <div class="stat-card">
+
                                     <div class="stat-card-value" id="poisson-mean">5.00</div>
+
                                     <div class="stat-card-label">E(X) = λ</div>
+
                                 </div>
+
                                 <div class="stat-card">
+
                                     <div class="stat-card-value" id="poisson-var">5.00</div>
+
                                     <div class="stat-card-label">V(X) = λ</div>
+
                                 </div>
+
                                 <div class="stat-card">
+
                                     <div class="stat-card-value" id="poisson-std">2.24</div>
+
                                     <div class="stat-card-label">σ(X)</div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
                     
+
                     <div class="math-theorem">
+
                         <h4><i class="fas fa-scroll"></i> Approximation de Poisson</h4>
+
                         <p>Si $X \sim \mathcal{B}(n, p)$ avec $n$ <strong>grand</strong> et $p$ <strong>petit</strong> (règle : $n \geqslant 30$ et $np \leqslant 10$) :</p>
+
                         $$ X \approx \mathcal{P}(\lambda) \quad \text{avec } \lambda = np $$
+
                     </div>
+
+
 
                     <!-- ALERT WARNING: Erreurs classiques -->
+
                     <div class="alert-warning">
+
                         <h4><i class="fas fa-exclamation-triangle"></i> Erreurs classiques sur les VA discrètes</h4>
+
                         <ul>
+
                             <li><strong>Confondre $E(X^2)$ et $[E(X)]^2$ :</strong> Ce sont deux quantités différentes ! $V(X) = E(X^2) - [E(X)]^2$</li>
+
                             <li><strong>Oublier que la variance est toujours positive :</strong> Si vous trouvez $V(X) < 0$, il y a une erreur.</li>
+
                             <li><strong>Mauvais paramètre pour Binomiale :</strong> $n$ = nombre d'essais, $p$ = probabilité de succès.</li>
+
                             <li><strong>Poisson : $E(X) = V(X) = \lambda$</strong> C'est une propriété caractéristique !</li>
+
                         </ul>
+
                     </div>
+
+
 
                     <!-- ALERT INFO -->
+
                     <div class="alert-info">
+
                         <h4><i class="fas fa-lightbulb"></i> Astuce pour reconnaître la loi</h4>
+
                         <p>Posez-vous ces questions :</p>
+
                         <ul>
+
                             <li>Succès/Échec sur $n$ essais indépendants ? → <strong>Binomiale B(n,p)</strong></li>
+
                             <li>Événement rare sur grand intervalle ? → <strong>Poisson P(λ)</strong></li>
+
                             <li>Un seul essai Succès/Échec ? → <strong>Bernoulli B(p)</strong></li>
+
                         </ul>
+
                     </div>
+
+
 
                     <!-- EXERCICES CLASSIQUES -->
+
                     <h3 id="exercices-chapitre">Exercices de fin de chapitre</h3>
+
                     
+
                     <div class="exercise-card">
+
                         <div class="exercise-header">
+
                             <span class="exercise-number">Exercice 1</span>
+
                             <span class="exercise-difficulty easy">Facile</span>
+
                         </div>
+
                         <div class="exercise-body">
+
                             <p>Une variable aléatoire $X$ a pour loi :</p>
+
                             <table style="margin: 1rem auto; text-align: center;">
+
                                 <tr><th>$x_i$</th><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+
                                 <tr><th>$P(X=x_i)$</th><td>0,1</td><td>0,3</td><td>0,4</td><td>0,2</td></tr>
+
                             </table>
+
                             <p>Calculer $E(X)$ et $V(X)$.</p>
+
                         </div>
+
                         <details class="solution-details">
+
                             <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+
                             <div class="solution-content">
+
                                 <p><strong>Espérance :</strong></p>
+
                                 $$ E(X) = 1 \times 0{,}1 + 2 \times 0{,}3 + 3 \times 0{,}4 + 4 \times 0{,}2 = 0{,}1 + 0{,}6 + 1{,}2 + 0{,}8 = \boxed{2{,}7} $$
+
                                 
+
                                 <p><strong>$E(X^2)$ :</strong></p>
+
                                 $$ E(X^2) = 1 \times 0{,}1 + 4 \times 0{,}3 + 9 \times 0{,}4 + 16 \times 0{,}2 = 0{,}1 + 1{,}2 + 3{,}6 + 3{,}2 = 8{,}1 $$
+
                                 
+
                                 <p><strong>Variance :</strong></p>
+
                                 $$ V(X) = E(X^2) - [E(X)]^2 = 8{,}1 - 2{,}7^2 = 8{,}1 - 7{,}29 = \boxed{0{,}81} $$
+
                             </div>
+
                         </details>
+
                     </div>
+
                     
+
                     <div class="exercise-card">
+
                         <div class="exercise-header">
+
                             <span class="exercise-number">Exercice 2</span>
+
                             <span class="exercise-difficulty medium">Moyen</span>
+
                         </div>
+
                         <div class="exercise-body">
+
                             <p>On lance 10 fois une pièce équilibrée. Soit $X$ le nombre de "Pile" obtenus.</p>
+
                             <ol>
+
                                 <li>Quelle est la loi de $X$ ?</li>
+
                                 <li>Calculer $E(X)$ et $\sigma(X)$.</li>
+
                                 <li>Calculer $P(X = 5)$.</li>
+
                             </ol>
+
                         </div>
+
                         <details class="solution-details">
+
                             <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+
                             <div class="solution-content">
+
                                 <p><strong>1. Loi de X :</strong></p>
+
                                 <p>$X$ compte le nombre de succès ("Pile") sur 10 essais indépendants avec $p = 0{,}5$.</p>
+
                                 $$ X \sim \mathcal{B}(10, 0{,}5) $$
+
                                 
+
                                 <p><strong>2. Espérance et écart-type :</strong></p>
+
                                 $$ E(X) = np = 10 \times 0{,}5 = \boxed{5} $$
+
                                 $$ V(X) = npq = 10 \times 0{,}5 \times 0{,}5 = 2{,}5 $$
+
                                 $$ \sigma(X) = \sqrt{V(X)} = \sqrt{2{,}5} \approx \boxed{1{,}58} $$
+
                                 
+
                                 <p><strong>3. Probabilité :</strong></p>
+
                                 $$ P(X = 5) = C_{10}^5 \times 0{,}5^5 \times 0{,}5^5 = 252 \times \frac{1}{1024} \approx \boxed{0{,}246} $$
+
                             </div>
+
                         </details>
+
                     </div>
+
                     
+
                     <div class="exercise-card">
+
                         <div class="exercise-header">
+
                             <span class="exercise-number">Exercice 3</span>
+
                             <span class="exercise-difficulty hard">Difficile</span>
+
                         </div>
+
                         <div class="exercise-body">
+
                             <p>Un centre d'appels reçoit en moyenne 3 appels par minute. On suppose que le nombre d'appels suit une loi de Poisson.</p>
+
                             <ol>
+
                                 <li>Quelle est la probabilité de ne recevoir aucun appel pendant 1 minute ?</li>
+
                                 <li>Quelle est la probabilité de recevoir au moins 2 appels ?</li>
+
                                 <li>En 5 minutes, quelle est la probabilité de recevoir exactement 15 appels ?</li>
+
                             </ol>
+
                         </div>
+
                         <details class="solution-details">
+
                             <summary class="solution-toggle"><i class="fas fa-eye"></i> Voir la correction détaillée</summary>
+
                             <div class="solution-content">
+
                                 <p><strong>1. Aucun appel :</strong> $X \sim \mathcal{P}(3)$</p>
+
                                 $$ P(X = 0) = e^{-3} \times \frac{3^0}{0!} = e^{-3} \approx \boxed{0{,}0498} $$
+
                                 
+
                                 <p><strong>2. Au moins 2 appels :</strong></p>
+
                                 $$ P(X \geqslant 2) = 1 - P(X < 2) = 1 - P(X = 0) - P(X = 1) $$
+
                                 $$ P(X = 1) = e^{-3} \times 3 \approx 0{,}1494 $$
+
                                 $$ P(X \geqslant 2) = 1 - 0{,}0498 - 0{,}1494 = \boxed{0{,}8008} $$
+
                                 
+
                                 <p><strong>3. En 5 minutes :</strong> $Y \sim \mathcal{P}(15)$ car $\lambda = 3 \times 5 = 15$</p>
+
                                 $$ P(Y = 15) = e^{-15} \times \frac{15^{15}}{15!} \approx \boxed{0{,}1024} $$
+
                             </div>
+
                         </details>
+
                     </div>
+
+
 
                     <!-- EXERCICES AVEC INDICES -->
+
                     <h3 id="exercices-indices" style="margin-top: 2rem;">
+
                         <i class="fas fa-lightbulb" style="color: var(--warning);"></i>
+
                         Exercices guidés avec indices
+
                     </h3>
+
                     <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+
                         Ces exercices proposent des indices progressifs. Essayez de résoudre sans les regarder !
+
                     </p>
 
+
+
                     <!-- Exercice guidé 1 -->
+
                     <div class="exercise-with-hints" id="exo-hint-3-1">
+
                         <div class="exercise-title">
+
                             <h4><i class="fas fa-puzzle-piece"></i> Exercice guidé 1</h4>
+
                             <span class="exercise-level medium">Moyen</span>
+
                         </div>
+
                         <div class="exercise-statement">
+
                             <p>Un dé truqué a une probabilité $\frac{1}{4}$ d'obtenir un 6 et une probabilité égale pour les autres faces. On lance ce dé 8 fois. Quelle est la probabilité d'obtenir exactement 2 fois le chiffre 6 ?</p>
+
                         </div>
+
                         
+
                         <div class="hints-container">
+
                             <div class="hints-title">
+
                                 <i class="fas fa-lightbulb"></i> Indices progressifs
+
                                 <span class="hints-counter" id="hints-counter-exo-hint-3-1">0/3 indices utilisés</span>
+
                             </div>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-3-1" data-hint-number="1" id="hint-exo-hint-3-1-1">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">1</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 1 : Quelle loi utiliser ?
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     On compte le nombre de "succès" (obtenir un 6) sur 8 lancers indépendants. C'est une loi binomiale $\mathcal{B}(n, p)$.
+
                                 </div>
+
                             </details>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-3-1" data-hint-number="2" id="hint-exo-hint-3-1-2">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">2</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 2 : Les paramètres
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     <p>Paramètres de la loi binomiale :</p>
+
                                     <ul>
+
                                         <li>$n = 8$ (nombre de lancers)</li>
+
                                         <li>$p = \frac{1}{4}$ (proba d'avoir un 6)</li>
+
                                         <li>$q = 1 - p = \frac{3}{4}$</li>
+
                                     </ul>
+
                                     <p>Formule : $P(X = k) = C_n^k \times p^k \times q^{n-k}$</p>
+
                                 </div>
+
                             </details>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-3-1" data-hint-number="3" id="hint-exo-hint-3-1-3">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">3</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 3 : Application numérique
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     <p>$P(X = 2) = C_8^2 \times \left(\frac{1}{4}\right)^2 \times \left(\frac{3}{4}\right)^6$</p>
+
                                     <p>$C_8^2 = \frac{8 \times 7}{2} = 28$</p>
+
                                     <p>$\left(\frac{1}{4}\right)^2 = \frac{1}{16}$ et $\left(\frac{3}{4}\right)^6 = \frac{729}{4096}$</p>
+
                                 </div>
+
                             </details>
+
                         </div>
+
                         
+
                         <div class="answer-section">
+
                             <div class="answer-input-group">
+
                                 <input type="text" class="answer-input" id="answer-exo-hint-3-1" placeholder="Votre réponse (ex: 0.31)">
+
                                 <button class="btn-check-answer" onclick="checkExerciseAnswer('exo-hint-3-1')">
+
                                     <i class="fas fa-check"></i> Vérifier
+
                                 </button>
+
                             </div>
+
                             <div class="answer-feedback" id="feedback-exo-hint-3-1"></div>
+
                         </div>
+
                         
+
                         <details class="final-solution">
+
                             <summary class="final-solution-toggle">
+
                                 <i class="fas fa-graduation-cap"></i> Voir la solution complète
+
                             </summary>
+
                             <div class="final-solution-content">
+
                                 <p>$P(X = 2) = 28 \times \frac{1}{16} \times \frac{729}{4096} = \frac{28 \times 729}{65536} = \frac{20412}{65536} \approx \boxed{0{,}311}$</p>
+
                             </div>
+
                         </details>
+
                     </div>
+
+
 
                     <!-- Exercice guidé 2 -->
+
                     <div class="exercise-with-hints" id="exo-hint-3-2">
+
                         <div class="exercise-title">
+
                             <h4><i class="fas fa-puzzle-piece"></i> Exercice guidé 2</h4>
+
                             <span class="exercise-level hard">Difficile</span>
+
                         </div>
+
                         <div class="exercise-statement">
+
                             <p>Le nombre de pannes d'une machine par jour suit une loi de Poisson de paramètre $\lambda = 2$. Quelle est la probabilité d'observer au plus 3 pannes en une journée ?</p>
+
                         </div>
+
                         
+
                         <div class="hints-container">
+
                             <div class="hints-title">
+
                                 <i class="fas fa-lightbulb"></i> Indices progressifs
+
                                 <span class="hints-counter" id="hints-counter-exo-hint-3-2">0/3 indices utilisés</span>
+
                             </div>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-3-2" data-hint-number="1" id="hint-exo-hint-3-2-1">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">1</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 1 : Décomposition
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     "Au plus 3 pannes" signifie 0, 1, 2 ou 3 pannes. Donc $P(X \leq 3) = P(X=0) + P(X=1) + P(X=2) + P(X=3)$.
+
                                 </div>
+
                             </details>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-3-2" data-hint-number="2" id="hint-exo-hint-3-2-2">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">2</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 2 : Formule de Poisson
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     <p>Pour $X \sim \mathcal{P}(\lambda)$ : $P(X = k) = e^{-\lambda} \times \frac{\lambda^k}{k!}$</p>
+
                                     <p>Ici $\lambda = 2$, donc $e^{-2} \approx 0{,}1353$</p>
+
                                 </div>
+
                             </details>
+
                             
+
                             <details class="hint-item" data-exo-id="exo-hint-3-2" data-hint-number="3" id="hint-exo-hint-3-2-3">
+
                                 <summary class="hint-toggle">
+
                                     <span class="hint-badge">3</span>
+
                                     <i class="fas fa-chevron-right"></i>
+
                                     Indice 3 : Calculs détaillés
+
                                 </summary>
+
                                 <div class="hint-content">
+
                                     <ul>
+
                                         <li>$P(X=0) = e^{-2} \times \frac{2^0}{0!} = e^{-2}$</li>
+
                                         <li>$P(X=1) = e^{-2} \times \frac{2^1}{1!} = 2e^{-2}$</li>
+
                                         <li>$P(X=2) = e^{-2} \times \frac{2^2}{2!} = 2e^{-2}$</li>
+
                                         <li>$P(X=3) = e^{-2} \times \frac{2^3}{3!} = \frac{4e^{-2}}{3}$</li>
+
                                     </ul>
+
                                     <p>Total = $e^{-2}(1 + 2 + 2 + \frac{4}{3})$</p>
+
                                 </div>
+
                             </details>
+
                         </div>
+
                         
+
                         <div class="answer-section">
+
                             <div class="answer-input-group">
+
                                 <input type="text" class="answer-input" id="answer-exo-hint-3-2" placeholder="Votre réponse (ex: 0.857)">
+
                                 <button class="btn-check-answer" onclick="checkExerciseAnswer('exo-hint-3-2')">
+
                                     <i class="fas fa-check"></i> Vérifier
+
                                 </button>
+
                             </div>
+
                             <div class="answer-feedback" id="feedback-exo-hint-3-2"></div>
+
                         </div>
+
                         
+
                         <details class="final-solution">
+
                             <summary class="final-solution-toggle">
+
                                 <i class="fas fa-graduation-cap"></i> Voir la solution complète
+
                             </summary>
+
                             <div class="final-solution-content">
+
                                 <p>$P(X \leq 3) = e^{-2}\left(1 + 2 + 2 + \frac{4}{3}\right) = e^{-2} \times \frac{19}{3} \approx 0{,}1353 \times 6{,}333 \approx \boxed{0{,}857}$</p>
+
                             </div>
+
                         </details>
+
                     </div>
+
                 </section>
 
+
+
                 <!-- Navigation -->
+
                 <div class="chapter-nav">
+
                     <a href="chapitre2.html" class="nav-btn prev">
+
                         <i class="fas fa-arrow-left"></i>
+
                         <div class="nav-btn-content">
+
                             <span class="nav-btn-label">Chapitre précédent</span>
+
                             <span class="nav-btn-title">Dénombrement</span>
+
                         </div>
+
                     </a>
+
                     <a href="chapitre4.html" class="nav-btn next">
+
                         <i class="fas fa-arrow-right"></i>
+
                         <div class="nav-btn-content">
+
                             <span class="nav-btn-label">Chapitre suivant</span>
+
                             <span class="nav-btn-title">VA Continues</span>
+
                         </div>
+
                     </a>
+
                 </div>
+
             </main>
 
+
+
             <!-- Sidebar -->
+
             <aside class="sidebar">
+
                 <nav class="toc">
+
                     <h4 class="toc-title">Sommaire</h4>
+
                     <ul class="toc-list">
+
                         <li class="toc-item">
+
                             <a href="#definitions" class="toc-link active">
+
                                 <i class="fas fa-chevron-right"></i>
+
                                 I. Loi de probabilité
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#esperance" class="toc-link">
+
                                 <i class="fas fa-chevron-right"></i>
+
                                 II. Espérance & Variance
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#lois" class="toc-link">
+
                                 <i class="fas fa-chevron-right"></i>
+
                                 III. Lois Usuelles
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#bernoulli" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+
                                 III.1 Bernoulli
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#binomiale" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+
                                 III.2 Binomiale
+
                             </a>
+
                         </li>
+
                         <li class="toc-item">
+
                             <a href="#poisson" class="toc-link" style="padding-left: 2rem; font-size: 0.85rem;">
+
                                 III.3 Poisson
+
                             </a>
+
                         </li>
+
                     </ul>
+
                 </nav>
+
                 
+
                 <div class="card" style="margin-top: 1.5rem; padding: 1.25rem;">
+
                     <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">
+
                         <i class="fas fa-lightbulb" style="color: var(--warning);"></i>
+
                         Formules clés
+
                     </h4>
+
                     <div style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.8; color: var(--text-muted);">
+
                         $E(X) = \sum x_i p_i$<br>
+
                         $V(X) = E(X^2) - [E(X)]^2$<br>
+
                         $\mathcal{B}(n,p): E=np, V=npq$<br>
+
                         $\mathcal{P}(\lambda): E=V=\lambda$
+
                     </div>
+
                 </div>
+
             </aside>
+
         </div>
+
     </div>
 
+
+
     <!-- Quiz Section -->
-    <section id="quiz3" class="section" style="background: linear-gradient(to bottom, #f8f9fa, white);">
+
+    <section id="quiz3" class="section" style="background: var(--bg-tertiary);">
+
         <div class="container">
+
             <div class="section-header" style="margin-bottom: 2rem;">
+
                 <span class="section-tag">
+
                     <i class="fas fa-clipboard-check"></i> Quiz
+
                 </span>
+
                 <h2 class="section-title">Testez vos connaissances</h2>
+
                 <p class="section-desc">10 questions sur les variables aléatoires discrètes</p>
+
             </div>
+
+
 
             <div class="exercises-container">
+
                 <!-- Question 1 -->
+
                 <div class="exercise-interactive" id="q3-1">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q1</span>
+
                         <span class="exercise-difficulty">Définition</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>Si X suit une loi de Bernoulli de paramètre p, quelle est E(X) ?</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-1" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-1', 'p')" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-1" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 2 -->
+
                 <div class="exercise-interactive" id="q3-2">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q2</span>
+
                         <span class="exercise-difficulty">Variance</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>Quelle est la formule de variance V(X) en fonction de E(X) et E(X²) ?</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-2" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-2', 'E(X²)-[E(X)]²', ['E(X^2)-(E(X))^2', 'E(X^2)-E(X)^2', 'E(X²)-(E(X))²'])" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-2" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 3 -->
+
                 <div class="exercise-interactive" id="q3-3">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q3</span>
+
                         <span class="exercise-difficulty">Binomiale</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>X ~ B(10, 0.3). Quelle est l'espérance E(X) ?</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-3" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-3', '3')" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-3" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 4 -->
+
                 <div class="exercise-interactive" id="q3-4">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q4</span>
+
                         <span class="exercise-difficulty">Binomiale</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>X ~ B(20, 0.5). Quelle est la variance V(X) ?</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-4" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-4', '5')" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-4" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 5 -->
+
                 <div class="exercise-interactive" id="q3-5">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q5</span>
+
                         <span class="exercise-difficulty">Poisson</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>X ~ P(4). Quelle est l'espérance E(X) ?</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-5" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-5', '4')" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-5" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 6 -->
+
                 <div class="exercise-interactive" id="q3-6">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q6</span>
+
                         <span class="exercise-difficulty">Poisson</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>Pour X ~ P(λ), quelle est la variance V(X) ?</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-6" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-6', 'λ', ['lambda', 'λ'])" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-6" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 7 -->
+
                 <div class="exercise-interactive" id="q3-7">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q7</span>
+
                         <span class="exercise-difficulty">Écart-type</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>Si V(X) = 16, quel est l'écart-type σ(X) ?</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-7" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-7', '4')" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-7" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 8 -->
+
                 <div class="exercise-interactive" id="q3-8">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q8</span>
+
                         <span class="exercise-difficulty">Bernoulli</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>Pour une loi de Bernoulli B(p), quelle est la variance V(X) en fonction de p ?</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-8" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-8', 'p(1-p)', ['pq', 'p×(1-p)', 'p*(1-p)'])" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-8" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 9 -->
+
                 <div class="exercise-interactive" id="q3-9">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q9</span>
+
                         <span class="exercise-difficulty">Calcul</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>X ~ B(100, 0.4). Calculer E(X).</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-9" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-9', '40')" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-9" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
+
 
                 <!-- Question 10 -->
+
                 <div class="exercise-interactive" id="q3-10">
+
                     <div class="exercise-header">
+
                         <span class="exercise-number">Q10</span>
+
                         <span class="exercise-difficulty">Calcul</span>
+
                     </div>
+
                     <div class="exercise-body">
+
                         <p>X ~ B(100, 0.4). Calculer V(X).</p>
+
                         <div class="exercise-input-group">
+
                             <input type="text" id="input-q3-10" class="exercise-input" placeholder="Votre réponse...">
+
                             <button onclick="checkQuiz3('q3-10', '24')" class="exercise-btn check">
+
                                 <i class="fas fa-check"></i> Vérifier
+
                             </button>
+
                         </div>
+
                         <div id="feedback-q3-10" class="exercise-feedback"></div>
+
                     </div>
+
                 </div>
+
             </div>
+
+
 
             <!-- Quiz Score -->
+
             <div id="quiz3-score" class="quiz-score" style="display: none; margin-top: 2rem; text-align: center; padding: 1.5rem; background: var(--primary-light); border-radius: 12px;">
+
                 <h3 style="color: var(--primary); margin-bottom: 0.5rem;">
+
                     <i class="fas fa-trophy"></i> Votre score : <span id="quiz3-result">0/10</span>
+
                 </h3>
+
             </div>
+
+
 
             <!-- Quiz Buttons -->
+
             <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+
                 <button onclick="calculateQuiz3Score()" class="btn btn-primary">
+
                     <i class="fas fa-calculator"></i> Calculer mon score
+
                 </button>
+
                 <button onclick="resetQuiz3()" class="btn btn-secondary">
+
                     <i class="fas fa-redo"></i> Recommencer
+
                 </button>
+
             </div>
+
         </div>
+
     </section>
 
+
+
     <!-- Chapter Navigation -->
+
     <nav class="chapter-nav">
+
         <div class="container">
+
             <div class="chapter-nav-content">
+
                 <a href="chapitre2.html" class="chapter-nav-btn prev">
+
                     <i class="fas fa-arrow-left"></i>
+
                     <span>Chapitre 2</span>
+
                 </a>
+
                 <div class="chapter-nav-info">
+
                     <span class="chapter-nav-current">Chapitre 3 sur 4</span>
+
                     <div class="chapter-nav-progress">
+
                         <div class="chapter-nav-progress-fill" style="width: 75%;"></div>
+
                     </div>
+
                 </div>
+
                 <a href="chapitre4.html" class="chapter-nav-btn next">
+
                     <span>Chapitre 4</span>
+
                     <i class="fas fa-arrow-right"></i>
+
                 </a>
+
             </div>
+
         </div>
+
     </nav>
 
+
+
     <!-- Footer -->
+
     <footer class="footer">
+
         <div class="container">
+
             <div class="footer-content">
+
                 <p class="footer-text">
+
                     © 2025-2026 Cours de Probabilités | Créé par <strong>RD</strong>
+
                 </p>
+
                 <div class="footer-links">
+
                     <a href="../index.html" class="footer-link">Accueil</a>
+
                     <a href="formules.html" class="footer-link">Formules</a>
+
                     <a href="../exercices/exercices.html" class="footer-link">Exercices</a>
+
                 </div>
+
             </div>
+
         </div>
+
     </footer>
 
+
+
     <!-- Scripts -->
+
     <script src="../assets/js/main.js"></script>
+
     <script>
+
         // Factorial
+
         function factorial(n) {
+
             if (n <= 1) return 1;
+
             let r = 1;
+
             for (let i = 2; i <= n; i++) r *= i;
+
             return r;
+
         }
+
         
+
         // Combination
+
         function C(n, k) {
+
             if (k > n || k < 0) return 0;
+
             return factorial(n) / (factorial(k) * factorial(n - k));
+
         }
+
         
+
         // Binomial probability
+
         function binomialPMF(n, p, k) {
+
             return C(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+
         }
+
         
+
         // Poisson probability
+
         function poissonPMF(lambda, k) {
+
             return Math.exp(-lambda) * Math.pow(lambda, k) / factorial(k);
+
         }
+
         
+
         // Draw bar chart
+
         function drawChart(containerId, data, maxVal = 1) {
+
             const container = document.getElementById(containerId);
+
             if (!container) return;
+
             
+
             const maxHeight = 200;
+
             container.innerHTML = '';
+
             
+
             // Find max probability for scaling
+
             const maxProb = Math.max(...data.map(d => d.prob));
+
             
+
             data.forEach(d => {
+
                 const bar = document.createElement('div');
+
                 bar.className = 'chart-bar';
+
                 
+
                 const fill = document.createElement('div');
+
                 fill.className = 'chart-bar-fill';
+
                 const height = (d.prob / maxProb) * maxHeight;
+
                 fill.style.height = `${Math.max(height, 4)}px`;
+
                 fill.setAttribute('data-value', d.prob.toFixed(3));
+
                 
+
                 const label = document.createElement('div');
+
                 label.className = 'chart-bar-label';
+
                 label.textContent = d.x;
+
                 
+
                 bar.appendChild(fill);
+
                 bar.appendChild(label);
+
                 container.appendChild(bar);
+
             });
+
         }
+
         
+
         // Binomial simulation
+
         function updateBinomial() {
+
             const n = parseInt(document.getElementById('binom-n').value);
+
             const pPercent = parseInt(document.getElementById('binom-p').value);
+
             const p = pPercent / 100;
+
             
+
             document.getElementById('binom-n-value').textContent = n;
+
             document.getElementById('binom-p-value').textContent = p.toFixed(2);
+
             
+
             // Generate data
+
             const data = [];
+
             for (let k = 0; k <= n; k++) {
+
                 data.push({ x: k, prob: binomialPMF(n, p, k) });
+
             }
+
             
+
             // Limit display for large n
+
             const displayData = n > 25 
+
                 ? data.filter(d => d.prob > 0.001)
+
                 : data;
+
             
+
             drawChart('binom-chart', displayData);
+
             
+
             // Stats
+
             const mean = n * p;
+
             const variance = n * p * (1 - p);
+
             const std = Math.sqrt(variance);
+
             
+
             // Find mode
+
             let mode = 0;
+
             let maxProb = 0;
+
             data.forEach(d => {
+
                 if (d.prob > maxProb) {
+
                     maxProb = d.prob;
+
                     mode = d.x;
+
                 }
+
             });
+
             
+
             document.getElementById('binom-mean').textContent = mean.toFixed(2);
+
             document.getElementById('binom-var').textContent = variance.toFixed(2);
+
             document.getElementById('binom-std').textContent = std.toFixed(2);
+
             document.getElementById('binom-mode').textContent = mode;
+
         }
+
         
+
         // Poisson simulation
+
         function updatePoisson() {
+
             const lambda = parseFloat(document.getElementById('poisson-lambda').value);
+
             document.getElementById('poisson-lambda-value').textContent = lambda.toFixed(1);
+
             
+
             // Generate data
+
             const data = [];
+
             const maxK = Math.min(Math.ceil(lambda * 3), 30);
+
             for (let k = 0; k <= maxK; k++) {
+
                 const prob = poissonPMF(lambda, k);
+
                 if (prob > 0.0001) {
+
                     data.push({ x: k, prob: prob });
+
                 }
+
             }
+
             
+
             drawChart('poisson-chart', data);
+
             
+
             // Stats
+
             const std = Math.sqrt(lambda);
+
             
+
             document.getElementById('poisson-mean').textContent = lambda.toFixed(2);
+
             document.getElementById('poisson-var').textContent = lambda.toFixed(2);
+
             document.getElementById('poisson-std').textContent = std.toFixed(2);
+
         }
+
         
+
         // Event listeners
+
         document.getElementById('binom-n')?.addEventListener('input', updateBinomial);
+
         document.getElementById('binom-p')?.addEventListener('input', updateBinomial);
+
         document.getElementById('poisson-lambda')?.addEventListener('input', updatePoisson);
+
         
+
         // Presets
+
         document.getElementById('binom-preset')?.addEventListener('change', function(e) {
+
             const presets = {
+
                 'coin10': { n: 10, p: 50 },
+
                 'dice20': { n: 20, p: 17 },
+
                 'exam30': { n: 30, p: 25 }
+
             };
+
             if (presets[e.target.value]) {
+
                 document.getElementById('binom-n').value = presets[e.target.value].n;
+
                 document.getElementById('binom-p').value = presets[e.target.value].p;
+
                 updateBinomial();
+
             }
+
         });
+
         
+
         document.getElementById('poisson-preset')?.addEventListener('change', function(e) {
+
             const presets = {
+
                 'low': 1,
+
                 'medium': 5,
+
                 'high': 10
+
             };
+
             if (presets[e.target.value]) {
+
                 document.getElementById('poisson-lambda').value = presets[e.target.value];
+
                 updatePoisson();
+
             }
+
         });
+
         
+
         // Initialize
+
         document.addEventListener('DOMContentLoaded', () => {
+
             updateBinomial();
+
             updatePoisson();
+
         });
+
         
+
         // Progress bar
+
         window.addEventListener('scroll', () => {
+
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
             const scrolled = (window.scrollY / docHeight) * 100;
+
             const progressBar = document.getElementById('progress');
+
             if (progressBar) {
+
                 progressBar.style.width = `${scrolled}%`;
+
             }
+
         });
+
     </script>
+
     <!-- Quiz JS externe -->
+
     <script src="../assets/js/quiz-utils.js"></script>
+
     <script src="../assets/js/quiz-chapitre3.js"></script>
+
     <!-- Exercices avec indices -->
+
     <script src="../assets/js/exercises-hints.js"></script>
+
     <!-- Nouvelles fonctionnalités (Gamification & Simulations) -->
+
     <script src="../assets/js/gamification.js"></script>
+
     <script src="../assets/js/simulators.js"></script>
+
     <script>
+
         // Initialisation des exercices avec indices
+
         document.addEventListener('DOMContentLoaded', () => {
+
             initExerciseWithHints('exo-hint-3-1', '0.311', ['0.311', '0.31', '0,311', '0,31']);
+
             initExerciseWithHints('exo-hint-3-2', '0.857', ['0.857', '0.86', '0,857', '0,86']);
+
         });
+
     </script>
+
 </body>
+
 </html>
+

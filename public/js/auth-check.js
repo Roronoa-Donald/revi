@@ -114,11 +114,11 @@
 
     var title, message;
     if (reason === 'scope') {
-      title = 'Accès non inclus dans votre licence';
-      message = 'Votre clé d\'activation ne couvre pas ce cours. Contactez votre administrateur ou activez une clé valide pour ce module.';
+      title = 'Acc\u00e8s non inclus dans votre licence';
+      message = 'Votre cl\u00e9 d\'activation ne couvre pas ce cours. Contactez votre administrateur ou activez une cl\u00e9 valide pour ce module.';
     } else {
-      title = 'Contenu réservé aux abonnés';
-      message = 'Ce chapitre nécessite une clé d\'activation. Seul le premier chapitre de chaque cours est accessible gratuitement.';
+      title = 'Contenu r\u00e9serv\u00e9 aux abonn\u00e9s';
+      message = 'Ce chapitre n\u00e9cessite une cl\u00e9 d\'activation. Obtenez votre acc\u00e8s complet pour seulement <strong>1 000 F</strong> ! Contactez Donald pour votre cl\u00e9.';
     }
 
     var overlay = document.createElement('div');
@@ -198,7 +198,7 @@
       '<div class="demo-banner-content">' +
         '<span class="demo-banner-icon">🔒</span>' +
         '<span class="demo-banner-text">' +
-          '<strong>Mode démonstration</strong> — Seul le premier chapitre est accessible.' +
+          '<strong>Mode démonstration</strong> — Accès complet à <strong>1 000 F</strong> seulement ! ' +
           '<a href="/_auth/activate.html?redirect=' + encodeURIComponent(path) + courseParam + '" class="demo-banner-link">' +
             'Activer une clé d\'accès →' +
           '</a>' +
@@ -208,24 +208,5 @@
     document.body.prepend(banner);
   }
 
-  // Vérification périodique du fingerprint (toutes les 10 minutes)
-  if (typeof generateFingerprint === 'function') {
-    setInterval(function() {
-      try {
-        var fp = generateFingerprint();
-        fetch('/api/verify-fingerprint', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fingerprint: fp }),
-          credentials: 'include'
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-          if (data.valid === false && data.reason === 'fingerprint_mismatch') {
-            window.location.reload();
-          }
-        });
-      } catch (e) { /* ignore */ }
-    }, 10 * 60 * 1000);
-  }
+  // Fingerprint check désactivé — seule la déconnexion manuelle coupe l'accès
 })();
