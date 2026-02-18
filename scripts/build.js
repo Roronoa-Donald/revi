@@ -24,7 +24,7 @@ const COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 
 const ROOT_FILES = ['index.html', 'robots.txt', 'sitemap.xml', '404.html', 'rd-ai-chat.js'];
 
 // Dossiers à ne jamais copier
-const SKIP_DIRS = ['node_modules', '.git', 'server', 'api', 'scripts', 'dist', 'public', 'cours windows'];
+const SKIP_DIRS = ['node_modules', '.git', 'server', 'api', 'scripts', 'dist', 'public', 'cours windows', 'ref', 'cours', 'exos'];
 
 // Extensions à ne pas traiter
 const BINARY_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.webp', '.woff', '.woff2', '.ttf', '.otf', '.eot', '.pdf', '.mp4', '.webm', '.mp3'];
@@ -54,9 +54,15 @@ function copyDirRecursive(src, dest) {
     const destPath = path.join(dest, entry.name);
 
     if (entry.isDirectory()) {
+      // Ignorer les dossiers exclus
+      if (SKIP_DIRS.includes(entry.name)) continue;
       copyDirRecursive(srcPath, destPath);
     } else {
+      // Ignorer les fichiers de référence (PDFs, docs source, scripts Python)
       const ext = path.extname(entry.name).toLowerCase();
+      if (['.pdf', '.docx', '.doc', '.py'].includes(ext)) continue;
+      // Ignorer les fichiers .txt sauf ceux dans les dossiers de cours principaux
+      if (ext === '.txt' && !entry.name.includes('robots')) continue;
 
       if (ext === '.html') {
         // Injecter les scripts d'auth dans les fichiers HTML
