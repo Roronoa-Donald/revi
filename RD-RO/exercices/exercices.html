@@ -103,7 +103,11 @@
         
         <header class="text-center mb-12">
             <h1 class="text-4xl font-extrabold text-white mb-4">Banque d'<span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Exercices</span></h1>
-            <p class="text-slate-400">Entraînez-vous à la modélisation avec ces 10 cas pratiques corrigés pas à pas.</p>
+            <p class="text-slate-400">Entraînez-vous à la modélisation et à la résolution par le Simplexe avec ces cas pratiques corrigés.</p>
+            <div class="flex justify-center gap-3 mt-4">
+                <span class="text-xs bg-emerald-900/30 text-emerald-300 border border-emerald-500/20 px-3 py-1 rounded-full">10 Modélisation</span>
+                <span class="text-xs bg-amber-900/30 text-amber-300 border border-amber-500/20 px-3 py-1 rounded-full">4 Résolution Simplexe</span>
+            </div>
         </header>
 
         <div class="space-y-6" id="exercises-list">
@@ -360,6 +364,144 @@
                         $x_2 \\ge 20$ (Min Maïs)<br>
                         $x_1 + x_2 \\le 90$ (Contrainte Engrais qui 'écrase' la contrainte terrain)<br>
                         $x_1, x_2 \\ge 0$
+                    </div>
+                </div>`
+            },
+            // === EXERCICES DE RESOLUTION SIMPLEXE ===
+            {
+                title: "Ex 11 : Résolution Simplexe — Boulangerie (Style Examen)",
+                tags: ["Simplexe", "Résolution", "Examen"],
+                enonce: "Une boulangerie fabrique du <strong>pain</strong> ($x_1$) et des <strong>sandwichs</strong> ($x_2$) à partir de farine.<br>$$\\text{Max } Z = 3x_1 + 5x_2$$<br>Sous les contraintes :<br>$x_1 + 2x_2 \\leq 12$ (Farine)<br>$2x_1 + x_2 \\leq 10$ (Main-d'œuvre)<br>$x_1, x_2 \\geq 0$<br><br><strong>Résolvez par la méthode du Simplexe.</strong> Donnez chaque tableau, identifiez variable entrante/sortante, et appliquez le test d'optimalité.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-amber-400">Forme standard :</strong><br>
+                        $x_1 + 2x_2 + e_1 = 12$<br>
+                        $2x_1 + x_2 + e_2 = 10$<br>
+                        $Z - 3x_1 - 5x_2 = 0$
+                    </div>
+                    <div>
+                        <strong class="text-amber-400">Tableau T0 :</strong><br>
+                        <table class="w-full text-xs mt-2 border-collapse"><thead><tr class="text-amber-300"><th class="border border-slate-600 px-2">VDB</th><th class="border border-slate-600 px-2">$x_1$</th><th class="border border-slate-600 px-2">$x_2$</th><th class="border border-slate-600 px-2">$e_1$</th><th class="border border-slate-600 px-2">$e_2$</th><th class="border border-slate-600 px-2">RHS</th><th class="border border-slate-600 px-2">θ</th></tr></thead><tbody><tr><td class="border border-slate-600 px-2">$e_1$</td><td class="border border-slate-600 px-2">1</td><td class="border border-slate-600 px-2 text-yellow-300">2</td><td class="border border-slate-600 px-2">1</td><td class="border border-slate-600 px-2">0</td><td class="border border-slate-600 px-2">12</td><td class="border border-slate-600 px-2 text-cyan-300">12/2=6 ✓</td></tr><tr><td class="border border-slate-600 px-2">$e_2$</td><td class="border border-slate-600 px-2">2</td><td class="border border-slate-600 px-2">1</td><td class="border border-slate-600 px-2">0</td><td class="border border-slate-600 px-2">1</td><td class="border border-slate-600 px-2">10</td><td class="border border-slate-600 px-2 text-cyan-300">10/1=10</td></tr><tr class="text-amber-300"><td class="border border-slate-600 px-2">Z</td><td class="border border-slate-600 px-2 text-red-400">−3</td><td class="border border-slate-600 px-2 text-red-400 font-bold">−5 ⬆</td><td class="border border-slate-600 px-2">0</td><td class="border border-slate-600 px-2">0</td><td class="border border-slate-600 px-2">0</td><td class="border border-slate-600 px-2"></td></tr></tbody></table>
+                        <br><strong class="text-red-300">Test d'optimalité :</strong> −5 < 0 → NON optimal. Variable entrante : $x_2$ (gain marginal = 5). Variable sortante : $e_1$ (θ=6). Pivot = 2.
+                    </div>
+                    <div>
+                        <strong class="text-amber-400">Pivotage (It.1) :</strong><br>
+                        L1' = L1/2 → [1/2, 1, 1/2, 0, 6]<br>
+                        L2' = L2 − 1·L1' → [3/2, 0, −1/2, 1, 4]<br>
+                        LZ' = LZ + 5·L1' → [−1/2, 0, 5/2, 0, 30]
+                    </div>
+                    <div>
+                        <strong class="text-amber-400">Tableau T1 :</strong><br>
+                        VDB = {$x_2=6$, $e_2=4$}. VHB = {$x_1=0$, $e_1=0$}. Z=30.<br>
+                        <strong class="text-red-300">Test d'optimalité :</strong> −1/2 < 0 → NON optimal. $x_1$ entre, $e_2$ sort (θ=4/(3/2)=8/3). Pivot = 3/2.
+                    </div>
+                    <div>
+                        <strong class="text-amber-400">Pivotage (It.2) :</strong><br>
+                        L2' = L2/(3/2) → [1, 0, −1/3, 2/3, 8/3]<br>
+                        L1' = L1 − (1/2)·L2' → [0, 1, 2/3, −1/3, 14/3]<br>
+                        LZ' = LZ + (1/2)·L2' → [0, 0, 7/3, 1/3, 94/3]
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">Tableau Final T2 :</strong><br>
+                        <strong class="text-emerald-300">Test d'optimalité :</strong> Tous les $\\bar{c}_j \\geq 0$ → <strong>OPTIMAL !</strong><br><br>
+                        <strong>Solution :</strong> $x_1 = 8/3 \\approx 2.67$, $x_2 = 14/3 \\approx 4.67$<br>
+                        <strong class="text-emerald-300">$Z^* = 94/3 \\approx 31.33$</strong>
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 12 : Simplexe — Identifier VDB/VHB",
+                tags: ["Simplexe", "VDB/VHB", "Examen"],
+                enonce: "Soit le tableau simplexe suivant :<br><table class='w-full text-xs mt-2 border-collapse'><thead><tr class='text-amber-300'><th class='border border-slate-600 px-2'>VDB</th><th class='border border-slate-600 px-2'>$x_1$</th><th class='border border-slate-600 px-2'>$x_2$</th><th class='border border-slate-600 px-2'>$e_1$</th><th class='border border-slate-600 px-2'>$e_2$</th><th class='border border-slate-600 px-2'>RHS</th></tr></thead><tbody><tr><td class='border border-slate-600 px-2'>$x_2$</td><td class='border border-slate-600 px-2'>0</td><td class='border border-slate-600 px-2'>1</td><td class='border border-slate-600 px-2'>3</td><td class='border border-slate-600 px-2'>-1</td><td class='border border-slate-600 px-2'>8</td></tr><tr><td class='border border-slate-600 px-2'>$x_1$</td><td class='border border-slate-600 px-2'>1</td><td class='border border-slate-600 px-2'>0</td><td class='border border-slate-600 px-2'>-2</td><td class='border border-slate-600 px-2'>1</td><td class='border border-slate-600 px-2'>5</td></tr><tr class='text-amber-300'><td class='border border-slate-600 px-2'>Z</td><td class='border border-slate-600 px-2'>0</td><td class='border border-slate-600 px-2'>0</td><td class='border border-slate-600 px-2'>4</td><td class='border border-slate-600 px-2'>2</td><td class='border border-slate-600 px-2'>42</td></tr></tbody></table><br><strong>Questions :</strong><br>a) Identifiez les VDB et les VHB.<br>b) Donnez la solution courante.<br>c) La solution est-elle optimale ? Justifiez par le test d'optimalité.<br>d) Interprétez les valeurs des variables d'écart.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">a) VDB et VHB :</strong><br>
+                        <strong>VDB</strong> (variables dans la base) = {$x_2$, $x_1$} — ce sont les variables qui apparaissent dans la colonne "VDB" du tableau.<br>
+                        <strong>VHB</strong> (variables hors la base) = {$e_1$, $e_2$} — fixées à 0.
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">b) Solution courante :</strong><br>
+                        $x_1 = 5$ (RHS de la ligne $x_1$)<br>
+                        $x_2 = 8$ (RHS de la ligne $x_2$)<br>
+                        $e_1 = 0$ (hors base) — $e_2 = 0$ (hors base)<br>
+                        $Z = 42$
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">c) Test d'optimalité :</strong><br>
+                        Ligne Z : coefficients des VHB sont $\\bar{c}_{e_1} = 4 \\geq 0$ et $\\bar{c}_{e_2} = 2 \\geq 0$.<br>
+                        <strong class="text-emerald-300">Tous positifs ou nuls → la solution EST optimale.</strong>
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">d) Interprétation :</strong><br>
+                        $e_1 = 0$ → la 1ère contrainte est <strong>saturée</strong> (ressource entièrement utilisée).<br>
+                        $e_2 = 0$ → la 2ème contrainte est aussi <strong>saturée</strong>.<br>
+                        Les deux ressources sont utilisées à 100%.
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 13 : Simplexe Complet — Production (3 contraintes)",
+                tags: ["Simplexe", "Résolution", "Difficile"],
+                enonce: "$$\\text{Max } Z = 4x_1 + 3x_2$$<br>$x_1 + x_2 \\leq 10$ &nbsp;(C1)<br>$2x_1 + x_2 \\leq 14$ &nbsp;(C2)<br>$x_1 + 3x_2 \\leq 18$ &nbsp;(C3)<br>$x_1, x_2 \\geq 0$<br><br><strong>Résolvez entièrement par le Simplexe.</strong> Identifiez à chaque itération : test d'optimalité, variable entrante (critère de Dantzig), variable sortante, pivot.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-amber-400">Forme standard :</strong> Ajout de $e_1, e_2, e_3$.<br>
+                        Base initiale : {$e_1=10, e_2=14, e_3=18$}. VHB : {$x_1=0, x_2=0$}. Z=0.
+                    </div>
+                    <div>
+                        <strong class="text-amber-400">T0 — Test d'optimalité :</strong> $\\bar{c}_1=-4$, $\\bar{c}_2=-3$ → NON optimal.<br>
+                        Critère de Dantzig : $|{-4}| > |{-3}|$ → $x_1$ entre.<br>
+                        Ratios : 10/1=10, 14/2=7 ✓, 18/1=18 → $e_2$ sort. Pivot = 2.
+                    </div>
+                    <div>
+                        <strong class="text-amber-400">It.1 (Pivot sur $a_{21}=2$) :</strong><br>
+                        L2'=L2/2 → [1, 1/2, 0, 1/2, 0, 7]<br>
+                        L1'=L1−L2' → [0, 1/2, 1, −1/2, 0, 3]<br>
+                        L3'=L3−L2' → [0, 5/2, 0, −1/2, 1, 11]<br>
+                        LZ'=LZ+4·L2' → [0, −1, 0, 2, 0, 28]
+                    </div>
+                    <div>
+                        <strong class="text-amber-400">T1 — Test d'optimalité :</strong> $\\bar{c}_2=-1 < 0$ → NON optimal. $x_2$ entre.<br>
+                        Ratios : 3/(1/2)=6 ✓, 7/(1/2)=14, 11/(5/2)=4.4 ✓ → $e_3$ sort (4.4 < 6). Pivot = 5/2.
+                    </div>
+                    <div>
+                        <strong class="text-amber-400">It.2 (Pivot sur $a_{32}=5/2$) :</strong><br>
+                        L3'=L3/(5/2) → [0, 1, 0, −1/5, 2/5, 4.4]<br>
+                        L1'=L1−(1/2)·L3' → [0, 0, 1, −2/5, −1/5, 0.8]<br>
+                        L2'=L2−(1/2)·L3' → [1, 0, 0, 3/5, −1/5, 4.8]<br>
+                        LZ'=LZ+1·L3' → [0, 0, 0, 9/5, 2/5, 32.4]
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">T2 — Test d'optimalité :</strong> Tous les $\\bar{c}_j \\geq 0$ → <strong>OPTIMAL !</strong><br><br>
+                        <strong>Solution :</strong> $x_1 = 4.8$, $x_2 = 4.4$, $e_1 = 0.8$<br>
+                        <strong class="text-emerald-300">$Z^* = 32.4$</strong><br>
+                        $e_1 = 0.8$ → il reste 0.8 unités de C1. $e_2 = 0, e_3 = 0$ → C2 et C3 saturées.
+                    </div>
+                </div>`
+            },
+            {
+                title: "Ex 14 : Test d'Optimalité — Vrai/Faux (Style QCM Examen)",
+                tags: ["Simplexe", "Test d'optimalité", "QCM"],
+                enonce: "Pour chaque affirmation, dites si c'est <strong>VRAI</strong> ou <strong>FAUX</strong> et justifiez :<br><br>a) Dans un problème de maximisation, si la ligne Z contient le coefficient −3 pour une variable hors base, la solution courante n'est pas optimale.<br><br>b) Une variable d'écart égale à zéro signifie que la ressource correspondante n'est pas utilisée.<br><br>c) Le nombre de variables dans la base est toujours égal au nombre de contraintes fonctionnelles.<br><br>d) Le critère de Dantzig choisit comme variable entrante celle de ratio minimum.<br><br>e) Si toutes les variables d'écart sont dans la base, alors $Z=0$.",
+                correction: `
+                <div class="space-y-4">
+                    <div>
+                        <strong class="text-emerald-400">a) VRAI.</strong> Un coefficient négatif dans la ligne Z (pour une VHB) en maximisation signifie qu'on peut encore améliorer Z en introduisant cette variable. Le test d'optimalité échoue.
+                    </div>
+                    <div>
+                        <strong class="text-red-400">b) FAUX.</strong> C'est l'inverse ! $e_i = 0$ signifie que la ressource est <strong>entièrement utilisée</strong> (contrainte saturée). Si $e_i > 0$, il reste de la ressource inutilisée.
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">c) VRAI.</strong> Par définition, une solution de base a exactement $m$ variables dans la base (autant que de contraintes fonctionnelles) et $n$ variables hors la base.
+                    </div>
+                    <div>
+                        <strong class="text-red-400">d) FAUX.</strong> Le critère de Dantzig choisit la variable avec le <strong>coefficient le plus négatif</strong> dans la ligne Z (plus grand gain marginal). Le ratio minimum sert à déterminer la <strong>variable sortante</strong>, pas l'entrante.
+                    </div>
+                    <div>
+                        <strong class="text-emerald-400">e) VRAI (dans le cas standard avec départ au point 0).</strong> Si VDB = {$e_1, \\ldots, e_m$} et VHB = {$x_1, \\ldots, x_n$}, alors $x_j = 0$ pour tout $j$, donc $Z = \\sum c_j \\cdot 0 = 0$.
                     </div>
                 </div>`
             }

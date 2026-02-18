@@ -1525,5 +1525,159 @@ const qcmRO = [
         ],
         correct: 2,
         explanation: "Le simplexe peut théoriquement visiter $\\binom{n}{m}$ sommets (exponentiel). Mais en pratique, il converge en $O(m)$ à $O(3m)$ itérations pour la plupart des problèmes."
+    },
+
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║  QUESTIONS STYLE EXAMEN — Prof Dr. TCHAZINO  (Q101–Q110)       ║
+    // ╚══════════════════════════════════════════════════════════════════╝
+
+    // --- Q101 ---
+    {
+        id: 101,
+        theme: "Simplexe",
+        q: "Qu'appelle-t-on « test d'optimalité » dans la méthode du Simplexe ?",
+        options: [
+            "Vérifier que toutes les variables sont positives",
+            "Vérifier si tous les coefficients de la ligne Z pour les variables hors base sont ≥ 0 (maximisation) ou ≤ 0 (minimisation)",
+            "Calculer le ratio minimum pour la variable sortante",
+            "Vérifier que la matrice des contraintes est inversible"
+        ],
+        correct: 1,
+        explanation: "Le test d'optimalité consiste à examiner les coefficients $\\bar{c}_j$ de la ligne Z. En maximisation, si tous sont ≥ 0, la solution courante est optimale (aucune amélioration possible)."
+    },
+
+    // --- Q102 ---
+    {
+        id: 102,
+        theme: "Simplexe",
+        q: "Qu'est-ce que le « gain marginal » d'une variable hors base ?",
+        options: [
+            "Le coût de production de cette variable",
+            "L'amélioration de Z obtenue en introduisant une unité de cette variable dans la base",
+            "Le ratio entre le RHS et le coefficient de la colonne pivot",
+            "Le coefficient de la variable dans la fonction objectif originale"
+        ],
+        correct: 1,
+        explanation: "Le gain marginal (ou coût réduit) $\\bar{c}_j$ mesure de combien Z s'améliorerait si on produisait une unité de la variable $x_j$ (hors base). C'est le coefficient dans la ligne Z du tableau courant."
+    },
+
+    // --- Q103 ---
+    {
+        id: 103,
+        theme: "Simplexe",
+        q: "Le « critère de Dantzig » (règle du plus grand gain marginal) consiste à :",
+        options: [
+            "Choisir comme variable entrante celle dont le coefficient dans la ligne Z est le plus négatif (maximisation)",
+            "Choisir comme variable sortante celle de plus petit ratio",
+            "Ajouter une variable artificielle au problème",
+            "Diviser la ligne pivot par l'élément pivot"
+        ],
+        correct: 0,
+        explanation: "Le critère de Dantzig sélectionne la variable entrante comme celle ayant le coefficient le plus négatif dans la ligne Z (en maximisation), ce qui correspond au plus grand gain marginal par unité."
+    },
+
+    // --- Q104 ---
+    {
+        id: 104,
+        theme: "Simplexe",
+        q: "Qu'est-ce qu'une solution admissible (= réalisable) d'un programme linéaire ?",
+        options: [
+            "Toute solution qui maximise la fonction objectif",
+            "Toute solution qui satisfait toutes les contraintes y compris la non-négativité",
+            "Toute solution de base, même si elle viole certaines contraintes",
+            "Toute solution entière"
+        ],
+        correct: 1,
+        explanation: "Une solution admissible (ou réalisable) est un point $(x_1, \\ldots, x_n)$ qui respecte TOUTES les contraintes du problème, y compris $x_j \\geq 0$."
+    },
+
+    // --- Q105 ---
+    {
+        id: 105,
+        theme: "Simplexe",
+        q: "Que signifie qu'une variable est « hors la base » dans le tableau simplexe ?",
+        options: [
+            "Elle a la valeur la plus grande",
+            "Elle a une valeur nulle (= 0) dans la solution courante",
+            "Elle a été supprimée du problème",
+            "Elle correspond à une contrainte saturée"
+        ],
+        correct: 1,
+        explanation: "Une variable hors la base (VHB) est fixée à zéro dans la solution de base courante. Elle ne contribue pas au profit. C'est parmi les VHB qu'on choisit la variable entrante."
+    },
+
+    // --- Q106 ---
+    {
+        id: 106,
+        theme: "Formes",
+        q: "Un PL a 5 variables de décision et 3 contraintes fonctionnelles (toutes ≤). Combien de variables d'écart faut-il ajouter pour la forme standard ?",
+        options: [
+            "5",
+            "8",
+            "3",
+            "15"
+        ],
+        correct: 2,
+        explanation: "On ajoute une variable d'écart par contrainte fonctionnelle. Avec 3 contraintes, il faut 3 variables d'écart. Le total des variables en forme standard sera 5 + 3 = 8."
+    },
+
+    // --- Q107 ---
+    {
+        id: 107,
+        theme: "Simplexe",
+        q: "Qu'est-ce qu'une variable d'écart ($e_i$) en valeur nulle dans la solution optimale ?",
+        options: [
+            "La ressource correspondante n'est pas utilisée",
+            "La contrainte correspondante est saturée (la ressource est entièrement consommée)",
+            "L'algorithme a fait une erreur de calcul",
+            "La variable de décision correspondante est nulle"
+        ],
+        correct: 1,
+        explanation: "$e_i = 0$ signifie que l'écart entre la consommation et la disponibilité est nul : la ressource $i$ est utilisée à 100%. On dit que la contrainte est saturée (ou active)."
+    },
+
+    // --- Q108 ---
+    {
+        id: 108,
+        theme: "Simplexe",
+        q: "Dans le problème de l'ébéniste (cours Dr. TCHAZINO), les coefficients techniques $a_{ij}$ représentent :",
+        options: [
+            "Le bénéfice par type de bureau",
+            "La quantité de ressource $i$ consommée par une unité du bureau $j$",
+            "Le nombre total de bureaux produits",
+            "La disponibilité de chaque machine"
+        ],
+        correct: 1,
+        explanation: "Les coefficients techniques $a_{ij}$ indiquent combien d'heures de l'opération $i$ (découpage, ponçage, assemblage, finition) sont nécessaires pour fabriquer une unité du bureau $j$ (luxe ou standard)."
+    },
+
+    // --- Q109 ---
+    {
+        id: 109,
+        theme: "Simplexe",
+        q: "D'après le théorème fondamental de la programmation linéaire, si un PL admet une solution optimale, celle-ci se trouve :",
+        options: [
+            "Au centre du domaine réalisable",
+            "Sur n'importe quel point du domaine réalisable",
+            "Sur un sommet (coin) du polyèdre des solutions réalisables",
+            "À l'intersection de la fonction objectif et de l'axe des abscisses"
+        ],
+        correct: 2,
+        explanation: "Le théorème fondamental garantit que l'optimum se trouve en un sommet du polyèdre des solutions réalisables. C'est pourquoi le Simplexe ne teste que les sommets."
+    },
+
+    // --- Q110 ---
+    {
+        id: 110,
+        theme: "Simplexe",
+        q: "Qu'appelle-t-on « coefficients économiques » ($c_j$) d'un programme linéaire ?",
+        options: [
+            "Les constantes du 2ème membre des contraintes",
+            "Les coefficients de la matrice des contraintes",
+            "Les contributions unitaires de chaque variable à la fonction objectif",
+            "Les variables d'écart du tableau simplexe"
+        ],
+        correct: 2,
+        explanation: "Les coefficients économiques $c_j$ mesurent la contribution de chaque unité de la variable $x_j$ à la fonction objectif $Z$. Par exemple, si $Z = 5x_1 + 4x_2$, alors $c_1 = 5$ et $c_2 = 4$."
     }
 ];

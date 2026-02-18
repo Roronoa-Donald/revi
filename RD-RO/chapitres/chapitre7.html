@@ -188,11 +188,18 @@
             </div>
 
             <div class="space-y-4">
-                <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-red-500">
-                    <h4 class="font-bold text-red-300">Pourquoi -50 ? (Variable Entrante)</h4>
+                <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-amber-500">
+                    <h4 class="font-bold text-amber-300">Test d'Optimalité (AVANT toute itération)</h4>
                     <p class="text-sm text-slate-400">
-                        Dans la ligne Z, les nombres négatifs sont des opportunités de profit. On choisit le <strong>coefficient le plus négatif</strong> : ici <strong>-50</strong> (pour les Tables) est plus négatif que -30 (Chaises).<br>
-                        Donc André décide : <em class="text-white">"Je commence par fabriquer des Tables !"</em>. La colonne $x_1$ entre dans la base.
+                        On examine la <strong>ligne Z</strong>. Y a-t-il des coefficients négatifs ? Ici : <strong class="text-red-400">-50</strong> et <strong class="text-red-400">-30</strong>. Oui → la solution n'est <strong>pas optimale</strong>, on peut encore améliorer $Z$. On continue.
+                    </p>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-red-500">
+                    <h4 class="font-bold text-red-300">Critère de Dantzig — Gain Marginal (Variable Entrante)</h4>
+                    <p class="text-sm text-slate-400">
+                        On choisit la variable avec le <strong>coefficient le plus négatif</strong> dans la ligne Z. C'est la <strong>règle du plus grand gain marginal</strong> (critère de Dantzig).<br>
+                        Ici : <strong>-50</strong> (Tables) est plus négatif que -30 (Chaises). Le <strong>gain marginal</strong> de $x_1$ est de 50 par unité → c'est la direction de montée la plus rapide.<br>
+                        André décide : <em class="text-white">"Je commence par fabriquer des Tables !"</em>. La colonne $x_1$ <strong>entre dans la base</strong>.
                     </p>
                 </div>
                 <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-emerald-500">
@@ -442,7 +449,7 @@
                     Lecture de la Solution Optimale
                 </h4>
                 <div class="bg-emerald-900/20 p-5 rounded-xl border border-emerald-500/30 mb-4">
-                    <p class="text-sm text-slate-300 mb-2"><strong class="text-emerald-300">Critère d'arrêt :</strong> Tous les coefficients de la ligne Z sont $\geq 0$ (10, 0, 30, 0). <strong>Plus aucun négatif → c'est optimal !</strong></p>
+                    <p class="text-sm text-slate-300 mb-2"><strong class="text-emerald-300">Test d'Optimalité :</strong> Tous les coefficients de la ligne Z sont $\geq 0$ (10, 0, 30, 0). <strong>Aucun coefficient négatif → la solution est OPTIMALE !</strong></p>
                     <div class="grid md:grid-cols-3 gap-3 mt-3">
                         <div class="bg-black/20 p-3 rounded-lg text-center">
                             <p class="text-xs text-slate-500 uppercase">Tables</p>
@@ -479,11 +486,12 @@
 
             <!-- Résumé de la convention -->
             <div class="mt-6 bg-amber-900/20 p-4 rounded-xl border border-amber-500/30">
-                <h4 class="font-bold text-amber-300 mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Convention Standard (Maximisation)</h4>
-                <ul class="text-sm text-slate-300 space-y-1">
-                    <li>• <strong>Variable entrante :</strong> colonne du coefficient <strong>le plus négatif</strong> dans la ligne Z.</li>
-                    <li>• <strong>Variable sortante :</strong> ligne du <strong>ratio minimum positif</strong> (RHS / coeff de la colonne pivot).</li>
-                    <li>• <strong>Arrêt :</strong> quand <strong>tous</strong> les coefficients de la ligne Z sont $\geq 0$.</li>
+                <h4 class="font-bold text-amber-300 mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Résumé des Règles du Simplexe (Maximisation)</h4>
+                <ul class="text-sm text-slate-300 space-y-2">
+                    <li>• <strong>Test d'optimalité :</strong> vérifier si <strong>tous</strong> les coefficients de la ligne Z sont $\geq 0$. Si oui → STOP (solution optimale). Si non → continuer.</li>
+                    <li>• <strong>Variable entrante (Critère de Dantzig) :</strong> colonne du coefficient <strong>le plus négatif</strong> dans la ligne Z. C'est la variable avec le <strong>plus grand gain marginal</strong>.</li>
+                    <li>• <strong>Variable sortante (Ratio minimum) :</strong> ligne du <strong>ratio minimum positif</strong> : $\theta = \min\left(\frac{b_i}{a_{ij}}\right)$ pour $a_{ij} > 0$.</li>
+                    <li>• <strong>Pivot :</strong> élément à l'intersection de la colonne entrante et de la ligne sortante. On effectue Gauss-Jordan sur le pivot.</li>
                 </ul>
             </div>
         </article>
@@ -491,6 +499,224 @@
         <!-- Simulator Container (populated by inline script) -->
         <article class="glass-card p-6 md:p-8 rounded-2xl border border-white/10 bg-black/20" id="simulator-container">
             <!-- Injecté par SimulatorManager -->
+        </article>
+
+        <!-- ====== EXEMPLE DU PROF : L'EBENISTE ====== -->
+        <article class="glass-card p-8 rounded-2xl border border-white/10">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <i class="fas fa-graduation-cap text-amber-400"></i> 3bis. L'Exemple du Prof — L'Ébéniste (Examen)
+            </h2>
+            <p class="text-slate-300 mb-4">
+                Cet exemple est tiré directement du cours du <strong>Dr. TCHAZINO</strong>. C'est le problème qui tombe à l'examen. <strong class="text-red-300">Maîtrisez-le parfaitement.</strong>
+            </p>
+
+            <!-- Énoncé -->
+            <div class="bg-slate-800/50 p-5 rounded-xl border border-amber-500/20 mb-6">
+                <h4 class="font-bold text-amber-300 mb-3"><i class="fas fa-bullseye mr-2"></i>Énoncé</h4>
+                <div class="text-slate-300 text-sm space-y-1">
+                    <p>Un ébéniste fabrique des <strong class="text-cyan-300">bureaux luxe</strong> ($x_1$) et des <strong class="text-amber-300">bureaux standard</strong> ($x_2$).</p>
+                    <p class="mt-2">$$\text{Max } Z = 5x_1 + 4x_2 \quad \text{(en milliers de F)}$$</p>
+                    <p>Sous les contraintes :</p>
+                    <p>$2x_1 + 4x_2 \leq 2\,000$ &nbsp; (Découpage)</p>
+                    <p>$5x_1 + 2x_2 \leq 2\,500$ &nbsp; (Ponçage)</p>
+                    <p>$4x_1 + 7x_2 \leq 3\,500$ &nbsp; (Assemblage)</p>
+                    <p>$3x_1 + x_2 \leq 1\,500$ &nbsp; (Finition)</p>
+                    <p>$x_1, x_2 \geq 0$</p>
+                    <p class="mt-2 text-slate-400">Forme standard : on ajoute $e_1, e_2, e_3, e_4 \geq 0$.</p>
+                </div>
+            </div>
+
+            <!-- T0 -->
+            <div class="mb-8">
+                <h4 class="font-bold text-white mb-3 flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs font-bold">T0</span>
+                    Tableau Initial
+                </h4>
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full text-sm text-left text-slate-300">
+                        <thead class="text-xs text-amber-300 uppercase bg-slate-800/50">
+                            <tr>
+                                <th class="px-3 py-2">VDB</th>
+                                <th class="px-3 py-2">$x_1$</th>
+                                <th class="px-3 py-2">$x_2$</th>
+                                <th class="px-3 py-2">$e_1$</th>
+                                <th class="px-3 py-2">$e_2$</th>
+                                <th class="px-3 py-2">$e_3$</th>
+                                <th class="px-3 py-2">$e_4$</th>
+                                <th class="px-3 py-2">RHS</th>
+                                <th class="px-3 py-2 text-cyan-300">$\theta$</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700">
+                            <tr class="bg-slate-800/10 hover:bg-slate-800/30">
+                                <td class="px-3 py-2 font-bold text-slate-400">$e_1$</td>
+                                <td class="px-3 py-2">2</td>
+                                <td class="px-3 py-2">4</td>
+                                <td class="px-3 py-2">1</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td>
+                                <td class="px-3 py-2 text-white font-mono">2000</td>
+                                <td class="px-3 py-2 text-cyan-300">2000/2=1000</td>
+                            </tr>
+                            <tr class="bg-slate-800/10 hover:bg-slate-800/30">
+                                <td class="px-3 py-2 font-bold text-slate-400">$e_2$</td>
+                                <td class="px-3 py-2 text-yellow-300 font-bold">5</td>
+                                <td class="px-3 py-2">2</td>
+                                <td class="px-3 py-2">0</td><td class="px-3 py-2">1</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td>
+                                <td class="px-3 py-2 text-white font-mono">2500</td>
+                                <td class="px-3 py-2 text-cyan-300 font-bold">2500/5=500 ✓</td>
+                            </tr>
+                            <tr class="bg-slate-800/10 hover:bg-slate-800/30">
+                                <td class="px-3 py-2 font-bold text-slate-400">$e_3$</td>
+                                <td class="px-3 py-2">4</td>
+                                <td class="px-3 py-2">7</td>
+                                <td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">1</td><td class="px-3 py-2">0</td>
+                                <td class="px-3 py-2 text-white font-mono">3500</td>
+                                <td class="px-3 py-2 text-cyan-300">3500/4=875</td>
+                            </tr>
+                            <tr class="bg-slate-800/10 hover:bg-slate-800/30">
+                                <td class="px-3 py-2 font-bold text-slate-400">$e_4$</td>
+                                <td class="px-3 py-2">3</td>
+                                <td class="px-3 py-2">1</td>
+                                <td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">1</td>
+                                <td class="px-3 py-2 text-white font-mono">1500</td>
+                                <td class="px-3 py-2 text-cyan-300">1500/3=500 ✓</td>
+                            </tr>
+                            <tr class="bg-slate-900 border-t-2 border-amber-500/50">
+                                <td class="px-3 py-2 font-bold text-amber-400">Z</td>
+                                <td class="px-3 py-2 text-red-400 font-bold">-5 ⬆</td>
+                                <td class="px-3 py-2 text-red-400">-4</td>
+                                <td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td>
+                                <td class="px-3 py-2 font-bold text-white">0</td>
+                                <td class="px-3 py-2"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="grid md:grid-cols-2 gap-3">
+                    <div class="bg-red-900/20 p-3 rounded-lg border border-red-500/30">
+                        <p class="text-sm text-slate-300"><strong class="text-red-300">Test d'optimalité :</strong> $\bar{c}_1 = -5 < 0$ → NON optimal. <strong>Gain marginal</strong> le plus grand : $|{-5}| = 5$ → $x_1$ entre.</p>
+                    </div>
+                    <div class="bg-emerald-900/20 p-3 rounded-lg border border-emerald-500/30">
+                        <p class="text-sm text-slate-300"><strong class="text-emerald-300">Variable sortante :</strong> $\theta_{min} = 500$ (égalité entre $e_2$ et $e_4$). Par Bland : $e_2$ sort (plus petit indice). Pivot = <strong>5</strong>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Itération 1 -->
+            <div class="mb-8">
+                <h4 class="font-bold text-white mb-3 flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs font-bold">It1</span>
+                    Itération 1 — Pivotage sur $a_{21} = 5$
+                </h4>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-white/10 mb-4 space-y-2 text-sm text-slate-300">
+                    <p class="font-mono text-xs bg-black/30 p-2 rounded">L2' = L2 / 5 → [1, 2/5, 0, 1/5, 0, 0, 500]</p>
+                    <p class="font-mono text-xs bg-black/30 p-2 rounded">L1' = L1 − 2·L2' → [0, 16/5, 1, −2/5, 0, 0, 1000]</p>
+                    <p class="font-mono text-xs bg-black/30 p-2 rounded">L3' = L3 − 4·L2' → [0, 27/5, 0, −4/5, 1, 0, 1500]</p>
+                    <p class="font-mono text-xs bg-black/30 p-2 rounded">L4' = L4 − 3·L2' → [0, −1/5, 0, −3/5, 0, 1, 0]</p>
+                    <p class="font-mono text-xs bg-black/30 p-2 rounded">LZ' = LZ + 5·L2' → [0, −2, 0, 1, 0, 0, 2500]</p>
+                </div>
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full text-sm text-left text-slate-300">
+                        <thead class="text-xs text-amber-300 uppercase bg-slate-800/50">
+                            <tr>
+                                <th class="px-3 py-2">VDB</th>
+                                <th class="px-3 py-2">$x_1$</th>
+                                <th class="px-3 py-2">$x_2$</th>
+                                <th class="px-3 py-2">$e_1$</th>
+                                <th class="px-3 py-2">$e_2$</th>
+                                <th class="px-3 py-2">$e_3$</th>
+                                <th class="px-3 py-2">$e_4$</th>
+                                <th class="px-3 py-2">RHS</th>
+                                <th class="px-3 py-2 text-cyan-300">$\theta$</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700">
+                            <tr class="bg-slate-800/10"><td class="px-3 py-2 font-bold text-slate-400">$e_1$</td><td class="px-3 py-2">0</td><td class="px-3 py-2">16/5</td><td class="px-3 py-2">1</td><td class="px-3 py-2">−2/5</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2 text-white font-mono">1000</td><td class="px-3 py-2 text-cyan-300">1000/(16/5)=312.5</td></tr>
+                            <tr class="bg-slate-800/10"><td class="px-3 py-2 font-bold text-amber-300">$x_1$</td><td class="px-3 py-2">1</td><td class="px-3 py-2">2/5</td><td class="px-3 py-2">0</td><td class="px-3 py-2">1/5</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2 text-white font-mono">500</td><td class="px-3 py-2 text-cyan-300">500/(2/5)=1250</td></tr>
+                            <tr class="bg-slate-800/10"><td class="px-3 py-2 font-bold text-slate-400">$e_3$</td><td class="px-3 py-2">0</td><td class="px-3 py-2 text-yellow-300 font-bold">27/5</td><td class="px-3 py-2">0</td><td class="px-3 py-2">−4/5</td><td class="px-3 py-2">1</td><td class="px-3 py-2">0</td><td class="px-3 py-2 text-white font-mono">1500</td><td class="px-3 py-2 text-cyan-300 font-bold">1500/(27/5)=277.8 ✓</td></tr>
+                            <tr class="bg-slate-800/10"><td class="px-3 py-2 font-bold text-slate-400">$e_4$</td><td class="px-3 py-2">0</td><td class="px-3 py-2">−1/5</td><td class="px-3 py-2">0</td><td class="px-3 py-2">−3/5</td><td class="px-3 py-2">0</td><td class="px-3 py-2">1</td><td class="px-3 py-2 text-white font-mono">0</td><td class="px-3 py-2 text-slate-500">—</td></tr>
+                            <tr class="bg-slate-900 border-t-2 border-amber-500/50"><td class="px-3 py-2 font-bold text-amber-400">Z</td><td class="px-3 py-2">0</td><td class="px-3 py-2 text-red-400 font-bold">−2 ⬆</td><td class="px-3 py-2">0</td><td class="px-3 py-2">1</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2 font-bold text-white">2500</td><td class="px-3 py-2"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-blue-900/20 p-3 rounded-lg border border-blue-500/30">
+                    <p class="text-sm text-slate-300">
+                        <strong class="text-blue-300">Lecture :</strong> VDB = {$e_1=1000$, $x_1=500$, $e_3=1500$, $e_4=0$}. VHB = {$x_2=0$, $e_2=0$}. $Z=2\,500$.<br>
+                        <strong class="text-red-300">Test d'optimalité :</strong> $\bar{c}_2 = -2 < 0$ → pas optimal. $x_2$ entre, $e_3$ sort (ratio min = 277.8).
+                    </p>
+                </div>
+            </div>
+
+            <!-- Itération 2 -->
+            <div class="mb-8">
+                <h4 class="font-bold text-white mb-3 flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs font-bold">It2</span>
+                    Itération 2 — Pivotage sur $a_{32} = 27/5$
+                </h4>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-white/10 mb-4 space-y-2 text-sm text-slate-300">
+                    <p class="font-mono text-xs bg-black/30 p-2 rounded">L3' = L3 / (27/5) = L3 × 5/27 → [0, 1, 0, −4/27, 5/27, 0, 1500×5/27≈277.78]</p>
+                    <p class="font-mono text-xs bg-black/30 p-2 rounded">Les autres lignes : éliminer $x_2$ par Gauss-Jordan</p>
+                </div>
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full text-sm text-left text-slate-300">
+                        <thead class="text-xs text-amber-300 uppercase bg-slate-800/50">
+                            <tr>
+                                <th class="px-3 py-2">VDB</th>
+                                <th class="px-3 py-2">$x_1$</th>
+                                <th class="px-3 py-2">$x_2$</th>
+                                <th class="px-3 py-2">$e_1$</th>
+                                <th class="px-3 py-2">$e_2$</th>
+                                <th class="px-3 py-2">$e_3$</th>
+                                <th class="px-3 py-2">$e_4$</th>
+                                <th class="px-3 py-2">RHS</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700">
+                            <tr class="bg-slate-800/10"><td class="px-3 py-2 font-bold text-slate-400">$e_1$</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">1</td><td class="px-3 py-2">2/27</td><td class="px-3 py-2">−16/27</td><td class="px-3 py-2">0</td><td class="px-3 py-2 text-white font-mono">111.1</td></tr>
+                            <tr class="bg-slate-800/10"><td class="px-3 py-2 font-bold text-amber-300">$x_1$</td><td class="px-3 py-2">1</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">7/27</td><td class="px-3 py-2">−2/27</td><td class="px-3 py-2">0</td><td class="px-3 py-2 text-white font-mono">388.9</td></tr>
+                            <tr class="bg-slate-800/10"><td class="px-3 py-2 font-bold text-amber-300">$x_2$</td><td class="px-3 py-2">0</td><td class="px-3 py-2">1</td><td class="px-3 py-2">0</td><td class="px-3 py-2">−4/27</td><td class="px-3 py-2">5/27</td><td class="px-3 py-2">0</td><td class="px-3 py-2 text-white font-mono">277.8</td></tr>
+                            <tr class="bg-slate-800/10"><td class="px-3 py-2 font-bold text-slate-400">$e_4$</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">0</td><td class="px-3 py-2">−17/27</td><td class="px-3 py-2">1/27</td><td class="px-3 py-2">1</td><td class="px-3 py-2 text-white font-mono">55.6</td></tr>
+                            <tr class="bg-slate-900 border-t-2 border-emerald-500/50"><td class="px-3 py-2 font-bold text-emerald-400">Z</td><td class="px-3 py-2 text-emerald-400">0</td><td class="px-3 py-2 text-emerald-400">0</td><td class="px-3 py-2 text-emerald-400">0</td><td class="px-3 py-2 text-emerald-400">19/27</td><td class="px-3 py-2 text-emerald-400">10/27</td><td class="px-3 py-2 text-emerald-400">0</td><td class="px-3 py-2 font-bold text-emerald-300 text-lg">3055.6</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-emerald-900/20 p-4 rounded-lg border border-emerald-500/30">
+                    <p class="text-sm text-slate-300">
+                        <strong class="text-emerald-300">Test d'optimalité :</strong> Tous les $\bar{c}_j \geq 0$ dans la ligne Z (0, 0, 0, 19/27, 10/27, 0). <strong class="text-emerald-300">OPTIMAL !</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Solution finale -->
+            <div class="mb-6">
+                <h4 class="font-bold text-white mb-3 flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs font-bold">✓</span>
+                    Solution Optimale de l'Ébéniste
+                </h4>
+                <div class="bg-emerald-900/20 p-5 rounded-xl border border-emerald-500/30">
+                    <div class="grid md:grid-cols-3 gap-3 mb-3">
+                        <div class="bg-black/20 p-3 rounded-lg text-center">
+                            <p class="text-xs text-slate-500 uppercase">Bureaux Luxe</p>
+                            <p class="text-2xl font-bold text-white">$x_1 \approx 389$</p>
+                            <p class="text-xs text-slate-500">(dans la base)</p>
+                        </div>
+                        <div class="bg-black/20 p-3 rounded-lg text-center">
+                            <p class="text-xs text-slate-500 uppercase">Bureaux Standard</p>
+                            <p class="text-2xl font-bold text-white">$x_2 \approx 278$</p>
+                            <p class="text-xs text-slate-500">(dans la base)</p>
+                        </div>
+                        <div class="bg-black/20 p-3 rounded-lg text-center">
+                            <p class="text-xs text-slate-500 uppercase">Bénéfice Maximum</p>
+                            <p class="text-2xl font-bold text-emerald-400">$Z \approx 3\,056$</p>
+                            <p class="text-xs text-slate-500">(milliers de F)</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-300 mt-3">
+                        <strong>VDB</strong> = {$e_1, x_1, x_2, e_4$} — <strong>VHB</strong> = {$e_2 = 0, e_3 = 0$}<br>
+                        <strong>Interprétation des VHB :</strong> $e_2 = 0$ → le ponçage est utilisé à 100%. $e_3 = 0$ → l'assemblage est utilisé à 100%.<br>
+                        <strong>Ressources non saturées :</strong> $e_1 = 111$ (reste de découpage), $e_4 = 56$ (reste de finition).
+                    </p>
+                </div>
+            </div>
         </article>
 
         <!-- ====== BIG-M & TWO-PHASE METHODS (RO-15) ====== -->
