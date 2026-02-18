@@ -1528,7 +1528,7 @@ const qcmRO = [
     },
 
     // ╔══════════════════════════════════════════════════════════════════╗
-    // ║  QUESTIONS STYLE EXAMEN — Prof Dr. TCHAZINO  (Q101–Q110)       ║
+    // ║  QUESTIONS STYLE EXAMEN  (Q101–Q110)                            ║
     // ╚══════════════════════════════════════════════════════════════════╝
 
     // --- Q101 ---
@@ -1640,7 +1640,7 @@ const qcmRO = [
     {
         id: 108,
         theme: "Simplexe",
-        q: "Dans le problème de l'ébéniste (cours Dr. TCHAZINO), les coefficients techniques $a_{ij}$ représentent :",
+        q: "Dans le problème de l'ébéniste, les coefficients techniques $a_{ij}$ représentent :",
         options: [
             "Le bénéfice par type de bureau",
             "La quantité de ressource $i$ consommée par une unité du bureau $j$",

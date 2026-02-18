@@ -90,57 +90,226 @@
                 Module 07
             </div>
             <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 tracking-tight">
-                Le GPS dans le Brouillard
+                L'Algorithme du Simplexe
             </h1>
             <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                Quand on a 50 variables, on ne peut plus dessiner. On est dans le noir. L'algorithme du Simplexe est votre canne d'aveugle : il tâte le terrain et trouve le sommet le plus haut, pas après pas.
+                L'algorithme du Simplexe (Dantzig, 1947) est <strong class="text-white">la méthode fondamentale</strong> pour résoudre tout programme linéaire. Il se déplace de sommet en sommet du polyèdre réalisable, en améliorant $Z$ à chaque itération, jusqu'à l'optimum.
             </p>
         </div>
     </section>
 
     <main id="main-content" class="max-w-4xl mx-auto px-4 pb-24 space-y-8">
 
-        <!-- METAPHORE -->
+        <!-- ====== SECTION 1 : THÉORIE FONDAMENTALE DU SIMPLEXE ====== -->
         <article class="glass-card p-8 rounded-2xl border border-white/10 relative">
-            <h2 class="text-2xl font-bold text-white mb-6">1. La Logique du Marcheur</h2>
-            <div class="grid md:grid-cols-2 gap-8">
-                <div>
-                    <p class="text-slate-300 mb-4">
-                        Imaginez André perdu sur la montagne du Profit. Il est dans un brouillard total.
+            <h2 class="text-2xl font-bold text-white mb-6">1. Fondements Théoriques du Simplexe</h2>
+
+            <!-- 1.1 Principe fondamental -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-amber-300 mb-4"><i class="fas fa-bullseye mr-2"></i>1.1 Principe Fondamental</h3>
+                <p class="text-slate-300 mb-4">
+                    La résolution graphique (Module 06) ne fonctionne qu'avec 2 variables. Dès qu'on a 3, 10 ou 500 variables, il faut une méthode algébrique systématique : c'est le <strong class="text-white">Simplexe</strong>.
+                </p>
+                <div class="bg-amber-900/20 p-5 rounded-xl border border-amber-500/30 mb-4">
+                    <h4 class="font-bold text-amber-300 mb-2">Idée clé (à retenir)</h4>
+                    <p class="text-slate-300 text-sm">
+                        En programmation linéaire, <strong class="text-white">la solution optimale se trouve toujours à un sommet</strong> (= un point extrême) du polyèdre réalisable. Le Simplexe exploite ce résultat : au lieu de tester une infinité de points, il n'explore que les sommets, en passant d'un sommet à un sommet <em>voisin</em> qui améliore $Z$.
                     </p>
-                    <ul class="space-y-3 text-sm text-slate-400">
-                        <li class="flex items-start gap-2">
-                            <span class="text-amber-400 font-bold">1.</span>
-                            Il part du camp de base (0 tables, 0 chaises). Profit = 0.
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-amber-400 font-bold">2.</span>
-                            Il se demande : "Quelle direction monte le plus vite ?" (Tables ou Chaises ?).
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-amber-400 font-bold">3.</span>
-                            Il marche dans cette direction jusqu'à cogner une barrière (manque de bois).
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-amber-400 font-bold">4.</span>
-                            Il recommence.
-                        </li>
-                    </ul>
                 </div>
-                <div class="bg-amber-900/10 rounded-xl p-4 border border-amber-500/20 flex items-center justify-center">
-                    <div class="text-center">
-                        <div class="text-4xl mb-2">🏔️ 🦯</div>
-                        <p class="text-xs font-mono text-amber-200">Algorithme itératif =<br>Un pas après l'autre</p>
+                <div class="grid md:grid-cols-3 gap-4 mb-4">
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10 text-center">
+                        <div class="text-2xl mb-2">📐</div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase mb-1">Propriété géométrique</p>
+                        <p class="text-sm text-slate-300">La solution optimale est à un <strong>sommet</strong> du polyèdre</p>
                     </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10 text-center">
+                        <div class="text-2xl mb-2">🔄</div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase mb-1">Méthode itérative</p>
+                        <p class="text-sm text-slate-300">On passe de sommet en sommet en améliorant $Z$</p>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10 text-center">
+                        <div class="text-2xl mb-2">✅</div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase mb-1">Terminaison garantie</p>
+                        <p class="text-sm text-slate-300">Nombre fini de sommets → convergence assurée</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.2 Vocabulaire clé -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-amber-300 mb-4"><i class="fas fa-book mr-2"></i>1.2 Vocabulaire Clé du Simplexe</h3>
+                <p class="text-slate-300 mb-4 text-sm">
+                    Ces termes reviennent dans <strong>tous</strong> les exercices et QCM. Il faut les connaître par cœur.
+                </p>
+                <div class="space-y-3">
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10">
+                        <p class="text-sm text-slate-300">
+                            <strong class="text-amber-300">Base</strong> — Un ensemble de $m$ variables (où $m$ = nombre de contraintes) qui forment un système inversible. Les colonnes correspondantes dans le tableau forment une <strong>matrice identité</strong>.
+                        </p>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10">
+                        <p class="text-sm text-slate-300">
+                            <strong class="text-amber-300">Variable de Base (VDB)</strong> — Variable qui fait partie de la base actuelle. Sa valeur se lit dans la colonne RHS (membre de droite) du tableau. <em>Elle peut être &gt; 0.</em>
+                        </p>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10">
+                        <p class="text-sm text-slate-300">
+                            <strong class="text-amber-300">Variable Hors Base (VHB)</strong> — Variable qui n'est pas dans la base. <strong>Sa valeur est fixée à 0.</strong> C'est la clé : les VHB valent toujours 0.
+                        </p>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10">
+                        <p class="text-sm text-slate-300">
+                            <strong class="text-amber-300">Solution de Base Admissible (SBA)</strong> — Une solution de base où <strong>toutes les VDB sont $\geq 0$</strong>. Le Simplexe ne visite que des SBA. Chaque SBA correspond à un sommet du polyèdre.
+                        </p>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10">
+                        <p class="text-sm text-slate-300">
+                            <strong class="text-amber-300">Variable d'écart ($e_i$)</strong> — Variable ajoutée pour transformer une inégalité $\leq$ en égalité. Elle mesure la « marge » restante sur une contrainte. Au départ, les $e_i$ forment la base initiale.
+                        </p>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10">
+                        <p class="text-sm text-slate-300">
+                            <strong class="text-amber-300">Coûts réduits ($\bar{c}_j$)</strong> — Les coefficients de la ligne $Z$ du tableau. Ils mesurent le <strong>gain marginal</strong> qu'apporterait l'introduction d'une unité de la variable $x_j$ dans la base. Un $\bar{c}_j < 0$ (en maximisation) signifie que $Z$ peut encore s'améliorer.
+                        </p>
+                    </div>
+                    <div class="bg-slate-800/50 p-4 rounded-lg border border-white/10">
+                        <p class="text-sm text-slate-300">
+                            <strong class="text-amber-300">Pivot</strong> — L'élément du tableau situé à l'intersection de la colonne entrante et de la ligne sortante. C'est autour de cet élément qu'on effectue les opérations de <strong>Gauss-Jordan</strong> pour mettre à jour le tableau.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.3 L'algorithme formel en 5 étapes -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-amber-300 mb-4"><i class="fas fa-list-ol mr-2"></i>1.3 L'Algorithme du Simplexe — 5 Étapes</h3>
+                <p class="text-slate-300 mb-4 text-sm">
+                    Voici l'algorithme complet, tel qu'il est attendu en examen. Chaque exercice de Simplexe suit exactement ces 5 étapes.
+                </p>
+
+                <!-- Étape 0 -->
+                <div class="mb-4 bg-slate-800/50 p-5 rounded-xl border border-white/10">
+                    <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full bg-slate-600 text-white flex items-center justify-center text-xs font-bold">0</span>
+                        Mise en forme standard
+                    </h4>
+                    <ul class="text-sm text-slate-300 space-y-1 list-disc pl-5">
+                        <li>Transformer chaque inégalité $\leq$ en égalité en ajoutant une <strong>variable d'écart</strong> $e_i \geq 0$.</li>
+                        <li>Écrire la fonction objectif sous la forme : $Z - c_1 x_1 - c_2 x_2 - \ldots = 0$ (tous les $c_j$ passent à gauche avec un signe $-$).</li>
+                        <li>Les variables d'écart $e_1, e_2, \ldots, e_m$ forment la <strong>base initiale</strong> (matrice identité dans le tableau).</li>
+                    </ul>
+                    <p class="text-xs text-slate-400 mt-2">💡 Si certaines contraintes sont $\geq$ ou $=$, la base initiale n'est pas évidente → voir Section 4 (Big-M / Deux Phases).</p>
+                </div>
+
+                <!-- Étape 1 -->
+                <div class="mb-4 bg-red-900/20 p-5 rounded-xl border border-red-500/30">
+                    <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full bg-red-500/30 text-red-300 flex items-center justify-center text-xs font-bold">1</span>
+                        Test d'optimalité
+                    </h4>
+                    <p class="text-sm text-slate-300 mb-2">Examiner les <strong>coûts réduits</strong> $\bar{c}_j$ dans la ligne $Z$ :</p>
+                    <div class="grid md:grid-cols-2 gap-3">
+                        <div class="bg-black/20 p-3 rounded-lg">
+                            <p class="text-xs text-amber-300 font-bold uppercase mb-1">Maximisation</p>
+                            <p class="text-sm text-slate-300">Si tous les $\bar{c}_j \geq 0$ → <strong class="text-emerald-300">OPTIMAL</strong>. Stop.</p>
+                            <p class="text-sm text-slate-300">Sinon → il existe un $\bar{c}_j < 0$ → on peut améliorer $Z$.</p>
+                        </div>
+                        <div class="bg-black/20 p-3 rounded-lg">
+                            <p class="text-xs text-cyan-300 font-bold uppercase mb-1">Minimisation</p>
+                            <p class="text-sm text-slate-300">Si tous les $\bar{c}_j \leq 0$ → <strong class="text-emerald-300">OPTIMAL</strong>. Stop.</p>
+                            <p class="text-sm text-slate-300">Sinon → il existe un $\bar{c}_j > 0$ → on peut améliorer $Z$.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 2 -->
+                <div class="mb-4 bg-amber-900/20 p-5 rounded-xl border border-amber-500/30">
+                    <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full bg-amber-500/30 text-amber-300 flex items-center justify-center text-xs font-bold">2</span>
+                        Variable entrante — Critère de Dantzig
+                    </h4>
+                    <p class="text-sm text-slate-300 mb-2">
+                        Parmi les $\bar{c}_j < 0$ (en max), choisir celui de <strong>plus grande valeur absolue</strong> :
+                    </p>
+                    <p class="text-sm font-mono bg-black/30 p-2 rounded text-amber-200 text-center">
+                        Variable entrante $x_e$ : $\bar{c}_e = \min_j \{\bar{c}_j\}$ &nbsp; (le plus négatif)
+                    </p>
+                    <p class="text-xs text-slate-400 mt-2">C'est la variable qui offre le plus grand <strong>gain marginal</strong> par unité introduite. Toute la colonne de $x_e$ est appelée <strong>colonne pivot</strong>.</p>
+                </div>
+
+                <!-- Étape 3 -->
+                <div class="mb-4 bg-cyan-900/20 p-5 rounded-xl border border-cyan-500/30">
+                    <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full bg-cyan-500/30 text-cyan-300 flex items-center justify-center text-xs font-bold">3</span>
+                        Variable sortante — Test du ratio minimum ($\theta$)
+                    </h4>
+                    <p class="text-sm text-slate-300 mb-2">
+                        Pour chaque ligne $i$ où le coefficient de la colonne pivot est <strong>strictement positif</strong> ($a_{ie} > 0$), calculer :
+                    </p>
+                    <p class="text-sm font-mono bg-black/30 p-2 rounded text-cyan-200 text-center">
+                        $\theta_i = \dfrac{b_i}{a_{ie}}$ &nbsp; (uniquement si $a_{ie} > 0$)
+                    </p>
+                    <p class="text-sm text-slate-300 mt-2 mb-2">
+                        La ligne avec le <strong>plus petit ratio</strong> $\theta_i$ donne la <strong>variable sortante</strong>. C'est la <strong>ligne pivot</strong>.
+                    </p>
+                    <div class="bg-red-900/20 p-3 rounded-lg border border-red-500/20">
+                        <p class="text-xs text-red-300"><strong>⚠️ Attention :</strong> On ignore les lignes où $a_{ie} \leq 0$. Si aucune ligne n'a $a_{ie} > 0$, le problème est <strong>non borné</strong> ($Z \to +\infty$).</p>
+                    </div>
+                </div>
+
+                <!-- Étape 4 -->
+                <div class="mb-4 bg-purple-900/20 p-5 rounded-xl border border-purple-500/30">
+                    <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full bg-purple-500/30 text-purple-300 flex items-center justify-center text-xs font-bold">4</span>
+                        Pivotage — Opérations de Gauss-Jordan
+                    </h4>
+                    <p class="text-sm text-slate-300 mb-3">
+                        L'élément <strong>pivot</strong> = $a_{se}$ (intersection ligne sortante, colonne entrante). On applique <strong>Gauss-Jordan</strong> pour transformer la colonne entrante en colonne unitaire :
+                    </p>
+                    <div class="space-y-2">
+                        <div class="bg-black/20 p-3 rounded-lg">
+                            <p class="text-sm text-slate-300"><strong class="text-purple-300">Étape A</strong> — Diviser la ligne pivot par le pivot :</p>
+                            <p class="text-xs font-mono text-purple-200 mt-1">$L_s' = L_s \div a_{se}$</p>
+                        </div>
+                        <div class="bg-black/20 p-3 rounded-lg">
+                            <p class="text-sm text-slate-300"><strong class="text-purple-300">Étape B</strong> — Pour chaque autre ligne $i \neq s$ (y compris la ligne $Z$) :</p>
+                            <p class="text-xs font-mono text-purple-200 mt-1">$L_i' = L_i - a_{ie} \times L_s'$</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">Résultat : la colonne de $x_e$ devient une colonne identité (un 1, des 0 partout ailleurs). $x_e$ entre dans la base, la variable sortante en sort.</p>
+                </div>
+
+                <!-- Étape 5 -->
+                <div class="mb-4 bg-emerald-900/20 p-5 rounded-xl border border-emerald-500/30">
+                    <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full bg-emerald-500/30 text-emerald-300 flex items-center justify-center text-xs font-bold">5</span>
+                        Retour à l'étape 1
+                    </h4>
+                    <p class="text-sm text-slate-300">
+                        Mettre à jour la colonne VDB (la variable entrante remplace la variable sortante). Puis <strong>retourner à l'étape 1</strong> (test d'optimalité). On itère jusqu'à ce que tous les $\bar{c}_j \geq 0$ (en maximisation).
+                    </p>
+                </div>
+            </div>
+
+            <!-- 1.4 Pourquoi ça marche -->
+            <div class="mb-4">
+                <h3 class="text-xl font-bold text-amber-300 mb-4"><i class="fas fa-lightbulb mr-2"></i>1.4 Pourquoi l'algorithme converge ?</h3>
+                <div class="bg-slate-800/50 p-5 rounded-xl border border-white/10">
+                    <ol class="text-sm text-slate-300 space-y-3 list-decimal pl-5">
+                        <li><strong class="text-white">Chaque SBA = un sommet.</strong> Le Simplexe se déplace sur les sommets du polyèdre réalisable. Il ne visite jamais un point intérieur.</li>
+                        <li><strong class="text-white">Chaque itération améliore $Z$</strong> (ou le maintient, en cas de dégénérescence — voir Section 5). On ne revient donc jamais en arrière.</li>
+                        <li><strong class="text-white">Le nombre de sommets est fini</strong> (au plus $\binom{n}{m}$, avec $n$ = nombre de variables et $m$ = nombre de contraintes). Donc l'algorithme s'arrête en un nombre fini d'itérations.</li>
+                    </ol>
+                    <p class="text-xs text-slate-400 mt-3">En pratique, le Simplexe converge très rapidement : environ $2m$ à $3m$ itérations, même pour des problèmes avec des milliers de variables.</p>
                 </div>
             </div>
         </article>
 
-        <!-- MECANIQUE : LE TABLEAU -->
+        <!-- ====== SECTION 2 : CONSTRUCTION DU TABLEAU ====== -->
         <article class="glass-card p-8 rounded-2xl border border-white/10">
-            <h2 class="text-2xl font-bold text-white mb-6">2. Le Tableau de Bord (Simplex Tableau)</h2>
+            <h2 class="text-2xl font-bold text-white mb-6">2. Construction et Lecture du Tableau Simplexe</h2>
             <p class="text-slate-300 mb-6">
-                Voici à quoi ressemble le cerveau d'André sous forme mathématique. C'est le tableau de départ.
+                Le tableau Simplexe organise toute l'information du PL en un seul tableau. Voici sa construction pas à pas sur un exemple à 2 variables et 2 contraintes.
             </p>
 
             <div class="overflow-x-auto mb-6">
@@ -199,16 +368,16 @@
                     <p class="text-sm text-slate-400">
                         On choisit la variable avec le <strong>coefficient le plus négatif</strong> dans la ligne Z. C'est la <strong>règle du plus grand gain marginal</strong> (critère de Dantzig).<br>
                         Ici : <strong>-50</strong> (Tables) est plus négatif que -30 (Chaises). Le <strong>gain marginal</strong> de $x_1$ est de 50 par unité → c'est la direction de montée la plus rapide.<br>
-                        André décide : <em class="text-white">"Je commence par fabriquer des Tables !"</em>. La colonne $x_1$ <strong>entre dans la base</strong>.
+                        Conclusion : <em class="text-white">$x_1$ (Tables) est la variable entrante.</em> La colonne $x_1$ <strong>entre dans la base</strong>.
                     </p>
                 </div>
                 <div class="bg-slate-800/50 p-4 rounded-lg border-l-4 border-emerald-500">
                     <h4 class="font-bold text-emerald-300">Le Ratio (Variable Sortante)</h4>
                     <p class="text-sm text-slate-400">
-                        Combien de tables peut-il faire ?
-                        <br>• Bois : 20 / 2 = 10 Tables.
-                        <br>• Temps : 40 / 1 = 40 Tables.
-                        <br>Le chiffre le plus bas gagne (c'est le goulot d'étranglement). Il fera <strong>10 Tables</strong>. Le stock de Bois ($e_1$) va tomber à 0 (sortir).
+                        On calcule les ratios $\theta_i = b_i / a_{ie}$ pour chaque coefficient positif de la colonne $x_1$ :
+                        <br>• $\theta_1 =$ Bois : 20 / 2 = <strong>10</strong> ← minimum
+                        <br>• $\theta_2 =$ Temps : 40 / 1 = 40
+                        <br>Le ratio minimum détermine la variable sortante (= le goulot d'étranglement). $e_1$ sort, $x_1 = 10$.
                     </p>
                 </div>
             </div>
@@ -218,7 +387,7 @@
         <article class="glass-card p-8 rounded-2xl border border-white/10">
             <h2 class="text-2xl font-bold text-white mb-6">3. Exemple Complet Pas-à-Pas</h2>
             <p class="text-slate-300 mb-6">
-                Résolvons entièrement le problème d'André avec l'algorithme du Simplexe.
+                Appliquons l'algorithme complet sur un problème à 2 variables et 2 contraintes.
             </p>
 
             <!-- Formulation -->
@@ -507,7 +676,7 @@
                 <i class="fas fa-graduation-cap text-amber-400"></i> 3bis. L'Exemple du Prof — L'Ébéniste (Examen)
             </h2>
             <p class="text-slate-300 mb-4">
-                Cet exemple est tiré directement du cours du <strong>Dr. TCHAZINO</strong>. C'est le problème qui tombe à l'examen. <strong class="text-red-300">Maîtrisez-le parfaitement.</strong>
+                C'est un exemple classique d'examen. <strong class="text-red-300">Maîtrisez-le parfaitement.</strong>
             </p>
 
             <!-- Énoncé -->
