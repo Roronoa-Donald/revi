@@ -110,9 +110,17 @@ function copyFileIfExists(src, dest) {
 console.log('🔨 Build démarré...\n');
 const startTime = Date.now();
 
-// 1. Nettoyer dist/
-cleanDir(DIST);
-console.log('  ✅ dist/ nettoyé');
+// 1. Nettoyer dist/ (sur Vercel le dossier est déjà vide, on le recrée simplement)
+try {
+  if (fs.existsSync(DIST)) {
+    fs.rmSync(DIST, { recursive: true, force: true });
+  }
+} catch (e) {
+  // Ignore si le dossier n'existe pas ou est verrouillé (Vercel cache)
+  console.log('  ⚠️ Nettoyage partiel de dist/ :', e.message);
+}
+fs.mkdirSync(DIST, { recursive: true });
+console.log('  ✅ dist/ prêt');
 
 // 2. Copier les dossiers de cours avec injection
 let htmlCount = 0;
