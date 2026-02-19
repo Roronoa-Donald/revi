@@ -259,7 +259,7 @@ ${context}`;
 /* ========== RD-AI Chat Widget ========== */
 .rdai-bubble {
     position: fixed;
-    bottom: 24px;
+    bottom: 70px;
     right: 24px;
     width: 58px;
     height: 58px;
@@ -293,7 +293,7 @@ ${context}`;
 /* Panel */
 .rdai-panel {
     position: fixed;
-    bottom: 96px;
+    bottom: 140px;
     right: 24px;
     width: 400px;
     height: 540px;
@@ -605,15 +605,15 @@ body.dark-mode .rdai-code-block {
 /* ========== MOBILE ========== */
 @media (max-width: 480px) {
     .rdai-panel {
-        bottom: 0;
+        bottom: 46px;
         right: 0;
         left: 0;
         width: 100%;
-        height: 75vh;
+        height: 70vh;
         border-radius: 20px 20px 0 0;
     }
     .rdai-bubble {
-        bottom: 16px;
+        bottom: 62px;
         right: 16px;
         width: 52px;
         height: 52px;
