@@ -11,7 +11,8 @@ const COURSES = {
   'rd_java': 'Java',
   'rd_winserver': 'Windows Server',
   'RD-RO': 'Recherche Opérationnelle',
-  'sql': 'SQL'
+  'sql': 'SQL',
+  'csharp': 'C#'
 };
 
 const COURSE_ICONS = {
@@ -21,7 +22,8 @@ const COURSE_ICONS = {
   'rd_java': '☕',
   'rd_winserver': '🖥️',
   'RD-RO': '📊',
-  'sql': '🗃️'
+  'sql': '🗃️',
+  'csharp': '🔷'
 };
 
 // Thème visuel de chaque cours (couleurs + mode)
@@ -32,7 +34,8 @@ const COURSE_THEMES = {
   'rd_java':      { mode: 'light', accent: '#ef4444', accentLight: '#f87171', accentDark: '#dc2626', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
   'rd_winserver': { mode: 'light', accent: '#6b7280', accentLight: '#9ca3af', accentDark: '#4b5563', gradient: 'linear-gradient(135deg, #6b7280, #4b5563)' },
   'RD-RO':        { mode: 'dark',  accent: '#10b981', accentLight: '#34d399', accentDark: '#059669', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
-  'sql':          { mode: 'dark',  accent: '#2563eb', accentLight: '#60a5fa', accentDark: '#1e40af', gradient: 'linear-gradient(135deg, #2563eb, #1e40af)' }
+  'sql':          { mode: 'dark',  accent: '#2563eb', accentLight: '#60a5fa', accentDark: '#1e40af', gradient: 'linear-gradient(135deg, #2563eb, #1e40af)' },
+  'csharp':       { mode: 'light', accent: '#C4A882', accentLight: '#D4B896', accentDark: '#A89070', gradient: 'linear-gradient(135deg, #C4A882, #A89070)' }
 };
 
 const COURSE_DIRS = Object.keys(COURSES);

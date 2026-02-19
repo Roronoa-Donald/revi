@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 08 : Dictionnaires | RD C#</title>
+    <meta name="description" content="Apprends à utiliser Dictionary en C# : Add, Remove, ContainsKey, TryGetValue, itération avec foreach et KeyValuePair. Exemples pratiques inclus.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#D4B896',500:'#C4A882',600:'#A89070'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+    <nav class="glass-nav" role="navigation"><div class="nav-inner"><a href="../index.html" class="nav-logo"><i class="fas fa-code"></i><span>RD C#</span></a><ul class="nav-links"><li><a href="../index.html">Accueil</a></li><li><a href="chapitre7.html">← Précédent</a></li><li><a href="chapitre8.html" class="active">Module 08</a></li><li><a href="chapitre9.html">Suivant →</a></li></ul><div class="nav-actions"><div id="user-xp-display"><i class="fas fa-bolt"></i> 0 XP</div><button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button><button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button></div></div></nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" role="dialog" aria-label="Menu de navigation"><button class="mobile-nav-close" aria-label="Fermer le menu"><i class="fas fa-times"></i></button><ul><li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li><li><a href="chapitre1.html">01 · Installation</a></li><li><a href="chapitre2.html">02 · Variables & Types</a></li><li><a href="chapitre3.html">03 · Conditions</a></li><li><a href="chapitre4.html">04 · Boucles</a></li><li><a href="chapitre5.html">05 · Tableaux & Listes</a></li><li><a href="chapitre6.html">06 · Méthodes</a></li><li><a href="chapitre7.html">07 · Strings</a></li><li><a href="chapitre8.html" class="active">08 · Dictionnaires</a></li><li><a href="chapitre9.html">09 · Entrées/Sorties</a></li><li><a href="chapitre10.html">10 · Switch & Enums</a></li><li><a href="chapitre11.html">11 · Try/Catch</a></li><li><a href="chapitre12.html">12 · POO</a></li><li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li><li><a href="cartes.html"><i class="fas fa-clone"></i> Flashcards</a></li></ul></div>
+
+    <!-- HERO -->
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge">Module 08</span>
+        <h1 class="hero-title">Les <span class="gradient-text">Dictionnaires</span></h1>
+        <p class="hero-description">Sharpy doit stocker des paires clé-valeur : noms → numéros de téléphone, produits → prix, mots → nombre d'occurrences. Son mentor SharpBot lui dit : « Un dictionnaire, c'est comme un vrai <strong>annuaire téléphonique</strong> — tu cherches par nom et tu obtiens le numéro instantanément ! »</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <!-- SECTION 1 : Créer et utiliser un Dictionary -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-book" style="color:var(--accent);margin-right:0.5rem;"></i>Créer un Dictionary — l'annuaire de tes données</h2>
+            <p>Un <code>Dictionary&lt;TKey, TValue&gt;</code> est une collection qui stocke des paires <strong>clé → valeur</strong>. Chaque clé est <strong>unique</strong> et permet d'accéder directement à sa valeur associée — sans parcourir toute la collection. C'est comme un vrai dictionnaire : tu ne lis pas tout le livre, tu vas directement au mot que tu cherches.</p>
+
+            <pre class="code-block"><span class="code-label">C#</span><code><span class="comment">// Créer un dictionnaire vide</span>
+<span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">int</span>&gt; ages = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">int</span>&gt;();
+
+<span class="comment">// Ajouter des éléments avec Add()</span>
+ages.<span class="method">Add</span>(<span class="str">"Sharpy"</span>, <span class="num">22</span>);
+ages.<span class="method">Add</span>(<span class="str">"SharpBot"</span>, <span class="num">1</span>);
+ages.<span class="method">Add</span>(<span class="str">"Alice"</span>, <span class="num">25</span>);
+
+<span class="comment">// Créer et initialiser en même temps</span>
+<span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">string</span>&gt; capitales = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">string</span>&gt;
+{
+    { <span class="str">"France"</span>, <span class="str">"Paris"</span> },
+    { <span class="str">"Japon"</span>, <span class="str">"Tokyo"</span> },
+    { <span class="str">"Brésil"</span>, <span class="str">"Brasília"</span> },
+    { <span class="str">"Canada"</span>, <span class="str">"Ottawa"</span> }
+};
+
+<span class="comment">// Syntaxe alternative (C# 6+)</span>
+<span class="kw">var</span> notes = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">double</span>&gt;
+{
+    [<span class="str">"Maths"</span>] = <span class="num">15.5</span>,
+    [<span class="str">"Français"</span>] = <span class="num">12.0</span>,
+    [<span class="str">"C#"</span>] = <span class="num">18.0</span>
+};
+
+<span class="comment">// Accéder à une valeur par sa clé</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"Âge de Sharpy : {ages[<span class="str">"Sharpy"</span>]}"</span>);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"Capitale du Japon : {capitales[<span class="str">"Japon"</span>]}"</span>);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"Note de C# : {notes[<span class="str">"C#"</span>]}"</span>);
+
+<span class="comment">// Modifier une valeur existante</span>
+ages[<span class="str">"Sharpy"</span>] = <span class="num">23</span>;  <span class="comment">// Sharpy a eu un anniversaire !</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"Nouvel âge de Sharpy : {ages[<span class="str">"Sharpy"</span>]}"</span>);
+
+<span class="comment">// Nombre d'éléments</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"Nombre de capitales : {capitales.Count}"</span>);</code></pre>
+
+            <pre class="code-block"><span class="code-label">sortie</span><code><span class="output">Âge de Sharpy : 22
+Capitale du Japon : Tokyo
+Note de C# : 18
+Nouvel âge de Sharpy : 23
+Nombre de capitales : 4</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Clés uniques obligatoires</div>
+                <p style="margin:0;font-size:0.9rem;">Chaque clé doit être <strong>unique</strong>. Si tu fais <code>ages.Add("Sharpy", 30)</code> alors que <code>"Sharpy"</code> existe déjà, tu obtiens une <code>ArgumentException</code>. Pour modifier une valeur existante, utilise la syntaxe avec crochets : <code>ages["Sharpy"] = 30;</code> — ça ajoute la clé si elle n'existe pas, ou remplace la valeur si elle existe déjà.</p>
+            </div>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> KeyNotFoundException</div>
+                <p style="margin:0;font-size:0.9rem;">Si tu accèdes à une clé qui n'existe pas — <code>ages["Bob"]</code> — tu obtiens une <code>KeyNotFoundException</code>. Ton programme plante ! Toujours vérifier l'existence d'une clé avant d'y accéder, avec <code>ContainsKey()</code> ou mieux encore <code>TryGetValue()</code>. C'est l'erreur n°1 des débutants avec les dictionnaires.</p>
+            </div>
+        </article>
+
+        <!-- SECTION 2 : ContainsKey, TryGetValue, Remove -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-search" style="color:var(--accent);margin-right:0.5rem;"></i>Vérifier, chercher et supprimer</h2>
+            <p>Avant de chercher dans un annuaire, il faut s'assurer que le contact existe. En C#, on a deux approches : <code>ContainsKey()</code> pour vérifier d'abord, et <code>TryGetValue()</code> qui combine vérification et récupération en une seule opération.</p>
+
+            <pre class="code-block"><span class="code-label">C#</span><code><span class="kw">var</span> annuaire = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">string</span>&gt;
+{
+    [<span class="str">"Sharpy"</span>] = <span class="str">"06.12.34.56.78"</span>,
+    [<span class="str">"SharpBot"</span>] = <span class="str">"06.00.00.00.01"</span>,
+    [<span class="str">"Alice"</span>] = <span class="str">"06.98.76.54.32"</span>
+};
+
+<span class="comment">// Méthode 1 : ContainsKey (deux étapes)</span>
+<span class="kw">if</span> (annuaire.<span class="method">ContainsKey</span>(<span class="str">"Sharpy"</span>))
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"Sharpy : {annuaire[<span class="str">"Sharpy"</span>]}"</span>);
+}
+
+<span class="kw">if</span> (!annuaire.<span class="method">ContainsKey</span>(<span class="str">"Bob"</span>))
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">"Bob n'est pas dans l'annuaire."</span>);
+}
+
+<span class="comment">// Méthode 2 : TryGetValue (une seule étape — RECOMMANDÉ)</span>
+<span class="kw">if</span> (annuaire.<span class="method">TryGetValue</span>(<span class="str">"Alice"</span>, <span class="kw">out</span> <span class="type">string</span> numero))
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"Alice trouvée : {numero}"</span>);
+}
+<span class="kw">else</span>
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">"Contact non trouvé."</span>);
+}
+
+<span class="comment">// Supprimer un élément</span>
+annuaire.<span class="method">Remove</span>(<span class="str">"SharpBot"</span>);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"Après suppression : {annuaire.Count} contacts"</span>);
+
+<span class="comment">// Vérifier si une valeur existe (plus lent que ContainsKey)</span>
+<span class="type">bool</span> aNumero = annuaire.<span class="method">ContainsValue</span>(<span class="str">"06.12.34.56.78"</span>);
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"Numéro trouvé ? {aNumero}"</span>);
+
+<span class="comment">// Tout effacer</span>
+<span class="comment">// annuaire.Clear();  // Supprime TOUS les éléments</span></code></pre>
+
+            <pre class="code-block"><span class="code-label">sortie</span><code><span class="output">Sharpy : 06.12.34.56.78
+Bob n'est pas dans l'annuaire.
+Alice trouvée : 06.98.76.54.32
+Après suppression : 2 contacts
+Numéro trouvé ? True</span></code></pre>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> TryGetValue vs ContainsKey — lequel choisir ?</div>
+                <p style="margin:0;font-size:0.9rem;"><code>TryGetValue()</code> est <strong>toujours meilleur</strong> que <code>ContainsKey()</code> + accès par crochets. Pourquoi ? Parce que <code>ContainsKey</code> cherche la clé une première fois, puis l'accès par crochets la cherche <strong>une deuxième fois</strong>. <code>TryGetValue</code> fait tout en un seul passage. C'est plus rapide, plus propre, et plus idiomatique en C#.</p>
+            </div>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-lightbulb"></i> Astuce — le pattern GetValueOrDefault</div>
+                <p style="margin:0;font-size:0.9rem;">Depuis .NET Core, tu peux utiliser <code>annuaire.GetValueOrDefault("Bob", "inconnu")</code> qui retourne la valeur si la clé existe, ou la valeur par défaut sinon. Plus besoin de if/else pour un simple lookup avec fallback !</p>
+            </div>
+        </article>
+
+        <!-- SECTION 3 : Itération -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-redo" style="color:var(--accent);margin-right:0.5rem;"></i>Parcourir un Dictionary avec foreach</h2>
+            <p>Sharpy veut afficher tous les contacts de son annuaire. Pour parcourir un dictionnaire, on utilise <code>foreach</code> avec un <code>KeyValuePair</code> — c'est comme feuilleter chaque page de l'annuaire, une par une.</p>
+
+            <pre class="code-block"><span class="code-label">C#</span><code><span class="kw">var</span> inventaire = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">int</span>&gt;
+{
+    [<span class="str">"Épée"</span>] = <span class="num">3</span>,
+    [<span class="str">"Bouclier"</span>] = <span class="num">1</span>,
+    [<span class="str">"Potion"</span>] = <span class="num">15</span>,
+    [<span class="str">"Flèche"</span>] = <span class="num">42</span>,
+    [<span class="str">"Gemme"</span>] = <span class="num">7</span>
+};
+
+<span class="comment">// Méthode 1 : foreach avec KeyValuePair</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">"=== Inventaire complet ==="</span>);
+<span class="kw">foreach</span> (<span class="type">KeyValuePair</span>&lt;<span class="type">string</span>, <span class="type">int</span>&gt; item <span class="kw">in</span> inventaire)
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"  {item.Key} × {item.Value}"</span>);
+}
+
+<span class="comment">// Méthode 2 : foreach avec var (plus concis)</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">"\n=== Version courte ==="</span>);
+<span class="kw">foreach</span> (<span class="kw">var</span> item <span class="kw">in</span> inventaire)
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"  {item.Key} : {item.Value}"</span>);
+}
+
+<span class="comment">// Méthode 3 : destructuration (C# 7+)</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">"\n=== Destructuration ==="</span>);
+<span class="kw">foreach</span> (<span class="kw">var</span> (objet, quantite) <span class="kw">in</span> inventaire)
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"  {objet} → {quantite}"</span>);
+}
+
+<span class="comment">// Parcourir uniquement les clés</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">"\n=== Clés seules ==="</span>);
+<span class="kw">foreach</span> (<span class="type">string</span> cle <span class="kw">in</span> inventaire.Keys)
+{
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"  {cle}"</span>);
+}
+
+<span class="comment">// Parcourir uniquement les valeurs</span>
+<span class="type">int</span> total = <span class="num">0</span>;
+<span class="kw">foreach</span> (<span class="type">int</span> qte <span class="kw">in</span> inventaire.Values)
+{
+    total += qte;
+}
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"\nTotal d'objets : {total}"</span>);</code></pre>
+
+            <pre class="code-block"><span class="code-label">sortie</span><code><span class="output">=== Inventaire complet ===
+  Épée × 3
+  Bouclier × 1
+  Potion × 15
+  Flèche × 42
+  Gemme × 7
+
+=== Version courte ===
+  Épée : 3
+  Bouclier : 1
+  Potion : 15
+  Flèche : 42
+  Gemme : 7
+
+=== Destructuration ===
+  Épée → 3
+  Bouclier → 1
+  Potion → 15
+  Flèche → 42
+  Gemme → 7
+
+=== Clés seules ===
+  Épée
+  Bouclier
+  Potion
+  Flèche
+  Gemme
+
+Total d'objets : 68</span></code></pre>
+
+            <div class="warning-box">
+                <div class="box-title"><i class="fas fa-exclamation-triangle"></i> Ne modifie pas un dictionnaire pendant le foreach !</div>
+                <p style="margin:0;font-size:0.9rem;">Si tu essaies de faire <code>inventaire.Remove("Potion")</code> à l'intérieur d'un <code>foreach</code> sur <code>inventaire</code>, tu obtiens une <code>InvalidOperationException: Collection was modified</code>. Pour supprimer des éléments pendant l'itération, parcours d'abord <code>inventaire.Keys.ToList()</code> ou utilise LINQ avec <code>Where</code> pour filtrer.</p>
+            </div>
+
+            <div class="info-box">
+                <div class="box-title"><i class="fas fa-info-circle"></i> Ordre d'itération</div>
+                <p style="margin:0;font-size:0.9rem;">Un <code>Dictionary</code> ne garantit <strong>aucun ordre</strong> d'itération. Si tu as besoin d'un ordre trié par clé, utilise <code>SortedDictionary&lt;TKey, TValue&gt;</code>. Si tu as besoin de l'ordre d'insertion, utilise <code>OrderedDictionary</code> (de <code>System.Collections.Specialized</code>) ou un <code>List&lt;KeyValuePair&gt;</code>.</p>
+            </div>
+        </article>
+
+        <!-- SECTION 4 : Exemple pratique — compteur de mots -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-chart-bar" style="color:var(--accent);margin-right:0.5rem;"></i>Exemple pratique — compteur de mots</h2>
+            <p>SharpBot lance un défi à Sharpy : « Compte combien de fois chaque mot apparaît dans un texte. » C'est l'exemple classique d'utilisation d'un dictionnaire — et c'est une question fréquente en entretien d'embauche !</p>
+
+            <pre class="code-block"><span class="code-label">C#</span><code><span class="type">string</span> texte = <span class="str">"le chat mange le poisson et le chat dort"</span>;
+
+<span class="comment">// Étape 1 : Découper en mots</span>
+<span class="type">string</span>[] mots = texte.<span class="method">ToLower</span>().<span class="method">Split</span>(<span class="str">' '</span>);
+
+<span class="comment">// Étape 2 : Compter avec un Dictionary</span>
+<span class="kw">var</span> compteur = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">int</span>&gt;();
+
+<span class="kw">foreach</span> (<span class="type">string</span> mot <span class="kw">in</span> mots)
+{
+    <span class="kw">if</span> (compteur.<span class="method">ContainsKey</span>(mot))
+    {
+        compteur[mot]++;            <span class="comment">// Déjà vu → on incrémente</span>
+    }
+    <span class="kw">else</span>
+    {
+        compteur[mot] = <span class="num">1</span>;           <span class="comment">// Première occurrence</span>
+    }
+}
+
+<span class="comment">// Version plus concise avec TryGetValue</span>
+<span class="kw">var</span> compteur2 = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">int</span>&gt;();
+<span class="kw">foreach</span> (<span class="type">string</span> mot <span class="kw">in</span> mots)
+{
+    compteur2.<span class="method">TryGetValue</span>(mot, <span class="kw">out</span> <span class="type">int</span> count);
+    compteur2[mot] = count + <span class="num">1</span>;
+}
+
+<span class="comment">// Étape 3 : Afficher les résultats</span>
+<span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">"=== Fréquence des mots ==="</span>);
+<span class="kw">foreach</span> (<span class="kw">var</span> (mot, freq) <span class="kw">in</span> compteur)
+{
+    <span class="type">string</span> barre = <span class="kw">new</span> <span class="type">string</span>(<span class="str">'█'</span>, freq);
+    <span class="type">Console</span>.<span class="method">WriteLine</span>(<span class="str">$"  {mot,-10} {freq} {barre}"</span>);
+}</code></pre>
+
+            <pre class="code-block"><span class="code-label">sortie</span><code><span class="output">=== Fréquence des mots ===
+  le         3 ███
+  chat       2 ██
+  mange      1 █
+  poisson    1 █
+  et         1 █
+  dort       1 █</span></code></pre>
+
+            <div class="success-box">
+                <div class="box-title"><i class="fas fa-check-circle"></i> Résumé — la boîte à outils des Dictionnaires</div>
+                <p style="margin:0;font-size:0.9rem;">
+                    <code>new Dictionary&lt;K, V&gt;()</code> → créer<br>
+                    <code>dict.Add(key, value)</code> → ajouter (erreur si clé existe)<br>
+                    <code>dict[key] = value</code> → ajouter ou modifier<br>
+                    <code>dict[key]</code> → accéder (erreur si clé absente)<br>
+                    <code>dict.TryGetValue(key, out val)</code> → accéder en sécurité<br>
+                    <code>dict.ContainsKey(key)</code> → vérifier l'existence<br>
+                    <code>dict.Remove(key)</code> → supprimer<br>
+                    <code>dict.Count</code> → nombre d'éléments<br>
+                    <code>dict.Keys</code> / <code>dict.Values</code> → collections de clés/valeurs<br>
+                    <code>foreach (var (k,v) in dict)</code> → itérer
+                </p>
+            </div>
+        </article>
+
+        <!-- EXERCICES -->
+        <article id="interactive-exercise" class="glass-card reveal-on-scroll"></article>
+
+        <!-- NAVIGATION -->
+        <nav class="chapter-nav">
+            <a href="chapitre7.html" class="chapter-nav-btn prev"><i class="fas fa-arrow-left"></i><span><small>Précédent</small>Module 07 : Strings</span></a>
+            <a href="chapitre9.html" class="chapter-nav-btn next"><span><small>Suivant</small>Module 09 : Entrées/Sorties</span><i class="fas fa-arrow-right"></i></a>
+        </nav>
+    </main>
+
+    <footer class="site-footer"><div class="footer-logo"><i class="fas fa-code" style="color:var(--accent);margin-right:0.4rem;"></i>RD C#</div><p class="footer-tagline">Fondamentaux C# · .NET · POO</p><a href="../../index.html" style="display:inline-block;margin-bottom:0.5rem;color:var(--accent);text-decoration:none;font-size:0.9rem;"><i class="fas fa-th-large"></i> Portail des Cours</a><p class="footer-copy">© 2025-2026 — Développé avec <span style="color:var(--accent);">♥</span> et beaucoup de <code>Console.WriteLine</code></p></footer>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

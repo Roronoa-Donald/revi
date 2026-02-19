@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Complet C# - Bases Fondamentales</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-darker: #020617;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 2.5rem 2rem;
+            position: relative;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            color: var(--primary-light);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* NAVIGATION */
+        nav {
+            background-color: var(--bg-card);
+            border-bottom: 2px solid var(--primary);
+            padding: 0.8rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 50;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        nav::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        nav::-webkit-scrollbar-track {
+            background: var(--bg-darker);
+        }
+
+        nav::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .nav-btn {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.9rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+            background-color: rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* SECTIONS */
+        .section {
+            display: none;
+            padding: 2.5rem 0;
+            min-height: 60vh;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            color: var(--primary-light);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* OBJECTIVE BOX */
+        .objective-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border-left: 4px solid var(--success);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .objective-box strong {
+            color: var(--success);
+            font-size: 1.05rem;
+        }
+
+        .objective-box p {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* CONTENT BLOCKS */
+        .content-block {
+            margin-bottom: 2.5rem;
+        }
+
+        .block-title {
+            font-size: 1.3rem;
+            color: var(--primary-light);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .block-text {
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            border: 1px solid var(--border);
+        }
+
+        .block-text strong {
+            color: var(--text-primary);
+        }
+
+        /* CODE BLOCK */
+        .code-block {
+            background-color: var(--bg-darker);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        .code-block code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            color: #a8e6cf;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            display: block;
+            white-space: pre;
+            letter-spacing: 0.3px;
+        }
+
+        /* EXERCISE */
+        .exercise {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .exercise:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+        }
+
+        .exercise-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .exercise-title {
+            font-size: 1.1rem;
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        .exercise-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-easy {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge-medium {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .badge-hard {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .exercise-text {
+            color: var(--text-secondary);
+            margin-bottom: 1.3rem;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-block;
+            padding: 0.65rem 1.3rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-reveal {
+            background-color: transparent;
+            color: var(--primary-light);
+            border: 1.5px solid var(--primary);
+        }
+
+        .btn-reveal:hover {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-reveal:active {
+            transform: translateY(0);
+        }
+
+        /* ANSWER */
+        .answer {
+            display: none;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+            border-left: 4px solid var(--success);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.2rem;
+            animation: slideDown 0.35s ease;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .answer.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                max-height: 2000px;
+                transform: translateY(0);
+            }
+        }
+
+        .answer-title {
+            color: var(--success);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* SETUP BOX */
+        .setup-box {
+            background-color: var(--bg-card);
+            border-left: 4px solid var(--warning);
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .setup-box h3 {
+            color: var(--primary-light);
+            margin-bottom: 1.2rem;
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .setup-box ol,
+        .setup-box ul {
+            margin-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .setup-box li {
+            margin-bottom: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .setup-box strong {
+            color: var(--text-primary);
+        }
+
+        .setup-box code {
+            background-color: var(--bg-darker);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            color: #a8e6cf;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 2.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: 5rem;
+        }
+
+        footer p {
+            margin: 0.8rem 0;
+        }
+
+        footer strong {
+            color: var(--primary-light);
+        }
+
+        /* SCROLL TO TOP */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.2rem;
+            z-index: 1000;
+            transition: all 0.2s ease;
+            border: none;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .scroll-to-top:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        .scroll-to-top.show {
+            display: flex;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            header {
+                padding: 2rem 1.5rem;
+            }
+
+            header h1 {
+                font-size: 1.7rem;
+            }
+
+            nav {
+                padding: 0.7rem 1.5rem;
+                gap: 0.4rem;
+            }
+
+            .nav-btn {
+                padding: 0.45rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .section {
+                padding: 2rem 0;
+            }
+
+            .code-block {
+                padding: 1rem;
+            }
+
+            .code-block code {
+                font-size: 0.8rem;
+            }
+
+            .exercise {
+                padding: 1.2rem;
+            }
+
+            .exercise-header {
+                gap: 0.7rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 1.5rem 1rem;
+            }
+
+            header h1 {
+                font-size: 1.3rem;
+            }
+
+            header p {
+                font-size: 0.85rem;
+            }
+
+            nav {
+                padding: 0.6rem 1rem;
+                gap: 0.3rem;
+            }
+
+            .nav-btn {
+                padding: 0.4rem 0.65rem;
+                font-size: 0.75rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+            }
+
+            .block-title {
+                font-size: 1.1rem;
+            }
+
+            .code-block {
+                padding: 0.8rem;
+            }
+
+            .code-block code {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <h1>📘 Guide Complet C# - Bases Fondamentales</h1>
+        <p>Maîtrisez les concepts essentiels de C# avant d'aborder la POO</p>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav id="navigation"></nav>
+
+    <!-- CONTENU PRINCIPAL -->
+    <div class="container" id="main-content"></div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p><strong>🎓 Bravo !</strong></p>
+        <p>Vous maîtrisez maintenant les bases de C#</p>
+        <p style="margin-top: 1rem; color: var(--primary-light);">Êtes-vous prêt pour la POO ? 🚀</p>
+    </footer>
+
+    <!-- SCROLL TO TOP -->
+    <button class="scroll-to-top" id="scrollToTop">↑</button>
+
+    <script>
+        const sections = [
+            {
+                id: 'setup',
+                title: '🚀 Installation',
+                emoji: '⚙️',
+                content: `
+                    <div class="objective-box">
+                        <strong>🎯 Objectif :</strong>
+                        <p>Installer Visual Studio et créer votre premier projet C#</p>
+                    </div>
+
+                    <div class="setup-box">
+                        <h3>💻 Installer Visual Studio Community</h3>
+                        <ol>
+                            <li>Téléchargez Visual Studio Community depuis <strong>visualstudio.microsoft.com</strong></li>
+                            <li>Sélectionnez la charge de travail <strong>.NET Desktop Development</strong></li>
+                            <li>Installez <strong>.NET SDK 6.0+</strong></li>
+                            <li>Vérifiez : <code>dotnet --version</code></li>
+                        </ol>
+                    </div>
+
+                    <div class="setup-box">
+                        <h3>🎯 Créer votre premier projet</h3>
+                        <ol>
+                            <li>Cliquez sur <strong>Create a new project</strong></li>
+                            <li>Choisissez <strong>Console App (.NET)</strong></li>
+                            <li>Nommez le projet <strong>ApprendreCSharp</strong></li>
+                            <li>Acceptez les paramètres par défaut</li>
+                        </ol>
+                    </div>
+
+                    <div class="setup-box" style="border-left-color: var(--success); background-color: rgba(16, 185, 129, 0.08);">
+                        <h3 style="color: var(--success);">✨ C'est parti !</h3>
+                        <p style="color: var(--text-secondary); margin: 0;">Votre environnement est prêt. Commencez avec <strong style="color: var(--text-primary);">Variables & Types</strong> pour découvrir les fondations.</p>
+                    </div>
+                `
+            },
+            {
+                id: 'variables-types',
+                title: '1️⃣ Variables & Types',
+                emoji: '📦',
+                objective: 'Comprendre les variables et les types de données en C#',
+                explanation: 'Une <strong>variable</strong> est un conteneur pour stocker une valeur. Les <strong>types</strong> définissent le genre de données : int (entiers), string (texte), double (décimaux), bool (vrai/faux).',
+                analogy: 'Une variable = une <strong>boîte étiquetée</strong> : L\'étiquette indique le type, la boîte contient la valeur.',
+                code: `int age = 25;
+string nom = "Alice";
+double prix = 19.99;
+bool estActif = true;
+
+Console.WriteLine($"Nom: {nom}");
+Console.WriteLine($"Age: {age}");
+Console.WriteLine($"Prix: {prix}€");`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Créez 3 variables (prénom, âge, taille) et affichez-les', answer: `string prenom = "Jean";
+int age = 30;
+double taille = 1.75;
+
+Console.WriteLine($"Prénom: {prenom}");
+Console.WriteLine($"Âge: {age}");
+Console.WriteLine($"Taille: {taille}m");`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'easy', text: 'Créez un prix (25.50) et une quantité (3), calculez le total', answer: `double prix = 25.50;
+int quantite = 3;
+double total = prix * quantite;
+Console.WriteLine($"Total: {total}€");`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'medium', text: 'Créez une variable booléenne et affichez un message selon sa valeur', answer: `bool estMajeur = true;
+
+if (estMajeur)
+    Console.WriteLine("Majeur");
+else
+    Console.WriteLine("Mineur");`, visible: false }
+                ]
+            },
+            {
+                id: 'conditions',
+                title: '2️⃣ Conditions (IF/ELSE)',
+                emoji: '🔀',
+                objective: 'Maîtriser les structures conditionnelles',
+                explanation: 'Les <strong>conditions</strong> permettent d\'exécuter du code selon une expression. Syntaxe : if (condition) { } else if { } else { }',
+                analogy: 'Un <strong>carrefour routier</strong> : feu rouge → attendre, orange → ralentir, vert → avancer.',
+                code: `int note = 85;
+
+if (note >= 90)
+    Console.WriteLine("A");
+else if (note >= 80)
+    Console.WriteLine("B");
+else if (note >= 70)
+    Console.WriteLine("C");
+else
+    Console.WriteLine("D");`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Vérifiez si un nombre est pair ou impair', answer: `int nombre = 42;
+
+if (nombre % 2 == 0)
+    Console.WriteLine("Pair");
+else
+    Console.WriteLine("Impair");`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'medium', text: 'Vérifiez si on peut conduire (18+ ET permis)', answer: `int age = 25;
+bool aPermis = true;
+
+if (age >= 18 && aPermis)
+    Console.WriteLine("Vous pouvez conduire");
+else
+    Console.WriteLine("Non autorisé");`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'hard', text: 'Classez une température (froid/frais/tempéré/chaud)', answer: `double temp = 18.5;
+
+if (temp < 0)
+    Console.WriteLine("Froid");
+else if (temp < 15)
+    Console.WriteLine("Frais");
+else if (temp <= 25)
+    Console.WriteLine("Tempéré");
+else
+    Console.WriteLine("Chaud");`, visible: false }
+                ]
+            },
+            {
+                id: 'boucles',
+                title: '3️⃣ Boucles (FOR/WHILE)',
+                emoji: '🔄',
+                objective: 'Maîtriser les boucles pour répéter du code',
+                explanation: 'Les <strong>boucles</strong> permettent de répéter du code. FOR (nombre de fois connu), WHILE (tant que condition), FOREACH (pour chaque élément).',
+                analogy: 'Faire 10 pompes = boucle de 10, Manger tant qu\'affamé = while.',
+                code: `// FOR
+for (int i = 1; i <= 5; i++)
+    Console.WriteLine(i);
+
+// WHILE
+int x = 0;
+while (x < 3)
+{
+    Console.WriteLine(x);
+    x++;
+}`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Affichez les nombres de 1 à 10', answer: `for (int i = 1; i <= 10; i++)
+    Console.WriteLine(i);`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'medium', text: 'Affichez la table de multiplication de 7', answer: `for (int i = 1; i <= 10; i++)
+    Console.WriteLine($"7 × {i} = {7 * i}");`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'hard', text: 'Affichez uniquement les nombres pairs de 1 à 20', answer: `for (int i = 2; i <= 20; i += 2)
+    Console.WriteLine(i);`, visible: false }
+                ]
+            },
+            {
+                id: 'tableaux',
+                title: '4️⃣ Tableaux & Listes',
+                emoji: '📋',
+                objective: 'Stocker plusieurs valeurs dans un conteneur',
+                explanation: 'Un <strong>tableau</strong> stocke plusieurs valeurs du même type. On accède par un <strong>index</strong> (0, 1, 2...).',
+                analogy: 'Un <strong>classeur numéroté</strong> : chaque position a un numéro.',
+                code: `// Tableau
+int[] nombres = { 10, 20, 30, 40, 50 };
+Console.WriteLine(nombres[0]); // 10
+
+// Liste dynamique
+List<string> prenoms = new List<string>();
+prenoms.Add("Alice");
+prenoms.Add("Bob");
+Console.WriteLine(prenoms[0]); // Alice`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Créez un tableau de 5 nombres et affichez le premier et dernier', answer: `int[] nombres = { 10, 20, 30, 40, 50 };
+Console.WriteLine($"Premier: {nombres[0]}");
+Console.WriteLine($"Dernier: {nombres[nombres.Length - 1]}");`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'medium', text: 'Créez une liste de 3 prénoms et affichez chacun', answer: `List<string> prenoms = new List<string> 
+    { "Alice", "Bob", "Charlie" };
+
+foreach (string p in prenoms)
+    Console.WriteLine(p);`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'hard', text: 'Trouvez le plus grand nombre dans une liste', answer: `List<int> nombres = new List<int> 
+    { 45, 12, 89, 34, 67 };
+
+int max = nombres[0];
+foreach (int n in nombres)
+    if (n > max) max = n;
+
+Console.WriteLine($"Max: {max}");`, visible: false }
+                ]
+            },
+            {
+                id: 'methodes',
+                title: '5️⃣ Méthodes & Fonctions',
+                emoji: '⚡',
+                objective: 'Créer du code réutilisable avec les méthodes',
+                explanation: 'Une <strong>méthode</strong> est un bloc de code réutilisable qui effectue une tâche. Elle peut recevoir des <strong>paramètres</strong> et retourner une <strong>valeur</strong>.',
+                analogy: 'Une <strong>machine spécialisée</strong> : ingrédients (paramètres) → travail → résultat (return).',
+                code: `int Additionner(int a, int b)
+{
+    return a + b;
+}
+
+int resultat = Additionner(5, 3);
+Console.WriteLine(resultat); // 8`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Créez une méthode qui retourne la somme de deux nombres', answer: `int Additionner(int a, int b)
+{
+    return a + b;
+}
+
+Console.WriteLine(Additionner(10, 5)); // 15`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'medium', text: 'Créez une méthode qui retourne true si un nombre est pair', answer: `bool EstPair(int nombre)
+{
+    return nombre % 2 == 0;
+}
+
+Console.WriteLine(EstPair(4)); // true
+Console.WriteLine(EstPair(7)); // false`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'hard', text: 'Créez une méthode avec réduction (quantité > 10 = -10%)', answer: `double CalculerPrix(double prix, int quantite)
+{
+    double total = prix * quantite;
+    if (quantite > 10)
+        total = total * 0.90;
+    return total;
+}`, visible: false }
+                ]
+            },
+            {
+                id: 'strings',
+                title: '6️⃣ Manipulation de Strings',
+                emoji: '📝',
+                objective: 'Travailler avec du texte en C#',
+                explanation: 'Une <strong>string</strong> est du texte. C# offre des méthodes pour manipuler : ToUpper, ToLower, Contains, Replace, Split...',
+                analogy: 'Un <strong>fil de perles</strong> : chaque lettre est une perle.',
+                code: `string texte = "Bonjour";
+
+Console.WriteLine(texte.Length); // 7
+Console.WriteLine(texte.ToUpper()); // BONJOUR
+Console.WriteLine(texte.Contains("jour")); // true`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Affichez la longueur et convertissez en majuscules/minuscules', answer: `string texte = "Bonjour C#";
+Console.WriteLine($"Longueur: {texte.Length}");
+Console.WriteLine($"Majuscules: {texte.ToUpper()}");
+Console.WriteLine($"Minuscules: {texte.ToLower()}");`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'medium', text: 'Vérifiez si une string contient un mot spécifique', answer: `string phrase = "Je suis programmeur";
+if (phrase.Contains("programmeur"))
+    Console.WriteLine("Mot trouvé!");
+else
+    Console.WriteLine("Mot pas trouvé");`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'hard', text: 'Découpe une phrase en mots et affiche chacun', answer: `string phrase = "Bonjour le monde";
+string[] mots = phrase.Split(' ');
+
+foreach (string mot in mots)
+    Console.WriteLine(mot);`, visible: false }
+                ]
+            },
+            {
+                id: 'dictionnaires',
+                title: '7️⃣ Dictionnaires',
+                emoji: '🗺️',
+                objective: 'Stocker des paires clé-valeur',
+                explanation: 'Un <strong>dictionnaire</strong> stocke des paires <strong>clé-valeur</strong>. Contrairement aux listes (index numérique), les dictionnaires utilisent des clés (texte, nombre...) pour accéder aux valeurs.',
+                analogy: 'Un <strong>annuaire téléphonique</strong> : clé = nom, valeur = numéro.',
+                code: `Dictionary<string, int> ages = new Dictionary<string, int>();
+ages["Alice"] = 25;
+ages["Bob"] = 30;
+
+Console.WriteLine(ages["Alice"]); // 25
+
+foreach (var pair in ages)
+    Console.WriteLine($"{pair.Key}: {pair.Value}");`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Créez un dictionnaire pays→capitale et affichez une valeur', answer: `var pays = new Dictionary<string, string>
+{
+    { "FR", "Paris" },
+    { "IT", "Rome" },
+    { "ES", "Madrid" }
+};
+
+Console.WriteLine(pays["FR"]); // Paris`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'medium', text: 'Créez un dictionnaire produit→prix et ajoutez 3 produits', answer: `var prix = new Dictionary<string, double>
+{
+    { "Pomme", 2.50 },
+    { "Banane", 1.20 },
+    { "Orange", 3.00 }
+};
+
+foreach (var p in prix)
+    Console.WriteLine($"{p.Key}: {p.Value}€");`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'hard', text: 'Trouvez l\'élève avec la meilleure note dans un dictionnaire', answer: `var notes = new Dictionary<string, int>
+{
+    { "Alice", 85 },
+    { "Bob", 92 },
+    { "Charlie", 78 }
+};
+
+string meilleur = "";
+int max = 0;
+foreach (var pair in notes)
+{
+    if (pair.Value > max)
+    {
+        max = pair.Value;
+        meilleur = pair.Key;
+    }
+}
+Console.WriteLine($"Meilleur: {meilleur} ({max})");`, visible: false }
+                ]
+            },
+            {
+                id: 'input-output',
+                title: '8️⃣ Entrées & Affichage',
+                emoji: '🎙️',
+                objective: 'Interagir avec l\'utilisateur',
+                explanation: '<strong>Console.ReadLine()</strong> demande l\'entrée utilisateur (string), <strong>Console.WriteLine()</strong> affiche du texte. Ces méthodes créent des programmes <strong>interactifs</strong>.',
+                analogy: 'Une <strong>conversation</strong> : Console.WriteLine = parler, Console.ReadLine = écouter.',
+                code: `Console.Write("Quel est votre nom? ");
+string nom = Console.ReadLine();
+
+Console.Write("Quel est votre âge? ");
+int age = int.Parse(Console.ReadLine());
+
+Console.WriteLine($"Bonjour {nom}, vous avez {age} ans!");`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Demandez prénom et âge, affichez une phrase personnalisée', answer: `Console.Write("Prénom: ");
+string prenom = Console.ReadLine();
+
+Console.Write("Âge: ");
+int age = int.Parse(Console.ReadLine());
+
+Console.WriteLine($"Bonjour {prenom}, {age} ans!");`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'medium', text: 'Demandez deux nombres et affichez somme, différence, produit', answer: `Console.Write("Nombre 1: ");
+int n1 = int.Parse(Console.ReadLine());
+
+Console.Write("Nombre 2: ");
+int n2 = int.Parse(Console.ReadLine());
+
+Console.WriteLine($"Somme: {n1 + n2}");
+Console.WriteLine($"Différence: {n1 - n2}");
+Console.WriteLine($"Produit: {n1 * n2}");`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'hard', text: 'Créez une calculatrice simple (+, -, *, /)', answer: `Console.Write("Opération (+,-,*,/): ");
+string op = Console.ReadLine();
+
+Console.Write("Nombre 1: ");
+double n1 = double.Parse(Console.ReadLine());
+
+Console.Write("Nombre 2: ");
+double n2 = double.Parse(Console.ReadLine());
+
+double resultat = 0;
+switch(op)
+{
+    case "+": resultat = n1 + n2; break;
+    case "-": resultat = n1 - n2; break;
+    case "*": resultat = n1 * n2; break;
+    case "/": resultat = n1 / n2; break;
+}
+
+Console.WriteLine($"Résultat: {resultat}");`, visible: false }
+                ]
+            },
+            {
+                id: 'switch',
+                title: '9️⃣ Switch & Case',
+                emoji: '🎮',
+                objective: 'Utiliser switch comme alternative à if-else',
+                explanation: '<strong>Switch</strong> teste une variable contre plusieurs <strong>cas</strong>. Plus lisible qu\'une chaîne de if-else. Utilisez <strong>break</strong> pour arrêter, <strong>default</strong> pour le cas par défaut.',
+                analogy: 'Un <strong>distributeur multi-étages</strong> : chaque cas donne un produit spécifique.',
+                code: `int jour = 3;
+switch (jour)
+{
+    case 1: Console.WriteLine("Lundi"); break;
+    case 2: Console.WriteLine("Mardi"); break;
+    case 3: Console.WriteLine("Mercredi"); break;
+    default: Console.WriteLine("Jour invalide"); break;
+}`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Switch affichant le nom du mois (1-12)', answer: `int mois = 5;
+switch (mois)
+{
+    case 1: Console.WriteLine("Janvier"); break;
+    case 2: Console.WriteLine("Février"); break;
+    case 3: Console.WriteLine("Mars"); break;
+    case 4: Console.WriteLine("Avril"); break;
+    case 5: Console.WriteLine("Mai"); break;
+    case 6: Console.WriteLine("Juin"); break;
+    case 7: Console.WriteLine("Juillet"); break;
+    case 8: Console.WriteLine("Août"); break;
+    case 9: Console.WriteLine("Septembre"); break;
+    case 10: Console.WriteLine("Octobre"); break;
+    case 11: Console.WriteLine("Novembre"); break;
+    case 12: Console.WriteLine("Décembre"); break;
+}`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'medium', text: 'Switch selon note (A,B,C,D,F) avec messages', answer: `char note = 'B';
+switch (note)
+{
+    case 'A': Console.WriteLine("Excellent"); break;
+    case 'B': Console.WriteLine("Bon"); break;
+    case 'C': Console.WriteLine("Moyen"); break;
+    case 'D': Console.WriteLine("Faible"); break;
+    case 'F': Console.WriteLine("Échoué"); break;
+    default: Console.WriteLine("Note invalide"); break;
+}`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'hard', text: 'Calculer prix avec réductions selon type (Enfant -20%, Senior -10%)', answer: `string type = "Enfant";
+double prix = 50.0;
+
+switch (type)
+{
+    case "Enfant":
+        prix = prix * 0.80;
+        break;
+    case "Adulte":
+        break;
+    case "Senior":
+        prix = prix * 0.90;
+        break;
+}
+
+Console.WriteLine($"Prix: {prix}€");`, visible: false }
+                ]
+            },
+            {
+                id: 'try-catch',
+                title: '🔟 Gestion d\'erreurs (Try/Catch)',
+                emoji: '🛡️',
+                objective: 'Gérer les erreurs sans bloquer le programme',
+                explanation: '<strong>TRY/CATCH</strong> permet de capturer et gérer les <strong>exceptions</strong> (erreurs). Le bloc <strong>try</strong> contient le code risqué, <strong>catch</strong> gère l\'erreur, <strong>finally</strong> s\'exécute toujours.',
+                analogy: 'Une <strong>ceinture de sécurité</strong> : try = route normale, catch = airbag si accident.',
+                code: `try
+{
+    string nombre = "42";
+    int resultat = int.Parse(nombre);
+    Console.WriteLine(resultat);
+}
+catch (FormatException)
+{
+    Console.WriteLine("Erreur: entrez un nombre valide");
+}
+finally
+{
+    Console.WriteLine("Opération terminée");
+}`,
+                exercises: [
+                    { title: '✏️ Exercice 1 - Avec corrigé', difficulty: 'easy', text: 'Try-catch pour convertir un string en int', answer: `try
+{
+    string nombre = "42";
+    int resultat = int.Parse(nombre);
+    Console.WriteLine($"Résultat: {resultat}");
+}
+catch (FormatException)
+{
+    Console.WriteLine("Erreur: pas un nombre valide");
+}`, visible: true },
+                    { title: '✏️ Exercice 2', difficulty: 'medium', text: 'Accéder à un index d\'un tableau avec gestion erreur', answer: `int[] nombres = { 10, 20, 30 };
+try
+{
+    Console.Write("Quel index (0,1,2)? ");
+    int index = int.Parse(Console.ReadLine());
+    Console.WriteLine($"Valeur: {nombres[index]}");
+}
+catch (IndexOutOfRangeException)
+{
+    Console.WriteLine("Erreur: index invalide");
+}
+catch (FormatException)
+{
+    Console.WriteLine("Erreur: entrez un nombre");
+}`, visible: false },
+                    { title: '✏️ Exercice 3', difficulty: 'hard', text: 'Méthode qui divise deux nombres avec gestion erreur', answer: `double Diviser(string a, string b)
+{
+    try
+    {
+        double n1 = double.Parse(a);
+        double n2 = double.Parse(b);
+        
+        if (n2 == 0)
+            throw new ArgumentException("Division par zéro");
+        
+        return n1 / n2;
+    }
+    catch (FormatException)
+    {
+        Console.WriteLine("Erreur: nombres invalides");
+        return 0;
+    }
+    catch (ArgumentException e)
+    {
+        Console.WriteLine(e.Message);
+        return 0;
+    }
+    finally
+    {
+        Console.WriteLine("Opération terminée");
+    }
+}`, visible: false }
+                ]
+            }
+        ];
+
+        function renderNavigation() {
+            const nav = document.getElementById('navigation');
+            nav.innerHTML = '';
+            
+            sections.forEach(section => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn' + (section.id === 'setup' ? ' active' : '');
+                btn.setAttribute('data-section', section.id);
+                btn.textContent = section.title;
+                btn.addEventListener('click', () => switchSection(section.id));
+                nav.appendChild(btn);
+            });
+        }
+
+        function renderContent() {
+            const container = document.getElementById('main-content');
+            
+            sections.forEach(section => {
+                const div = document.createElement('div');
+                div.className = 'section' + (section.id === 'setup' ? ' active' : '');
+                div.id = `section-${section.id}`;
+
+                if (section.id === 'setup') {
+                    div.innerHTML = section.content;
+                } else {
+                    let html = `
+                        <div class="section-header">
+                            <h2 class="section-title">${section.title}</h2>
+                        </div>
+
+                        <div class="objective-box">
+                            <strong>🎯 Objectif :</strong>
+                            <p>${section.objective}</p>
+                        </div>
+
+                        <div class="content-block">
+                            <h3 class="block-title">💡 Explication</h3>
+                            <div class="block-text">${section.explanation}</div>
+                        </div>
+
+                        <div class="content-block">
+                            <h3 class="block-title">🎯 Analogie</h3>
+                            <div class="block-text">${section.analogy}</div>
+                        </div>
+
+                        <div class="content-block">
+                            <h3 class="block-title">💻 Exemple</h3>
+                            <div class="code-block"><code>${escapeHtml(section.code)}</code></div>
+                        </div>
+
+                        <div class="content-block">
+                            <h3 class="block-title">📚 Exercices</h3>
+                    `;
+
+                    section.exercises.forEach((ex, idx) => {
+                        const exId = `ex-${section.id}-${idx}`;
+                        html += `
+                            <div class="exercise">
+                                <div class="exercise-header">
+                                    <span class="exercise-title">${ex.title}</span>
+                                    <span class="exercise-badge badge-${ex.difficulty}">${ex.difficulty}</span>
+                                </div>
+                                <div class="exercise-text">${ex.text}</div>
+                        `;
+
+                        if (ex.visible) {
+                            html += `<div class="code-block"><code>${escapeHtml(ex.answer)}</code></div>`;
+                        } else {
+                            html += `
+                                <button class="btn btn-reveal" onclick="toggleAnswer('${exId}')">🔓 Révéler la réponse</button>
+                                <div id="${exId}" class="answer">
+                                    <div class="answer-title">✅ Réponse</div>
+                                    <div class="code-block"><code>${escapeHtml(ex.answer)}</code></div>
+                                </div>
+                            `;
+                        }
+
+                        html += `</div>`;
+                    });
+
+                    html += `</div>`;
+                    div.innerHTML = html;
+                }
+
+                container.appendChild(div);
+            });
+        }
+
+        function switchSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`section-${sectionId}`).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleAnswer(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scrollToTop');
+            btn.classList.toggle('show', window.scrollY > 300);
+        });
+
+        document.getElementById('scrollToTop').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        renderNavigation();
+        renderContent();
+    </script>
+</body>
+</html>

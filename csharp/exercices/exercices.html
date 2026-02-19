@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercices Pas à Pas | RD C#</title>
+    <meta name="description" content="70+ exercices C# progressifs avec indices et corrections : logique, algorithmes et POO.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#D4B896',500:'#C4A882',600:'#A89070'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .filter-bar{display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;margin-bottom:0.8rem;}
+        .filter-btn{padding:0.35rem 0.85rem;border-radius:2rem;border:1px solid rgba(196,168,130,0.25);background:var(--glass-bg,rgba(30,30,40,0.6));color:var(--text-secondary,#94a3b8);cursor:pointer;font-size:0.78rem;font-weight:600;transition:all .2s;}
+        .filter-btn:hover,.filter-btn.active{background:var(--accent,#C4A882);color:#fff;border-color:var(--accent,#C4A882);}
+        .progress-bar-wrap{background:rgba(196,168,130,0.1);border-radius:1rem;height:10px;margin:1rem 0;overflow:hidden;}
+        .progress-bar-fill{height:100%;background:var(--accent,#C4A882);border-radius:1rem;transition:width .4s;}
+        .ex-accordion{border:1px solid rgba(196,168,130,0.15);border-radius:0.75rem;margin-bottom:0.7rem;overflow:hidden;background:var(--glass-bg,rgba(30,30,40,0.6));backdrop-filter:blur(10px);}
+        .ex-header{display:flex;align-items:center;gap:0.6rem;padding:0.9rem 1.1rem;cursor:pointer;transition:background .2s;flex-wrap:wrap;}
+        .ex-header:hover{background:rgba(196,168,130,0.06);}
+        .ex-num{font-weight:800;color:var(--accent,#C4A882);font-size:0.85rem;min-width:2.2rem;}
+        .ex-title{flex:1;font-weight:600;font-size:0.92rem;}
+        .ex-stars{color:#C4A882;font-size:0.75rem;letter-spacing:1px;}
+        .ex-badge{font-size:0.65rem;padding:0.12rem 0.5rem;border-radius:10px;background:rgba(196,168,130,0.12);color:var(--accent,#C4A882);font-weight:700;text-transform:uppercase;white-space:nowrap;}
+        .ex-chevron{transition:transform .25s;color:var(--text-secondary,#64748b);font-size:0.8rem;}
+        .ex-body{display:none;padding:1rem 1.1rem;border-top:1px solid rgba(196,168,130,0.1);}
+        .ex-accordion.open .ex-body{display:block;}
+        .ex-accordion.open .ex-chevron{transform:rotate(180deg);}
+        .ex-desc{font-size:0.9rem;line-height:1.7;margin-bottom:0.8rem;}
+        .ex-desc code{background:rgba(196,168,130,0.1);padding:0.1em 0.35em;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.85em;}
+        .hint-btn{display:inline-block;padding:0.3rem 0.75rem;border:1px solid rgba(196,168,130,0.25);border-radius:0.3rem;background:transparent;color:var(--accent,#C4A882);cursor:pointer;font-size:0.78rem;font-weight:600;margin:0.2rem 0.2rem 0.2rem 0;}
+        .hint-btn:hover{background:rgba(196,168,130,0.1);}
+        .hint-btn.revealed{opacity:0.5;cursor:default;}
+        .hint-text{display:none;padding:0.5rem 0.8rem;margin:0.3rem 0;border-radius:0.4rem;font-size:0.85rem;background:rgba(196,168,130,0.06);border-left:3px solid var(--accent,#C4A882);}
+        .hint-text.show{display:block;}
+        .ex-textarea{width:100%;min-height:90px;padding:0.6rem;border:1px solid rgba(196,168,130,0.2);border-radius:0.5rem;background:rgba(0,0,0,0.15);color:var(--text-primary,#e2e8f0);font-family:'JetBrains Mono',monospace;font-size:0.85rem;resize:vertical;margin:0.5rem 0;}
+        .sol-btn{display:inline-block;padding:0.4rem 1rem;border:none;border-radius:0.4rem;background:var(--accent,#C4A882);color:#fff;cursor:pointer;font-weight:700;font-size:0.82rem;margin-top:0.3rem;}
+        .sol-btn:hover{filter:brightness(1.1);}
+        .sol-block{display:none;margin-top:0.7rem;padding:1rem;background:rgba(76,175,80,0.06);border:1px solid rgba(76,175,80,0.2);border-radius:0.5rem;}
+        .sol-block.show{display:block;}
+        .sol-block pre{background:rgba(0,0,0,0.25);padding:0.8rem;border-radius:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.82rem;overflow-x:auto;line-height:1.6;white-space:pre-wrap;}
+        .done-check{display:flex;align-items:center;gap:0.4rem;margin-top:0.6rem;font-size:0.82rem;color:var(--text-secondary,#64748b);cursor:pointer;}
+        .done-check input{accent-color:#C4A882;width:1rem;height:1rem;}
+        .done-check.checked{color:#4caf50;font-weight:600;}
+        .stats-row{display:flex;gap:1.5rem;justify-content:center;align-items:center;flex-wrap:wrap;margin:0.5rem 0 1rem;font-size:0.9rem;font-weight:600;color:var(--accent,#C4A882);}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <nav class="glass-nav" role="navigation"><div class="nav-inner"><a href="../index.html" class="nav-logo"><i class="fas fa-code"></i><span>RD C#</span></a><ul class="nav-links"><li><a href="../index.html">Accueil</a></li><li><a href="../chapitres/formules.html">Cheat Sheet</a></li><li><a href="exercices.html" class="active">Exercices</a></li><li><a href="../chapitres/cartes.html">Flashcards</a></li><li><a href="../chapitres/simulateur-examen.html">Simulateur</a></li></ul><div class="nav-actions"><button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button><button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button></div></div></nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" role="dialog" aria-label="Menu de navigation"><button class="mobile-nav-close" aria-label="Fermer le menu"><i class="fas fa-times"></i></button><ul><li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li><li><a href="../chapitres/chapitre1.html">01 · Installation</a></li><li><a href="../chapitres/chapitre2.html">02 · Variables & Types</a></li><li><a href="../chapitres/chapitre3.html">03 · Conditions</a></li><li><a href="../chapitres/chapitre4.html">04 · Boucles</a></li><li><a href="../chapitres/chapitre5.html">05 · Tableaux & Listes</a></li><li><a href="../chapitres/chapitre6.html">06 · Méthodes</a></li><li><a href="../chapitres/chapitre7.html">07 · Strings</a></li><li><a href="../chapitres/chapitre8.html">08 · Dictionnaires</a></li><li><a href="../chapitres/chapitre9.html">09 · Entrées/Sorties</a></li><li><a href="../chapitres/chapitre10.html">10 · Switch & Enums</a></li><li><a href="../chapitres/chapitre11.html">11 · Try/Catch</a></li><li><a href="../chapitres/chapitre12.html">12 · POO</a></li><li><a href="../chapitres/formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li><li><a href="../chapitres/cartes.html"><i class="fas fa-clone"></i> Flashcards</a></li><li><a href="exercices.html" class="active"><i class="fas fa-dumbbell"></i> Exercices</a></li><li><a href="../chapitres/simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Simulateur</a></li></ul></div>
+
+    <section class="hero-section" style="padding-bottom:1.5rem;">
+        <span class="hero-badge"><i class="fas fa-dumbbell"></i> Entraînement</span>
+        <h1 class="hero-title">Exercices <span class="gradient-text">Pas à Pas</span></h1>
+        <p class="hero-description">70+ exercices progressifs avec indices et corrections complètes. Logique, algorithmes et POO.</p>
+    </section>
+
+    <main id="main-content" style="max-width:920px;margin:0 auto;padding:0 1.5rem 4rem;">
+        <div class="glass-card" style="margin-bottom:1.5rem;">
+            <p style="text-align:center;font-weight:700;margin-bottom:0.5rem;"><i class="fas fa-filter" style="color:var(--accent);margin-right:.3rem;"></i> Catégorie</p>
+            <div class="filter-bar" id="cat-filters">
+                <button class="filter-btn active" data-cat="all">Tous</button>
+                <button class="filter-btn" data-cat="variables">Variables</button>
+                <button class="filter-btn" data-cat="conditions">Conditions</button>
+                <button class="filter-btn" data-cat="boucles">Boucles</button>
+                <button class="filter-btn" data-cat="tableaux">Tableaux</button>
+                <button class="filter-btn" data-cat="strings">Strings</button>
+                <button class="filter-btn" data-cat="methodes">Méthodes</button>
+                <button class="filter-btn" data-cat="dicts">Dictionnaires</button>
+                <button class="filter-btn" data-cat="switch">Switch</button>
+                <button class="filter-btn" data-cat="trycatch">Try/Catch</button>
+                <button class="filter-btn" data-cat="poo-bases">POO Bases</button>
+                <button class="filter-btn" data-cat="poo-heritage">POO Héritage</button>
+                <button class="filter-btn" data-cat="poo-avance">POO Avancé</button>
+            </div>
+            <p style="text-align:center;font-weight:700;margin:0.8rem 0 0.4rem;"><i class="fas fa-star" style="color:var(--accent);margin-right:.3rem;"></i> Difficulté</p>
+            <div class="filter-bar" id="diff-filters">
+                <button class="filter-btn active" data-diff="all">Toutes</button>
+                <button class="filter-btn" data-diff="1">★ Facile</button>
+                <button class="filter-btn" data-diff="2">★★ Moyen</button>
+                <button class="filter-btn" data-diff="3">★★★ Difficile</button>
+            </div>
+            <div class="stats-row">
+                <span id="progress-text"><i class="fas fa-check-circle"></i> 0/70 résolus</span>
+                <span id="filter-count"><i class="fas fa-eye"></i> 70 affichés</span>
+            </div>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+        <div id="exercises-list"></div>
+    </main>
+
+    <footer class="site-footer"><div class="footer-logo"><i class="fas fa-code" style="color:var(--accent);margin-right:0.4rem;"></i>RD C#</div><p class="footer-tagline">Fondamentaux C# · .NET · POO</p><a href="../../index.html" style="display:inline-block;margin-bottom:0.5rem;color:var(--accent);text-decoration:none;font-size:0.9rem;"><i class="fas fa-th-large"></i> Portail des Cours</a><p class="footer-copy">© 2025-2026 — Développé avec <span style="color:var(--accent);">♥</span> et beaucoup de <code>Console.WriteLine</code></p></footer>
+
+    <script src="../assets/js/exercises-data.js"></script>
+    <script>
+    const LS_KEY='rd_csharp_exercises_done';
+    let done=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+    let catFilter='all',diffFilter='all';
+    function stars(n){return '★'.repeat(n)+'☆'.repeat(3-n);}
+    function render(){
+      const list=document.getElementById('exercises-list');
+      const filtered=allExercises.filter(ex=>(catFilter==='all'||ex.cat===catFilter)&&(diffFilter==='all'||ex.difficulty===parseInt(diffFilter)));
+      document.getElementById('filter-count').innerHTML=`<i class="fas fa-eye"></i> ${filtered.length} affichés`;
+      list.innerHTML=filtered.map(ex=>{
+        const isDone=done.includes(ex.id);
+        return `<div class="ex-accordion${isDone?' done':''}" data-id="${ex.id}">
+          <div class="ex-header" onclick="toggleAcc(this)">
+            <span class="ex-num">#${ex.id}</span>
+            <span class="ex-title">${ex.title}</span>
+            <span class="ex-stars">${stars(ex.difficulty)}</span>
+            <span class="ex-badge">${ex.catLabel}</span>
+            ${isDone?'<i class="fas fa-check-circle" style="color:#4caf50"></i>':''}
+            <i class="fas fa-chevron-down ex-chevron"></i>
+          </div>
+          <div class="ex-body">
+            <div class="ex-desc">${ex.description}</div>
+            <div>${ex.hints.map((h,i)=>`<button class="hint-btn" onclick="revH(this,${i})"><i class="fas fa-lightbulb"></i> Indice ${i+1}</button><div class="hint-text" id="h-${ex.id}-${i}">${h}</div>`).join('')}</div>
+            <textarea class="ex-textarea" placeholder="Écris ton code ici..."></textarea>
+            <button class="sol-btn" onclick="togSol(this)"><i class="fas fa-eye"></i> Voir la solution</button>
+            <div class="sol-block"><pre>${ex.solution}</pre></div>
+            <label class="done-check${isDone?' checked':''}" onclick="togDone(${ex.id},this)">
+              <input type="checkbox"${isDone?' checked':''}> Marquer comme résolu
+            </label>
+          </div></div>`;
+      }).join('');
+    }
+    function toggleAcc(h){h.parentElement.classList.toggle('open');}
+    function revH(btn,i){if(btn.classList.contains('revealed'))return;btn.classList.add('revealed');const id=btn.closest('.ex-accordion').dataset.id;document.getElementById('h-'+id+'-'+i).classList.add('show');}
+    function togSol(btn){btn.nextElementSibling.classList.toggle('show');btn.innerHTML=btn.nextElementSibling.classList.contains('show')?'<i class="fas fa-eye-slash"></i> Masquer':'<i class="fas fa-eye"></i> Voir la solution';}
+    function togDone(id,label){if(done.includes(id))done=done.filter(x=>x!==id);else done.push(id);localStorage.setItem(LS_KEY,JSON.stringify(done));label.classList.toggle('checked');updProg();}
+    function updProg(){const t=allExercises.length,n=done.length;document.getElementById('progress-text').innerHTML=`<i class="fas fa-check-circle"></i> ${n}/${t} résolus`;document.getElementById('progress-fill').style.width=(n/t*100)+'%';}
+    document.querySelectorAll('#cat-filters .filter-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('#cat-filters .filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');catFilter=b.dataset.cat;render();});});
+    document.querySelectorAll('#diff-filters .filter-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('#diff-filters .filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');diffFilter=b.dataset.diff;render();});});
+    render();updProg();
+    </script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

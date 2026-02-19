@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur d'Examen C# | RD C#</title>
+    <meta name="description" content="Simulateur d'examen C# avec 60 questions, timer, score et correction détaillée.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#D4B896',500:'#C4A882',600:'#A89070'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .exam-config{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin:1.5rem 0;}
+        .exam-config select,.exam-config button{padding:0.6rem 1.2rem;border-radius:0.5rem;font-size:0.95rem;border:1px solid rgba(196,168,130,0.3);background:var(--glass-bg);color:var(--text-primary);cursor:pointer;}
+        .exam-config button{background:var(--accent);color:#fff;font-weight:700;border:none;}
+        .exam-config button:hover{filter:brightness(1.1);}
+        .timer-bar{display:flex;align-items:center;gap:0.8rem;margin-bottom:1.5rem;font-size:1.1rem;font-weight:600;color:var(--accent);}
+        .timer-bar .progress-track{flex:1;height:8px;background:rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;}
+        .timer-bar .progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width 1s linear;}
+        .exam-q{background:var(--glass-bg);border:1px solid rgba(196,168,130,0.12);border-radius:1rem;padding:1.5rem;margin-bottom:1.2rem;backdrop-filter:blur(12px);}
+        .exam-q p{margin-bottom:0.8rem;font-weight:600;}
+        .exam-q .opt{display:block;padding:0.6rem 1rem;margin:0.3rem 0;border-radius:0.5rem;border:1px solid rgba(196,168,130,0.2);cursor:pointer;transition:all .2s;}
+        .exam-q .opt:hover{background:rgba(196,168,130,0.1);}
+        .exam-q .opt.selected{background:rgba(196,168,130,0.25);border-color:var(--accent);font-weight:600;}
+        .exam-q .opt.correct-show{background:rgba(76,175,80,0.2);border-color:#4caf50;}
+        .exam-q .opt.incorrect-show{background:rgba(244,67,54,0.2);border-color:#f44336;}
+        .exam-q .explanation{margin-top:0.6rem;padding:0.5rem 0.8rem;border-radius:0.5rem;font-size:0.9rem;background:rgba(196,168,130,0.08);}
+        .result-box{text-align:center;padding:2rem;margin:2rem 0;}
+        .result-box .score-num{font-size:3rem;font-weight:800;color:var(--accent);}
+        .result-box .grade{font-size:1.3rem;font-weight:700;margin:0.5rem 0;}
+        .q-nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin:1rem 0;}
+        .q-nav button{width:2rem;height:2rem;border-radius:0.3rem;border:1px solid rgba(196,168,130,0.2);background:var(--glass-bg);color:var(--text-primary);cursor:pointer;font-size:0.75rem;font-weight:600;}
+        .q-nav button.answered{background:var(--accent);color:#fff;border-color:var(--accent);}
+        .q-nav button.current{box-shadow:0 0 0 2px var(--accent);}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <nav class="glass-nav" role="navigation"><div class="nav-inner"><a href="../index.html" class="nav-logo"><i class="fas fa-code"></i><span>RD C#</span></a><ul class="nav-links"><li><a href="../index.html">Accueil</a></li><li><a href="formules.html">Cheat Sheet</a></li><li><a href="../exercices/exercices.html">Exercices</a></li><li><a href="cartes.html">Flashcards</a></li><li><a href="simulateur-examen.html" class="active">Simulateur</a></li></ul><div class="nav-actions"><button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button><button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button></div></div></nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" role="dialog" aria-label="Menu de navigation"><button class="mobile-nav-close" aria-label="Fermer le menu"><i class="fas fa-times"></i></button><ul><li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li><li><a href="chapitre1.html">01 · Installation</a></li><li><a href="chapitre2.html">02 · Variables & Types</a></li><li><a href="chapitre3.html">03 · Conditions</a></li><li><a href="chapitre4.html">04 · Boucles</a></li><li><a href="chapitre5.html">05 · Tableaux & Listes</a></li><li><a href="chapitre6.html">06 · Méthodes</a></li><li><a href="chapitre7.html">07 · Strings</a></li><li><a href="chapitre8.html">08 · Dictionnaires</a></li><li><a href="chapitre9.html">09 · Entrées/Sorties</a></li><li><a href="chapitre10.html">10 · Switch & Enums</a></li><li><a href="chapitre11.html">11 · Try/Catch</a></li><li><a href="chapitre12.html">12 · POO</a></li><li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li><li><a href="cartes.html"><i class="fas fa-clone"></i> Flashcards</a></li><li><a href="../exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a></li><li><a href="simulateur-examen.html" class="active"><i class="fas fa-graduation-cap"></i> Simulateur</a></li></ul></div>
+
+    <!-- HERO -->
+    <section class="hero-section" style="padding-bottom:2rem;">
+        <span class="hero-badge"><i class="fas fa-graduation-cap"></i> Examen</span>
+        <h1 class="hero-title">Simulateur <span class="gradient-text">d'Examen</span></h1>
+        <p class="hero-description">60 questions, un timer, un score. Conditions réelles d'examen. Prêt·e ?</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+        <div id="exam-app" class="glass-card">
+            <!-- Config screen -->
+            <div id="exam-config-screen">
+                <h2 style="text-align:center;margin-bottom:1rem;"><i class="fas fa-sliders" style="color:var(--accent);margin-right:.5rem;"></i>Configuration</h2>
+                <div class="exam-config">
+                    <select id="num-questions">
+                        <option value="20">20 questions</option>
+                        <option value="30">30 questions</option>
+                        <option value="40" selected>40 questions</option>
+                        <option value="60">60 questions (complet)</option>
+                    </select>
+                    <select id="time-limit">
+                        <option value="15">15 minutes</option>
+                        <option value="30" selected>30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="0">Sans limite</option>
+                    </select>
+                    <button id="start-exam"><i class="fas fa-play"></i> Commencer</button>
+                </div>
+            </div>
+            <!-- Exam screen (hidden) -->
+            <div id="exam-screen" style="display:none;"></div>
+            <!-- Results screen (hidden) -->
+            <div id="results-screen" style="display:none;"></div>
+        </div>
+    </main>
+
+    <footer class="site-footer"><div class="footer-logo"><i class="fas fa-code" style="color:var(--accent);margin-right:0.4rem;"></i>RD C#</div><p class="footer-tagline">Fondamentaux C# · .NET · POO</p><a href="../../index.html" style="display:inline-block;margin-bottom:0.5rem;color:var(--accent);text-decoration:none;font-size:0.9rem;"><i class="fas fa-th-large"></i> Portail des Cours</a><p class="footer-copy">© 2025-2026 — Développé avec <span style="color:var(--accent);">♥</span> et beaucoup de <code>Console.WriteLine</code></p></footer>
+
+    <script>
+    /* ══════════════════════════════════════════
+       60 questions — Banque d'examen C#
+       ══════════════════════════════════════════ */
+    const examBank = [
+      // INSTALLATION (5)
+      {q:"Quelle commande crée un projet console C# ?",opts:["dotnet new console","dotnet create app","csc init","nuget new console"],c:0,exp:"<code>dotnet new console</code> est la commande standard du CLI .NET."},
+      {q:"L'extension d'un fichier source C# est :",opts:[".csharp",".cs",".c#",".net"],c:1,exp:"Les fichiers C# utilisent l'extension <code>.cs</code>."},
+      {q:"Quel est le point d'entrée d'un programme C# ?",opts:["init()","start()","Main()","Run()"],c:2,exp:"<code>static void Main()</code> ou <code>static async Task Main()</code>."},
+      {q:"Le fichier .csproj est au format :",opts:["JSON","XML","YAML","TOML"],c:1,exp:"Les fichiers de projet C# utilisent le format XML."},
+      {q:"C# est un langage :",opts:["Interprété","Compilé en langage machine","Compilé en IL puis exécuté par le CLR","Scripté"],c:2,exp:"C# est compilé en Intermediate Language (IL) puis exécuté par le CLR (Common Language Runtime)."},
+      // VARIABLES & TYPES (5)
+      {q:"Quel type occupe 4 octets et stocke des entiers ?",opts:["byte","short","int","long"],c:2,exp:"<code>int</code> occupe 4 octets (32 bits)."},
+      {q:"<code>int x = 3.14;</code> produit :",opts:["x vaut 3","x vaut 3.14","Erreur de compilation","x vaut 4"],c:2,exp:"C# est fortement typé — pas de conversion implicite double → int."},
+      {q:"Le mot-clé <code>var</code> signifie :",opts:["Typage dynamique","Variable volatile","Inférence de type à la compilation","Variable constante"],c:2,exp:"Le type est déduit par le compilateur mais reste fixe."},
+      {q:"<code>(int)3.9</code> donne :",opts:["4","3","3.9","Erreur"],c:1,exp:"Le cast tronque la partie décimale (pas d'arrondi)."},
+      {q:"Quel suffixe pour typer un nombre en <code>float</code> ?",opts:["d","m","f","l"],c:2,exp:"<code>1.5f</code> — sans le <code>f</code>, c'est un <code>double</code>."},
+      // CONDITIONS (5)
+      {q:"<code>= </code>vs <code>==</code> en C# :",opts:["Identiques","= assigne, == compare","= compare, == assigne","Les deux comparent"],c:1,exp:"Piège classique : <code>=</code> est l'affectation, <code>==</code> est la comparaison."},
+      {q:"<code>!true</code> vaut :",opts:["true","false","1","null"],c:1,exp:"L'opérateur <code>!</code> inverse un booléen."},
+      {q:"<code>true && false</code> vaut :",opts:["true","false","null","Erreur"],c:1,exp:"<code>&&</code> (ET) requiert les deux opérandes vrais."},
+      {q:"L'opérateur ternaire a la syntaxe :",opts:["if ? then : else","condition ? vrai : faux","condition ?? fallback","condition -> vrai | faux"],c:1,exp:"<code>condition ? valeurSiVrai : valeurSiFaux</code>"},
+      {q:"Combien de <code>else</code> peut-on avoir ?",opts:["Illimité","Un seul","Deux","Zéro obligatoirement"],c:1,exp:"Un seul <code>else</code>, mais autant de <code>else if</code> que nécessaire."},
+      // BOUCLES (5)
+      {q:"<code>for (int i=0; i<3; i++)</code> s'exécute combien de fois ?",opts:["2","3","4","Infini"],c:1,exp:"i prend les valeurs 0, 1, 2 → 3 itérations."},
+      {q:"<code>do-while</code> vs <code>while</code> :",opts:["Identiques","do-while s'exécute au moins 1 fois","while est plus rapide","do-while n'existe pas"],c:1,exp:"Le corps du <code>do-while</code> s'exécute avant le test."},
+      {q:"<code>foreach (var x in list)</code> — x est :",opts:["L'index","La valeur de chaque élément","La taille","Le type"],c:1,exp:"<code>x</code> prend la valeur de chaque élément à chaque itération."},
+      {q:"<code>while (true)</code> sans <code>break</code> crée :",opts:["Erreur","Boucle infinie","Une seule itération","Rien"],c:1,exp:"<code>while (true)</code> tourne indéfiniment sans <code>break</code>."},
+      {q:"<code>break</code> dans une boucle imbriquée sort de :",opts:["Toutes les boucles","La plus interne","La plus externe","Le programme"],c:1,exp:"<code>break</code> ne sort que de la boucle la plus proche."},
+      // COLLECTIONS (5)
+      {q:"Un tableau C# a une taille :",opts:["Variable","Fixe après création","Illimitée","Nulle"],c:1,exp:"Les tableaux sont de taille fixe. Pour du dynamique : <code>List&lt;T&gt;</code>."},
+      {q:"Le premier index d'un tableau est :",opts:["1","0","-1","Configurable"],c:1,exp:"Les tableaux C# sont toujours indexés à partir de 0."},
+      {q:"<code>tab[tab.Length]</code> provoque :",opts:["Retourne le dernier","IndexOutOfRangeException","Retourne null","Retourne 0"],c:1,exp:"Le dernier index valide est <code>tab.Length - 1</code>."},
+      {q:"<code>list.Remove(\"abc\")</code> supprime :",opts:["Toutes les occurrences","La première occurrence","La dernière","Erreur si absent"],c:1,exp:"<code>Remove</code> supprime seulement la première occurrence trouvée."},
+      {q:"Quel namespace pour <code>List&lt;T&gt;</code> ?",opts:["System","System.Text","System.Collections.Generic","System.Linq"],c:2,exp:"<code>using System.Collections.Generic;</code>"},
+      // MÉTHODES (5)
+      {q:"<code>void</code> signifie :",opts:["Retourne 0","Ne retourne rien","Retourne null","Retourne void"],c:1,exp:"Une méthode <code>void</code> n'a pas de valeur de retour."},
+      {q:"La surcharge (overloading) permet :",opts:["Des noms différents","Même nom, paramètres différents","Même nom et mêmes paramètres","Rien en C#"],c:1,exp:"On peut avoir plusieurs méthodes de même nom si les signatures diffèrent."},
+      {q:"Les paramètres par défaut doivent être :",opts:["En premier","En dernier","N'importe où","Avant les int"],c:1,exp:"Les paramètres optionnels doivent toujours venir après les obligatoires."},
+      {q:"<code>static</code> pour une méthode signifie :",opts:["Privée","Appartient à la classe","Constante","Sans paramètres"],c:1,exp:"Pas besoin d'instance — appel direct via le nom de la classe."},
+      {q:"Quelle convention pour les noms de méthodes C# ?",opts:["camelCase","PascalCase","snake_case","UPPER_CASE"],c:1,exp:"PascalCase est la convention standard en C#."},
+      // STRINGS (5)
+      {q:"Les strings C# sont :",opts:["Mutables","Immuables","Toujours majuscules","Des arrays de char"],c:1,exp:"Chaque opération sur une string crée un nouvel objet."},
+      {q:"<code>\"abc\".Replace(\"b\",\"X\")</code> retourne :",opts:["\"abc\"","\"aXc\"","\"Xbc\"","\"abX\""],c:1,exp:"<code>Replace</code> remplace toutes les occurrences de la sous-chaîne."},
+      {q:"<code>\"  hello  \".Trim()</code> donne :",opts:["\"  hello  \"","\"hello  \"","\"  hello\"","\"hello\""],c:3,exp:"<code>Trim()</code> supprime les espaces en début ET en fin."},
+      {q:"<code>StringBuilder</code> est dans quel namespace ?",opts:["System","System.Text","System.Linq","System.IO"],c:1,exp:"<code>using System.Text;</code> pour StringBuilder."},
+      {q:"Le préfixe <code>$</code> devant une string active :",opts:["Le mode verbatim","L'interpolation","La compression","Le mode regex"],c:1,exp:"<code>$\"Bonjour {nom}\"</code> permet d'insérer des expressions."},
+      // DICTIONNAIRES (5)
+      {q:"Accéder à une clé inexistante d'un Dictionary :",opts:["Retourne null","Retourne 0","KeyNotFoundException","Retourne default"],c:2,exp:"Utilise <code>TryGetValue</code> pour un accès sécurisé."},
+      {q:"Les clés d'un Dictionary doivent être :",opts:["Des strings","Des int","Uniques","Triées"],c:2,exp:"Chaque clé doit être unique dans le dictionnaire."},
+      {q:"<code>dict[\"clé\"] = 42;</code> si la clé existe :",opts:["Erreur","Doublon","Met à jour la valeur","Rien"],c:2,exp:"L'opérateur <code>[]</code> ajoute ou met à jour."},
+      {q:"<code>TryGetValue</code> retourne :",opts:["La valeur","Un bool","Un KeyValuePair","Une exception"],c:1,exp:"Retourne <code>true</code> si trouvé, avec la valeur dans le paramètre <code>out</code>."},
+      {q:"<code>foreach</code> sur un Dictionary itère sur :",opts:["Les clés","Les valeurs","Des KeyValuePair","Les index"],c:2,exp:"Chaque itération donne un <code>KeyValuePair&lt;K,V&gt;</code> avec <code>.Key</code> et <code>.Value</code>."},
+      // CONSOLE I/O (5)
+      {q:"<code>Console.ReadLine()</code> retourne :",opts:["int","string","char","object"],c:1,exp:"Toujours une <code>string</code>. Il faut parser pour d'autres types."},
+      {q:"<code>int.Parse(\"abc\")</code> lance :",opts:["Rien","FormatException","ArgumentException","NullException"],c:1,exp:"<code>Parse</code> lance une <code>FormatException</code> si le format est invalide."},
+      {q:"<code>Write</code> vs <code>WriteLine</code> :",opts:["Identiques","Write sans retour, WriteLine avec","Write est déprécié","WriteLine sans retour"],c:1,exp:"<code>Write</code> n'ajoute pas de <code>\\n</code> à la fin."},
+      {q:"<code>$\"{prix:C2}\"</code> formate en :",opts:["Binaire","Monnaie 2 décimales","Centimètres","Caractères"],c:1,exp:"<code>C</code> = Currency (monnaie), <code>2</code> = 2 décimales."},
+      {q:"<code>Console.ReadKey()</code> retourne :",opts:["string","char","ConsoleKeyInfo","int"],c:2,exp:"<code>ConsoleKeyInfo</code> contient la touche pressée et les modificateurs."},
+      // SWITCH & ENUMS (5)
+      {q:"Sans <code>break</code> dans un case, C# :",opts:["Fall-through","Erreur de compilation","Continue normalement","Sort du switch"],c:1,exp:"C# exige un <code>break</code> ou <code>return</code> — pas de fall-through implicite."},
+      {q:"Valeur du 1er élément d'un enum (sans attribution) ?",opts:["1","0","-1","null"],c:1,exp:"Par défaut, le premier élément vaut <code>0</code>."},
+      {q:"<code>_</code> dans un switch expression signifie :",opts:["Erreur","Variable jetable","Cas par défaut (discard)","Rien"],c:2,exp:"Le discard pattern <code>_</code> capture tout le reste."},
+      {q:"Un switch expression (C# 8+) retourne :",opts:["Rien","Une valeur","Un bool","void"],c:1,exp:"Contrairement au switch statement, l'expression retourne une valeur."},
+      {q:"<code>[Flags]</code> sur un enum permet :",opts:["Des noms longs","Des combinaisons binaires","Le tri automatique","Rien"],c:1,exp:"Avec <code>[Flags]</code>, on peut combiner : <code>Lire | Ecrire</code>."},
+      // TRY/CATCH (5)
+      {q:"<code>finally</code> s'exécute :",opts:["Si exception","Si pas d'exception","Toujours","Jamais"],c:2,exp:"Le bloc <code>finally</code> s'exécute dans tous les cas."},
+      {q:"<code>throw;</code> vs <code>throw ex;</code> :",opts:["Identiques","throw; conserve le StackTrace","throw ex; est plus rapide","throw; relance une nouvelle exception"],c:1,exp:"<code>throw;</code> préserve l'origine de l'erreur pour le débogage."},
+      {q:"L'exception la plus fréquente en C# :",opts:["FormatException","StackOverflowException","NullReferenceException","IOException"],c:2,exp:"L'accès à un objet <code>null</code> est l'erreur #1."},
+      {q:"<code>using var f = new StreamReader(...)</code> appelle :",opts:["Close()","Dispose()","Delete()","Flush()"],c:1,exp:"<code>using</code> appelle automatiquement <code>Dispose()</code> à la fin."},
+      {q:"Un <code>catch</code> vide est :",opts:["Recommandé","Mauvaise pratique","Obligatoire","Impossible"],c:1,exp:"Un catch vide masque les erreurs silencieusement."},
+      // POO (5)
+      {q:"Une classe est :",opts:["Un objet","Un plan pour créer des objets","Une variable","Une méthode"],c:1,exp:"La classe est le modèle, l'objet est l'instance concrète."},
+      {q:"Le mot-clé <code>new</code> sert à :",opts:["Déclarer une variable","Créer une instance","Supprimer un objet","Importer un namespace"],c:1,exp:"<code>new</code> instancie un objet en appelant le constructeur."},
+      {q:"Un constructeur a-t-il un type de retour ?",opts:["void","Le type de la classe","Non","object"],c:2,exp:"Le constructeur n'a pas de type de retour — même pas <code>void</code>."},
+      {q:"<code>class Chien : Animal</code> signifie :",opts:["Chien contient Animal","Chien hérite de Animal","Identiques","Erreur"],c:1,exp:"<code>:</code> indique l'héritage. Chien est un Animal."},
+      {q:"<code>private</code> vs <code>protected</code> :",opts:["Identiques","private = classe, protected = classe + enfants","protected = classe, private = partout","Aucun rapport"],c:1,exp:"<code>protected</code> étend l'accès aux sous-classes."}
+    ];
+
+    /* ══════════ EXAM ENGINE ══════════ */
+    const ExamEngine = {
+      questions: [],
+      answers: [],
+      current: 0,
+      timer: null,
+      timeLeft: 0,
+      totalTime: 0,
+
+      start() {
+        const num = parseInt(document.getElementById('num-questions').value);
+        const minutes = parseInt(document.getElementById('time-limit').value);
+        this.questions = this.shuffle([...examBank]).slice(0, num);
+        this.answers = new Array(num).fill(-1);
+        this.current = 0;
+        this.totalTime = minutes * 60;
+        this.timeLeft = this.totalTime;
+        document.getElementById('exam-config-screen').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('exam-screen').style.display = 'block';
+        this.renderExam();
+        if (minutes > 0) this.startTimer();
+      },
+
+      shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      },
+
+      startTimer() {
+        const fill = document.getElementById('timer-fill');
+        const text = document.getElementById('timer-text');
+        this.timer = setInterval(() => {
+          this.timeLeft--;
+          const m = Math.floor(this.timeLeft / 60);
+          const s = this.timeLeft % 60;
+          text.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+          fill.style.width = (this.timeLeft / this.totalTime * 100) + '%';
+          if (this.timeLeft <= 60) fill.style.background = '#f44336';
+          if (this.timeLeft <= 0) { clearInterval(this.timer); this.finish(); }
+        }, 1000);
+      },
+
+      renderExam() {
+        const screen = document.getElementById('exam-screen');
+        const q = this.questions[this.current];
+        const m = this.totalTime > 0 ? Math.floor(this.timeLeft/60) : '∞';
+        const s = this.totalTime > 0 ? ':' + (this.timeLeft%60).toString().padStart(2,'0') : '';
+        screen.innerHTML = `
+          ${this.totalTime > 0 ? `<div class="timer-bar"><i class="fas fa-clock"></i> <span id="timer-text">${m}${s}</span><div class="progress-track"><div class="progress-fill" id="timer-fill" style="width:${this.timeLeft/this.totalTime*100}%"></div></div></div>` : ''}
+          <div class="q-nav">${this.questions.map((_,i) => `<button class="${this.answers[i]>=0?'answered':''} ${i===this.current?'current':''}" data-i="${i}">${i+1}</button>`).join('')}</div>
+          <div class="exam-q">
+            <p>Question ${this.current+1}/${this.questions.length} — ${q.q}</p>
+            ${q.opts.map((o,oi) => `<label class="opt ${this.answers[this.current]===oi?'selected':''}" data-oi="${oi}">${o}</label>`).join('')}
+          </div>
+          <div style="display:flex;gap:1rem;justify-content:center;margin-top:1rem;">
+            <button onclick="ExamEngine.go(-1)" ${this.current===0?'disabled':''} style="padding:0.5rem 1.2rem;border-radius:0.5rem;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;"><i class="fas fa-arrow-left"></i> Précédente</button>
+            ${this.current < this.questions.length-1 ? `<button onclick="ExamEngine.go(1)" style="padding:0.5rem 1.2rem;border-radius:0.5rem;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;">Suivante <i class="fas fa-arrow-right"></i></button>` : ''}
+            <button onclick="ExamEngine.finish()" style="padding:0.5rem 1.2rem;border-radius:0.5rem;background:var(--accent);color:#fff;border:none;cursor:pointer;font-weight:700;"><i class="fas fa-flag-checkered"></i> Terminer</button>
+          </div>
+        `;
+        screen.querySelectorAll('.opt').forEach(opt => {
+          opt.addEventListener('click', () => {
+            this.answers[this.current] = parseInt(opt.dataset.oi);
+            this.renderExam();
+          });
+        });
+        screen.querySelectorAll('.q-nav button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            this.current = parseInt(btn.dataset.i);
+            this.renderExam();
+          });
+        });
+      },
+
+      go(dir) {
+        this.current = Math.max(0, Math.min(this.questions.length-1, this.current + dir));
+        this.renderExam();
+      },
+
+      finish() {
+        if (this.timer) clearInterval(this.timer);
+        let score = 0;
+        this.questions.forEach((q, i) => { if (this.answers[i] === q.c) score++; });
+        const pct = Math.round(score / this.questions.length * 100);
+        let grade = '❌ Insuffisant';
+        let gradeColor = '#f44336';
+        if (pct >= 90) { grade = '🏆 Excellent !'; gradeColor = '#4caf50'; }
+        else if (pct >= 75) { grade = '✅ Bien !'; gradeColor = '#8bc34a'; }
+        else if (pct >= 60) { grade = '👍 Passable'; gradeColor = '#ff9800'; }
+        else if (pct >= 50) { grade = '⚠️ Juste'; gradeColor = '#ff5722'; }
+
+        document.getElementById('exam-screen').style.display = 'none';
+        const results = document.getElementById('results-screen');
+        results.style.display = 'block';
+        results.innerHTML = `
+          <div class="result-box">
+            <div class="score-num">${score} / ${this.questions.length}</div>
+            <div class="grade" style="color:${gradeColor}">${grade} (${pct}%)</div>
+            <p style="margin:1rem 0;opacity:0.7;">Temps utilisé : ${this.totalTime > 0 ? Math.floor((this.totalTime - this.timeLeft)/60) + ' min ' + ((this.totalTime - this.timeLeft)%60) + 's' : 'illimité'}</p>
+            <button onclick="ExamEngine.restart()" style="padding:0.6rem 1.5rem;border-radius:0.5rem;background:var(--accent);color:#fff;border:none;cursor:pointer;font-weight:700;margin:0.5rem;"><i class="fas fa-redo"></i> Recommencer</button>
+          </div>
+          <h3 style="margin:2rem 0 1rem;color:var(--accent);"><i class="fas fa-list-check"></i> Correction détaillée</h3>
+          ${this.questions.map((q, i) => {
+            const isCorrect = this.answers[i] === q.c;
+            return `<div class="exam-q">
+              <p>${isCorrect ? '✅' : '❌'} Q${i+1}. ${q.q}</p>
+              ${q.opts.map((o,oi) => `<div class="opt ${oi===q.c?'correct-show':''} ${this.answers[i]===oi && oi!==q.c?'incorrect-show':''}" style="cursor:default;">${o}</div>`).join('')}
+              <div class="explanation">${q.exp}</div>
+            </div>`;
+          }).join('')}
+        `;
+        if (typeof GameEngine !== 'undefined') {
+          GameEngine.addXP(score * 5, `Examen : ${score}/${this.questions.length}`);
+        }
+      },
+
+      restart() {
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('exam-config-screen').style.display = 'block';
+      }
+    };
+
+    document.getElementById('start-exam').addEventListener('click', () => ExamEngine.start());
+    </script>
+
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>
