@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur d'Examen — RD UML</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#F472B6',500:'#E91E8C',600:'#BE185D'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fa-solid fa-diagram-project"></i><span>RD UML</span></a>
+            <ul class="nav-links">
+                <li><a href="cartes.html">← Flashcards</a></li>
+                <li><a href="simulateur-examen.html" class="active">Examen</a></li>
+                <li><a href="../exercices/exercices.html">Exercices</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-sun"></i></button>
+                <button class="hamburger-btn" id="hamburger-btn" aria-expanded="false" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <button class="mobile-nav-close" id="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fa-solid fa-shapes"></i> 1. Introduction</a></li>
+            <li><a href="chapitre2.html"><i class="fa-solid fa-cubes"></i> 2. Classes</a></li>
+            <li><a href="chapitre3.html"><i class="fa-solid fa-users"></i> 3. Cas d'utilisation</a></li>
+            <li><a href="chapitre4.html"><i class="fa-solid fa-route"></i> 4. Activités</a></li>
+            <li><a href="chapitre5.html"><i class="fa-solid fa-timeline"></i> 5. Séquence</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fa-solid fa-graduation-cap"></i> Examen</span>
+        <h1 class="hero-title">Simulateur <span class="gradient-text">d'Examen</span></h1>
+        <p class="hero-description">50 questions couvrant les 5 modules UML. Chronomètre de 30 minutes. 📐 Es-tu prêt ?</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+        <div id="exam-start" class="glass-card" style="text-align:center;padding:3rem;">
+            <h2 style="margin-bottom:1rem;">🎯 Conditions de l'examen</h2>
+            <ul style="text-align:left;max-width:400px;margin:0 auto 2rem;line-height:2;">
+                <li><strong>50 questions</strong> — QCM à choix unique</li>
+                <li><strong>30 minutes</strong> — Chronomètre dégressif</li>
+                <li><strong>70%</strong> minimum pour réussir (35/50)</li>
+                <li>Tous les <strong>5 modules</strong> représentés</li>
+            </ul>
+            <button class="exercise-submit-btn" onclick="startExam()" style="font-size:1.1rem;padding:1rem 3rem;">
+                <i class="fa-solid fa-play"></i> Commencer l'examen
+            </button>
+        </div>
+
+        <div id="exam-container" style="display:none;">
+            <div class="exam-header glass-card" style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;margin-bottom:1.5rem;position:sticky;top:70px;z-index:10;">
+                <span id="exam-progress">Question 1/50</span>
+                <span id="exam-timer" style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:1.2rem;">30:00</span>
+                <span id="exam-score-live">Score: 0/0</span>
+            </div>
+            <div id="exam-questions"></div>
+            <div style="text-align:center;margin-top:2rem;">
+                <button class="exercise-submit-btn" onclick="submitExam()" style="font-size:1.1rem;padding:1rem 3rem;">
+                    <i class="fa-solid fa-flag-checkered"></i> Terminer l'examen
+                </button>
+            </div>
+        </div>
+
+        <div id="exam-results" style="display:none;"></div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo">📐 RD UML</div>
+        <p class="footer-copy">© 2025-2026 RD Interactive</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+    const examDB = [
+        // Module 1 - Introduction à UML (10)
+        {q:"UML signifie :",o:["Unified Modeling Language","Universal Modeling Language","Unified Method Language","Universal Method Logic"],a:0,ch:1},
+        {q:"UML est avant tout :",o:["Un langage de programmation","Un framework","Un langage de modélisation graphique","Un système d'exploitation"],a:2,ch:1},
+        {q:"Combien de diagrammes UML 2.0 existent ?",o:["9","11","13","15"],a:2,ch:1},
+        {q:"Qui a créé la méthode OMT ?",o:["Grady Booch","James Rumbaugh","Ivar Jacobson","Martin Fowler"],a:1,ch:1},
+        {q:"Qui est l'inventeur des cas d'utilisation ?",o:["Booch","Rumbaugh","Jacobson","Fowler"],a:2,ch:1},
+        {q:"En quelle année UML a-t-il été standardisé par l'OMG ?",o:["1990","1995","1997","2004"],a:2,ch:1},
+        {q:"Le diagramme de classes est un diagramme de :",o:["Comportement","Structure","Interaction","Déploiement"],a:1,ch:1},
+        {q:"Le diagramme de séquence est un diagramme de :",o:["Structure","Comportement","Paquetage","Profil"],a:1,ch:1},
+        {q:"L'OMG signifie :",o:["Object Modeling Group","Object Management Group","Oriented Model Group","Open Method Group"],a:1,ch:1},
+        {q:"Lequel n'est PAS un diagramme UML ?",o:["Diagramme de classes","Diagramme de séquence","Diagramme de Gantt","Diagramme d'activités"],a:2,ch:1},
+
+        // Module 2 - Diagramme de Classes (10)
+        {q:"Le symbole + en UML signifie :",o:["private","protected","public","package"],a:2,ch:2},
+        {q:"Le symbole - en UML signifie :",o:["private","protected","public","package"],a:0,ch:2},
+        {q:"Le symbole # en UML signifie :",o:["private","protected","public","package"],a:1,ch:2},
+        {q:"La multiplicité 1..* signifie :",o:["Exactement un","Zéro ou un","Un ou plusieurs","Zéro ou plusieurs"],a:2,ch:2},
+        {q:"Le losange noir représente :",o:["L'agrégation","La composition","L'héritage","La dépendance"],a:1,ch:2},
+        {q:"Le losange blanc représente :",o:["L'agrégation","La composition","L'héritage","L'association"],a:0,ch:2},
+        {q:"En composition, si le composite est détruit :",o:["Les composants survivent","Les composants sont détruits aussi","Rien ne se passe","Erreur"],a:1,ch:2},
+        {q:"L'héritage en UML est représenté par :",o:["Un losange noir","Un losange blanc","Une flèche avec triangle vide","Une flèche pointillée"],a:2,ch:2},
+        {q:"Un attribut souligné signifie :",o:["Abstrait","Statique (de classe)","Constant","Privé"],a:1,ch:2},
+        {q:"Une classe abstraite s'écrit en :",o:["Gras","Italique","Souligné","MAJUSCULES"],a:1,ch:2},
+
+        // Module 3 - Cas d'utilisation (10)
+        {q:"Un acteur en UML représente :",o:["Un composant interne","Un rôle joué par une entité externe","Une base de données","Un module du système"],a:1,ch:3},
+        {q:"La relation «include» est :",o:["Optionnelle","Obligatoire (toujours exécuté)","Alternative","Exclusive"],a:1,ch:3},
+        {q:"La relation «extend» est :",o:["Obligatoire","Optionnelle (sous condition)","Destructive","Circulaire"],a:1,ch:3},
+        {q:"Le sens de la flèche «include» va :",o:["Du cas inclus vers le cas de base","Du cas de base vers le cas inclus","Dans les deux sens","Il n'y a pas de flèche"],a:1,ch:3},
+        {q:"Le sens de la flèche «extend» va :",o:["Du cas de base vers l'extension","De l'extension vers le cas de base","Dans les deux sens","Pas de flèche"],a:1,ch:3},
+        {q:"Le scénario nominal décrit :",o:["Le cas d'erreur","Le déroulement normal","Le cas exceptionnel","L'interface graphique"],a:1,ch:3},
+        {q:"Un acteur peut être :",o:["Un humain uniquement","Un système externe uniquement","Un humain, un système ou un timer","L'administrateur uniquement"],a:2,ch:3},
+        {q:"La généralisation entre acteurs signifie :",o:["Un acteur hérite des CU d'un autre","Les acteurs fusionnent","Les acteurs sont incompatibles","Un acteur remplace l'autre"],a:0,ch:3},
+        {q:"Un cas d'utilisation se nomme avec :",o:["Un nom (substantif)","Un verbe à l'infinitif","Un adjectif","Un numéro"],a:1,ch:3},
+        {q:"Le cadre du système (rectangle) délimite :",o:["Les acteurs","Les cas d'utilisation du système","Les classes","Les messages"],a:1,ch:3},
+
+        // Module 4 - Diagramme d'Activités (10)
+        {q:"Le nœud initial est représenté par :",o:["Un cercle vide","Un cercle noir plein","Un losange","Un rectangle"],a:1,ch:4},
+        {q:"Une décision est représentée par :",o:["Un cercle","Un losange","Un rectangle","Une barre"],a:1,ch:4},
+        {q:"Les conditions sont écrites entre :",o:["Parenthèses ()","Crochets []","Accolades {}","Guillemets \"\""],a:1,ch:4},
+        {q:"Un fork a :",o:["1 entrée, N sorties","N entrées, 1 sortie","N entrées, N sorties","1 entrée, 1 sortie"],a:0,ch:4},
+        {q:"Un join attend :",o:["Une seule activité","Toutes les activités","Un timeout","L'utilisateur"],a:1,ch:4},
+        {q:"Les swimlanes montrent :",o:["Le temps d'exécution","QUI fait QUOI","Les erreurs","La mémoire"],a:1,ch:4},
+        {q:"Les transitions sont :",o:["Manuelles","Automatiques","Périodiques","Aléatoires"],a:1,ch:4},
+        {q:"Le nœud final termine :",o:["Un seul flux","Tous les flux","Le swimlane courant","Rien"],a:1,ch:4},
+        {q:"La fin de flux (⊗) termine :",o:["Tous les flux","Un seul flux","Le diagramme entier","Le swimlane"],a:1,ch:4},
+        {q:"Une action se représente par :",o:["Un cercle","Un losange","Un rectangle arrondi","Un triangle"],a:2,ch:4},
+
+        // Module 5 - Diagramme de Séquence (10)
+        {q:"Le temps dans un diagramme de séquence s'écoule :",o:["De gauche à droite","De droite à gauche","De haut en bas","De bas en haut"],a:2,ch:5},
+        {q:"Un message synchrone signifie que l'émetteur :",o:["Continue sans attendre","Attend la réponse","S'arrête définitivement","Est détruit"],a:1,ch:5},
+        {q:"Un message asynchrone signifie que l'émetteur :",o:["Attend la réponse","Continue sans attendre","Se bloque","Envoie un retour"],a:1,ch:5},
+        {q:"Le rectangle d'activation indique :",o:["La destruction de l'objet","La période d'exécution active","Le nom de la classe","Un message de retour"],a:1,ch:5},
+        {q:"Le fragment « alt » correspond à :",o:["Un if/else","Un if sans else","Une boucle","Du parallélisme"],a:0,ch:5},
+        {q:"Le fragment « opt » correspond à :",o:["Un if/else","Un if sans else","Une boucle","Du parallélisme"],a:1,ch:5},
+        {q:"Le fragment « loop » correspond à :",o:["Un if/else","Un if sans else","Une boucle","Du parallélisme"],a:2,ch:5},
+        {q:"Si A envoie m() à B, m() doit être dans :",o:["La classe de A","La classe de B","Les deux classes","Aucune"],a:1,ch:5},
+        {q:"La destruction d'un objet est marquée par :",o:["Un cercle","Un triangle","Une croix (✕)","Un losange"],a:2,ch:5},
+        {q:"Un message synchrone est représenté par :",o:["Une flèche ouverte","Une flèche pleine","Une flèche pointillée","Un trait simple"],a:1,ch:5}
+    ];
+
+    let timer, timeLeft, answers = {};
+
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    let shuffled = [];
+
+    function startExam() {
+        shuffled = shuffle(examDB).slice(0, 50);
+        answers = {};
+        document.getElementById('exam-start').style.display = 'none';
+        document.getElementById('exam-container').style.display = 'block';
+        document.getElementById('exam-results').style.display = 'none';
+
+        const qContainer = document.getElementById('exam-questions');
+        qContainer.innerHTML = shuffled.map((q, i) => `
+            <div class="glass-card exam-question" id="eq-${i}" style="margin-bottom:1rem;">
+                <p style="font-weight:600;margin-bottom:0.8rem;"><span style="color:var(--accent);">${i + 1}.</span> ${q.q}</p>
+                <div class="quiz-options">
+                    ${q.o.map((opt, j) => `
+                        <label class="quiz-option" onclick="selectAnswer(${i},${j})">
+                            <input type="radio" name="eq-${i}" value="${j}">
+                            <span>${opt}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+
+        timeLeft = 30 * 60;
+        updateTimer();
+        timer = setInterval(() => {
+            timeLeft--;
+            updateTimer();
+            if (timeLeft <= 0) { clearInterval(timer); submitExam(); }
+        }, 1000);
+    }
+
+    function updateTimer() {
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        const el = document.getElementById('exam-timer');
+        el.textContent = `${m}:${s}`;
+        if (timeLeft < 300) el.style.color = '#ef4444';
+        else if (timeLeft < 600) el.style.color = '#f59e0b';
+    }
+
+    function selectAnswer(qi, ai) {
+        answers[qi] = ai;
+        const answered = Object.keys(answers).length;
+        document.getElementById('exam-progress').textContent = `Répondu : ${answered}/50`;
+        document.getElementById('exam-score-live').textContent = `Répondu: ${answered}/50`;
+    }
+
+    function submitExam() {
+        clearInterval(timer);
+        let correct = 0;
+        const details = shuffled.map((q, i) => {
+            const userA = answers[i];
+            const isCorrect = userA === q.a;
+            if (isCorrect) correct++;
+            return { ...q, userA, isCorrect, idx: i };
+        });
+
+        const pct = Math.round(correct / shuffled.length * 100);
+        const passed = pct >= 70;
+
+        document.getElementById('exam-container').style.display = 'none';
+        const results = document.getElementById('exam-results');
+        results.style.display = 'block';
+
+        results.innerHTML = `
+            <div class="glass-card" style="text-align:center;padding:2.5rem;">
+                <h2 style="font-size:2rem;margin-bottom:1rem;">${passed ? '🎉 Examen Réussi !' : '❌ Examen Non Réussi'}</h2>
+                <div style="font-size:3rem;font-weight:900;color:${passed ? '#22c55e' : '#ef4444'};margin:1rem 0;">${pct}%</div>
+                <p style="font-size:1.2rem;">${correct} / ${shuffled.length} bonnes réponses</p>
+                <p style="margin-top:0.5rem;opacity:0.7;">Seuil de réussite : 70% (35/50)</p>
+                <div style="margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                    <button class="exercise-submit-btn" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Recommencer</button>
+                    <button class="exercise-submit-btn" onclick="toggleCorrections()" style="background:var(--accent);"><i class="fa-solid fa-magnifying-glass"></i> Voir corrections</button>
+                </div>
+            </div>
+            <div id="exam-corrections" style="display:none;margin-top:1.5rem;">
+                ${details.map((d, i) => `
+                    <div class="glass-card" style="margin-bottom:0.8rem;border-left:3px solid ${d.isCorrect ? '#22c55e' : '#ef4444'};">
+                        <p style="font-weight:600;"><span style="color:${d.isCorrect ? '#22c55e' : '#ef4444'};">${d.isCorrect ? '✅' : '❌'}</span> ${d.q}</p>
+                        <p style="margin-top:0.4rem;">Ta réponse : <strong>${d.userA !== undefined ? d.o[d.userA] : 'Pas de réponse'}</strong></p>
+                        ${!d.isCorrect ? `<p style="color:#22c55e;margin-top:0.2rem;">Bonne réponse : <strong>${d.o[d.a]}</strong></p>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        if (passed && typeof GameEngine !== 'undefined') { GameEngine.addXP(100); GameEngine.unlockBadge('certified'); }
+    }
+
+    function toggleCorrections() {
+        const el = document.getElementById('exam-corrections');
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+    </script>
+</body>
+</html>

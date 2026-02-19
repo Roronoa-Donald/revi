@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercices Pratiques — RD UML</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#F472B6',500:'#E91E8C',600:'#BE185D'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .ex-card{border-left:3px solid var(--accent);transition:all .3s}
+        .ex-card:hover{transform:translateX(4px)}
+        .diff-1{--badge-bg:#22c55e;--badge-clr:#fff}
+        .diff-2{--badge-bg:#f59e0b;--badge-clr:#000}
+        .diff-3{--badge-bg:#ef4444;--badge-clr:#fff}
+        .diff-badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.75rem;font-weight:600;background:var(--badge-bg);color:var(--badge-clr)}
+        .cat-badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.75rem;font-weight:500;background:rgba(233,30,140,.15);color:var(--accent)}
+        .filter-btn{padding:0.4rem 1rem;border-radius:999px;border:1px solid rgba(150,150,150,.3);background:transparent;cursor:pointer;font-size:0.85rem;transition:all .2s;color:var(--text)}
+        .filter-btn:hover,.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .hint-toggle{cursor:pointer;color:var(--accent);font-weight:600;font-size:.9rem;user-select:none}
+        .hint-content,.solution-content{display:none;margin-top:0.5rem;padding:0.75rem;border-radius:8px;background:rgba(150,150,150,.07);font-size:0.9rem}
+        .hint-content.visible,.solution-content.visible{display:block}
+        .solution-content pre{white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.6;overflow-x:auto}
+        .progress-bar-bg{height:8px;background:rgba(150,150,150,.15);border-radius:99px;overflow:hidden;margin-bottom:1rem}
+        .progress-bar-fill{height:100%;background:linear-gradient(90deg,#E91E8C,#F472B6);border-radius:99px;transition:width .4s}
+        .search-input{width:100%;padding:0.7rem 1rem 0.7rem 2.5rem;border:1px solid rgba(150,150,150,.3);border-radius:12px;background:rgba(150,150,150,.05);font-size:0.95rem;color:var(--text);outline:none;transition:border .2s}
+        .search-input:focus{border-color:var(--accent)}
+        .search-wrap{position:relative}
+        .search-wrap i{position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);opacity:.5}
+        .ex-count{font-size:0.85rem;opacity:0.6;margin-bottom:1rem}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fa-solid fa-diagram-project"></i><span>RD UML</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">← Accueil</a></li>
+                <li><a href="exercices.html" class="active">Exercices Pratiques</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-sun"></i></button>
+                <button class="hamburger-btn" id="hamburger-btn" aria-expanded="false" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <button class="mobile-nav-close" id="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="../chapitres/chapitre1.html"><i class="fa-solid fa-shapes"></i> 1. Introduction</a></li>
+            <li><a href="../chapitres/chapitre2.html"><i class="fa-solid fa-cubes"></i> 2. Classes</a></li>
+            <li><a href="../chapitres/chapitre3.html"><i class="fa-solid fa-users"></i> 3. Cas d'utilisation</a></li>
+            <li><a href="../chapitres/chapitre4.html"><i class="fa-solid fa-route"></i> 4. Activités</a></li>
+            <li><a href="../chapitres/chapitre5.html"><i class="fa-solid fa-timeline"></i> 5. Séquence</a></li>
+            <li><a href="../chapitres/formules.html"><i class="fa-solid fa-file-lines"></i> CheatSheet</a></li>
+            <li><a href="../chapitres/cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a></li>
+            <li><a href="../chapitres/simulateur-examen.html"><i class="fa-solid fa-clipboard-check"></i> Examen</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fa-solid fa-laptop-code"></i> Pratique</span>
+        <h1 class="hero-title">25 Exercices <span class="gradient-text">Pratiques</span></h1>
+        <p class="hero-description">Des TP de modélisation UML pour chaque type de diagramme — de l'analyse au schéma complet. Indices et corrections inclus.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <div class="glass-card" style="padding:1.2rem 1.5rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                <strong><i class="fa-solid fa-trophy" style="color:var(--accent);margin-right:4px;"></i> Progression</strong>
+                <span id="progress-text" style="font-size:0.9rem;opacity:0.7;">0 / 25 complétés</span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+
+        <div style="margin:1.5rem 0;">
+            <div class="search-wrap" style="margin-bottom:1rem;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input class="search-input" id="search-input" type="text" placeholder="Rechercher un exercice...">
+            </div>
+            <div style="margin-bottom:0.5rem;">
+                <strong style="font-size:0.85rem;opacity:0.6;">Module :</strong>
+                <div id="cat-filters" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.3rem;"></div>
+            </div>
+            <div>
+                <strong style="font-size:0.85rem;opacity:0.6;">Difficulté :</strong>
+                <div id="diff-filters" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.3rem;"></div>
+            </div>
+        </div>
+
+        <div class="ex-count" id="ex-count"></div>
+        <div id="exercises-container"></div>
+
+        <div class="chapter-nav">
+            <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> Accueil</a>
+            <a href="../chapitres/simulateur-examen.html">Simulateur d'Examen <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo">📐 RD UML</div>
+        <p class="footer-copy">© 2025-2026 RD Interactive</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+    const ExercisesData = [
+        // Module 1 - Introduction (5)
+        {id:1,cat:'intro',catLabel:'Introduction',difficulty:1,title:"Classer les diagrammes UML",
+         description:"Prenez les 13 diagrammes UML 2.0 et classez-les en deux catégories : diagrammes de <strong>structure</strong> et diagrammes de <strong>comportement</strong>. Identifiez les 3 diagrammes d'interaction.",
+         hints:["Il y a 7 diagrammes de structure et 6 de comportement","Les diagrammes d'interaction sont un sous-ensemble des diagrammes de comportement"],
+         solution:"STRUCTURE (7) :\n- Classes, Objets, Composants, Déploiement\n- Paquetages, Structures composites, Profils\n\nCOMPORTEMENT (6) :\n- Cas d'utilisation, Activités, Machine à états\n- Séquence, Communication, Timing\n  (ces 3 derniers = interaction)"},
+        {id:2,cat:'intro',catLabel:'Introduction',difficulty:1,title:"Frise chronologique UML",
+         description:"Placez sur une frise chronologique les événements clés de l'histoire d'UML : méthodes Booch, OMT, OOSE, Méthode Unifiée, UML 1.0, OMG, UML 2.0.",
+         hints:["Les méthodes individuelles précèdent la fusion","L'OMG intervient en 1997"],
+         solution:"Avant 1994 : Méthodes séparées (Booch 91, OMT 91, OOSE 92)\n1994-1995 : Booch + Rumbaugh → Méthode Unifiée chez Rational\n1996 : Jacobson rejoint → UML 0.9\n1997 : UML 1.0 soumis à l'OMG → standardisation\n2004 : UML 2.0 (13 diagrammes)"},
+        {id:3,cat:'intro',catLabel:'Introduction',difficulty:1,title:"QCM rapide - Fondamentaux",
+         description:"Répondez aux questions : (a) UML est-il un langage de programmation ? (b) Peut-on générer du code à partir d'UML ? (c) UML est-il lié à un langage spécifique ?",
+         hints:["UML est un langage de modélisation, pas de programmation"],
+         solution:"(a) NON - UML est un langage de MODÉLISATION graphique\n(b) OUI - Certains outils génèrent du code (Java, C++) à partir de diagrammes UML\n(c) NON - UML est indépendant de tout langage de programmation"},
+        {id:4,cat:'intro',catLabel:'Introduction',difficulty:2,title:"Choisir le bon diagramme",
+         description:"Pour chaque situation, indiquez quel diagramme UML utiliser :<br>1. Montrer les classes et leurs relations<br>2. Décrire un processus métier<br>3. Montrer l'ordre des messages entre objets<br>4. Identifier les fonctionnalités du système<br>5. Montrer l'architecture physique",
+         hints:["Pensez : structure vs comportement","Les fonctionnalités = cas d'utilisation"],
+         solution:"1. Diagramme de CLASSES (structure)\n2. Diagramme d'ACTIVITÉS (comportement / processus)\n3. Diagramme de SÉQUENCE (interaction / temporel)\n4. Diagramme de CAS D'UTILISATION (comportement)\n5. Diagramme de DÉPLOIEMENT (structure)"},
+        {id:5,cat:'intro',catLabel:'Introduction',difficulty:2,title:"Associer auteur et contribution",
+         description:"Associez chaque auteur à sa méthode et sa contribution principale :<br>- Grady Booch<br>- James Rumbaugh<br>- Ivar Jacobson",
+         hints:["Booch = notation graphique riche, Rumbaugh = modélisation données, Jacobson = cas d'utilisation"],
+         solution:"Grady Booch → Méthode Booch → Notation graphique pour la conception OO\nJames Rumbaugh → OMT (Object Modeling Technique) → Modélisation des données et analyse\nIvar Jacobson → OOSE → Inventeur des cas d'utilisation (use cases)"},
+
+        // Module 2 - Diagramme de Classes (5)
+        {id:6,cat:'classes',catLabel:'Classes',difficulty:1,title:"Identifier visibilité et types",
+         description:"Pour la classe <strong>Étudiant</strong> ci-dessous, identifiez la visibilité et le type de chaque membre :<br><code>- matricule : String</code><br><code># dateNaissance : Date</code><br><code>+ getNom() : String</code><br><code>~ calculerAge() : int</code>",
+         hints:["- = private, # = protected, + = public, ~ = package"],
+         solution:"- matricule : String → PRIVATE, type String\n# dateNaissance : Date → PROTECTED, type Date\n+ getNom() : String → PUBLIC, retourne String\n~ calculerAge() : int → PACKAGE, retourne int"},
+        {id:7,cat:'classes',catLabel:'Classes',difficulty:2,title:"Modéliser une bibliothèque",
+         description:"Créez un diagramme de classes pour une bibliothèque avec : <strong>Livre</strong> (titre, ISBN, auteur), <strong>Membre</strong> (nom, numCarte), <strong>Emprunt</strong> (dateEmprunt, dateRetour). Un membre peut emprunter 0..5 livres. Un livre peut être emprunté par 0..1 membre.",
+         hints:["Emprunt est une classe-association entre Livre et Membre","Pensez aux multiplicités sur chaque extrémité"],
+         solution:"┌──────────────┐        ┌──────────────┐\n│   Membre     │ 0..5   │    Livre     │\n├──────────────┤◆───────│──────────────┤\n│- nom: String │  emprunt│- titre:String│\n│- numCarte:int│        │- ISBN: String│\n├──────────────┤        │- auteur:String│\n│+ emprunter() │        ├──────────────┤\n│+ retourner() │        │+ estDispo():bool│\n└──────────────┘        └──────────────┘\n        │ 0..1\n┌───────┴──────┐\n│   Emprunt    │\n├──────────────┤\n│-dateEmprunt  │\n│-dateRetour   │\n└──────────────┘"},
+        {id:8,cat:'classes',catLabel:'Classes',difficulty:2,title:"Composition vs Agrégation",
+         description:"Déterminez pour chaque relation s'il s'agit d'une <strong>composition</strong> (◆) ou d'une <strong>agrégation</strong> (◇) :<br>1. Maison → Pièce<br>2. Équipe → Joueur<br>3. Commande → LigneDeCommande<br>4. Université → Professeur",
+         hints:["Composition = vie liée (si le tout est détruit, les parties aussi)","Agrégation = vie indépendante"],
+         solution:"1. Maison → Pièce = COMPOSITION ◆\n   (une pièce n'existe pas sans sa maison)\n\n2. Équipe → Joueur = AGRÉGATION ◇\n   (un joueur existe indépendamment de l'équipe)\n\n3. Commande → LigneDeCommande = COMPOSITION ◆\n   (une ligne disparaît si on supprime la commande)\n\n4. Université → Professeur = AGRÉGATION ◇\n   (un prof existe indépendamment de l'université)"},
+        {id:9,cat:'classes',catLabel:'Classes',difficulty:3,title:"TD Pizzeria complète",
+         description:"Modélisez un système de pizzeria : <strong>Pizza</strong> (nom, taille, prix), <strong>Ingrédient</strong> (nom, coût), <strong>Commande</strong> (numéro, date, total), <strong>Client</strong> (nom, téléphone). Une pizza contient 1..* ingrédients. Un client peut passer 0..* commandes. Une commande contient 1..* pizzas.",
+         hints:["Pizza-Ingrédient = agrégation (un ingrédient peut servir dans plusieurs pizzas)","Commande-Pizza : pensez à la quantité"],
+         solution:"Client ──── 0..* ──── Commande ──── 1..* ──── Pizza ◇──── 1..* ──── Ingrédient\n\n┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────────┐\n│  Client     │    │  Commande    │    │   Pizza     │    │ Ingrédient   │\n├─────────────┤    ├──────────────┤    ├─────────────┤    ├──────────────┤\n│-nom:String  │    │-numero:int   │    │-nom:String  │    │-nom:String   │\n│-tel:String  │    │-date:Date    │    │-taille:String│   │-cout:double  │\n├─────────────┤    │-total:double │    │-prix:double │    └──────────────┘\n│+commander() │    ├──────────────┤    ├─────────────┤\n└─────────────┘    │+calculerTotal│    │+getPrix()   │\n                   └──────────────┘    └─────────────┘"},
+        {id:10,cat:'classes',catLabel:'Classes',difficulty:3,title:"Héritage et polymorphisme",
+         description:"Modélisez une hiérarchie de <strong>Formes géométriques</strong> : classe abstraite <em>Forme</em> (couleur, aire()), sous-classes Cercle (rayon), Rectangle (largeur, hauteur), Triangle (base, hauteur). Ajoutez une interface <em>Dessinable</em> avec dessiner().",
+         hints:["Forme est abstraite (en italique)","Dessinable est une interface (stéréotype «interface»)","Réalisation = flèche pointillée vers l'interface"],
+         solution:"     «interface»\n    ┌────────────┐\n    │ Dessinable │\n    ├────────────┤\n    │+dessiner() │\n    └─────┬──────┘\n          ┆ réalisation (pointillé)\n    ┌─────┴──────┐\n    │  *Forme*   │  ← abstraite (italique)\n    ├────────────┤\n    │#couleur    │\n    ├────────────┤\n    │+aire():double│ ← abstraite\n    └──┬───┬───┬─┘\n       │   │   │   héritage (triangle vide)\n  Cercle  Rectangle  Triangle\n  -rayon  -largeur   -base\n          -hauteur   -hauteur"},
+
+        // Module 3 - Cas d'utilisation (5)
+        {id:11,cat:'cu',catLabel:'Cas d\'utilisation',difficulty:1,title:"Identifier acteurs et CU",
+         description:"Pour un système de <strong>réservation de billets de train</strong>, identifiez : les acteurs (au moins 3) et les cas d'utilisation principaux (au moins 5).",
+         hints:["Pensez aux rôles : voyageur, guichetier, système de paiement...","Les CU = verbes à l'infinitif : Réserver, Consulter, Annuler..."],
+         solution:"ACTEURS :\n- Voyageur (principal)\n- Guichetier (secondaire)\n- Système de paiement (externe)\n- Administrateur\n\nCAS D'UTILISATION :\n- Rechercher un trajet\n- Réserver un billet\n- Payer le billet (→ «include» Système paiement)\n- Annuler une réservation\n- Consulter ses réservations\n- Imprimer un billet\n- Gérer les trains (Administrateur)"},
+        {id:12,cat:'cu',catLabel:'Cas d\'utilisation',difficulty:2,title:"Include vs Extend",
+         description:"Pour un système bancaire en ligne, déterminez les relations :<br>1. « Effectuer un virement » nécessite toujours « S'authentifier »<br>2. « Consulter le solde » peut optionnellement « Imprimer un relevé »<br>3. « Retirer de l'argent » nécessite toujours « Vérifier le solde »",
+         hints:["Obligatoire = «include», Optionnel = «extend»","Le sens des flèches est différent !"],
+         solution:"1. Effectuer virement ──«include»──→ S'authentifier\n   (obligatoire : toujours s'authentifier avant)\n\n2. Imprimer un relevé ──«extend»──→ Consulter le solde\n   (optionnel : on peut consulter SANS imprimer)\n   Flèche : de l'extension vers le cas de base !\n\n3. Retirer de l'argent ──«include»──→ Vérifier le solde\n   (obligatoire : toujours vérifier avant de retirer)"},
+        {id:13,cat:'cu',catLabel:'Cas d\'utilisation',difficulty:2,title:"Description textuelle complète",
+         description:"Rédigez la description textuelle complète du cas d'utilisation <strong>« Retirer de l'argent au DAB »</strong> avec les 8 champs.",
+         hints:["Acteur principal : Client de la banque","Précondition : la carte est valide et le DAB est alimenté"],
+         solution:"1. Nom : Retirer de l'argent\n2. Acteur principal : Client\n3. Préconditions : DAB opérationnel, carte valide\n4. Déclencheur : Le client insère sa carte\n5. Scénario nominal :\n   1. Le client insère sa carte\n   2. Le DAB demande le code PIN\n   3. Le client saisit son code\n   4. Le DAB vérifie le code (→ Banque)\n   5. Le DAB demande le montant\n   6. Le client saisit le montant\n   7. Le DAB vérifie le solde\n   8. Le DAB distribue les billets\n   9. Le DAB restitue la carte\n6. Alternatif : Code erroné → 3 essais\n7. Erreur : Solde insuffisant → message + carte\n8. Postconditions : Compte débité, billets distribués"},
+        {id:14,cat:'cu',catLabel:'Cas d\'utilisation',difficulty:3,title:"Diagramme CU complet — E-commerce",
+         description:"Dessinez le diagramme de cas d'utilisation complet d'un site <strong>e-commerce</strong> avec : Client, Visiteur (généralisation), Administrateur, Système de paiement. CU : S'inscrire, Se connecter, Rechercher produit, Ajouter au panier, Passer commande, Payer, Gérer catalogue.",
+         hints:["Visiteur est un acteur général, Client en hérite","Passer commande «include» Payer"],
+         solution:"Visiteur ────── Rechercher produit\n    △\n    │ (généralisation)\n Client ────── Ajouter au panier\n Client ────── Passer commande ──«include»──→ Payer ──── Système paiement\n Client ────── Se connecter\n Visiteur ──── S'inscrire\n Admin ──────── Gérer catalogue\n\n «extend» : Appliquer code promo ──→ Passer commande\n (optionnel : le client peut avoir un code promo ou non)"},
+        {id:15,cat:'cu',catLabel:'Cas d\'utilisation',difficulty:3,title:"TD Réservation de salles",
+         description:"Créez le diagramme CU pour un système de réservation de salles :<br>- L'enseignant réserve une salle et peut annuler<br>- La réservation inclut toujours la vérification de disponibilité<br>- L'admin gère les salles et peut consulter les statistiques<br>- Le secrétariat peut réserver pour un enseignant",
+         hints:["Secrétariat hérite (généralisation) de Enseignant pour les CU de réservation","Vérifier disponibilité est un «include»"],
+         solution:"Enseignant ──── Réserver une salle ──«include»──→ Vérifier disponibilité\nEnseignant ──── Annuler une réservation\nEnseignant ──── Consulter ses réservations\n    △\n    │\nSecrétariat (hérite des CU de l'enseignant)\n\nAdmin ──── Gérer les salles\nAdmin ──── Consulter statistiques\n\n«extend» : Envoyer notification ──→ Réserver une salle"},
+
+        // Module 4 - Diagramme d'Activités (5)
+        {id:16,cat:'activites',catLabel:'Activités',difficulty:1,title:"Processus simple — Commande en ligne",
+         description:"Dessinez le diagramme d'activités pour le processus : Le client choisit un produit → Ajoute au panier → Passe à la caisse → Paye → Reçoit confirmation.",
+         hints:["N'oubliez pas le nœud initial (●) et le nœud final (⊕)","Chaque action = rectangle arrondi"],
+         solution:"● (nœud initial)\n│\n▼\n[Choisir un produit]\n│\n▼\n[Ajouter au panier]\n│\n▼\n[Passer à la caisse]\n│\n▼\n[Payer]\n│\n▼\n[Recevoir confirmation]\n│\n▼\n⊕ (nœud final)"},
+        {id:17,cat:'activites',catLabel:'Activités',difficulty:2,title:"Décisions — Authentification",
+         description:"Modélisez l'authentification : L'utilisateur saisit login/mot de passe → Le système vérifie → Si OK : accès accordé → Si KO et < 3 essais : redemander → Si KO et = 3 essais : bloquer le compte.",
+         hints:["Utilisez un losange de décision avec 2 conditions","La boucle de réessai utilise un retour vers 'Saisir'"],
+         solution:"● → [Saisir login/mdp]\n       │\n       ▼\n   [Vérifier identifiants]\n       │\n       ◇ décision\n      / \\\n[OK]     [KO]\n  │       │\n  ▼       ◇ décision\n[Accès]  / \\\naccordé [<3]  [=3]\n  │      │     │\n  ▼      │     ▼\n  ⊕   retour  [Bloquer\n     vers      compte]\n     Saisir      │\n                 ▼\n                 ⊕"},
+        {id:18,cat:'activites',catLabel:'Activités',difficulty:2,title:"Fork/Join — Traitement de commande",
+         description:"Modélisez : Après validation de la commande, en parallèle : (1) Préparer le colis, (2) Envoyer la facture, (3) Mettre à jour le stock. Une fois les 3 terminés : Expédier.",
+         hints:["Utilisez une barre de Fork après 'Valider commande'","Utilisez une barre de Join avant 'Expédier'"],
+         solution:"● → [Valider commande]\n         │\n    ━━━━━━━━━━━ (FORK)\n    │     │      │\n    ▼     ▼      ▼\n[Préparer [Envoyer [Mettre à\ncolis]   facture] jour stock]\n    │     │      │\n    ━━━━━━━━━━━ (JOIN)\n         │\n         ▼\n   [Expédier commande]\n         │\n         ▼\n         ⊕"},
+        {id:19,cat:'activites',catLabel:'Activités',difficulty:3,title:"Swimlanes — Processus d'embauche",
+         description:"Modélisez le processus d'embauche avec 3 swimlanes : <strong>Candidat</strong>, <strong>RH</strong>, <strong>Manager</strong>.<br>1. Le candidat envoie son CV<br>2. RH trie les candidatures<br>3. Si retenu : RH planifie un entretien<br>4. Manager fait passer l'entretien<br>5. Si accepté : RH envoie une offre<br>6. Le candidat accepte ou refuse",
+         hints:["Chaque action va dans le couloir du responsable","Les transitions traversent les couloirs"],
+         solution:"| Candidat     | RH              | Manager        |\n|              |                 |                |\n| ● Envoyer CV |                 |                |\n|     ─────────→ Trier candidatures              |\n|              |        │        |                |\n|              |        ◇        |                |\n|              |  [retenu] [refusé]               |\n|              |     │      │    |                |\n|              | Planifier  ⊗    |                |\n|              | entretien       |                |\n|              |     ─────────────→ Mener entretien|\n|              |                 |        │       |\n|              |                 |        ◇       |\n|              |                 | [accepté][refusé]|\n|              | ←────────────────    │      ⊗    |\n|              | Envoyer offre   |                |\n| ←───────────── (notification)  |                |\n| Accepter/    |                 |                |\n| Refuser      |                 |                |\n|     ⊕        |                 |                |"},
+        {id:20,cat:'activites',catLabel:'Activités',difficulty:3,title:"TD Fiche de réparation",
+         description:"Modélisez le processus « Créer une fiche de réparation » (cf. cours) :<br>- Le chef d'atelier cherche une voiture<br>- Si elle existe : sélectionner → infos → vérifier garantie<br>- Si elle n'existe pas : saisir nouveau véhicule<br>- Dans tous les cas : dates de réception/restitution<br>- Si assurance : sélectionner l'assurance<br>- Enregistrer la fiche",
+         hints:["Deux décisions : voiture existe ? et assurance ?","Les chemins convergent (fusion) avant 'Saisir dates'"],
+         solution:"● → [Saisir critères recherche]\n     │\n     ▼\n[Afficher liste voitures]\n     │\n     ◇ Voiture existe ?\n    / \\\n [Oui] [Non]\n   │      │\n   ▼      ▼\n[Sélectionner] [Saisir nouveau\nvoiture]       véhicule]\n   │      │\n   ◇ Sous garantie ?\n  / \\\n[Oui][Non]\n  │    │\n  ▼    ◇ (fusion)\n[Saisir date  │\ndemande       │\nréparation]   │\n  │           │\n  ◇───────────┘ (fusion)\n     │\n     ▼\n[Saisir dates réception/restitution]\n     │\n     ◇ Assurance ?\n    / \\\n[Oui] [Non]\n  │      │\n  ▼      │\n[Sélectionner │\nassurance]    │\n  │      ◇────┘ (fusion)\n     │\n     ▼\n[Enregistrer fiche]\n     │\n     ⊕"},
+
+        // Module 5 - Diagramme de Séquence (5)
+        {id:21,cat:'sequence',catLabel:'Séquence',difficulty:1,title:"Séquence simple — Retrait DAB",
+         description:"Dessinez le diagramme de séquence pour : Client insère carte → DAB demande code → Client saisit code → DAB vérifie code auprès de la Banque → Banque répond OK → DAB distribue billets.",
+         hints:["3 lignes de vie : Client, DAB, Banque","Utilisez des messages synchrones (flèche pleine) et retour (pointillé)"],
+         solution:":Client        :DAB           :Banque\n  │              │               │\n  │──insérerCarte──→│             │\n  │              │               │\n  │←─demanderCode──│             │\n  │              │               │\n  │──saisirCode──→│              │\n  │              │               │\n  │              │──vérifierCode──→│\n  │              │               │\n  │              │←──── OK ──────│\n  │              │               │\n  │←distribuerBillets│           │\n  │              │               │"},
+        {id:22,cat:'sequence',catLabel:'Séquence',difficulty:2,title:"Fragment alt — Connexion",
+         description:"Modélisez la connexion à un site : Utilisateur saisit login/mdp → Serveur vérifie → Fragment <strong>alt</strong> : [valide] → afficher accueil, [invalide] → afficher erreur.",
+         hints:["Le fragment alt englobe les deux branches","Séparez les branches par une ligne pointillée"],
+         solution:":Utilisateur     :Serveur        :BDD\n    │                │              │\n    │──login(id,mdp)──→│            │\n    │                │──vérifier──→│\n    │                │←──résultat──│\n    │  ┌─────────────────────────┐ │\n    │  │ alt                     │ │\n    │  │ [résultat = valide]     │ │\n    │  │←───afficherAccueil()────│ │\n    │  │─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│ │\n    │  │ [sinon]                 │ │\n    │  │←───afficherErreur()─────│ │\n    │  └─────────────────────────┘ │\n    │                │              │"},
+        {id:23,cat:'sequence',catLabel:'Séquence',difficulty:2,title:"Fragment loop — Panier d'achat",
+         description:"Modélisez : Le Client ajoute des articles (boucle <strong>loop</strong> [tant que articles à ajouter]). Puis il passe la commande → Le Système calcule le total → Le Système de Paiement débite.",
+         hints:["Le fragment loop englobe uniquement la partie répétitive","Après la boucle, les messages continuent normalement"],
+         solution:":Client         :Système        :Paiement\n    │               │               │\n    │ ┌────────────────────────┐    │\n    │ │ loop [articles à ajouter]│  │\n    │ │──ajouterArticle(art)──→│   │\n    │ │←────confirmation────────│   │\n    │ └────────────────────────┘    │\n    │               │               │\n    │──passerCommande()──→│         │\n    │               │               │\n    │               │──calculerTotal()│\n    │               │               │\n    │               │──débiter(total)──→│\n    │               │←──── OK ─────────│\n    │←──confirmation()──│              │\n    │               │               │"},
+        {id:24,cat:'sequence',catLabel:'Séquence',difficulty:3,title:"TD Robot et Bras articulé",
+         description:"Modélisez le diagramme de séquence : Robot commande au Bras de saisir une pièce → Bras déplace pince → Bras ferme pince → Robot commande déplacement zone dépôt → Bras ouvre pince → Bras retourne position initiale. Identifiez synchrones/retours.",
+         hints:["Robot envoie des ordres synchrones (attend que le Bras termine)","Chaque action du Bras a un message de retour"],
+         solution:":Robot                    :BrasArticulé\n   │                          │\n   │──saisirPièce(pos)────────→│\n   │                          │──déplacerPince(pos)\n   │                          │──fermerPince()\n   │←─────── pièceSaisie ─────│\n   │                          │\n   │──déplacer(zoneDépôt)─────→│\n   │                          │──déplacerVers(zoneDépôt)\n   │←────── positionAtteinte ──│\n   │                          │\n   │──relâcher()──────────────→│\n   │                          │──ouvrirPince()\n   │←────── pièceRelâchée ────│\n   │                          │\n   │──retourPosition()────────→│\n   │                          │──retourInitiale()\n   │←────── prêt ─────────────│"},
+        {id:25,cat:'sequence',catLabel:'Séquence',difficulty:3,title:"Séquence complète — Achat en ligne avec fragments",
+         description:"Modélisez un achat en ligne complet avec : Client, Serveur, BDD, Paiement.<br>1. <strong>loop</strong> pour ajouter articles<br>2. <strong>alt</strong> pour vérifier le stock<br>3. <strong>opt</strong> pour appliquer un code promo<br>4. Message vers le Système de Paiement",
+         hints:["Combinez les fragments : loop contient un alt","Le opt est après la boucle, avant le paiement"],
+         solution:":Client     :Serveur    :BDD        :Paiement\n  │           │           │            │\n  │ ┌─────────────────────────┐       │\n  │ │loop [articles]          │       │\n  │ │──ajouterArt(id)──→│    │       │\n  │ │            │──getStock──→│      │\n  │ │            │←──stock─────│      │\n  │ │  ┌──────────────────┐   │       │\n  │ │  │alt               │   │       │\n  │ │  │[stock > 0]       │   │       │\n  │ │  │←──ajouté─────────│   │       │\n  │ │  │─ ─ ─ ─ ─ ─ ─ ─ ─│   │       │\n  │ │  │[stock = 0]       │   │       │\n  │ │  │←──rupture────────│   │       │\n  │ │  └──────────────────┘   │       │\n  │ └─────────────────────────┘       │\n  │           │           │            │\n  │ ┌─────────────────┐   │            │\n  │ │opt [code promo]  │   │           │\n  │ │──appliquerCode──→│   │           │\n  │ │←──remise─────────│   │           │\n  │ └─────────────────┘   │            │\n  │           │           │            │\n  │──payer(total)──→│     │            │\n  │           │──débiter(total)────────→│\n  │           │←────── OK ─────────────│\n  │←──confirmation()│     │            │"}
+    ];
+
+    /* --- State --- */
+    const LS_KEY = 'rd_uml_ex_done';
+    let activeCat = 'all';
+    let activeDiff = 'all';
+
+    function getDone() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; } }
+    function setDone(arr) { localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+
+    function toggleDone(id) {
+        let done = getDone();
+        if (done.includes(id)) done = done.filter(d => d !== id);
+        else done.push(id);
+        setDone(done);
+        updateProgress();
+        renderExercises();
+    }
+
+    const cats = [...new Set(ExercisesData.map(e => e.cat))];
+    const catLabels = {};
+    ExercisesData.forEach(e => catLabels[e.cat] = e.catLabel);
+
+    function buildFilters() {
+        const catC = document.getElementById('cat-filters');
+        catC.innerHTML = '<button class="filter-btn active" onclick="setCat(\'all\',this)">Toutes</button>' +
+            cats.map(c => '<button class="filter-btn" onclick="setCat(\'' + c + '\',this)">' + catLabels[c] + ' (' + ExercisesData.filter(e=>e.cat===c).length + ')</button>').join('');
+
+        const diffC = document.getElementById('diff-filters');
+        diffC.innerHTML = '<button class="filter-btn active" onclick="setDiff(\'all\',this)">Toutes</button>' +
+            '<button class="filter-btn" onclick="setDiff(1,this)">⭐ Facile</button>' +
+            '<button class="filter-btn" onclick="setDiff(2,this)">⭐⭐ Moyen</button>' +
+            '<button class="filter-btn" onclick="setDiff(3,this)">⭐⭐⭐ Difficile</button>';
+    }
+
+    function setCat(c, btn) {
+        activeCat = c;
+        document.querySelectorAll('#cat-filters .filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderExercises();
+    }
+
+    function setDiff(d, btn) {
+        activeDiff = d;
+        document.querySelectorAll('#diff-filters .filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderExercises();
+    }
+
+    function updateProgress() {
+        const done = getDone();
+        const pct = Math.round(done.length / ExercisesData.length * 100);
+        document.getElementById('progress-text').textContent = done.length + ' / ' + ExercisesData.length + ' complétés';
+        document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    function renderExercises() {
+        const done = getDone();
+        const search = document.getElementById('search-input').value.toLowerCase();
+        let filtered = ExercisesData;
+        if (activeCat !== 'all') filtered = filtered.filter(e => e.cat === activeCat);
+        if (activeDiff !== 'all') filtered = filtered.filter(e => e.difficulty === activeDiff);
+        if (search) filtered = filtered.filter(e => e.title.toLowerCase().includes(search) || e.description.toLowerCase().includes(search) || e.catLabel.toLowerCase().includes(search));
+
+        document.getElementById('ex-count').textContent = filtered.length + ' exercice' + (filtered.length > 1 ? 's' : '') + ' affiché' + (filtered.length > 1 ? 's' : '');
+
+        const container = document.getElementById('exercises-container');
+        if (!filtered.length) {
+            container.innerHTML = '<div class="glass-card" style="text-align:center;padding:2rem;opacity:0.6;"><i class="fa-solid fa-search" style="font-size:2rem;margin-bottom:1rem;display:block;"></i>Aucun exercice trouvé.</div>';
+            return;
+        }
+
+        container.innerHTML = filtered.map(function(ex) {
+            var isDone = done.includes(ex.id);
+            var diffLabel = ex.difficulty === 1 ? 'Facile' : ex.difficulty === 2 ? 'Moyen' : 'Difficile';
+            var stars = '';
+            for (var s = 0; s < ex.difficulty; s++) stars += '⭐';
+            var hintsHtml = '';
+            if (ex.hints.length) {
+                hintsHtml = '<div style="margin-bottom:0.5rem;">' +
+                    '<span class="hint-toggle" onclick="toggleHint(this)">💡 Voir les indices</span>' +
+                    '<div class="hint-content">' +
+                    ex.hints.map(function(h, i) { return '<div style="margin-bottom:0.3rem;"><strong>Indice ' + (i+1) + ' :</strong> ' + h + '</div>'; }).join('') +
+                    '</div></div>';
+            }
+            return '<article class="glass-card ex-card diff-' + ex.difficulty + '" style="margin-bottom:1rem;' + (isDone ? 'opacity:0.6;' : '') + '">' +
+                '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">' +
+                    '<h3 style="font-size:1.1rem;font-weight:700;margin:0;">' +
+                        '<span style="color:var(--accent);margin-right:4px;">#' + ex.id + '</span> ' + ex.title +
+                        (isDone ? ' <i class="fa-solid fa-circle-check" style="color:#22c55e;margin-left:4px;"></i>' : '') +
+                    '</h3>' +
+                    '<div style="display:flex;gap:0.4rem;align-items:center;">' +
+                        '<span class="cat-badge">' + ex.catLabel + '</span>' +
+                        '<span class="diff-badge">' + stars + ' ' + diffLabel + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="margin:0.8rem 0;line-height:1.7;font-size:0.95rem;">' + ex.description + '</div>' +
+                hintsHtml +
+                '<div>' +
+                    '<span class="hint-toggle" onclick="toggleSolution(this)">📝 Voir la solution</span>' +
+                    '<div class="solution-content"><pre><code>' + escapeHtml(ex.solution) + '</code></pre></div>' +
+                '</div>' +
+                '<div style="margin-top:0.8rem;text-align:right;">' +
+                    '<button onclick="toggleDone(' + ex.id + ')" style="background:' + (isDone ? '#22c55e' : 'var(--accent)') + ';color:#fff;border:none;padding:0.4rem 1rem;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;">' +
+                        (isDone ? '<i class="fa-solid fa-rotate-left"></i> Reprendre' : '<i class="fa-solid fa-check"></i> Marquer terminé') +
+                    '</button>' +
+                '</div>' +
+            '</article>';
+        }).join('');
+    }
+
+    function toggleHint(el) {
+        var content = el.nextElementSibling;
+        content.classList.toggle('visible');
+        el.textContent = content.classList.contains('visible') ? '🙈 Masquer les indices' : '💡 Voir les indices';
+    }
+
+    function toggleSolution(el) {
+        var content = el.nextElementSibling;
+        content.classList.toggle('visible');
+        el.textContent = content.classList.contains('visible') ? '🙈 Masquer la solution' : '📝 Voir la solution';
+    }
+
+    function escapeHtml(text) {
+        return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    document.getElementById('search-input').addEventListener('input', renderExercises);
+    document.addEventListener('DOMContentLoaded', function() {
+        buildFilters();
+        updateProgress();
+        renderExercises();
+    });
+    </script>
+</body>
+</html>
