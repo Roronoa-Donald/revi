@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2 — Adressage IPv4 | RD CCNA</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <div class="reading-progress" id="reading-progress"></div>
+
+    <nav class="glass-nav"><div class="nav-inner">
+        <a href="../index.html" class="nav-logo"><i class="fa-solid fa-network-wired"></i> RD CCNA</a>
+        <ul class="nav-links">
+            <li><a href="chapitre1.html">Fondamentaux</a></li>
+            <li><a href="chapitre2.html" class="active">IPv4</a></li>
+            <li><a href="chapitre3.html">Protocoles</a></li>
+            <li><a href="chapitre4.html">Switching</a></li>
+            <li><a href="chapitre5.html">CLI IOS</a></li>
+            <li><a href="chapitre6.html">Routage</a></li>
+            <li><a href="chapitre7.html">VLANs</a></li>
+            <li><a href="chapitre8.html">ROAS</a></li>
+            <li><a href="formules.html">CheatSheet</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+            <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+        </div>
+    </div></nav>
+
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <div class="mobile-nav-header"><span><i class="fa-solid fa-network-wired"></i> Menu</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a>
+        <a href="chapitre1.html"><i class="fa-solid fa-layer-group"></i> 1. Fondamentaux</a>
+        <a href="chapitre2.html" class="active"><i class="fa-solid fa-calculator"></i> 2. Adressage IPv4</a>
+        <a href="chapitre3.html"><i class="fa-solid fa-satellite-dish"></i> 3. Protocoles</a>
+        <a href="chapitre4.html"><i class="fa-solid fa-ethernet"></i> 4. Switching</a>
+        <a href="chapitre5.html"><i class="fa-solid fa-terminal"></i> 5. CLI IOS</a>
+        <a href="chapitre6.html"><i class="fa-solid fa-route"></i> 6. Routage</a>
+        <a href="chapitre7.html"><i class="fa-solid fa-tags"></i> 7. VLANs</a>
+        <a href="chapitre8.html"><i class="fa-solid fa-diagram-project"></i> 8. ROAS</a>
+        <hr style="border-color:var(--glass-border);margin:.8rem 0">
+        <a href="formules.html"><i class="fa-solid fa-scroll"></i> CheatSheet</a>
+        <a href="cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a>
+        <a href="simulateur-examen.html"><i class="fa-solid fa-award"></i> Simulateur</a>
+        <a href="../exercices/exercices.html"><i class="fa-solid fa-dumbbell"></i> Exercices</a>
+    </div>
+
+    <main id="main-content">
+        <div class="hero-section">
+            <div class="hero-badge"><i class="fa-solid fa-calculator"></i> Module 2</div>
+            <h1>Adressage <span class="highlight">IPv4</span></h1>
+            <p>Classes d'adresses, masques de sous-réseau, CIDR, VLSM et calcul de plages — la compétence numéro 1 du CCNA.</p>
+        </div>
+
+        <div class="content-wrapper">
+
+            <!-- SECTION 1 : Structure d'une adresse IPv4 -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-barcode"></i> Structure d'une adresse IPv4</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-info-circle"></i> Format</h4>
+                    <p>Une adresse IPv4 est codée sur <strong>32 bits</strong> (4 octets), notée en <strong>décimal pointé</strong> :</p>
+                    <div class="code-block">
+Exemple : <span class="keyword">192.168.1.10</span>
+
+En binaire :  <span class="string">11000000</span>.<span class="string">10101000</span>.<span class="string">00000001</span>.<span class="string">00001010</span>
+Octet :           192    .   168    .     1    .    10
+
+Chaque octet = 8 bits → valeur de <span class="number">0</span> à <span class="number">255</span>
+                    </div>
+                </div>
+
+                <h3>Partie réseau vs Partie hôte</h3>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-puzzle-piece"></i> Adresse = Réseau + Hôte</h4>
+                    <div class="code-block">
+Adresse :  192.168.1.10
+Masque :   255.255.255.0   (/24)
+
+<span class="keyword">192.168.1</span>  .  <span class="string">10</span>
+─────────     ──
+│              └─ Partie <span class="string">HÔTE</span> (identifie la machine dans le réseau)
+└─ Partie <span class="keyword">RÉSEAU</span> (identifie le réseau)
+                    </div>
+                    <p>Le <strong>masque de sous-réseau</strong> détermine où se situe la frontière entre la partie réseau et la partie hôte. Un bit à 1 dans le masque = bit réseau, bit à 0 = bit hôte.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 2 : Classes d'adresses -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-tags"></i> Classes d'adresses IPv4</h2>
+
+                <table class="subnet-table">
+                    <thead><tr><th>Classe</th><th>Plage</th><th>Masque par défaut</th><th>CIDR</th><th>Nb réseaux</th><th>Nb hôtes/réseau</th><th>Usage</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>A</strong></td><td>1.0.0.0 — 126.255.255.255</td><td>255.0.0.0</td><td>/8</td><td>126</td><td>~16.7 million</td><td>Très grands réseaux</td></tr>
+                        <tr><td><strong>B</strong></td><td>128.0.0.0 — 191.255.255.255</td><td>255.255.0.0</td><td>/16</td><td>16 384</td><td>65 534</td><td>Moyens réseaux</td></tr>
+                        <tr><td><strong>C</strong></td><td>192.0.0.0 — 223.255.255.255</td><td>255.255.255.0</td><td>/24</td><td>~2 million</td><td>254</td><td>Petits réseaux</td></tr>
+                        <tr><td><strong>D</strong></td><td>224.0.0.0 — 239.255.255.255</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Multicast</td></tr>
+                        <tr><td><strong>E</strong></td><td>240.0.0.0 — 255.255.255.255</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Réservé / expérimental</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div><strong>127.0.0.0/8</strong> est réservé au <strong>loopback</strong> (127.0.0.1 = localhost). Il n'appartient à aucune classe utilisable !</div>
+                </div>
+
+                <h3>Adresses privées (RFC 1918)</h3>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-shield-halved"></i> Plages non routables sur Internet</h4>
+                    <table class="ios-table">
+                        <thead><tr><th>Classe</th><th>Plage privée</th><th>CIDR</th><th>Usage typique</th></tr></thead>
+                        <tbody>
+                            <tr><td>A</td><td><strong>10.0.0.0</strong> — 10.255.255.255</td><td>/8</td><td>Grandes entreprises</td></tr>
+                            <tr><td>B</td><td><strong>172.16.0.0</strong> — 172.31.255.255</td><td>/12</td><td>Moyennes entreprises</td></tr>
+                            <tr><td>C</td><td><strong>192.168.0.0</strong> — 192.168.255.255</td><td>/16</td><td>Réseaux domestiques / PME</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top:.5rem">Ces adresses sont utilisées en <strong>interne</strong>. Pour communiquer sur Internet, il faut les traduire avec <strong>NAT</strong> (Network Address Translation).</p>
+                </div>
+            </section>
+
+            <!-- SECTION 3 : Sous-réseaux -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-sitemap"></i> Le Subnetting (sous-réseaux)</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-question-circle"></i> Pourquoi sous-réseauter ?</h4>
+                    <ul style="padding-left:1.5rem;line-height:2">
+                        <li><strong>Réduire le broadcast</strong> — chaque sous-réseau a son propre domaine de broadcast</li>
+                        <li><strong>Sécurité</strong> — isoler les départements (RH, IT, Direction)</li>
+                        <li><strong>Optimiser l'adressage</strong> — ne pas gâcher d'adresses IP</li>
+                    </ul>
+                </div>
+
+                <h3>Formules essentielles</h3>
+                <div class="code-block">
+<span class="comment">// Nombre de sous-réseaux</span>
+<span class="keyword">2^n</span>  où n = nombre de bits empruntés à la partie hôte
+
+<span class="comment">// Nombre d'hôtes par sous-réseau</span>
+<span class="keyword">2^h - 2</span>  où h = nombre de bits hôte restants
+          (-2 car on enlève : adresse réseau + adresse broadcast)
+
+<span class="comment">// Taille de saut (block size)</span>
+<span class="keyword">256 - valeur du masque</span> dans l'octet concerné
+                </div>
+
+                <h3>Exemple complet : sous-réseauter 192.168.10.0/24 en 4 sous-réseaux</h3>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-calculator"></i> Calcul pas à pas</h4>
+                    <div class="code-block">
+<span class="comment">Réseau de départ : 192.168.10.0/24 (masque 255.255.255.0)</span>
+<span class="comment">Objectif : 4 sous-réseaux</span>
+
+<span class="keyword">Étape 1</span> : Combien de bits emprunter ?
+  2^n ≥ 4  →  n = 2 bits empruntés
+
+<span class="keyword">Étape 2</span> : Nouveau masque
+  /24 + 2 = <span class="string">/26</span>  →  255.255.255.<span class="string">192</span>
+
+<span class="keyword">Étape 3</span> : Taille de saut
+  256 - 192 = <span class="number">64</span>  (chaque sous-réseau contient 64 adresses)
+
+<span class="keyword">Étape 4</span> : Hôtes par sous-réseau
+  2^6 - 2 = <span class="number">62</span> hôtes utilisables
+
+<span class="keyword">Étape 5</span> : Tableau des sous-réseaux
+                    </div>
+                    <table class="subnet-table" style="margin-top:1rem">
+                        <thead><tr><th>Sous-réseau</th><th>Adresse réseau</th><th>Première IP</th><th>Dernière IP</th><th>Broadcast</th></tr></thead>
+                        <tbody>
+                            <tr><td>SR 1</td><td>192.168.10.0/26</td><td>192.168.10.1</td><td>192.168.10.62</td><td>192.168.10.63</td></tr>
+                            <tr><td>SR 2</td><td>192.168.10.64/26</td><td>192.168.10.65</td><td>192.168.10.126</td><td>192.168.10.127</td></tr>
+                            <tr><td>SR 3</td><td>192.168.10.128/26</td><td>192.168.10.129</td><td>192.168.10.190</td><td>192.168.10.191</td></tr>
+                            <tr><td>SR 4</td><td>192.168.10.192/26</td><td>192.168.10.193</td><td>192.168.10.254</td><td>192.168.10.255</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECTION 4 : CIDR et VLSM -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-sliders"></i> CIDR et VLSM</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-ruler-combined"></i> CIDR — Classless Inter-Domain Routing</h4>
+                    <p>Le CIDR permet d'utiliser des masques de <strong>n'importe quelle longueur</strong> (pas seulement /8, /16, /24). Notation : <code>adresse/préfixe</code> (ex : 10.0.0.0/12).</p>
+                </div>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-chart-pie"></i> VLSM — Variable Length Subnet Masking</h4>
+                    <p>Le VLSM permet de créer des sous-réseaux de <strong>tailles différentes</strong> pour optimiser l'utilisation des adresses.</p>
+                    <div class="code-block">
+<span class="comment">Exemple : Réseau 192.168.1.0/24 à diviser pour :</span>
+  - Département A : 100 machines → besoin de /25 (126 hôtes)
+  - Département B : 50 machines  → besoin de /26 (62 hôtes)
+  - Département C : 20 machines  → besoin de /27 (30 hôtes)
+  - Lien WAN       : 2 machines  → besoin de /30 (2 hôtes)
+
+<span class="keyword">Règle VLSM</span> : Toujours commencer par le plus grand sous-réseau !
+
+  <span class="string">Dept A</span> : 192.168.1.0/25    (1 à 126)
+  <span class="string">Dept B</span> : 192.168.1.128/26  (129 à 190)
+  <span class="string">Dept C</span> : 192.168.1.192/27  (193 à 222)
+  <span class="string">WAN</span>    : 192.168.1.224/30  (225 à 226)
+                    </div>
+                </div>
+
+                <h3>Tableau des masques courants</h3>
+                <table class="subnet-table">
+                    <thead><tr><th>CIDR</th><th>Masque</th><th>Hosts</th><th>Usage typique</th></tr></thead>
+                    <tbody>
+                        <tr><td>/30</td><td>255.255.255.252</td><td>2</td><td>Lien point-à-point (WAN)</td></tr>
+                        <tr><td>/28</td><td>255.255.255.240</td><td>14</td><td>Petit sous-réseau serveur</td></tr>
+                        <tr><td>/27</td><td>255.255.255.224</td><td>30</td><td>Petit département</td></tr>
+                        <tr><td>/26</td><td>255.255.255.192</td><td>62</td><td>Moyen département</td></tr>
+                        <tr><td>/25</td><td>255.255.255.128</td><td>126</td><td>Grand département</td></tr>
+                        <tr><td>/24</td><td>255.255.255.0</td><td>254</td><td>Réseau classique C</td></tr>
+                        <tr><td>/16</td><td>255.255.0.0</td><td>65 534</td><td>Grand site</td></tr>
+                        <tr><td>/8</td><td>255.0.0.0</td><td>16 777 214</td><td>Réseau de classe A</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="tip-box">
+                    <i class="fa-solid fa-brain"></i>
+                    <div><strong>Astuce rapide :</strong> Pour savoir combien d'hôtes dans un /X → calcule <code>2^(32-X) - 2</code>. Exemple : /26 → 2^6-2 = 62 hôtes.</div>
+                </div>
+            </section>
+
+            <!-- SECTION 5 : Adresses spéciales -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-star"></i> Adresses Spéciales</h2>
+
+                <table class="ios-table">
+                    <thead><tr><th>Adresse</th><th>Rôle</th><th>Exemple</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Adresse réseau</strong></td><td>Identifie le réseau (tous bits hôte à 0)</td><td>192.168.1.0/24</td></tr>
+                        <tr><td><strong>Broadcast</strong></td><td>Tous les hôtes du réseau (tous bits hôte à 1)</td><td>192.168.1.255/24</td></tr>
+                        <tr><td><strong>Loopback</strong></td><td>Test local (la machine se parle à elle-même)</td><td>127.0.0.1</td></tr>
+                        <tr><td><strong>APIPA</strong></td><td>Auto-configuration si pas de DHCP</td><td>169.254.x.x</td></tr>
+                        <tr><td><strong>0.0.0.0</strong></td><td>Default route (toutes les destinations)</td><td>Route par défaut</td></tr>
+                        <tr><td><strong>255.255.255.255</strong></td><td>Broadcast limité (réseau local)</td><td>Découverte DHCP</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Labo visuel -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-flask"></i> Labo — Calcul de sous-réseaux</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-diagram-project"></i> Topologie</h4>
+                    <div class="topology-box">
+  <span class="device">Réseau entreprise : 172.16.0.0/16</span>
+  Objectif : Créer 3 sous-réseaux
+
+  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+  │  <span class="device">SR1 - Ventes</span>    │    │  <span class="device">SR2 - IT</span>        │    │  <span class="device">SR3 - Direction</span> │
+  │  200 machines     │    │  100 machines     │    │  30 machines      │
+  └──────────────────┘    └──────────────────┘    └──────────────────┘
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-list-check"></i> Solution VLSM (du plus grand au plus petit)</h4>
+                    <table class="subnet-table">
+                        <thead><tr><th>Sous-réseau</th><th>Besoin</th><th>CIDR</th><th>Adresse réseau</th><th>Plage utilisable</th><th>Broadcast</th></tr></thead>
+                        <tbody>
+                            <tr><td>Ventes</td><td>200</td><td>/24 (254 h.)</td><td>172.16.0.0/24</td><td>172.16.0.1 — .254</td><td>172.16.0.255</td></tr>
+                            <tr><td>IT</td><td>100</td><td>/25 (126 h.)</td><td>172.16.1.0/25</td><td>172.16.1.1 — .126</td><td>172.16.1.127</td></tr>
+                            <tr><td>Direction</td><td>30</td><td>/27 (30 h.)</td><td>172.16.1.128/27</td><td>172.16.1.129 — .158</td><td>172.16.1.159</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--glass-border)">
+                <a href="chapitre1.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem">
+                    <i class="fa-solid fa-arrow-left"></i> Module 1 — Fondamentaux
+                </a>
+                <a href="chapitre3.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem">
+                    Module 3 — Protocoles <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <div class="xp-bar-container">
+        <span class="xp-level">Débutant</span>
+        <div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div>
+        <span class="xp-text">0 XP</span>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+</body>
+</html>

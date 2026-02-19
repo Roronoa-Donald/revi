@@ -18,7 +18,7 @@ const DIST = path.join(ROOT, 'dist');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 
 // Dossiers de cours à copier
-const COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'RD-RO', 'sql', 'csharp', 'uml'];
+const COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'RD-RO', 'sql', 'csharp', 'uml', 'ccna'];
 
 // Fichiers/dossiers racine à copier (en plus des cours)
 const ROOT_FILES = ['index.html', 'robots.txt', 'sitemap.xml', '404.html', 'rd-ai-chat.js'];

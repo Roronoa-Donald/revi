@@ -152,7 +152,7 @@ const GameEngine = {
     },
 
     confetti() {
-        const colors = ['#C4A882', '#D4B896', '#A89070', '#fbbf24', '#f59e0b', '#fff'];
+        const colors = ['#f59e0b', '#fbbf24', '#d97706', '#fbbf24', '#f59e0b', '#fff'];
         for (let i = 0; i < 40; i++) {
             const piece = document.createElement('div');
             piece.className = 'confetti-piece';

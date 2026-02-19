@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4 — Ethernet & Switching | RD CCNA</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <div class="reading-progress" id="reading-progress"></div>
+    <nav class="glass-nav"><div class="nav-inner">
+        <a href="../index.html" class="nav-logo"><i class="fa-solid fa-network-wired"></i> RD CCNA</a>
+        <ul class="nav-links">
+            <li><a href="chapitre1.html">Fondamentaux</a></li><li><a href="chapitre2.html">IPv4</a></li><li><a href="chapitre3.html">Protocoles</a></li>
+            <li><a href="chapitre4.html" class="active">Switching</a></li><li><a href="chapitre5.html">CLI IOS</a></li><li><a href="chapitre6.html">Routage</a></li>
+            <li><a href="chapitre7.html">VLANs</a></li><li><a href="chapitre8.html">ROAS</a></li><li><a href="formules.html">CheatSheet</a></li>
+        </ul>
+        <div class="nav-actions"><button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button><button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button></div>
+    </div></nav>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <div class="mobile-nav-header"><span><i class="fa-solid fa-network-wired"></i> Menu</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a>
+        <a href="chapitre1.html"><i class="fa-solid fa-layer-group"></i> 1. Fondamentaux</a><a href="chapitre2.html"><i class="fa-solid fa-calculator"></i> 2. IPv4</a>
+        <a href="chapitre3.html"><i class="fa-solid fa-satellite-dish"></i> 3. Protocoles</a><a href="chapitre4.html" class="active"><i class="fa-solid fa-ethernet"></i> 4. Switching</a>
+        <a href="chapitre5.html"><i class="fa-solid fa-terminal"></i> 5. CLI IOS</a><a href="chapitre6.html"><i class="fa-solid fa-route"></i> 6. Routage</a>
+        <a href="chapitre7.html"><i class="fa-solid fa-tags"></i> 7. VLANs</a><a href="chapitre8.html"><i class="fa-solid fa-diagram-project"></i> 8. ROAS</a>
+        <hr style="border-color:var(--glass-border);margin:.8rem 0">
+        <a href="formules.html"><i class="fa-solid fa-scroll"></i> CheatSheet</a><a href="cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a>
+        <a href="simulateur-examen.html"><i class="fa-solid fa-award"></i> Simulateur</a><a href="../exercices/exercices.html"><i class="fa-solid fa-dumbbell"></i> Exercices</a>
+    </div>
+
+    <main id="main-content">
+        <div class="hero-section">
+            <div class="hero-badge"><i class="fa-solid fa-ethernet"></i> Module 4</div>
+            <h1>Ethernet & <span class="highlight">Switching</span></h1>
+            <p>Trames Ethernet, adresses MAC, tables CAM, fonctionnement d'un switch L2, domaines de collision et de broadcast.</p>
+        </div>
+        <div class="content-wrapper">
+
+            <!-- Trame Ethernet -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-barcode"></i> La Trame Ethernet (IEEE 802.3)</h2>
+                <p>Ethernet est le standard <strong>couche 2</strong> dominant dans les réseaux LAN. Les données sont encapsulées dans des <strong>trames</strong> :</p>
+                <div class="topology-box">
+┌──────────┬──────────┬──────────┬──────────┬─────────────────┬─────────┐
+│ <span class="interface">Préambule</span> │ <span class="device">MAC Dest</span> │ <span class="device">MAC Src</span>  │ <span class="ip">Type/Len</span> │     <span class="string">Données</span>     │  <span class="link">FCS</span>    │
+│  8 oct.  │  6 oct.  │  6 oct.  │  2 oct.  │  46-1500 oct.   │  4 oct. │
+└──────────┴──────────┴──────────┴──────────┴─────────────────┴─────────┘
+
+<span class="comment">Préambule : Synchronisation (10101010... + SFD)</span>
+<span class="comment">MAC Dest  : Adresse MAC du destinataire</span>
+<span class="comment">MAC Src   : Adresse MAC de l'émetteur</span>
+<span class="comment">Type      : 0x0800 = IPv4, 0x0806 = ARP, 0x86DD = IPv6</span>
+<span class="comment">Données   : Payload (paquet IP encapsulé)</span>
+<span class="comment">FCS       : Frame Check Sequence (CRC pour détecter les erreurs)</span>
+                </div>
+                <div class="info-box">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div><strong>MTU</strong> (Maximum Transmission Unit) = <strong>1500 octets</strong> pour Ethernet. Si le paquet IP est plus grand, il sera <strong>fragmenté</strong>.</div>
+                </div>
+            </section>
+
+            <!-- Switch L2 -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-sitemap"></i> Fonctionnement du Switch L2</h2>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-brain"></i> Les 3 actions d'un switch</h4>
+                    <ol style="padding-left:1.5rem;line-height:2.2">
+                        <li><strong>Learn (Apprendre)</strong> — Le switch lit la MAC source de chaque trame reçue et l'associe au port d'entrée dans sa <strong>table MAC (CAM)</strong></li>
+                        <li><strong>Forward (Transmettre)</strong> — Si la MAC destination est dans la table → envoie sur le <strong>port correspondant</strong> (unicast)</li>
+                        <li><strong>Flood (Inonder)</strong> — Si la MAC destination est <strong>inconnue</strong> → envoie sur <strong>tous les ports</strong> sauf le port source (unknown unicast flood)</li>
+                    </ol>
+                </div>
+
+                <h3>Exemple visuel</h3>
+                <div class="topology-box">
+  <span class="device">PC-A</span> (MAC: AA)              <span class="device">PC-B</span> (MAC: BB)              <span class="device">PC-C</span> (MAC: CC)
+     │ <span class="interface">Fa0/1</span>                    │ <span class="interface">Fa0/2</span>                    │ <span class="interface">Fa0/3</span>
+     └────────────┐        ┌────┘              ┌────────┘
+                  │        │                   │
+             ┌────┴────────┴───────────────────┴────┐
+             │           <span class="device">SWITCH L2</span>                   │
+             │                                      │
+             │  <span class="interface">Table MAC (CAM) :</span>                   │
+             │  ┌────────┬────────┐                 │
+             │  │  MAC   │  Port  │                 │
+             │  ├────────┼────────┤                 │
+             │  │  <span class="ip">AA</span>    │  Fa0/1 │                 │
+             │  │  <span class="ip">BB</span>    │  Fa0/2 │                 │
+             │  │  <span class="ip">CC</span>    │  Fa0/3 │                 │
+             │  └────────┴────────┘                 │
+             └──────────────────────────────────────┘
+                </div>
+
+                <div class="code-block">
+<span class="comment"># Commandes switch</span>
+<span class="prompt">Switch#</span> show mac address-table           <span class="comment"># Afficher la table MAC</span>
+<span class="prompt">Switch#</span> show mac address-table dynamic    <span class="comment"># Seulement les adresses apprises</span>
+<span class="prompt">Switch#</span> clear mac address-table dynamic    <span class="comment"># Vider la table</span>
+                </div>
+            </section>
+
+            <!-- Domaines -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-circle-nodes"></i> Domaines de Collision & Broadcast</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-bolt"></i> Domaine de collision</h4>
+                    <p>Zone où deux appareils qui transmettent en même temps provoquent une <strong>collision</strong>.</p>
+                    <ul style="padding-left:1.5rem;line-height:2">
+                        <li><strong>Hub</strong> : tous les ports = <strong>1 seul</strong> domaine de collision</li>
+                        <li><strong>Switch</strong> : chaque port = <strong>son propre</strong> domaine de collision (micro-segmentation)</li>
+                    </ul>
+                </div>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-broadcast-tower"></i> Domaine de broadcast</h4>
+                    <p>Zone où un <strong>broadcast</strong> (MAC: FF:FF:FF:FF:FF:FF) est propagé à tous.</p>
+                    <ul style="padding-left:1.5rem;line-height:2">
+                        <li><strong>Switch</strong> : tous les ports du même VLAN = <strong>1 domaine de broadcast</strong></li>
+                        <li><strong>Routeur</strong> : <strong>sépare</strong> les domaines de broadcast (chaque interface = un domaine)</li>
+                    </ul>
+                </div>
+
+                <div class="tip-box">
+                    <i class="fa-solid fa-brain"></i>
+                    <div><strong>Retiens :</strong> Un switch segmente les <em>domaines de collision</em>. Un routeur (ou un VLAN) segmente les <em>domaines de broadcast</em>.</div>
+                </div>
+            </section>
+
+            <!-- Duplex & Speed -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-gauge-high"></i> Duplex et Vitesse</h2>
+                <table class="ios-table">
+                    <thead><tr><th>Mode</th><th>Description</th><th>Exemple</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Half-duplex</strong></td><td>Envoi OU réception (pas les deux en même temps)</td><td>Hub, Wi-Fi</td></tr>
+                        <tr><td><strong>Full-duplex</strong></td><td>Envoi ET réception <strong>simultanés</strong></td><td>Switch moderne</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-block">
+<span class="prompt">Switch(config-if)#</span> duplex full          <span class="comment"># Forcer full-duplex</span>
+<span class="prompt">Switch(config-if)#</span> speed 100             <span class="comment"># Forcer 100 Mbps</span>
+<span class="prompt">Switch(config-if)#</span> duplex auto           <span class="comment"># Auto-négociation (recommandé)</span>
+<span class="prompt">Switch#</span> show interfaces fa0/1              <span class="comment"># Vérifier duplex et speed</span>
+                </div>
+                <div class="warning-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div><strong>Duplex mismatch :</strong> Si un côté est en full et l'autre en half → performances terribles, erreurs CRC, late collisions. Toujours vérifier avec <code>show interfaces</code> !</div>
+                </div>
+            </section>
+
+            <!-- Labo -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-flask"></i> Labo — Observer la table MAC</h2>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-diagram-project"></i> Topologie</h4>
+                    <div class="topology-box">
+  <span class="device">PC1</span> (192.168.1.10)       <span class="device">PC2</span> (192.168.1.20)       <span class="device">PC3</span> (192.168.1.30)
+  MAC: 0001.0001.0001     MAC: 0002.0002.0002     MAC: 0003.0003.0003
+        │ <span class="interface">Fa0/1</span>                  │ <span class="interface">Fa0/2</span>                  │ <span class="interface">Fa0/3</span>
+        └──────────┐        ┌──┘                ┌──┘
+                   └────────┤  <span class="device">Switch1</span>  ├────────┘
+                            └──────────┘
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-list-check"></i> Étapes du labo</h4>
+                    <table class="ios-table">
+                        <thead><tr><th>#</th><th>Action</th><th>Commande</th><th>Résultat attendu</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>Vérifier table MAC (vide)</td><td><code>show mac address-table</code></td><td>Table vide</td></tr>
+                            <tr><td>2</td><td>PC1 ping PC2</td><td><code>ping 192.168.1.20</code></td><td>Reply</td></tr>
+                            <tr><td>3</td><td>Re-vérifier table MAC</td><td><code>show mac address-table</code></td><td>MAC de PC1 (Fa0/1) + PC2 (Fa0/2)</td></tr>
+                            <tr><td>4</td><td>PC1 ping PC3</td><td><code>ping 192.168.1.30</code></td><td>Reply + MAC de PC3 ajoutée</td></tr>
+                            <tr><td>5</td><td>Vider la table</td><td><code>clear mac address-table dynamic</code></td><td>Table vidée</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--glass-border)">
+                <a href="chapitre3.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem"><i class="fa-solid fa-arrow-left"></i> Module 3 — Protocoles</a>
+                <a href="chapitre5.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem">Module 5 — CLI Cisco IOS <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </main>
+    <div class="xp-bar-container"><span class="xp-level">Débutant</span><div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div><span class="xp-text">0 XP</span></div>
+    <script src="../assets/js/main.js"></script><script src="../assets/js/gamification.js"></script><script src="../assets/js/download.js"></script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCNA — Exercices Pratiques</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .exercises-hub{max-width:1100px;margin:0 auto;padding:2rem 1rem}
+        .module-filter{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2rem;justify-content:center}
+        .module-filter button{padding:.5rem 1rem;border:2px solid var(--accent);background:transparent;color:var(--accent);border-radius:20px;cursor:pointer;font-weight:600;transition:.2s}
+        .module-filter button.active,.module-filter button:hover{background:var(--accent);color:#fff}
+        .type-filter{display:flex;gap:.5rem;margin-bottom:2rem;justify-content:center}
+        .type-filter button{padding:.4rem .8rem;border:1px solid var(--border);background:transparent;color:var(--fg);border-radius:12px;cursor:pointer;font-size:.85rem;transition:.2s}
+        .type-filter button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .ex-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1rem;transition:.3s}
+        .ex-card:hover{border-color:var(--accent);box-shadow:0 0 20px var(--glow)}
+        .ex-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;cursor:pointer}
+        .ex-header .ex-num{background:var(--accent);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+        .ex-header .ex-title{font-weight:700;font-size:1.05rem;flex:1}
+        .ex-header .ex-badge{font-size:.7rem;padding:.2rem .5rem;border-radius:8px;font-weight:600;text-transform:uppercase}
+        .badge-guided{background:rgba(34,211,238,.15);color:var(--accent)}
+        .badge-qcm{background:rgba(168,85,247,.15);color:#a855f7}
+        .badge-drag{background:rgba(249,115,22,.15);color:#f97316}
+        .badge-labo{background:rgba(34,197,94,.15);color:#22c55e}
+        .ex-module{font-size:.7rem;background:var(--hover);padding:.15rem .5rem;border-radius:6px;color:var(--fg-muted)}
+        .ex-body{display:none;padding-top:.75rem;border-top:1px solid var(--border);margin-top:.75rem}
+        .ex-body.open{display:block}
+        .ex-question{font-size:.95rem;margin-bottom:1rem;line-height:1.7}
+        .ex-steps{background:var(--hover);border-radius:8px;padding:1rem;margin:1rem 0}
+        .ex-steps p{margin:.4rem 0;font-size:.9rem}
+        .ex-steps .step-label{font-weight:600;color:var(--accent)}
+        .ex-steps .step-input{display:inline-block;border-bottom:2px dashed var(--accent);min-width:120px;padding:2px 4px;margin:0 4px;cursor:text;outline:none;font-family:inherit}
+        .ex-steps .step-input:focus{border-bottom-color:var(--accent-light)}
+        .qcm-options{list-style:none;padding:0;margin:1rem 0}
+        .qcm-options li{padding:.6rem 1rem;margin:.4rem 0;border:2px solid var(--border);border-radius:8px;cursor:pointer;transition:.2s}
+        .qcm-options li:hover{border-color:var(--accent);background:var(--hover)}
+        .qcm-options li.selected{border-color:var(--accent);background:rgba(6,182,212,.1)}
+        .qcm-options li.correct{border-color:#22c55e;background:rgba(34,197,94,.1)}
+        .qcm-options li.wrong{border-color:#ef4444;background:rgba(239,68,68,.1)}
+        .drag-zone{display:flex;gap:2rem;flex-wrap:wrap;margin:1rem 0}
+        .drag-col{flex:1;min-width:200px}
+        .drag-col h4{text-align:center;margin-bottom:.5rem;font-size:.85rem;color:var(--fg-muted)}
+        .drag-item{padding:.5rem .75rem;margin:.3rem 0;border:2px solid var(--border);border-radius:8px;cursor:grab;background:var(--card);font-size:.9rem;transition:.2s;text-align:center}
+        .drag-item:active{cursor:grabbing}
+        .drag-item.dragging{opacity:.5;border-color:var(--accent)}
+        .drag-slot{padding:.5rem .75rem;margin:.3rem 0;border:2px dashed var(--accent);border-radius:8px;min-height:36px;background:var(--hover);display:flex;align-items:center;justify-content:center;font-size:.9rem}
+        .drag-slot.filled{border-style:solid;background:rgba(6,182,212,.08)}
+        .drag-slot.correct-slot{border-color:#22c55e;background:rgba(34,197,94,.1)}
+        .drag-slot.wrong-slot{border-color:#ef4444;background:rgba(239,68,68,.1)}
+        .btn-check{display:inline-block;padding:.5rem 1.2rem;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;margin-top:.5rem;transition:.2s}
+        .btn-check:hover{background:var(--accent-dark)}
+        .btn-hint{display:inline-block;padding:.4rem 1rem;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:8px;cursor:pointer;margin-left:.5rem;font-size:.85rem;transition:.2s}
+        .btn-hint:hover{background:var(--accent);color:#fff}
+        .ex-hint{display:none;background:rgba(6,182,212,.08);border-left:3px solid var(--accent);padding:.75rem;margin-top:.75rem;border-radius:0 8px 8px 0;font-size:.9rem}
+        .ex-hint.visible{display:block}
+        .ex-result{margin-top:.75rem;padding:.6rem;border-radius:8px;font-weight:600;font-size:.9rem}
+        .ex-result.success{background:rgba(34,197,94,.1);color:#22c55e}
+        .ex-result.fail{background:rgba(239,68,68,.1);color:#ef4444}
+        .progress-bar-container{background:var(--hover);border-radius:20px;height:8px;margin-bottom:2rem;overflow:hidden}
+        .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-light));border-radius:20px;transition:width .4s}
+        .stats-row{display:flex;gap:1rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+        .stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.75rem 1.5rem;text-align:center}
+        .stat-box .stat-num{font-size:1.5rem;font-weight:800;color:var(--accent)}
+        .stat-box .stat-label{font-size:.75rem;color:var(--fg-muted)}
+        .config-block{background:#0f172a;color:#e2e8f0;padding:1rem;border-radius:8px;font-family:'Courier New',monospace;font-size:.85rem;line-height:1.7;margin:.75rem 0;overflow-x:auto;white-space:pre}
+        .config-block .cmd{color:#22d3ee}
+        .config-block .comment{color:#64748b}
+        .topology-visual{background:var(--hover);border:1px solid var(--border);border-radius:10px;padding:1.5rem;margin:1rem 0;font-family:'Courier New',monospace;font-size:.8rem;line-height:1.6;white-space:pre;overflow-x:auto;text-align:center}
+    </style>
+</head>
+<body>
+    <!-- NAV -->
+    <nav class="navbar">
+        <a href="../index.html" class="nav-brand"><i class="fas fa-network-wired"></i> CCNA Réseau</a>
+        <div class="nav-links">
+            <a href="../chapitres/formules.html"><i class="fas fa-file-alt"></i> CheatSheet</a>
+            <a href="../chapitres/cartes.html"><i class="fas fa-clone"></i> Flashcards</a>
+            <a href="../chapitres/simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Examen</a>
+        </div>
+        <button class="theme-toggle" onclick="document.documentElement.setAttribute('data-theme',document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');localStorage.setItem('rd_ccna_theme',document.documentElement.getAttribute('data-theme'))"><i class="fas fa-moon"></i></button>
+    </nav>
+
+    <div class="exercises-hub">
+        <h1 style="text-align:center;margin-bottom:.5rem"><i class="fas fa-dumbbell" style="color:var(--accent)"></i> Exercices Pratiques</h1>
+        <p style="text-align:center;color:var(--fg-muted);margin-bottom:1.5rem">216 exercices interactifs — 8 modules — 3 types d'activités</p>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-box"><div class="stat-num" id="statDone">0</div><div class="stat-label">Complétés</div></div>
+            <div class="stat-box"><div class="stat-num" id="statTotal">216</div><div class="stat-label">Total</div></div>
+            <div class="stat-box"><div class="stat-num" id="statPercent">0%</div><div class="stat-label">Progression</div></div>
+        </div>
+        <div class="progress-bar-container"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+
+        <!-- Filters -->
+        <div class="module-filter" id="moduleFilter">
+            <button class="active" data-m="all">Tous</button>
+            <button data-m="1">M1 — Fondamentaux</button>
+            <button data-m="2">M2 — IPv4</button>
+            <button data-m="3">M3 — Protocoles</button>
+            <button data-m="4">M4 — Switching</button>
+            <button data-m="5">M5 — CLI</button>
+            <button data-m="6">M6 — Routage</button>
+            <button data-m="7">M7 — VLANs</button>
+            <button data-m="8">M8 — ROAS</button>
+        </div>
+        <div class="type-filter" id="typeFilter">
+            <button class="active" data-t="all">Tous types</button>
+            <button data-t="guided"><i class="fas fa-shoe-prints"></i> Guidé</button>
+            <button data-t="qcm"><i class="fas fa-list-check"></i> QCM</button>
+            <button data-t="drag"><i class="fas fa-arrows-alt"></i> Glisser-Déposer</button>
+        </div>
+
+        <!-- Exercises container -->
+        <div id="exContainer"></div>
+    </div>
+
+    <!-- Gamification -->
+    <div id="gamification-panel"></div>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/exercises.js"></script>
+    <script>
+    (function(){
+        const t=localStorage.getItem('rd_ccna_theme');if(t)document.documentElement.setAttribute('data-theme',t);
+
+        const STORAGE='rd_ccna_ex_done';
+        let done=JSON.parse(localStorage.getItem(STORAGE)||'[]');
+        let filterM='all',filterT='all';
+
+        /* ── helpers ── */
+        function markDone(id){if(!done.includes(id)){done.push(id);localStorage.setItem(STORAGE,JSON.stringify(done));updateStats()}}
+        function updateStats(){
+            const vis=getVisible();
+            const d=vis.filter(e=>done.includes(e.id)).length;
+            document.getElementById('statDone').textContent=d;
+            document.getElementById('statTotal').textContent=vis.length;
+            const pct=vis.length?Math.round(d/vis.length*100):0;
+            document.getElementById('statPercent').textContent=pct+'%';
+            document.getElementById('progressFill').style.width=pct+'%';
+        }
+        function getVisible(){
+            return defined_exercises.filter(e=>{
+                if(filterM!=='all'&&e.chapter!=filterM)return false;
+                if(filterT!=='all'&&e.type!==filterT)return false;
+                return true;
+            });
+        }
+
+        /* ── shuffle ── */
+        function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+        /* ── render ── */
+        function render(){
+            const c=document.getElementById('exContainer');
+            c.innerHTML='';
+            const vis=getVisible();
+            vis.forEach((ex,idx)=>{
+                const card=document.createElement('div');
+                card.className='ex-card';
+                card.dataset.id=ex.id;
+                const isDone=done.includes(ex.id);
+                const badgeCls=ex.type==='guided'?'badge-guided':ex.type==='qcm'?'badge-qcm':'badge-drag';
+                const typeName=ex.type==='guided'?'Guidé':ex.type==='qcm'?'QCM':'Glisser';
+                card.innerHTML=`
+                    <div class="ex-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                        <span class="ex-num" style="${isDone?'background:#22c55e':''}">${isDone?'✓':(idx+1)}</span>
+                        <span class="ex-title">${ex.title||ex.question.substring(0,60)+'...'}</span>
+                        <span class="ex-module">M${ex.chapter}</span>
+                        <span class="ex-badge ${badgeCls}">${typeName}</span>
+                    </div>
+                    <div class="ex-body" id="body-${ex.id}"></div>
+                `;
+                card.querySelector('.ex-header').addEventListener('click',()=>{
+                    const body=card.querySelector('.ex-body');
+                    if(body.children.length===0) buildExercise(body,ex);
+                });
+                c.appendChild(card);
+            });
+            updateStats();
+        }
+
+        /* ── build each type ── */
+        function buildExercise(body,ex){
+            if(ex.type==='guided') buildGuided(body,ex);
+            else if(ex.type==='qcm') buildQCM(body,ex);
+            else if(ex.type==='drag') buildDrag(body,ex);
+        }
+
+        /* GUIDED */
+        function buildGuided(body,ex){
+            let html=`<div class="ex-question">${ex.question}</div><div class="ex-steps">`;
+            for(let i=0;i<ex.steps.length;i+=2){
+                html+=`<p><span class="step-label">${ex.steps[i]}</span> <span class="step-input" contenteditable="true" data-answer="${ex.steps[i+1]}"></span></p>`;
+            }
+            html+=`</div>
+                <button class="btn-check" onclick="checkGuided('${ex.id}')">Vérifier</button>
+                <button class="btn-hint" onclick="this.nextElementSibling.classList.toggle('visible')"><i class="fas fa-lightbulb"></i> Indice</button>
+                <div class="ex-hint"><i class="fas fa-lightbulb"></i> ${ex.answer}</div>
+                <div class="ex-result" id="res-${ex.id}"></div>`;
+            body.innerHTML=html;
+        }
+        window.checkGuided=function(id){
+            const ex=defined_exercises.find(e=>e.id===id);
+            const inputs=document.querySelectorAll(`#body-${id} .step-input`);
+            let ok=0;
+            inputs.forEach(inp=>{
+                const ans=inp.dataset.answer.toLowerCase().trim();
+                const val=inp.textContent.toLowerCase().trim();
+                if(val&&(ans.includes(val)||val.includes(ans.substring(0,4)))){ok++;inp.style.borderColor='#22c55e'}
+                else{inp.style.borderColor='#ef4444'}
+            });
+            const res=document.getElementById(`res-${id}`);
+            if(ok>=inputs.length*.6){res.className='ex-result success';res.textContent=`✓ Bien joué ! ${ok}/${inputs.length}`;markDone(id);render()}
+            else{res.className='ex-result fail';res.textContent=`✗ ${ok}/${inputs.length} — Consultez l'indice`}
+        };
+
+        /* QCM */
+        function buildQCM(body,ex){
+            let html=`<div class="ex-question">${ex.question}</div><ul class="qcm-options">`;
+            ex.options.forEach((o,i)=>{html+=`<li data-i="${i}" onclick="selectOpt(this,'${ex.id}',${ex.correct})">${o}</li>`});
+            html+=`</ul><div class="ex-result" id="res-${ex.id}"></div>`;
+            body.innerHTML=html;
+        }
+        window.selectOpt=function(el,id,correct){
+            const lis=el.parentElement.querySelectorAll('li');
+            if([...lis].some(l=>l.classList.contains('correct')||l.classList.contains('wrong')))return;
+            const i=parseInt(el.dataset.i);
+            if(i===correct){el.classList.add('correct');markDone(id);document.getElementById(`res-${id}`).className='ex-result success';document.getElementById(`res-${id}`).textContent='✓ Correct !';render()}
+            else{el.classList.add('wrong');lis[correct].classList.add('correct');document.getElementById(`res-${id}`).className='ex-result fail';document.getElementById(`res-${id}`).textContent='✗ Mauvaise réponse'}
+        };
+
+        /* DRAG */
+        function buildDrag(body,ex){
+            const pairs=ex.pairs;
+            const shuffledR=shuffle([...pairs.map(p=>p.right)]);
+            let html=`<div class="ex-question">${ex.question}</div><div class="drag-zone">`;
+            html+=`<div class="drag-col"><h4>Éléments</h4>`;
+            pairs.forEach((p,i)=>{html+=`<div class="drag-item" draggable="true" data-di="${i}" data-left="${p.left}">${p.left}</div>`});
+            html+=`</div><div class="drag-col"><h4>Correspondances</h4>`;
+            shuffledR.forEach((r,i)=>{html+=`<div class="drag-slot" data-right="${r}" data-si="${i}">${r} → <em>glisser ici</em></div>`});
+            html+=`</div></div>
+                <button class="btn-check" onclick="checkDrag('${ex.id}')">Vérifier</button>
+                <div class="ex-result" id="res-${ex.id}"></div>`;
+            body.innerHTML=html;
+
+            /* drag events */
+            let dragged=null;
+            body.querySelectorAll('.drag-item').forEach(item=>{
+                item.addEventListener('dragstart',e=>{dragged=item;item.classList.add('dragging');e.dataTransfer.effectAllowed='move'});
+                item.addEventListener('dragend',()=>{item.classList.remove('dragging');dragged=null});
+            });
+            body.querySelectorAll('.drag-slot').forEach(slot=>{
+                slot.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move'});
+                slot.addEventListener('drop',e=>{
+                    e.preventDefault();
+                    if(dragged){slot.innerHTML=slot.dataset.right+' → <strong>'+dragged.dataset.left+'</strong>';slot.dataset.paired=dragged.dataset.left;slot.classList.add('filled');dragged.style.opacity='.4';dragged.draggable=false}
+                });
+            });
+        }
+        window.checkDrag=function(id){
+            const ex=defined_exercises.find(e=>e.id===id);
+            const slots=document.querySelectorAll(`#body-${id} .drag-slot`);
+            let ok=0;
+            slots.forEach(s=>{
+                const right=s.dataset.right;
+                const paired=s.dataset.paired;
+                const match=ex.pairs.find(p=>p.right===right);
+                if(match&&paired===match.left){ok++;s.classList.add('correct-slot')}
+                else{s.classList.add('wrong-slot')}
+            });
+            const res=document.getElementById(`res-${id}`);
+            if(ok===ex.pairs.length){res.className='ex-result success';res.textContent=`✓ Parfait ! ${ok}/${ex.pairs.length}`;markDone(id);render()}
+            else{res.className='ex-result fail';res.textContent=`✗ ${ok}/${ex.pairs.length} — Réessayez`}
+        };
+
+        /* ── filters ── */
+        document.getElementById('moduleFilter').addEventListener('click',e=>{
+            if(e.target.tagName!=='BUTTON')return;
+            document.querySelectorAll('#moduleFilter button').forEach(b=>b.classList.remove('active'));
+            e.target.classList.add('active');
+            filterM=e.target.dataset.m;
+            render();
+        });
+        document.getElementById('typeFilter').addEventListener('click',e=>{
+            if(e.target.tagName!=='BUTTON')return;
+            document.querySelectorAll('#typeFilter button').forEach(b=>b.classList.remove('active'));
+            e.target.classList.add('active');
+            filterT=e.target.dataset.t;
+            render();
+        });
+
+        render();
+    })();
+    </script>
+</body>
+</html>

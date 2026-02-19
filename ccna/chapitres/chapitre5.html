@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5 — CLI Cisco IOS | RD CCNA</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <div class="reading-progress" id="reading-progress"></div>
+    <nav class="glass-nav"><div class="nav-inner">
+        <a href="../index.html" class="nav-logo"><i class="fa-solid fa-network-wired"></i> RD CCNA</a>
+        <ul class="nav-links">
+            <li><a href="chapitre1.html">Fondamentaux</a></li><li><a href="chapitre2.html">IPv4</a></li><li><a href="chapitre3.html">Protocoles</a></li>
+            <li><a href="chapitre4.html">Switching</a></li><li><a href="chapitre5.html" class="active">CLI IOS</a></li><li><a href="chapitre6.html">Routage</a></li>
+            <li><a href="chapitre7.html">VLANs</a></li><li><a href="chapitre8.html">ROAS</a></li><li><a href="formules.html">CheatSheet</a></li>
+        </ul>
+        <div class="nav-actions"><button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button><button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button></div>
+    </div></nav>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <div class="mobile-nav-header"><span><i class="fa-solid fa-network-wired"></i> Menu</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a>
+        <a href="chapitre1.html"><i class="fa-solid fa-layer-group"></i> 1. Fondamentaux</a><a href="chapitre2.html"><i class="fa-solid fa-calculator"></i> 2. IPv4</a>
+        <a href="chapitre3.html"><i class="fa-solid fa-satellite-dish"></i> 3. Protocoles</a><a href="chapitre4.html"><i class="fa-solid fa-ethernet"></i> 4. Switching</a>
+        <a href="chapitre5.html" class="active"><i class="fa-solid fa-terminal"></i> 5. CLI IOS</a><a href="chapitre6.html"><i class="fa-solid fa-route"></i> 6. Routage</a>
+        <a href="chapitre7.html"><i class="fa-solid fa-tags"></i> 7. VLANs</a><a href="chapitre8.html"><i class="fa-solid fa-diagram-project"></i> 8. ROAS</a>
+        <hr style="border-color:var(--glass-border);margin:.8rem 0">
+        <a href="formules.html"><i class="fa-solid fa-scroll"></i> CheatSheet</a><a href="cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a>
+        <a href="simulateur-examen.html"><i class="fa-solid fa-award"></i> Simulateur</a><a href="../exercices/exercices.html"><i class="fa-solid fa-dumbbell"></i> Exercices</a>
+    </div>
+
+    <main id="main-content">
+        <div class="hero-section">
+            <div class="hero-badge"><i class="fa-solid fa-terminal"></i> Module 5</div>
+            <h1>CLI <span class="highlight">Cisco IOS</span></h1>
+            <p>Modes d'exécution, commandes show, configuration de base, sécurisation de l'accès, sauvegarde et restauration.</p>
+        </div>
+        <div class="content-wrapper">
+
+            <!-- Modes IOS -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-layer-group"></i> Les Modes de l'IOS</h2>
+                <p>Cisco IOS utilise une <strong>hiérarchie de modes</strong>. Chaque mode a son propre prompt et ses commandes disponibles :</p>
+                <div class="topology-box">
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                    <span class="device">HIÉRARCHIE DES MODES IOS</span>                     │
+  │                                                                 │
+  │   <span class="interface">User EXEC</span>              <span class="string">Switch></span>                              │
+  │       │  <span class="comment">enable</span>                                                 │
+  │       ▼                                                         │
+  │   <span class="interface">Privileged EXEC</span>        <span class="string">Switch#</span>                              │
+  │       │  <span class="comment">configure terminal</span>                                     │
+  │       ▼                                                         │
+  │   <span class="interface">Global Config</span>          <span class="string">Switch(config)#</span>                      │
+  │       │                                                         │
+  │       ├──► <span class="interface">Interface Config</span>     <span class="string">Switch(config-if)#</span>          │
+  │       ├──► <span class="interface">Line Config</span>          <span class="string">Switch(config-line)#</span>        │
+  │       ├──► <span class="interface">Router Config</span>        <span class="string">Switch(config-router)#</span>      │
+  │       └──► <span class="interface">VLAN Config</span>          <span class="string">Switch(config-vlan)#</span>        │
+  └─────────────────────────────────────────────────────────────────┘
+                </div>
+                <table class="ios-table">
+                    <thead><tr><th>Mode</th><th>Prompt</th><th>Accès</th><th>Usage</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>User EXEC</strong></td><td><code>Switch&gt;</code></td><td>Connexion initiale</td><td>Commandes basiques (ping, show version)</td></tr>
+                        <tr><td><strong>Privileged EXEC</strong></td><td><code>Switch#</code></td><td><code>enable</code></td><td>show complets, copy, debug, reload</td></tr>
+                        <tr><td><strong>Global Config</strong></td><td><code>Switch(config)#</code></td><td><code>configure terminal</code></td><td>Configuration générale (hostname, etc.)</td></tr>
+                        <tr><td><strong>Interface Config</strong></td><td><code>(config-if)#</code></td><td><code>interface fa0/1</code></td><td>IP, shutdown, duplex, speed</td></tr>
+                        <tr><td><strong>Line Config</strong></td><td><code>(config-line)#</code></td><td><code>line console 0</code></td><td>Console, VTY (SSH/Telnet)</td></tr>
+                    </tbody>
+                </table>
+                <div class="code-block">
+<span class="comment"># Navigation entre les modes</span>
+<span class="prompt">Switch></span> enable                     <span class="comment"># User → Privileged</span>
+<span class="prompt">Switch#</span> configure terminal          <span class="comment"># Privileged → Global Config</span>
+<span class="prompt">Switch(config)#</span> interface fa0/1   <span class="comment"># Global → Interface Config</span>
+<span class="prompt">Switch(config-if)#</span> exit           <span class="comment"># Retour au mode précédent</span>
+<span class="prompt">Switch(config)#</span> end                <span class="comment"># Retour direct au Privileged</span>
+<span class="prompt">Switch#</span> disable                     <span class="comment"># Privileged → User</span>
+                </div>
+            </section>
+
+            <!-- Commandes show essentielles -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-magnifying-glass"></i> Commandes Show Essentielles</h2>
+                <table class="ios-table">
+                    <thead><tr><th>Commande</th><th>Mode</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>show running-config</code></td><td>#</td><td>Configuration active en RAM</td></tr>
+                        <tr><td><code>show startup-config</code></td><td>#</td><td>Configuration sauvegardée en NVRAM</td></tr>
+                        <tr><td><code>show version</code></td><td>&gt; / #</td><td>Version IOS, uptime, mémoire, modèle</td></tr>
+                        <tr><td><code>show ip interface brief</code></td><td>#</td><td>Résumé de toutes les interfaces (IP, status)</td></tr>
+                        <tr><td><code>show interfaces fa0/1</code></td><td>#</td><td>Stats détaillées d'une interface</td></tr>
+                        <tr><td><code>show mac address-table</code></td><td>#</td><td>Table MAC du switch</td></tr>
+                        <tr><td><code>show vlan brief</code></td><td>#</td><td>VLANs configurés et ports</td></tr>
+                        <tr><td><code>show ip route</code></td><td>#</td><td>Table de routage</td></tr>
+                        <tr><td><code>show arp</code></td><td>#</td><td>Table ARP (IP ↔ MAC)</td></tr>
+                        <tr><td><code>show protocols</code></td><td>#</td><td>Protocoles de routage actifs</td></tr>
+                    </tbody>
+                </table>
+                <div class="tip-box">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <div><strong>Astuce :</strong> Tape le <strong>début d'une commande</strong> + <kbd>Tab</kbd> pour l'auto-compléter. Utilise <code>?</code> à tout moment pour voir les commandes disponibles.</div>
+                </div>
+            </section>
+
+            <!-- Configuration de base -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-wrench"></i> Configuration de Base</h2>
+                <div class="code-block">
+<span class="comment"># ==========================================</span>
+<span class="comment"># CONFIGURATION INITIALE D'UN SWITCH/ROUTEUR</span>
+<span class="comment"># ==========================================</span>
+
+<span class="comment"># 1. Hostname</span>
+<span class="prompt">Switch(config)#</span> hostname <span class="string">SW1</span>
+
+<span class="comment"># 2. Banner (message d'avertissement)</span>
+<span class="prompt">SW1(config)#</span> banner motd <span class="string"># Accès réservé - Unauthorized access prohibited #</span>
+
+<span class="comment"># 3. Mot de passe console</span>
+<span class="prompt">SW1(config)#</span> line console 0
+<span class="prompt">SW1(config-line)#</span> password <span class="string">cisco123</span>
+<span class="prompt">SW1(config-line)#</span> login
+<span class="prompt">SW1(config-line)#</span> exit
+
+<span class="comment"># 4. Mot de passe enable (chiffré)</span>
+<span class="prompt">SW1(config)#</span> enable secret <span class="string">class123</span>
+
+<span class="comment"># 5. Chiffrer tous les mots de passe en clair</span>
+<span class="prompt">SW1(config)#</span> service password-encryption
+
+<span class="comment"># 6. Désactiver la résolution DNS (évite les délais)</span>
+<span class="prompt">SW1(config)#</span> no ip domain-lookup
+
+<span class="comment"># 7. Configurer SSH (accès distant sécurisé)</span>
+<span class="prompt">SW1(config)#</span> ip domain-name <span class="string">lab.local</span>
+<span class="prompt">SW1(config)#</span> crypto key generate rsa modulus <span class="string">2048</span>
+<span class="prompt">SW1(config)#</span> username <span class="string">admin</span> secret <span class="string">admin123</span>
+<span class="prompt">SW1(config)#</span> line vty 0 15
+<span class="prompt">SW1(config-line)#</span> transport input ssh
+<span class="prompt">SW1(config-line)#</span> login local
+<span class="prompt">SW1(config-line)#</span> exit
+
+<span class="comment"># 8. Interface VLAN 1 (management) — Switch</span>
+<span class="prompt">SW1(config)#</span> interface vlan 1
+<span class="prompt">SW1(config-if)#</span> ip address <span class="ip">192.168.1.2 255.255.255.0</span>
+<span class="prompt">SW1(config-if)#</span> no shutdown
+<span class="prompt">SW1(config-if)#</span> exit
+<span class="prompt">SW1(config)#</span> ip default-gateway <span class="ip">192.168.1.1</span>
+                </div>
+            </section>
+
+            <!-- Sauvegarde -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-floppy-disk"></i> Sauvegarde & Restauration</h2>
+                <div class="topology-box">
+  ┌──────────────────────────────────────────────────────────┐
+  │                  <span class="device">MÉMOIRES CISCO</span>                          │
+  │                                                          │
+  │   <span class="interface">RAM</span>      → running-config (actif, perdu au reboot)     │
+  │   <span class="interface">NVRAM</span>    → startup-config (persistant)                  │
+  │   <span class="interface">Flash</span>    → Image IOS (système d'exploitation)            │
+  │   <span class="interface">ROM</span>      → Bootstrap, POST, ROMMON                      │
+  └──────────────────────────────────────────────────────────┘
+                </div>
+                <div class="code-block">
+<span class="comment"># Sauvegarder la config active</span>
+<span class="prompt">SW1#</span> copy running-config startup-config
+<span class="comment"># ou : write memory (wr)</span>
+
+<span class="comment"># Restaurer la config de démarrage</span>
+<span class="prompt">SW1#</span> copy startup-config running-config
+
+<span class="comment"># Sauvegarder sur TFTP</span>
+<span class="prompt">SW1#</span> copy running-config tftp:
+<span class="comment"># → Entrer l'IP du serveur TFTP + nom fichier</span>
+
+<span class="comment"># Effacer la config et redémarrer à zéro</span>
+<span class="prompt">SW1#</span> erase startup-config
+<span class="prompt">SW1#</span> reload
+                </div>
+                <div class="warning-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div><strong>Attention :</strong> Si tu ne fais pas <code>copy run start</code>, ta configuration est <strong>perdue au prochain reboot</strong> ! La running-config est en RAM (volatile).</div>
+                </div>
+            </section>
+
+            <!-- Raccourcis clavier -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-keyboard"></i> Raccourcis & Astuces CLI</h2>
+                <table class="ios-table">
+                    <thead><tr><th>Raccourci</th><th>Action</th></tr></thead>
+                    <tbody>
+                        <tr><td><kbd>Tab</kbd></td><td>Auto-complétion de commande</td></tr>
+                        <tr><td><kbd>?</kbd></td><td>Aide contextuelle</td></tr>
+                        <tr><td><kbd>Ctrl+C</kbd></td><td>Annuler la commande en cours</td></tr>
+                        <tr><td><kbd>Ctrl+Z</kbd></td><td>Retour au mode Privileged EXEC</td></tr>
+                        <tr><td><kbd>Ctrl+Shift+6</kbd></td><td>Interrompre un ping/traceroute</td></tr>
+                        <tr><td><kbd>↑ / ↓</kbd></td><td>Historique des commandes</td></tr>
+                        <tr><td><code>do show ...</code></td><td>Exécuter une commande show depuis le mode config</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div><strong>do</strong> permet d'exécuter des commandes du mode Privileged depuis n'importe quel mode config. Ex: <code>SW1(config)# do show ip int brief</code></div>
+                </div>
+            </section>
+
+            <!-- Labo Config Initiale -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-flask"></i> Labo — Configuration Initiale Complète</h2>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-diagram-project"></i> Topologie</h4>
+                    <div class="topology-box">
+  <span class="device">PC Admin</span> ─── console ───► <span class="device">Switch SW1</span> ◄─── <span class="interface">Fa0/1</span> ─── <span class="device">PC1</span>
+  (192.168.1.100)             (VLAN1: 192.168.1.2/24)    (192.168.1.10)
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-list-check"></i> Étapes du labo</h4>
+                    <table class="ios-table">
+                        <thead><tr><th>#</th><th>Objectif</th><th>Commande(s)</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>Nommer le switch</td><td><code>hostname SW1</code></td></tr>
+                            <tr><td>2</td><td>Banner MOTD</td><td><code>banner motd # Accès interdit #</code></td></tr>
+                            <tr><td>3</td><td>MDP console</td><td><code>line console 0</code> → <code>password cisco</code> → <code>login</code></td></tr>
+                            <tr><td>4</td><td>MDP enable</td><td><code>enable secret class</code></td></tr>
+                            <tr><td>5</td><td>Chiffrement</td><td><code>service password-encryption</code></td></tr>
+                            <tr><td>6</td><td>IP management</td><td><code>int vlan 1</code> → <code>ip addr 192.168.1.2 255.255.255.0</code> → <code>no shut</code></td></tr>
+                            <tr><td>7</td><td>Passerelle</td><td><code>ip default-gateway 192.168.1.1</code></td></tr>
+                            <tr><td>8</td><td>SSH</td><td><code>ip domain-name lab.local</code> → <code>crypto key generate rsa modulus 2048</code></td></tr>
+                            <tr><td>9</td><td>VTY SSH only</td><td><code>line vty 0 15</code> → <code>transport input ssh</code> → <code>login local</code></td></tr>
+                            <tr><td>10</td><td>Sauvegarder</td><td><code>copy running-config startup-config</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="code-block">
+<span class="comment"># Vérification finale</span>
+<span class="prompt">SW1#</span> show running-config        <span class="comment"># Voir toute la config</span>
+<span class="prompt">SW1#</span> show ip interface brief     <span class="comment"># Vérifier VLAN1 up/up</span>
+<span class="prompt">SW1#</span> show version                <span class="comment"># Confirmer hostname</span>
+
+<span class="comment"># Test SSH depuis PC Admin</span>
+<span class="prompt">C:\></span> ssh -l admin 192.168.1.2   <span class="comment"># Connexion SSH</span>
+                </div>
+            </section>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--glass-border)">
+                <a href="chapitre4.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem"><i class="fa-solid fa-arrow-left"></i> Module 4 — Switching</a>
+                <a href="chapitre6.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem">Module 6 — Routage <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </main>
+    <div class="xp-bar-container"><span class="xp-level">Débutant</span><div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div><span class="xp-text">0 XP</span></div>
+    <script src="../assets/js/main.js"></script><script src="../assets/js/gamification.js"></script><script src="../assets/js/download.js"></script>
+</body>
+</html>

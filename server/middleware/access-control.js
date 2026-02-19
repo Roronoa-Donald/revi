@@ -12,7 +12,8 @@ const COURSES = {
   'rd_winserver': 'Windows Server',
   'RD-RO': 'Recherche Opérationnelle',
   'sql': 'SQL',
-  'csharp': 'C#'
+  'csharp': 'C#',
+  'ccna': 'CCNA Réseau'
 };
 
 const COURSE_ICONS = {
@@ -23,7 +24,8 @@ const COURSE_ICONS = {
   'rd_winserver': '🖥️',
   'RD-RO': '📊',
   'sql': '🗃️',
-  'csharp': '🔷'
+  'csharp': '🔷',
+  'ccna': '🌐'
 };
 
 // Thème visuel de chaque cours (couleurs + mode)
@@ -32,10 +34,11 @@ const COURSE_THEMES = {
   'php':          { mode: 'light', accent: '#2563eb', accentLight: '#60a5fa', accentDark: '#1e40af', gradient: 'linear-gradient(135deg, #2563eb, #1e40af)' },
   'probabilites': { mode: 'dark',  accent: '#6366f1', accentLight: '#818cf8', accentDark: '#4f46e5', gradient: 'linear-gradient(135deg, #6366f1, #a855f7)' },
   'rd_java':      { mode: 'light', accent: '#ef4444', accentLight: '#f87171', accentDark: '#dc2626', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
-  'rd_winserver': { mode: 'light', accent: '#6b7280', accentLight: '#9ca3af', accentDark: '#4b5563', gradient: 'linear-gradient(135deg, #6b7280, #4b5563)' },
+  'rd_winserver': { mode: 'light', accent: '#6366f1', accentLight: '#818cf8', accentDark: '#4f46e5', gradient: 'linear-gradient(135deg, #6366f1, #4f46e5)' },
   'RD-RO':        { mode: 'dark',  accent: '#10b981', accentLight: '#34d399', accentDark: '#059669', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
   'sql':          { mode: 'dark',  accent: '#2563eb', accentLight: '#60a5fa', accentDark: '#1e40af', gradient: 'linear-gradient(135deg, #2563eb, #1e40af)' },
-  'csharp':       { mode: 'light', accent: '#C4A882', accentLight: '#D4B896', accentDark: '#A89070', gradient: 'linear-gradient(135deg, #C4A882, #A89070)' }
+  'csharp': { mode: 'light', accent: '#f59e0b', accentLight: '#fbbf24', accentDark: '#d97706', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
+  'ccna':   { mode: 'dark',  accent: '#06b6d4', accentLight: '#22d3ee', accentDark: '#0891b2', gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)' }
 };
 
 const COURSE_DIRS = Object.keys(COURSES);

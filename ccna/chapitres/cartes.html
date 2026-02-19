@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards Réseau | RD CCNA</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;margin-top:2rem}
+        .flip-card{perspective:1000px;height:220px;cursor:pointer}
+        .flip-card-inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+        .flip-card.flipped .flip-card-inner{transform:rotateY(180deg)}
+        .flip-card-front,.flip-card-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:var(--radius);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:1.5rem;text-align:center}
+        .flip-card-front{background:var(--glass-bg);border:1px solid var(--glass-border);backdrop-filter:blur(12px)}
+        .flip-card-back{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;transform:rotateY(180deg)}
+        .flip-card-front h3{font-size:1rem;color:var(--text);margin:0;line-height:1.6}
+        .flip-card-back p{font-size:.92rem;margin:0;line-height:1.6}
+        .flip-card-front .card-num{position:absolute;top:.8rem;right:1rem;font-size:.75rem;color:var(--text-muted);font-weight:700}
+        .flip-card-front .card-icon{font-size:1.6rem;color:var(--accent);margin-bottom:.8rem}
+        .filter-bar{display:flex;flex-wrap:wrap;gap:.6rem;margin:2rem 0}
+        .filter-btn{padding:.5rem 1.1rem;border-radius:2rem;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);cursor:pointer;font-size:.82rem;font-weight:600;transition:all .2s}
+        .filter-btn.active,.filter-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .score-bar{display:flex;gap:1rem;align-items:center;margin:1.5rem 0;padding:1rem;border-radius:var(--radius);background:var(--glass-bg);border:1px solid var(--glass-border)}
+        .score-bar span{font-weight:700;color:var(--accent)}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <nav class="glass-nav"><div class="nav-inner">
+        <a href="../index.html" class="nav-logo"><i class="fa-solid fa-network-wired"></i> RD CCNA</a>
+        <ul class="nav-links">
+            <li><a href="chapitre1.html">Fondamentaux</a></li><li><a href="chapitre2.html">IPv4</a></li><li><a href="chapitre3.html">Protocoles</a></li>
+            <li><a href="chapitre4.html">Switching</a></li><li><a href="chapitre5.html">CLI IOS</a></li><li><a href="chapitre6.html">Routage</a></li>
+            <li><a href="chapitre7.html">VLANs</a></li><li><a href="chapitre8.html">ROAS</a></li><li><a href="formules.html">CheatSheet</a></li>
+        </ul>
+        <div class="nav-actions"><button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button><button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button></div>
+    </div></nav>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <div class="mobile-nav-header"><span><i class="fa-solid fa-network-wired"></i> Menu</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a>
+        <a href="chapitre1.html"><i class="fa-solid fa-layer-group"></i> 1. Fondamentaux</a><a href="chapitre2.html"><i class="fa-solid fa-calculator"></i> 2. IPv4</a>
+        <a href="chapitre3.html"><i class="fa-solid fa-satellite-dish"></i> 3. Protocoles</a><a href="chapitre4.html"><i class="fa-solid fa-ethernet"></i> 4. Switching</a>
+        <a href="chapitre5.html"><i class="fa-solid fa-terminal"></i> 5. CLI IOS</a><a href="chapitre6.html"><i class="fa-solid fa-route"></i> 6. Routage</a>
+        <a href="chapitre7.html"><i class="fa-solid fa-tags"></i> 7. VLANs</a><a href="chapitre8.html"><i class="fa-solid fa-diagram-project"></i> 8. ROAS</a>
+        <hr style="border-color:var(--glass-border);margin:.8rem 0">
+        <a href="formules.html"><i class="fa-solid fa-scroll"></i> CheatSheet</a><a href="cartes.html" class="active"><i class="fa-solid fa-clone"></i> Flashcards</a>
+        <a href="simulateur-examen.html"><i class="fa-solid fa-award"></i> Simulateur</a><a href="../exercices/exercices.html"><i class="fa-solid fa-dumbbell"></i> Exercices</a>
+    </div>
+
+    <main id="main-content">
+        <div class="hero-section">
+            <div class="hero-badge"><i class="fa-solid fa-clone"></i> 80 Cartes</div>
+            <h1>Flashcards <span class="highlight">Réseau</span></h1>
+            <p>Clique sur une carte pour révéler la réponse. 10 cartes par module.</p>
+        </div>
+        <div class="content-wrapper">
+            <div class="score-bar"><i class="fa-solid fa-brain"></i> Cartes retournées : <span id="flipped-count">0</span> / <span id="total-count">80</span> <button onclick="resetCards()" style="margin-left:auto;padding:.4rem 1rem;border-radius:1rem;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);cursor:pointer;font-size:.8rem"><i class="fa-solid fa-rotate-left"></i> Reset</button></div>
+            <div class="filter-bar">
+                <button class="filter-btn active" data-mod="all">Tous</button>
+                <button class="filter-btn" data-mod="1">Fondamentaux</button>
+                <button class="filter-btn" data-mod="2">IPv4</button>
+                <button class="filter-btn" data-mod="3">Protocoles</button>
+                <button class="filter-btn" data-mod="4">Switching</button>
+                <button class="filter-btn" data-mod="5">CLI IOS</button>
+                <button class="filter-btn" data-mod="6">Routage</button>
+                <button class="filter-btn" data-mod="7">VLANs</button>
+                <button class="filter-btn" data-mod="8">ROAS</button>
+            </div>
+            <div class="cards-grid" id="cards-grid"></div>
+        </div>
+    </main>
+    <script src="../assets/js/main.js"></script>
+    <script>
+const cards=[
+// Module 1 — Fondamentaux
+{m:1,q:"Combien de couches dans le modèle OSI ?",a:"7 couches : Physique, Liaison, Réseau, Transport, Session, Présentation, Application."},
+{m:1,q:"Quelle est la PDU de la couche Transport ?",a:"Le Segment (TCP) ou Datagramme (UDP)."},
+{m:1,q:"Quel équipement fonctionne en couche 3 ?",a:"Le Routeur — il prend des décisions basées sur l'adresse IP."},
+{m:1,q:"Quelle est la différence entre TCP et UDP ?",a:"TCP = fiable, connexion orientée, 3-way handshake. UDP = rapide, sans connexion, pas de garantie."},
+{m:1,q:"Qu'est-ce que l'encapsulation ?",a:"Chaque couche ajoute son en-tête aux données : Données → Segment → Paquet → Trame → Bits."},
+{m:1,q:"Combien de couches dans le modèle TCP/IP ?",a:"4 couches : Accès réseau, Internet, Transport, Application."},
+{m:1,q:"Qu'est-ce qu'une adresse MAC ?",a:"Identifiant physique de 48 bits (6 octets) en hexadécimal. Unique et gravée dans la carte réseau."},
+{m:1,q:"Quelle topologie a la meilleure tolérance aux pannes ?",a:"La topologie Maillée (Mesh) — chaque nœud est connecté à tous les autres."},
+{m:1,q:"Que signifie le 3-way handshake TCP ?",a:"SYN → SYN-ACK → ACK. Établit une connexion fiable entre client et serveur."},
+{m:1,q:"Quel est le rôle de la couche Liaison (L2) ?",a:"Adressage physique (MAC), détection d'erreurs (FCS), et contrôle d'accès au média."},
+// Module 2 — IPv4
+{m:2,q:"Combien de bits dans une adresse IPv4 ?",a:"32 bits, divisés en 4 octets séparés par des points (ex: 192.168.1.1)."},
+{m:2,q:"Quelle est la plage d'adresses privées classe C ?",a:"192.168.0.0 — 192.168.255.255 (/16). RFC 1918."},
+{m:2,q:"Combien d'hôtes dans un réseau /24 ?",a:"254 hôtes (2⁸ − 2 = 256 − 2). On retire l'adresse réseau et le broadcast."},
+{m:2,q:"Quel masque pour /26 ?",a:"255.255.255.192. 64 adresses par sous-réseau, 62 hôtes utilisables."},
+{m:2,q:"Qu'est-ce que le VLSM ?",a:"Variable Length Subnet Masking : sous-réseaux de tailles différentes pour optimiser l'adressage."},
+{m:2,q:"Quelle est l'adresse APIPA ?",a:"169.254.x.x — attribuée automatiquement quand le DHCP est indisponible."},
+{m:2,q:"Que signifie CIDR ?",a:"Classless Inter-Domain Routing. Notation /n qui remplace les classes A/B/C pour subnetting flexible."},
+{m:2,q:"Formule du nombre d'hôtes ?",a:"2^(32 − préfixe) − 2. Ex: /27 → 2^5 − 2 = 30 hôtes."},
+{m:2,q:"Quel masque pour un lien point-à-point ?",a:"/30 (255.255.255.252) — 2 hôtes utilisables, idéal pour un lien routeur↔routeur."},
+{m:2,q:"Adresse de broadcast de 192.168.1.0/24 ?",a:"192.168.1.255 — Dernière adresse du sous-réseau."},
+// Module 3 — Protocoles
+{m:3,q:"Quel port utilise DNS ?",a:"Port 53 — UDP pour les requêtes normales, TCP pour les transferts de zone."},
+{m:3,q:"Quel processus utilise DHCP ?",a:"DORA : Discover → Offer → Request → Acknowledge. Ports UDP 67 (serveur) / 68 (client)."},
+{m:3,q:"Quel est le rôle du protocole ARP ?",a:"Résoudre une adresse IP en adresse MAC. Envoie un broadcast ARP Request."},
+{m:3,q:"Quelle est la différence entre HTTP et HTTPS ?",a:"HTTPS = HTTP + TLS/SSL. Port 443 au lieu de 80. Données chiffrées."},
+{m:3,q:"Quel protocole synchronise les horloges ?",a:"NTP (Network Time Protocol) — Port UDP 123."},
+{m:3,q:"Combien de niveaux de sévérité Syslog ?",a:"8 niveaux (0-7). 0 = Emergency (le plus grave), 7 = Debugging (le moins grave)."},
+{m:3,q:"FTP utilise quels ports ?",a:"Port 20 (données) et Port 21 (contrôle). TCP. Mode actif et passif."},
+{m:3,q:"SSH vs Telnet ?",a:"SSH = chiffré (port 22). Telnet = texte clair (port 23). Toujours préférer SSH !"},
+{m:3,q:"Quel protocole empêche les boucles L2 ?",a:"STP (Spanning Tree Protocol). Élit un Root Bridge et bloque les ports redondants."},
+{m:3,q:"Quelle commande pour voir la table ARP ?",a:"show arp (routeur/switch) ou arp -a (PC Windows)."},
+// Module 4 — Switching
+{m:4,q:"Quelles sont les 3 actions d'un switch ?",a:"Learn (apprendre la MAC source), Forward (envoyer au bon port), Flood (inonder si MAC inconnue)."},
+{m:4,q:"Qu'est-ce que la table CAM/MAC ?",a:"Table qui associe chaque adresse MAC au port du switch. Remplie dynamiquement par apprentissage."},
+{m:4,q:"Un switch segmente quel type de domaine ?",a:"Les domaines de collision — chaque port = son propre domaine de collision."},
+{m:4,q:"Un routeur segmente quel type de domaine ?",a:"Les domaines de broadcast — chaque interface = un domaine de broadcast séparé."},
+{m:4,q:"Quelle commande affiche la table MAC ?",a:"show mac address-table (ou show mac address-table dynamic)."},
+{m:4,q:"Que signifie Full-Duplex ?",a:"Envoi ET réception simultanés. Pas de collision possible. Mode standard sur un switch moderne."},
+{m:4,q:"Qu'est-ce qu'un Unknown Unicast Flood ?",a:"Quand la MAC destination n'est pas dans la table → le switch envoie la trame sur TOUS les ports sauf le port source."},
+{m:4,q:"Que contient le champ FCS d'une trame ?",a:"Frame Check Sequence — un CRC (contrôle de redondance cyclique) pour détecter les erreurs de transmission."},
+{m:4,q:"Quelle est la taille max d'une trame Ethernet ?",a:"1518 octets (1500 octets de données + 18 octets d'en-tête/FCS). MTU = 1500."},
+{m:4,q:"Que vaut le champ Type pour IPv4 ?",a:"0x0800. Pour ARP : 0x0806. Pour IPv6 : 0x86DD."},
+// Module 5 — CLI IOS
+{m:5,q:"Quel mode permet la commande show run ?",a:"Privileged EXEC (prompt #). Pas possible en User EXEC (>)."},
+{m:5,q:"Comment sauvegarder la config active ?",a:"copy running-config startup-config (ou write memory / wr)."},
+{m:5,q:"Où est stockée la running-config ?",a:"En RAM (mémoire volatile). Perdue au redémarrage si non sauvegardée !"},
+{m:5,q:"Quelle commande chiffre les mots de passe ?",a:"service password-encryption — applique un chiffrement faible (type 7) sur les MDP en clair."},
+{m:5,q:"Différence entre password et secret ?",a:"password = texte clair (ou type 7 faible). secret = hash MD5 (type 5), beaucoup plus sécurisé."},
+{m:5,q:"Comment accéder en SSH au switch ?",a:"ip domain-name X → crypto key generate rsa → username X secret X → line vty 0 15 → transport input ssh → login local."},
+{m:5,q:"Quel raccourci revient au mode Privileged ?",a:"Ctrl+Z ou la commande end (depuis n'importe quel mode config)."},
+{m:5,q:"Que fait 'do' devant une commande ?",a:"Exécute une commande Privileged EXEC depuis le mode config. Ex: do show ip int brief."},
+{m:5,q:"Comment effacer la config et repartir à zéro ?",a:"erase startup-config → reload. Le switch redémarre avec une config vierge."},
+{m:5,q:"Quel fichier l'IOS exécute au démarrage ?",a:"Le startup-config stocké en NVRAM. Il est copié en RAM comme running-config."},
+// Module 6 — Routage
+{m:6,q:"Syntaxe d'une route statique ?",a:"ip route {réseau} {masque} {next-hop | interface}. Ex: ip route 192.168.2.0 255.255.255.0 10.0.0.2"},
+{m:6,q:"Qu'est-ce que la route par défaut ?",a:"ip route 0.0.0.0 0.0.0.0 {next-hop}. Gateway of Last Resort — utilisée quand aucune autre route ne correspond."},
+{m:6,q:"Quelle est l'AD d'une route statique ?",a:"1 (Administrative Distance). Connected = 0, Static = 1, OSPF = 110, RIP = 120."},
+{m:6,q:"Que signifie [1/0] dans show ip route ?",a:"[AD/Métrique]. AD = 1 (statique), Métrique = 0. Plus l'AD est basse, plus la route est préférée."},
+{m:6,q:"show ip interface brief montre quoi ?",a:"Résumé de toutes les interfaces : nom, IP, OK?, Méthode, Status et Protocol (up/down)."},
+{m:6,q:"Qu'est-ce que le clock rate ?",a:"Vitesse de synchronisation sur les interfaces série. Configuré côté DCE : clock rate 128000."},
+{m:6,q:"Erreur classique en routage statique ?",a:"Oublier la route de RETOUR. Le ping part mais la réponse n'a pas de chemin pour revenir."},
+{m:6,q:"Que fait 'no shutdown' sur une interface ?",a:"Active l'interface (la monte en status up). Par défaut, les interfaces routeur sont shutdown."},
+{m:6,q:"Différence route statique vs dynamique ?",a:"Statique = configurée manuellement, ne change pas. Dynamique = apprise automatiquement (OSPF, EIGRP, RIP)."},
+{m:6,q:"Combien d'hôtes dans un /30 ?",a:"2 hôtes (2² − 2). Utilisé pour les liens point-à-point entre routeurs."},
+// Module 7 — VLANs
+{m:7,q:"Qu'est-ce qu'un VLAN ?",a:"Virtual LAN — un réseau logique au sein d'un switch qui crée un domaine de broadcast isolé."},
+{m:7,q:"Les PCs de VLANs différents peuvent communiquer ?",a:"Non ! Il faut un routeur ou un switch L3 pour le routage inter-VLAN."},
+{m:7,q:"Quel est le VLAN par défaut ?",a:"VLAN 1. Tous les ports y sont assignés au départ. Il ne peut pas être supprimé."},
+{m:7,q:"Commande pour assigner un port au VLAN 10 ?",a:"switchport mode access → switchport access vlan 10."},
+{m:7,q:"Commande pour vérifier les VLANs ?",a:"show vlan brief — affiche les VLANs, leur status et les ports assignés."},
+{m:7,q:"Que se passe-t-il si on supprime un VLAN ?",a:"Les ports restent assignés au VLAN supprimé → ils deviennent INACTIFS. Il faut les réassigner !"},
+{m:7,q:"Quelle plage pour les VLANs normaux ?",a:"2 à 1001 (normal range). Extended : 1006 à 4094."},
+{m:7,q:"Bonne pratique : VLAN de management ?",a:"Créer un VLAN dédié (ex: VLAN 99) pour l'accès SSH/management au switch. Ne pas utiliser VLAN 1."},
+{m:7,q:"Comment assigner une plage de ports ?",a:"interface range fa0/1 - 10 → switchport mode access → switchport access vlan X."},
+{m:7,q:"Qu'est-ce qu'un port Access ?",a:"Un port qui appartient à un seul VLAN. La trame n'est PAS taggée. Utilisé pour les terminaux (PC, imprimante)."},
+// Module 8 — ROAS
+{m:8,q:"Que signifie ROAS ?",a:"Router On A Stick — routage inter-VLAN via un seul lien trunk entre le routeur et le switch."},
+{m:8,q:"Qu'est-ce que le standard 802.1Q ?",a:"Standard de trunking qui ajoute un tag de 4 octets dans la trame Ethernet pour identifier le VLAN."},
+{m:8,q:"Commande pour créer une sous-interface ?",a:"interface gi0/0.10 → encapsulation dot1Q 10 → ip address X.X.X.X M.M.M.M"},
+{m:8,q:"Qu'est-ce que le Native VLAN ?",a:"Le VLAN dont les trames ne sont PAS taggées sur un trunk. Par défaut : VLAN 1. Bonnesecurity : changer !"},
+{m:8,q:"Erreur n°1 en ROAS ?",a:"Oublier 'no shutdown' sur l'interface physique. Si Gi0/0 est down, TOUTES les sous-interfaces sont down."},
+{m:8,q:"Commande trunk sur le switch ?",a:"switchport mode trunk → switchport trunk allowed vlan 10,20,30 → switchport trunk native vlan 99."},
+{m:8,q:"show interfaces trunk montre quoi ?",a:"Les ports trunk actifs, l'encapsulation (802.1q), le status, le native VLAN et les VLANs autorisés."},
+{m:8,q:"Quel est le rôle de encapsulation dot1Q ?",a:"Associe la sous-interface à un VLAN ID. Le routeur sait quels paquets tagués traiter sur cette sous-interface."},
+{m:8,q:"Gateway d'un PC dans un VLAN ?",a:"L'IP de la sous-interface du routeur correspond au VLAN. Ex: VLAN 10 → GW = Gi0/0.10 = 192.168.10.1."},
+{m:8,q:"Combien de câbles physiques pour ROAS ?",a:"UN seul câble (trunk) entre le switch et le routeur. C'est tout l'avantage : économie de ports et de câbles."}
+];
+
+let flipped=new Set();const grid=document.getElementById('cards-grid');
+function render(mod='all'){
+    grid.innerHTML='';const filtered=mod==='all'?cards:cards.filter(c=>c.m==mod);
+    filtered.forEach((c,i)=>{
+        const idx=cards.indexOf(c);const d=document.createElement('div');d.className='flip-card'+(flipped.has(idx)?' flipped':'');d.dataset.idx=idx;
+        d.innerHTML=`<div class="flip-card-inner"><div class="flip-card-front"><span class="card-num">M${c.m} #${i+1}</span><div class="card-icon"><i class="fa-solid fa-question"></i></div><h3>${c.q}</h3></div><div class="flip-card-back"><p>${c.a}</p></div></div>`;
+        d.onclick=()=>{d.classList.toggle('flipped');if(d.classList.contains('flipped'))flipped.add(idx);else flipped.delete(idx);document.getElementById('flipped-count').textContent=flipped.size};
+        grid.appendChild(d);
+    });
+}
+document.querySelectorAll('.filter-btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.mod)});
+function resetCards(){flipped.clear();document.getElementById('flipped-count').textContent='0';render(document.querySelector('.filter-btn.active').dataset.mod)}
+render();
+    </script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur d'Examen | RD CCNA</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .exam-container{max-width:800px;margin:0 auto}
+        .exam-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;border-radius:var(--radius);background:var(--glass-bg);border:1px solid var(--glass-border);margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+        .exam-timer{font-size:1.4rem;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
+        .exam-progress{font-size:.9rem;color:var(--text-muted)}
+        .question-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+        .question-card h3{font-size:1.05rem;margin-bottom:1.5rem;line-height:1.7;color:var(--text)}
+        .question-card .q-num{color:var(--accent);font-weight:800;margin-right:.5rem}
+        .options label{display:flex;align-items:flex-start;gap:.8rem;padding:.9rem 1.2rem;border-radius:calc(var(--radius) - 4px);border:1px solid var(--glass-border);margin-bottom:.6rem;cursor:pointer;transition:all .2s;line-height:1.5}
+        .options label:hover{border-color:var(--accent);background:rgba(6,182,212,.06)}
+        .options input[type="radio"]{margin-top:4px;accent-color:var(--accent)}
+        .options label.correct{border-color:#10b981;background:rgba(16,185,129,.1)}
+        .options label.wrong{border-color:#ef4444;background:rgba(239,68,68,.1)}
+        .btn-exam{padding:.8rem 2rem;border-radius:2rem;border:none;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .2s}
+        .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{filter:brightness(1.1)}
+        .btn-secondary{background:var(--glass-bg);color:var(--text);border:1px solid var(--glass-border)}.btn-secondary:hover{border-color:var(--accent)}
+        .result-box{text-align:center;padding:3rem 2rem;border-radius:var(--radius);background:var(--glass-bg);border:1px solid var(--glass-border)}
+        .result-score{font-size:4rem;font-weight:900;color:var(--accent)}
+        .result-label{font-size:1.3rem;font-weight:700;margin:1rem 0}
+        .result-detail{color:var(--text-muted)}
+        .exam-nav{display:flex;justify-content:space-between;margin-top:1.5rem}
+        .start-screen{text-align:center;padding:3rem}
+        .start-screen h2{font-size:1.8rem;margin-bottom:1rem}
+        .start-screen p{color:var(--text-muted);margin-bottom:2rem}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <nav class="glass-nav"><div class="nav-inner">
+        <a href="../index.html" class="nav-logo"><i class="fa-solid fa-network-wired"></i> RD CCNA</a>
+        <ul class="nav-links">
+            <li><a href="chapitre1.html">Fondamentaux</a></li><li><a href="chapitre2.html">IPv4</a></li><li><a href="chapitre3.html">Protocoles</a></li>
+            <li><a href="chapitre4.html">Switching</a></li><li><a href="chapitre5.html">CLI IOS</a></li><li><a href="chapitre6.html">Routage</a></li>
+            <li><a href="chapitre7.html">VLANs</a></li><li><a href="chapitre8.html">ROAS</a></li><li><a href="formules.html">CheatSheet</a></li>
+        </ul>
+        <div class="nav-actions"><button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button><button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button></div>
+    </div></nav>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <div class="mobile-nav-header"><span><i class="fa-solid fa-network-wired"></i> Menu</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a>
+        <a href="chapitre1.html"><i class="fa-solid fa-layer-group"></i> 1. Fondamentaux</a><a href="chapitre2.html"><i class="fa-solid fa-calculator"></i> 2. IPv4</a>
+        <a href="chapitre3.html"><i class="fa-solid fa-satellite-dish"></i> 3. Protocoles</a><a href="chapitre4.html"><i class="fa-solid fa-ethernet"></i> 4. Switching</a>
+        <a href="chapitre5.html"><i class="fa-solid fa-terminal"></i> 5. CLI IOS</a><a href="chapitre6.html"><i class="fa-solid fa-route"></i> 6. Routage</a>
+        <a href="chapitre7.html"><i class="fa-solid fa-tags"></i> 7. VLANs</a><a href="chapitre8.html"><i class="fa-solid fa-diagram-project"></i> 8. ROAS</a>
+        <hr style="border-color:var(--glass-border);margin:.8rem 0">
+        <a href="formules.html"><i class="fa-solid fa-scroll"></i> CheatSheet</a><a href="cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a>
+        <a href="simulateur-examen.html" class="active"><i class="fa-solid fa-award"></i> Simulateur</a><a href="../exercices/exercices.html"><i class="fa-solid fa-dumbbell"></i> Exercices</a>
+    </div>
+
+    <main id="main-content">
+        <div class="hero-section">
+            <div class="hero-badge"><i class="fa-solid fa-award"></i> 100 QCM</div>
+            <h1>Simulateur <span class="highlight">d'Examen</span></h1>
+            <p>40 questions aléatoires, 45 minutes, seuil de réussite : 70%.</p>
+        </div>
+        <div class="content-wrapper">
+            <div class="exam-container" id="exam-app"></div>
+        </div>
+    </main>
+    <script src="../assets/js/main.js"></script>
+    <script>
+const allQ=[
+// M1 — Fondamentaux
+{q:"Combien de couches possède le modèle OSI ?",o:["4","5","7","6"],c:2},
+{q:"Quel est le PDU de la couche 3 (Réseau) ?",o:["Segment","Trame","Paquet","Bit"],c:2},
+{q:"Quel protocole utilise un 3-way handshake ?",o:["UDP","ICMP","TCP","ARP"],c:2},
+{q:"Quel équipement opère en couche 2 ?",o:["Routeur","Switch","Hub","Modem"],c:1},
+{q:"La topologie en étoile utilise quel équipement central ?",o:["Routeur","Firewall","Switch/Hub","Serveur"],c:2},
+{q:"Quel protocole est sans connexion ?",o:["TCP","FTP","SSH","UDP"],c:3},
+{q:"Le modèle TCP/IP a combien de couches ?",o:["7","5","4","3"],c:2},
+{q:"L'adresse MAC est un identifiant de quelle couche ?",o:["Couche 1","Couche 2","Couche 3","Couche 4"],c:1},
+{q:"Quel mnémonique pour l'OSI (7→1) ?",o:["All People Seem To Need Data Processing","Please Do Not Throw Sausage Pizza Away","Les deux sont corrects","Aucun"],c:2},
+{q:"Quelle couche gère le chiffrement SSL/TLS ?",o:["Transport","Application","Présentation","Session"],c:2},
+{q:"Un hub crée combien de domaines de collision ?",o:["1 par port","1 seul pour tous","Aucun","2"],c:1},
+{q:"Quel type d'adresse identifie un hôte sur le réseau ?",o:["MAC","IP","Les deux","Aucune"],c:2},
+// M2 — IPv4
+{q:"Combien de bits dans une adresse IPv4 ?",o:["16","48","32","64"],c:2},
+{q:"Quel masque correspond à /24 ?",o:["255.255.255.128","255.255.0.0","255.255.255.0","255.255.255.192"],c:2},
+{q:"Combien d'hôtes dans un /28 ?",o:["16","14","30","6"],c:1},
+{q:"Quelle est la plage privée classe A ?",o:["172.16.0.0 - 172.31.255.255","10.0.0.0 - 10.255.255.255","192.168.0.0 - 192.168.255.255","169.254.0.0 - 169.254.255.255"],c:1},
+{q:"L'adresse 169.254.x.x est appelée ?",o:["Loopback","APIPA","Broadcast","Multicast"],c:1},
+{q:"Quelle adresse est un broadcast limité ?",o:["0.0.0.0","127.0.0.1","255.255.255.255","224.0.0.1"],c:2},
+{q:"VLSM signifie ?",o:["Variable Length Subnet Masking","Virtual LAN Subnet Method","VLAN Subnet Management","Very Large Subnet Mask"],c:0},
+{q:"Le masque 255.255.255.252 correspond à quel CIDR ?",o:["/28","/30","/26","/29"],c:1},
+{q:"Adresse réseau de 192.168.10.67/26 ?",o:["192.168.10.0","192.168.10.64","192.168.10.32","192.168.10.128"],c:1},
+{q:"Combien de sous-réseaux avec /26 depuis un /24 ?",o:["2","8","4","16"],c:2},
+{q:"L'adresse 127.0.0.1 est utilisée pour ?",o:["Broadcast","Gateway","Loopback (test local)","DHCP"],c:2},
+{q:"Formule du nombre d'hôtes ?",o:["2^n","2^n - 2","2^(32-n) - 2","2^n + 2"],c:2},
+// M3 — Protocoles
+{q:"Quel port utilise HTTPS ?",o:["80","8080","443","22"],c:2},
+{q:"DHCP utilise quel processus ?",o:["SYN-ACK","DORA","Handshake","Query-Reply"],c:1},
+{q:"Quel protocole résout IP → MAC ?",o:["DNS","RARP","ICMP","ARP"],c:3},
+{q:"DNS utilise quel port ?",o:["80","53","67","443"],c:1},
+{q:"Quel protocole utilise le port 22 ?",o:["Telnet","SMTP","SSH","FTP"],c:2},
+{q:"Le niveau Syslog 0 correspond à ?",o:["Debugging","Emergency","Warning","Error"],c:1},
+{q:"Quel protocole empêche les boucles de couche 2 ?",o:["OSPF","STP","ARP","ICMP"],c:1},
+{q:"SNMP utilise quel port ?",o:["514","123","161","53"],c:2},
+{q:"Quel type ICMP pour un ping request ?",o:["Type 0","Type 3","Type 8","Type 11"],c:2},
+{q:"FTP Data utilise quel port ?",o:["21","20","22","69"],c:1},
+{q:"TFTP utilise quel transport ?",o:["TCP","UDP","Les deux","ICMP"],c:1},
+{q:"NTP utilise quel port ?",o:["123","161","514","69"],c:0},
+{q:"Quel enregistrement DNS traduit un nom en IPv4 ?",o:["AAAA","CNAME","MX","A"],c:3},
+// M4 — Switching
+{q:"Quelle action fait le switch quand la MAC dest est inconnue ?",o:["Drop","Forward","Flood","Learn"],c:2},
+{q:"Le switch apprend les MAC depuis quelle adresse ?",o:["MAC destination","MAC source","IP source","IP destination"],c:1},
+{q:"Quelle commande montre la table MAC ?",o:["show arp","show ip route","show mac address-table","show vlan brief"],c:2},
+{q:"MTU standard Ethernet ?",o:["1518 octets","1500 octets","1024 octets","64 octets"],c:1},
+{q:"Le champ EtherType 0x0806 identifie quel protocole ?",o:["IPv4","IPv6","ARP","ICMP"],c:2},
+{q:"Half-duplex signifie ?",o:["Envoi et réception simultanés","Envoi OU réception, pas les deux","Pas de communication","Double vitesse"],c:1},
+{q:"Un duplex mismatch cause ?",o:["Perte de paquets","Performances terribles + erreurs CRC","Aucun problème","Déconnexion totale"],c:1},
+{q:"Combien de domaines de broadcast sur un switch sans VLANs ?",o:["1 par port","1 seul","0","Dépend du modèle"],c:1},
+// M5 — CLI IOS
+{q:"Quel est le prompt du mode Privileged EXEC ?",o:["Switch>","Switch#","Switch(config)#","Switch(config-if)#"],c:1},
+{q:"Quelle commande passe en mode config global ?",o:["enable","configure terminal","config mode","setup"],c:1},
+{q:"Où est stocké le startup-config ?",o:["RAM","Flash","NVRAM","ROM"],c:2},
+{q:"Quelle commande chiffre les mots de passe en clair ?",o:["encrypt passwords","service password-encryption","password encrypt","enable secret"],c:1},
+{q:"Pour générer les clés SSH ?",o:["enable ssh","ssh keygen","crypto key generate rsa","generate ssh-key"],c:2},
+{q:"Le raccourci Ctrl+Z fait quoi ?",o:["Annule la commande","Retour au Privileged EXEC","Efface la ligne","Ferme la session"],c:1},
+{q:"'do show ip int brief' fonctionne depuis ?",o:["User EXEC uniquement","N'importe quel mode config","Privileged EXEC uniquement","Ne fonctionne nulle part"],c:1},
+{q:"Comment effacer totalement la config ?",o:["delete config","erase startup-config","clear running-config","format nvram:"],c:1},
+{q:"Quelle mémoire contient l'image IOS ?",o:["RAM","NVRAM","Flash","ROM"],c:2},
+{q:"banner motd sert à ?",o:["Configurer le DNS","Afficher un message d'avertissement","Changer le hostname","Activer SSH"],c:1},
+{q:"Commande pour voir le temps de fonctionnement ?",o:["show uptime","show clock","show version","show status"],c:2},
+{q:"transport input ssh fait quoi ?",o:["Active SSH globalement","Autorise uniquement SSH sur les lignes VTY","Désactive Telnet partout","Configure le port 22"],c:1},
+// M6 — Routage
+{q:"Une route statique a quelle AD ?",o:["0","1","90","110"],c:1},
+{q:"Route par défaut = ?",o:["ip route 0.0.0.0 0.0.0.0 next-hop","ip route default next-hop","ip default-route next-hop","ip gateway next-hop"],c:0},
+{q:"Le code 'C' dans show ip route signifie ?",o:["Configured","Connected","Cached","Computed"],c:1},
+{q:"Connected routes ont quelle AD ?",o:["1","0","5","10"],c:1},
+{q:"Quel masque pour un lien série point-à-point ?",o:["/24","/30","/28","/32"],c:1},
+{q:"Que fait clock rate ?",o:["Synchronise NTP","Définit la vitesse sur interface série DCE","Change l'horloge système","Configure le timeout"],c:1},
+{q:"Si R1 a une route vers LAN2 mais R2 n'a pas de route vers LAN1, que se passe-t-il ?",o:["Ping fonctionne","Ping timeout — pas de route de retour","Erreur de routage","Le paquet est droppé immédiatement"],c:1},
+{q:"show ip route affiche quel type d'information ?",o:["Table ARP","Table MAC","Table de routage","Table VLAN"],c:2},
+// M7 — VLANs
+{q:"Un VLAN crée quel type de domaine ?",o:["Domaine de collision","Domaine de broadcast isolé","Domaine de routage","Aucun"],c:1},
+{q:"Quel VLAN est le VLAN par défaut ?",o:["VLAN 0","VLAN 1","VLAN 99","VLAN 1002"],c:1},
+{q:"Quelle commande crée un VLAN ?",o:["create vlan 10","vlan 10","add vlan 10","switchport vlan 10"],c:1},
+{q:"show vlan brief montre quoi ?",o:["Les routes","Les trunks","Les VLANs et ports assignés","La table MAC"],c:2},
+{q:"Peut-on supprimer le VLAN 1 ?",o:["Oui","Non","Oui mais pas recommandé","Seulement en mode debug"],c:1},
+{q:"switchport mode access signifie ?",o:["Le port transporte plusieurs VLANs","Le port appartient à un seul VLAN","Le port est un trunk","Le port est désactivé"],c:1},
+{q:"Bonne pratique pour les ports inutilisés ?",o:["Les laisser en VLAN 1","Les assigner à un VLAN parking + shutdown","Rien faire","Les mettre en trunk"],c:1},
+{q:"Plage de VLANs normaux ?",o:["1-1005","2-1001","1-4094","0-1023"],c:1},
+{q:"Supprimer un VLAN → les ports assignés ?",o:["Reviennent au VLAN 1","Restent dans le VLAN supprimé (inactifs)","Sont aussi supprimés","Passent en shutdown"],c:1},
+{q:"Pour isoler les départements on utilise ?",o:["Routage statique","VLANs","ACL","NAT"],c:1},
+// M8 — ROAS
+{q:"ROAS utilise combien de lien(s) physique(s) ?",o:["1 par VLAN","2","1 seul (trunk)","3"],c:2},
+{q:"Commande pour créer une sous-interface ?",o:["sub-interface gi0/0.10","interface gi0/0.10","create subif 10","vlan-interface 10"],c:1},
+{q:"encapsulation dot1Q 10 fait quoi ?",o:["Créer le VLAN 10","Associer la sous-interface au VLAN 10","Configurer le trunk","Activer l'interface"],c:1},
+{q:"Quel standard pour le trunking ?",o:["802.3","802.11","802.1Q","802.1X"],c:2},
+{q:"Le Native VLAN par défaut est ?",o:["VLAN 0","VLAN 1","VLAN 99","VLAN 1002"],c:1},
+{q:"show interfaces trunk montre ?",o:["Table MAC","VLANs assignés aux ports","Ports trunk, encapsulation, VLANs autorisés","Routes statiques"],c:2},
+{q:"Que doit-on configurer sur les PCs pour le ROAS ?",o:["Un trunk","L'IP + la gateway = sous-interface du routeur","Un VLAN","SSH"],c:1},
+{q:"Si le native VLAN est différent côté switch et routeur ?",o:["Pas de problème","Les trames non taggées sont mal routées","Gain en performance","Le trunk se désactive"],c:1},
+{q:"Faut-il mettre une IP sur l'interface physique en ROAS ?",o:["Oui obligatoirement","Non, seulement no shutdown","Oui, l'IP de management","Ça dépend"],c:1},
+{q:"switchport trunk allowed vlan 10,20,30 ?",o:["Crée les VLANs","Autorise uniquement ces VLANs sur le trunk","Assigne les ports","Configure le routeur"],c:1},
+{q:"Le tag 802.1Q ajoute combien d'octets ?",o:["2","8","4","6"],c:2},
+{q:"Quel est l'avantage principal du ROAS ?",o:["Plus rapide que L3","Économie de ports et câbles","Plus sécurisé","Pas besoin de VLANs"],c:1},
+];
+
+const app=document.getElementById('exam-app');
+const TOTAL=40,TIME=45*60,PASS=70;
+let questions,current,answers,timer,timeLeft,examDone;
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startScreen(){
+    app.innerHTML=`<div class="start-screen"><h2><i class="fa-solid fa-award"></i> Simulateur d'Examen CCNA</h2><p>${TOTAL} questions aléatoires parmi 100<br>Temps : 45 minutes | Seuil : ${PASS}%</p><button class="btn-exam btn-primary" onclick="startExam()"><i class="fa-solid fa-play"></i> Commencer l'examen</button></div>`;
+}
+
+function startExam(){
+    questions=shuffle([...allQ]).slice(0,TOTAL);current=0;answers=new Array(TOTAL).fill(-1);examDone=false;timeLeft=TIME;
+    timer=setInterval(()=>{timeLeft--;if(timeLeft<=0){clearInterval(timer);finishExam()}else updateTimer()},1000);
+    renderQ();
+}
+
+function updateTimer(){
+    const m=Math.floor(timeLeft/60),s=timeLeft%60;
+    const el=document.getElementById('timer');if(el)el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(timeLeft<120&&el)el.style.color='#ef4444';
+}
+
+function renderQ(){
+    const q=questions[current];
+    let optHtml=q.o.map((o,i)=>`<label class="${answers[current]===i?'selected':''}"><input type="radio" name="q${current}" value="${i}" ${answers[current]===i?'checked':''} onchange="selectAnswer(${i})"> ${o}</label>`).join('');
+    app.innerHTML=`<div class="exam-header"><div class="exam-progress"><i class="fa-solid fa-list-ol"></i> Question <strong>${current+1}</strong> / ${TOTAL}</div><div class="exam-timer" id="timer">45:00</div></div><div class="question-card"><h3><span class="q-num">Q${current+1}.</span> ${q.q}</h3><div class="options">${optHtml}</div></div><div class="exam-nav">${current>0?'<button class="btn-exam btn-secondary" onclick="prev()"><i class="fa-solid fa-arrow-left"></i> Précédent</button>':'<div></div>'}${current<TOTAL-1?'<button class="btn-exam btn-primary" onclick="next()">Suivant <i class="fa-solid fa-arrow-right"></i></button>':'<button class="btn-exam btn-primary" onclick="finishExam()"><i class="fa-solid fa-flag-checkered"></i> Terminer</button>'}</div>`;
+    updateTimer();
+}
+
+function selectAnswer(i){answers[current]=i}
+function next(){if(current<TOTAL-1){current++;renderQ()}}
+function prev(){if(current>0){current--;renderQ()}}
+
+function finishExam(){
+    if(examDone)return;examDone=true;clearInterval(timer);
+    let score=0;questions.forEach((q,i)=>{if(answers[i]===q.c)score++});
+    const pct=Math.round(score/TOTAL*100),pass=pct>=PASS;
+    let review=questions.map((q,i)=>{
+        const isCorrect=answers[i]===q.c;
+        let opts=q.o.map((o,j)=>`<label class="${j===q.c?'correct':''}${answers[i]===j&&!isCorrect?' wrong':''}">${o}</label>`).join('');
+        return`<div class="question-card"><h3><span class="q-num">Q${i+1}.</span> ${q.q} ${isCorrect?'✅':'❌'}</h3><div class="options">${opts}</div></div>`;
+    }).join('');
+    app.innerHTML=`<div class="result-box"><div class="result-score">${pct}%</div><div class="result-label" style="color:${pass?'#10b981':'#ef4444'}">${pass?'✅ RÉUSSI':'❌ ÉCHOUÉ'}</div><p class="result-detail">${score} / ${TOTAL} bonnes réponses | Seuil : ${PASS}%</p><div style="margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap"><button class="btn-exam btn-primary" onclick="startExam()"><i class="fa-solid fa-rotate-left"></i> Recommencer</button><button class="btn-exam btn-secondary" onclick="document.getElementById('review').style.display='block'"><i class="fa-solid fa-eye"></i> Voir corrections</button></div></div><div id="review" style="display:none;margin-top:2rem">${review}</div>`;
+}
+
+startScreen();
+    </script>
+</body>
+</html>

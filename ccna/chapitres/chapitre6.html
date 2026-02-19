@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 6 — Routage Statique | RD CCNA</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <div class="reading-progress" id="reading-progress"></div>
+    <nav class="glass-nav"><div class="nav-inner">
+        <a href="../index.html" class="nav-logo"><i class="fa-solid fa-network-wired"></i> RD CCNA</a>
+        <ul class="nav-links">
+            <li><a href="chapitre1.html">Fondamentaux</a></li><li><a href="chapitre2.html">IPv4</a></li><li><a href="chapitre3.html">Protocoles</a></li>
+            <li><a href="chapitre4.html">Switching</a></li><li><a href="chapitre5.html">CLI IOS</a></li><li><a href="chapitre6.html" class="active">Routage</a></li>
+            <li><a href="chapitre7.html">VLANs</a></li><li><a href="chapitre8.html">ROAS</a></li><li><a href="formules.html">CheatSheet</a></li>
+        </ul>
+        <div class="nav-actions"><button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button><button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button></div>
+    </div></nav>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <div class="mobile-nav-header"><span><i class="fa-solid fa-network-wired"></i> Menu</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a>
+        <a href="chapitre1.html"><i class="fa-solid fa-layer-group"></i> 1. Fondamentaux</a><a href="chapitre2.html"><i class="fa-solid fa-calculator"></i> 2. IPv4</a>
+        <a href="chapitre3.html"><i class="fa-solid fa-satellite-dish"></i> 3. Protocoles</a><a href="chapitre4.html"><i class="fa-solid fa-ethernet"></i> 4. Switching</a>
+        <a href="chapitre5.html"><i class="fa-solid fa-terminal"></i> 5. CLI IOS</a><a href="chapitre6.html" class="active"><i class="fa-solid fa-route"></i> 6. Routage</a>
+        <a href="chapitre7.html"><i class="fa-solid fa-tags"></i> 7. VLANs</a><a href="chapitre8.html"><i class="fa-solid fa-diagram-project"></i> 8. ROAS</a>
+        <hr style="border-color:var(--glass-border);margin:.8rem 0">
+        <a href="formules.html"><i class="fa-solid fa-scroll"></i> CheatSheet</a><a href="cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a>
+        <a href="simulateur-examen.html"><i class="fa-solid fa-award"></i> Simulateur</a><a href="../exercices/exercices.html"><i class="fa-solid fa-dumbbell"></i> Exercices</a>
+    </div>
+
+    <main id="main-content">
+        <div class="hero-section">
+            <div class="hero-badge"><i class="fa-solid fa-route"></i> Module 6</div>
+            <h1>Routage <span class="highlight">Statique</span></h1>
+            <p>Table de routage, routes statiques, passerelle par défaut, route de dernier recours, dépannage réseau multi-routeur.</p>
+        </div>
+        <div class="content-wrapper">
+
+            <!-- Rôle du routeur -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-shuffle"></i> Rôle du Routeur</h2>
+                <p>Le routeur opère à la <strong>couche 3 (Réseau)</strong> et prend des décisions de transfert basées sur l'<strong>adresse IP destination</strong>.</p>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-brain"></i> Caractéristiques clés</h4>
+                    <ul style="padding-left:1.5rem;line-height:2.2">
+                        <li>Chaque <strong>interface</strong> du routeur = un <strong>réseau différent</strong></li>
+                        <li>Le routeur <strong>sépare</strong> les domaines de broadcast</li>
+                        <li>Le routeur consulte sa <strong>table de routage</strong> pour transférer les paquets</li>
+                        <li>Si aucune route ne correspond → le paquet est <strong>dropped</strong></li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Table de routage -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-table"></i> La Table de Routage</h2>
+                <p>La table de routage contient les <strong>réseaux connus</strong> et comment les atteindre :</p>
+                <div class="code-block">
+<span class="prompt">R1#</span> show ip route
+<span class="comment">Codes: C - connected, S - static, R - RIP, O - OSPF, D - EIGRP</span>
+
+Gateway of last resort is 10.0.0.2 to network 0.0.0.0
+
+<span class="string">C</span>    192.168.1.0/24 is directly connected, GigabitEthernet0/0
+<span class="string">L</span>    192.168.1.1/32 is directly connected, GigabitEthernet0/0
+<span class="string">C</span>    10.0.0.0/30 is directly connected, Serial0/0/0
+<span class="string">L</span>    10.0.0.1/32 is directly connected, Serial0/0/0
+<span class="string">S</span>    192.168.2.0/24 [1/0] via 10.0.0.2
+<span class="string">S*</span>   0.0.0.0/0 [1/0] via 10.0.0.2
+                </div>
+                <table class="ios-table">
+                    <thead><tr><th>Code</th><th>Type</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>C</strong></td><td>Connected</td><td>Réseau directement connecté à une interface active</td></tr>
+                        <tr><td><strong>L</strong></td><td>Local</td><td>Adresse IP exacte de l'interface locale (/32)</td></tr>
+                        <tr><td><strong>S</strong></td><td>Static</td><td>Route configurée manuellement par l'admin</td></tr>
+                        <tr><td><strong>S*</strong></td><td>Default Static</td><td>Route par défaut (0.0.0.0/0)</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div><strong>[1/0]</strong> = [Distance Administrative / Métrique]. La route statique a une AD de <strong>1</strong>. Plus l'AD est basse, plus la route est <strong>préférée</strong>.</div>
+                </div>
+            </section>
+
+            <!-- Config interface routeur -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-plug"></i> Configuration des Interfaces Routeur</h2>
+                <div class="code-block">
+<span class="comment"># Configurer une interface GigabitEthernet</span>
+<span class="prompt">R1(config)#</span> interface GigabitEthernet0/0
+<span class="prompt">R1(config-if)#</span> ip address <span class="ip">192.168.1.1 255.255.255.0</span>
+<span class="prompt">R1(config-if)#</span> description <span class="string">LAN Réseau 1</span>
+<span class="prompt">R1(config-if)#</span> no shutdown
+<span class="prompt">R1(config-if)#</span> exit
+
+<span class="comment"># Configurer une interface Série (WAN)</span>
+<span class="prompt">R1(config)#</span> interface Serial0/0/0
+<span class="prompt">R1(config-if)#</span> ip address <span class="ip">10.0.0.1 255.255.255.252</span>
+<span class="prompt">R1(config-if)#</span> clock rate <span class="string">128000</span>          <span class="comment"># Côté DCE seulement</span>
+<span class="prompt">R1(config-if)#</span> no shutdown
+<span class="prompt">R1(config-if)#</span> exit
+
+<span class="comment"># Vérification</span>
+<span class="prompt">R1#</span> show ip interface brief
+<span class="comment">Interface         IP-Address      OK? Method Status  Protocol</span>
+<span class="comment">Gi0/0             192.168.1.1     YES manual up      up</span>
+<span class="comment">Se0/0/0           10.0.0.1        YES manual up      up</span>
+                </div>
+            </section>
+
+            <!-- Routes statiques -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-signs-post"></i> Routes Statiques</h2>
+                <p>Une route statique indique au routeur <strong>comment atteindre un réseau distant</strong> :</p>
+                <div class="code-block">
+<span class="comment"># Syntaxe générale</span>
+ip route <span class="ip">{réseau_dest}</span> <span class="ip">{masque}</span> <span class="ip">{next-hop | exit-interface}</span>
+
+<span class="comment"># Via next-hop (IP du routeur voisin) — RECOMMANDÉ</span>
+<span class="prompt">R1(config)#</span> ip route <span class="ip">192.168.2.0 255.255.255.0 10.0.0.2</span>
+
+<span class="comment"># Via interface de sortie</span>
+<span class="prompt">R1(config)#</span> ip route <span class="ip">192.168.2.0 255.255.255.0 Serial0/0/0</span>
+
+<span class="comment"># Route par défaut (passerelle de dernier recours)</span>
+<span class="prompt">R1(config)#</span> ip route <span class="ip">0.0.0.0 0.0.0.0 10.0.0.2</span>
+
+<span class="comment"># Supprimer une route</span>
+<span class="prompt">R1(config)#</span> no ip route <span class="ip">192.168.2.0 255.255.255.0 10.0.0.2</span>
+                </div>
+                <div class="tip-box">
+                    <i class="fa-solid fa-brain"></i>
+                    <div><strong>Route par défaut 0.0.0.0/0</strong> = "Si tu ne sais pas où envoyer le paquet, envoie-le vers cette adresse." C'est la <strong>Gateway of Last Resort</strong>.</div>
+                </div>
+            </section>
+
+            <!-- Labo Complet -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-flask"></i> Labo — Routage entre 2 réseaux</h2>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-diagram-project"></i> Topologie</h4>
+                    <div class="topology-box">
+           <span class="device">LAN 1</span>                                          <span class="device">LAN 2</span>
+    192.168.1.0/24                                    192.168.2.0/24
+
+  <span class="device">PC1</span> (.10)                                          <span class="device">PC2</span> (.10)
+     │                                                    │
+     │ <span class="interface">Gi0/0</span>                                     <span class="interface">Gi0/0</span> │
+  ┌──┴──────────┐    <span class="ip">10.0.0.0/30</span>    ┌──────────────┴──┐
+  │    <span class="device">R1</span>       ├──── <span class="interface">Se0/0/0</span> ────┤       <span class="device">R2</span>        │
+  │ .1    Gi0/0 │ .1          .2 │ Gi0/0      .1   │
+  └─────────────┘                └──────────────────┘
+
+  <span class="comment">R1 Gi0/0 : 192.168.1.1/24    R2 Gi0/0 : 192.168.2.1/24</span>
+  <span class="comment">R1 Se0/0/0 : 10.0.0.1/30     R2 Se0/0/0 : 10.0.0.2/30</span>
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-list-check"></i> Étapes du labo</h4>
+                    <table class="ios-table">
+                        <thead><tr><th>#</th><th>Appareil</th><th>Action</th><th>Commande</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>R1</td><td>Config Gi0/0</td><td><code>ip addr 192.168.1.1 255.255.255.0</code> → <code>no shut</code></td></tr>
+                            <tr><td>2</td><td>R1</td><td>Config Se0/0/0</td><td><code>ip addr 10.0.0.1 255.255.255.252</code> → <code>clock rate 128000</code> → <code>no shut</code></td></tr>
+                            <tr><td>3</td><td>R2</td><td>Config Gi0/0</td><td><code>ip addr 192.168.2.1 255.255.255.0</code> → <code>no shut</code></td></tr>
+                            <tr><td>4</td><td>R2</td><td>Config Se0/0/0</td><td><code>ip addr 10.0.0.2 255.255.255.252</code> → <code>no shut</code></td></tr>
+                            <tr><td>5</td><td>R1</td><td>Route statique → LAN2</td><td><code>ip route 192.168.2.0 255.255.255.0 10.0.0.2</code></td></tr>
+                            <tr><td>6</td><td>R2</td><td>Route statique → LAN1</td><td><code>ip route 192.168.1.0 255.255.255.0 10.0.0.1</code></td></tr>
+                            <tr><td>7</td><td>PC1</td><td>Test ping vers PC2</td><td><code>ping 192.168.2.10</code> → Reply ✓</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="code-block">
+<span class="comment"># Vérification sur R1</span>
+<span class="prompt">R1#</span> show ip route
+  C   192.168.1.0/24 is directly connected, Gi0/0
+  C   10.0.0.0/30 is directly connected, Se0/0/0
+  <span class="string">S   192.168.2.0/24 [1/0] via 10.0.0.2</span>   <span class="comment">← Route statique OK</span>
+
+<span class="prompt">R1#</span> ping 192.168.2.10
+  <span class="string">!!!!!   ← 5 succès = connectivité OK</span>
+
+<span class="comment"># Diagnostic en cas d'échec</span>
+<span class="prompt">R1#</span> show ip interface brief      <span class="comment"># Interfaces up/up ?</span>
+<span class="prompt">R1#</span> show ip route                <span class="comment"># Route présente ?</span>
+<span class="prompt">R1#</span> ping 10.0.0.2                <span class="comment"># Liaison WAN OK ?</span>
+<span class="prompt">R1#</span> traceroute 192.168.2.10      <span class="comment"># Voir le chemin</span>
+                </div>
+            </section>
+
+            <!-- Dépannage -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-stethoscope"></i> Dépannage Routage</h2>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-check-double"></i> Checklist de dépannage</h4>
+                    <ol style="padding-left:1.5rem;line-height:2.5">
+                        <li>✅ Les interfaces sont-elles <strong>up/up</strong> ? → <code>show ip interface brief</code></li>
+                        <li>✅ Les adresses IP sont-elles <strong>correctes</strong> ? (même réseau pour le lien WAN)</li>
+                        <li>✅ La route statique pointe vers le <strong>bon next-hop</strong> ?</li>
+                        <li>✅ La route de <strong>retour</strong> existe sur le routeur distant ?</li>
+                        <li>✅ Le PC a la bonne <strong>passerelle par défaut</strong> ?</li>
+                        <li>✅ Pas de <strong>shutdown</strong> oublié sur une interface ?</li>
+                    </ol>
+                </div>
+                <div class="warning-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div><strong>Erreur n°1 :</strong> Oublier la route de <strong>retour</strong>. Si R1 sait atteindre LAN2 mais R2 ne sait pas atteindre LAN1, le ping partira mais la réponse n'aura <strong>aucun chemin de retour</strong>.</div>
+                </div>
+            </section>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--glass-border)">
+                <a href="chapitre5.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem"><i class="fa-solid fa-arrow-left"></i> Module 5 — CLI IOS</a>
+                <a href="chapitre7.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem">Module 7 — VLANs <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </main>
+    <div class="xp-bar-container"><span class="xp-level">Débutant</span><div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div><span class="xp-text">0 XP</span></div>
+    <script src="../assets/js/main.js"></script><script src="../assets/js/gamification.js"></script><script src="../assets/js/download.js"></script>
+</body>
+</html>

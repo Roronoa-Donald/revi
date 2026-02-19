@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 7 — VLANs sans Trunking | RD CCNA</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <div class="reading-progress" id="reading-progress"></div>
+    <nav class="glass-nav"><div class="nav-inner">
+        <a href="../index.html" class="nav-logo"><i class="fa-solid fa-network-wired"></i> RD CCNA</a>
+        <ul class="nav-links">
+            <li><a href="chapitre1.html">Fondamentaux</a></li><li><a href="chapitre2.html">IPv4</a></li><li><a href="chapitre3.html">Protocoles</a></li>
+            <li><a href="chapitre4.html">Switching</a></li><li><a href="chapitre5.html">CLI IOS</a></li><li><a href="chapitre6.html">Routage</a></li>
+            <li><a href="chapitre7.html" class="active">VLANs</a></li><li><a href="chapitre8.html">ROAS</a></li><li><a href="formules.html">CheatSheet</a></li>
+        </ul>
+        <div class="nav-actions"><button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button><button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button></div>
+    </div></nav>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <div class="mobile-nav-header"><span><i class="fa-solid fa-network-wired"></i> Menu</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a>
+        <a href="chapitre1.html"><i class="fa-solid fa-layer-group"></i> 1. Fondamentaux</a><a href="chapitre2.html"><i class="fa-solid fa-calculator"></i> 2. IPv4</a>
+        <a href="chapitre3.html"><i class="fa-solid fa-satellite-dish"></i> 3. Protocoles</a><a href="chapitre4.html"><i class="fa-solid fa-ethernet"></i> 4. Switching</a>
+        <a href="chapitre5.html"><i class="fa-solid fa-terminal"></i> 5. CLI IOS</a><a href="chapitre6.html"><i class="fa-solid fa-route"></i> 6. Routage</a>
+        <a href="chapitre7.html" class="active"><i class="fa-solid fa-tags"></i> 7. VLANs</a><a href="chapitre8.html"><i class="fa-solid fa-diagram-project"></i> 8. ROAS</a>
+        <hr style="border-color:var(--glass-border);margin:.8rem 0">
+        <a href="formules.html"><i class="fa-solid fa-scroll"></i> CheatSheet</a><a href="cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a>
+        <a href="simulateur-examen.html"><i class="fa-solid fa-award"></i> Simulateur</a><a href="../exercices/exercices.html"><i class="fa-solid fa-dumbbell"></i> Exercices</a>
+    </div>
+
+    <main id="main-content">
+        <div class="hero-section">
+            <div class="hero-badge"><i class="fa-solid fa-tags"></i> Module 7 — Chapitre Phare</div>
+            <h1>VLANs <span class="highlight">sans Trunking</span></h1>
+            <p>Comprendre, créer, assigner et vérifier des VLANs sur un switch. Segmentation logique du réseau sans liaison trunk.</p>
+        </div>
+        <div class="content-wrapper">
+
+            <!-- Qu'est-ce qu'un VLAN -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-question-circle"></i> Qu'est-ce qu'un VLAN ?</h2>
+                <p>Un <strong>VLAN (Virtual LAN)</strong> est un réseau local <strong>logique</strong> créé au sein d'un switch. Il permet de segmenter un réseau physique en plusieurs domaines de broadcast <strong>indépendants</strong>, sans avoir besoin de routeurs ou de switches supplémentaires.</p>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-bullseye"></i> Pourquoi utiliser des VLANs ?</h4>
+                    <ul style="padding-left:1.5rem;line-height:2.3">
+                        <li><strong>Sécurité</strong> — Isoler les départements (Comptabilité ne voit pas la R&D)</li>
+                        <li><strong>Performance</strong> — Réduire la taille des domaines de broadcast → moins de trafic inutile</li>
+                        <li><strong>Organisation</strong> — Grouper les utilisateurs par <em>fonction</em>, pas par <em>emplacement physique</em></li>
+                        <li><strong>Flexibilité</strong> — Déplacer un utilisateur dans un autre VLAN sans changer le câblage</li>
+                        <li><strong>Coût</strong> — Un seul switch physique peut remplacer plusieurs switches dédiés</li>
+                    </ul>
+                </div>
+
+                <div class="topology-box">
+  <span class="comment">AVANT les VLANs : 1 switch = 1 seul domaine de broadcast</span>
+
+  ┌─────────────────────────────────────────────────┐
+  │                  <span class="device">SWITCH</span>                          │
+  │  <span class="ip">Tous les ports = même broadcast</span>                 │
+  │  PC1 ←→ PC2 ←→ PC3 ←→ PC4 ←→ PC5 ←→ PC6     │
+  └─────────────────────────────────────────────────┘
+
+  <span class="comment">APRÈS les VLANs : 1 switch = PLUSIEURS domaines de broadcast</span>
+
+  ┌─────────────────────────────────────────────────┐
+  │                  <span class="device">SWITCH</span>                          │
+  │                                                  │
+  │  ┌─<span class="interface">VLAN 10</span>──┐  ┌─<span class="interface">VLAN 20</span>──┐  ┌─<span class="interface">VLAN 30</span>──┐ │
+  │  │ PC1  PC2 │  │ PC3  PC4 │  │ PC5  PC6 │      │
+  │  │ Compta   │  │ R&D      │  │ Direction │      │
+  │  └──────────┘  └──────────┘  └──────────┘      │
+  │  <span class="ip">Broadcast     Broadcast     Broadcast</span>          │
+  │  <span class="ip">isolé ✓       isolé ✓       isolé ✓</span>            │
+  └─────────────────────────────────────────────────┘
+                </div>
+
+                <div class="warning-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div><strong>Important :</strong> Les PCs de VLANs différents <strong>ne peuvent PAS communiquer</strong> entre eux sans un <strong>routeur</strong> (ou du routage inter-VLAN, cf. Module 8). C'est voulu : c'est la segmentation !</div>
+                </div>
+            </section>
+
+            <!-- VLANs par défaut -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-list"></i> VLANs par Défaut sur un Switch Cisco</h2>
+                <table class="ios-table">
+                    <thead><tr><th>VLAN ID</th><th>Nom</th><th>Description</th><th>Supprimable ?</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>1</strong></td><td>default</td><td>VLAN par défaut — tous les ports y sont assignés au départ</td><td>❌ Non</td></tr>
+                        <tr><td><strong>1002</strong></td><td>fddi-default</td><td>Réservé FDDI</td><td>❌ Non</td></tr>
+                        <tr><td><strong>1003</strong></td><td>token-ring-default</td><td>Réservé Token Ring</td><td>❌ Non</td></tr>
+                        <tr><td><strong>1004</strong></td><td>fddinet-default</td><td>Réservé FDDI-Net</td><td>❌ Non</td></tr>
+                        <tr><td><strong>1005</strong></td><td>trnet-default</td><td>Réservé Token Ring Net</td><td>❌ Non</td></tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div>Les VLANs utilisables vont de <strong>2 à 1001</strong> (normal range) ou <strong>1006 à 4094</strong> (extended range, nécessite VTP transparent). En pratique, on utilise 2-1001.</div>
+                </div>
+            </section>
+
+            <!-- Types de ports -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-plug-circle-check"></i> Types de Ports Switch</h2>
+                <table class="ios-table">
+                    <thead><tr><th>Type</th><th>Description</th><th>Usage</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Access</strong></td><td>Appartient à <strong>un seul VLAN</strong>. La trame n'est PAS taggée (802.1Q).</td><td>Connexion de PCs, imprimantes, serveurs</td></tr>
+                        <tr><td><strong>Trunk</strong></td><td>Transporte <strong>plusieurs VLANs</strong>. Les trames sont taggées avec 802.1Q.</td><td>Liaison switch↔switch ou switch↔routeur</td></tr>
+                    </tbody>
+                </table>
+                <div class="tip-box">
+                    <i class="fa-solid fa-brain"></i>
+                    <div><strong>Dans ce chapitre</strong>, on ne configure que des ports <strong>Access</strong>. Le trunking est abordé au <strong>Module 8 (ROAS)</strong>. Un port Access = 1 VLAN = 1 broadcast domain.</div>
+                </div>
+            </section>
+
+            <!-- Création et assignation -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-plus-circle"></i> Créer et Assigner des VLANs</h2>
+
+                <h3>Étape 1 — Créer les VLANs</h3>
+                <div class="code-block">
+<span class="prompt">SW1(config)#</span> vlan <span class="string">10</span>
+<span class="prompt">SW1(config-vlan)#</span> name <span class="string">COMPTABILITE</span>
+<span class="prompt">SW1(config-vlan)#</span> exit
+
+<span class="prompt">SW1(config)#</span> vlan <span class="string">20</span>
+<span class="prompt">SW1(config-vlan)#</span> name <span class="string">INFORMATIQUE</span>
+<span class="prompt">SW1(config-vlan)#</span> exit
+
+<span class="prompt">SW1(config)#</span> vlan <span class="string">30</span>
+<span class="prompt">SW1(config-vlan)#</span> name <span class="string">DIRECTION</span>
+<span class="prompt">SW1(config-vlan)#</span> exit
+                </div>
+
+                <h3>Étape 2 — Assigner les ports aux VLANs</h3>
+                <div class="code-block">
+<span class="comment"># Assigner UN port au VLAN 10</span>
+<span class="prompt">SW1(config)#</span> interface FastEthernet0/1
+<span class="prompt">SW1(config-if)#</span> switchport mode access
+<span class="prompt">SW1(config-if)#</span> switchport access vlan <span class="string">10</span>
+<span class="prompt">SW1(config-if)#</span> exit
+
+<span class="comment"># Assigner une PLAGE de ports au VLAN 20</span>
+<span class="prompt">SW1(config)#</span> interface range FastEthernet0/5 - 10
+<span class="prompt">SW1(config-if-range)#</span> switchport mode access
+<span class="prompt">SW1(config-if-range)#</span> switchport access vlan <span class="string">20</span>
+<span class="prompt">SW1(config-if-range)#</span> exit
+
+<span class="comment"># Assigner les ports 11-15 au VLAN 30</span>
+<span class="prompt">SW1(config)#</span> interface range Fa0/11 - 15
+<span class="prompt">SW1(config-if-range)#</span> switchport mode access
+<span class="prompt">SW1(config-if-range)#</span> switchport access vlan <span class="string">30</span>
+<span class="prompt">SW1(config-if-range)#</span> exit
+                </div>
+
+                <div class="info-box">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div><code>switchport mode access</code> force le port en mode Access (pas de négociation trunk). <code>switchport access vlan X</code> assigne le port au VLAN X.</div>
+                </div>
+            </section>
+
+            <!-- Vérification -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-check-circle"></i> Commandes de Vérification</h2>
+                <div class="code-block">
+<span class="prompt">SW1#</span> show vlan brief
+<span class="comment">VLAN Name                 Status    Ports</span>
+<span class="comment">---- -------------------- --------- -------------------------</span>
+<span class="string">1    default              active    Fa0/16-24, Gi0/1-2</span>
+<span class="string">10   COMPTABILITE         active    Fa0/1-4</span>
+<span class="string">20   INFORMATIQUE         active    Fa0/5-10</span>
+<span class="string">30   DIRECTION            active    Fa0/11-15</span>
+
+<span class="prompt">SW1#</span> show vlan id 10
+<span class="comment"># Détails du VLAN 10 uniquement</span>
+
+<span class="prompt">SW1#</span> show interfaces fa0/1 switchport
+<span class="comment">Name: Fa0/1</span>
+<span class="comment">Switchport: Enabled</span>
+<span class="comment">Administrative Mode: static access</span>
+<span class="comment">Operational Mode: static access</span>
+<span class="comment">Access Mode VLAN: 10 (COMPTABILITE)</span>
+                </div>
+            </section>
+
+            <!-- Suppression -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-trash-can"></i> Supprimer / Modifier un VLAN</h2>
+                <div class="code-block">
+<span class="comment"># Retirer un port de son VLAN (retourne au VLAN 1)</span>
+<span class="prompt">SW1(config)#</span> interface fa0/1
+<span class="prompt">SW1(config-if)#</span> no switchport access vlan
+<span class="prompt">SW1(config-if)#</span> exit
+
+<span class="comment"># Supprimer un VLAN</span>
+<span class="prompt">SW1(config)#</span> no vlan 30
+
+<span class="comment"># ⚠️ Les ports qui étaient dans le VLAN 30 deviennent INACTIFS</span>
+<span class="comment"># Ils apparaîtront dans un VLAN qui n'existe plus → pas de communication</span>
+<span class="comment"># Il faut les réassigner manuellement !</span>
+                </div>
+                <div class="warning-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div><strong>Piège classique :</strong> Supprimer un VLAN <strong>ne déplace pas</strong> automatiquement les ports vers le VLAN 1. Les ports restent assignés au VLAN supprimé et <strong>ne peuvent plus communiquer</strong>. Toujours réassigner les ports avant la suppression.</div>
+                </div>
+            </section>
+
+            <!-- Labo Complet -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-flask"></i> Labo — 3 VLANs sur un Switch</h2>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-diagram-project"></i> Topologie</h4>
+                    <div class="topology-box">
+  <span class="device">PC1</span> (VLAN 10 — Compta)       <span class="device">PC2</span> (VLAN 10 — Compta)
+  IP: 192.168.10.10/24         IP: 192.168.10.20/24
+     │ <span class="interface">Fa0/1</span>                       │ <span class="interface">Fa0/2</span>
+     └────────┐              ┌──────┘
+              │              │
+         ┌────┴──────────────┴──────────────────────┐
+         │                 <span class="device">SW1</span>                        │
+         │                                           │
+         │  VLAN 10: Fa0/1 - Fa0/4  (COMPTABILITE)  │
+         │  VLAN 20: Fa0/5 - Fa0/8  (INFORMATIQUE)  │
+         │  VLAN 30: Fa0/9 - Fa0/12 (DIRECTION)     │
+         └──┬──────────────┬─────────────────────┬───┘
+            │              │                     │
+     <span class="interface">Fa0/5</span> │       <span class="interface">Fa0/6</span> │              <span class="interface">Fa0/9</span> │
+  <span class="device">PC3</span> (VLAN 20)      <span class="device">PC4</span> (VLAN 20)      <span class="device">PC5</span> (VLAN 30)
+  IP: 192.168.20.10    IP: 192.168.20.20    IP: 192.168.30.10
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-list-check"></i> Étapes du labo</h4>
+                    <table class="ios-table">
+                        <thead><tr><th>#</th><th>Action</th><th>Commande</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>Créer VLAN 10</td><td><code>vlan 10</code> → <code>name COMPTABILITE</code></td></tr>
+                            <tr><td>2</td><td>Créer VLAN 20</td><td><code>vlan 20</code> → <code>name INFORMATIQUE</code></td></tr>
+                            <tr><td>3</td><td>Créer VLAN 30</td><td><code>vlan 30</code> → <code>name DIRECTION</code></td></tr>
+                            <tr><td>4</td><td>Assigner Fa0/1-4 à VLAN 10</td><td><code>int range fa0/1 - 4</code> → <code>switchport mode access</code> → <code>switchport access vlan 10</code></td></tr>
+                            <tr><td>5</td><td>Assigner Fa0/5-8 à VLAN 20</td><td><code>int range fa0/5 - 8</code> → <code>switchport mode access</code> → <code>switchport access vlan 20</code></td></tr>
+                            <tr><td>6</td><td>Assigner Fa0/9-12 à VLAN 30</td><td><code>int range fa0/9 - 12</code> → <code>switchport mode access</code> → <code>switchport access vlan 30</code></td></tr>
+                            <tr><td>7</td><td>Vérifier</td><td><code>show vlan brief</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-vial"></i> Tests de connectivité</h4>
+                    <table class="ios-table">
+                        <thead><tr><th>Test</th><th>Depuis</th><th>Vers</th><th>Résultat</th></tr></thead>
+                        <tbody>
+                            <tr><td>Même VLAN</td><td>PC1 (VLAN 10)</td><td>PC2 (VLAN 10)</td><td>✅ <strong>Ping OK</strong> — même VLAN, même broadcast</td></tr>
+                            <tr><td>VLAN différent</td><td>PC1 (VLAN 10)</td><td>PC3 (VLAN 20)</td><td>❌ <strong>Ping FAIL</strong> — VLANs différents, pas de routeur</td></tr>
+                            <tr><td>VLAN différent</td><td>PC3 (VLAN 20)</td><td>PC5 (VLAN 30)</td><td>❌ <strong>Ping FAIL</strong> — VLANs différents</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tip-box">
+                    <i class="fa-solid fa-brain"></i>
+                    <div><strong>C'est normal !</strong> Les VLANs sont conçus pour <strong>isoler</strong>. Pour que VLAN 10 communique avec VLAN 20, il faut du <strong>routage inter-VLAN</strong> → c'est exactement ce qu'on fait au <strong>Module 8 (ROAS)</strong> !</div>
+                </div>
+            </section>
+
+            <!-- Best Practices -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-shield-halved"></i> Bonnes Pratiques VLANs</h2>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-check-double"></i> Règles de sécurité</h4>
+                    <ol style="padding-left:1.5rem;line-height:2.5">
+                        <li>❌ <strong>Ne jamais</strong> utiliser le <strong>VLAN 1</strong> pour le trafic utilisateur (VLAN par défaut = cible d'attaque)</li>
+                        <li>✅ Créer un <strong>VLAN de management</strong> dédié (ex: VLAN 99) pour l'accès SSH au switch</li>
+                        <li>✅ <strong>Désactiver</strong> les ports non utilisés : <code>shutdown</code></li>
+                        <li>✅ Assigner les ports non utilisés à un <strong>VLAN « parking »</strong> (ex: VLAN 999)</li>
+                        <li>✅ Documenter le <strong>plan d'adressage VLAN</strong> (tableau VLAN-ID / Nom / Sous-réseau)</li>
+                    </ol>
+                </div>
+                <div class="code-block">
+<span class="comment"># Sécuriser les ports non utilisés</span>
+<span class="prompt">SW1(config)#</span> vlan 999
+<span class="prompt">SW1(config-vlan)#</span> name PARKING
+<span class="prompt">SW1(config-vlan)#</span> exit
+
+<span class="prompt">SW1(config)#</span> interface range fa0/16 - 24
+<span class="prompt">SW1(config-if-range)#</span> switchport mode access
+<span class="prompt">SW1(config-if-range)#</span> switchport access vlan 999
+<span class="prompt">SW1(config-if-range)#</span> shutdown
+<span class="prompt">SW1(config-if-range)#</span> exit
+                </div>
+            </section>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--glass-border)">
+                <a href="chapitre6.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem"><i class="fa-solid fa-arrow-left"></i> Module 6 — Routage</a>
+                <a href="chapitre8.html" style="color:var(--accent);text-decoration:none;font-weight:700;font-size:.9rem">Module 8 — ROAS <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </main>
+    <div class="xp-bar-container"><span class="xp-level">Débutant</span><div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div><span class="xp-text">0 XP</span></div>
+    <script src="../assets/js/main.js"></script><script src="../assets/js/gamification.js"></script><script src="../assets/js/download.js"></script>
+</body>
+</html>
