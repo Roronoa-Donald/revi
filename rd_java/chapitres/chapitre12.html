@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 12 — Exceptions (try/catch/finally) | RD Java</title>
+    <meta name="description" content="Gestion des erreurs en Java : try, catch, finally, throw, throws, exceptions checked vs unchecked. Exemples détaillés et bonnes pratiques.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <div class="reading-progress" id="reading-progress"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fa-solid fa-mug-hot"></i> RD Java</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="chapitre11.html">← Précédent</a></li>
+                <li><a href="chapitre12.html" class="active">Module 12</a></li>
+                <li><a href="formules.html">Cheat Sheet</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button data-download="pdf" class="download-btn" aria-label="Télécharger en PDF" title="Télécharger PDF"><i class="fa-solid fa-file-pdf"></i></button>
+                <button data-download="txt" class="download-btn" aria-label="Télécharger en TXT" title="Télécharger TXT"><i class="fa-solid fa-file-lines"></i></button>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+                <button class="hamburger-btn" id="hamburger-btn" aria-expanded="false" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav" role="dialog" aria-label="Menu de navigation">
+        <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Fermer le menu"><i class="fa-solid fa-xmark"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fa-solid fa-play"></i> 1. Introduction</a></li>
+            <li><a href="chapitre2.html"><i class="fa-solid fa-database"></i> 2. Variables</a></li>
+            <li><a href="chapitre3.html"><i class="fa-solid fa-display"></i> 3. Affichages</a></li>
+            <li><a href="chapitre4.html"><i class="fa-solid fa-code-branch"></i> 4. Conditions</a></li>
+            <li><a href="chapitre5.html"><i class="fa-solid fa-arrows-spin"></i> 5. Boucles</a></li>
+            <li><a href="chapitre6.html"><i class="fa-solid fa-table-cells"></i> 6. Tableaux</a></li>
+            <li><a href="chapitre7.html"><i class="fa-solid fa-gears"></i> 7. Fonctions</a></li>
+            <li><a href="chapitre8.html"><i class="fa-solid fa-cubes"></i> 8. Classes</a></li>
+            <li><a href="chapitre9.html"><i class="fa-solid fa-lock"></i> 9. Encapsulation</a></li>
+            <li><a href="chapitre10.html"><i class="fa-solid fa-layer-group"></i> 10. Collections</a></li>
+            <li><a href="chapitre11.html"><i class="fa-solid fa-sitemap"></i> 11. Héritage</a></li>
+            <li><a href="chapitre12.html" class="active"><i class="fa-solid fa-shield-halved"></i> 12. Exceptions</a></li>
+            <li><a href="formules.html"><i class="fa-solid fa-file-lines"></i> CheatSheet</a></li>
+            <li><a href="cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a></li>
+            <li><a href="simulateur-examen.html"><i class="fa-solid fa-clipboard-check"></i> Examen</a></li>
+            <li><a href="../exercices/exercices.html"><i class="fa-solid fa-laptop-code"></i> Exercices</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <div class="hero-badge"><i class="fa-solid fa-shield-halved"></i> Module 12</div>
+        <h1 class="hero-title">Exceptions : <span class="gradient-text">try / catch / finally</span></h1>
+        <p class="hero-description">JavaDuke a écrit un super programme... mais il plante dès qu'un utilisateur tape « pizza » au lieu d'un nombre. CaféBot lui dit : « Un bon programme ne plante jamais — il <strong>gère</strong> les erreurs. C'est le rôle des exceptions. »</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+
+        <!-- SECTION 1 : Pourquoi les exceptions ? -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-bomb" style="color:var(--accent)"></i> Quand ça plante — comprendre les exceptions</h2>
+            <p class="analogy-box">Une exception c'est comme un accident sur la route. Sans gestion, le trafic est bloqué (le programme crashe). Avec un plan de déviation (<code>try/catch</code>), tu contournes le problème et le trafic continue.</p>
+
+            <pre class="code-block"><span class="comment">// Sans gestion d'erreur — le programme CRASHE</span>
+<span class="type">int</span>[] <span class="var">tab</span> = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>};
+<span class="type">System</span>.out.<span class="method">println</span>(<span class="var">tab</span>[<span class="num">10</span>]);  <span class="comment">// 💥 ArrayIndexOutOfBoundsException</span>
+
+<span class="type">String</span> <span class="var">texte</span> = <span class="keyword">null</span>;
+<span class="type">System</span>.out.<span class="method">println</span>(<span class="var">texte</span>.<span class="method">length</span>());  <span class="comment">// 💥 NullPointerException</span>
+
+<span class="type">int</span> <span class="var">n</span> = <span class="type">Integer</span>.<span class="method">parseInt</span>(<span class="string">"pizza"</span>);  <span class="comment">// 💥 NumberFormatException</span>
+
+<span class="type">int</span> <span class="var">r</span> = <span class="num">10</span> / <span class="num">0</span>;  <span class="comment">// 💥 ArithmeticException</span></pre>
+
+            <div class="output-block" style="border-left-color:#ef4444;"><strong>💥 Résultat sans try/catch :</strong>
+Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 10 out of bounds for length 3
+    at Main.main(Main.java:3)
+⚠️ Le programme s'arrête immédiatement. Rien après cette ligne ne s'exécute.</div>
+
+            <table class="styled-table">
+                <thead><tr><th>Exception</th><th>Cause</th><th>Fréquence</th></tr></thead>
+                <tbody>
+                    <tr><td><code>NullPointerException</code></td><td>Appel de méthode sur <code>null</code></td><td>⭐⭐⭐⭐⭐ #1</td></tr>
+                    <tr><td><code>ArrayIndexOutOfBoundsException</code></td><td>Index hors limites</td><td>⭐⭐⭐⭐</td></tr>
+                    <tr><td><code>NumberFormatException</code></td><td>Conversion texte → nombre invalide</td><td>⭐⭐⭐⭐</td></tr>
+                    <tr><td><code>ArithmeticException</code></td><td>Division par zéro (entiers)</td><td>⭐⭐⭐</td></tr>
+                    <tr><td><code>ClassCastException</code></td><td>Mauvais downcasting</td><td>⭐⭐</td></tr>
+                    <tr><td><code>StackOverflowError</code></td><td>Récursion infinie</td><td>⭐⭐</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <!-- SECTION 2 : try / catch -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-shield-halved" style="color:var(--accent)"></i> try / catch — attraper les erreurs</h2>
+            <p>Le bloc <code>try</code> contient le code risqué. Le bloc <code>catch</code> contient le plan B si une erreur survient. Le programme <strong>ne crashe plus</strong> — il gère l'erreur et continue.</p>
+
+            <pre class="code-block"><span class="keyword">import</span> java.util.<span class="type">Scanner</span>;
+
+<span class="type">Scanner</span> <span class="var">sc</span> = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);
+
+<span class="keyword">try</span> {
+    <span class="type">System</span>.out.<span class="method">print</span>(<span class="string">"Entre un nombre : "</span>);
+    <span class="type">int</span> <span class="var">n</span> = <span class="type">Integer</span>.<span class="method">parseInt</span>(<span class="var">sc</span>.<span class="method">nextLine</span>());
+    <span class="type">int</span> <span class="var">resultat</span> = <span class="num">100</span> / <span class="var">n</span>;
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"100 / "</span> + <span class="var">n</span> + <span class="string">" = "</span> + <span class="var">resultat</span>);
+} <span class="keyword">catch</span> (<span class="type">NumberFormatException</span> <span class="var">e</span>) {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"❌ Ce n'est pas un nombre valide !"</span>);
+} <span class="keyword">catch</span> (<span class="type">ArithmeticException</span> <span class="var">e</span>) {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"❌ Division par zéro impossible !"</span>);
+}
+
+<span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"✅ Le programme continue normalement."</span>);</pre>
+
+            <div class="output-block"><strong>Sortie (si l'utilisateur tape "pizza") :</strong>
+Entre un nombre : pizza
+❌ Ce n'est pas un nombre valide !
+✅ Le programme continue normalement.</div>
+
+            <div class="output-block"><strong>Sortie (si l'utilisateur tape "0") :</strong>
+Entre un nombre : 0
+❌ Division par zéro impossible !
+✅ Le programme continue normalement.</div>
+
+            <div class="info-box">
+                <strong>💡 Ordre des catch :</strong> Mets les exceptions les plus <strong>spécifiques en premier</strong>. Si tu mets <code>catch (Exception e)</code> en premier, il attrape tout et les catch suivants deviennent inaccessibles (erreur de compilation).
+            </div>
+
+            <pre class="code-block"><span class="comment">// Catch multiple (Java 7+) — un seul catch pour plusieurs types</span>
+<span class="keyword">try</span> {
+    <span class="comment">// code risqué...</span>
+} <span class="keyword">catch</span> (<span class="type">NumberFormatException</span> | <span class="type">ArithmeticException</span> <span class="var">e</span>) {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"Erreur : "</span> + <span class="var">e</span>.<span class="method">getMessage</span>());
+}
+
+<span class="comment">// Catch générique — attrape TOUTES les exceptions</span>
+<span class="keyword">try</span> {
+    <span class="comment">// code risqué...</span>
+} <span class="keyword">catch</span> (<span class="type">Exception</span> <span class="var">e</span>) {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"Erreur inattendue : "</span> + <span class="var">e</span>.<span class="method">getMessage</span>());
+    <span class="var">e</span>.<span class="method">printStackTrace</span>();  <span class="comment">// Affiche la trace complète (pour debug)</span>
+}</pre>
+
+            <div class="warning-box">
+                <strong>⚠️ MAUVAISE PRATIQUE :</strong> Un <code>catch</code> vide <code>catch (Exception e) { }</code> est le pire anti-pattern en Java. Tu masques l'erreur silencieusement, le bug devient invisible et indétectable. Au minimum, log le message d'erreur.
+            </div>
+        </article>
+
+        <!-- SECTION 3 : finally -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-flag-checkered" style="color:var(--accent)"></i> finally — le code qui s'exécute TOUJOURS</h2>
+            <p class="analogy-box">Pense au <code>finally</code> comme l'acte de « ranger sa chambre en partant ». Que tu aies réussi ton code (try) ou qu'une erreur ait eu lieu (catch), le <code>finally</code> s'exécute <strong>dans tous les cas</strong>. Parfait pour fermer des ressources (fichiers, connexions, Scanner).</p>
+
+            <pre class="code-block"><span class="type">Scanner</span> <span class="var">sc</span> = <span class="keyword">null</span>;
+<span class="keyword">try</span> {
+    <span class="var">sc</span> = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in);
+    <span class="type">System</span>.out.<span class="method">print</span>(<span class="string">"Ton âge : "</span>);
+    <span class="type">int</span> <span class="var">age</span> = <span class="type">Integer</span>.<span class="method">parseInt</span>(<span class="var">sc</span>.<span class="method">nextLine</span>());
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"Tu as "</span> + <span class="var">age</span> + <span class="string">" ans."</span>);
+} <span class="keyword">catch</span> (<span class="type">NumberFormatException</span> <span class="var">e</span>) {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"❌ Âge invalide !"</span>);
+} <span class="keyword">finally</span> {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"🔒 Nettoyage effectué (finally toujours exécuté)"</span>);
+    <span class="keyword">if</span> (<span class="var">sc</span> != <span class="keyword">null</span>) <span class="var">sc</span>.<span class="method">close</span>();
+}</pre>
+
+            <div class="output-block"><strong>Sortie (saisie invalide) :</strong>
+Ton âge : abc
+❌ Âge invalide !
+🔒 Nettoyage effectué (finally toujours exécuté)</div>
+
+            <div class="info-box">
+                <strong>💡 try-with-resources (Java 7+) :</strong> Pour les ressources qui implémentent <code>AutoCloseable</code> (Scanner, BufferedReader, FileWriter…), utilise cette syntaxe plus propre — le <code>close()</code> est automatique :
+            </div>
+
+            <pre class="code-block"><span class="comment">// try-with-resources — close() automatique !</span>
+<span class="keyword">try</span> (<span class="type">Scanner</span> <span class="var">sc</span> = <span class="keyword">new</span> <span class="type">Scanner</span>(System.in)) {
+    <span class="type">System</span>.out.<span class="method">print</span>(<span class="string">"Nombre : "</span>);
+    <span class="type">int</span> <span class="var">n</span> = <span class="var">sc</span>.<span class="method">nextInt</span>();
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"Double : "</span> + <span class="var">n</span> * <span class="num">2</span>);
+} <span class="keyword">catch</span> (<span class="type">Exception</span> <span class="var">e</span>) {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"Erreur : "</span> + <span class="var">e</span>.<span class="method">getMessage</span>());
+}
+<span class="comment">// sc est automatiquement fermé à la fin du try, même en cas d'exception</span></pre>
+        </article>
+
+        <!-- SECTION 4 : throw et throws -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-bullhorn" style="color:var(--accent)"></i> throw & throws — lancer et déclarer des exceptions</h2>
+            <p><code>throw</code> lance une exception manuellement. <code>throws</code> dans la signature d'une méthode déclare qu'elle peut lancer une exception — l'appelant devra la gérer.</p>
+
+            <pre class="code-block"><span class="comment">// throw — lancer manuellement une exception</span>
+<span class="keyword">public static void</span> <span class="method">setAge</span>(<span class="type">int</span> <span class="var">age</span>) {
+    <span class="keyword">if</span> (<span class="var">age</span> &lt; <span class="num">0</span> || <span class="var">age</span> &gt; <span class="num">150</span>) {
+        <span class="keyword">throw new</span> <span class="type">IllegalArgumentException</span>(<span class="string">"Âge invalide : "</span> + <span class="var">age</span>);
+    }
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"Âge défini à "</span> + <span class="var">age</span>);
+}
+
+<span class="comment">// Appel</span>
+<span class="keyword">try</span> {
+    <span class="method">setAge</span>(<span class="num">-5</span>);
+} <span class="keyword">catch</span> (<span class="type">IllegalArgumentException</span> <span class="var">e</span>) {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"Erreur : "</span> + <span class="var">e</span>.<span class="method">getMessage</span>());
+}</pre>
+
+            <div class="output-block"><strong>Sortie :</strong>
+Erreur : Âge invalide : -5</div>
+
+            <pre class="code-block"><span class="comment">// throws — déclarer les exceptions possibles dans la signature</span>
+<span class="keyword">public static</span> <span class="type">int</span> <span class="method">lireFichier</span>(<span class="type">String</span> <span class="var">chemin</span>) <span class="keyword">throws</span> <span class="type">IOException</span> {
+    <span class="type">BufferedReader</span> <span class="var">reader</span> = <span class="keyword">new</span> <span class="type">BufferedReader</span>(<span class="keyword">new</span> <span class="type">FileReader</span>(<span class="var">chemin</span>));
+    <span class="type">String</span> <span class="var">ligne</span> = <span class="var">reader</span>.<span class="method">readLine</span>();
+    <span class="var">reader</span>.<span class="method">close</span>();
+    <span class="keyword">return</span> <span class="type">Integer</span>.<span class="method">parseInt</span>(<span class="var">ligne</span>);
+}
+
+<span class="comment">// L'appelant DOIT gérer l'exception</span>
+<span class="keyword">try</span> {
+    <span class="type">int</span> <span class="var">val</span> = <span class="method">lireFichier</span>(<span class="string">"data.txt"</span>);
+} <span class="keyword">catch</span> (<span class="type">IOException</span> <span class="var">e</span>) {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"Fichier introuvable !"</span>);
+}</pre>
+
+            <table class="styled-table">
+                <thead><tr><th></th><th><code>throw</code></th><th><code>throws</code></th></tr></thead>
+                <tbody>
+                    <tr><td>Rôle</td><td>Lance une exception</td><td>Déclare dans la signature</td></tr>
+                    <tr><td>Où ?</td><td>Dans le corps de la méthode</td><td>Après les parenthèses</td></tr>
+                    <tr><td>Quoi ?</td><td>Un objet exception</td><td>Un ou plusieurs types</td></tr>
+                    <tr><td>Exemple</td><td><code>throw new Ex("msg")</code></td><td><code>void m() throws Ex</code></td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <!-- SECTION 5 : Checked vs Unchecked -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-scale-balanced" style="color:var(--accent)"></i> Checked vs Unchecked — les deux familles</h2>
+            <p class="analogy-box">Les exceptions <strong>checked</strong> sont comme des accidents prévisibles — le compilateur t'oblige à prévoir un plan. Les <strong>unchecked</strong> sont des bugs de programmation — des erreurs que tu aurais dû éviter dans ton code.</p>
+
+            <table class="styled-table">
+                <thead><tr><th></th><th>Checked (vérifiées)</th><th>Unchecked (non vérifiées)</th></tr></thead>
+                <tbody>
+                    <tr><td>Héritage</td><td>↳ <code>Exception</code></td><td>↳ <code>RuntimeException</code></td></tr>
+                    <tr><td>Compilation</td><td>try/catch OBLIGATOIRE</td><td>try/catch optionnel</td></tr>
+                    <tr><td>Exemples</td><td><code>IOException</code>, <code>SQLException</code>, <code>FileNotFoundException</code></td><td><code>NullPointerException</code>, <code>NumberFormatException</code>, <code>ArrayIndexOutOfBoundsException</code></td></tr>
+                    <tr><td>Origine</td><td>Problème externe (fichier, réseau)</td><td>Bug dans ton code</td></tr>
+                    <tr><td>Bonne pratique</td><td>Toujours gérer</td><td>Corriger le code plutôt que catch</td></tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <strong>💡 Hiérarchie des exceptions :</strong><br>
+                <code>Throwable</code> → <code>Error</code> (ne pas attraper) + <code>Exception</code><br>
+                <code>Exception</code> → Checked (IOException, etc.) + <code>RuntimeException</code> → Unchecked (NPE, etc.)
+            </div>
+        </article>
+
+        <!-- SECTION 6 : Exceptions personnalisées et bonnes pratiques -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent)"></i> Exceptions personnalisées & bonnes pratiques</h2>
+
+            <pre class="code-block"><span class="comment">// Exception personnalisée</span>
+<span class="keyword">public class</span> <span class="type">SoldeInsuffisantException</span> <span class="keyword">extends</span> <span class="type">Exception</span> {
+    <span class="keyword">private</span> <span class="type">double</span> <span class="var">montant</span>;
+
+    <span class="keyword">public</span> <span class="method">SoldeInsuffisantException</span>(<span class="type">double</span> <span class="var">montant</span>) {
+        <span class="keyword">super</span>(<span class="string">"Solde insuffisant pour retirer "</span> + <span class="var">montant</span> + <span class="string">" €"</span>);
+        <span class="keyword">this</span>.<span class="var">montant</span> = <span class="var">montant</span>;
+    }
+
+    <span class="keyword">public</span> <span class="type">double</span> <span class="method">getMontant</span>() { <span class="keyword">return</span> <span class="var">montant</span>; }
+}
+
+<span class="comment">// Utilisation dans une classe CompteBancaire</span>
+<span class="keyword">public void</span> <span class="method">retirer</span>(<span class="type">double</span> <span class="var">montant</span>) <span class="keyword">throws</span> <span class="type">SoldeInsuffisantException</span> {
+    <span class="keyword">if</span> (<span class="var">montant</span> &gt; <span class="var">solde</span>) {
+        <span class="keyword">throw new</span> <span class="type">SoldeInsuffisantException</span>(<span class="var">montant</span>);
+    }
+    <span class="var">solde</span> -= <span class="var">montant</span>;
+}
+
+<span class="comment">// Appel</span>
+<span class="keyword">try</span> {
+    <span class="var">compte</span>.<span class="method">retirer</span>(<span class="num">5000</span>);
+} <span class="keyword">catch</span> (<span class="type">SoldeInsuffisantException</span> <span class="var">e</span>) {
+    <span class="type">System</span>.out.<span class="method">println</span>(<span class="var">e</span>.<span class="method">getMessage</span>());
+}</pre>
+
+            <div class="output-block"><strong>Sortie :</strong>
+Solde insuffisant pour retirer 5000.0 €</div>
+
+            <div class="success-box">
+                <strong>✅ Bonnes pratiques — la checklist de CaféBot :</strong><br>
+                1. <strong>Ne catch JAMAIS</strong> un <code>catch (Exception e) { }</code> vide<br>
+                2. <strong>Catch spécifique d'abord</strong>, générique ensuite<br>
+                3. Utilise <strong>try-with-resources</strong> pour les fichiers/Scanner<br>
+                4. <strong>Préfère corriger</strong> plutôt que catch les unchecked<br>
+                5. <strong>Crée tes propres exceptions</strong> pour des erreurs métier<br>
+                6. <strong>finally</strong> ou try-with-resources pour libérer les ressources<br>
+                7. Log ou affiche <code>e.getMessage()</code>, jamais un catch silencieux
+            </div>
+
+            <div class="success-box">
+                <strong>🎉 Bravo !</strong> Tu as terminé les 12 modules du cours RD Java. Tu maîtrises maintenant la syntaxe, la POO, les collections, l'héritage et la gestion d'erreurs. Teste-toi avec les flashcards, la cheat sheet et le simulateur d'examen !
+            </div>
+        </article>
+
+        <div id="interactive-exercises"></div>
+    </main>
+
+    <div class="chapter-nav">
+        <a href="chapitre11.html">← Module 11</a>
+        <a href="../index.html">Accueil ↗</a>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-logo">☕ RD Java</div>
+        <a href="../../index.html" style="display:inline-block;margin-bottom:0.5rem;color:var(--accent);text-decoration:none;font-size:0.9rem;"><i class="fas fa-th-large"></i> Portail des Cours</a>
+        <p class="footer-copy">© 2025-2026 RD Interactive</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

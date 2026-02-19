@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 11 — Héritage & Polymorphisme | RD Java</title>
+    <meta name="description" content="Héritage, extends, super, polymorphisme, classes abstraites et interfaces en Java. Exemples détaillés et exercices interactifs.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <div class="reading-progress" id="reading-progress"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fa-solid fa-mug-hot"></i> RD Java</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="chapitre10.html">← Précédent</a></li>
+                <li><a href="chapitre11.html" class="active">Module 11</a></li>
+                <li><a href="chapitre12.html">Suivant →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button data-download="pdf" class="download-btn" aria-label="Télécharger en PDF" title="Télécharger PDF"><i class="fa-solid fa-file-pdf"></i></button>
+                <button data-download="txt" class="download-btn" aria-label="Télécharger en TXT" title="Télécharger TXT"><i class="fa-solid fa-file-lines"></i></button>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+                <button class="hamburger-btn" id="hamburger-btn" aria-expanded="false" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav" role="dialog" aria-label="Menu de navigation">
+        <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Fermer le menu"><i class="fa-solid fa-xmark"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fa-solid fa-play"></i> 1. Introduction</a></li>
+            <li><a href="chapitre2.html"><i class="fa-solid fa-database"></i> 2. Variables</a></li>
+            <li><a href="chapitre3.html"><i class="fa-solid fa-display"></i> 3. Affichages</a></li>
+            <li><a href="chapitre4.html"><i class="fa-solid fa-code-branch"></i> 4. Conditions</a></li>
+            <li><a href="chapitre5.html"><i class="fa-solid fa-arrows-spin"></i> 5. Boucles</a></li>
+            <li><a href="chapitre6.html"><i class="fa-solid fa-table-cells"></i> 6. Tableaux</a></li>
+            <li><a href="chapitre7.html"><i class="fa-solid fa-gears"></i> 7. Fonctions</a></li>
+            <li><a href="chapitre8.html"><i class="fa-solid fa-cubes"></i> 8. Classes</a></li>
+            <li><a href="chapitre9.html"><i class="fa-solid fa-lock"></i> 9. Encapsulation</a></li>
+            <li><a href="chapitre10.html"><i class="fa-solid fa-layer-group"></i> 10. Collections</a></li>
+            <li><a href="chapitre11.html" class="active"><i class="fa-solid fa-sitemap"></i> 11. Héritage</a></li>
+            <li><a href="chapitre12.html"><i class="fa-solid fa-shield-halved"></i> 12. Exceptions</a></li>
+            <li><a href="formules.html"><i class="fa-solid fa-file-lines"></i> CheatSheet</a></li>
+            <li><a href="cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a></li>
+            <li><a href="simulateur-examen.html"><i class="fa-solid fa-clipboard-check"></i> Examen</a></li>
+            <li><a href="../exercices/exercices.html"><i class="fa-solid fa-laptop-code"></i> Exercices</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <div class="hero-badge"><i class="fa-solid fa-sitemap"></i> Module 11</div>
+        <h1 class="hero-title">Héritage & <span class="gradient-text">Polymorphisme</span></h1>
+        <p class="hero-description">JavaDuke a créé ses premières classes. Mais il doit maintenant modéliser un zoo avec des dizaines d'animaux différents. Son mentor CaféBot lui dit : « Un Chien <strong>est un</strong> Animal. Un Chat <strong>est un</strong> Animal. L'héritage, c'est cette relation IS-A — construire des classes enfants à partir d'un parent commun. »</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
+
+        <!-- SECTION 1 : extends — la base de l'héritage -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-sitemap" style="color:var(--accent)"></i> Le mot-clé extends — créer une hiérarchie</h2>
+            <p class="analogy-box">L'héritage c'est comme un arbre généalogique. Le parent transmet ses gènes (attributs + méthodes) à ses enfants. L'enfant hérite de tout, mais peut aussi développer ses propres caractéristiques. En Java, une classe <strong>extends</strong> une autre pour hériter de tout son contenu.</p>
+
+            <pre class="code-block"><span class="comment">// Classe parent (superclasse)</span>
+<span class="keyword">public class</span> <span class="type">Animal</span> {
+    <span class="keyword">protected</span> <span class="type">String</span> <span class="var">nom</span>;
+    <span class="keyword">protected</span> <span class="type">int</span> <span class="var">age</span>;
+
+    <span class="keyword">public</span> <span class="method">Animal</span>(<span class="type">String</span> <span class="var">nom</span>, <span class="type">int</span> <span class="var">age</span>) {
+        <span class="keyword">this</span>.<span class="var">nom</span> = <span class="var">nom</span>;
+        <span class="keyword">this</span>.<span class="var">age</span> = <span class="var">age</span>;
+    }
+
+    <span class="keyword">public void</span> <span class="method">manger</span>() {
+        <span class="type">System</span>.out.<span class="method">println</span>(<span class="var">nom</span> + <span class="string">" mange."</span>);
+    }
+
+    <span class="keyword">public void</span> <span class="method">parler</span>() {
+        <span class="type">System</span>.out.<span class="method">println</span>(<span class="var">nom</span> + <span class="string">" fait un bruit."</span>);
+    }
+}
+
+<span class="comment">// Classe enfant (sous-classe) — hérite de Animal</span>
+<span class="keyword">public class</span> <span class="type">Chien</span> <span class="keyword">extends</span> <span class="type">Animal</span> {
+    <span class="keyword">private</span> <span class="type">String</span> <span class="var">race</span>;
+
+    <span class="keyword">public</span> <span class="method">Chien</span>(<span class="type">String</span> <span class="var">nom</span>, <span class="type">int</span> <span class="var">age</span>, <span class="type">String</span> <span class="var">race</span>) {
+        <span class="keyword">super</span>(<span class="var">nom</span>, <span class="var">age</span>);  <span class="comment">// Appelle le constructeur du parent</span>
+        <span class="keyword">this</span>.<span class="var">race</span> = <span class="var">race</span>;
+    }
+
+    <span class="comment">// Méthode propre au Chien</span>
+    <span class="keyword">public void</span> <span class="method">rapporter</span>() {
+        <span class="type">System</span>.out.<span class="method">println</span>(<span class="var">nom</span> + <span class="string">" rapporte la balle !"</span>);
+    }
+}
+
+<span class="comment">// Utilisation</span>
+<span class="type">Chien</span> <span class="var">rex</span> = <span class="keyword">new</span> <span class="type">Chien</span>(<span class="string">"Rex"</span>, <span class="num">3</span>, <span class="string">"Berger"</span>);
+<span class="var">rex</span>.<span class="method">manger</span>();       <span class="comment">// Hérité de Animal</span>
+<span class="var">rex</span>.<span class="method">parler</span>();       <span class="comment">// Hérité de Animal</span>
+<span class="var">rex</span>.<span class="method">rapporter</span>();    <span class="comment">// Propre à Chien</span></pre>
+
+            <div class="output-block"><strong>Sortie :</strong>
+Rex mange.
+Rex fait un bruit.
+Rex rapporte la balle !</div>
+
+            <div class="info-box">
+                <strong>💡 protected vs private :</strong> Un attribut <code>private</code> n'est PAS accessible par les enfants. Utilise <code>protected</code> pour que les sous-classes y accèdent directement, ou garde <code>private</code> avec des getters/setters.
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Java = héritage simple :</strong> Une classe ne peut hériter que d'<strong>une seule</strong> classe parent. Pas d'héritage multiple ! <code>class C extends A, B</code> → Erreur. Pour contourner : utilise les <strong>interfaces</strong> (voir plus bas).
+            </div>
+        </article>
+
+        <!-- SECTION 2 : super — communiquer avec le parent -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-arrow-up" style="color:var(--accent)"></i> super — communiquer avec le parent</h2>
+            <p>Le mot-clé <code>super</code> permet d'accéder au constructeur et aux méthodes de la classe parent. C'est comme appeler ses parents quand on a besoin de leur aide.</p>
+
+            <pre class="code-block"><span class="keyword">public class</span> <span class="type">Chat</span> <span class="keyword">extends</span> <span class="type">Animal</span> {
+    <span class="keyword">private</span> <span class="type">boolean</span> <span class="var">estInterieur</span>;
+
+    <span class="keyword">public</span> <span class="method">Chat</span>(<span class="type">String</span> <span class="var">nom</span>, <span class="type">int</span> <span class="var">age</span>, <span class="type">boolean</span> <span class="var">estInterieur</span>) {
+        <span class="keyword">super</span>(<span class="var">nom</span>, <span class="var">age</span>);  <span class="comment">// OBLIGATOIRE en 1ère ligne !</span>
+        <span class="keyword">this</span>.<span class="var">estInterieur</span> = <span class="var">estInterieur</span>;
+    }
+
+    <span class="comment">// On peut aussi appeler super.methode()</span>
+    <span class="keyword">public void</span> <span class="method">afficherInfos</span>() {
+        <span class="keyword">super</span>.<span class="method">manger</span>();  <span class="comment">// Appelle manger() du parent</span>
+        <span class="type">System</span>.out.<span class="method">println</span>(<span class="string">"Type : "</span> + (<span class="var">estInterieur</span> ? <span class="string">"d'intérieur"</span> : <span class="string">"d'extérieur"</span>));
+    }
+}</pre>
+
+            <div class="warning-box">
+                <strong>⚠️ Règle d'or :</strong> <code>super()</code> doit toujours être la <strong>première instruction</strong> du constructeur enfant. Si le parent n'a pas de constructeur sans paramètres, tu es <strong>obligé</strong> d'appeler <code>super(params)</code> explicitement — sinon erreur de compilation.
+            </div>
+        </article>
+
+        <!-- SECTION 3 : @Override — redéfinir une méthode -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-pen" style="color:var(--accent)"></i> @Override — redéfinir une méthode parent</h2>
+            <p class="analogy-box">Ton parent t'a appris à cuisiner des pâtes. Mais toi, tu ajoutes ta propre sauce spéciale. C'est ça <code>@Override</code> : tu gardes le nom de la recette, mais tu changes la méthode. L'enfant hérite de la compétence, mais la personnalise.</p>
+
+            <pre class="code-block"><span class="keyword">public class</span> <span class="type">Chien</span> <span class="keyword">extends</span> <span class="type">Animal</span> {
+    <span class="comment">// ... constructeur ...</span>
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public void</span> <span class="method">parler</span>() {
+        <span class="type">System</span>.out.<span class="method">println</span>(<span class="var">nom</span> + <span class="string">" aboie : Woof ! 🐕"</span>);
+    }
+}
+
+<span class="keyword">public class</span> <span class="type">Chat</span> <span class="keyword">extends</span> <span class="type">Animal</span> {
+    <span class="comment">// ... constructeur ...</span>
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public void</span> <span class="method">parler</span>() {
+        <span class="type">System</span>.out.<span class="method">println</span>(<span class="var">nom</span> + <span class="string">" miaule : Miaou ! 🐱"</span>);
+    }
+}
+
+<span class="comment">// Test</span>
+<span class="type">Animal</span> <span class="var">a1</span> = <span class="keyword">new</span> <span class="type">Chien</span>(<span class="string">"Rex"</span>, <span class="num">3</span>, <span class="string">"Berger"</span>);
+<span class="type">Animal</span> <span class="var">a2</span> = <span class="keyword">new</span> <span class="type">Chat</span>(<span class="string">"Mimi"</span>, <span class="num">2</span>, <span class="keyword">true</span>);
+<span class="var">a1</span>.<span class="method">parler</span>();   <span class="comment">// Appelle la version Chien</span>
+<span class="var">a2</span>.<span class="method">parler</span>();   <span class="comment">// Appelle la version Chat</span></pre>
+
+            <div class="output-block"><strong>Sortie :</strong>
+Rex aboie : Woof ! 🐕
+Mimi miaule : Miaou ! 🐱</div>
+
+            <div class="info-box">
+                <strong>💡 Pourquoi @Override ?</strong> L'annotation n'est pas obligatoire mais <strong>fortement recommandée</strong>. Elle permet au compilateur de vérifier que tu redéfinis bien une méthode existante du parent. Si tu fais une faute de frappe dans le nom, le compilateur te prévient au lieu de créer une nouvelle méthode.
+            </div>
+        </article>
+
+        <!-- SECTION 4 : Polymorphisme -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-shapes" style="color:var(--accent)"></i> Polymorphisme — un même appel, des comportements différents</h2>
+            <p class="analogy-box">Imagine un bouton « Play » sur une télécommande. Tu appuies dessus devant une TV → elle diffuse une émission. Devant un lecteur CD → il joue de la musique. Même bouton, même action, mais résultat différent selon l'appareil. C'est ça le <strong>polymorphisme</strong>.</p>
+
+            <pre class="code-block"><span class="comment">// Un tableau d'Animal peut contenir des Chien, Chat, etc.</span>
+<span class="type">Animal</span>[] <span class="var">zoo</span> = <span class="keyword">new</span> <span class="type">Animal</span>[<span class="num">4</span>];
+<span class="var">zoo</span>[<span class="num">0</span>] = <span class="keyword">new</span> <span class="type">Chien</span>(<span class="string">"Rex"</span>, <span class="num">3</span>, <span class="string">"Berger"</span>);
+<span class="var">zoo</span>[<span class="num">1</span>] = <span class="keyword">new</span> <span class="type">Chat</span>(<span class="string">"Mimi"</span>, <span class="num">2</span>, <span class="keyword">true</span>);
+<span class="var">zoo</span>[<span class="num">2</span>] = <span class="keyword">new</span> <span class="type">Chien</span>(<span class="string">"Buddy"</span>, <span class="num">5</span>, <span class="string">"Labrador"</span>);
+<span class="var">zoo</span>[<span class="num">3</span>] = <span class="keyword">new</span> <span class="type">Chat</span>(<span class="string">"Félix"</span>, <span class="num">1</span>, <span class="keyword">false</span>);
+
+<span class="comment">// Polymorphisme : même méthode, comportement différent</span>
+<span class="keyword">for</span> (<span class="type">Animal</span> <span class="var">animal</span> : <span class="var">zoo</span>) {
+    <span class="var">animal</span>.<span class="method">parler</span>();  <span class="comment">// Java choisit la bonne version automatiquement</span>
+}
+
+<span class="comment">// instanceof — vérifier le type réel</span>
+<span class="keyword">for</span> (<span class="type">Animal</span> <span class="var">animal</span> : <span class="var">zoo</span>) {
+    <span class="keyword">if</span> (<span class="var">animal</span> <span class="keyword">instanceof</span> <span class="type">Chien</span>) {
+        <span class="type">Chien</span> <span class="var">c</span> = (<span class="type">Chien</span>) <span class="var">animal</span>;  <span class="comment">// Downcasting</span>
+        <span class="var">c</span>.<span class="method">rapporter</span>();
+    }
+}</pre>
+
+            <div class="output-block"><strong>Sortie :</strong>
+Rex aboie : Woof ! 🐕
+Mimi miaule : Miaou ! 🐱
+Buddy aboie : Woof ! 🐕
+Félix miaule : Miaou ! 🐱
+Rex rapporte la balle !
+Buddy rapporte la balle !</div>
+
+            <div class="info-box">
+                <strong>💡 Upcasting vs Downcasting :</strong><br>
+                • <strong>Upcasting</strong> (implicite) : <code>Animal a = new Chien(...)</code> — toujours sûr.<br>
+                • <strong>Downcasting</strong> (explicite) : <code>Chien c = (Chien) animal</code> — dangereux ! Utilise <code>instanceof</code> avant pour éviter un <code>ClassCastException</code>.
+            </div>
+        </article>
+
+        <!-- SECTION 5 : Classes abstraites -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-puzzle-piece" style="color:var(--accent)"></i> Classes abstraites — le contrat incomplet</h2>
+            <p class="analogy-box">Une classe abstraite c'est comme un plan architectural qui dit « il y aura une porte ici » sans préciser si c'est une porte en bois ou en métal. Elle définit le <strong>quoi</strong>, les enfants définissent le <strong>comment</strong>.</p>
+
+            <pre class="code-block"><span class="comment">// Classe abstraite — ne peut PAS être instanciée</span>
+<span class="keyword">public abstract class</span> <span class="type">Forme</span> {
+    <span class="keyword">protected</span> <span class="type">String</span> <span class="var">couleur</span>;
+
+    <span class="keyword">public</span> <span class="method">Forme</span>(<span class="type">String</span> <span class="var">couleur</span>) {
+        <span class="keyword">this</span>.<span class="var">couleur</span> = <span class="var">couleur</span>;
+    }
+
+    <span class="comment">// Méthode abstraite — PAS de corps, les enfants DOIVENT l'implémenter</span>
+    <span class="keyword">public abstract</span> <span class="type">double</span> <span class="method">aire</span>();
+
+    <span class="comment">// Méthode concrète — les enfants en héritent</span>
+    <span class="keyword">public void</span> <span class="method">afficher</span>() {
+        <span class="type">System</span>.out.<span class="method">printf</span>(<span class="string">"Forme %s, aire = %.2f%n"</span>, <span class="var">couleur</span>, <span class="method">aire</span>());
+    }
+}
+
+<span class="keyword">public class</span> <span class="type">Cercle</span> <span class="keyword">extends</span> <span class="type">Forme</span> {
+    <span class="keyword">private</span> <span class="type">double</span> <span class="var">rayon</span>;
+
+    <span class="keyword">public</span> <span class="method">Cercle</span>(<span class="type">String</span> <span class="var">couleur</span>, <span class="type">double</span> <span class="var">rayon</span>) {
+        <span class="keyword">super</span>(<span class="var">couleur</span>);
+        <span class="keyword">this</span>.<span class="var">rayon</span> = <span class="var">rayon</span>;
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="type">double</span> <span class="method">aire</span>() {
+        <span class="keyword">return</span> <span class="type">Math</span>.PI * <span class="var">rayon</span> * <span class="var">rayon</span>;
+    }
+}
+
+<span class="keyword">public class</span> <span class="type">Rectangle</span> <span class="keyword">extends</span> <span class="type">Forme</span> {
+    <span class="keyword">private</span> <span class="type">double</span> <span class="var">largeur</span>, <span class="var">hauteur</span>;
+
+    <span class="keyword">public</span> <span class="method">Rectangle</span>(<span class="type">String</span> <span class="var">couleur</span>, <span class="type">double</span> <span class="var">l</span>, <span class="type">double</span> <span class="var">h</span>) {
+        <span class="keyword">super</span>(<span class="var">couleur</span>);
+        <span class="keyword">this</span>.<span class="var">largeur</span> = <span class="var">l</span>;
+        <span class="keyword">this</span>.<span class="var">hauteur</span> = <span class="var">h</span>;
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="type">double</span> <span class="method">aire</span>() {
+        <span class="keyword">return</span> <span class="var">largeur</span> * <span class="var">hauteur</span>;
+    }
+}
+
+<span class="comment">// Utilisation polymorphe</span>
+<span class="type">Forme</span>[] <span class="var">formes</span> = { <span class="keyword">new</span> <span class="type">Cercle</span>(<span class="string">"rouge"</span>, <span class="num">5</span>), <span class="keyword">new</span> <span class="type">Rectangle</span>(<span class="string">"bleu"</span>, <span class="num">4</span>, <span class="num">6</span>) };
+<span class="keyword">for</span> (<span class="type">Forme</span> <span class="var">f</span> : <span class="var">formes</span>) {
+    <span class="var">f</span>.<span class="method">afficher</span>();
+}</pre>
+
+            <div class="output-block"><strong>Sortie :</strong>
+Forme rouge, aire = 78.54
+Forme bleu, aire = 24.00</div>
+
+            <table class="styled-table">
+                <thead><tr><th></th><th>Classe abstraite</th><th>Classe normale</th></tr></thead>
+                <tbody>
+                    <tr><td>Instanciable ?</td><td>❌ Non</td><td>✅ Oui</td></tr>
+                    <tr><td>Méthodes abstraites ?</td><td>✅ Peut en avoir</td><td>❌ Non</td></tr>
+                    <tr><td>Méthodes concrètes ?</td><td>✅ Oui</td><td>✅ Oui</td></tr>
+                    <tr><td>Constructeur ?</td><td>✅ Oui (pour super)</td><td>✅ Oui</td></tr>
+                    <tr><td>Attributs ?</td><td>✅ Oui</td><td>✅ Oui</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <!-- SECTION 6 : Interfaces -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fa-solid fa-plug" style="color:var(--accent)"></i> Interfaces — le contrat à respecter</h2>
+            <p class="analogy-box">Une interface c'est comme un contrat de travail : « Tu <strong>dois</strong> savoir faire X, Y et Z ». Peu importe comment tu le fais, tant que tu respectes le contrat. Contrairement à l'héritage (qui est limité à 1 parent), une classe peut implémenter <strong>plusieurs interfaces</strong>.</p>
+
+            <pre class="code-block"><span class="comment">// Interface = contrat pur</span>
+<span class="keyword">public interface</span> <span class="type">Nageur</span> {
+    <span class="keyword">void</span> <span class="method">nager</span>();  <span class="comment">// Pas de corps ! implicitly public abstract</span>
+}
+
+<span class="keyword">public interface</span> <span class="type">Volant</span> {
+    <span class="keyword">void</span> <span class="method">voler</span>();
+}
+
+<span class="comment">// Une classe peut implémenter PLUSIEURS interfaces</span>
+<span class="keyword">public class</span> <span class="type">Canard</span> <span class="keyword">extends</span> <span class="type">Animal</span> <span class="keyword">implements</span> <span class="type">Nageur</span>, <span class="type">Volant</span> {
+    <span class="keyword">public</span> <span class="method">Canard</span>(<span class="type">String</span> <span class="var">nom</span>, <span class="type">int</span> <span class="var">age</span>) {
+        <span class="keyword">super</span>(<span class="var">nom</span>, <span class="var">age</span>);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public void</span> <span class="method">parler</span>() {
+        <span class="type">System</span>.out.<span class="method">println</span>(<span class="var">nom</span> + <span class="string">" fait : Coin coin ! 🦆"</span>);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public void</span> <span class="method">nager</span>() {
+        <span class="type">System</span>.out.<span class="method">println</span>(<span class="var">nom</span> + <span class="string">" nage dans l'étang."</span>);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public void</span> <span class="method">voler</span>() {
+        <span class="type">System</span>.out.<span class="method">println</span>(<span class="var">nom</span> + <span class="string">" s'envole !"</span>);
+    }
+}
+
+<span class="type">Canard</span> <span class="var">donald</span> = <span class="keyword">new</span> <span class="type">Canard</span>(<span class="string">"Donald"</span>, <span class="num">5</span>);
+<span class="var">donald</span>.<span class="method">parler</span>();
+<span class="var">donald</span>.<span class="method">nager</span>();
+<span class="var">donald</span>.<span class="method">voler</span>();</pre>
+
+            <div class="output-block"><strong>Sortie :</strong>
+Donald fait : Coin coin ! 🦆
+Donald nage dans l'étang.
+Donald s'envole !</div>
+
+            <table class="styled-table">
+                <thead><tr><th></th><th>Classe abstraite</th><th>Interface</th></tr></thead>
+                <tbody>
+                    <tr><td>Mot-clé</td><td><code>abstract class</code></td><td><code>interface</code></td></tr>
+                    <tr><td>Héritage</td><td><code>extends</code> (1 seul)</td><td><code>implements</code> (plusieurs)</td></tr>
+                    <tr><td>Attributs</td><td>Oui (tous types)</td><td>Seulement <code>public static final</code></td></tr>
+                    <tr><td>Constructeur</td><td>Oui</td><td>Non</td></tr>
+                    <tr><td>Méthodes avec corps</td><td>Oui</td><td>Oui (depuis Java 8 : <code>default</code>)</td></tr>
+                    <tr><td>Usage</td><td>Base commune avec du code partagé</td><td>Contrat de capacités</td></tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <strong>🎉 Résumé :</strong><br>
+                • <code>extends</code> → hérite d'une classe (1 seul parent)<br>
+                • <code>super()</code> → appelle le constructeur parent<br>
+                • <code>@Override</code> → redéfinit une méthode héritée<br>
+                • <code>abstract</code> → classe non-instanciable avec méthodes sans corps<br>
+                • <code>interface</code> → contrat pure, <code>implements</code> multiple<br>
+                • <code>instanceof</code> → vérifie le type réel d'un objet<br>
+                • Polymorphisme → même appel, comportement adapté au type réel
+            </div>
+        </article>
+
+        <div id="interactive-exercises"></div>
+    </main>
+
+    <div class="chapter-nav">
+        <a href="chapitre10.html">← Module 10</a>
+        <a href="chapitre12.html">Module 12 →</a>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-logo">☕ RD Java</div>
+        <a href="../../index.html" style="display:inline-block;margin-bottom:0.5rem;color:var(--accent);text-decoration:none;font-size:0.9rem;"><i class="fas fa-th-large"></i> Portail des Cours</a>
+        <p class="footer-copy">© 2025-2026 RD Interactive</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

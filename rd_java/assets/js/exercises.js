@@ -1,6 +1,6 @@
 /* ============================================
    RD Java — Exercise Engine
-   10 chapitres × 18 exercices = 180 exercices
+   12 chapitres × 18 exercices = 216 exercices
    (5 guidés + 10 quiz + 3 glisser-déposer)
    ============================================ */
 const ExerciseEngine = (() => {
@@ -295,6 +295,66 @@ chapitre10: {
     {q:"Associez la méthode au type de collection",pairs:[["add()","ArrayList"],["put()","HashMap"],["get(index)","ArrayList"],["get(key)","HashMap"]]},
     {q:"Associez la classe wrapper au type primitif",pairs:[["Integer","int"],["Double","double"],["Boolean","boolean"],["Character","char"]]},
     {q:"Associez la méthode à son rôle",pairs:[["size()","Nombre d'éléments"],["contains()","Vérifie la présence"],["remove()","Supprime un élément"],["clear()","Vide la collection"]]}
+  ]
+}
+
+},
+
+/* ===== CHAPITRE 11 : Héritage & Polymorphisme ===== */
+chapitre11: {
+  title: "Héritage & Polymorphisme",
+  guided: [
+    {q:"Créez une classe Chien qui hérite de Animal avec extends.",hint:"public class Chien extends Animal { }",a:"public class Chien extends Animal { }"},
+    {q:"Appelez le constructeur de la classe parente dans Chien.",hint:"Utilisez super(...) dans le constructeur",a:"public Chien(String nom) { super(nom); }"},
+    {q:"Redéfinissez la méthode parler() dans la classe Chien.",hint:"@Override public void parler() { ... }",a:"@Override public void parler() { System.out.println(\"Woof !\"); }"},
+    {q:"Déclarez une classe abstraite Forme avec une méthode abstraite aire().",hint:"public abstract class Forme { public abstract double aire(); }",a:"public abstract class Forme { public abstract double aire(); }"},
+    {q:"Créez une interface Nageur avec une méthode nager().",hint:"public interface Nageur { void nager(); }",a:"public interface Nageur { void nager(); }"}
+  ],
+  quiz: [
+    {q:"Quel mot-clé permet l'héritage en Java ?",options:["inherits","extends","implements","derives"],answer:1},
+    {q:"Quel mot-clé appelle le constructeur parent ?",options:["this","parent","super","base"],answer:2},
+    {q:"Que permet @Override ?",options:["Créer une nouvelle méthode","Redéfinir une méthode héritée","Supprimer une méthode","Rendre une méthode privée"],answer:1},
+    {q:"Qu'est-ce que le polymorphisme ?",options:["Une classe avec plusieurs attributs","Un objet qui prend plusieurs formes","Un tableau multidimensionnel","Un type de boucle"],answer:1},
+    {q:"Peut-on instancier une classe abstraite ?",options:["Oui","Non","Seulement avec new","Avec une méthode statique"],answer:1},
+    {q:"Quel mot-clé implémente une interface ?",options:["extends","inherits","implements","uses"],answer:2},
+    {q:"Combien de classes une classe Java peut hériter ?",options:["Aucune","Une seule","Deux","Illimité"],answer:1},
+    {q:"Combien d'interfaces peut implémenter une classe ?",options:["Une seule","Deux maximum","Autant qu'on veut","Aucune"],answer:2},
+    {q:"Quel opérateur vérifie le type d'un objet ?",options:["typeof","is","instanceof","getType"],answer:2},
+    {q:"Qu'est-ce qu'une méthode abstraite ?",options:["Méthode private","Méthode sans corps, à redéfinir","Méthode finale","Méthode statique"],answer:1}
+  ],
+  drag: [
+    {q:"Associez le mot-clé à son rôle",pairs:[["extends","Hériter d'une classe"],["implements","Implémenter une interface"],["super","Appeler le parent"],["abstract","Classe/méthode sans implémentation"]]},
+    {q:"Associez le concept à sa définition",pairs:[["Héritage","Classe enfant reprend les membres"],["Polymorphisme","Un objet prend plusieurs formes"],["Interface","Contrat de méthodes à implémenter"],["Classe abstraite","Classe non instanciable avec méthodes abstraites"]]},
+    {q:"Associez la règle d'héritage à sa description",pairs:[["Simple","Une classe hérite d'une seule classe"],["Multiple","Possible UNIQUEMENT via interfaces"],["@Override","Redéfinir une méthode héritée"]]}
+  ]
+},
+
+/* ===== CHAPITRE 12 : Exceptions (try/catch/finally) ===== */
+chapitre12: {
+  title: "Exceptions : try / catch / finally",
+  guided: [
+    {q:"Écrivez un try/catch pour attraper NumberFormatException.",hint:"try { Integer.parseInt(s); } catch (NumberFormatException e) { }",a:"try { int n = Integer.parseInt(s); } catch (NumberFormatException e) { System.out.println(\"Nombre invalide\"); }"},
+    {q:"Ajoutez un bloc finally qui affiche \"Fin du traitement\".",hint:"finally { System.out.println(...); }",a:"try { int n = Integer.parseInt(s); } catch (Exception e) { System.out.println(e.getMessage()); } finally { System.out.println(\"Fin du traitement\"); }"},
+    {q:"Lancez une IllegalArgumentException si age est négatif.",hint:"throw new IllegalArgumentException(\"...\");",a:"if (age < 0) { throw new IllegalArgumentException(\"Âge invalide : \" + age); }"},
+    {q:"Déclarez une méthode qui throws IOException.",hint:"public void lire() throws IOException { }",a:"public void lire(String chemin) throws IOException { BufferedReader r = new BufferedReader(new FileReader(chemin)); }"},
+    {q:"Utilisez try-with-resources avec un Scanner.",hint:"try (Scanner sc = new Scanner(System.in)) { }",a:"try (Scanner sc = new Scanner(System.in)) { int n = sc.nextInt(); } catch (Exception e) { System.out.println(e.getMessage()); }"}
+  ],
+  quiz: [
+    {q:"Quel bloc contient le code risqué ?",options:["catch","try","finally","throw"],answer:1},
+    {q:"Quel bloc s'exécute TOUJOURS ?",options:["try","catch","finally","throw"],answer:2},
+    {q:"Quel mot-clé lance manuellement une exception ?",options:["throws","throw","catch","raise"],answer:1},
+    {q:"Quel mot-clé déclare une exception dans la signature ?",options:["throw","raise","throws","declares"],answer:2},
+    {q:"NullPointerException est une exception…",options:["Checked","Unchecked (RuntimeException)","Error","Abstract"],answer:1},
+    {q:"IOException est une exception…",options:["Unchecked","Checked (try/catch obligatoire)","Error","Runtime"],answer:1},
+    {q:"Quelle est la pire pratique en gestion d'erreurs ?",options:["catch (Exception e) { e.printStackTrace(); }","catch (Exception e) { }","try-with-resources","Exceptions personnalisées"],answer:1},
+    {q:"try-with-resources ferme automatiquement les classes qui implémentent…",options:["Closeable","AutoCloseable","Serializable","Iterable"],answer:1},
+    {q:"Ordre correct des catch ?",options:["Du plus générique au plus spécifique","Du plus spécifique au plus générique","Alphabétique","N'importe quel ordre"],answer:1},
+    {q:"Comment créer une exception personnalisée ?",options:["class MonEx extends Exception","class MonEx implements Exception","class MonEx throws Exception","new Exception(\"MonEx\")"],answer:0}
+  ],
+  drag: [
+    {q:"Associez le mot-clé à son rôle",pairs:[["try","Bloc de code risqué"],["catch","Attrape une exception"],["finally","S'exécute toujours"],["throw","Lance une exception"]]},
+    {q:"Associez l'exception à sa cause",pairs:[["NullPointerException","Appel sur null"],["ArrayIndexOutOfBoundsException","Index hors limites"],["NumberFormatException","Conversion texte→nombre invalide"],["ArithmeticException","Division par zéro"]]},
+    {q:"Associez le type d'exception à sa famille",pairs:[["IOException","Checked"],["SQLException","Checked"],["NullPointerException","Unchecked"],["ArrayIndexOutOfBoundsException","Unchecked"]]}
   ]
 }
 
