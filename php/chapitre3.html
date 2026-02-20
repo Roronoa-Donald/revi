@@ -107,6 +107,28 @@
                     </ul>
                     
                     <p>Les variantes <code>include_once</code> et <code>require_once</code> s'assurent que le fichier n'est inclus qu'une seule fois, évitant les erreurs de redéfinition.</p>
+
+                    <div class="info-box" style="background: linear-gradient(135deg, rgba(139,92,246,.08), rgba(139,92,246,.02)); border-left: 4px solid var(--primary-color); padding: 1.2rem 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4 style="margin-top:0;"><i class="fas fa-table" style="color:var(--primary-color);"></i> Comparaison rapide</h4>
+                        <table style="width:100%; border-collapse: collapse; font-size: .9rem;">
+                            <thead><tr style="border-bottom: 2px solid var(--border-color);">
+                                <th style="text-align:left;padding:.5rem;">Instruction</th>
+                                <th style="text-align:center;padding:.5rem;">Fichier absent</th>
+                                <th style="text-align:center;padding:.5rem;">Multi-inclusion</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:.4rem .5rem;"><code>include</code></td><td style="text-align:center;">⚠️ Warning</td><td style="text-align:center;">Oui (risque)</td></tr>
+                                <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:.4rem .5rem;"><code>require</code></td><td style="text-align:center;">❌ Fatal Error</td><td style="text-align:center;">Oui (risque)</td></tr>
+                                <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:.4rem .5rem;"><code>include_once</code></td><td style="text-align:center;">⚠️ Warning</td><td style="text-align:center;">✅ Protection</td></tr>
+                                <tr><td style="padding:.4rem .5rem;"><code>require_once</code></td><td style="text-align:center;">❌ Fatal Error</td><td style="text-align:center;">✅ Protection</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="tip-box" style="background: linear-gradient(135deg, rgba(16,185,129,.08), rgba(16,185,129,.02)); border-left: 4px solid var(--success-color); padding: 1rem 1.2rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4 style="margin-top:0;"><i class="fas fa-brain" style="color:var(--success-color);"></i> Règle pratique</h4>
+                        <p style="margin-bottom:0;">🎯 Utilisez <strong>require_once</strong> pour les classes (erreur fatale si absent = meilleur débogage) et <strong>include</strong> pour les templates optionnels (header, footer).</p>
+                    </div>
                 </section>
 
                 <!-- Section 2: Autoloading -->
@@ -187,6 +209,17 @@ $u = new User(); // Utilise MonProjet\Model\User
 use MonProjet\Model\User as Utilisateur;
 $u = new Utilisateur();</code></pre>
                     </div>
+
+                    <div class="info-box" style="background: linear-gradient(135deg, rgba(245,158,11,.08), rgba(245,158,11,.02)); border-left: 4px solid var(--warning-color); padding: 1.2rem 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+                        <h4 style="margin-top:0;"><i class="fas fa-folder-open" style="color:var(--warning-color);"></i> Standard PSR-4 (Composer)</h4>
+                        <p>Le standard <strong>PSR-4</strong> lie namespace → dossier :</p>
+                        <ul style="font-family: monospace; font-size: .88rem; margin-bottom:0;">
+                            <li><code>App\Entity\User</code> → <code>src/Entity/User.php</code></li>
+                            <li><code>App\Controller\HomeController</code> → <code>src/Controller/HomeController.php</code></li>
+                            <li><code>App\Service\Mailer</code> → <code>src/Service/Mailer.php</code></li>
+                        </ul>
+                        <p style="margin-top:.8rem;margin-bottom:0;">📦 Avec Composer : ajoutez <code>"autoload": {"psr-4": {"App\\": "src/"}}</code> dans <code>composer.json</code>, puis lancez <code>composer dump-autoload</code>.</p>
+                    </div>
                 </section>
 
                 <!-- Section 4: Traits -->
@@ -214,6 +247,21 @@ class Product {
 
 $u = new User();
 $u->log("Création utilisateur"); // Affiche "Log: Création utilisateur"</code></pre>
+                    </div>
+
+                    <div class="tip-box" style="background: linear-gradient(135deg, rgba(16,185,129,.08), rgba(16,185,129,.02)); border-left: 4px solid var(--success-color); padding: 1rem 1.2rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4 style="margin-top:0;"><i class="fas fa-brain" style="color:var(--success-color);"></i> Quand utiliser un Trait ?</h4>
+                        <p>🎯 <strong>« Trait = comportement réutilisable, pas une identité »</strong></p>
+                        <ul style="margin-bottom:0;">
+                            <li>✅ <strong>Bon usage</strong> : <code>Loggable</code>, <code>Timestampable</code>, <code>SoftDeletable</code></li>
+                            <li>❌ <strong>Mauvais usage</strong> : mettre toute la logique métier dans un trait</li>
+                            <li>📐 Priorité : méthode de classe > trait > classe parente</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box" style="background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(239,68,68,.02)); border-left: 4px solid var(--danger-color); padding: 1rem 1.2rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4 style="margin-top:0;"><i class="fas fa-exclamation-triangle" style="color:var(--danger-color);"></i> Conflit de Traits</h4>
+                        <p style="margin-bottom:0;">Si deux traits ont la même méthode, il faut résoudre le conflit avec <code>insteadof</code> :<br><code>use TraitA, TraitB { TraitA::methode insteadof TraitB; }</code></p>
                     </div>
                 </section>
 
@@ -263,6 +311,8 @@ $u->log("Création utilisateur"); // Affiche "Log: Création utilisateur"</code>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup-templating.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-php.min.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/gamification.js"></script>
+    <script src="assets/js/download.js"></script>
     <script src="assets/js/quiz-chapitre3.js"></script>
 </body>
 </html>

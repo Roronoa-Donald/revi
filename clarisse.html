@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💕 Pour Clarisse — Recherche Opérationnelle</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --love: #e11d48;
+            --love-light: #fb7185;
+            --love-dark: #9f1239;
+            --love-glow: rgba(225, 29, 72, 0.25);
+            --rose: #fda4af;
+            --rose-light: #ffe4e6;
+            --rose-dark: #f43f5e;
+            --pink: #ec4899;
+            --bg: #fff1f2;
+            --card: #ffffff;
+            --fg: #1f2937;
+            --fg-muted: #6b7280;
+            --border: #fecdd3;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ♥ FLOATING HEARTS (Background) ♥ */
+        .hearts-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .heart-float {
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0;
+            animation: floatUp linear infinite;
+            color: var(--love-light);
+        }
+        @keyframes floatUp {
+            0%   { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
+            10%  { opacity: 0.7; }
+            90%  { opacity: 0.3; }
+            100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
+        }
+
+        /* ♥ PULSE HEART ♥ */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .pulse-heart {
+            display: inline-block;
+            animation: pulse 1.2s ease-in-out infinite;
+            color: var(--love);
+        }
+
+        /* ♥ SPARKLE ♥ */
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+        }
+        .sparkle {
+            position: absolute;
+            font-size: 0.8rem;
+            animation: sparkle 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        /* ♥ GLOW ♥ */
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px var(--love-glow), 0 0 10px var(--love-glow); }
+            50% { box-shadow: 0 0 20px var(--love-glow), 0 0 40px var(--love-glow), 0 0 60px rgba(225,29,72,0.1); }
+        }
+
+        /* ♥ HERO ♥ */
+        .hero {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 4rem 1rem 3rem;
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 30%, #fecdd3 60%, #fda4af 100%);
+            border-bottom: 3px solid var(--rose);
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(225,29,72,0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(236,72,153,0.05) 0%, transparent 50%);
+            animation: heroShimmer 8s ease-in-out infinite;
+        }
+        @keyframes heroShimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .hero-content { position: relative; z-index: 2; }
+        .hero h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            color: var(--love);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px var(--love-glow);
+        }
+        .hero .subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--love-dark);
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+        .hero .love-msg {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.1rem;
+            color: var(--pink);
+            opacity: 0.8;
+        }
+        .big-heart {
+            font-size: 5rem;
+            display: block;
+            margin: 0.5rem 0;
+            animation: pulse 1.5s ease-in-out infinite;
+            text-shadow: 0 0 30px var(--love-glow);
+        }
+
+        /* ♥ NAV ♥ */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,241,242,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--border);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        nav a {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--love-dark);
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+            background: white;
+        }
+        nav a:hover, nav a.active {
+            background: var(--love);
+            color: white;
+            border-color: var(--love);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--love-glow);
+        }
+
+        /* ♥ MAIN ♥ */
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem 4rem;
+        }
+
+        /* ♥ SECTION ♥ */
+        .section {
+            margin-bottom: 3rem;
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--love);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--rose);
+            position: relative;
+        }
+        .section-title::after {
+            content: '♥';
+            position: absolute;
+            right: 0;
+            bottom: -0.5rem;
+            color: var(--love-light);
+            font-size: 1.2rem;
+        }
+
+        /* ♥ DEFINITION CARDS ♥ */
+        .def-card {
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .def-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--love), var(--pink));
+            border-radius: 4px 0 0 4px;
+        }
+        .def-card:hover {
+            border-color: var(--rose);
+            box-shadow: 0 4px 20px var(--love-glow);
+            transform: translateY(-2px);
+        }
+        .def-card h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--love);
+            margin-bottom: 0.5rem;
+            font-size: 1.15rem;
+        }
+        .def-card h3 .heart-icon { margin-right: 0.5rem; }
+        .def-card p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--fg);
+        }
+        .def-card .source {
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+            background: var(--rose-light);
+            padding: 0.15rem 0.6rem;
+            border-radius: 10px;
+        }
+
+        /* ♥ QUESTION CARDS ♥ */
+        .q-card {
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .q-card:hover {
+            border-color: var(--rose);
+            box-shadow: 0 4px 20px var(--love-glow);
+        }
+        .q-header {
+            padding: 1.25rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .q-header:hover { background: var(--rose-light); }
+        .q-num {
+            background: linear-gradient(135deg, var(--love), var(--pink));
+            color: white;
+            min-width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .q-text {
+            font-weight: 600;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            flex: 1;
+        }
+        .q-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .badge-def { background: rgba(225,29,72,0.1); color: var(--love); }
+        .badge-qcm { background: rgba(168,85,247,0.1); color: #a855f7; }
+        .badge-cours { background: rgba(34,197,94,0.1); color: #22c55e; }
+        .q-reveal {
+            font-size: 1.2rem;
+            color: var(--love-light);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            margin-top: 0.3rem;
+        }
+        .q-card.open .q-reveal { transform: rotate(90deg); color: var(--love); }
+        .q-answer {
+            display: none;
+            padding: 0 1.5rem 1.25rem 1.5rem;
+            border-top: 1px dashed var(--border);
+            margin: 0 1rem;
+            padding-top: 1rem;
+        }
+        .q-card.open .q-answer { display: block; }
+        .q-answer p, .q-answer li {
+            font-size: 0.93rem;
+            line-height: 1.8;
+            color: var(--fg);
+        }
+        .q-answer .answer-label {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--love), var(--pink));
+            color: white;
+            padding: 0.15rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* QCM specific */
+        .qcm-options { list-style: none; padding: 0; margin: 0.75rem 0; }
+        .qcm-options li {
+            padding: 0.5rem 0.75rem;
+            margin: 0.3rem 0;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .qcm-options li.correct {
+            border-color: #22c55e;
+            background: rgba(34,197,94,0.08);
+            font-weight: 600;
+        }
+        .qcm-options li.correct::before {
+            content: '✓ ';
+            color: #22c55e;
+            font-weight: 700;
+        }
+
+        /* ♥ EXAM SOURCE ♥ */
+        .exam-source {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.72rem;
+            color: var(--fg-muted);
+            background: var(--rose-light);
+            padding: 0.2rem 0.6rem;
+            border-radius: 8px;
+            margin-top: 0.3rem;
+        }
+
+        /* ♥ LOVE FOOTER ♥ */
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 3rem 1rem;
+            background: linear-gradient(135deg, #ffe4e6, #fecdd3, #fda4af);
+            border-top: 3px solid var(--rose);
+        }
+        footer .footer-heart {
+            font-size: 4rem;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        footer .footer-msg {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.6rem;
+            color: var(--love);
+            margin: 0.5rem 0;
+        }
+        footer .footer-sub {
+            color: var(--love-dark);
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        /* ♥ HEART DIVIDER ♥ */
+        .heart-divider {
+            text-align: center;
+            margin: 2rem 0;
+            font-size: 1.5rem;
+            color: var(--love-light);
+            letter-spacing: 1rem;
+        }
+
+        /* ♥ COUNTER ♥ */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .stat-pill {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--love-dark);
+            animation: glow 3s ease-in-out infinite;
+        }
+        .stat-pill span { color: var(--love); font-weight: 800; }
+
+        /* ♥ RESPONSIVE ♥ */
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2.4rem; }
+            .big-heart { font-size: 3.5rem; }
+            .section-title { font-size: 1.4rem; }
+            nav a { font-size: 0.75rem; padding: 0.4rem 0.7rem; }
+        }
+
+        /* ♥ HEART RAIN on click ♥ */
+        .click-heart {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 1.5rem;
+            animation: clickHeartAnim 1.5s ease-out forwards;
+        }
+        @keyframes clickHeartAnim {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-120px) scale(0.3); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ♥♥♥ FLOATING HEARTS BACKGROUND ♥♥♥ -->
+<div class="hearts-bg" id="heartsBg"></div>
+
+<!-- ♥♥♥ HERO ♥♥♥ -->
+<header class="hero">
+    <div class="hero-content">
+        <div class="big-heart">💕</div>
+        <h1>Pour toi, Clarisse</h1>
+        <p class="subtitle">Recherche Opérationnelle — Révisions avec amour</p>
+        <p class="love-msg">♥ Fait avec tout mon cœur pour que tu réussisses ♥</p>
+    </div>
+</header>
+
+<!-- ♥♥♥ NAV ♥♥♥ -->
+<nav>
+    <a href="#cours" class="active">💖 Cours</a>
+    <a href="#definitions">💕 Définitions</a>
+    <a href="#qcm">💗 QCM Examen</a>
+    <a href="#questions-ouvertes">💝 Questions Ouvertes</a>
+</nav>
+
+<!-- ♥♥♥ MAIN ♥♥♥ -->
+<main>
+
+    <!-- STATS -->
+    <div class="stats-bar">
+        <div class="stat-pill">💖 <span>8</span> Définitions du cours</div>
+        <div class="stat-pill">💕 <span>8</span> QCM d'examen</div>
+        <div class="stat-pill">💗 <span>7</span> Questions ouvertes</div>
+    </div>
+
+    <div class="heart-divider">♥ ♥ ♥ ♥ ♥</div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- PARTIE 1 : COURS — Définitions clés    -->
+    <!-- ═══════════════════════════════════════ -->
+    <section class="section" id="cours">
+        <h2 class="section-title">💖 Partie Cours — Définitions Clés</h2>
+
+        <div class="def-card">
+            <h3><span class="heart-icon">♥</span> La Recherche Opérationnelle</h3>
+            <p>La recherche opérationnelle (aussi appelée "aide à la décision") peut être définie comme l'ensemble des méthodes et techniques rationnelles orientées vers la recherche de la meilleure façon d'opérer des choix en vue d'aboutir au résultat visé ou au meilleur résultat possible. Elle fait partie des "aides à la décision" dans la mesure où elle propose des modèles conceptuels en vue d'analyser et de maîtriser des situations complexes pour permettre aux décideurs de comprendre et d'évaluer les enjeux et d'arbitrer et/ou de faire les choix les plus efficaces. Ce domaine fait largement appel au raisonnement mathématique (logique, probabilités, analyse des données) et à la modélisation des processus.</p>
+            <span class="source">📄 RO-slide1.pdf — Slide 5</span>
+        </div>
+
+        <div class="def-card">
+            <h3><span class="heart-icon">♥</span> La Programmation Linéaire</h3>
+            <p>Un ensemble de techniques mathématiques qu'on utilise pour résoudre des problèmes d'optimisation dans lesquels la fonction à optimiser et les contraintes sont toutes linéaires.</p>
+            <span class="source">📄 Programmation-lineaire-methode-de-simplexe — Slide 2</span>
+        </div>
+
+        <div class="def-card">
+            <h3><span class="heart-icon">♥</span> Objectif de la Programmation Linéaire</h3>
+            <p>La programmation linéaire a pour but de maximiser ou minimiser une fonction linéaire de plusieurs variables, y compris des contraintes correspondant à des relations linéaires.</p>
+            <span class="source">📄 Programmation-lineaire-methode-de-simplexe — Slide 2</span>
+        </div>
+
+        <div class="def-card">
+            <h3><span class="heart-icon">♥</span> Solution Réalisable (Admissible)</h3>
+            <p>On appelle solution réalisable tout n-uplet (x<sub>1</sub>, x<sub>2</sub>, …, x<sub>n</sub>) vérifiant le système d'inéquations précédent.</p>
+            <span class="source">📄 RO-slide1.pdf — Slide 23</span>
+        </div>
+
+        <div class="def-card">
+            <h3><span class="heart-icon">♥</span> Solution Optimale</h3>
+            <p>On appelle solution optimale toute solution réalisable qui optimise Z.</p>
+            <span class="source">📄 RO-slide1.pdf — Slide 23</span>
+        </div>
+
+        <div class="def-card">
+            <h3><span class="heart-icon">♥</span> Fonction Objectif</h3>
+            <p>On appelle fonction objectif la forme linéaire Z(x<sub>1</sub>, x<sub>2</sub>, …, x<sub>n</sub>) = c<sub>1</sub>x<sub>1</sub> + c<sub>2</sub>x<sub>2</sub> + … + c<sub>n</sub>x<sub>n</sub></p>
+            <span class="source">📄 RO-slide1.pdf — Slide 23</span>
+        </div>
+
+        <div class="def-card">
+            <h3><span class="heart-icon">♥</span> La Modélisation Mathématique</h3>
+            <p>La formalisation d'un programme est une tâche délicate mais essentielle car elle conditionne la découverte ultérieure de la bonne solution. Elle comporte les mêmes phases :<br>
+            <strong>1)</strong> La détection du problème et l'identification des variables. Ces variables doivent correspondre exactement aux préoccupations du responsable de la décision. En programmation mathématique, les variables sont des variables décisionnelles.<br>
+            <strong>2)</strong> La formulation de la fonction économique (ou fonction objectif) traduisant les préférences du décideur exprimées sous la forme d'une fonction des variables identifiées.<br>
+            <strong>3)</strong> La formulation des contraintes. Il est bien rare qu'un responsable dispose de toute liberté d'action. Le plus souvent il existe des limites à ne pas dépasser qui revêtent la forme d'équations ou d'inéquations mathématiques.</p>
+            <span class="source">📄 RO-slide1.pdf — Slide 18</span>
+        </div>
+
+        <div class="def-card">
+            <h3><span class="heart-icon">♥</span> Les 4 catégories d'un Problème de PL</h3>
+            <p>De façon générale, un problème de programmation mathématique met en jeu quatre catégories d'éléments :<br>
+            – <strong>des variables ou activités</strong> : les variables de décision du problème étudié. Il s'agit pour l'entreprise de sélectionner le meilleur programme d'activités X = (x<sub>1</sub>, …, x<sub>n</sub>).<br>
+            – <strong>des coefficients économiques</strong> : mesurent le degré de réalisation de l'objectif de l'entreprise, associé à une valeur unitaire de chacune des variables.<br>
+            – <strong>des ressources</strong> : les éléments qui limitent le calcul économique de l'entreprise : des capacités de production limitées, des normes à respecter, des potentiels de vente, etc.<br>
+            – <strong>des coefficients techniques</strong> : le degré de consommation d'une ressource par une activité.</p>
+            <span class="source">📄 RO-slide1.pdf — Slides 19-21</span>
+        </div>
+    </section>
+
+    <div class="heart-divider">♥ ♥ ♥ ♥ ♥</div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- PARTIE 2 : QCM D'EXAMEN (Examen Final RO)     -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <section class="section" id="qcm">
+        <h2 class="section-title">💗 QCM d'Examen — Clique pour voir la réponse</h2>
+
+        <!-- QCM 3 -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">3</span>
+                <span class="q-text">Choisir la ou les bonnes réponses. Pour un modèle de programmation linéaire à n activités et m contraintes; une solution de base est:</span>
+                <span class="q-badge badge-qcm">QCM</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <ul class="qcm-options">
+                    <li>a- toutes solutions admissibles;</li>
+                    <li>b- une solution vérifiant uniquement les contraintes de positivités des variables;</li>
+                    <li>c- une solution admettant au moins n variables hors base et au plus m variables dans la base;</li>
+                    <li class="correct">d- une solution admettant au moins m variables hors base et au plus n variables dans la base.</li>
+                </ul>
+                <span class="exam-source">📄 Examen Final RO.pdf + exam-RO-DA-SRI.pdf — Question 3</span>
+            </div>
+        </div>
+
+        <!-- QCM 4 -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">4</span>
+                <span class="q-text">Choisir la ou les bonnes réponses. Pour un modèle de programmation linéaire à n activités et m contraintes; la solution optimale s'elle existe est:</span>
+                <span class="q-badge badge-qcm">QCM</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <ul class="qcm-options">
+                    <li>a- la solution admissible ayant toutes les activités non nulle;</li>
+                    <li>b- un n-uplets satisfaisant aux exigences du décideur;</li>
+                    <li>c- un n-uplets réalisant nécessairement le maximum;</li>
+                    <li class="correct">d- un n-uplets réalisant le meilleur programme d'activités.</li>
+                </ul>
+                <span class="exam-source">📄 Examen Final RO.pdf + exam-RO-DA-SRI.pdf — Question 4</span>
+            </div>
+        </div>
+
+        <!-- QCM 5 -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">5</span>
+                <span class="q-text">Choisir la ou les bonnes réponses. Dans un modèle de programmation linéaire à n activités et m contraintes; la variable d'écart associée à une contrainte du type '≥' est:</span>
+                <span class="q-badge badge-qcm">QCM</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <ul class="qcm-options">
+                    <li>a- positive;</li>
+                    <li class="correct">b- négative;</li>
+                    <li>c- nulle;</li>
+                    <li>d- Quelconque.</li>
+                </ul>
+                <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--fg-muted)">💡 Pour une contrainte ≥, on <strong>soustrait</strong> la variable d'écart, donc elle est négative.</p>
+                <span class="exam-source">📄 Examen Final RO.pdf + exam-RO-DA-SRI.pdf — Question 5</span>
+            </div>
+        </div>
+
+        <!-- QCM 6 -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">6</span>
+                <span class="q-text">Choisir la ou les bonnes réponses. Dans un modèle de programmation linéaire à n activités et m contraintes; le test d'optimalité de la méthode de Simplexe consiste à:</span>
+                <span class="q-badge badge-qcm">QCM</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <ul class="qcm-options">
+                    <li class="correct">a- vérifier si la solution trouvé est le meilleur programme d'activités;</li>
+                    <li>b- vérifier si la solution trouvé est un n-uplets admissible;</li>
+                    <li>c- vérifier si la solution trouvé est un m-uplets admissible;</li>
+                    <li>d- vérifier si la solution trouvé rend les contraintes optimale.</li>
+                </ul>
+                <span class="exam-source">📄 Examen Final RO.pdf + exam-RO-DA-SRI.pdf — Question 6</span>
+            </div>
+        </div>
+
+        <!-- QCM 7 -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">7</span>
+                <span class="q-text">Choisir la ou les bonnes réponses. Dans un modèle de programmation linéaire à n activités et m contraintes; les variables d'écarts sont au nombre de:</span>
+                <span class="q-badge badge-qcm">QCM</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <ul class="qcm-options">
+                    <li class="correct">a- m;</li>
+                    <li>b- n;</li>
+                    <li>c- 0;</li>
+                    <li>d- nm.</li>
+                </ul>
+                <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--fg-muted)">💡 Il y a une variable d'écart par contrainte, et il y a m contraintes.</p>
+                <span class="exam-source">📄 Examen Final RO.pdf + exam-RO-DA-SRI.pdf — Question 7</span>
+            </div>
+        </div>
+
+        <!-- QCM 8 -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">8</span>
+                <span class="q-text">Choisir la ou les bonnes réponses. Dans un modèle de programmation linéaire à n activités et m contraintes; les variables hors la base sont:</span>
+                <span class="q-badge badge-qcm">QCM</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <ul class="qcm-options">
+                    <li>a- les variables non nulle;</li>
+                    <li class="correct">b- les variables nulle;</li>
+                    <li>c- les variables d'écarts;</li>
+                    <li>d- les activités.</li>
+                </ul>
+                <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--fg-muted)">💡 Hors base = fixées à zéro. Dans la base = peuvent être non nulles.</p>
+                <span class="exam-source">📄 Examen Final RO.pdf + exam-RO-DA-SRI.pdf — Question 8</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="heart-divider">♥ ♥ ♥ ♥ ♥</div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- PARTIE 3 : QUESTIONS OUVERTES (Définitions)       -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <section class="section" id="definitions">
+        <h2 class="section-title">💕 Questions de Définitions — Clique pour voir la réponse</h2>
+
+        <!-- Q1 - DS-B2A/B2B -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">1</span>
+                <span class="q-text">Définir le terme suivant: La programmation linéaire.</span>
+                <span class="q-badge badge-def">Définition</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <span class="answer-label">♥ Réponse</span>
+                <p>Un ensemble de techniques mathématiques qu'on utilise pour résoudre des problèmes d'optimisation dans lesquels la fonction à optimiser et les contraintes sont toutes linéaires.</p>
+                <span class="exam-source">📄 DS-B2A-IT.pdf / DS-B2B-IT.pdf — Partie A, Q1</span>
+            </div>
+        </div>
+
+        <!-- Q2 - DS-B2A/B2B -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">2</span>
+                <span class="q-text">Quelle est l'objectif de la programmation linéaire?</span>
+                <span class="q-badge badge-def">Définition</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <span class="answer-label">♥ Réponse</span>
+                <p>La programmation linéaire a pour but de maximiser ou minimiser une fonction linéaire de plusieurs variables, y compris des contraintes correspondant à des relations linéaires.</p>
+                <span class="exam-source">📄 DS-B2A-IT.pdf / DS-B2B-IT.pdf — Partie A, Q2</span>
+            </div>
+        </div>
+
+        <!-- Q3 - DS-B2A/B2B -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">3</span>
+                <span class="q-text">Citer 4 domaines d'applications de la programmation linéaire.</span>
+                <span class="q-badge badge-def">Définition</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <span class="answer-label">♥ Réponse</span>
+                <p>De nombreuses applications en :<br>
+                <strong>1.</strong> Ingénierie<br>
+                <strong>2.</strong> Économie<br>
+                <strong>3.</strong> Finance<br>
+                <strong>4.</strong> Santé et environnement<br><br>
+                Exemples : l'optimisation des budgets publicitaires, la gestion de la chaîne d'approvisionnement, la planification des horaires de production, etc.</p>
+                <span class="exam-source">📄 DS-B2A-IT.pdf / DS-B2B-IT.pdf — Partie A, Q3</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="heart-divider">♥ ♥ ♥ ♥ ♥</div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- PARTIE 4 : QUESTIONS OUVERTES (Examen Final)          -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section class="section" id="questions-ouvertes">
+        <h2 class="section-title">💝 Questions Ouvertes d'Examen — Clique pour voir la réponse</h2>
+
+        <!-- Examen Final Q1 -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">1</span>
+                <span class="q-text">Définir les termes suivants: Programmation linéaire, solution admissible, variable hors la base?</span>
+                <span class="q-badge badge-cours">Examen</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <span class="answer-label">♥ Réponse</span>
+                <p><strong>Programmation linéaire :</strong> Un ensemble de techniques mathématiques qu'on utilise pour résoudre des problèmes d'optimisation dans lesquels la fonction à optimiser et les contraintes sont toutes linéaires.</p>
+                <p style="margin-top:0.5rem"><strong>Solution admissible (réalisable) :</strong> On appelle solution réalisable tout n-uplet (x<sub>1</sub>, x<sub>2</sub>, …, x<sub>n</sub>) vérifiant le système d'inéquations précédent (i.e. satisfaisant toutes les contraintes du problème).</p>
+                <p style="margin-top:0.5rem"><strong>Variable hors la base :</strong> Les variables nulles dans une solution de base. Elles sont fixées à zéro et ne participent pas à la solution courante.</p>
+                <span class="exam-source">📄 Examen Final RO.pdf + exam-RO-DA-SRI.pdf — Partie A, Q1</span>
+            </div>
+        </div>
+
+        <!-- Examen Final Q2 -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">2</span>
+                <span class="q-text">En quoi consiste la modélisation mathématique?</span>
+                <span class="q-badge badge-cours">Examen</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <span class="answer-label">♥ Réponse</span>
+                <p>La formalisation d'un programme est une tâche délicate mais essentielle car elle conditionne la découverte ultérieure de la bonne solution. Elle comporte les mêmes phases :</p>
+                <p style="margin-top:0.5rem"><strong>1)</strong> La détection du problème et l'identification des variables. Ces variables doivent correspondre exactement aux préoccupations du responsable de la décision. En programmation mathématique, les variables sont des variables décisionnelles.</p>
+                <p style="margin-top:0.3rem"><strong>2)</strong> La formulation de la fonction économique (ou fonction objectif) traduisant les préférences du décideur exprimées sous la forme d'une fonction des variables identifiées.</p>
+                <p style="margin-top:0.3rem"><strong>3)</strong> La formulation des contraintes. Il est bien rare qu'un responsable dispose de toute liberté d'action. Le plus souvent il existe des limites à ne pas dépasser qui revêtent la forme d'équations ou d'inéquations mathématiques.</p>
+                <span class="exam-source">📄 Examen Final RO.pdf + exam-RO-DA-SRI.pdf — Partie A, Q2</span>
+            </div>
+        </div>
+
+        <!-- Méthode du simplexe -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">3</span>
+                <span class="q-text">Quelles sont les étapes de résolution de la méthode du Simplexe?</span>
+                <span class="q-badge badge-cours">Cours</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <span class="answer-label">♥ Réponse</span>
+                <p>Les étapes de résolution de la méthode de Simplexe :</p>
+                <p style="margin-top:0.5rem"><strong>1. Initialisation et Solution de Base</strong> — Choisissez une solution de base initiale et calculez les valeurs des variables.</p>
+                <p style="margin-top:0.3rem"><strong>2. Tests d'Optimalité</strong> — Vérifiez si la solution actuelle est optimale en analysant les coûts réduits.</p>
+                <p style="margin-top:0.3rem"><strong>3. Recherche de la Variable Entrante</strong> — Trouvez la variable entrante qui améliorera la solution en utilisant la règle du coût réduit le plus négatif.</p>
+                <p style="margin-top:0.3rem"><strong>4. Mise à Jour de la Solution de Base</strong> — Mettez à jour la solution de base en remplaçant la variable sortante par la variable entrante et récalculez les valeurs des variables.</p>
+                <p style="margin-top:0.3rem"><strong>5. Répétition jusqu'à l'Obtention de la Solution Optimale</strong> — Continuez à répéter les étapes précédentes jusqu'à ce que vous atteigniez une solution optimale.</p>
+                <span class="exam-source">📄 Programmation-lineaire-methode-de-simplexe — Slide 5</span>
+            </div>
+        </div>
+
+        <!-- Variable entrante / sortante -->
+        <div class="q-card" onclick="this.classList.toggle('open')">
+            <div class="q-header">
+                <span class="q-num">4</span>
+                <span class="q-text">Comment choisit-on la variable entrante et la variable sortante dans le Simplexe?</span>
+                <span class="q-badge badge-cours">Cours</span>
+                <span class="q-reveal">♥</span>
+            </div>
+            <div class="q-answer">
+                <span class="answer-label">♥ Réponse</span>
+                <p><strong>Variable entrante :</strong> On sélectionne la variable affectée du coefficient strictement positif le plus grand dans la fonction économique (pour un problème de maximisation).</p>
+                <p style="margin-top:0.5rem"><strong>Variable sortante :</strong> On détermine la colonne C en divisant la constante par le coefficient de la variable entrante (uniquement pour les coefficients strictement positifs). On sélectionne dans cette colonne C le coefficient strictement positif le plus petit. La variable de cette ligne sort de la base.</p>
+                <p style="margin-top:0.5rem"><strong>Le pivot :</strong> Il est situé à l'intersection de la colonne variable qui entre en base et de la ligne variable qui sort de la base.</p>
+                <span class="exam-source">📄 Algo simplexe.pdf — Pages 9-14</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="heart-divider">♥ ♥ ♥ ♥ ♥ ♥ ♥</div>
+
+</main>
+
+<!-- ♥♥♥ FOOTER ♥♥♥ -->
+<footer>
+    <div class="footer-heart">💕</div>
+    <p class="footer-msg">Bon courage Clarisse, tu vas tout déchirer ♥</p>
+    <p class="footer-sub">Fait avec amour 💕 — Recherche Opérationnelle 2024-2025</p>
+    <p style="margin-top:1rem;font-size:2rem;letter-spacing:0.5rem;">♥♥♥♥♥♥♥♥♥♥</p>
+</footer>
+
+<script>
+/* ♥♥♥ FLOATING HEARTS BACKGROUND ♥♥♥ */
+(function(){
+    const bg = document.getElementById('heartsBg');
+    const hearts = ['♥','💕','💖','💗','💝','❤️','💓','💞','♡','❣️'];
+    for(let i = 0; i < 35; i++){
+        const h = document.createElement('span');
+        h.className = 'heart-float';
+        h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        h.style.left = Math.random() * 100 + '%';
+        h.style.fontSize = (0.8 + Math.random() * 1.5) + 'rem';
+        h.style.animationDuration = (8 + Math.random() * 12) + 's';
+        h.style.animationDelay = (Math.random() * 15) + 's';
+        bg.appendChild(h);
+    }
+})();
+
+/* ♥♥♥ CLICK HEARTS ♥♥♥ */
+document.addEventListener('click', function(e){
+    const hearts = ['♥','💖','💕','💗','💝'];
+    for(let i = 0; i < 3; i++){
+        const h = document.createElement('span');
+        h.className = 'click-heart';
+        h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        h.style.left = (e.clientX + (Math.random()-0.5)*40) + 'px';
+        h.style.top = (e.clientY + (Math.random()-0.5)*20) + 'px';
+        document.body.appendChild(h);
+        setTimeout(()=>h.remove(), 1500);
+    }
+});
+
+/* ♥♥♥ NAV ACTIVE ♥♥♥ */
+document.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('click', function(){
+        document.querySelectorAll('nav a').forEach(x => x.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+</script>
+
+</body>
+</html>

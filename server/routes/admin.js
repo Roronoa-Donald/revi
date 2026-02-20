@@ -6,6 +6,9 @@ const { COURSES } = require('../middleware/access-control');
 const JWT_SECRET = process.env.JWT_SECRET;
 const IS_PROD = process.env.NODE_ENV === 'production';
 
+// Classe de clés gérée par cet admin (B2 par défaut, overridé par B1)
+const KEY_CLASS = process.env.KEY_CLASS || 'b2';
+
 /**
  * Vérifie le token admin. Retourne true si valide, false sinon.
  */
@@ -116,7 +119,7 @@ module.exports = async function adminRoutes(fastify) {
    */
   fastify.get('/stats', async (request, reply) => {
     try {
-      const stats = await db.getStats();
+      const stats = await db.getStatsByClass(KEY_CLASS);
       return reply.send(stats);
     } catch (err) {
       fastify.log.error(err);
@@ -131,7 +134,7 @@ module.exports = async function adminRoutes(fastify) {
   fastify.get('/keys', async (request, reply) => {
     try {
       const { filter, search } = request.query;
-      const keys = await db.getAllKeys(filter, search);
+      const keys = await db.getAllKeysByClass(KEY_CLASS, filter, search);
       return reply.send(keys);
     } catch (err) {
       fastify.log.error(err);
@@ -167,7 +170,7 @@ module.exports = async function adminRoutes(fastify) {
       const createdKeys = [];
       for (let i = 0; i < numKeys; i++) {
         const keyCode = generateActivationKey();
-        const key = await db.createKey(keyCode, scope, note, expiresAt);
+        const key = await db.createKey(keyCode, scope, note, expiresAt, KEY_CLASS);
         createdKeys.push(key);
       }
 
@@ -279,7 +282,7 @@ module.exports = async function adminRoutes(fastify) {
    */
   fastify.get('/sessions', async (request, reply) => {
     try {
-      const sessions = await db.getAllSessions();
+      const sessions = await db.getAllSessionsByClass(KEY_CLASS);
       return reply.send(sessions);
     } catch (err) {
       fastify.log.error(err);
@@ -318,7 +321,7 @@ module.exports = async function adminRoutes(fastify) {
    */
   fastify.get('/stats/courses', async (request, reply) => {
     try {
-      const stats = await db.getStatsByCourse();
+      const stats = await db.getStatsByCourseByClass(KEY_CLASS);
       return reply.send(stats);
     } catch (err) {
       fastify.log.error(err);
@@ -334,8 +337,8 @@ module.exports = async function adminRoutes(fastify) {
     try {
       const { limit = 100, offset = 0, type = null } = request.query;
       const [logs, total] = await Promise.all([
-        db.getActivityLogs(parseInt(limit), parseInt(offset), type || null),
-        db.getActivityLogsCount(type || null)
+        db.getActivityLogsByClass(KEY_CLASS, parseInt(limit), parseInt(offset), type || null),
+        db.getActivityLogsCountByClass(KEY_CLASS, type || null)
       ]);
       return reply.send({ logs, total, limit: parseInt(limit), offset: parseInt(offset) });
     } catch (err) {

@@ -1,3 +1,5 @@
+// @ts-nocheck
+/* @type {any} */
 /* ============================================
    RD Java — Exercise Engine
    12 chapitres × 18 exercices = 216 exercices

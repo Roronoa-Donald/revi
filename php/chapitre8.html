@@ -53,8 +53,9 @@
                         <a href="#create" class="toc-link active"><span class="toc-number">1</span> Create (Ajouter)</a>
                         <a href="#update" class="toc-link"><span class="toc-number">2</span> Update (Modifier)</a>
                         <a href="#delete" class="toc-link"><span class="toc-number">3</span> Delete (Supprimer)</a>
-                        <a href="#router" class="toc-link"><span class="toc-number">4</span> Mise à jour Routeur</a>
-                        <a href="#conclusion" class="toc-link"><span class="toc-number">5</span> Conclusion</a>
+                        <a href="#router" class="toc-link"><span class="toc-number">4</span> Routeur + CRUD</a>
+                        <a href="#security" class="toc-link"><span class="toc-number">5</span> Sécurité</a>
+                        <a href="#conclusion" class="toc-link"><span class="toc-number">6</span> Conclusion</a>
                         <a href="#quiz" class="toc-link quiz-link"><i class="fas fa-question-circle"></i> Quiz</a>
                     </nav>
                 </div>
@@ -173,19 +174,123 @@ if ($action === 'add') {
     $controller->index();
 }</code></pre>
                     </div>
+
+                    <div class="info-box" style="background:rgba(139,92,246,.08);border-left:4px solid var(--primary-color);">
+                        <h4>📝 Résumé CRUD — Les 4 opérations</h4>
+                        <table style="width:100%;border-collapse:collapse;margin-top:.5rem;font-size:.9rem;">
+                            <thead><tr style="border-bottom:2px solid var(--border-color);">
+                                <th style="text-align:left;padding:.4rem;">Opération</th>
+                                <th style="text-align:left;padding:.4rem;">SQL</th>
+                                <th style="text-align:left;padding:.4rem;">HTTP</th>
+                                <th style="text-align:left;padding:.4rem;">Action</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td style="padding:.4rem;"><strong>Create</strong></td><td>INSERT</td><td>POST</td><td>add()</td></tr>
+                                <tr><td style="padding:.4rem;"><strong>Read</strong></td><td>SELECT</td><td>GET</td><td>index()</td></tr>
+                                <tr><td style="padding:.4rem;"><strong>Update</strong></td><td>UPDATE</td><td>POST/GET</td><td>toggle()</td></tr>
+                                <tr><td style="padding:.4rem;"><strong>Delete</strong></td><td>DELETE</td><td>GET</td><td>delete()</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
 
-                <section id="conclusion" class="content-section" style="text-align: center; margin-top: 50px;">
-                    <div class="info-box info-success" style="display:inline-block; text-align:left;">
-                        <h2><i class="fas fa-trophy"></i> Formation Terminée !</h2>
-                        <p>Bravo ! Vous avez construit une application MVC fonctionnelle avec base de données.</p>
-                        <p>Vous avez appris :</p>
+                <section id="security" class="content-section">
+                    <div class="section-header"><h2>5. Sécurité — Les réflexes essentiels</h2></div>
+                    
+                    <div class="warning-box" style="background:rgba(239,68,68,.06);border-left:4px solid var(--danger-color);">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <h4>🔒 Les 3 failles à connaître absolument</h4>
+                            <table style="width:100%;border-collapse:collapse;margin-top:.5rem;font-size:.9rem;">
+                                <tr>
+                                    <td style="padding:.4rem;"><strong>Injection SQL</strong></td>
+                                    <td style="padding:.4rem;">Toujours utiliser <code>prepare() + execute()</code></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:.4rem;"><strong>XSS</strong></td>
+                                    <td style="padding:.4rem;"><code>htmlspecialchars($var, ENT_QUOTES, 'UTF-8')</code> dans les vues</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:.4rem;"><strong>CSRF</strong></td>
+                                    <td style="padding:.4rem;">Token caché dans le formulaire + vérification côté serveur</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <h4>5.1 Exemple : sécuriser notre formulaire d'ajout</h4>
+                    <div class="code-block">
+<pre><code class="language-php">// Dans add() — Contrôleur sécurisé
+public function add() {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: /todo-app/public/');
+        exit;
+    }
+
+    $title = trim($_POST['title'] ?? '');
+    
+    // Validation
+    if (empty($title) || strlen($title) > 255) {
+        $_SESSION['error'] = "Titre invalide.";
+        header('Location: /todo-app/public/');
+        exit;
+    }
+    
+    // strip_tags pour retirer le HTML
+    $title = strip_tags($title);
+    Task::create($title);
+    header('Location: /todo-app/public/');
+    exit;
+}</code></pre>
+                    </div>
+
+                    <div class="info-box" style="background:rgba(139,92,246,.08);border-left:4px solid var(--primary-color);">
+                        <h4>💡 Mnémonique sécurité : <strong>P.E.V.</strong></h4>
                         <ul>
-                            <li>La POO (Classes, Héritage)</li>
-                            <li>PDO et Singleton</li>
-                            <li>L'architecture MVC</li>
-                            <li>Le CRUD (Create, Read, Update, Delete)</li>
+                            <li><strong>P</strong>repare → Requêtes préparées (anti SQL injection)</li>
+                            <li><strong>E</strong>chappe → htmlspecialchars (anti XSS)</li>
+                            <li><strong>V</strong>érifie → Token CSRF + validation des entrées</li>
                         </ul>
+                    </div>
+                </section>
+
+                <section id="conclusion" class="content-section" style="margin-top: 50px;">
+                    <div class="section-header"><h2><i class="fas fa-trophy"></i> 6. Formation Terminée !</h2></div>
+                    <div class="info-box info-success" style="text-align:left;">
+                        <h4 style="font-size:1.2rem;">🎉 Bravo ! Vous avez construit une application MVC complète.</h4>
+                        <p>Récapitulatif de toutes les compétences acquises :</p>
+                        <table style="width:100%;border-collapse:collapse;margin-top:.5rem;font-size:.9rem;">
+                            <thead><tr style="border-bottom:2px solid var(--border-color);">
+                                <th style="text-align:left;padding:.4rem;">Chapitre</th>
+                                <th style="text-align:left;padding:.4rem;">Compétence</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr><td style="padding:.4rem;">1</td><td>Classes, objets, propriétés, méthodes, constructeur</td></tr>
+                                <tr><td style="padding:.4rem;">2</td><td>Héritage, polymorphisme, abstract, interfaces</td></tr>
+                                <tr><td style="padding:.4rem;">3</td><td>Autoloading, namespaces, traits, PSR-4</td></tr>
+                                <tr><td style="padding:.4rem;">4</td><td>Try/catch/finally, exceptions personnalisées</td></tr>
+                                <tr><td style="padding:.4rem;">5</td><td>PDO, requêtes préparées, CRUD</td></tr>
+                                <tr><td style="padding:.4rem;">6</td><td>Architecture MVC, Singleton, routeur</td></tr>
+                                <tr><td style="padding:.4rem;">7-8</td><td>Projet complet : ToDo List en MVC + sécurité</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-box" style="background:rgba(139,92,246,.08);border-left:4px solid var(--primary-color);">
+                        <h4>🚀 Pour aller plus loin</h4>
+                        <ul style="margin-top:.3rem;">
+                            <li><strong>Ajouter l'authentification</strong> — login/register avec <code>password_hash()</code></li>
+                            <li><strong>Catégories</strong> — relation 1-N (une catégorie a plusieurs tâches)</li>
+                            <li><strong>API REST</strong> — retourner du JSON au lieu du HTML</li>
+                            <li><strong>Composer</strong> — remplacer l'autoloader manuel par <code>composer dump-autoload</code></li>
+                            <li><strong>Framework</strong> — migrer vers Symfony ou Laravel</li>
+                        </ul>
+                    </div>
+
+                    <div style="text-align:center;margin-top:1.5rem;">
+                        <a href="formules.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.5rem;background:var(--primary-color);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin:.3rem;"><i class="fas fa-book"></i> Cheatsheet</a>
+                        <a href="cartes.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.5rem;background:var(--primary-color);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin:.3rem;"><i class="fas fa-clone"></i> Flashcards</a>
+                        <a href="simulateur-examen.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.5rem;background:var(--primary-color);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin:.3rem;"><i class="fas fa-graduation-cap"></i> Simulateur d'examen</a>
                     </div>
                 </section>
 
@@ -207,6 +312,8 @@ if ($action === 'add') {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup-templating.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-php.min.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/gamification.js"></script>
+    <script src="assets/js/download.js"></script>
     <script src="assets/js/quiz-chapitre8.js"></script>
 </body>
 </html>

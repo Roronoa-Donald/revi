@@ -17,6 +17,9 @@
         maxHistory: 20 // nombre max de messages conservés
     };
 
+    const WHATSAPP_NUMBER = '22896272034';
+    const WHATSAPP_MESSAGE = encodeURIComponent('Bonjour ! Je vous contacte depuis le portail des cours B2. J\'ai une question.');
+
     // ================================================================
     // 2. CONTEXTES PAR PROJET / PAGE
     // ================================================================
@@ -288,6 +291,68 @@ ${context}`;
 @keyframes rdai-pulse {
     0%, 100% { box-shadow: 0 4px 20px rgba(99,102,241,0.45); }
     50% { box-shadow: 0 4px 30px rgba(139,92,246,0.7); }
+}
+
+/* ========== WhatsApp Button ========== */
+.rdai-whatsapp {
+    position: fixed;
+    bottom: 70px;
+    left: 24px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.45);
+    z-index: 99999;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: wa-pulse 3s ease-in-out infinite;
+    text-decoration: none;
+}
+.rdai-whatsapp:hover {
+    transform: scale(1.12);
+    box-shadow: 0 6px 30px rgba(37,211,102,0.65);
+    color: #fff;
+}
+.rdai-whatsapp .wa-tooltip {
+    position: absolute;
+    left: 70px;
+    background: #1e293b;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(-8px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.rdai-whatsapp .wa-tooltip::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-right-color: #1e293b;
+    border-left: none;
+}
+.rdai-whatsapp:hover .wa-tooltip {
+    opacity: 1;
+    transform: translateX(0);
+}
+@keyframes wa-pulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.45); }
+    50% { box-shadow: 0 4px 30px rgba(37,211,102,0.7); }
 }
 
 /* Panel */
@@ -601,6 +666,16 @@ body.dark-mode .rdai-code-block {
     background: #0f172a;
     border: 1px solid #1e293b;
 }
+[data-theme="dark"] .rdai-whatsapp .wa-tooltip,
+html.dark .rdai-whatsapp .wa-tooltip,
+body.dark-mode .rdai-whatsapp .wa-tooltip {
+    background: #334155;
+}
+[data-theme="dark"] .rdai-whatsapp .wa-tooltip::before,
+html.dark .rdai-whatsapp .wa-tooltip::before,
+body.dark-mode .rdai-whatsapp .wa-tooltip::before {
+    border-right-color: #334155;
+}
 
 /* ========== MOBILE ========== */
 @media (max-width: 480px) {
@@ -618,6 +693,16 @@ body.dark-mode .rdai-code-block {
         width: 52px;
         height: 52px;
         font-size: 22px;
+    }
+    .rdai-whatsapp {
+        bottom: 62px;
+        left: 16px;
+        width: 52px;
+        height: 52px;
+        font-size: 24px;
+    }
+    .rdai-whatsapp .wa-tooltip {
+        display: none;
     }
 }
 @media (max-width: 768px) and (min-width: 481px) {
@@ -640,7 +725,7 @@ body.dark-mode .rdai-code-block {
     let ctx;
 
     function createWidget() {
-        // Bubble
+        // AI Chat Bubble (right)
         const bubble = document.createElement('button');
         bubble.className = 'rdai-bubble';
         bubble.setAttribute('aria-label', 'Ouvrir le chat RD-AI');
@@ -648,6 +733,22 @@ body.dark-mode .rdai-code-block {
         bubble.innerHTML = '<i class="fas fa-robot"></i>';
         bubble.addEventListener('click', togglePanel);
         document.body.appendChild(bubble);
+
+        // WhatsApp Button (left)
+        const waLink = document.createElement('a');
+        waLink.className = 'rdai-whatsapp';
+        waLink.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
+        waLink.target = '_blank';
+        waLink.rel = 'noopener noreferrer';
+        waLink.setAttribute('aria-label', 'Contacter sur WhatsApp');
+        waLink.setAttribute('title', 'Contacter sur WhatsApp');
+        waLink.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            <span class="wa-tooltip">Me contacter sur WhatsApp</span>
+        `;
+        document.body.appendChild(waLink);
 
         // Panel
         panelEl = document.createElement('div');

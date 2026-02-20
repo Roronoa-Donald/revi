@@ -85,6 +85,28 @@ async function initDB() {
   // Index sur expires_at (après migration)
   await client.query(`CREATE INDEX IF NOT EXISTS idx_keys_expires ON activation_keys(expires_at);`);
 
+  // Migration : ajouter la colonne class (b1/b2) pour séparer les clés Bachelor 1 / Bachelor 2
+  await client.query(`
+    DO $$ BEGIN
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='activation_keys' AND column_name='class') THEN
+        ALTER TABLE activation_keys ADD COLUMN class VARCHAR(10) DEFAULT 'b2';
+      END IF;
+    END $$;
+  `);
+  await client.query(`CREATE INDEX IF NOT EXISTS idx_keys_class ON activation_keys(class);`);
+  // Mettre à jour les clés existantes sans class vers 'b2'
+  await client.query(`UPDATE activation_keys SET class = 'b2' WHERE class IS NULL;`);
+
+  // Migration : ajouter la colonne platform (b1/b2) aux sessions pour permettre les sessions parallèles
+  await client.query(`
+    DO $$ BEGIN
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='sessions' AND column_name='platform') THEN
+        ALTER TABLE sessions ADD COLUMN platform VARCHAR(10) DEFAULT 'b2';
+      END IF;
+    END $$;
+  `);
+  await client.query(`CREATE INDEX IF NOT EXISTS idx_sessions_platform ON sessions(platform);`);
+
   // Créer la fonction trigger pour logger automatiquement les changements de clés
   await client.query(`
     CREATE OR REPLACE FUNCTION log_key_changes() RETURNS TRIGGER AS $$
@@ -157,10 +179,10 @@ async function query(text, params) {
 // CRUD Clés d'activation
 // ========================
 
-async function createKey(keyCode, scope, note, expiresAt) {
+async function createKey(keyCode, scope, note, expiresAt, keyClass) {
   const result = await query(
-    'INSERT INTO activation_keys (key_code, scope, note, expires_at) VALUES ($1, $2, $3, $4) RETURNING *',
-    [keyCode, scope, note || null, expiresAt || null]
+    'INSERT INTO activation_keys (key_code, scope, note, expires_at, class) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [keyCode, scope, note || null, expiresAt || null, keyClass || 'b2']
   );
   return result.rows[0];
 }
@@ -251,10 +273,10 @@ async function deleteKey(keyId) {
 // CRUD Sessions
 // ========================
 
-async function createSession(keyId, jti, fingerprint) {
+async function createSession(keyId, jti, fingerprint, platform) {
   const result = await query(
-    'INSERT INTO sessions (key_id, jti, machine_fingerprint) VALUES ($1, $2, $3) RETURNING *',
-    [keyId, jti, fingerprint]
+    'INSERT INTO sessions (key_id, jti, machine_fingerprint, platform) VALUES ($1, $2, $3, $4) RETURNING *',
+    [keyId, jti, fingerprint, platform || 'b2']
   );
   return result.rows[0];
 }
@@ -396,6 +418,119 @@ async function getActivityLogsCount(eventType = null) {
   return parseInt(result.rows[0].count);
 }
 
+// ========================
+// Class-filtered functions (B1/B2 separation)
+// ========================
+
+async function getAllKeysByClass(keyClass, filter, search) {
+  let sql = 'SELECT * FROM activation_keys';
+  const conditions = ['class = $1'];
+  const params = [keyClass];
+
+  if (filter === 'active') {
+    conditions.push('is_active = TRUE AND is_used = FALSE');
+  } else if (filter === 'used') {
+    conditions.push('is_used = TRUE');
+  } else if (filter === 'revoked') {
+    conditions.push('is_active = FALSE');
+  } else if (filter === 'expired') {
+    conditions.push('expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP');
+  }
+
+  if (search && search.trim()) {
+    params.push('%' + search.trim() + '%');
+    conditions.push('(key_code ILIKE $' + params.length + ' OR note ILIKE $' + params.length + ' OR scope ILIKE $' + params.length + ')');
+  }
+
+  sql += ' WHERE ' + conditions.join(' AND ');
+  sql += ' ORDER BY created_at DESC';
+  const result = await query(sql, params);
+  return result.rows;
+}
+
+async function getStatsByClass(keyClass) {
+  const result = await query(`
+    SELECT
+      (SELECT COUNT(*) FROM activation_keys WHERE class = $1) as total_keys,
+      (SELECT COUNT(*) FROM activation_keys WHERE class = $1 AND is_used = TRUE AND is_active = TRUE) as used_keys,
+      (SELECT COUNT(*) FROM activation_keys WHERE class = $1 AND is_used = FALSE AND is_active = TRUE) as available_keys,
+      (SELECT COUNT(*) FROM activation_keys WHERE class = $1 AND is_active = FALSE) as revoked_keys,
+      (SELECT COUNT(*) FROM sessions s JOIN activation_keys k ON s.key_id = k.id WHERE k.class = $1 AND s.is_valid = TRUE) as active_sessions,
+      (SELECT COUNT(*) FROM activation_keys WHERE class = $1 AND expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP) as expired_keys
+  `, [keyClass]);
+  return result.rows[0];
+}
+
+async function getStatsByCourseByClass(keyClass) {
+  const result = await query(`
+    SELECT
+      unnest(string_to_array(scope, ',')) as course,
+      COUNT(*) as total_keys,
+      COUNT(*) FILTER (WHERE is_used = TRUE AND is_active = TRUE) as used_keys,
+      COUNT(*) FILTER (WHERE is_used = FALSE AND is_active = TRUE) as available_keys,
+      COUNT(*) FILTER (WHERE is_active = FALSE) as revoked_keys
+    FROM activation_keys
+    WHERE scope != 'all' AND class = $1
+    GROUP BY course
+    ORDER BY course
+  `, [keyClass]);
+  const allResult = await query(`
+    SELECT
+      COUNT(*) as total_keys,
+      COUNT(*) FILTER (WHERE is_used = TRUE AND is_active = TRUE) as used_keys,
+      COUNT(*) FILTER (WHERE is_used = FALSE AND is_active = TRUE) as available_keys,
+      COUNT(*) FILTER (WHERE is_active = FALSE) as revoked_keys
+    FROM activation_keys
+    WHERE scope = 'all' AND class = $1
+  `, [keyClass]);
+  return {
+    byCourse: result.rows,
+    allScope: allResult.rows[0]
+  };
+}
+
+async function getAllSessionsByClass(keyClass) {
+  const result = await query(`
+    SELECT s.*, k.key_code, k.scope, k.note
+    FROM sessions s
+    JOIN activation_keys k ON s.key_id = k.id
+    WHERE k.class = $1
+    ORDER BY s.created_at DESC
+  `, [keyClass]);
+  return result.rows;
+}
+
+async function getActivityLogsByClass(keyClass, limit = 100, offset = 0, eventType = null) {
+  let sql = `SELECT al.* FROM activity_logs al
+    LEFT JOIN activation_keys ak ON al.key_id = ak.id
+    WHERE (ak.class = $1 OR al.key_id IS NULL)`;
+  const params = [keyClass];
+  if (eventType) {
+    params.push(eventType);
+    sql += ' AND al.event_type = $' + params.length;
+  }
+  sql += ' ORDER BY al.created_at DESC';
+  params.push(limit);
+  sql += ' LIMIT $' + params.length;
+  params.push(offset);
+  sql += ' OFFSET $' + params.length;
+  const result = await query(sql, params);
+  return result.rows;
+}
+
+async function getActivityLogsCountByClass(keyClass, eventType = null) {
+  let sql = `SELECT COUNT(*) as count FROM activity_logs al
+    LEFT JOIN activation_keys ak ON al.key_id = ak.id
+    WHERE (ak.class = $1 OR al.key_id IS NULL)`;
+  const params = [keyClass];
+  if (eventType) {
+    params.push(eventType);
+    sql += ' AND al.event_type = $' + params.length;
+  }
+  const result = await query(sql, params);
+  return parseInt(result.rows[0].count);
+}
+
 module.exports = {
   initDB,
   query,
@@ -418,5 +553,12 @@ module.exports = {
   getStatsByCourse,
   logActivity,
   getActivityLogs,
-  getActivityLogsCount
+  getActivityLogsCount,
+  // Class-filtered variants for B1/B2 separation
+  getAllKeysByClass,
+  getStatsByClass,
+  getStatsByCourseByClass,
+  getAllSessionsByClass,
+  getActivityLogsByClass,
+  getActivityLogsCountByClass
 };

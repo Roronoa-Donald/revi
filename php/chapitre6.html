@@ -41,6 +41,7 @@
                     <nav class="table-of-contents">
                          <a href="#section-1" class="toc-link active"><span class="toc-number">1</span> Architecture MVC</a>
                         <a href="#section-2" class="toc-link"><span class="toc-number">2</span> Routeur</a>
+                        <a href="#section-3" class="toc-link"><span class="toc-number">3</span> Singleton & Frameworks</a>
                          <a href="#quiz" class="toc-link"><span class="toc-number"><i class="fas fa-question-circle"></i></span> Quiz</a>
                     </nav>
                 </div>
@@ -51,36 +52,81 @@
                     <div class="section-header"><h2>1. Architecture MVC</h2></div>
                     <p>Le pattern MVC (Modèle - Vue - Contrôleur) est l'architecture la plus répandue pour les applications web.</p>
                     <ul>
-                        <li><strong>Modèle</strong> : Gère les données (BDD).</li>
-                        <li><strong>Vue</strong> : Gère l'affichage (HTML).</li>
-                        <li><strong>Contrôleur</strong> : Fait le lien entre Modèle et Vue (Logique).</li>
+                        <li><strong>Modèle</strong> : Gère les données et la logique métier (accès BDD, validations).</li>
+                        <li><strong>Vue</strong> : Gère l'affichage (HTML, templates). Ne contient aucune logique métier.</li>
+                        <li><strong>Contrôleur</strong> : Fait le lien — reçoit la requête, appelle le modèle, passe les données à la vue.</li>
                     </ul>
+
+                    <div class="info-box" style="background: linear-gradient(135deg, rgba(139,92,246,.08), rgba(139,92,246,.02)); border-left: 4px solid var(--primary-color); padding: 1.2rem 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+                        <h4 style="margin-top:0;"><i class="fas fa-project-diagram" style="color:var(--primary-color);"></i> Flux d'une requête MVC</h4>
+                        <pre style="background: var(--bg-code); color: #e2e8f0; padding: 1rem; border-radius: 8px; font-size: .85rem; line-height: 1.6;">
+1. Navigateur → /articles?id=5
+2. Routeur    → ArticleController::show(5)
+3. Controller → Article::find(5)        (appelle le Modèle)
+4. Modèle     → SELECT * FROM articles WHERE id = 5
+5. Controller → render('article.php', $data) (passe à la Vue)
+6. Vue        → HTML final envoyé au navigateur</pre>
+                    </div>
+
+                    <h3>Structure de dossiers</h3>
+                    <div class="code-block">
+                        <pre><code class="language-php">// Structure type d'un projet MVC
+projet/
+├── public/           // Point d'entrée (index.php)
+│   └── index.php
+├── src/
+│   ├── Controller/   // Contrôleurs
+│   │   └── ArticleController.php
+│   ├── Model/        // Modèles
+│   │   └── Article.php
+│   └── View/         // Vues (templates)
+│       ├── layout.php
+│       └── article/
+│           ├── list.php
+│           └── show.php
+├── config/
+│   └── database.php
+└── vendor/           // Dépendances Composer</code></pre>
+                    </div>
+
+                    <div class="tip-box" style="background: linear-gradient(135deg, rgba(16,185,129,.08), rgba(16,185,129,.02)); border-left: 4px solid var(--success-color); padding: 1rem 1.2rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4 style="margin-top:0;"><i class="fas fa-brain" style="color:var(--success-color);"></i> Mnémotechnique MVC</h4>
+                        <p>🎯 <strong>« M = Données, V = Écran, C = Chef d'orchestre »</strong></p>
+                        <ul style="margin-bottom:0;">
+                            <li>Le Modèle est le <strong>cuisinier</strong> (prépare les données)</li>
+                            <li>La Vue est le <strong>serveur</strong> (présente le plat au client)</li>
+                            <li>Le Contrôleur est le <strong>chef</strong> (décide quel plat préparer)</li>
+                        </ul>
+                    </div>
                 </section>
 
                 <section id="section-2" class="content-section">
                     <div class="section-header"><h2>2. Le Routeur</h2></div>
-                    <p>Le routeur est le point d'entrée de l'application (souvent index.php). Il analyse l'URL et appelle le bon contrôleur.</p>
+                    <p>Le routeur est le point d'entrée de l'application (souvent <code>public/index.php</code>). Il analyse l'URL et appelle le bon contrôleur.</p>
+
                     <div class="code-block-wrapper">
                         <div class="code-header">
                             <span class="language-label">PHP</span>
                             <button class="btn-copy"><i class="far fa-copy"></i> Copier</button>
                         </div>
                         <div class="code-block">
-                            <pre><code class="language-php">// Simulation de l'URL : index.php?page=contact
-$page = 'contact'; 
+                            <pre><code class="language-php">// Routeur simple avec tableau de routes
+$routes = [
+    '/'         => ['HomeController', 'index'],
+    '/articles' => ['ArticleController', 'list'],
+    '/contact'  => ['ContactController', 'show'],
+];
 
-echo "Route demandée : " . $page . "\n";
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-if ($page === 'contact') {
-    // $controller = new ContactController();
-    // $controller->show();
-    echo "Chargement du ContactController...\n";
-    echo "Affichage de la vue 'contact.php'";
+if (isset($routes[$uri])) {
+    [$controller, $method] = $routes[$uri];
+    echo "Route : $uri → {$controller}::{$method}()\n";
+    // $ctrl = new $controller();
+    // $ctrl->$method();
 } else {
-    // $controller = new HomeController();
-    // $controller->index();
-    echo "Chargement du HomeController...\n";
-    echo "Affichage de la vue 'home.php'";
+    http_response_code(404);
+    echo "Page non trouvée !";
 }</code></pre>
                         </div>
                         <div class="execution-panel">
@@ -89,13 +135,111 @@ if ($page === 'contact') {
                             </button>
                         </div>
                     </div>
+
+                    <h3>Exemple de Contrôleur</h3>
+                    <div class="code-block">
+                        <pre><code class="language-php">class ArticleController {
+    private $model;
+    
+    public function __construct() {
+        $this->model = new Article(); // Le modèle
+    }
+    
+    public function list() {
+        $articles = $this->model->getAll(); // Appel au modèle
+        require 'src/View/article/list.php'; // Rendu de la vue
+    }
+    
+    public function show(int $id) {
+        $article = $this->model->find($id);
+        if (!$article) {
+            http_response_code(404);
+            require 'src/View/errors/404.php';
+            return;
+        }
+        require 'src/View/article/show.php';
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Exemple de Modèle</h3>
+                    <div class="code-block">
+                        <pre><code class="language-php">class Article {
+    private PDO $db;
+    
+    public function __construct() {
+        $this->db = Database::getInstance(); // Singleton
+    }
+    
+    public function getAll(): array {
+        $stmt = $this->db->query('SELECT * FROM articles ORDER BY created_at DESC');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public function find(int $id): ?array {
+        $stmt = $this->db->prepare('SELECT * FROM articles WHERE id = ?');
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+}</code></pre>
+                    </div>
                 </section>
 
-                <section id="conclusion" class="content-section" style="margin-top: 40px; text-align: center; background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; padding: 30px; border-radius: 15px;">
+                <section id="section-3" class="content-section">
+                    <div class="section-header"><h2>3. Le pattern Singleton (BDD)</h2></div>
+                    <p>Le Singleton garantit qu'une seule connexion à la base de données existe dans toute l'application :</p>
+
+                    <div class="code-block">
+                        <pre><code class="language-php">class Database {
+    private static ?PDO $instance = null;
+    
+    // Constructeur privé → empêche new Database()
+    private function __construct() {}
+    
+    public static function getInstance(): PDO {
+        if (self::$instance === null) {
+            self::$instance = new PDO(
+                'mysql:host=localhost;dbname=test;charset=utf8mb4',
+                'root', '',
+                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            );
+        }
+        return self::$instance;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="warning-box" style="background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(239,68,68,.02)); border-left: 4px solid var(--danger-color); padding: 1rem 1.2rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4 style="margin-top:0;"><i class="fas fa-exclamation-triangle" style="color:var(--danger-color);"></i> Erreurs courantes MVC</h4>
+                        <ul style="margin-bottom:0;">
+                            <li><strong>Mettre du SQL dans la Vue</strong> → toujours passer par le Modèle !</li>
+                            <li><strong>Mettre du HTML dans le Contrôleur</strong> → c'est le rôle de la Vue !</li>
+                            <li><strong>Contrôleur trop « gras »</strong> → déplacez la logique métier dans le Modèle ou un Service</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box" style="background: linear-gradient(135deg, rgba(59,130,246,.08), rgba(59,130,246,.02)); border-left: 4px solid var(--primary-light); padding: 1.2rem 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+                        <h4 style="margin-top:0;"><i class="fas fa-graduation-cap" style="color:var(--primary-light);"></i> Frameworks PHP populaires</h4>
+                        <table style="width:100%; border-collapse: collapse; font-size: .9rem;">
+                            <thead><tr style="border-bottom: 2px solid var(--border-color);">
+                                <th style="text-align:left;padding:.5rem;">Framework</th>
+                                <th style="text-align:left;padding:.5rem;">Architecture</th>
+                                <th style="text-align:left;padding:.5rem;">Usage</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:.4rem .5rem;"><strong>Symfony</strong></td><td>MVC strict</td><td>Grands projets, API</td></tr>
+                                <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:.4rem .5rem;"><strong>Laravel</strong></td><td>MVC + ORM Eloquent</td><td>Projets rapides, startup</td></tr>
+                                <tr><td style="padding:.4rem .5rem;"><strong>Slim</strong></td><td>Micro-framework</td><td>API REST légères</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="conclusion" class="content-section" style="margin-top: 40px; text-align: center; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; padding: 30px; border-radius: 15px;">
                     <h2><i class="fas fa-trophy"></i> Félicitations !</h2>
                     <p style="font-size: 1.2rem; margin: 20px 0;">Vous avez terminé le chapitre 6 du cours PHP Orienté Objet.</p>
-                    <p>Continuez vers les chapitres suivants pour approfondir vos connaissances.</p>
-                    <a href="chapitre7.html" class="btn-primary" style="background: white; color: #27ae60; border: none; font-weight: bold; margin-top: 10px; display: inline-block;">Chapitre suivant</a>
+                    <p>Continuez vers les chapitres suivants pour mettre en pratique avec un projet complet.</p>
+                    <a href="chapitre7.html" class="btn-primary" style="background: white; color: #6d28d9; border: none; font-weight: bold; margin-top: 10px; display: inline-block;">Chapitre suivant</a>
                 </section>
 
                  <section id="quiz" class="content-section">
@@ -116,6 +260,8 @@ if ($page === 'contact') {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup-templating.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-php.min.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/gamification.js"></script>
+    <script src="assets/js/download.js"></script>
     <script src="assets/js/quiz-chapitre6.js"></script>
 </body>
 </html>

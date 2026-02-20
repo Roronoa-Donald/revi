@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheatsheet PHP POO — Aide-mémoire complet</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        .cheatsheet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; padding: 1rem 0; }
+        .cheat-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; transition: transform .2s, box-shadow .2s; }
+        .cheat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .cheat-card h3 { color: var(--primary-color); margin-bottom: .8rem; font-size: 1.1rem; display: flex; align-items: center; gap: .5rem; }
+        .cheat-card code { background: var(--bg-tertiary); padding: .15rem .4rem; border-radius: 4px; font-size: .85rem; }
+        .cheat-card pre { background: var(--bg-code); color: #e2e8f0; padding: .8rem; border-radius: 8px; font-size: .8rem; overflow-x: auto; margin: .8rem 0; line-height: 1.5; }
+        .cheat-card ul { padding-left: 1.2rem; }
+        .cheat-card li { margin-bottom: .3rem; font-size: .92rem; }
+        .badge-pill { display: inline-block; background: var(--primary-color); color: #fff; padding: .15rem .6rem; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+        .section-divider { text-align: center; margin: 2.5rem 0 1.5rem; font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+        @media (max-width: 600px) { .cheatsheet-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo"><a href="index.html"><i class="fas fa-code"></i><span>PHP POO</span></a></div>
+            <nav class="main-nav">
+                <a href="index.html">Accueil</a>
+                <a href="#" class="active">Cheatsheet</a>
+                <a href="cartes.html">Flashcards</a>
+                <button class="btn-theme" id="themeToggleBtn" title="Changer de thème"><i class="fas fa-moon"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" style="max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem;">
+        <div style="text-align:center; margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem;"><i class="fas fa-scroll" style="color:var(--primary-color);"></i> Cheatsheet PHP POO</h1>
+            <p style="color: var(--text-secondary);">Aide-mémoire complet — tout ce qu'il faut savoir pour l'examen</p>
+        </div>
+
+        <!-- BASES -->
+        <div class="section-divider"><i class="fas fa-cube"></i> Classes & Objets</div>
+        <div class="cheatsheet-grid">
+            <div class="cheat-card">
+                <h3><i class="fas fa-box"></i> Classe de base</h3>
+                <pre>class User {
+    public string $nom;
+    private int $age;
+    
+    public function __construct(string $nom, int $age) {
+        $this->nom = $nom;
+        $this->age = $age;
+    }
+    
+    public function getAge(): int {
+        return $this->age;
+    }
+}</pre>
+                <p><code>$u = new User("Alice", 25);</code></p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-lock"></i> Visibilité</h3>
+                <table style="width:100%; font-size:.88rem; border-collapse:collapse;">
+                    <tr style="border-bottom:1px solid var(--border-color);"><td><code>public</code></td><td>Accessible partout</td></tr>
+                    <tr style="border-bottom:1px solid var(--border-color);"><td><code>protected</code></td><td>Classe + enfants</td></tr>
+                    <tr><td><code>private</code></td><td>Classe uniquement</td></tr>
+                </table>
+                <p style="margin-top:.8rem;">🎯 <strong>Règle</strong> : toujours <code>private</code> par défaut, <code>protected</code> si héritage prévu.</p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-magic"></i> Méthodes Magiques</h3>
+                <ul>
+                    <li><code>__construct()</code> — Initialisation</li>
+                    <li><code>__destruct()</code> — Nettoyage</li>
+                    <li><code>__toString()</code> — Conversion en string</li>
+                    <li><code>__get/$__set()</code> — Accesseurs magiques</li>
+                    <li><code>__call()</code> — Méthode inexistante</li>
+                    <li><code>__clone()</code> — Clonage</li>
+                </ul>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-bolt"></i> Static & Constantes</h3>
+                <pre>class Config {
+    const VERSION = '2.0';
+    private static int $count = 0;
+    
+    public static function getCount(): int {
+        return self::$count;
+    }
+}
+
+echo Config::VERSION;    // 2.0
+echo Config::getCount(); // 0</pre>
+                <p>⚠️ <code>self::</code> = classe courante, <code>static::</code> = late binding</p>
+            </div>
+        </div>
+
+        <!-- HERITAGE -->
+        <div class="section-divider"><i class="fas fa-sitemap"></i> Héritage & Polymorphisme</div>
+        <div class="cheatsheet-grid">
+            <div class="cheat-card">
+                <h3><i class="fas fa-project-diagram"></i> Héritage</h3>
+                <pre>class Admin extends User {
+    private array $permissions;
+    
+    public function __construct(string $nom, int $age) {
+        parent::__construct($nom, $age);
+        $this->permissions = ['all'];
+    }
+}</pre>
+                <p>✅ <code>extends</code> = héritage simple (1 seul parent)<br>
+                ✅ <code>parent::</code> = appeler la méthode parente</p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-file-contract"></i> Abstract vs Interface</h3>
+                <table style="width:100%; font-size:.85rem; border-collapse:collapse;">
+                    <tr style="border-bottom:2px solid var(--border-color);font-weight:600;"><td></td><td>Abstract</td><td>Interface</td></tr>
+                    <tr style="border-bottom:1px solid var(--border-color);"><td>Propriétés</td><td>✅</td><td>❌</td></tr>
+                    <tr style="border-bottom:1px solid var(--border-color);"><td>Corps méthode</td><td>✅</td><td>❌</td></tr>
+                    <tr style="border-bottom:1px solid var(--border-color);"><td>Multi-héritage</td><td>❌</td><td>✅</td></tr>
+                    <tr><td>Mot-clé</td><td><code>extends</code></td><td><code>implements</code></td></tr>
+                </table>
+                <p style="margin-top:.8rem;">🎯 Abstract = <strong>JE SUIS</strong> un type<br>Interface = <strong>JE SAIS FAIRE</strong></p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-plug"></i> Traits</h3>
+                <pre>trait Loggable {
+    public function log(string $msg): void {
+        echo "[LOG] $msg";
+    }
+}
+
+class Service {
+    use Loggable;
+}</pre>
+                <p>Traits = réutilisation horizontale de code (pas d'héritage multiple en PHP).</p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-folder-open"></i> Namespaces</h3>
+                <pre>namespace App\Entity;
+
+class User { ... }
+
+// Utilisation :
+use App\Entity\User;
+use App\Entity\User as Utilisateur;</pre>
+                <p><strong>PSR-4</strong> : <code>App\Entity\User</code> → <code>src/Entity/User.php</code></p>
+            </div>
+        </div>
+
+        <!-- ERREURS & PDO -->
+        <div class="section-divider"><i class="fas fa-database"></i> Erreurs & Base de Données</div>
+        <div class="cheatsheet-grid">
+            <div class="cheat-card">
+                <h3><i class="fas fa-bug"></i> Exceptions</h3>
+                <pre>try {
+    // code risqué
+    throw new \InvalidArgumentException("Oups");
+} catch (InvalidArgumentException $e) {
+    echo $e->getMessage();
+} catch (Exception $e) {
+    // fallback général
+} finally {
+    // toujours exécuté
+}</pre>
+                <p>💡 Du plus <strong>spécifique</strong> au plus <strong>général</strong> dans les catch.</p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-database"></i> PDO — Connexion</h3>
+                <pre>$pdo = new PDO(
+    'mysql:host=localhost;dbname=test;charset=utf8mb4',
+    'root', '',
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
+);</pre>
+                <p>⚠️ Toujours <code>ERRMODE_EXCEPTION</code> + <code>charset=utf8mb4</code></p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-shield-alt"></i> Requêtes Préparées</h3>
+                <pre>// Marqueurs positionnels
+$stmt = $pdo->prepare('SELECT * FROM users WHERE id = ?');
+$stmt->execute([5]);
+
+// Marqueurs nommés
+$stmt = $pdo->prepare('INSERT INTO users (nom, email) 
+    VALUES (:nom, :email)');
+$stmt->execute([':nom' => 'Alice', ':email' => 'a@b.com']);</pre>
+                <p>🔒 <strong>JAMAIS</strong> de concaténation → injection SQL !</p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-th-list"></i> CRUD rapide</h3>
+                <ul>
+                    <li><strong>C</strong>reate : <code>INSERT INTO ... VALUES (...)</code></li>
+                    <li><strong>R</strong>ead : <code>SELECT * FROM ... WHERE ...</code></li>
+                    <li><strong>U</strong>pdate : <code>UPDATE ... SET ... WHERE ...</code></li>
+                    <li><strong>D</strong>elete : <code>DELETE FROM ... WHERE ...</code></li>
+                </ul>
+                <p><code>$pdo->lastInsertId()</code> → récupérer l'ID auto-incrémenté</p>
+                <p><code>fetch()</code> = 1 ligne | <code>fetchAll()</code> = toutes</p>
+            </div>
+        </div>
+
+        <!-- ARCHITECTURE -->
+        <div class="section-divider"><i class="fas fa-building"></i> Architecture & Patterns</div>
+        <div class="cheatsheet-grid">
+            <div class="cheat-card">
+                <h3><i class="fas fa-layer-group"></i> MVC</h3>
+                <ul>
+                    <li><strong>M</strong>odèle → données & logique métier (SQL)</li>
+                    <li><strong>V</strong>ue → affichage HTML (pas de SQL !)</li>
+                    <li><strong>C</strong>ontrôleur → reçoit requête, orchestre M et V</li>
+                </ul>
+                <p>🎯 <strong>Règle</strong> : pas de SQL dans la Vue, pas de HTML dans le Contrôleur.</p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-star"></i> Singleton</h3>
+                <pre>class DB {
+    private static ?PDO $instance = null;
+    private function __construct() {}
+    
+    public static function get(): PDO {
+        if (self::$instance === null)
+            self::$instance = new PDO(...);
+        return self::$instance;
+    }
+}</pre>
+                <p>1 seule connexion BDD dans toute l'app.</p>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-check-double"></i> PHP 8 — Nouveautés clés</h3>
+                <ul>
+                    <li><code>match</code> — switch amélioré avec retour</li>
+                    <li><code>?-></code> — null-safe operator</li>
+                    <li>Named arguments : <code>foo(y: 2, x: 1)</code></li>
+                    <li>Union types : <code>int|string</code></li>
+                    <li>Enum : <code>enum Color { case Red; }</code></li>
+                    <li>Constructor promotion : <code>public function __construct(private string $nom)</code></li>
+                </ul>
+            </div>
+
+            <div class="cheat-card">
+                <h3><i class="fas fa-graduation-cap"></i> Pièges d'examen</h3>
+                <ul>
+                    <li>❌ <code>new AbstractClass()</code> → Fatal Error</li>
+                    <li>❌ Interface avec propriétés → Interdit</li>
+                    <li>❌ Oublier <code>parent::__construct()</code> dans l'enfant</li>
+                    <li>❌ <code>catch(Exception $e) {}</code> → bug silencieux</li>
+                    <li>❌ <code>$bdd->query("... '$var' ...")</code> → injection SQL</li>
+                    <li>✅ <code>$this->nom</code> (pas <code>$this.nom</code>)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, rgba(139,92,246,.05), rgba(139,92,246,.02)); border-radius: 12px;">
+            <p style="font-size: 1.1rem; color: var(--text-secondary);">📚 Besoin de réviser plus en détail ?</p>
+            <a href="chapitre1.html" style="display:inline-block; margin:.5rem; padding:.6rem 1.5rem; background:var(--primary-color); color:#fff; border-radius:8px; text-decoration:none; font-weight:600;">Revoir les chapitres</a>
+            <a href="cartes.html" style="display:inline-block; margin:.5rem; padding:.6rem 1.5rem; border:2px solid var(--primary-color); color:var(--primary-color); border-radius:8px; text-decoration:none; font-weight:600;">Flashcards</a>
+        </div>
+    </main>
+
+    <footer class="main-footer"><div class="container"><p>&copy; 2025-2026 Cours PHP POO.</p></div></footer>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

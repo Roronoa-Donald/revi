@@ -94,10 +94,10 @@ module.exports = async function authRoutes(fastify) {
             message: 'Cette clé est déjà utilisée sur un autre appareil. Contactez l\'administrateur pour une réinitialisation.'
           });
         }
-        // Même machine → invalider l'ancienne session et en créer une nouvelle
+        // Même machine → invalider les anciennes sessions B2 seulement (pas les B1)
         const oldSessions = await db.query(
-          'SELECT jti FROM sessions WHERE key_id = $1 AND is_valid = TRUE',
-          [keyRecord.id]
+          'SELECT jti FROM sessions WHERE key_id = $1 AND is_valid = TRUE AND (platform = $2 OR platform IS NULL)',
+          [keyRecord.id, 'b2']
         );
         for (const s of oldSessions.rows) {
           await db.revokeSessionByJti(s.jti);
@@ -109,14 +109,15 @@ module.exports = async function authRoutes(fastify) {
 
       // Créer une nouvelle session
       const jti = generateJti();
-      await db.createSession(keyRecord.id, jti, fpHash);
+      await db.createSession(keyRecord.id, jti, fpHash, 'b2');
 
       // Générer le JWT (1 an — seule la déconnexion manuelle y met fin)
       const token = jwt.sign(
         {
           keyId: keyRecord.id,
           scope: keyRecord.scope,
-          jti: jti
+          jti: jti,
+          keyClass: keyRecord.class || 'b2'
         },
         JWT_SECRET,
         { expiresIn: '365d' }
@@ -191,7 +192,8 @@ module.exports = async function authRoutes(fastify) {
 
       return reply.send({
         authenticated: true,
-        scope: decoded.scope
+        scope: decoded.scope,
+        keyClass: decoded.keyClass || keyRecord.class || 'b2'
       });
 
     } catch (err) {

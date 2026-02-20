@@ -22,7 +22,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 // Dossiers et fichiers à ne jamais servir
-const BLOCKED_PATHS = ['/server/', '/node_modules/', '/public/', '/.env', '/.git/', '/package.json', '/package-lock.json', '/api/', '/scripts/', '/dist/', '/vercel.json', '/.vercelignore'];
+const BLOCKED_PATHS = ['/server/', '/node_modules/', '/public/', '/.env', '/.git/', '/package.json', '/package-lock.json', '/api/', '/scripts/', '/dist/', '/vercel.json', '/.vercelignore', '/b1/'];
 
 // Types MIME
 const MIME_TYPES = {
@@ -78,7 +78,7 @@ async function verifyUserAuth(request) {
     // Mettre à jour la date de dernière vérification
     await updateSessionVerified(decoded.jti);
 
-    return { valid: true, scope: decoded.scope, keyId: decoded.keyId };
+    return { valid: true, scope: decoded.scope, keyId: decoded.keyId, keyClass: decoded.keyClass || 'b2' };
   } catch (err) {
     return { valid: false };
   }

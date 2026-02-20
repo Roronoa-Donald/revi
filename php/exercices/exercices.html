@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercices PHP POO — Pratique guidée</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .ex-hero { text-align: center; padding: 3rem 1rem 1.5rem; }
+        .ex-hero h1 { font-size: 2rem; margin-bottom:.5rem; }
+        .ex-hero .hl { color: var(--primary-color); }
+        .ex-filters { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin: 1rem 0 1.5rem; }
+        .ex-filter { padding: .45rem .9rem; border: 2px solid var(--border-color); border-radius: 20px; background: none; cursor: pointer; font-weight: 600; font-size: .85rem; color: var(--text-secondary); transition: all .2s; }
+        .ex-filter.active, .ex-filter:hover { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .diff-badge { display: inline-block; padding: .15rem .5rem; border-radius: 10px; font-size: .72rem; font-weight: 700; margin-left: .5rem; }
+        .diff-facile { background: rgba(34,197,94,.15); color: #16a34a; }
+        .diff-moyen { background: rgba(245,158,11,.15); color: #d97706; }
+        .diff-difficile { background: rgba(239,68,68,.15); color: #dc2626; }
+        .ex-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; transition: box-shadow .2s; }
+        .ex-card:hover { box-shadow: 0 4px 15px rgba(139,92,246,.12); }
+        .ex-card h3 { font-size: 1.05rem; margin-bottom: .5rem; }
+        .ex-card .ch-tag { font-size: .75rem; color: var(--primary-color); font-weight: 600; }
+        .ex-card .enonce { color: var(--text-secondary); font-size: .93rem; margin: .5rem 0 1rem; line-height: 1.6; }
+        .ex-toggle { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; background: var(--primary-lighter); color: var(--primary-color); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: .88rem; transition: all .2s; }
+        .ex-toggle:hover { background: var(--primary-color); color: #fff; }
+        .ex-hint, .ex-solution { display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px; font-size: .9rem; line-height: 1.7; }
+        .ex-hint { background: rgba(245,158,11,.08); border-left: 3px solid #f59e0b; }
+        .ex-solution { background: rgba(34,197,94,.06); border-left: 3px solid var(--success-color); }
+        .ex-solution pre { background: var(--bg-secondary); padding: 1rem; border-radius: 8px; overflow-x: auto; margin: .5rem 0; font-size: .85rem; }
+        .ex-count { text-align: center; color: var(--text-secondary); margin-bottom: 1rem; font-size: .9rem; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo"><a href="../index.html"><i class="fas fa-code"></i><span>PHP POO</span></a></div>
+            <nav class="main-nav">
+                <a href="../index.html">Accueil</a>
+                <a href="../formules.html">Cheatsheet</a>
+                <a href="../cartes.html">Flashcards</a>
+                <a href="../simulateur-examen.html">Examen</a>
+                <a href="#" class="active">Exercices</a>
+                <button class="btn-theme" id="themeToggleBtn" title="Changer de thème"><i class="fas fa-moon"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+        <div class="ex-hero">
+            <h1><i class="fas fa-laptop-code"></i> Exercices <span class="hl">PHP POO</span></h1>
+            <p style="color:var(--text-secondary);">Entraîne-toi avec des exercices guidés couvrant les 8 chapitres.</p>
+        </div>
+
+        <div class="ex-filters" id="filters"></div>
+        <p class="ex-count" id="ex-count"></p>
+        <div id="exercises-container"></div>
+    </main>
+
+    <footer class="main-footer"><div class="container"><p>&copy; 2025-2026 Cours PHP POO.</p></div></footer>
+    <script src="../assets/js/main.js"></script>
+    <script>
+    const exercises = [
+        // Ch1 — Bases
+        {ch:1,title:"Créer une classe Voiture",diff:"facile",
+         enonce:"Créez une classe <code>Voiture</code> avec les propriétés <code>$marque</code>, <code>$modele</code> et <code>$annee</code>. Ajoutez un constructeur et une méthode <code>decrire()</code> qui retourne une phrase descriptive.",
+         hint:"Pensez à utiliser <code>$this->propriete</code> pour accéder aux attributs dans les méthodes.",
+         solution:`class Voiture {
+    public string \$marque;
+    public string \$modele;
+    public int \$annee;
+
+    public function __construct(string \$marque, string \$modele, int \$annee) {
+        \$this->marque = \$marque;
+        \$this->modele = \$modele;
+        \$this->annee = \$annee;
+    }
+
+    public function decrire(): string {
+        return "\$this->marque \$this->modele (\$this->annee)";
+    }
+}
+
+\$v = new Voiture("Peugeot", "308", 2023);
+echo \$v->decrire(); // Peugeot 308 (2023)`},
+
+        {ch:1,title:"Méthodes magiques __toString",diff:"facile",
+         enonce:"Modifiez la classe <code>Voiture</code> pour que <code>echo $voiture;</code> affiche automatiquement la description (sans appeler <code>decrire()</code>).",
+         hint:"Implémentez la méthode magique <code>__toString()</code>.",
+         solution:`class Voiture {
+    public function __construct(
+        public string \$marque,
+        public string \$modele,
+        public int \$annee
+    ) {}
+
+    public function __toString(): string {
+        return "\$this->marque \$this->modele (\$this->annee)";
+    }
+}
+
+echo new Voiture("Renault", "Clio", 2024);
+// Renault Clio (2024)`},
+
+        // Ch2 — Héritage & Polymorphisme
+        {ch:2,title:"Héritage : Forme → Cercle, Rectangle",diff:"moyen",
+         enonce:"Créez une classe abstraite <code>Forme</code> avec une méthode abstraite <code>surface(): float</code>. Implémentez les classes <code>Cercle</code> (rayon) et <code>Rectangle</code> (largeur, hauteur). Testez le polymorphisme dans une boucle.",
+         hint:"Utilisez <code>abstract class</code> et <code>extends</code>. Le polymorphisme consiste à appeler <code>surface()</code> sur un tableau de Formes.",
+         solution:`abstract class Forme {
+    abstract public function surface(): float;
+}
+
+class Cercle extends Forme {
+    public function __construct(private float \$rayon) {}
+    public function surface(): float {
+        return M_PI * \$this->rayon ** 2;
+    }
+}
+
+class Rectangle extends Forme {
+    public function __construct(
+        private float \$largeur,
+        private float \$hauteur
+    ) {}
+    public function surface(): float {
+        return \$this->largeur * \$this->hauteur;
+    }
+}
+
+\$formes = [new Cercle(5), new Rectangle(4, 6)];
+foreach (\$formes as \$f) {
+    echo get_class(\$f) . " : " . round(\$f->surface(), 2) . "\\n";
+}
+// Cercle : 78.54
+// Rectangle : 24`},
+
+        {ch:2,title:"Interface Affichable",diff:"moyen",
+         enonce:"Créez une interface <code>Affichable</code> avec une méthode <code>afficher(): string</code>. Implémentez-la dans <code>Produit</code> et <code>Client</code>. Parcourez un tableau mixte et affichez chaque élément.",
+         hint:"Utilisez <code>implements</code> et typez le tableau avec l'interface.",
+         solution:`interface Affichable {
+    public function afficher(): string;
+}
+
+class Produit implements Affichable {
+    public function __construct(
+        private string \$nom,
+        private float \$prix
+    ) {}
+    public function afficher(): string {
+        return "Produit: \$this->nom (\$this->prix €)";
+    }
+}
+
+class Client implements Affichable {
+    public function __construct(
+        private string \$nom,
+        private string \$email
+    ) {}
+    public function afficher(): string {
+        return "Client: \$this->nom (\$this->email)";
+    }
+}
+
+\$items = [new Produit("Clavier", 49.99), new Client("Ali", "ali@mail.com")];
+foreach (\$items as \$item) {
+    echo \$item->afficher() . "\\n";
+}`},
+
+        // Ch3 — Traits & Namespaces
+        {ch:3,title:"Trait Horodatable",diff:"moyen",
+         enonce:"Créez un trait <code>Horodatable</code> qui ajoute <code>$createdAt</code> et <code>$updatedAt</code>. Utilisez-le dans une classe <code>Article</code>. Ajoutez une méthode <code>touch()</code> pour mettre à jour <code>updatedAt</code>.",
+         hint:"<code>use Horodatable;</code> dans la classe. Initialisez les dates dans le constructeur ou un initTimestamps().",
+         solution:`trait Horodatable {
+    private DateTime \$createdAt;
+    private DateTime \$updatedAt;
+
+    public function initTimestamps(): void {
+        \$this->createdAt = new DateTime();
+        \$this->updatedAt = new DateTime();
+    }
+
+    public function touch(): void {
+        \$this->updatedAt = new DateTime();
+    }
+
+    public function getCreatedAt(): DateTime { return \$this->createdAt; }
+    public function getUpdatedAt(): DateTime { return \$this->updatedAt; }
+}
+
+class Article {
+    use Horodatable;
+
+    public function __construct(private string \$titre) {
+        \$this->initTimestamps();
+    }
+}
+
+\$a = new Article("Mon article");
+echo \$a->getCreatedAt()->format('H:i:s');`},
+
+        {ch:3,title:"Namespace et autoloading",diff:"difficile",
+         enonce:"Organisez un mini-projet avec les namespaces : <code>App\\Entity\\User</code> et <code>App\\Service\\UserService</code>. Écrivez la fonction d'autoloading qui mappe <code>App\\</code> vers <code>src/</code>.",
+         hint:"PSR-4 : remplacez les \\ par des / et ajoutez .php.",
+         solution:`// src/Entity/User.php
+namespace App\\Entity;
+
+class User {
+    public function __construct(
+        private string \$name,
+        private string \$email
+    ) {}
+    public function getName(): string { return \$this->name; }
+}
+
+// src/Service/UserService.php
+namespace App\\Service;
+
+use App\\Entity\\User;
+
+class UserService {
+    public function greet(User \$user): string {
+        return "Bonjour " . \$user->getName();
+    }
+}
+
+// index.php
+spl_autoload_register(function (string \$class) {
+    // App\\Entity\\User → src/Entity/User.php
+    \$path = str_replace('App\\\\', 'src/', \$class);
+    \$path = str_replace('\\\\', '/', \$path) . '.php';
+    if (file_exists(\$path)) {
+        require_once \$path;
+    }
+});
+
+use App\\Entity\\User;
+use App\\Service\\UserService;
+
+\$u = new User("Alice", "alice@mail.com");
+\$s = new UserService();
+echo \$s->greet(\$u); // Bonjour Alice`},
+
+        // Ch4 — Exceptions
+        {ch:4,title:"Exception personnalisée",diff:"moyen",
+         enonce:"Créez une exception <code>SoldeInsuffisantException</code>. Créez une classe <code>CompteBancaire</code> avec <code>debiter()</code> qui lance cette exception si le solde est insuffisant. Attrapez-la proprement.",
+         hint:"Héritez de <code>Exception</code> et ajoutez éventuellement le solde actuel comme info supplémentaire.",
+         solution:`class SoldeInsuffisantException extends Exception {
+    public function __construct(
+        private float \$solde,
+        private float \$montant
+    ) {
+        parent::__construct(
+            "Solde insuffisant : \$solde € disponible, \$montant € demandé"
+        );
+    }
+}
+
+class CompteBancaire {
+    private float \$solde;
+
+    public function __construct(float \$soldeInitial) {
+        \$this->solde = \$soldeInitial;
+    }
+
+    public function debiter(float \$montant): void {
+        if (\$montant > \$this->solde) {
+            throw new SoldeInsuffisantException(\$this->solde, \$montant);
+        }
+        \$this->solde -= \$montant;
+    }
+}
+
+try {
+    \$compte = new CompteBancaire(100);
+    \$compte->debiter(150); // lance l'exception
+} catch (SoldeInsuffisantException \$e) {
+    echo "⚠️ " . \$e->getMessage();
+    // Solde insuffisant : 100 € disponible, 150 € demandé
+}`},
+
+        {ch:4,title:"Try / Catch / Finally",diff:"facile",
+         enonce:"Écrivez une fonction <code>diviser(int $a, int $b): float</code> qui lance une exception si $b == 0. Utilisez <code>try/catch/finally</code> pour afficher un message \"Opération terminée\" dans tous les cas.",
+         hint:"Le bloc <code>finally</code> s'exécute même après un return ou une exception.",
+         solution:`function diviser(int \$a, int \$b): float {
+    if (\$b === 0) {
+        throw new InvalidArgumentException("Division par zéro !");
+    }
+    return \$a / \$b;
+}
+
+try {
+    echo diviser(10, 0);
+} catch (InvalidArgumentException \$e) {
+    echo "Erreur : " . \$e->getMessage() . "\\n";
+} finally {
+    echo "Opération terminée.\\n";
+}
+// Erreur : Division par zéro !
+// Opération terminée.`},
+
+        // Ch5 — PDO
+        {ch:5,title:"CRUD complet avec PDO",diff:"difficile",
+         enonce:"Écrivez une classe <code>ProductRepository</code> qui implémente les 4 opérations CRUD (Create, Read, Update, Delete) sur une table <code>products</code> (id, name, price). Utilisez des requêtes préparées.",
+         hint:"Injectez le PDO dans le constructeur. Utilisez <code>prepare() + execute()</code> pour chaque opération.",
+         solution:`class ProductRepository {
+    public function __construct(private PDO \$pdo) {}
+
+    public function create(string \$name, float \$price): int {
+        \$stmt = \$this->pdo->prepare(
+            "INSERT INTO products (name, price) VALUES (:name, :price)"
+        );
+        \$stmt->execute(['name' => \$name, 'price' => \$price]);
+        return (int) \$this->pdo->lastInsertId();
+    }
+
+    public function findById(int \$id): ?array {
+        \$stmt = \$this->pdo->prepare(
+            "SELECT * FROM products WHERE id = :id"
+        );
+        \$stmt->execute(['id' => \$id]);
+        \$row = \$stmt->fetch(PDO::FETCH_ASSOC);
+        return \$row ?: null;
+    }
+
+    public function update(int \$id, string \$name, float \$price): bool {
+        \$stmt = \$this->pdo->prepare(
+            "UPDATE products SET name = :name, price = :price WHERE id = :id"
+        );
+        return \$stmt->execute([
+            'id' => \$id, 'name' => \$name, 'price' => \$price
+        ]);
+    }
+
+    public function delete(int \$id): bool {
+        \$stmt = \$this->pdo->prepare("DELETE FROM products WHERE id = :id");
+        return \$stmt->execute(['id' => \$id]);
+    }
+
+    public function findAll(): array {
+        return \$this->pdo->query("SELECT * FROM products")
+                         ->fetchAll(PDO::FETCH_ASSOC);
+    }
+}`},
+
+        {ch:5,title:"Connexion PDO sécurisée",diff:"facile",
+         enonce:"Écrivez une connexion PDO avec les bonnes options de sécurité : mode d'erreur exception, fetch associatif par défaut, pas d'émulation des requêtes préparées.",
+         hint:"Passez les options en 4e paramètre du constructeur PDO.",
+         solution:`try {
+    \$pdo = new PDO(
+        'mysql:host=localhost;dbname=ma_base;charset=utf8mb4',
+        'root',
+        '',
+        [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ]
+    );
+    echo "✅ Connexion réussie !";
+} catch (PDOException \$e) {
+    die("❌ Erreur de connexion : " . \$e->getMessage());
+}
+// JAMAIS afficher \$e->getMessage() en production !`},
+
+        // Ch6 — Architecture MVC
+        {ch:6,title:"Mini routeur MVC",diff:"difficile",
+         enonce:"Écrivez un routeur simple qui prend l'URL <code>?page=articles&action=list</code> et appelle la bonne méthode du bon contrôleur. Gérez le cas où la page n'existe pas (404).",
+         hint:"Créez un tableau associatif page → classe contrôleur, puis vérifiez l'existence de la méthode avec <code>method_exists()</code>.",
+         solution:`// public/index.php — Front Controller
+
+// 1. Autoload
+spl_autoload_register(function (\$class) {
+    require_once '../src/' . str_replace('\\\\', '/', \$class) . '.php';
+});
+
+// 2. Routes : page → Controller
+\$routes = [
+    'articles' => ArticleController::class,
+    'users'    => UserController::class,
+];
+
+// 3. Routeur
+\$page   = \$_GET['page']   ?? 'articles';
+\$action = \$_GET['action'] ?? 'list';
+
+if (!isset(\$routes[\$page])) {
+    http_response_code(404);
+    echo "Page introuvable.";
+    exit;
+}
+
+\$controllerClass = \$routes[\$page];
+\$controller = new \$controllerClass();
+
+if (!method_exists(\$controller, \$action)) {
+    http_response_code(404);
+    echo "Action '\$action' introuvable.";
+    exit;
+}
+
+// 4. Exécution
+\$controller->\$action();`},
+
+        {ch:6,title:"Pattern Singleton pour la BDD",diff:"moyen",
+         enonce:"Implémentez le pattern Singleton pour la connexion à la base de données. Le constructeur doit être privé, et une méthode statique <code>getInstance()</code> retourne l'unique instance de PDO.",
+         hint:"Attribut <code>private static ?PDO $instance = null;</code> et constructeur <code>private</code>.",
+         solution:`class Database {
+    private static ?PDO \$instance = null;
+
+    // Constructeur privé → pas de new Database()
+    private function __construct() {}
+    // Empêche le clonage
+    private function __clone() {}
+
+    public static function getInstance(): PDO {
+        if (self::\$instance === null) {
+            self::\$instance = new PDO(
+                'mysql:host=localhost;dbname=app;charset=utf8mb4',
+                'root', '',
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                ]
+            );
+        }
+        return self::\$instance;
+    }
+}
+
+// Utilisation — une seule connexion partout
+\$pdo = Database::getInstance();
+\$users = \$pdo->query("SELECT * FROM users")->fetchAll();`},
+
+        // Ch7-8 — Projet
+        {ch:7,title:"Structure de projet MVC",diff:"moyen",
+         enonce:"Listez et expliquez le rôle de chaque dossier/fichier d'un projet PHP MVC. Créez l'arborescence complète avec des fichiers vides.",
+         hint:"Pensez à : public/, src/Controller/, src/Model/, src/View/, config/, vendor/",
+         solution:`/* Structure d'un projet PHP MVC :
+
+projet/
+├── public/               ← Point d'entrée web
+│   ├── index.php         ← Front Controller (routeur)
+│   ├── .htaccess         ← Réécriture URL → index.php
+│   └── assets/           ← CSS, JS, images (accessibles)
+│       ├── css/
+│       └── js/
+├── src/                  ← Code source (non accessible web)
+│   ├── Controller/       ← Logique de traitement
+│   │   └── ArticleController.php
+│   ├── Model/            ← Accès base de données
+│   │   └── Article.php
+│   └── View/             ← Templates HTML
+│       ├── layout.php    ← Template de base
+│       └── articles/
+│           ├── list.php
+│           └── show.php
+├── config/
+│   └── database.php      ← Configuration BDD
+├── vendor/               ← Dépendances (Composer)
+├── composer.json          ← Déclaration des dépendances
+└── .gitignore             ← vendor/, .env, etc.
+*/`},
+
+        {ch:8,title:"Sécuriser un formulaire (XSS + CSRF)",diff:"difficile",
+         enonce:"Créez un formulaire de commentaire sécurisé contre XSS et CSRF. Incluez la génération du token, la validation côté serveur, et l'échappement de l'affichage.",
+         hint:"<code>htmlspecialchars()</code> pour XSS, <code>$_SESSION</code> + <code>hash_equals()</code> pour CSRF.",
+         solution:`// Génération du token CSRF
+session_start();
+if (empty(\$_SESSION['csrf_token'])) {
+    \$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Traitement du formulaire
+if (\$_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 1. Vérifier le token CSRF
+    if (!hash_equals(\$_SESSION['csrf_token'], \$_POST['csrf'] ?? '')) {
+        die("⚠️ Token CSRF invalide !");
+    }
+
+    // 2. Nettoyer les entrées
+    \$commentaire = trim(\$_POST['commentaire'] ?? '');
+    if (empty(\$commentaire)) {
+        \$erreur = "Le commentaire est requis.";
+    } else {
+        // 3. Sauvegarder en BDD (requête préparée !)
+        \$stmt = \$pdo->prepare("INSERT INTO commentaires (texte) VALUES (:texte)");
+        \$stmt->execute(['texte' => \$commentaire]);
+        \$succes = true;
+        // Régénérer le token après soumission
+        \$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+}
+?>
+
+<!-- Formulaire -->
+<form method="POST">
+    <input type="hidden" name="csrf" value="<?= \$_SESSION['csrf_token'] ?>">
+    <textarea name="commentaire" required></textarea>
+    <button type="submit">Envoyer</button>
+</form>
+
+<!-- Affichage sécurisé (anti-XSS) -->
+<?php foreach (\$commentaires as \$c): ?>
+    <p><?= htmlspecialchars(\$c['texte'], ENT_QUOTES, 'UTF-8') ?></p>
+<?php endforeach; ?>`},
+
+        {ch:8,title:"Authentification avec password_hash",diff:"moyen",
+         enonce:"Écrivez les fonctions <code>register()</code> et <code>login()</code> qui utilisent <code>password_hash()</code> et <code>password_verify()</code> pour gérer les mots de passe de manière sécurisée.",
+         hint:"JAMAIS stocker le mot de passe en clair. <code>password_hash()</code> utilise bcrypt par défaut.",
+         solution:`function register(PDO \$pdo, string \$email, string \$password): int {
+    // Hashage sécurisé (bcrypt)
+    \$hash = password_hash(\$password, PASSWORD_DEFAULT);
+
+    \$stmt = \$pdo->prepare(
+        "INSERT INTO users (email, password) VALUES (:email, :password)"
+    );
+    \$stmt->execute(['email' => \$email, 'password' => \$hash]);
+    return (int) \$pdo->lastInsertId();
+}
+
+function login(PDO \$pdo, string \$email, string \$password): bool {
+    \$stmt = \$pdo->prepare("SELECT * FROM users WHERE email = :email");
+    \$stmt->execute(['email' => \$email]);
+    \$user = \$stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!user) return false;
+
+    // Vérification sécurisée
+    if (password_verify(\$password, \$user['password'])) {
+        session_start();
+        \$_SESSION['user_id'] = \$user['id'];
+        \$_SESSION['email']   = \$user['email'];
+        return true;
+    }
+    return false;
+}
+
+// Utilisation
+register(\$pdo, "alice@mail.com", "motdepasse123");
+if (login(\$pdo, "alice@mail.com", "motdepasse123")) {
+    echo "✅ Connecté !";
+}`}
+    ];
+
+    // Build filters
+    const chapters = [...new Set(exercises.map(e => e.ch))].sort((a, b) => a - b);
+    const chNames = {1:'Bases POO',2:'Héritage',3:'Traits & NS',4:'Exceptions',5:'PDO',6:'MVC',7:'Projet',8:'Sécurité'};
+    let activeFilter = 'all';
+
+    function renderFilters() {
+        const c = document.getElementById('filters');
+        let html = '<button class="ex-filter active" data-ch="all">Tous</button>';
+        chapters.forEach(ch => { html += `<button class="ex-filter" data-ch="${ch}">Ch.${ch} ${chNames[ch] || ''}</button>`; });
+        c.innerHTML = html;
+        c.addEventListener('click', e => {
+            if (!e.target.classList.contains('ex-filter')) return;
+            c.querySelectorAll('.ex-filter').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            activeFilter = e.target.dataset.ch;
+            renderExercises();
+        });
+    }
+
+    function renderExercises() {
+        const filtered = activeFilter === 'all' ? exercises : exercises.filter(e => e.ch == activeFilter);
+        document.getElementById('ex-count').textContent = `${filtered.length} exercice${filtered.length > 1 ? 's' : ''}`;
+        const container = document.getElementById('exercises-container');
+        container.innerHTML = filtered.map((ex, i) => {
+            const uid = `ex-${ex.ch}-${i}`;
+            return `
+            <div class="ex-card">
+                <span class="ch-tag">Chapitre ${ex.ch} — ${chNames[ex.ch] || ''}</span>
+                <span class="diff-badge diff-${ex.diff}">${ex.diff}</span>
+                <h3>${ex.title}</h3>
+                <div class="enonce">${ex.enonce}</div>
+                <button class="ex-toggle" onclick="toggle('hint-${uid}')"><i class="fas fa-lightbulb"></i> Indice</button>
+                <button class="ex-toggle" onclick="toggle('sol-${uid}')" style="margin-left:.5rem;"><i class="fas fa-eye"></i> Solution</button>
+                <div class="ex-hint" id="hint-${uid}">${ex.hint}</div>
+                <div class="ex-solution" id="sol-${uid}"><pre><code>${ex.solution}</code></pre></div>
+            </div>`;
+        }).join('');
+    }
+
+    function toggle(id) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === 'none' || !el.style.display ? 'block' : 'none';
+    }
+
+    renderFilters();
+    renderExercises();
+    </script>
+</body>
+</html>
