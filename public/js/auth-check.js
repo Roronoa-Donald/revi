@@ -10,7 +10,7 @@
   // Ne pas exécuter sur les pages d'auth elles-mêmes
   if (window.location.pathname.startsWith('/_auth/')) return;
 
-  var COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'RD-RO', 'sql', 'csharp'];
+  var COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'RD-RO', 'sql', 'csharp', 'epreuves'];
   var path = window.location.pathname;
 
   /**
@@ -28,6 +28,9 @@
 
     // Pas un dossier de cours → libre
     if (COURSE_DIRS.indexOf(courseName) === -1) return false;
+
+    // Épreuves passées → tout protégé (index + PDF)
+    if (courseName === 'epreuves') return true;
 
     // Assets toujours libres (CSS, JS, images)
     if (parts[1] === 'assets') return false;

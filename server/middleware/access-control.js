@@ -13,7 +13,8 @@ const COURSES = {
   'RD-RO': 'Recherche Opérationnelle',
   'sql': 'SQL',
   'csharp': 'C#',
-  'ccna': 'CCNA Réseau'
+  'ccna': 'CCNA Réseau',
+  'epreuves': 'Épreuves Passées'
 };
 
 const COURSE_ICONS = {
@@ -60,6 +61,9 @@ function isProtected(urlPath) {
   // Pas un dossier de cours → libre
   if (!COURSE_DIRS.includes(courseName)) return false;
 
+  // Épreuves passées → tout protégé (y compris index et PDF)
+  if (courseName === 'epreuves') return true;
+
   // Assets toujours libres (CSS, JS, images)
   if (parts[1] === 'assets') return false;
 
@@ -69,8 +73,8 @@ function isProtected(urlPath) {
   // Chapitre 1 → libre
   if (parts[1] === 'chapitres' && parts.length >= 3 && parts[2] === 'chapitre1.html') return false;
 
-  // Seuls les fichiers HTML sont protégés (pas les images, etc. dans les sous-dossiers)
-  if (!cleanUrl.endsWith('.html')) return false;
+  // Seuls les fichiers HTML et PDF sont protégés (pas les images, etc. dans les sous-dossiers)
+  if (!cleanUrl.endsWith('.html') && !cleanUrl.endsWith('.pdf')) return false;
 
   // Tout le reste dans un cours est protégé :
   // - chapitres 2+ 
