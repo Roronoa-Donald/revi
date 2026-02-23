@@ -31,6 +31,12 @@
         .search-wrap{position:relative}
         .search-wrap i{position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);opacity:.5}
         .ex-count{font-size:0.85rem;opacity:0.6;margin-bottom:1rem}
+        .diagram-container{overflow-x:auto;text-align:center;padding:1.2rem;background:rgba(99,102,241,.04);border-radius:12px;border:1px solid rgba(99,102,241,.08);margin-bottom:.75rem}
+        .diagram-container svg{max-width:100%;height:auto}
+        .diagram-container .mermaid-svg{display:flex;justify-content:center}
+        .text-explain-toggle{cursor:pointer;font-weight:600;font-size:.82rem;color:var(--accent);border:none;background:none;padding:4px 0;display:inline-flex;align-items:center;gap:4px}
+        .text-explain-content{display:none;margin-top:.4rem;padding:.6rem;border-radius:8px;background:rgba(150,150,150,.05);font-size:.82rem}
+        .text-explain-content.visible{display:block}
     </style>
 </head>
 <body>
@@ -112,6 +118,8 @@
     <div class="xp-bar-container"></div>
     <script src="../assets/js/gamification.js"></script>
     <script src="../assets/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="../assets/js/exercise-solutions-svg.js"></script>
     <script>
     const ExercisesData = [
         // Module 1 - Introduction (5)
@@ -323,7 +331,7 @@
                 hintsHtml +
                 '<div>' +
                     '<span class="hint-toggle" onclick="toggleSolution(this)">📝 Voir la solution</span>' +
-                    '<div class="solution-content"><pre><code>' + escapeHtml(ex.solution) + '</code></pre></div>' +
+                    '<div class="solution-content">' + getSolutionHtml(ex) + '</div>' +
                 '</div>' +
                 '<div style="margin-top:0.8rem;text-align:right;">' +
                     '<button onclick="toggleDone(' + ex.id + ')" style="background:' + (isDone ? '#22c55e' : 'var(--accent)') + ';color:#fff;border:none;padding:0.4rem 1rem;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;">' +
@@ -350,12 +358,68 @@
         return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    function getSolutionHtml(ex) {
+        if (typeof ExerciseDiagrams !== 'undefined' && ExerciseDiagrams[ex.id]) {
+            var diagram = ExerciseDiagrams[ex.id];
+            var diagramSvg = '';
+            if (diagram.type === 'mermaid' && diagram.renderedSvg) {
+                diagramSvg = diagram.renderedSvg;
+            } else if (diagram.type === 'svg') {
+                diagramSvg = diagram.html;
+            }
+            if (diagramSvg) {
+                return '<div class="diagram-container">' + diagramSvg + '</div>' +
+                    '<details style="margin-top:0.5rem;"><summary class="text-explain-toggle">📄 Explication textuelle</summary>' +
+                    '<div class="text-explain-content visible"><pre style="white-space:pre-wrap;font-family:JetBrains Mono,monospace;font-size:0.82rem;line-height:1.6;"><code>' + escapeHtml(ex.solution) + '</code></pre></div></details>';
+            }
+        }
+        return '<pre><code>' + escapeHtml(ex.solution) + '</code></pre>';
+    }
+
     document.getElementById('search-input').addEventListener('input', renderExercises);
+
     document.addEventListener('DOMContentLoaded', function() {
+        initDiagramsAndRender();
+    });
+
+    async function initDiagramsAndRender() {
+        if (typeof mermaid !== 'undefined' && typeof ExerciseDiagrams !== 'undefined') {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'default',
+                securityLevel: 'loose',
+                themeVariables: {
+                    primaryColor: '#ede9fe',
+                    primaryTextColor: '#1e293b',
+                    primaryBorderColor: '#6366f1',
+                    lineColor: '#64748b',
+                    secondaryColor: '#fdf2f8',
+                    tertiaryColor: '#f1f5f9',
+                    noteBkgColor: '#fef3c7',
+                    noteTextColor: '#1e293b'
+                },
+                flowchart: { htmlLabels: true, curve: 'basis', padding: 15 },
+                sequence: { showSequenceNumbers: false, actorMargin: 60, mirrorActors: false }
+            });
+            var counter = 0;
+            for (var id in ExerciseDiagrams) {
+                if (ExerciseDiagrams.hasOwnProperty(id)) {
+                    var diagram = ExerciseDiagrams[id];
+                    if (diagram.type === 'mermaid') {
+                        try {
+                            var result = await mermaid.render('mmd' + (counter++), diagram.code);
+                            diagram.renderedSvg = result.svg;
+                        } catch(e) {
+                            console.warn('Diagram render error for exercise ' + id + ':', e);
+                        }
+                    }
+                }
+            }
+        }
         buildFilters();
         updateProgress();
         renderExercises();
-    });
+    }
     </script>
 </body>
 </html>
