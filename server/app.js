@@ -17,7 +17,18 @@ function buildApp(opts = {}) {
   // ========================
   fastify.register(require('@fastify/cookie'));
   fastify.register(require('@fastify/cors'), {
-    origin: true,
+    origin: function(origin, cb) {
+      // Allow requests with no origin (mobile apps, curl, same-origin)
+      if (!origin) return cb(null, true);
+      const allowed = [
+        /^https?:\/\/localhost(:\d+)?$/,
+        /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+        /\.vercel\.app$/,
+        /\.onrender\.com$/
+      ];
+      if (allowed.some(re => re.test(origin))) return cb(null, true);
+      return cb(new Error('CORS bloqué'), false);
+    },
     credentials: true
   });
 

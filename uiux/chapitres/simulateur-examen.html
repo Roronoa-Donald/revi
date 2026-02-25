@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur d'Examen 100 QCM — RD UI/UX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .filter-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem; }
+        .filter-btn { padding:0.35rem 0.9rem; border-radius:100px; border:1px solid var(--glass-border); background:transparent; color:var(--text-secondary); font-size:0.8rem; font-weight:600; cursor:pointer; transition:0.2s; }
+        .filter-btn:hover, .filter-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+        .q-counter { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--accent); }
+        .exam-question { transition: border-color 0.3s; }
+        .exam-question.answered { border-left: 3px solid var(--accent); }
+        .exam-question.correct-result { border-left: 3px solid #22c55e; }
+        .exam-question.wrong-result { border-left: 3px solid #ef4444; }
+        .mode-selector { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .mode-btn { padding: 0.75rem 1.5rem; border-radius: 12px; border: 2px solid var(--glass-border); background: var(--glass-bg); cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: 0.2s; text-align: center; flex: 1; min-width: 200px; }
+        .mode-btn:hover { border-color: var(--accent); }
+        .mode-btn.selected { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
+        .mode-btn h4 { margin-bottom: 0.3rem; }
+        .mode-btn p { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); }
+        .progress-dots { display: flex; flex-wrap: wrap; gap: 4px; margin: 1rem 0; }
+        .progress-dot { width: 24px; height: 24px; border-radius: 6px; font-size: 0.65rem; display: flex; align-items: center; justify-content: center; border: 1px solid var(--glass-border); background: var(--bg-tertiary); cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .progress-dot.answered { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+        .progress-dot.correct { background: rgba(34,197,94,0.15); border-color: #22c55e; color: #22c55e; }
+        .progress-dot.wrong { background: rgba(239,68,68,0.15); border-color: #ef4444; color: #ef4444; }
+        .explanation-box { margin-top:0.75rem; padding:0.75rem 1rem; border-radius:10px; background:rgba(8,145,178,0.06); border-left:3px solid var(--accent); font-size:0.88rem; display:none; }
+        .explanation-box.visible { display:block; }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fa-solid fa-palette"></i><span>RD UI/UX</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="cours-complet.html">Cours</a></li>
+                <li><a href="simulateur-examen.html" class="active">Examen 100 QCM</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+                <button class="hamburger-btn" id="hamburger-btn" aria-expanded="false" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <button class="mobile-nav-close" id="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="cours-complet.html"><i class="fa-solid fa-book-open"></i> Cours Complet</a></li>
+            <li><a href="simulateur-examen.html"><i class="fa-solid fa-clipboard-check"></i> Examen 100 QCM</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fa-solid fa-graduation-cap"></i> Examen</span>
+        <h1 class="hero-title">Simulateur <span class="gradient-text">100 QCM</span></h1>
+        <p class="hero-description">100 questions couvrant tous les modules UI/UX. Chronomètre, corrections détaillées et explications. Prêt pour demain ?</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <!-- ── Start Screen ── -->
+        <div id="exam-start" class="glass-card" style="text-align:center;padding:2.5rem;">
+            <h2 style="margin-bottom:1.5rem;">🎯 Choisir le mode</h2>
+
+            <div class="mode-selector" id="mode-selector">
+                <div class="mode-btn selected" data-mode="exam" onclick="selectMode('exam')">
+                    <h4><i class="fa-solid fa-clock"></i> Mode Examen</h4>
+                    <p>100 QCM • 45 min chrono • Résultats à la fin</p>
+                </div>
+                <div class="mode-btn" data-mode="practice" onclick="selectMode('practice')">
+                    <h4><i class="fa-solid fa-dumbbell"></i> Mode Entraînement</h4>
+                    <p>100 QCM • Sans chrono • Correction immédiate</p>
+                </div>
+            </div>
+
+            <div style="margin-bottom:1.5rem;">
+                <h3 style="font-size:1rem;margin-bottom:0.75rem;">Filtrer par catégorie (optionnel)</h3>
+                <div class="filter-bar" id="category-filters">
+                    <button class="filter-btn active" data-cat="all" onclick="toggleCat(this)">Tout (100)</button>
+                    <button class="filter-btn" data-cat="definitions" onclick="toggleCat(this)">Définitions</button>
+                    <button class="filter-btn" data-cat="responsive" onclick="toggleCat(this)">Responsive</button>
+                    <button class="filter-btn" data-cat="autolayout" onclick="toggleCat(this)">Auto Layout</button>
+                    <button class="filter-btn" data-cat="reorganisation" onclick="toggleCat(this)">Réorganisation</button>
+                    <button class="filter-btn" data-cat="ergonomie" onclick="toggleCat(this)">Ergonomie</button>
+                    <button class="filter-btn" data-cat="accessibilite" onclick="toggleCat(this)">Accessibilité</button>
+                    <button class="filter-btn" data-cat="ccu" onclick="toggleCat(this)">CCU</button>
+                    <button class="filter-btn" data-cat="uxresearch" onclick="toggleCat(this)">UX Research</button>
+                    <button class="filter-btn" data-cat="wireframe" onclick="toggleCat(this)">Wireframe</button>
+                    <button class="filter-btn" data-cat="typo" onclick="toggleCat(this)">Typographie</button>
+                </div>
+            </div>
+
+            <ul style="text-align:left;max-width:420px;margin:0 auto 2rem;line-height:2.2;font-size:0.95rem;">
+                <li><strong>100 questions</strong> — QCM à choix unique</li>
+                <li><strong>Mode Examen</strong> — 45 minutes chrono</li>
+                <li><strong>70%</strong> minimum pour réussir (70/100)</li>
+                <li><strong>Tous les modules</strong> représentés</li>
+            </ul>
+
+            <button class="exercise-submit-btn" onclick="startExam()" style="font-size:1.1rem;padding:1rem 3rem;">
+                <i class="fa-solid fa-play"></i> Commencer
+            </button>
+        </div>
+
+        <!-- ── Exam Container ── -->
+        <div id="exam-container" style="display:none;">
+            <div class="glass-card exam-header" style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;margin-bottom:1rem;position:sticky;top:62px;z-index:10;">
+                <span id="exam-progress" class="q-counter">Question 1/100</span>
+                <span id="exam-timer" style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:1.2rem;">45:00</span>
+                <span id="exam-score-live" class="q-counter">0 / 100</span>
+            </div>
+
+            <div class="glass-card" style="padding:1rem;" id="progress-panel">
+                <div class="progress-dots" id="progress-dots"></div>
+            </div>
+
+            <div id="exam-questions" style="margin-top:1rem;"></div>
+
+            <div style="text-align:center;margin-top:2rem;">
+                <button class="exercise-submit-btn" onclick="submitExam()" style="font-size:1.1rem;padding:1rem 3rem;">
+                    <i class="fa-solid fa-flag-checkered"></i> Terminer l'examen
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Results ── -->
+        <div id="exam-results" style="display:none;"></div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo">🎨 RD UI/UX</div>
+        <p class="footer-copy">© 2025-2026 RD Interactive</p>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+    /* =========================================================
+       100 QCM — UI/UX Design Complet
+       cat = catégorie pour filtrage
+       q = question, o = options, a = index bonne réponse, exp = explication
+       ========================================================= */
+    const examDB = [
+
+        // ─── DÉFINITIONS FONDAMENTALES (1-10) ───
+        {q:"Que signifie UX ?",o:["User eXperience","User eXtension","Unified eXperience","Universal eXchange"],a:0,cat:"definitions",exp:"UX = User eXperience (Expérience Utilisateur). C'est ce que l'utilisateur ressent."},
+        {q:"Que signifie UI ?",o:["User Interaction","User Interface","Unified Integration","User Implementation"],a:1,cat:"definitions",exp:"UI = User Interface (Interface Utilisateur). C'est ce que l'utilisateur voit."},
+        {q:"L'UX concerne principalement :",o:["Les couleurs et typographies","Le ressenti et la satisfaction de l'utilisateur","Le code source","Le référencement SEO"],a:1,cat:"definitions",exp:"L'UX = le ressenti : facilité, satisfaction, parcours utilisateur fluide."},
+        {q:"L'UI concerne principalement :",o:["La logique métier","Les tests unitaires","Les éléments visuels : couleurs, boutons, typographie","La base de données"],a:2,cat:"definitions",exp:"L'UI = la partie visuelle : typographie, couleurs, menus, boutons, icônes."},
+        {q:"Qu'est-ce que le design responsive ?",o:["Un design uniquement pour mobile","Un design qui s'adapte automatiquement à la taille de l'écran","Un design animé","Un design en 3D"],a:1,cat:"definitions",exp:"Responsive = capacité de s'adapter automatiquement à la taille de l'écran."},
+        {q:"Un bon produit numérique nécessite :",o:["Seulement un bon UI","Seulement un bon UX","Un bon UI ET un bon UX","Ni UI ni UX"],a:2,cat:"definitions",exp:"Un bon UI sans UX = beau mais inutilisable. Un bon UX sans UI = fonctionnel mais laid. Il faut les deux."},
+        {q:"Quelle analogie représente le mieux la différence UI/UX ?",o:["UX = le moteur, UI = la carrosserie","UX = le code, UI = le design","UX = le serveur, UI = le client","UX = le backend, UI = le frontend"],a:0,cat:"definitions",exp:"UX est le mécanisme invisible (moteur), UI est l'apparence visible (carrosserie)."},
+        {q:"Lequel fait partie de l'UI ?",o:["La satisfaction client","Le temps de chargement","Le choix des couleurs et typographies","Le parcours utilisateur"],a:2,cat:"definitions",exp:"Les couleurs, typo, boutons, icônes = éléments visuels = UI."},
+        {q:"Lequel fait partie de l'UX ?",o:["La typographie","Le nombre de clics pour accomplir une tâche","La couleur des boutons","Les icônes utilisées"],a:1,cat:"definitions",exp:"Le nombre de clics = facilité d'utilisation = UX."},
+        {q:"Le responsive design est :",o:["Optionnel pour les sites modernes","Obligatoire uniquement pour les applications","La philosophie de la conception web moderne","Réservé aux sites e-commerce"],a:2,cat:"definitions",exp:"Le responsive est la philosophie de la conception moderne — tout site doit s'adapter."},
+
+        // ─── CCU (11-20) ───
+        {q:"Que signifie CCU ?",o:["Conception Centrée Client","Conception Centrée Utilisateur","Code Centré Utilisateur","Création Contextuelle Unifiée"],a:1,cat:"ccu",exp:"CCU = Conception Centrée Utilisateur — un modèle en 4 étapes centré sur l'utilisateur."},
+        {q:"Combien d'étapes comporte la CCU ?",o:["2","3","4","5"],a:2,cat:"ccu",exp:"4 étapes : Comprendre, Concevoir, Prototyper, Tester."},
+        {q:"Quelle est la 1ère étape de la CCU ?",o:["Prototyper","Tester","Concevoir","Comprendre l'utilisateur"],a:3,cat:"ccu",exp:"Étape 1 = Comprendre l'utilisateur (ses besoins, frustrations, motivations)."},
+        {q:"Quelle est la 2ème étape de la CCU ?",o:["Tester","Concevoir","Prototyper","Analyser"],a:1,cat:"ccu",exp:"Étape 2 = Concevoir : Idée → Croquis → Wireframe → Maquette."},
+        {q:"Quelle est la 3ème étape de la CCU ?",o:["Tester","Concevoir","Prototyper","Comprendre"],a:2,cat:"ccu",exp:"Étape 3 = Prototyper : créer un prototype interactif (Figma, Adobe XD)."},
+        {q:"Quelle est la 4ème étape de la CCU ?",o:["Déployer","Tester et Améliorer","Concevoir","Prototyper"],a:1,cat:"ccu",exp:"Étape 4 = Tester et Améliorer — tests utilisateur, corrections, itérations."},
+        {q:"Le principe clé de la CCU est :",o:["Le concepteur a toujours raison","Les intentions du concepteur ne comptent pas, seul l'utilisateur compte","Le design prime sur la fonctionnalité","Le code est plus important que le design"],a:1,cat:"ccu",exp:"CCU = seul l'utilisateur compte, pas les intentions du concepteur."},
+        {q:"Sans prototype, le temps total estimé est :",o:["~30h","~54h","~92h","~120h"],a:2,cat:"ccu",exp:"Sans prototype : Design→Dev→Design→Dev = ~92h. Avec prototype : ~54h."},
+        {q:"Avec prototype, le temps total estimé est :",o:["~30h","~54h","~92h","~120h"],a:1,cat:"ccu",exp:"Avec prototype → ~54h (contre ~92h sans prototype). Gain significatif."},
+        {q:"Quels sont les acteurs de la CCU ?",o:["Uniquement les designers","Designers, développeurs, programmeurs, ergonomes","Uniquement les chefs de projet","Les clients et les investisseurs"],a:1,cat:"ccu",exp:"Les acteurs CCU : Designers + Développeurs + Programmeurs + Ergonomes."},
+
+        // ─── UX RESEARCH & PERSONA (21-30) ───
+        {q:"Qu'est-ce qu'un persona en UX ?",o:["Un personnage de jeu vidéo","Une représentation semi-fictive d'un utilisateur cible basée sur des données réelles","Le profil LinkedIn du client","Un modèle de site web"],a:1,cat:"uxresearch",exp:"Persona = représentation semi-fictive basée sur des données réelles (âge, motivations, frustrations)."},
+        {q:"Qu'est-ce qui ne fait PAS partie d'un persona ?",o:["Ses frustrations","Le code source de l'application","Ses motivations","Les médias sociaux qu'il fréquente"],a:1,cat:"uxresearch",exp:"Le persona inclut : motivations, frustrations, médias sociaux — PAS le code source."},
+        {q:"La 1ère étape de l'UX Research est :",o:["Créer le persona","Faire des recommandations","Collecter les données","Coder l'application"],a:2,cat:"uxresearch",exp:"Étape 1 = Collecte des données : sondage, analyse, enquêtes."},
+        {q:"Quelle méthode n'est PAS une méthode de collecte UX ?",o:["Sondage","Compilation du code","Interviews utilisateurs","Analyse des concurrents"],a:1,cat:"uxresearch",exp:"La compilation de code n'est pas une méthode UX. Les sondages, interviews et analyse concurrentielle le sont."},
+        {q:"Les recommandations UX sont données à quelle étape ?",o:["1ère étape","2ème étape","3ème étape","4ème étape"],a:3,cat:"uxresearch",exp:"Étape 4 = Recommandations UX (ex: montrer le prix avant de cliquer)."},
+        {q:"Qu'est-ce qu'un motif en UX Research ?",o:["Un pattern visuel","La raison pour laquelle l'utilisateur utilise le produit","Un composant d'interface","Un style CSS"],a:1,cat:"uxresearch",exp:"Motif = raison/motivation de l'utilisateur (ex: pas envie de se déplacer, manque de temps)."},
+        {q:"Qu'est-ce qu'un besoin en UX Research ?",o:["La fonctionnalité que l'utilisateur attend du produit","Le budget du projet","Le nombre de développeurs","La technologie utilisée"],a:0,cat:"uxresearch",exp:"Besoin = fonctionnalité attendue (ex: commander facilement, suivi en temps réel)."},
+        {q:"L'échelle de valeur dans un persona représente :",o:["Le prix du produit","L'importance du persona dans la société","Le nombre de pages du site","La vitesse de connexion"],a:1,cat:"uxresearch",exp:"L'échelle de valeur = importance/rôle du persona dans son contexte social."},
+        {q:"Les médias sociaux d'un persona servent à :",o:["Décorer le persona","Savoir où communiquer avec l'utilisateur cible","Connaître le nombre d'amis","Rien de particulier"],a:1,cat:"uxresearch",exp:"Les médias sociaux du persona = savoir où le toucher (WhatsApp, TikTok, Facebook...)."},
+        {q:"Une frustration typique d'un persona pour une app de livraison :",o:["Le logo est vert","L'application utilise React","Trop d'étapes pour commander","Le serveur utilise NodeJS"],a:2,cat:"uxresearch",exp:"Frustration = trop d'étapes, app lente, prix élevé, impossible de suivre la livraison."},
+
+        // ─── WIREFRAME & PROTOTYPAGE (31-40) ───
+        {q:"Qu'est-ce qu'un wireframe ?",o:["Une animation CSS","Un plan schématique de l'interface sans design visuel final","Un framework JavaScript","Une base de données"],a:1,cat:"wireframe",exp:"Wireframe = architecture de l'information — maquette schématique sans design."},
+        {q:"Un wireframe basse fidélité (low-fi) est :",o:["Une maquette avec toutes les couleurs et images","Un croquis simple et rapide sans design","Un site web fonctionnel","Un document technique"],a:1,cat:"wireframe",exp:"Low-fi = croquis simple sans couleurs, rapide, focus sur la structure."},
+        {q:"Un wireframe haute fidélité (high-fi) est :",o:["Un croquis à la main","Une maquette détaillée avec design, couleurs et interactions","Un schéma UML","Un fichier texte"],a:1,cat:"wireframe",exp:"High-fi = maquette détaillée avec design, couleurs, typographie, proche du produit final."},
+        {q:"Quel outil est le plus utilisé pour le prototypage en cours ?",o:["Visual Studio Code","Figma","Photoshop","PowerPoint"],a:1,cat:"wireframe",exp:"Figma est l'outil de prototypage collaboratif le plus utilisé."},
+        {q:"Qu'est-ce qu'un Design System ?",o:["Un système d'exploitation","Un ensemble de composants visuels réutilisables avec un thème commun","Un langage de programmation","Une méthode agile"],a:1,cat:"wireframe",exp:"Design System = composants visuels réutilisables + règles + standards partagés."},
+        {q:"L'ordre correct du processus de wireframing est :",o:["Maquette → Croquis → Idée → Prototype","Idée → Croquis → Wireframe → Maquette → Prototype → Validation","Prototype → Test → Wireframe → Maquette","Code → Design → Test"],a:1,cat:"wireframe",exp:"Idée → Croquis → Wireframe low-fi → Maquette high-fi → Prototype → Validation."},
+        {q:"Zeplin est un outil pour :",o:["Coder des pages web","Transférer le design vers le développement","Créer des bases de données","Gérer les versions de code"],a:1,cat:"wireframe",exp:"Zeplin = outil de transfert design → développement (spécifications, assets)."},
+        {q:"Quel outil n'est PAS un outil de prototypage UI ?",o:["Figma","Adobe XD","MySQL","Sketch"],a:2,cat:"wireframe",exp:"MySQL est un système de base de données, pas un outil de prototypage."},
+        {q:"Un prototype interactif permet de :",o:["Compiler du code","Simuler les interactions entre les écrans avant le développement","Héberger un site","Gérer les utilisateurs"],a:1,cat:"wireframe",exp:"Le prototype simule les interactions (navigation, clics) avant de coder."},
+        {q:"Un Design System contient :",o:["Uniquement des couleurs","Des règles de disposition, comportement, interaction et composants communs","Uniquement du code","Uniquement des images"],a:1,cat:"wireframe",exp:"Design System = règles d'effets + composants communs + standards de design."},
+
+        // ─── RESPONSIVE DESIGN (41-55) ───
+        {q:"L'approche Mobile-First signifie :",o:["Concevoir d'abord pour desktop puis adapter au mobile","Concevoir d'abord pour mobile puis agrandir progressivement","Concevoir uniquement pour mobile","Ne pas se soucier du desktop"],a:1,cat:"responsive",exp:"Mobile-First = commencer par le mobile, puis enrichir vers tablette et desktop."},
+        {q:"L'approche Desktop-First signifie :",o:["Concevoir d'abord pour mobile","Concevoir d'abord pour desktop puis réduire vers mobile","Ignorer le mobile","Concevoir pour la TV"],a:1,cat:"responsive",exp:"Desktop-First = concevoir pour grand écran d'abord, puis réduire."},
+        {q:"Quelle approche est recommandée ?",o:["Desktop-First","Mobile-First","TV-First","Aucune"],a:1,cat:"responsive",exp:"Mobile-First est recommandé car la majorité du trafic web est mobile."},
+        {q:"Le breakpoint standard pour le mobile est :",o:["320px","576px","768px","992px"],a:1,cat:"responsive",exp:"≤ 576px = breakpoint mobile standard."},
+        {q:"Le breakpoint standard pour la tablette est :",o:["576px","768px","992px","1200px"],a:1,cat:"responsive",exp:"≤ 768px = breakpoint tablette standard."},
+        {q:"Le breakpoint standard pour le desktop est :",o:["576px","768px","992px","1200px"],a:2,cat:"responsive",exp:"≤ 992px = breakpoint desktop standard."},
+        {q:"Le breakpoint standard pour le desktop large est :",o:["576px","768px","992px","1200px"],a:3,cat:"responsive",exp:"≤ 1200px = breakpoint desktop large standard."},
+        {q:"@media (min-width: 576px) cible :",o:["Les écrans inférieurs à 576px","Les écrans supérieurs ou égaux à 576px","Tous les écrans","Aucun écran"],a:1,cat:"responsive",exp:"min-width = à partir de X pixels (écrans ≥ 576px). Utilisé en Mobile-First."},
+        {q:"@media (max-width: 576px) cible :",o:["Les écrans supérieurs à 576px","Les écrans inférieurs ou égaux à 576px","Tous les écrans","Aucun écran"],a:1,cat:"responsive",exp:"max-width = jusqu'à X pixels (écrans ≤ 576px). Utilisé en Desktop-First."},
+        {q:"En Mobile-First, on utilise principalement :",o:["@media (max-width)","@media (min-width)","@media (exact-width)","@media (device-width)"],a:1,cat:"responsive",exp:"Mobile-First = on part du petit écran et on agrandit → min-width."},
+        {q:"En Desktop-First, on utilise principalement :",o:["@media (min-width)","@media (max-width)","@media (device-width)","@media (screen-width)"],a:1,cat:"responsive",exp:"Desktop-First = on part du grand écran et on réduit → max-width."},
+        {q:"Une media query est :",o:["Un framework CSS","Un point dans le CSS où le style change selon la taille de l'écran","Un langage de programmation","Un outil de test"],a:1,cat:"responsive",exp:"Media query = point de rupture CSS qui adapte les styles à la taille de l'écran."},
+        {q:"Quel n'est PAS un breakpoint standard courant ?",o:["576px","768px","850px","1200px"],a:2,cat:"responsive",exp:"Les breakpoints standards sont 576, 768, 992, 1200px. 850px n'est pas standard."},
+        {q:"Pourquoi le Mobile-First est recommandé ?",o:["Les mobiles sont plus puissants","La majorité du trafic web est mobile — on commence par l'essentiel","Les designers préfèrent les petits écrans","C'est obligatoire par la loi"],a:1,cat:"responsive",exp:"Mobile-First : la majorité du trafic est mobile, on commence par l'essentiel puis on enrichit."},
+        {q:"La différence entre min-width et max-width est :",o:["Aucune, c'est pareil","min-width agrandit, max-width réduit","min-width = à partir de X px, max-width = jusqu'à X px","min-width est plus rapide"],a:2,cat:"responsive",exp:"min-width = 'à partir de' (ascendant). max-width = 'jusqu'à' (descendant)."},
+
+        // ─── AUTO LAYOUT FIGMA (56-70) ───
+        {q:"Qu'est-ce que l'Auto Layout dans Figma ?",o:["Un plugin tiers","Une fonctionnalité qui organise automatiquement les éléments dans un cadre","Un langage de programmation","Un type de fichier"],a:1,cat:"autolayout",exp:"Auto Layout = organisation automatique des éléments. Équivalent visuel de Flexbox."},
+        {q:"L'Auto Layout est l'équivalent visuel de :",o:["CSS Grid","Flexbox","Position absolute","Float"],a:1,cat:"autolayout",exp:"Auto Layout Figma ≈ Flexbox CSS (direction, gap, alignement)."},
+        {q:"Les deux directions d'un Auto Layout sont :",o:["Diagonale et circulaire","Verticale et horizontale","Fixe et variable","Statique et dynamique"],a:1,cat:"autolayout",exp:"Auto Layout : Vertical (↓) = empilement, Horizontal (→) = côte à côte."},
+        {q:"'Hug Contents' dans Figma signifie :",o:["L'élément a une taille fixe","Le cadre s'adapte à la taille de son contenu","L'élément remplit tout l'espace du parent","L'élément est masqué"],a:1,cat:"autolayout",exp:"Hug = le parent fait exactement la taille de son contenu (comme un emballage-cadeau)."},
+        {q:"'Fill Container' dans Figma signifie :",o:["L'élément garde une taille fixe","Le cadre s'adapte au contenu","L'élément s'étire pour remplir l'espace disponible du parent","L'élément disparaît"],a:2,cat:"autolayout",exp:"Fill = l'enfant s'étire pour remplir l'espace du parent (comme l'eau dans un verre)."},
+        {q:"'Fixed' dans Figma signifie :",o:["Une taille qui s'adapte","L'élément a une taille fixe en pixels","L'élément change selon l'écran","L'élément est invisible"],a:1,cat:"autolayout",exp:"Fixed = taille rigide en pixels, ne change pas (ex: width: 300px)."},
+        {q:"L'équivalent CSS de 'Fill Container' est :",o:["width: fit-content","width: 100% ou flex: 1","width: auto","width: 0"],a:1,cat:"autolayout",exp:"Fill Container ≈ width: 100% ou flex: 1 en CSS."},
+        {q:"L'équivalent CSS de 'Hug Contents' est :",o:["width: 100%","width: 50%","width: fit-content","width: 0"],a:2,cat:"autolayout",exp:"Hug Contents ≈ width: fit-content en CSS."},
+        {q:"Le 'Gap' dans un Auto Layout correspond à :",o:["L'espacement extérieur (margin)","L'espacement intérieur (padding)","L'espacement entre les éléments enfants","La taille de la police"],a:2,cat:"autolayout",exp:"Gap = espacement entre les éléments enfants dans le conteneur."},
+        {q:"Le 'Padding' dans un Auto Layout correspond à :",o:["L'espacement entre les éléments enfants","L'espacement intérieur du conteneur","La taille du conteneur","La bordure"],a:1,cat:"autolayout",exp:"Padding = espacement intérieur du conteneur (haut, droite, bas, gauche)."},
+        {q:"L'alignement 'Space Between' dans Figma fait :",o:["Groupe tous les éléments à gauche","Répartit les éléments uniformément avec les espaces entre eux","Centre tous les éléments","Masque les éléments"],a:1,cat:"autolayout",exp:"Space Between = éléments répartis uniformément, espaces égaux entre eux."},
+        {q:"L'alignement 'Packed' dans Figma fait :",o:["Répartit les éléments uniformément","Groupe les éléments ensemble sans espace supplémentaire","Masque les éléments","Les éléments se chevauchent"],a:1,cat:"autolayout",exp:"Packed = éléments groupés ensemble (côte à côte ou empilés sans espace extra)."},
+        {q:"Le 'Wrap' dans un Auto Layout permet aux éléments de :",o:["Disparaître","Passer à la ligne quand l'espace manque","Devenir transparents","S'agrandir indéfiniment"],a:1,cat:"autolayout",exp:"Wrap = les éléments passent à la ligne si l'espace horizontal manque (comme flex-wrap)."},
+        {q:"La contrainte 'Left and Right' fait que l'élément :",o:["Reste centré","S'étire horizontalement quand le parent change de taille","Disparaît","Reste fixe"],a:1,cat:"autolayout",exp:"Left and Right = l'élément est ancré aux deux côtés → il s'étire horizontalement."},
+        {q:"La contrainte 'Scale' fait que l'élément :",o:["Reste fixe","Se redimensionne proportionnellement","Disparaît","S'ancre en bas"],a:1,cat:"autolayout",exp:"Scale = l'élément se redimensionne proportionnellement au parent."},
+
+        // ─── RÉORGANISATION RESPONSIVE (71-82) ───
+        {q:"Sur mobile, les éléments côte à côte deviennent généralement :",o:["Plus petits mais restent côte à côte","Empilés verticalement","Invisibles","Agrandis"],a:1,cat:"reorganisation",exp:"Règle N°1 : horizontal → vertical (empilement) sur mobile."},
+        {q:"Une grille 3 colonnes desktop devient sur mobile :",o:["3 colonnes plus étroites","1 seule colonne empilée","2 colonnes","La grille disparaît"],a:1,cat:"reorganisation",exp:"Grille 3 colonnes desktop → 1 colonne mobile (empilement vertical)."},
+        {q:"Le menu de navigation desktop devient sur mobile :",o:["Un menu identique","Un menu hamburger (☰)","Un menu invisible","Un footer"],a:1,cat:"reorganisation",exp:"Menu horizontal desktop → menu hamburger (☰) avec panneau coulissant sur mobile."},
+        {q:"La sidebar desktop est généralement sur mobile :",o:["Toujours visible à gauche","Déplacée en dessous du contenu principal ou masquée","Transformée en popup","Supprimée définitivement"],a:1,cat:"reorganisation",exp:"Sidebar = déplacée sous le contenu ou masquée (le contenu principal a la priorité)."},
+        {q:"La propriété CSS pour empiler les éléments verticalement est :",o:["flex-direction: row","flex-direction: column","display: none","position: absolute"],a:1,cat:"reorganisation",exp:"flex-direction: column = éléments empilés verticalement (mobile)."},
+        {q:"La propriété CSS pour mettre les éléments côte à côte est :",o:["flex-direction: column","flex-direction: row","display: block","visibility: hidden"],a:1,cat:"reorganisation",exp:"flex-direction: row = éléments côte à côte (desktop)."},
+        {q:"Sur mobile, les images passent généralement à :",o:["50% de largeur","0% (masquées)","100% de largeur (pleine largeur)","25% de largeur"],a:2,cat:"reorganisation",exp:"Mobile : les images prennent 100% de la largeur du conteneur."},
+        {q:"L'étape 1 du raisonnement UI responsive est :",o:["Coder le CSS","Identifier les blocs de l'interface","Tester sur mobile","Publier le site"],a:1,cat:"reorganisation",exp:"Étape 1 : Identifier les blocs — header, nav, contenu, sidebar, footer."},
+        {q:"L'étape 2 du raisonnement UI responsive est :",o:["Coder le HTML","Définir la priorité des blocs","Publier le site","Acheter un domaine"],a:1,cat:"reorganisation",exp:"Étape 2 : Définir la priorité — le contenu principal passe en premier sur mobile."},
+        {q:"Le footer desktop avec 4 colonnes devient sur mobile :",o:["4 petites colonnes","1 colonne empilée","Invisible","Un menu hamburger"],a:1,cat:"reorganisation",exp:"Footer 4 colonnes → empilé en 1 colonne sur mobile."},
+        {q:"Masquer un élément sur mobile se fait avec :",o:["display: none dans une media query","color: transparent","font-size: 0","margin: -999px"],a:0,cat:"reorganisation",exp:"display: none dans une media query mobile = masquer l'élément."},
+        {q:"Quel élément a la plus haute priorité sur mobile ?",o:["La sidebar","Le footer","Le contenu principal","La publicité"],a:2,cat:"reorganisation",exp:"Le contenu principal a la priorité maximale sur mobile. La sidebar et les éléments secondaires passent après."},
+
+        // ─── ERGONOMIE (83-90) ───
+        {q:"Que dit la loi de Fitts ?",o:["Plus il y a d'options, plus c'est lent","Plus une cible est grande et proche, plus elle est facile à atteindre","Les utilisateurs préfèrent le familier","L'accessibilité est importante"],a:1,cat:"ergonomie",exp:"Fitts : Taille ↑ + Distance ↓ = Action rapide et facile."},
+        {q:"Que dit la loi de Hick ?",o:["Plus une cible est grande, plus elle est facile","Plus il y a d'options, plus l'utilisateur met du temps à décider","Les utilisateurs préfèrent ce qu'ils connaissent","Le contraste doit être élevé"],a:1,cat:"ergonomie",exp:"Hick : Nombre d'options ↑ = Temps de décision ↑."},
+        {q:"Que dit la loi de Jakob ?",o:["Les couleurs doivent être vives","Les polices doivent être grandes","Les utilisateurs préfèrent ce qu'ils connaissent déjà","Les images doivent être carrées"],a:2,cat:"ergonomie",exp:"Jakob : Familiarité → Confort → Adoption rapide. Les patterns familiers sont préférés."},
+        {q:"Selon la loi de Fitts, un bouton 'Valider' doit être :",o:["Petit et éloigné","Grand et proche de l'action courante","De la même taille que les autres","Invisible"],a:1,cat:"ergonomie",exp:"Fitts : les boutons importants (Valider, Connexion) doivent être grands et proches."},
+        {q:"Selon la loi de Hick, un menu avec 20 choix est :",o:["Idéal pour l'utilisateur","Trop complexe — l'utilisateur met trop de temps à décider","Parfait pour l'UX","Recommandé par le WCAG"],a:1,cat:"ergonomie",exp:"Hick : 20 options = trop de choix → temps de décision très long → mauvaise UX."},
+        {q:"Selon la loi de Jakob, le panier d'un site e-commerce doit être :",o:["En bas à gauche","Au centre de la page","En haut à droite (position familière)","Dans le footer"],a:2,cat:"ergonomie",exp:"Jakob : panier en haut à droite = position familière que les utilisateurs connaissent."},
+        {q:"L'ergonomie en UI/UX vise à :",o:["Améliorer la perception de l'utilisateur par des principes cognitifs","Rendre le code plus rapide","Réduire le poids des images","Augmenter le nombre de pages"],a:0,cat:"ergonomie",exp:"Ergonomie = améliorer la perception utilisateur via des principes psychologiques et cognitifs."},
+        {q:"Le menu hamburger (☰) est un exemple d'application de :",o:["La loi de Fitts","La loi de Hick","La loi de Jakob","La loi de Murphy"],a:2,cat:"ergonomie",exp:"Le ☰ est un pattern familier que tout le monde reconnaît = loi de Jakob."},
+
+        // ─── ACCESSIBILITÉ WCAG (91-100) ───
+        {q:"WCAG signifie :",o:["Web CSS Accessibility Guide","Web Content Accessibility Guidelines","World Code Accessibility Group","Web Compatible Access Guidelines"],a:1,cat:"accessibilite",exp:"WCAG = Web Content Accessibility Guidelines — le référentiel international d'accessibilité."},
+        {q:"Combien de principes fondamentaux le WCAG comporte-t-il ?",o:["2","3","4","5"],a:2,cat:"accessibilite",exp:"4 principes WCAG : Perceptible, Opérable, Compréhensible, Robuste (POCR)."},
+        {q:"Le principe 'Perceptible' du WCAG signifie :",o:["Le contenu doit être visible et compréhensible par tous les sens","L'utilisateur peut naviguer au clavier","Le code doit être propre","L'interface doit être simple"],a:0,cat:"accessibilite",exp:"Perceptible = contenu visible/compréhensible par tous les sens (alt texts, contraste)."},
+        {q:"Le principe 'Opérable' du WCAG signifie :",o:["Le contenu doit être visible","L'utilisateur peut naviguer quelle que soit sa méthode d'entrée","Les messages doivent être clairs","Le code doit être valide"],a:1,cat:"accessibilite",exp:"Opérable = navigable au clavier, à la souris, à la voix. Focus visible."},
+        {q:"Le principe 'Compréhensible' du WCAG signifie :",o:["Le code est compréhensible par la machine","Le contenu et le fonctionnement doivent être compréhensibles par l'utilisateur","Le SEO est optimisé","Les images sont en haute résolution"],a:1,cat:"accessibilite",exp:"Compréhensible = labels clairs, messages d'erreur explicites, interface simple."},
+        {q:"Le principe 'Robuste' du WCAG signifie :",o:["Le serveur est puissant","Le contenu est compatible avec les technologies d'assistance","Le design est responsive","Les animations sont fluides"],a:1,cat:"accessibilite",exp:"Robuste = code propre, attributs ARIA, compatible lecteurs d'écran."},
+        {q:"ARIA signifie :",o:["Accessible Rich Internet Applications","Advanced Responsive Interface Architecture","Automated Real-time Internet Access","Accessible Readable Interface Attributes"],a:0,cat:"accessibilite",exp:"ARIA = Accessible Rich Internet Applications — attributs HTML pour l'accessibilité."},
+        {q:"WAVE est :",o:["Un framework JavaScript","Un outil de test d'accessibilité (extension Chrome)","Un lecteur d'écran","Un langage de programmation"],a:1,cat:"accessibilite",exp:"WAVE = extension Chrome pour tester l'accessibilité d'une page web."},
+        {q:"Quel n'est PAS un lecteur d'écran ?",o:["NVDA","VoiceOver","JAWS","Figma"],a:3,cat:"accessibilite",exp:"NVDA, VoiceOver, JAWS = lecteurs d'écran. Figma = outil de design."},
+        {q:"L'accessibilité est aussi liée à :",o:["La performance et le SEO","Le langage de programmation","La marque de l'ordinateur","Le système d'exploitation"],a:0,cat:"accessibilite",exp:"Accessibilité → Performance + SEO (Search Engine Optimization = référencement naturel)."},
+
+        // ─── TYPOGRAPHIE & ESPACEMENT (BONUS 101-110 — extras) ───
+        {q:"Le 'margin' en CSS représente :",o:["L'espacement intérieur","L'espacement extérieur autour de l'élément","La taille de la police","La couleur de fond"],a:1,cat:"typo",exp:"margin = espacement extérieur (distance entre deux éléments)."},
+        {q:"Le 'padding' en CSS représente :",o:["L'espacement extérieur","L'espacement intérieur de l'élément","La bordure","La hauteur"],a:1,cat:"typo",exp:"padding = espacement intérieur (épaisseur entre le bord et le contenu)."},
+        {q:"Le 'gap' en CSS est utilisé dans :",o:["Flexbox et Grid","Position absolute","Float","Display: block"],a:0,cat:"typo",exp:"gap = espacement entre enfants dans un conteneur Flex ou Grid."},
+        {q:"La hiérarchie visuelle correcte est :",o:["p > H3 > H2 > H1","H1 > H2 > H3 > p","H3 > H1 > p > H2","p > H1 > H2 > H3"],a:1,cat:"typo",exp:"H1 (plus grand) > H2 > H3 > p (texte courant) = hiérarchie visuelle."},
+        {q:"La taille de police minimum recommandée pour le texte courant est :",o:["8px","12px","16px","24px"],a:2,cat:"typo",exp:"16px = taille minimum recommandée pour le texte courant (lisibilité)."},
+        {q:"Le ratio de contraste minimum selon le WCAG est :",o:["1:1","2.5:1","4.5:1","10:1"],a:2,cat:"typo",exp:"Ratio de contraste minimum WCAG = 4.5:1 (texte normal sur fond)."},
+        {q:"Le line-height recommandé pour le confort de lecture est :",o:["0.5 à 0.8","1.0 à 1.2","1.5 à 1.8","3.0 à 4.0"],a:2,cat:"typo",exp:"Line-height entre 1.5 et 1.8 = interligne confortable pour la lecture."},
+        {q:"Le nombre optimal de caractères par ligne est :",o:["20-30","60-80","120-150","200+"],a:1,cat:"typo",exp:"60-80 caractères par ligne = confort optimal de lecture."},
+        {q:"Pour un espacement cohérent, on utilise des multiples de :",o:["3px","4px ou 8px","7px","13px"],a:1,cat:"typo",exp:"Multiples de 4 ou 8px (4, 8, 16, 24, 32...) = grille d'espacement cohérente."},
+        {q:"SEO signifie :",o:["Search Engine Optimization","Social Engine Operation","Secure Electronic Output","System Engine Optimization"],a:0,cat:"typo",exp:"SEO = Search Engine Optimization = référencement naturel (lié à l'accessibilité)."},
+    ];
+
+    let currentMode = 'exam';
+    let selectedCat = 'all';
+    let timer, timeLeft, answers = {}, shuffled = [];
+
+    function selectMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+        document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('selected');
+    }
+
+    function toggleCat(btn) {
+        const cat = btn.dataset.cat;
+        if (cat === 'all') {
+            selectedCat = 'all';
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        } else {
+            document.querySelector('.filter-btn[data-cat="all"]').classList.remove('active');
+            btn.classList.toggle('active');
+            const actives = [...document.querySelectorAll('.filter-btn.active:not([data-cat="all"])')];
+            if (actives.length === 0) {
+                selectedCat = 'all';
+                document.querySelector('.filter-btn[data-cat="all"]').classList.add('active');
+            } else {
+                selectedCat = actives.map(b => b.dataset.cat);
+            }
+        }
+    }
+
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function getFilteredQuestions() {
+        if (selectedCat === 'all') return [...examDB];
+        return examDB.filter(q => {
+            if (Array.isArray(selectedCat)) return selectedCat.includes(q.cat);
+            return q.cat === selectedCat;
+        });
+    }
+
+    function startExam() {
+        const pool = getFilteredQuestions();
+        shuffled = shuffle(pool).slice(0, 100);
+        answers = {};
+
+        document.getElementById('exam-start').style.display = 'none';
+        document.getElementById('exam-container').style.display = 'block';
+        document.getElementById('exam-results').style.display = 'none';
+
+        const total = shuffled.length;
+        document.getElementById('exam-progress').textContent = `Question 1/${total}`;
+        document.getElementById('exam-score-live').textContent = `0 / ${total}`;
+
+        // Build progress dots
+        const dotsHTML = shuffled.map((_, i) => `<div class="progress-dot" data-idx="${i}" onclick="scrollToQ(${i})">${i+1}</div>`).join('');
+        document.getElementById('progress-dots').innerHTML = dotsHTML;
+
+        // Build questions
+        const qContainer = document.getElementById('exam-questions');
+        qContainer.innerHTML = shuffled.map((q, i) => `
+            <div class="glass-card exam-question" id="eq-${i}" style="margin-bottom:1rem;padding:1.25rem;">
+                <p style="font-weight:700;margin-bottom:0.75rem;">
+                    <span style="color:var(--accent);">${i + 1}.</span> ${q.q}
+                    <span style="font-size:0.7rem;background:var(--accent-glow);padding:0.15rem 0.5rem;border-radius:100px;color:var(--accent);font-weight:600;margin-left:0.5rem;">${catLabel(q.cat)}</span>
+                </p>
+                <div class="quiz-options" id="opts-${i}">
+                    ${q.o.map((opt, j) => `
+                        <label class="quiz-option" id="opt-${i}-${j}" onclick="selectAnswer(${i},${j})">
+                            <input type="radio" name="eq-${i}" value="${j}" style="display:none;">
+                            <span>${opt}</span>
+                        </label>
+                    `).join('')}
+                </div>
+                <div class="explanation-box" id="exp-${i}">
+                    <strong>📖 Explication :</strong> ${q.exp}
+                </div>
+            </div>
+        `).join('');
+
+        // Timer
+        if (currentMode === 'exam') {
+            timeLeft = 45 * 60;
+            document.getElementById('exam-timer').style.display = '';
+            updateTimer();
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                if (timeLeft <= 0) { clearInterval(timer); submitExam(); }
+            }, 1000);
+        } else {
+            document.getElementById('exam-timer').textContent = '∞';
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function catLabel(cat) {
+        const labels = {
+            definitions: 'Définitions', responsive: 'Responsive', autolayout: 'Auto Layout',
+            reorganisation: 'Réorganisation', ergonomie: 'Ergonomie', accessibilite: 'Accessibilité',
+            ccu: 'CCU', uxresearch: 'UX Research', wireframe: 'Wireframe', typo: 'Typographie'
+        };
+        return labels[cat] || cat;
+    }
+
+    function updateTimer() {
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        const el = document.getElementById('exam-timer');
+        el.textContent = `${m}:${s}`;
+        if (timeLeft < 300) el.style.color = '#ef4444';
+        else if (timeLeft < 600) el.style.color = '#f59e0b';
+        else el.style.color = '';
+    }
+
+    function selectAnswer(qi, ai) {
+        // Remove previous selection
+        document.querySelectorAll(`#opts-${qi} .quiz-option`).forEach(o => o.classList.remove('selected'));
+        document.getElementById(`opt-${qi}-${ai}`).classList.add('selected');
+        answers[qi] = ai;
+
+        // Update UI
+        document.getElementById(`eq-${qi}`).classList.add('answered');
+        const dot = document.querySelector(`.progress-dot[data-idx="${qi}"]`);
+        if (dot) dot.classList.add('answered');
+
+        const answered = Object.keys(answers).length;
+        const total = shuffled.length;
+        document.getElementById('exam-progress').textContent = `Répondu : ${answered}/${total}`;
+        document.getElementById('exam-score-live').textContent = `${answered} / ${total}`;
+
+        // Practice mode: immediate feedback
+        if (currentMode === 'practice') {
+            showImmediateFeedback(qi, ai);
+        }
+    }
+
+    function showImmediateFeedback(qi, ai) {
+        const q = shuffled[qi];
+        const isCorrect = ai === q.a;
+
+        // Mark correct/wrong
+        document.querySelectorAll(`#opts-${qi} .quiz-option`).forEach((o, j) => {
+            if (j === q.a) o.classList.add('correct');
+            if (j === ai && !isCorrect) o.classList.add('wrong');
+            o.style.pointerEvents = 'none';
+        });
+
+        // Show explanation
+        document.getElementById(`exp-${qi}`).classList.add('visible');
+
+        // Update dot
+        const dot = document.querySelector(`.progress-dot[data-idx="${qi}"]`);
+        if (dot) {
+            dot.classList.remove('answered');
+            dot.classList.add(isCorrect ? 'correct' : 'wrong');
+        }
+    }
+
+    function scrollToQ(idx) {
+        document.getElementById(`eq-${idx}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function submitExam() {
+        if (timer) clearInterval(timer);
+
+        let correct = 0;
+        const details = shuffled.map((q, i) => {
+            const userA = answers[i];
+            const isCorrect = userA === q.a;
+            if (isCorrect) correct++;
+            return { ...q, userA, isCorrect, idx: i };
+        });
+
+        const total = shuffled.length;
+        const pct = Math.round(correct / total * 100);
+        const passed = pct >= 70;
+
+        document.getElementById('exam-container').style.display = 'none';
+        const results = document.getElementById('exam-results');
+        results.style.display = 'block';
+
+        // Category breakdown
+        const catStats = {};
+        details.forEach(d => {
+            if (!catStats[d.cat]) catStats[d.cat] = { total: 0, correct: 0 };
+            catStats[d.cat].total++;
+            if (d.isCorrect) catStats[d.cat].correct++;
+        });
+
+        const catBreakdown = Object.entries(catStats).map(([cat, s]) => {
+            const p = Math.round(s.correct / s.total * 100);
+            const color = p >= 70 ? '#22c55e' : p >= 50 ? '#f59e0b' : '#ef4444';
+            return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--glass-border);">
+                <span style="font-weight:600;">${catLabel(cat)}</span>
+                <span style="font-weight:700;color:${color};">${s.correct}/${s.total} (${p}%)</span>
+            </div>`;
+        }).join('');
+
+        results.innerHTML = `
+            <div class="glass-card score-display" style="padding:2.5rem;">
+                <h2 style="font-size:1.8rem;margin-bottom:1rem;">${passed ? '🎉 Examen Réussi !' : '❌ Examen Non Réussi'}</h2>
+                <div class="score-number ${passed ? 'score-passed' : 'score-failed'}">${pct}%</div>
+                <p style="font-size:1.2rem;margin-top:0.5rem;">${correct} / ${total} bonnes réponses</p>
+                <p style="margin-top:0.5rem;opacity:0.7;">Seuil de réussite : 70%</p>
+
+                <div style="max-width:400px;margin:1.5rem auto 0;">
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">📊 Par catégorie</h3>
+                    ${catBreakdown}
+                </div>
+
+                <div style="margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                    <button class="exercise-submit-btn" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> Recommencer</button>
+                    <button class="exercise-submit-btn" onclick="toggleCorrections()" style="background:var(--accent-dark);"><i class="fa-solid fa-magnifying-glass"></i> Voir corrections</button>
+                </div>
+            </div>
+
+            <div id="exam-corrections" style="display:none;margin-top:1.5rem;">
+                <div class="filter-bar" style="margin-bottom:1rem;">
+                    <button class="filter-btn active" onclick="filterResults('all',this)">Toutes</button>
+                    <button class="filter-btn" onclick="filterResults('wrong',this)">❌ Erreurs uniquement</button>
+                    <button class="filter-btn" onclick="filterResults('correct',this)">✅ Correct uniquement</button>
+                </div>
+                <div id="corrections-list">
+                ${details.map((d, i) => `
+                    <div class="glass-card correction-item ${d.isCorrect ? 'correct-result' : 'wrong-result'}" data-result="${d.isCorrect ? 'correct' : 'wrong'}" style="margin-bottom:0.8rem;padding:1rem;">
+                        <p style="font-weight:700;">
+                            <span style="color:${d.isCorrect ? '#22c55e' : '#ef4444'};">${d.isCorrect ? '✅' : '❌'}</span>
+                            <span style="color:var(--accent);font-size:0.85rem;">[${catLabel(d.cat)}]</span>
+                            ${d.q}
+                        </p>
+                        <p style="margin-top:0.4rem;font-size:0.9rem;">Ta réponse : <strong style="color:${d.isCorrect ? '#22c55e' : '#ef4444'};">${d.userA !== undefined ? d.o[d.userA] : '⚠️ Pas de réponse'}</strong></p>
+                        ${!d.isCorrect ? `<p style="color:#22c55e;margin-top:0.2rem;font-size:0.9rem;">✅ Bonne réponse : <strong>${d.o[d.a]}</strong></p>` : ''}
+                        <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:8px;background:rgba(8,145,178,0.06);border-left:3px solid var(--accent);font-size:0.85rem;">
+                            📖 ${d.exp}
+                        </div>
+                    </div>
+                `).join('')}
+                </div>
+            </div>
+        `;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleCorrections() {
+        const el = document.getElementById('exam-corrections');
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function filterResults(type, btn) {
+        document.querySelectorAll('#exam-corrections .filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.correction-item').forEach(item => {
+            if (type === 'all') { item.style.display = ''; return; }
+            item.style.display = item.dataset.result === type ? '' : 'none';
+        });
+    }
+    </script>
+</body>
+</html>

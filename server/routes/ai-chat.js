@@ -3,7 +3,7 @@
  * Proxy les requêtes vers OpenRouter sans exposer la clé API côté client
  */
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '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';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 async function aiChatRoutes(fastify) {
@@ -21,6 +21,10 @@ async function aiChatRoutes(fastify) {
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return reply.code(400).send({ error: 'Messages requis' });
+    }
+
+    if (!OPENROUTER_API_KEY) {
+      return reply.code(503).send({ error: 'Service IA non configuré' });
     }
 
     // Limiter la taille des messages pour éviter les abus

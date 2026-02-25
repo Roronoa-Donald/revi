@@ -10,7 +10,7 @@
   // Ne pas exécuter sur les pages d'auth elles-mêmes
   if (window.location.pathname.startsWith('/_auth/')) return;
 
-  var COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'RD-RO', 'sql', 'csharp', 'epreuves'];
+  var COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'RD-RO', 'sql', 'csharp', 'ccna', 'uml', 'uiux', 'epreuves'];
   var path = window.location.pathname;
 
   /**
@@ -188,7 +188,7 @@
    * (index du cours, chapitre 1, page d'accueil)
    */
   function showDemoBanner() {
-    var coursePattern = /^\/(linux|php|probabilites|rd_java|rd_winserver|RD-RO|sql|csharp)\//;
+    var coursePattern = /^\/(linux|php|probabilites|rd_java|rd_winserver|RD-RO|sql|csharp|ccna|uml|uiux)\//;
     var courseMatch = path.match(coursePattern);
 
     if (!courseMatch && path !== '/' && !path.endsWith('/index.html')) return;

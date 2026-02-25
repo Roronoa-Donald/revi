@@ -14,6 +14,8 @@ const COURSES = {
   'sql': 'SQL',
   'csharp': 'C#',
   'ccna': 'CCNA Réseau',
+  'uml': 'UML',
+  'uiux': 'UI/UX Design',
   'epreuves': 'Épreuves Passées'
 };
 
@@ -26,7 +28,9 @@ const COURSE_ICONS = {
   'RD-RO': '📊',
   'sql': '🗃️',
   'csharp': '🔷',
-  'ccna': '🌐'
+  'ccna': '🌐',
+  'uml': '📐',
+  'uiux': '🎨'
 };
 
 // Thème visuel de chaque cours (couleurs + mode)
@@ -39,7 +43,9 @@ const COURSE_THEMES = {
   'RD-RO':        { mode: 'dark',  accent: '#10b981', accentLight: '#34d399', accentDark: '#059669', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
   'sql':          { mode: 'dark',  accent: '#2563eb', accentLight: '#60a5fa', accentDark: '#1e40af', gradient: 'linear-gradient(135deg, #2563eb, #1e40af)' },
   'csharp': { mode: 'light', accent: '#f59e0b', accentLight: '#fbbf24', accentDark: '#d97706', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
-  'ccna':   { mode: 'dark',  accent: '#06b6d4', accentLight: '#22d3ee', accentDark: '#0891b2', gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)' }
+  'ccna':   { mode: 'dark',  accent: '#06b6d4', accentLight: '#22d3ee', accentDark: '#0891b2', gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)' },
+  'uml':    { mode: 'dark',  accent: '#E91E8C', accentLight: '#F472B6', accentDark: '#BE185D', gradient: 'linear-gradient(135deg, #E91E8C, #BE185D)' },
+  'uiux':   { mode: 'dark',  accent: '#0891B2', accentLight: '#22d3ee', accentDark: '#0e7490', gradient: 'linear-gradient(135deg, #0891B2, #0e7490)' }
 };
 
 const COURSE_DIRS = Object.keys(COURSES);
