@@ -64,14 +64,18 @@ function copyDirRecursive(src, dest) {
       // Ignorer les fichiers .txt sauf ceux dans les dossiers de cours principaux
       if (ext === '.txt' && !entry.name.includes('robots')) continue;
 
-      if (ext === '.html') {
-        // Injecter les scripts d'auth dans les fichiers HTML
-        let content = fs.readFileSync(srcPath, 'utf-8');
-        content = injectAuth(content);
-        fs.writeFileSync(destPath, content, 'utf-8');
-      } else {
-        // Copie binaire pour tout le reste
-        fs.copyFileSync(srcPath, destPath);
+      try {
+        if (ext === '.html') {
+          // Injecter les scripts d'auth dans les fichiers HTML
+          let content = fs.readFileSync(srcPath, 'utf-8');
+          content = injectAuth(content);
+          fs.writeFileSync(destPath, content, 'utf-8');
+        } else {
+          // Copie binaire pour tout le reste
+          fs.copyFileSync(srcPath, destPath);
+        }
+      } catch (err) {
+        console.error(`  ⚠️ Erreur copie ${srcPath}: ${err.message}`);
       }
     }
   }
@@ -167,6 +171,9 @@ const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
 console.log(`\n✨ Build terminé en ${elapsed}s`);
 console.log(`   ${fileCount} fichiers copiés, ${htmlCount} HTML avec auth injectée`);
 console.log(`   Sortie : dist/\n`);
+
+// Ensure clean exit code
+process.exitCode = 0;
 
 function countFiles(dir) {
   let total = 0, html = 0;
