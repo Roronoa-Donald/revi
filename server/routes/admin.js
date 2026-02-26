@@ -28,9 +28,10 @@ module.exports = async function adminRoutes(fastify) {
   // Hook de pré-validation : protéger toutes les routes admin sauf /login
   fastify.addHook('onRequest', async (request, reply) => {
     // Autoriser /api/admin/login sans authentification
-    if (request.url === '/api/admin/login' && request.method === 'POST') return;
+    const urlPath = request.url.split('?')[0];
+    if (urlPath === '/api/admin/login' && request.method === 'POST') return;
     // Autoriser la page de login (GET)
-    if (request.url.startsWith('/api/admin/courses')) return;
+    if (urlPath.startsWith('/api/admin/courses')) return;
 
     if (!verifyAdmin(request)) {
       return reply.code(401).send({ success: false, message: 'Non autorisé' });
