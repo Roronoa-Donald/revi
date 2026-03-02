@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP6 - Épreuve de Synthèse Type Examen</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="assets/css/tp.css">
+    <style>
+        /* TP6 override: red exam badge + wider description */
+        .tp-header .badge { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .tp-header p { max-width: 700px; }
+    </style>
+</head>
+<body class="chapter-page">
+    <div class="progress-bar-container"><div class="progress-bar" id="chapterProgress"></div></div>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo"><a href="index.html"><i class="fas fa-code"></i><span>PHP POO</span></a></div>
+            <nav class="main-nav"><a href="index.html">Accueil</a><a href="#" class="active">TP 6</a><button class="btn-theme" id="themeToggleBtn" title="Changer de thème"><i class="fas fa-moon"></i></button></nav>
+        </div>
+    </header>
+    <div class="chapter-nav">
+        <a href="tp5-exceptions.html" class="nav-btn nav-prev"><i class="fas fa-arrow-left"></i><span>TP 5</span></a>
+        <div class="chapter-info"><span class="chapter-number">TP 6/6</span><h1>Épreuve de Synthèse</h1></div>
+        <a href="index.html" class="nav-btn nav-next"><span>Accueil</span><i class="fas fa-home"></i></a>
+    </div>
+
+    <main class="chapter-content" id="main-content"><div class="container"><div class="content">
+
+        <div class="tp-header">
+            <span class="badge"><i class="fas fa-graduation-cap"></i> EXAMEN BLANC</span>
+            <h1>TP 6 : Épreuve Type Examen Complet</h1>
+            <p>3 exercices progressifs exactement comme l'épreuve réelle. Chronomètre-toi : <strong>2h max</strong>. Essaie SANS regarder les corrections d'abord !</p>
+        </div>
+
+        <div class="consignes">
+            <p><i class="fas fa-exclamation-triangle"></i> <strong>Consignes :</strong></p>
+            <p>• Aucun document n'est autorisé.</p>
+            <p>• 1 point est réservé pour une copie bien soignée.</p>
+            <p>• Durée : 2 heures</p>
+        </div>
+
+        <div class="total-points"><i class="fas fa-star"></i> Total : 20 points (19 + 1 soin)</div>
+
+        <!-- ================================================ -->
+        <!-- EXERCICE 1 : Classes et manipulation -->
+        <!-- ================================================ -->
+        <section class="content-section" id="exo1">
+            <div class="exam-box">
+                <h3><i class="fas fa-pen"></i> Exercice 1 — Création et manipulation de classes <span class="point-badge">6 pts</span></h3>
+                <p><strong>Contexte :</strong> On souhaite modéliser un système de gestion d'étudiants et de leurs notes.</p>
+                <ol>
+                    <li><strong>(2 pts)</strong> Créez une classe <code>Etudiant</code> avec les attributs suivants : <code>nom</code> (chaîne), <code>prenom</code> (chaîne), <code>notes</code> (tableau). Implémentez un constructeur qui initialise les nom/prénom et crée un tableau de notes vide.</li>
+                    <li><strong>(1 pt)</strong> Ajoutez une méthode <code>ajouterNote($note)</code> qui ajoute une note au tableau.</li>
+                    <li><strong>(2 pts)</strong> Ajoutez une méthode <code>calculerMoyenne()</code> qui retourne la moyenne des notes (retourne 0 si aucune note).</li>
+                    <li><strong>(1 pt)</strong> Ajoutez une méthode <code>afficherBulletin()</code> qui affiche le nom, prénom, toutes les notes et la moyenne.</li>
+                </ol>
+            </div>
+            <button class="btn-correction" onclick="toggleCorrection('exo1c')"><i class="fas fa-eye"></i> Voir le corrigé</button>
+            <div class="correction-box" id="exo1c">
+                <h4><i class="fas fa-check-circle"></i> Corrigé Exercice 1</h4>
+                <pre><code class="language-php">&lt;?php
+class Etudiant {
+    // Attributs (public pour l'instant, seront private à l'exo 2)
+    public $nom;        // string
+    public $prenom;     // string
+    public $notes;      // array
+
+    // Q1 (2pts) : Constructeur
+    public function __construct($nom, $prenom) {
+        $this->nom = $nom;
+        $this->prenom = $prenom;
+        $this->notes = [];    // Tableau vide à la création
+    }
+
+    // Q2 (1pt) : Ajouter une note
+    public function ajouterNote($note) {
+        $this->notes[] = $note;  // Ajoute à la fin du tableau
+    }
+
+    // Q3 (2pts) : Calculer la moyenne
+    public function calculerMoyenne() {
+        // Protection contre la division par zéro
+        if (count($this->notes) === 0) {
+            return 0;
+        }
+        return array_sum($this->notes) / count($this->notes);
+    }
+
+    // Q4 (1pt) : Afficher le bulletin
+    public function afficherBulletin() {
+        echo "=== BULLETIN ===\n";
+        echo "Étudiant : {$this->prenom} {$this->nom}\n";
+        echo "Notes : ";
+        foreach ($this->notes as $note) {
+            echo "$note ";
+        }
+        echo "\nMoyenne : " . round($this->calculerMoyenne(), 2) . "/20\n";
+    }
+}
+
+// Test
+$etu = new Etudiant("Dupont", "Alice");
+$etu->ajouterNote(15);
+$etu->ajouterNote(12);
+$etu->ajouterNote(17);
+$etu->ajouterNote(9);
+$etu->afficherBulletin();
+// === BULLETIN ===
+// Étudiant : Alice Dupont
+// Notes : 15 12 17 9
+// Moyenne : 13.25/20
+?&gt;</code></pre>
+                <div class="why-box">
+                    <strong>💡 Points clés à ne pas oublier :</strong><br>
+                    • <code>$this->notes = []</code> dans le constructeur (sinon pas initialisé)<br>
+                    • <code>count() === 0</code> avant de diviser (le prof enlève des points si tu oublies)<br>
+                    • <code>round()</code> pour un affichage propre de la moyenne
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- EXERCICE 2 : Encapsulation -->
+        <!-- ================================================ -->
+        <section class="content-section" id="exo2">
+            <div class="exam-box">
+                <h3><i class="fas fa-pen"></i> Exercice 2 — Encapsulation et validation <span class="point-badge">6 pts</span></h3>
+                <p><strong>Contexte :</strong> On veut sécuriser la gestion des données de l'étudiant.</p>
+                <ol>
+                    <li><strong>(1 pt)</strong> Modifiez la classe <code>Etudiant</code> pour que <strong>tous</strong> les attributs soient privés.</li>
+                    <li><strong>(2 pts)</strong> Ajoutez les getters nécessaires : <code>getNom()</code>, <code>getPrenom()</code>, <code>getNotes()</code>, <code>getMoyenne()</code>.</li>
+                    <li><strong>(2 pts)</strong> Modifiez <code>ajouterNote($note)</code> pour qu'elle refuse les notes qui ne sont pas entre 0 et 20 (affichez un message d'erreur).</li>
+                    <li><strong>(1 pt)</strong> Ajoutez une méthode <code>getMention()</code> qui retourne la mention selon la moyenne :<br>
+                    ≥16 : "Très bien" | ≥14 : "Bien" | ≥12 : "Assez bien" | ≥10 : "Passable" | &lt;10 : "Insuffisant"</li>
+                </ol>
+            </div>
+            <button class="btn-correction" onclick="toggleCorrection('exo2c')"><i class="fas fa-eye"></i> Voir le corrigé</button>
+            <div class="correction-box" id="exo2c">
+                <h4><i class="fas fa-check-circle"></i> Corrigé Exercice 2</h4>
+                <pre><code class="language-php">&lt;?php
+class Etudiant {
+    // Q1 (1pt) : Tous les attributs en private
+    private $nom;
+    private $prenom;
+    private $notes;
+
+    public function __construct($nom, $prenom) {
+        $this->nom = $nom;
+        $this->prenom = $prenom;
+        $this->notes = [];
+    }
+
+    // Q2 (2pts) : Getters
+    public function getNom()     { return $this->nom; }
+    public function getPrenom()  { return $this->prenom; }
+    public function getNotes()   { return $this->notes; }
+    public function getMoyenne() { return $this->calculerMoyenne(); }
+
+    // Q3 (2pts) : ajouterNote avec validation
+    public function ajouterNote($note) {
+        // Vérification : doit être numérique ET entre 0 et 20
+        if (!is_numeric($note) || $note < 0 || $note > 20) {
+            echo "Erreur : la note doit être entre 0 et 20 (reçu: $note)\n";
+            return;    // On sort sans ajouter
+        }
+        $this->notes[] = $note;
+    }
+
+    private function calculerMoyenne() {
+        if (count($this->notes) === 0) return 0;
+        return array_sum($this->notes) / count($this->notes);
+    }
+
+    // Q4 (1pt) : Mention
+    public function getMention() {
+        $moy = $this->calculerMoyenne();
+        if ($moy >= 16) return "Très bien";
+        elseif ($moy >= 14) return "Bien";
+        elseif ($moy >= 12) return "Assez bien";
+        elseif ($moy >= 10) return "Passable";
+        else return "Insuffisant";
+    }
+
+    public function afficherBulletin() {
+        echo "=== BULLETIN ===\n";
+        echo "Étudiant : {$this->prenom} {$this->nom}\n";
+        foreach ($this->notes as $note) {
+            echo "  - $note/20\n";
+        }
+        echo "Moyenne : " . round($this->calculerMoyenne(), 2) . "/20\n";
+        echo "Mention : " . $this->getMention() . "\n";
+    }
+}
+
+// Tests
+$etu = new Etudiant("Martin", "Bob");
+$etu->ajouterNote(16);     // ✅
+$etu->ajouterNote(14);     // ✅
+$etu->ajouterNote(-5);     // ❌ Erreur
+$etu->ajouterNote(25);     // ❌ Erreur
+$etu->ajouterNote(18);     // ✅
+$etu->afficherBulletin();
+// Mention : Bien (moyenne 16)
+
+echo $etu->getNom();       // ✅ "Martin"
+// echo $etu->nom;         // ❌ ERREUR (private)
+?&gt;</code></pre>
+            </div>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- EXERCICE 3 : Héritage + Exceptions -->
+        <!-- ================================================ -->
+        <section class="content-section" id="exo3">
+            <div class="exam-box">
+                <h3><i class="fas fa-pen"></i> Exercice 3 — Héritage, Polymorphisme & Exceptions <span class="point-badge">7 pts</span></h3>
+                <p><strong>Contexte :</strong> On veut étendre le système avec des étudiants boursiers et une gestion d'erreurs robuste.</p>
+                <ol>
+                    <li><strong>(1 pt)</strong> Créez une exception personnalisée <code>NoteInvalideException</code>.</li>
+                    <li><strong>(1 pt)</strong> Modifiez la méthode <code>ajouterNote()</code> pour qu'elle <strong>lance</strong> <code>NoteInvalideException</code> au lieu d'afficher un message.</li>
+                    <li><strong>(2 pts)</strong> Créez une classe <code>EtudiantBoursier</code> qui hérite de <code>Etudiant</code> et ajoute un attribut privé <code>$montantBourse</code>. Implémentez le constructeur avec <code>parent::__construct()</code>.</li>
+                    <li><strong>(2 pts)</strong> Redéfinissez <code>afficherBulletin()</code> dans <code>EtudiantBoursier</code> pour inclure le montant de la bourse.</li>
+                    <li><strong>(1 pt)</strong> Écrivez un programme de test avec try/catch qui ajoute des notes (valides et invalides) à un <code>EtudiantBoursier</code> et affiche son bulletin.</li>
+                </ol>
+            </div>
+            <button class="btn-correction" onclick="toggleCorrection('exo3c')"><i class="fas fa-eye"></i> Voir le corrigé</button>
+            <div class="correction-box" id="exo3c">
+                <h4><i class="fas fa-check-circle"></i> Corrigé Exercice 3</h4>
+                <pre><code class="language-php">&lt;?php
+// ===========================================================
+// Q1 (1pt) : Exception personnalisée
+// ===========================================================
+class NoteInvalideException extends Exception {}
+
+// ===========================================================
+// Q2 (1pt) : Modification de ajouterNote
+// ===========================================================
+class Etudiant {
+    private $nom;
+    private $prenom;
+    private $notes;
+
+    public function __construct($nom, $prenom) {
+        $this->nom = $nom;
+        $this->prenom = $prenom;
+        $this->notes = [];
+    }
+
+    public function getNom()     { return $this->nom; }
+    public function getPrenom()  { return $this->prenom; }
+    public function getNotes()   { return $this->notes; }
+
+    // Modifié : lance une exception au lieu d'echo
+    public function ajouterNote($note) {
+        if (!is_numeric($note) || $note < 0 || $note > 20) {
+            throw new NoteInvalideException(
+                "Note invalide : $note (doit être entre 0 et 20)"
+            );
+        }
+        $this->notes[] = $note;
+    }
+
+    public function calculerMoyenne() {
+        if (count($this->notes) === 0) return 0;
+        return array_sum($this->notes) / count($this->notes);
+    }
+
+    public function getMention() {
+        $moy = $this->calculerMoyenne();
+        if ($moy >= 16) return "Très bien";
+        elseif ($moy >= 14) return "Bien";
+        elseif ($moy >= 12) return "Assez bien";
+        elseif ($moy >= 10) return "Passable";
+        else return "Insuffisant";
+    }
+
+    public function afficherBulletin() {
+        echo "=== BULLETIN ===\n";
+        echo "Étudiant : {$this->prenom} {$this->nom}\n";
+        foreach ($this->notes as $note) {
+            echo "  - $note/20\n";
+        }
+        $moy = round($this->calculerMoyenne(), 2);
+        echo "Moyenne : $moy/20 — Mention : " . $this->getMention() . "\n";
+    }
+}
+
+// ===========================================================
+// Q3 (2pts) : EtudiantBoursier hérite de Etudiant
+// ===========================================================
+class EtudiantBoursier extends Etudiant {
+    private $montantBourse;
+
+    public function __construct($nom, $prenom, $montantBourse) {
+        parent::__construct($nom, $prenom);  // Initialise nom, prenom, notes
+        $this->montantBourse = $montantBourse;
+    }
+
+    public function getMontantBourse() {
+        return $this->montantBourse;
+    }
+
+    // ===========================================================
+    // Q4 (2pts) : Redéfinition de afficherBulletin
+    // ===========================================================
+    public function afficherBulletin() {
+        parent::afficherBulletin();   // Réutilise l'affichage du parent
+        echo "Bourse : {$this->montantBourse}€/an\n";
+    }
+}
+
+// ===========================================================
+// Q5 (1pt) : Programme de test avec try/catch
+// ===========================================================
+$boursier = new EtudiantBoursier("Diallo", "Fatou", 5000);
+
+$notesAajouter = [14, 16, 25, 11, -3, 18, 15];
+
+foreach ($notesAajouter as $note) {
+    try {
+        $boursier->ajouterNote($note);
+        echo "Note $note ajoutée ✅\n";
+    } catch (NoteInvalideException $e) {
+        echo "Rejetée ❌ : " . $e->getMessage() . "\n";
+    }
+}
+
+echo "\n";
+$boursier->afficherBulletin();
+// === BULLETIN ===
+// Étudiant : Fatou Diallo
+//   - 14/20
+//   - 16/20
+//   - 11/20
+//   - 18/20
+//   - 15/20
+// Moyenne : 14.8/20 — Mention : Bien
+// Bourse : 5000€/an
+?&gt;</code></pre>
+                <div class="why-box">
+                    <strong>💡 Ce que cet exercice combine (tout le programme) :</strong><br>
+                    ✅ <strong>TP1</strong> : Variables, tableaux, foreach, fonctions<br>
+                    ✅ <strong>TP2</strong> : Classes, constructeur, méthodes, $this<br>
+                    ✅ <strong>TP3</strong> : private, getters, validation dans les setters<br>
+                    ✅ <strong>TP4</strong> : extends, parent::__construct(), parent::methode(), redéfinition<br>
+                    ✅ <strong>TP5</strong> : Exception personnalisée, throw, try/catch<br>
+                    <strong>Si tu maîtrises cet exercice, tu maîtrises l'examen entier.</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- RECAP FINAL -->
+        <section class="content-section" id="recap">
+            <div class="concept-header"><span class="num"><i class="fas fa-brain"></i></span><h2>Mémo express — Ce qu'il faut savoir écrire les yeux fermés</h2></div>
+
+            <div class="recap-grid">
+                <div class="recap-card">
+                    <h4><i class="fas fa-cube"></i> Classe + Constructeur</h4>
+                    <pre><code class="language-php">class Nom {
+    private $attr;
+    public function __construct($a) {
+        $this->attr = $a;
+    }
+}</code></pre>
+                </div>
+                <div class="recap-card">
+                    <h4><i class="fas fa-lock"></i> Getter / Setter</h4>
+                    <pre><code class="language-php">public function getAttr() {
+    return $this->attr;
+}
+public function setAttr($v) {
+    if (/* validation */) {
+        $this->attr = $v;
+    }
+}</code></pre>
+                </div>
+                <div class="recap-card">
+                    <h4><i class="fas fa-sitemap"></i> Héritage</h4>
+                    <pre><code class="language-php">class Enfant extends Parent {
+    public function __construct($a, $b) {
+        parent::__construct($a);
+        $this->propre = $b;
+    }
+}</code></pre>
+                </div>
+                <div class="recap-card">
+                    <h4><i class="fas fa-bug"></i> Exceptions</h4>
+                    <pre><code class="language-php">class MonExc extends Exception {}
+
+try {
+    throw new MonExc("msg");
+} catch (MonExc $e) {
+    echo $e->getMessage();
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <div style="text-align:center;margin:2rem 0;padding:2rem;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px">
+            <h2 style="color:#059669;margin:0 0 .5rem"><i class="fas fa-check-circle"></i> Bravo !</h2>
+            <p style="color:#065f46;margin:0 0 1rem">Tu as terminé les 6 TPs. Direction la roadmap PHP ↔ C# pour comparer !</p>
+            <a href="../roadmap/index.html" class="btn btn-primary" style="background:#059669"><i class="fas fa-map"></i> Voir la Roadmap PHP ↔ C#</a>
+        </div>
+
+    </div></div></main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script>
+    function toggleCorrection(id){const el=document.getElementById(id);el.classList.toggle('visible')}
+    document.getElementById('themeToggleBtn')?.addEventListener('click',()=>{document.body.classList.toggle('dark-mode');const i=document.querySelector('#themeToggleBtn i');i.className=document.body.classList.contains('dark-mode')?'fas fa-sun':'fas fa-moon'});
+    </script>
+</body>
+</html>

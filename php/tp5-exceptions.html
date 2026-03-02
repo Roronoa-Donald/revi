@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP5 - Gestion des Erreurs & Exceptions</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="assets/css/tp.css">
+</head>
+<body class="chapter-page">
+    <div class="progress-bar-container"><div class="progress-bar" id="chapterProgress"></div></div>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo"><a href="index.html"><i class="fas fa-code"></i><span>PHP POO</span></a></div>
+            <nav class="main-nav"><a href="index.html">Accueil</a><a href="#" class="active">TP 5</a><button class="btn-theme" id="themeToggleBtn" title="Changer de thème"><i class="fas fa-moon"></i></button></nav>
+        </div>
+    </header>
+    <div class="chapter-nav">
+        <a href="tp4-heritage.html" class="nav-btn nav-prev"><i class="fas fa-arrow-left"></i><span>TP 4</span></a>
+        <div class="chapter-info"><span class="chapter-number">TP 5/6</span><h1>Gestion des Exceptions</h1></div>
+        <a href="tp6-synthese.html" class="nav-btn nav-next"><span>TP 6</span><i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <main class="chapter-content" id="main-content"><div class="container"><div class="content">
+
+        <div class="tp-header">
+            <span class="badge"><i class="fas fa-clock"></i> ~40 min</span>
+            <h1>TP 5 : Try, Catch, Throw & Exceptions</h1>
+            <p>L'exercice 4 de l'examen porte sur la gestion d'erreurs. On apprend à gérer les erreurs proprement au lieu de crasher.</p>
+        </div>
+
+        <div class="analogy">
+            <strong>🎯 Mnémonique :</strong> <code>try</code> = ESSAIE ce code | <code>catch</code> = ATTRAPE l'erreur si ça rate | <code>finally</code> = TOUJOURS exécuté (qu'il y ait erreur ou pas) | <code>throw</code> = LANCE une erreur volontairement
+        </div>
+
+        <div class="flow-visual">
+            <div class="step">try { ... }</div>
+            <div class="arrow">→</div>
+            <div class="step green">Ça marche ?<br>✅ continue</div>
+            <div class="arrow">ou</div>
+            <div class="step red">Erreur ?<br>❌ catch</div>
+            <div class="arrow">→</div>
+            <div class="step amber">finally<br>🔄 toujours</div>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- SECTION 1 : try/catch -->
+        <!-- ================================================ -->
+        <section class="content-section" id="trycatch">
+            <div class="concept-header"><span class="num">1</span><h2>try / catch — Attraper les erreurs</h2></div>
+
+            <div class="code-example">
+                <div class="code-header"><span class="code-title">Syntaxe de base</span></div>
+                <pre><code class="language-php">&lt;?php
+// SANS try/catch : le programme CRASHE
+// echo 10 / 0;  // Warning: Division by zero
+
+// AVEC try/catch : on gère l'erreur proprement
+try {
+    // Le code qui POURRAIT causer une erreur
+    $resultat = 10 / 0;
+    echo "Résultat : $resultat\n";
+} catch (DivisionByZeroError $e) {
+    // Ce bloc s'exécute SI une erreur survient dans le try
+    echo "Erreur attrapée : " . $e->getMessage() . "\n";
+}
+
+echo "Le programme continue normalement !\n";
+// Sans try/catch, on n'arriverait jamais ici
+?&gt;</code></pre>
+            </div>
+
+            <div class="micro-exo">
+                <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 5.1 — Premier try/catch</h4>
+                <p>Écris une fonction <code>diviser($a, $b)</code> qui divise a par b. Utilise un try/catch pour attraper l'erreur si b vaut 0.</p>
+                <button class="btn-correction" onclick="toggleCorrection('c51')"><i class="fas fa-eye"></i> Voir la correction</button>
+            </div>
+            <div class="correction-box" id="c51">
+                <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                <pre><code class="language-php">&lt;?php
+function diviser($a, $b) {
+    try {
+        if ($b == 0) {
+            // On LANCE une exception manuellement
+            throw new Exception("Division par zéro impossible !");
+        }
+        return $a / $b;
+    } catch (Exception $e) {
+        // $e->getMessage() contient notre message d'erreur
+        echo "Erreur : " . $e->getMessage() . "\n";
+        return null;  // On retourne null en cas d'erreur
+    }
+}
+
+echo diviser(10, 2);  // 5
+echo diviser(10, 0);  // "Erreur : Division par zéro impossible !"
+echo diviser(15, 3);  // 5 (le programme continue !)
+?&gt;</code></pre>
+                <div class="why-box">
+                    <strong>💡 Pourquoi c'est mieux que "if" ?</strong><br>
+                    Avec <code>if ($b == 0) { echo "erreur"; }</code>, tu gères UN cas. Avec try/catch, tu gères <strong>tous les cas d'erreur possibles</strong> d'un bloc de code. Et surtout, le programme <strong>ne crashe jamais</strong>.
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- SECTION 2 : throw + finally -->
+        <!-- ================================================ -->
+        <section class="content-section" id="throw">
+            <div class="concept-header"><span class="num">2</span><h2>throw — Lancer une exception</h2></div>
+
+            <div class="info-box info-intro">
+                <p><code>throw</code> permet de <strong>déclencher volontairement</strong> une exception. Utile pour valider des données et signaler les problèmes.</p>
+            </div>
+
+            <div class="code-example">
+                <div class="code-header"><span class="code-title">throw + finally</span></div>
+                <pre><code class="language-php">&lt;?php
+function inscrireEtudiant($nom, $age) {
+    try {
+        // Validation : on LANCE des exceptions si les données sont invalides
+        if (empty($nom)) {
+            throw new Exception("Le nom ne peut pas être vide !");
+        }
+        if ($age < 16 || $age > 65) {
+            throw new Exception("L'âge doit être entre 16 et 65 ans !");
+        }
+
+        echo "Étudiant $nom ($age ans) inscrit avec succès.\n";
+        return true;
+
+    } catch (Exception $e) {
+        echo "Inscription refusée : " . $e->getMessage() . "\n";
+        return false;
+
+    } finally {
+        // TOUJOURS exécuté, même après un return !
+        echo "--- Fin de la procédure d'inscription ---\n";
+    }
+}
+
+inscrireEtudiant("Alice", 21);
+// Étudiant Alice (21 ans) inscrit avec succès.
+// --- Fin de la procédure d'inscription ---
+
+inscrireEtudiant("", 21);
+// Inscription refusée : Le nom ne peut pas être vide !
+// --- Fin de la procédure d'inscription ---
+
+inscrireEtudiant("Bob", 12);
+// Inscription refusée : L'âge doit être entre 16 et 65 ans !
+// --- Fin de la procédure d'inscription ---
+?&gt;</code></pre>
+            </div>
+
+            <div class="danger-box">
+                <strong>⚠️ Piège d'examen sur finally :</strong> Le bloc <code>finally</code> s'exécute TOUJOURS, même s'il y a un <code>return</code> dans le try ou le catch. C'est pour ça qu'on l'utilise pour le "nettoyage" (fermer un fichier, une connexion...).
+            </div>
+
+            <div class="micro-exo">
+                <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 5.2 — Valider un retrait bancaire</h4>
+                <p>Écris une fonction <code>retirer($compte, $montant)</code> qui lance une Exception si le montant est négatif ou si le solde est insuffisant. Utilise try/catch/finally.</p>
+                <button class="btn-correction" onclick="toggleCorrection('c52')"><i class="fas fa-eye"></i> Voir la correction</button>
+            </div>
+            <div class="correction-box" id="c52">
+                <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                <pre><code class="language-php">&lt;?php
+function retirer($solde, $montant) {
+    try {
+        if ($montant <= 0) {
+            throw new Exception("Le montant doit être positif !");
+        }
+        if ($montant > $solde) {
+            throw new Exception("Solde insuffisant ! (Solde: {$solde}€)");
+        }
+
+        $nouveauSolde = $solde - $montant;
+        echo "Retrait de {$montant}€ effectué.\n";
+        return $nouveauSolde;
+
+    } catch (Exception $e) {
+        echo "Erreur : " . $e->getMessage() . "\n";
+        return $solde;  // On retourne le solde inchangé
+
+    } finally {
+        echo "Transaction terminée.\n";
+    }
+}
+
+$solde = retirer(1000, 200);   // Retrait de 200€ effectué. Transaction terminée.
+echo "Solde : {$solde}€\n";   // 800€
+
+$solde = retirer(800, 5000);   // Erreur : Solde insuffisant ! Transaction terminée.
+echo "Solde : {$solde}€\n";   // 800€ (inchangé)
+?&gt;</code></pre>
+            </div>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- SECTION 3 : Exceptions personnalisées -->
+        <!-- ================================================ -->
+        <section class="content-section" id="custom">
+            <div class="concept-header"><span class="num">3</span><h2>Exceptions personnalisées</h2></div>
+
+            <div class="info-box info-intro">
+                <p>On peut créer ses <strong>propres types d'exceptions</strong> en héritant de <code>Exception</code>. Ça permet de distinguer les différents types d'erreurs dans le catch.</p>
+            </div>
+
+            <div class="code-example">
+                <div class="code-header"><span class="code-title">Exceptions personnalisées + multi-catch</span></div>
+                <pre><code class="language-php">&lt;?php
+// Exceptions personnalisées héritant de Exception
+class SoldeInsuffisantException extends Exception {}
+class MontantInvalideException extends Exception {}
+
+class CompteBancaire {
+    private $solde;
+
+    public function __construct($solde) {
+        $this->solde = $solde;
+    }
+
+    public function retirer($montant) {
+        if ($montant <= 0) {
+            throw new MontantInvalideException(
+                "Montant invalide : $montant"
+            );
+        }
+        if ($montant > $this->solde) {
+            throw new SoldeInsuffisantException(
+                "Solde insuffisant : {$this->solde}€ < {$montant}€"
+            );
+        }
+        $this->solde -= $montant;
+        return $this->solde;
+    }
+
+    public function getSolde() { return $this->solde; }
+}
+
+// Utilisation avec MULTI-CATCH
+$compte = new CompteBancaire(500);
+
+try {
+    $compte->retirer(200);
+    echo "Retrait OK. Solde : " . $compte->getSolde() . "€\n";
+
+    $compte->retirer(1000);  // Va lancer SoldeInsuffisantException
+
+} catch (MontantInvalideException $e) {
+    echo "⚠️ Montant invalide : " . $e->getMessage() . "\n";
+
+} catch (SoldeInsuffisantException $e) {
+    echo "💰 Solde insuffisant : " . $e->getMessage() . "\n";
+
+} catch (Exception $e) {
+    // Catch générique : attrape TOUTES les autres exceptions
+    echo "Erreur inattendue : " . $e->getMessage() . "\n";
+}
+?&gt;</code></pre>
+            </div>
+
+            <div class="danger-box">
+                <strong>⚠️ Règle du multi-catch :</strong> Toujours du <strong>plus spécifique au plus général</strong> !<br>
+                ✅ <code>catch (SoldeInsuffisantException)</code> → <code>catch (Exception)</code><br>
+                ❌ <code>catch (Exception)</code> → <code>catch (SoldeInsuffisantException)</code> — jamais atteint !
+            </div>
+
+            <div class="micro-exo">
+                <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 5.3 — Exception NoteInvalideException</h4>
+                <p>Crée une exception personnalisée <code>NoteInvalideException</code>. Dans la classe <code>Etudiant</code>, modifie <code>ajouterNote($note)</code> pour lancer cette exception si la note n'est pas entre 0 et 20. Attrape-la avec un try/catch.</p>
+                <button class="btn-correction" onclick="toggleCorrection('c53')"><i class="fas fa-eye"></i> Voir la correction</button>
+            </div>
+            <div class="correction-box" id="c53">
+                <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                <pre><code class="language-php">&lt;?php
+// 1. Exception personnalisée
+class NoteInvalideException extends Exception {}
+
+class Etudiant {
+    private $nom;
+    private $notes;
+
+    public function __construct($nom) {
+        $this->nom = $nom;
+        $this->notes = [];
+    }
+
+    // Lance NoteInvalideException si note hors bornes
+    public function ajouterNote($note) {
+        if (!is_numeric($note) || $note < 0 || $note > 20) {
+            throw new NoteInvalideException(
+                "Note invalide : $note (doit être entre 0 et 20)"
+            );
+        }
+        $this->notes[] = $note;
+    }
+
+    public function getMoyenne() {
+        if (empty($this->notes)) return 0;
+        return array_sum($this->notes) / count($this->notes);
+    }
+}
+
+// 2. Utilisation avec try/catch
+$etu = new Etudiant("Alice");
+
+try {
+    $etu->ajouterNote(15);   // ✅ OK
+    $etu->ajouterNote(12);   // ✅ OK
+    $etu->ajouterNote(25);   // ❌ Lance NoteInvalideException !
+} catch (NoteInvalideException $e) {
+    echo "Erreur : " . $e->getMessage() . "\n";
+    // "Erreur : Note invalide : 25 (doit être entre 0 et 20)"
+}
+
+echo "Moyenne : " . $etu->getMoyenne();  // 13.5 (seules 15 et 12 enregistrées)
+?&gt;</code></pre>
+                <div class="why-box">
+                    <strong>💡 Pourquoi des exceptions personnalisées ?</strong><br>
+                    Elles permettent de <strong>distinguer les types d'erreurs</strong>. Au lieu d'un message générique, tu sais exactement ce qui a échoué. À l'examen, le prof demande souvent de créer une exception personnalisée et de l'utiliser avec throw/catch.
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- EXERCICE DE SYNTHÈSE -->
+        <!-- ================================================ -->
+        <section class="content-section" id="synthese">
+            <div class="synthese-box">
+                <h3><i class="fas fa-trophy"></i> Exercice de Synthèse — Système bancaire robuste <span class="point-badge">5 pts</span></h3>
+                <p><strong>Contexte :</strong> On souhaite sécuriser un système de compte bancaire avec une gestion d'erreurs complète.</p>
+                <ol>
+                    <li><strong>(1 pt)</strong> Créez deux exceptions personnalisées : <code>SoldeInsuffisantException</code> et <code>MontantInvalideException</code>.</li>
+                    <li><strong>(2 pts)</strong> Créez une classe <code>CompteBancaire</code> avec un attribut privé <code>$solde</code>, un getter, et des méthodes <code>deposer($montant)</code> et <code>retirer($montant)</code> qui lancent les exceptions appropriées.</li>
+                    <li><strong>(2 pts)</strong> Écrivez un programme de test qui crée un compte, effectue plusieurs opérations et attrape chaque type d'exception séparément.</li>
+                </ol>
+                <button class="btn-correction" onclick="toggleCorrection('synthese5')"><i class="fas fa-eye"></i> Voir la correction complète</button>
+            </div>
+            <div class="correction-box" id="synthese5">
+                <h4><i class="fas fa-check-circle"></i> Correction détaillée</h4>
+                <pre><code class="language-php">&lt;?php
+// ===========================================================
+// QUESTION 1 (1 pt) : Exceptions personnalisées
+// ===========================================================
+class SoldeInsuffisantException extends Exception {}
+class MontantInvalideException extends Exception {}
+// C'est tout ! Elles héritent de getMessage(), getCode()...
+
+// ===========================================================
+// QUESTION 2 (2 pts) : Classe CompteBancaire
+// ===========================================================
+class CompteBancaire {
+    private $solde;
+
+    public function __construct($soldeInitial) {
+        if ($soldeInitial < 0) {
+            throw new MontantInvalideException("Le solde initial ne peut pas être négatif.");
+        }
+        $this->solde = $soldeInitial;
+    }
+
+    public function getSolde() {
+        return $this->solde;
+    }
+
+    public function deposer($montant) {
+        if ($montant <= 0) {
+            throw new MontantInvalideException("Le dépôt doit être positif (reçu: $montant).");
+        }
+        $this->solde += $montant;
+        echo "Dépôt de {$montant}€. Solde : {$this->solde}€\n";
+    }
+
+    public function retirer($montant) {
+        if ($montant <= 0) {
+            throw new MontantInvalideException("Le retrait doit être positif (reçu: $montant).");
+        }
+        if ($montant > $this->solde) {
+            throw new SoldeInsuffisantException(
+                "Solde insuffisant : {$this->solde}€ disponible, {$montant}€ demandé."
+            );
+        }
+        $this->solde -= $montant;
+        echo "Retrait de {$montant}€. Solde : {$this->solde}€\n";
+    }
+}
+
+// ===========================================================
+// QUESTION 3 (2 pts) : Programme de test
+// ===========================================================
+try {
+    $compte = new CompteBancaire(1000);
+    echo "Compte créé. Solde : " . $compte->getSolde() . "€\n";
+
+    $compte->deposer(500);    // ✅ Dépôt OK
+    $compte->retirer(200);    // ✅ Retrait OK
+    $compte->retirer(5000);   // ❌ Lance SoldeInsuffisantException
+
+} catch (MontantInvalideException $e) {
+    echo "❌ Montant invalide : " . $e->getMessage() . "\n";
+
+} catch (SoldeInsuffisantException $e) {
+    echo "💰 Solde insuffisant : " . $e->getMessage() . "\n";
+
+} catch (Exception $e) {
+    echo "⚠️ Erreur inattendue : " . $e->getMessage() . "\n";
+
+} finally {
+    echo "--- Opérations bancaires terminées ---\n";
+}
+
+// Test montant invalide
+try {
+    $compte->deposer(-100);
+} catch (MontantInvalideException $e) {
+    echo "❌ " . $e->getMessage() . "\n";
+}
+?&gt;</code></pre>
+                <div class="why-box">
+                    <strong>💡 Récap exceptions (ce que le prof note) :</strong><br>
+                    ✅ <code>class MonException extends Exception {}</code> — créer des exceptions custom<br>
+                    ✅ <code>throw new MonException("message")</code> — lancer au bon moment<br>
+                    ✅ <code>try { } catch (Specifique $e) { } catch (Exception $e) { }</code> — du spécifique au général<br>
+                    ✅ <code>$e->getMessage()</code> — récupérer le message d'erreur<br>
+                    ✅ <code>finally { }</code> — nettoyage (toujours exécuté)<br>
+                    <strong>C'est l'exercice 4 de l'examen — exceptions obligatoires !</strong>
+                </div>
+            </div>
+        </section>
+
+        <div style="text-align:center;margin:2rem 0">
+            <a href="tp6-synthese.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Passer au TP 6 : Épreuve de Synthèse</a>
+        </div>
+
+    </div></div></main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script>
+    function toggleCorrection(id){const el=document.getElementById(id);el.classList.toggle('visible')}
+    document.getElementById('themeToggleBtn')?.addEventListener('click',()=>{document.body.classList.toggle('dark-mode');const i=document.querySelector('#themeToggleBtn i');i.className=document.body.classList.contains('dark-mode')?'fas fa-sun':'fas fa-moon'});
+    </script>
+</body>
+</html>

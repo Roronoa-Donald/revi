@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP4 - Héritage & Polymorphisme</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="assets/css/tp.css">
+</head>
+<body class="chapter-page">
+    <div class="progress-bar-container"><div class="progress-bar" id="chapterProgress"></div></div>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo"><a href="index.html"><i class="fas fa-code"></i><span>PHP POO</span></a></div>
+            <nav class="main-nav"><a href="index.html">Accueil</a><a href="#" class="active">TP 4</a><button class="btn-theme" id="themeToggleBtn" title="Changer de thème"><i class="fas fa-moon"></i></button></nav>
+        </div>
+    </header>
+    <div class="chapter-nav">
+        <a href="tp3-encapsulation.html" class="nav-btn nav-prev"><i class="fas fa-arrow-left"></i><span>TP 3</span></a>
+        <div class="chapter-info"><span class="chapter-number">TP 4/6</span><h1>Héritage & Polymorphisme</h1></div>
+        <a href="tp5-exceptions.html" class="nav-btn nav-next"><span>TP 5</span><i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <main class="chapter-content" id="main-content"><div class="container"><div class="content">
+
+        <div class="tp-header">
+            <span class="badge"><i class="fas fa-clock"></i> ~55 min</span>
+            <h1>TP 4 : Héritage, Polymorphisme & Interfaces</h1>
+            <p>L'exercice 3 de l'examen porte presque toujours sur l'héritage. On va l'apprendre avec les mêmes exemples que l'épreuve.</p>
+        </div>
+
+        <div class="analogy">
+            <strong>🧬 Analogie :</strong> L'héritage, c'est comme la génétique : un <strong>enfant</strong> hérite des caractéristiques de son <strong>parent</strong>, mais peut avoir ses propres traits en plus. <code>LivreElectronique</code> hérite de <code>Livre</code> + ajoute <code>tailleFichier</code>.
+        </div>
+
+        <div class="hierarchy">
+            <div class="node">Livre (classe parent)</div>
+            <div class="arrow">↓ extends</div>
+            <div class="children">
+                <div class="child">LivreElectronique<br><small>+ tailleFichier</small></div>
+                <div class="child">LivreAudio<br><small>+ duree</small></div>
+            </div>
+        </div>
+
+        <!-- ================================================ -->
+        <!-- SECTION 1 : extends -->
+        <!-- ================================================ -->
+        <section class="content-section" id="extends">
+            <div class="concept-header"><span class="num">1</span><h2>Héritage avec extends</h2></div>
+
+            <div class="code-example">
+                <div class="code-header"><span class="code-title">Classe parent → Classe enfant</span></div>
+                <pre><code class="language-php">&lt;?php
+// CLASSE PARENT (ou classe "mère")
+class Livre {
+    private $titre;
+    private $auteur;
+    private $nbPages;
+
+    public function __construct($titre, $auteur, $nbPages) {
+        $this->titre = $titre;
+        $this->auteur = $auteur;
+        $this->nbPages = $nbPages;
+    }
+
+    public function getTitre()   { return $this->titre; }
+    public function getAuteur()  { return $this->auteur; }
+    public function getNbPages() { return $this->nbPages; }
+
+    public function afficherInfos() {
+        echo "Titre : {$this->titre}, Auteur : {$this->auteur}, ";
+        echo "Pages : {$this->nbPages}\n";
+    }
+}
+
+// CLASSE ENFANT : hérite de TOUT ce que Livre a de public/protected
+class LivreElectronique extends Livre {
+    private $tailleFichier;  // Nouvel attribut spécifique
+
+    // Le constructeur appelle celui du parent avec parent::
+    public function __construct($titre, $auteur, $nbPages, $tailleFichier) {
+        parent::__construct($titre, $auteur, $nbPages);  // ← CRUCIAL
+        $this->tailleFichier = $tailleFichier;
+    }
+
+    public function getTailleFichier() {
+        return $this->tailleFichier;
+    }
+}
+
+// Utilisation
+$ebook = new LivreElectronique("PHP POO", "Jean", 300, 5.2);
+$ebook->afficherInfos();    // ✅ Héritée du parent !
+// Titre : PHP POO, Auteur : Jean, Pages : 300
+
+echo $ebook->getTailleFichier(); // 5.2 (propre à l'enfant)
+?&gt;</code></pre>
+            </div>
+
+            <div class="danger-box">
+                <strong>⚠️ Piège #1 :</strong> Si tu oublies <code>parent::__construct(...)</code>, les attributs du parent ne seront PAS initialisés !<br>
+                <strong>⚠️ Piège #2 :</strong> L'enfant n'a PAS accès aux attributs <code>private</code> du parent. Il doit passer par les getters. Pour donner accès aux enfants, utilise <code>protected</code>.
+            </div>
+
+            <div class="micro-exo">
+                <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 4.1 — Créer LivreElectronique</h4>
+                <p>En partant de la classe <code>Livre</code> ci-dessus, crée une classe <code>LivreElectronique</code> qui hérite de <code>Livre</code> et ajoute un attribut <code>$tailleFichier</code> (en Mo). N'oublie pas le constructeur avec <code>parent::__construct()</code>.</p>
+                <button class="btn-correction" onclick="toggleCorrection('c41')"><i class="fas fa-eye"></i> Voir la correction</button>
+            </div>
+            <div class="correction-box" id="c41">
+                <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                <pre><code class="language-php">&lt;?php
+class LivreElectronique extends Livre {
+    private $tailleFichier;  // en Mo
+
+    public function __construct($titre, $auteur, $nbPages, $tailleFichier) {
+        // 1. Appeler le constructeur du parent pour initialiser titre, auteur, nbPages
+        parent::__construct($titre, $auteur, $nbPages);
+        // 2. Initialiser notre propre attribut
+        $this->tailleFichier = $tailleFichier;
+    }
+
+    public function getTailleFichier() {
+        return $this->tailleFichier;
+    }
+}
+
+$ebook = new LivreElectronique("PHP Avancé", "Marie", 250, 3.8);
+echo $ebook->getTitre();          // "PHP Avancé" (hérité)
+echo $ebook->getTailleFichier();  // 3.8 (propre)
+?&gt;</code></pre>
+                <div class="why-box">
+                    <strong>💡 Schéma mental :</strong><br>
+                    <code>LivreElectronique</code> = tout ce que <code>Livre</code> sait faire + ses propres ajouts.<br>
+                    Le mot-clé <code>extends</code> = "étendre" la classe parent avec de nouvelles fonctionnalités.
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- SECTION 2 : Redéfinition (surcharge) -->
+        <!-- ================================================ -->
+        <section class="content-section" id="surcharge">
+            <div class="concept-header"><span class="num">2</span><h2>Redéfinition de méthode (surcharge)</h2></div>
+
+            <div class="info-box info-intro">
+                <p><strong>Redéfinir</strong> = réécrire une méthode du parent dans l'enfant pour changer son comportement. C'est ça le <strong>polymorphisme</strong> : le même nom de méthode, un comportement différent.</p>
+            </div>
+
+            <div class="code-example">
+                <div class="code-header"><span class="code-title">Redéfinir afficherInfos() dans LivreElectronique</span></div>
+                <pre><code class="language-php">&lt;?php
+class LivreElectronique extends Livre {
+    private $tailleFichier;
+
+    public function __construct($titre, $auteur, $nbPages, $tailleFichier) {
+        parent::__construct($titre, $auteur, $nbPages);
+        $this->tailleFichier = $tailleFichier;
+    }
+
+    // REDÉFINITION : même nom que dans le parent, mais comportement différent
+    public function afficherInfos() {
+        // 1. Appeler la version du parent
+        parent::afficherInfos();
+        // 2. Ajouter nos propres informations
+        echo "Taille du fichier : {$this->tailleFichier} Mo\n";
+    }
+
+    public function getTailleFichier() {
+        return $this->tailleFichier;
+    }
+}
+
+$livre  = new Livre("PHP Bases", "Jean", 300);
+$ebook  = new LivreElectronique("PHP Avancé", "Marie", 250, 3.8);
+
+$livre->afficherInfos();
+// Titre : PHP Bases, Auteur : Jean, Pages : 300
+
+$ebook->afficherInfos();
+// Titre : PHP Avancé, Auteur : Marie, Pages : 250
+// Taille du fichier : 3.8 Mo    ← AJOUTÉ par la redéfinition
+?&gt;</code></pre>
+            </div>
+
+            <div class="micro-exo">
+                <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 4.2 — Redéfinir afficherInfos()</h4>
+                <p>Redéfinis la méthode <code>afficherInfos()</code> dans <code>LivreElectronique</code> pour qu'elle affiche aussi la taille du fichier. Utilise <code>parent::afficherInfos()</code> pour ne pas réécrire le code du parent.</p>
+                <button class="btn-correction" onclick="toggleCorrection('c42')"><i class="fas fa-eye"></i> Voir la correction</button>
+            </div>
+            <div class="correction-box" id="c42">
+                <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                <pre><code class="language-php">&lt;?php
+// Dans la classe LivreElectronique :
+public function afficherInfos() {
+    parent::afficherInfos();  // Réutilise le code du parent (DRY!)
+    echo "Taille : {$this->tailleFichier} Mo\n";
+}
+
+// Test
+$ebook = new LivreElectronique("C# Guide", "Paul", 400, 7.5);
+$ebook->afficherInfos();
+// Titre : C# Guide, Auteur : Paul, Pages : 400
+// Taille : 7.5 Mo
+?&gt;</code></pre>
+                <div class="why-box">
+                    <strong>💡 parent:: vs $this-> :</strong><br>
+                    • <code>parent::</code> = appeler une méthode/constructeur de la classe parent<br>
+                    • <code>$this-></code> = accéder à un attribut/méthode de l'objet courant<br>
+                    Le prof vérifie que tu utilises <code>parent::afficherInfos()</code> plutôt que de dupliquer le code.
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- SECTION 3 : Classes abstraites -->
+        <!-- ================================================ -->
+        <section class="content-section" id="abstract">
+            <div class="concept-header"><span class="num">3</span><h2>Classes et méthodes abstraites</h2></div>
+
+            <div class="info-box info-intro">
+                <p>Une classe <strong>abstraite</strong> est un "moule incomplet" : on ne peut pas l'instancier directement. Elle force les enfants à implémenter certaines méthodes.</p>
+            </div>
+
+            <div class="code-example">
+                <div class="code-header"><span class="code-title">Classe abstraite Forme</span></div>
+                <pre><code class="language-php">&lt;?php
+// abstract = on ne peut PAS faire new Forme()
+abstract class Forme {
+    protected $couleur;
+
+    public function __construct($couleur) {
+        $this->couleur = $couleur;
+    }
+
+    // Méthode abstraite = PAS de corps, les enfants DOIVENT la définir
+    abstract public function calculerSurface();
+
+    // Méthode normale (héritée telle quelle)
+    public function getCouleur() {
+        return $this->couleur;
+    }
+}
+
+class Cercle extends Forme {
+    private $rayon;
+
+    public function __construct($couleur, $rayon) {
+        parent::__construct($couleur);
+        $this->rayon = $rayon;
+    }
+
+    // OBLIGÉ d'implémenter calculerSurface()
+    public function calculerSurface() {
+        return M_PI * $this->rayon ** 2;  // π × r²
+    }
+}
+
+class Rectangle extends Forme {
+    private $largeur;
+    private $hauteur;
+
+    public function __construct($couleur, $largeur, $hauteur) {
+        parent::__construct($couleur);
+        $this->largeur = $largeur;
+        $this->hauteur = $hauteur;
+    }
+
+    public function calculerSurface() {
+        return $this->largeur * $this->hauteur;
+    }
+}
+
+// $f = new Forme("rouge");  // ❌ ERREUR ! Classe abstraite
+$c = new Cercle("bleu", 5);
+$r = new Rectangle("vert", 4, 6);
+
+echo $c->calculerSurface();  // 78.54 (π × 25)
+echo $r->calculerSurface();  // 24 (4 × 6)
+?&gt;</code></pre>
+            </div>
+
+            <div class="micro-exo">
+                <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 4.3 — Classe abstraite Animal</h4>
+                <p>Crée une classe abstraite <code>Animal</code> avec un attribut <code>$nom</code> et une méthode abstraite <code>crier()</code>. Crée <code>Chien</code> (crier = "Wouf!") et <code>Chat</code> (crier = "Miaou!") qui en héritent.</p>
+                <button class="btn-correction" onclick="toggleCorrection('c43')"><i class="fas fa-eye"></i> Voir la correction</button>
+            </div>
+            <div class="correction-box" id="c43">
+                <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                <pre><code class="language-php">&lt;?php
+abstract class Animal {
+    protected $nom;   // protected : accessible par les enfants
+
+    public function __construct($nom) {
+        $this->nom = $nom;
+    }
+
+    // Méthode abstraite : chaque animal crie différemment
+    abstract public function crier();
+
+    public function sePresenter() {
+        echo "Je suis {$this->nom} et je fais : ";
+        $this->crier();  // Polymorphisme : chaque animal a sa propre version
+    }
+}
+
+class Chien extends Animal {
+    public function crier() {
+        echo "Wouf !\n";
+    }
+}
+
+class Chat extends Animal {
+    public function crier() {
+        echo "Miaou !\n";
+    }
+}
+
+$rex = new Chien("Rex");
+$felix = new Chat("Félix");
+
+$rex->sePresenter();   // "Je suis Rex et je fais : Wouf !"
+$felix->sePresenter(); // "Je suis Félix et je fais : Miaou !"
+?&gt;</code></pre>
+                <div class="why-box">
+                    <strong>💡 Polymorphisme en action :</strong><br>
+                    <code>sePresenter()</code> appelle <code>$this->crier()</code>. Selon que l'objet est un Chien ou un Chat, c'est la bonne version de <code>crier()</code> qui s'exécute. C'est ça le polymorphisme : <strong>même appel, comportement différent</strong>.
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- SECTION 4 : Interfaces -->
+        <!-- ================================================ -->
+        <section class="content-section" id="interfaces">
+            <div class="concept-header"><span class="num">4</span><h2>Interfaces</h2></div>
+
+            <div class="info-box info-intro">
+                <p>Une interface = un <strong>contrat</strong>. "Si tu implémentes cette interface, tu DOIS avoir ces méthodes."<br>
+                Différence avec abstract : une classe peut implémenter <strong>plusieurs</strong> interfaces, mais ne peut hériter que d'<strong>une seule</strong> classe.</p>
+            </div>
+
+            <div class="code-example">
+                <div class="code-header"><span class="code-title">Interface et implements</span></div>
+                <pre><code class="language-php">&lt;?php
+// Interface = contrat (que des signatures de méthodes, pas de corps)
+interface Affichable {
+    public function afficher();  // Pas de corps ! Juste la signature
+}
+
+interface Exportable {
+    public function exporter($format);
+}
+
+// Une classe peut implémenter PLUSIEURS interfaces
+class Rapport implements Affichable, Exportable {
+    private $contenu;
+
+    public function __construct($contenu) {
+        $this->contenu = $contenu;
+    }
+
+    // OBLIGÉ d'implémenter afficher() (contrat Affichable)
+    public function afficher() {
+        echo $this->contenu;
+    }
+
+    // OBLIGÉ d'implémenter exporter() (contrat Exportable)
+    public function exporter($format) {
+        return "[$format] $this->contenu";
+    }
+}
+
+$r = new Rapport("Résultats du semestre");
+$r->afficher();               // "Résultats du semestre"
+echo $r->exporter("PDF");     // "[PDF] Résultats du semestre"
+?&gt;</code></pre>
+            </div>
+
+            <table style="width:100%;border-collapse:collapse;margin:1rem 0">
+                <thead><tr style="background:#8b5cf6;color:#fff"><th style="padding:.6rem">Critère</th><th style="padding:.6rem">Classe abstraite</th><th style="padding:.6rem">Interface</th></tr></thead>
+                <tbody>
+                    <tr><td style="padding:.5rem;border:1px solid #e2e8f0">Mot-clé</td><td style="padding:.5rem;border:1px solid #e2e8f0"><code>extends</code></td><td style="padding:.5rem;border:1px solid #e2e8f0"><code>implements</code></td></tr>
+                    <tr><td style="padding:.5rem;border:1px solid #e2e8f0">Héritage multiple ?</td><td style="padding:.5rem;border:1px solid #e2e8f0;color:#ef4444">❌ 1 seule</td><td style="padding:.5rem;border:1px solid #e2e8f0;color:#10b981">✅ Plusieurs</td></tr>
+                    <tr><td style="padding:.5rem;border:1px solid #e2e8f0">Attributs ?</td><td style="padding:.5rem;border:1px solid #e2e8f0;color:#10b981">✅ Oui</td><td style="padding:.5rem;border:1px solid #e2e8f0;color:#ef4444">❌ Non</td></tr>
+                    <tr><td style="padding:.5rem;border:1px solid #e2e8f0">Corps de méthode ?</td><td style="padding:.5rem;border:1px solid #e2e8f0;color:#10b981">✅ Oui (mixte)</td><td style="padding:.5rem;border:1px solid #e2e8f0;color:#ef4444">❌ Que des signatures</td></tr>
+                    <tr><td style="padding:.5rem;border:1px solid #e2e8f0">Logique</td><td style="padding:.5rem;border:1px solid #e2e8f0">"JE SUIS un type"</td><td style="padding:.5rem;border:1px solid #e2e8f0">"JE SAIS FAIRE"</td></tr>
+                </tbody>
+            </table>
+
+            <div class="micro-exo">
+                <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 4.4 — Interface FormeGeometrique</h4>
+                <p>Crée une interface <code>FormeGeometrique</code> avec les méthodes <code>calculerSurface()</code> et <code>calculerPerimetre()</code>. Crée une classe <code>Carre</code> qui implémente cette interface (côté en paramètre).</p>
+                <button class="btn-correction" onclick="toggleCorrection('c44')"><i class="fas fa-eye"></i> Voir la correction</button>
+            </div>
+            <div class="correction-box" id="c44">
+                <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                <pre><code class="language-php">&lt;?php
+interface FormeGeometrique {
+    public function calculerSurface();
+    public function calculerPerimetre();
+}
+
+class Carre implements FormeGeometrique {
+    private $cote;
+
+    public function __construct($cote) {
+        $this->cote = $cote;
+    }
+
+    public function calculerSurface() {
+        return $this->cote ** 2;  // côté²
+    }
+
+    public function calculerPerimetre() {
+        return 4 * $this->cote;   // 4 × côté
+    }
+}
+
+$c = new Carre(5);
+echo "Surface : " . $c->calculerSurface();    // 25
+echo "Périmètre : " . $c->calculerPerimetre(); // 20
+?&gt;</code></pre>
+            </div>
+        </section>
+
+        <!-- ================================================ -->
+        <!-- EXERCICE DE SYNTHÈSE (style examen) -->
+        <!-- ================================================ -->
+        <section class="content-section" id="synthese">
+            <div class="synthese-box">
+                <h3><i class="fas fa-trophy"></i> Exercice de Synthèse — Héritage LivreElectronique <span class="point-badge">5 pts</span></h3>
+                <p><strong>Contexte :</strong> On veut étendre notre système avec des livres électroniques. (Examen 2024/2025 – Exercice 3)</p>
+                <ol>
+                    <li><strong>(2 pts)</strong> Créez une classe <code>LivreElectronique</code> qui hérite de <code>Livre</code> et ajoute un nouvel attribut <code>tailleFichier</code> (en Mo).</li>
+                    <li><strong>(2 pts)</strong> Redéfinissez la méthode <code>afficherInfos()</code> pour inclure la taille du fichier dans l'affichage.</li>
+                    <li><strong>(1 pt)</strong> Instanciez un objet <code>LivreElectronique</code> et testez l'affichage.</li>
+                </ol>
+                <button class="btn-correction" onclick="toggleCorrection('synthese4')"><i class="fas fa-eye"></i> Voir la correction complète</button>
+            </div>
+            <div class="correction-box" id="synthese4">
+                <h4><i class="fas fa-check-circle"></i> Correction détaillée — Épreuve réelle !</h4>
+                <pre><code class="language-php">&lt;?php
+// Classe parent (du TP2/TP3)
+class Livre {
+    private $titre;
+    private $auteur;
+    private $nbPages;
+
+    public function __construct($titre, $auteur, $nbPages) {
+        $this->titre = $titre;
+        $this->auteur = $auteur;
+        $this->nbPages = $nbPages;
+    }
+
+    public function getTitre() { return $this->titre; }
+    public function getAuteur() { return $this->auteur; }
+    public function getNbPages() { return $this->nbPages; }
+
+    public function afficherInfos() {
+        echo "Titre : {$this->titre}, ";
+        echo "Auteur : {$this->auteur}, ";
+        echo "Nombre de pages : {$this->nbPages}\n";
+    }
+}
+
+// ===========================================================
+// QUESTION 1 (2 pts) : Héritage + nouveau attribut
+// ===========================================================
+class LivreElectronique extends Livre {
+    private $tailleFichier;  // en Mo — spécifique aux ebooks
+
+    public function __construct($titre, $auteur, $nbPages, $tailleFichier) {
+        // parent::__construct() = appeler le constructeur de Livre
+        parent::__construct($titre, $auteur, $nbPages);
+        $this->tailleFichier = $tailleFichier;
+    }
+    // Barème : extends (0.5pt), parent::__construct (0.5pt),
+    // nouveau attribut (0.5pt), constructeur complet (0.5pt)
+
+    public function getTailleFichier() {
+        return $this->tailleFichier;
+    }
+
+    // ===========================================================
+    // QUESTION 2 (2 pts) : Redéfinition de afficherInfos()
+    // ===========================================================
+    public function afficherInfos() {
+        // Appeler la version du parent (ne pas réécrire le code !)
+        parent::afficherInfos();
+        // Ajouter l'info spécifique
+        echo "Taille du fichier : {$this->tailleFichier} Mo\n";
+    }
+    // Barème : parent::afficherInfos() (1pt),
+    // affichage tailleFichier correct (1pt)
+}
+
+// ===========================================================
+// QUESTION 3 (1 pt) : Instanciation et test
+// ===========================================================
+$ebook = new LivreElectronique(
+    "Apprendre PHP",       // titre
+    "Jean Dupont",         // auteur
+    280,                   // nbPages
+    4.5                    // tailleFichier en Mo
+);
+
+$ebook->afficherInfos();
+// Affiche :
+// Titre : Apprendre PHP, Auteur : Jean Dupont, Nombre de pages : 280
+// Taille du fichier : 4.5 Mo
+?&gt;</code></pre>
+                <div class="why-box">
+                    <strong>💡 Récap de l'héritage (ce que le prof évalue) :</strong><br>
+                    ✅ <code>extends</code> pour hériter<br>
+                    ✅ <code>parent::__construct()</code> pour initialiser le parent<br>
+                    ✅ <code>parent::afficherInfos()</code> pour réutiliser sans dupliquer<br>
+                    ✅ Nouvel attribut propre à l'enfant<br>
+                    ✅ <code>new ClasseEnfant(tout, les, parametres, + nouveaux)</code><br>
+                    <strong>Tout cet exercice est au programme de l'examen tel quel.</strong>
+                </div>
+            </div>
+        </section>
+
+        <div style="text-align:center;margin:2rem 0">
+            <a href="tp5-exceptions.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Passer au TP 5 : Gestion des Exceptions</a>
+        </div>
+
+    </div></div></main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script>
+    function toggleCorrection(id){const el=document.getElementById(id);el.classList.toggle('visible')}
+    document.getElementById('themeToggleBtn')?.addEventListener('click',()=>{document.body.classList.toggle('dark-mode');const i=document.querySelector('#themeToggleBtn i');i.className=document.body.classList.contains('dark-mode')?'fas fa-sun':'fas fa-moon'});
+    </script>
+</body>
+</html>

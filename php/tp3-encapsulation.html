@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP3 - Encapsulation</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/features.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="assets/css/tp.css">
+</head>
+<body class="chapter-page">
+    <div class="progress-bar-container"><div class="progress-bar" id="chapterProgress"></div></div>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo"><a href="index.html"><i class="fas fa-code"></i><span>PHP POO</span></a></div>
+            <nav class="main-nav">
+                <a href="index.html">Accueil</a><a href="#" class="active">TP 3</a>
+                <button class="btn-theme" id="themeToggleBtn" title="Changer de thème"><i class="fas fa-moon"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="chapter-nav">
+        <a href="tp2-poo-bases.html" class="nav-btn nav-prev"><i class="fas fa-arrow-left"></i><span>TP 2</span></a>
+        <div class="chapter-info"><span class="chapter-number">TP 3/6</span><h1>Encapsulation</h1></div>
+        <a href="tp4-heritage.html" class="nav-btn nav-next"><span>TP 4</span><i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <main class="chapter-content" id="main-content">
+        <div class="container"><div class="content">
+
+            <div class="tp-header">
+                <span class="badge"><i class="fas fa-clock"></i> ~45 min</span>
+                <h1>TP 3 : Encapsulation — Protéger les données</h1>
+                <p>L'encapsulation, c'est <strong>cacher et protéger</strong> les attributs d'une classe. C'est le concept le plus testé à l'examen du prof !</p>
+            </div>
+
+            <div class="analogy">
+                <strong>🔒 Analogie :</strong> Un distributeur automatique : tu ne peux pas mettre la main dans la machine pour prendre un café. Tu passes par les <strong>boutons</strong> (getters/setters). Le mécanisme interne est <strong>caché</strong> (private).
+            </div>
+
+            <!-- ================================================ -->
+            <!-- SECTION 1 : Le problème avec public -->
+            <!-- ================================================ -->
+            <section class="content-section" id="probleme">
+                <div class="concept-header"><span class="num">1</span><h2>Le problème avec public</h2></div>
+
+                <div class="compare-grid">
+                    <div class="compare-card bad">
+                        <h5>❌ Avec public — dangereux</h5>
+                        <pre><code class="language-php">$livre = new Livre("PHP", "Jean", 300);
+$livre->nbPages = -50;  // Accepté !
+$livre->nbPages = "abc"; // Accepté !
+// Aucun contrôle, n'importe quelle valeur passe</code></pre>
+                    </div>
+                    <div class="compare-card good">
+                        <h5>✅ Avec private + setter — sécurisé</h5>
+                        <pre><code class="language-php">$livre = new Livre("PHP", "Jean", 300);
+$livre->setNbPages(-50);  // Refusé !
+$livre->setNbPages(400);  // Accepté ✓
+// Le setter vérifie la valeur avant de l'accepter</code></pre>
+                    </div>
+                </div>
+
+                <div class="micro-exo">
+                    <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 3.1 — Identifier le danger</h4>
+                    <p>Regarde ce code. Qu'est-ce qui ne va pas ?</p>
+                    <pre><code class="language-php">class CompteBancaire {
+    public $solde;
+    public function __construct($solde) { $this->solde = $solde; }
+}
+$compte = new CompteBancaire(1000);
+$compte->solde = -999999; // ???</code></pre>
+                    <button class="btn-correction" onclick="toggleCorrection('c31')"><i class="fas fa-eye"></i> Voir la correction</button>
+                </div>
+                <div class="correction-box" id="c31">
+                    <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                    <p>Le problème : <code>$solde</code> est <strong>public</strong>, donc n'importe qui peut le modifier directement sans contrôle. On pourrait mettre un solde négatif, ce qui est incohérent pour un compte bancaire.</p>
+                    <p><strong>Solution :</strong> rendre <code>$solde</code> <strong>private</strong> et fournir un setter avec validation.</p>
+                </div>
+            </section>
+
+            <!-- ================================================ -->
+            <!-- SECTION 2 : Visibilité (public / private / protected) -->
+            <!-- ================================================ -->
+            <section class="content-section" id="visibilite">
+                <div class="concept-header"><span class="num">2</span><h2>Les 3 niveaux de visibilité</h2></div>
+
+                <table class="visibility-table" style="width:100%;border-collapse:collapse;margin:1rem 0">
+                    <thead><tr style="background:#8b5cf6;color:#fff">
+                        <th style="padding:.8rem">Mot-clé</th><th style="padding:.8rem">Dans la classe</th><th style="padding:.8rem">Classes enfants</th><th style="padding:.8rem">Extérieur</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr><td style="padding:.6rem;border:1px solid #e2e8f0"><code>public</code></td><td style="padding:.6rem;border:1px solid #e2e8f0;color:#10b981">✅</td><td style="padding:.6rem;border:1px solid #e2e8f0;color:#10b981">✅</td><td style="padding:.6rem;border:1px solid #e2e8f0;color:#10b981">✅</td></tr>
+                        <tr><td style="padding:.6rem;border:1px solid #e2e8f0"><code>protected</code></td><td style="padding:.6rem;border:1px solid #e2e8f0;color:#10b981">✅</td><td style="padding:.6rem;border:1px solid #e2e8f0;color:#10b981">✅</td><td style="padding:.6rem;border:1px solid #e2e8f0;color:#ef4444">❌</td></tr>
+                        <tr><td style="padding:.6rem;border:1px solid #e2e8f0"><code>private</code></td><td style="padding:.6rem;border:1px solid #e2e8f0;color:#10b981">✅</td><td style="padding:.6rem;border:1px solid #e2e8f0;color:#ef4444">❌</td><td style="padding:.6rem;border:1px solid #e2e8f0;color:#ef4444">❌</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box info-tip">
+                    <p><strong>Mnémonique :</strong> <code>public</code> = Tout le monde, <code>protected</code> = Famille (héritage), <code>private</code> = Moi seul</p>
+                </div>
+
+                <div class="micro-exo">
+                    <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 3.2 — Passer en private</h4>
+                    <p>Reprends la classe <code>Livre</code> du TP2 et change <code>public $nbPages</code> en <code>private $nbPages</code>. Essaie d'accéder à <code>$livre->nbPages</code> depuis l'extérieur. Que se passe-t-il ?</p>
+                    <button class="btn-correction" onclick="toggleCorrection('c32')"><i class="fas fa-eye"></i> Voir la correction</button>
+                </div>
+                <div class="correction-box" id="c32">
+                    <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                    <pre><code class="language-php">&lt;?php
+class Livre {
+    public $titre;
+    public $auteur;
+    private $nbPages;   // ← Changé en private
+
+    public function __construct($titre, $auteur, $nbPages) {
+        $this->titre = $titre;
+        $this->auteur = $auteur;
+        $this->nbPages = $nbPages;   // OK : on est DANS la classe
+    }
+}
+
+$livre = new Livre("PHP", "Jean", 300);
+echo $livre->titre;     // ✅ OK (public)
+echo $livre->nbPages;   // ❌ ERREUR ! Cannot access private property
+?&gt;</code></pre>
+                    <div class="why-box">
+                        <strong>💡 C'est exactement ça l'encapsulation :</strong><br>
+                        L'attribut <code>private</code> est inaccessible depuis l'extérieur de la classe. On ne peut y accéder que via des <strong>méthodes publiques</strong> (getters/setters) qui contrôlent l'accès.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================ -->
+            <!-- SECTION 3 : Getters et Setters -->
+            <!-- ================================================ -->
+            <section class="content-section" id="getset">
+                <div class="concept-header"><span class="num">3</span><h2>Getters et Setters</h2></div>
+
+                <div class="info-box info-intro">
+                    <p><strong>Getter</strong> = méthode pour <strong>lire</strong> un attribut private → <code>getNbPages()</code><br>
+                    <strong>Setter</strong> = méthode pour <strong>modifier</strong> un attribut private avec <strong>validation</strong> → <code>setNbPages($pages)</code></p>
+                </div>
+
+                <div class="code-example">
+                    <div class="code-header"><span class="code-title">Classe Livre avec encapsulation complète</span></div>
+                    <pre><code class="language-php">&lt;?php
+class Livre {
+    private $titre;      // Tous les attributs sont private
+    private $auteur;
+    private $nbPages;
+
+    public function __construct($titre, $auteur, $nbPages) {
+        $this->titre = $titre;
+        $this->auteur = $auteur;
+        $this->setNbPages($nbPages);  // Utilise le setter même dans le constructeur !
+    }
+
+    // --- GETTERS (lecture seule) ---
+    public function getTitre()   { return $this->titre; }
+    public function getAuteur()  { return $this->auteur; }
+    public function getNbPages() { return $this->nbPages; }
+
+    // --- SETTER avec VALIDATION ---
+    public function setNbPages($pages) {
+        if (!is_int($pages) || $pages <= 0) {
+            echo "Erreur : le nombre de pages doit être un entier positif !\n";
+            return;  // On sort sans modifier
+        }
+        $this->nbPages = $pages;  // Modification acceptée
+    }
+
+    public function afficherInfos() {
+        echo "Titre : {$this->titre}, Auteur : {$this->auteur}, Pages : {$this->nbPages}\n";
+    }
+}
+
+$livre = new Livre("PHP POO", "Jean", 300);
+echo $livre->getTitre();      // ✅ "PHP POO"
+echo $livre->getNbPages();    // ✅ 300
+
+$livre->setNbPages(450);      // ✅ Accepté
+$livre->setNbPages(-10);      // ❌ "Erreur : le nombre de pages..."
+$livre->setNbPages("abc");    // ❌ "Erreur : le nombre de pages..."
+
+echo $livre->getNbPages();    // 450 (la valeur invalide n'a pas été enregistrée)
+?&gt;</code></pre>
+                </div>
+
+                <div class="micro-exo">
+                    <h4><i class="fas fa-pencil-alt"></i> Micro-exercice 3.3 — Encapsuler CompteBancaire</h4>
+                    <p>Reprends la classe <code>CompteBancaire</code>. Rends <code>$solde</code> private. Crée :<br>
+                    - un getter <code>getSolde()</code><br>
+                    - un setter <code>setSolde($montant)</code> qui refuse les valeurs négatives<br>
+                    - une méthode <code>deposer($montant)</code> qui ajoute au solde (si montant > 0)<br>
+                    - une méthode <code>retirer($montant)</code> qui retire du solde (si montant > 0 ET solde suffisant)</p>
+                    <button class="btn-correction" onclick="toggleCorrection('c33')"><i class="fas fa-eye"></i> Voir la correction</button>
+                </div>
+                <div class="correction-box" id="c33">
+                    <h4><i class="fas fa-check-circle"></i> Correction</h4>
+                    <pre><code class="language-php">&lt;?php
+class CompteBancaire {
+    private $solde;   // private = accessible uniquement dans la classe
+
+    public function __construct($solde) {
+        $this->setSolde($solde);  // On passe par le setter pour valider
+    }
+
+    // Getter : permet de LIRE le solde
+    public function getSolde() {
+        return $this->solde;
+    }
+
+    // Setter : permet de MODIFIER avec validation
+    public function setSolde($montant) {
+        if ($montant < 0) {
+            echo "Erreur : le solde ne peut pas être négatif.\n";
+            return;
+        }
+        $this->solde = $montant;
+    }
+
+    // Méthode métier : déposer de l'argent
+    public function deposer($montant) {
+        if ($montant <= 0) {
+            echo "Erreur : le montant doit être positif.\n";
+            return;
+        }
+        $this->solde += $montant;  // On modifie directement (on est dans la classe)
+        echo "Dépôt de $montant€. Nouveau solde : {$this->solde}€\n";
+    }
+
+    // Méthode métier : retirer de l'argent
+    public function retirer($montant) {
+        if ($montant <= 0) {
+            echo "Erreur : le montant doit être positif.\n";
+            return;
+        }
+        if ($montant > $this->solde) {
+            echo "Erreur : solde insuffisant ({$this->solde}€).\n";
+            return;
+        }
+        $this->solde -= $montant;
+        echo "Retrait de $montant€. Nouveau solde : {$this->solde}€\n";
+    }
+}
+
+$compte = new CompteBancaire(1000);
+echo $compte->getSolde();     // 1000
+$compte->deposer(500);        // Dépôt de 500€. Nouveau solde : 1500€
+$compte->retirer(200);        // Retrait de 200€. Nouveau solde : 1300€
+$compte->retirer(5000);       // Erreur : solde insuffisant (1300€).
+$compte->deposer(-100);       // Erreur : le montant doit être positif.
+?&gt;</code></pre>
+                    <div class="why-box">
+                        <strong>💡 Schéma d'encapsulation :</strong><br>
+                        <code>Extérieur → setter (vérifie) → attribut private</code><br>
+                        <code>Attribut private → getter (lit) → Extérieur</code><br>
+                        Les méthodes <code>deposer()</code> et <code>retirer()</code> sont des <strong>méthodes métier</strong> : elles font des opérations qui ont du sens dans le contexte du problème, tout en protégeant les données.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================ -->
+            <!-- EXERCICE DE SYNTHÈSE (style examen) -->
+            <!-- ================================================ -->
+            <section class="content-section" id="synthese">
+                <div class="synthese-box">
+                    <h3><i class="fas fa-trophy"></i> Exercice de Synthèse — Encapsulation du Livre <span class="point-badge">5 pts</span></h3>
+                    <p><strong>Contexte :</strong> On veut sécuriser la gestion du nombre de pages d'un livre. (Examen 2024/2025 – Exercice 2)</p>
+                    <ol>
+                        <li><strong>(2 pts)</strong> Modifiez la classe <code>Livre</code> pour que l'attribut <code>nbPages</code> soit privé.</li>
+                        <li><strong>(2 pts)</strong> Ajoutez une méthode <code>setNbPages($pages)</code> qui permet de modifier <code>nbPages</code> uniquement si la valeur est un entier strictement positif.</li>
+                        <li><strong>(1 pt)</strong> Testez cette méthode avec des valeurs valides et invalides.</li>
+                    </ol>
+                    <button class="btn-correction" onclick="toggleCorrection('synthese3')"><i class="fas fa-eye"></i> Voir la correction complète</button>
+                </div>
+                <div class="correction-box" id="synthese3">
+                    <h4><i class="fas fa-check-circle"></i> Correction détaillée — Épreuve réelle !</h4>
+                    <pre><code class="language-php">&lt;?php
+// ===========================================================
+// QUESTION 1 (2 pts) : Attribut privé
+// ===========================================================
+class Livre {
+    public $titre;
+    public $auteur;
+    private $nbPages;     // ← private au lieu de public
+
+    public function __construct($titre, $auteur, $nbPages) {
+        $this->titre = $titre;
+        $this->auteur = $auteur;
+        // On utilise le setter pour valider dès la construction
+        $this->setNbPages($nbPages);
+    }
+
+    // Getter pour lire nbPages (pas demandé mais bonne pratique)
+    public function getNbPages() {
+        return $this->nbPages;
+    }
+
+    // ===========================================================
+    // QUESTION 2 (2 pts) : Setter avec validation
+    // ===========================================================
+    public function setNbPages($pages) {
+        // Condition : entier ET strictement positif
+        if (is_int($pages) && $pages > 0) {
+            $this->nbPages = $pages;
+        } else {
+            echo "Erreur : nbPages doit être un entier strictement positif.\n";
+        }
+    }
+    // Points clés :
+    // - is_int() vérifie que c'est bien un entier (pas "abc", pas 3.5)
+    // - > 0 vérifie que c'est strictement positif (pas 0, pas -5)
+
+    public function afficherInfos() {
+        echo "Titre : {$this->titre}, Auteur : {$this->auteur}, ";
+        echo "Pages : {$this->nbPages}\n";
+    }
+}
+
+// ===========================================================
+// QUESTION 3 (1 pt) : Tests valides et invalides
+// ===========================================================
+$livre = new Livre("PHP POO", "Jean Dupont", 300);
+$livre->afficherInfos();
+// Titre : PHP POO, Auteur : Jean Dupont, Pages : 300
+
+// Test valide
+$livre->setNbPages(450);
+echo "Après modification : " . $livre->getNbPages() . " pages\n"; // 450
+
+// Tests invalides
+$livre->setNbPages(-10);    // Erreur : nbPages doit être un entier strictement positif.
+$livre->setNbPages(0);      // Erreur : nbPages doit être un entier strictement positif.
+$livre->setNbPages("abc");  // Erreur : nbPages doit être un entier strictement positif.
+$livre->setNbPages(3.5);    // Erreur : nbPages doit être un entier strictement positif.
+
+// Vérifier que la valeur n'a pas changé
+echo "Toujours : " . $livre->getNbPages() . " pages\n"; // 450
+?&gt;</code></pre>
+                    <div class="why-box">
+                        <strong>💡 Barème du prof :</strong><br>
+                        ✅ Q1 : <code>private</code> au lieu de <code>public</code> (1 pt) + constructeur correct (1 pt)<br>
+                        ✅ Q2 : <code>is_int()</code> (1 pt) + <code>> 0</code> + affectation conditionnelle (1 pt)<br>
+                        ✅ Q3 : Au moins 1 test valide + 1 test invalide (1 pt)<br>
+                        <strong>Piège fréquent :</strong> écrire <code>>= 0</code> au lieu de <code>> 0</code> (le prof dit "strictement positif" = pas zéro !)
+                    </div>
+                </div>
+            </section>
+
+            <div style="text-align:center;margin:2rem 0">
+                <a href="tp4-heritage.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Passer au TP 4 : Héritage & Polymorphisme</a>
+            </div>
+
+        </div></div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script>
+    function toggleCorrection(id){const el=document.getElementById(id);el.classList.toggle('visible')}
+    document.getElementById('themeToggleBtn')?.addEventListener('click',()=>{document.body.classList.toggle('dark-mode');const i=document.querySelector('#themeToggleBtn i');i.className=document.body.classList.contains('dark-mode')?'fas fa-sun':'fas fa-moon'});
+    </script>
+</body>
+</html>
