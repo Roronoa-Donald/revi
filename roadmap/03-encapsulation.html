@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encapsulation — PHP vs C#</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root{--php:#8b5cf6;--cs:#10b981;--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#f1f5f9;--dim:#94a3b8;--accent:#f59e0b}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+        .container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+        .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+        .topbar a{color:var(--dim);text-decoration:none;font-size:.9rem;transition:color .2s}.topbar a:hover{color:var(--text)}
+        .topbar .title{font-weight:700;font-size:1rem}.topbar .title .php{color:var(--php)}.topbar .title .cs{color:var(--cs)}
+        .hero{padding:2.5rem 0 1.5rem;text-align:center}
+        .hero h1{font-size:2rem;margin-bottom:.5rem}.hero h1 i{color:var(--accent)}
+        .hero p{color:var(--dim);max-width:600px;margin:0 auto}
+        .compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:2rem 0}
+        .compare .side{background:var(--card);border-radius:12px;padding:1.25rem 1.5rem;border:1px solid var(--border);overflow-x:auto}
+        .compare .side.php-side{border-top:3px solid var(--php)}.compare .side.cs-side{border-top:3px solid var(--cs)}
+        .side-label{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+        .side-label.php{color:var(--php)}.side-label.cs{color:var(--cs)}
+        .side pre{margin:0;font-size:.85rem;border-radius:8px;background:#0d1117!important}
+        .section{margin:3rem 0}.section h2{font-size:1.4rem;margin-bottom:.3rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+        .section h2 i{color:var(--accent);margin-right:.4rem}.section>p{color:var(--dim);margin-bottom:1rem}
+        .tip{background:rgba(139,92,246,.1);border-left:3px solid var(--php);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1rem 0;font-size:.92rem}
+        .tip.green{background:rgba(16,185,129,.1);border-left-color:var(--cs)}
+        .tip.amber{background:rgba(245,158,11,.1);border-left-color:var(--accent)}
+        .tip strong{color:var(--text)}
+        .exo{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+        .exo h3{color:var(--accent);font-size:1.05rem;margin-bottom:.5rem}.exo h3 i{margin-right:.3rem}
+        .exo p{color:var(--dim);font-size:.92rem}
+        .exo .consigne{background:rgba(255,255,255,.04);padding:.75rem 1rem;border-radius:8px;margin:.75rem 0;font-size:.9rem}
+        .btn-correction{background:var(--accent);color:#000;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-weight:600;font-size:.88rem;margin-top:.75rem}.btn-correction:hover{opacity:.85}
+        .correction-box{display:none;margin-top:1rem}.correction-box.visible{display:block}
+        .why{background:rgba(139,92,246,.08);border-left:3px solid var(--php);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:.75rem;font-size:.88rem;color:var(--dim)}.why strong{color:var(--text)}
+        .vis-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;margin:1rem 0;font-size:.9rem}
+        .vis-table th{background:rgba(255,255,255,.06);padding:.6rem 1rem;text-align:left;color:var(--dim);font-size:.82rem}
+        .vis-table td{padding:.6rem 1rem;border-top:1px solid var(--border)}
+        .vis-table .yes{color:var(--cs)}.vis-table .no{color:#ef4444}
+        .nav-bottom{display:flex;justify-content:space-between;padding:2rem 0;border-top:1px solid var(--border);margin-top:3rem}
+        .nav-bottom a{color:var(--dim);text-decoration:none;font-size:.9rem;padding:.5rem 1rem;border-radius:8px;background:var(--card);border:1px solid var(--border);transition:all .2s}.nav-bottom a:hover{color:var(--text);background:var(--border)}
+        @media(max-width:768px){.compare{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+
+<nav class="topbar">
+    <a href="index.html"><i class="fas fa-arrow-left"></i> Roadmap</a>
+    <span class="title"><span class="php">PHP</span> vs <span class="cs">C#</span> — Encapsulation</span>
+    <a href="../php/tp3-encapsulation.html">TP PHP <i class="fas fa-external-link-alt"></i></a>
+</nav>
+
+<div class="container">
+
+<div class="hero">
+    <h1><i class="fas fa-lock"></i> Encapsulation</h1>
+    <p>Protéger les données avec private, getters/setters, validation — Exercice 2 de l'examen.</p>
+</div>
+
+<!-- ====== 1. VISIBILITÉ ====== -->
+<div class="section">
+    <h2><i class="fas fa-eye"></i> Les 3 niveaux de visibilité</h2>
+    <p>Identiques en PHP et C#. La seule différence : PHP a un <code>$</code>, C# a un type.</p>
+
+    <table class="vis-table">
+        <thead>
+            <tr>
+                <th>Mot-clé</th>
+                <th>Même classe</th>
+                <th>Classe enfant</th>
+                <th>Extérieur</th>
+                <th>Quand l'utiliser</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>public</code></td>
+                <td class="yes">✅</td>
+                <td class="yes">✅</td>
+                <td class="yes">✅</td>
+                <td>Méthodes que l'extérieur doit appeler</td>
+            </tr>
+            <tr>
+                <td><code>private</code></td>
+                <td class="yes">✅</td>
+                <td class="no">❌</td>
+                <td class="no">❌</td>
+                <td>Attributs (données à protéger)</td>
+            </tr>
+            <tr>
+                <td><code>protected</code></td>
+                <td class="yes">✅</td>
+                <td class="yes">✅</td>
+                <td class="no">❌</td>
+                <td>Attributs partagés avec enfants</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="tip amber">
+        <strong>⚡ Règle d'or (identique PHP & C#) :</strong> Attributs = <code>private</code>. Accès = via getters/setters <code>public</code>. C'est ça l'encapsulation.
+    </div>
+</div>
+
+<!-- ====== 2. GETTERS / SETTERS ====== -->
+<div class="section">
+    <h2><i class="fas fa-exchange-alt"></i> Getters & Setters</h2>
+    <p>C'est ici que PHP et C# diffèrent le plus. PHP utilise des méthodes classiques, C# utilise des <strong>propriétés</strong>.</p>
+
+    <div class="compare">
+        <div class="side php-side">
+            <div class="side-label php"><i class="fas fa-elephant"></i> PHP — Méthodes get/set</div>
+<pre><code class="language-php">class Livre {
+    private $titre;
+    private $prix;
+
+    public function __construct($titre, $prix) {
+        $this->titre = $titre;
+        $this->setPrix($prix); // validation!
+    }
+
+    // GETTER
+    public function getTitre() {
+        return $this->titre;
+    }
+
+    // GETTER
+    public function getPrix() {
+        return $this->prix;
+    }
+
+    // SETTER avec validation
+    public function setPrix($prix) {
+        if ($prix < 0) {
+            throw new Exception("Prix négatif !");
+        }
+        $this->prix = $prix;
+    }
+}
+
+$l = new Livre("PHP", 25);
+echo $l->getTitre();    // PHP
+// $l->titre;           // ❌ ERREUR (private)
+$l->setPrix(30);        // ✅ via setter
+// $l->setPrix(-5);     // ❌ Exception !
+</code></pre>
+        </div>
+        <div class="side cs-side">
+            <div class="side-label cs"><i class="fas fa-hashtag"></i> C# — Propriétés { get; set; }</div>
+<pre><code class="language-csharp">class Livre {
+    private string titre;
+    private double prix;
+
+    public Livre(string titre, double prix) {
+        this.titre = titre;
+        Prix = prix; // passe par le set → validation
+    }
+
+    // PROPRIÉTÉ en lecture seule
+    public string Titre {
+        get { return titre; }
+    }
+
+    // PROPRIÉTÉ avec validation dans set
+    public double Prix {
+        get { return prix; }
+        set {
+            if (value < 0)
+                throw new Exception("Prix négatif !");
+            prix = value;  // "value" = valeur assignée
+        }
+    }
+}
+
+Livre l = new Livre("C#", 25);
+Console.WriteLine(l.Titre);  // C#
+// l.titre → ❌ private
+l.Prix = 30;                 // ✅ passe par le set
+// l.Prix = -5;              // ❌ Exception !
+</code></pre>
+        </div>
+    </div>
+
+    <div class="tip green">
+        <strong>🔑 La clé C# :</strong> Le mot <code>value</code> dans un <code>set</code> représente automatiquement la valeur qu'on essaie d'assigner. C'est comme le paramètre <code>$prix</code> de <code>setPrix($prix)</code> en PHP, mais implicite.
+    </div>
+
+    <div class="tip">
+        <strong>💡 Raccourci C# :</strong> Si pas de validation, utilise les propriétés auto :<br>
+        <code>public string Titre { get; set; }</code> — C# génère automatiquement le champ privé.
+    </div>
+</div>
+
+<!-- ====== 3. ENCAPSULATION COMPLÈTE ====== -->
+<div class="section">
+    <h2><i class="fas fa-shield-alt"></i> Exemple complet — Classe encapsulée</h2>
+    <p>Le schéma complet tel qu'il tomberait à l'examen :</p>
+
+    <div class="compare">
+        <div class="side php-side">
+            <div class="side-label php"><i class="fas fa-elephant"></i> PHP</div>
+<pre><code class="language-php">class Livre {
+    private $titre;
+    private $auteur;
+    private $prix;
+
+    public function __construct($titre, $auteur, $prix) {
+        $this->titre = $titre;
+        $this->auteur = $auteur;
+        $this->setPrix($prix);
+    }
+
+    public function getTitre() { return $this->titre; }
+    public function getAuteur() { return $this->auteur; }
+    public function getPrix() { return $this->prix; }
+
+    public function setPrix($prix) {
+        if ($prix < 0) {
+            throw new Exception("Prix invalide");
+        }
+        $this->prix = $prix;
+    }
+
+    public function afficher() {
+        return "{$this->titre} par {$this->auteur}"
+             . " — {$this->prix} €";
+    }
+}
+</code></pre>
+        </div>
+        <div class="side cs-side">
+            <div class="side-label cs"><i class="fas fa-hashtag"></i> C#</div>
+<pre><code class="language-csharp">class Livre {
+    public string Titre { get; private set; }
+    public string Auteur { get; private set; }
+
+    private double prix;
+    public double Prix {
+        get => prix;
+        set {
+            if (value < 0)
+                throw new Exception("Prix invalide");
+            prix = value;
+        }
+    }
+
+    public Livre(string titre, string auteur, double prix) {
+        Titre = titre;
+        Auteur = auteur;
+        Prix = prix; // validation via set
+    }
+
+    public string Afficher() {
+        return $"{Titre} par {Auteur} — {Prix} €";
+    }
+}
+</code></pre>
+        </div>
+    </div>
+
+    <div class="tip amber">
+        <strong>⚡ Comparaison rapide :</strong><br>
+        <table style="width:100%;font-size:.88rem;margin-top:.5rem">
+            <tr><td style="color:var(--dim);padding:.2rem .5rem">Lecture seule</td><td style="padding:.2rem .5rem">PHP: pas de <code>set</code> | C#: <code>{ get; private set; }</code></td></tr>
+            <tr><td style="color:var(--dim);padding:.2rem .5rem">Validation</td><td style="padding:.2rem .5rem">PHP: dans <code>setPrix()</code> | C#: dans <code>set { }</code></td></tr>
+            <tr><td style="color:var(--dim);padding:.2rem .5rem">Accès</td><td style="padding:.2rem .5rem">PHP: <code>$l->getPrix()</code> | C#: <code>l.Prix</code> (comme un champ!)</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- ====== EXERCICE ====== -->
+<div class="exo">
+    <h3><i class="fas fa-graduation-cap"></i> Exercice type examen — Encapsulation Livre (PHP + C#)</h3>
+    <div class="consigne">
+        <strong>Consigne (identique examen 2024/2025, exercice 2) :</strong><br>
+        1. Reprends la classe Livre avec attributs <strong>private</strong><br>
+        2. Ajoute getters pour titre et auteur<br>
+        3. Ajoute getter + setter pour prix avec validation (prix ≥ 0)<br>
+        4. Modifie le constructeur pour utiliser le setter<br>
+        5. Teste avec un prix valide puis un prix négatif
+    </div>
+
+    <button class="btn-correction" onclick="this.nextElementSibling.classList.toggle('visible')">
+        <i class="fas fa-eye"></i> Voir la correction
+    </button>
+    <div class="correction-box">
+        <div class="compare">
+            <div class="side php-side">
+                <div class="side-label php"><i class="fas fa-elephant"></i> PHP</div>
+<pre><code class="language-php">&lt;?php
+class Livre {
+    private $titre;
+    private $auteur;
+    private $prix;
+
+    public function __construct($t, $a, $p) {
+        $this->titre = $t;
+        $this->auteur = $a;
+        $this->setPrix($p);
+    }
+
+    public function getTitre() { return $this->titre; }
+    public function getAuteur() { return $this->auteur; }
+    public function getPrix() { return $this->prix; }
+
+    public function setPrix($p) {
+        if ($p < 0) {
+            throw new Exception("Prix négatif interdit");
+        }
+        $this->prix = $p;
+    }
+}
+
+// Test
+$l = new Livre("PHP POO", "Alice", 25);
+echo $l->getTitre() . " — " . $l->getPrix() . "€\n";
+
+$l->setPrix(30);
+echo "Nouveau prix : " . $l->getPrix() . "€\n";
+
+try {
+    $l->setPrix(-10); // ❌
+} catch (Exception $e) {
+    echo "Erreur : " . $e->getMessage();
+}
+</code></pre>
+            </div>
+            <div class="side cs-side">
+                <div class="side-label cs"><i class="fas fa-hashtag"></i> C#</div>
+<pre><code class="language-csharp">class Livre {
+    public string Titre { get; private set; }
+    public string Auteur { get; private set; }
+
+    private double prix;
+    public double Prix {
+        get => prix;
+        set {
+            if (value < 0)
+                throw new Exception("Prix négatif interdit");
+            prix = value;
+        }
+    }
+
+    public Livre(string t, string a, double p) {
+        Titre = t;
+        Auteur = a;
+        Prix = p; // passe par set → validation
+    }
+}
+
+// Test
+Livre l = new Livre("C# POO", "Alice", 25);
+Console.WriteLine($"{l.Titre} — {l.Prix}€");
+
+l.Prix = 30;
+Console.WriteLine($"Nouveau prix : {l.Prix}€");
+
+try {
+    l.Prix = -10; // ❌
+} catch (Exception e) {
+    Console.WriteLine($"Erreur : {e.Message}");
+}
+</code></pre>
+            </div>
+        </div>
+        <div class="why">
+            <strong>Pourquoi c'est important :</strong> L'encapsulation représente 5 points à l'examen. Le prof vérifie 3 choses : (1) attributs <code>private</code>, (2) getters/setters <code>public</code>, (3) validation dans le setter. Si tu fais ces 3 choses → 5/5.
+        </div>
+    </div>
+</div>
+
+<nav class="nav-bottom">
+    <a href="02-poo-bases.html"><i class="fas fa-arrow-left"></i> Classes & Objets</a>
+    <a href="04-heritage.html">Héritage <i class="fas fa-arrow-right"></i></a>
+</nav>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+</body>
+</html>

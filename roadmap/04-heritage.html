@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Héritage & Polymorphisme — PHP vs C#</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root{--php:#8b5cf6;--cs:#10b981;--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#f1f5f9;--dim:#94a3b8;--accent:#f59e0b}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+        .container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+        .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+        .topbar a{color:var(--dim);text-decoration:none;font-size:.9rem;transition:color .2s}.topbar a:hover{color:var(--text)}
+        .topbar .title{font-weight:700;font-size:1rem}.topbar .title .php{color:var(--php)}.topbar .title .cs{color:var(--cs)}
+        .hero{padding:2.5rem 0 1.5rem;text-align:center}
+        .hero h1{font-size:2rem;margin-bottom:.5rem}.hero h1 i{color:var(--accent)}
+        .hero p{color:var(--dim);max-width:600px;margin:0 auto}
+        .compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:2rem 0}
+        .compare .side{background:var(--card);border-radius:12px;padding:1.25rem 1.5rem;border:1px solid var(--border);overflow-x:auto}
+        .compare .side.php-side{border-top:3px solid var(--php)}.compare .side.cs-side{border-top:3px solid var(--cs)}
+        .side-label{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+        .side-label.php{color:var(--php)}.side-label.cs{color:var(--cs)}
+        .side pre{margin:0;font-size:.85rem;border-radius:8px;background:#0d1117!important}
+        .section{margin:3rem 0}.section h2{font-size:1.4rem;margin-bottom:.3rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+        .section h2 i{color:var(--accent);margin-right:.4rem}.section>p{color:var(--dim);margin-bottom:1rem}
+        .tip{background:rgba(139,92,246,.1);border-left:3px solid var(--php);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1rem 0;font-size:.92rem}
+        .tip.green{background:rgba(16,185,129,.1);border-left-color:var(--cs)}
+        .tip.amber{background:rgba(245,158,11,.1);border-left-color:var(--accent)}
+        .tip strong{color:var(--text)}
+        .exo{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+        .exo h3{color:var(--accent);font-size:1.05rem;margin-bottom:.5rem}.exo h3 i{margin-right:.3rem}
+        .exo p{color:var(--dim);font-size:.92rem}
+        .exo .consigne{background:rgba(255,255,255,.04);padding:.75rem 1rem;border-radius:8px;margin:.75rem 0;font-size:.9rem}
+        .btn-correction{background:var(--accent);color:#000;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-weight:600;font-size:.88rem;margin-top:.75rem}.btn-correction:hover{opacity:.85}
+        .correction-box{display:none;margin-top:1rem}.correction-box.visible{display:block}
+        .why{background:rgba(139,92,246,.08);border-left:3px solid var(--php);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:.75rem;font-size:.88rem;color:var(--dim)}.why strong{color:var(--text)}
+        .diff-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;margin:1rem 0;font-size:.88rem}
+        .diff-table th{background:rgba(255,255,255,.06);padding:.6rem 1rem;text-align:left;color:var(--dim);font-size:.82rem}
+        .diff-table td{padding:.6rem 1rem;border-top:1px solid var(--border)}
+        .diff-table .php-col{color:var(--php)}.diff-table .cs-col{color:var(--cs)}
+        .nav-bottom{display:flex;justify-content:space-between;padding:2rem 0;border-top:1px solid var(--border);margin-top:3rem}
+        .nav-bottom a{color:var(--dim);text-decoration:none;font-size:.9rem;padding:.5rem 1rem;border-radius:8px;background:var(--card);border:1px solid var(--border);transition:all .2s}.nav-bottom a:hover{color:var(--text);background:var(--border)}
+        @media(max-width:768px){.compare{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+
+<nav class="topbar">
+    <a href="index.html"><i class="fas fa-arrow-left"></i> Roadmap</a>
+    <span class="title"><span class="php">PHP</span> vs <span class="cs">C#</span> — Héritage</span>
+    <a href="../php/tp4-heritage.html">TP PHP <i class="fas fa-external-link-alt"></i></a>
+</nav>
+
+<div class="container">
+
+<div class="hero">
+    <h1><i class="fas fa-sitemap"></i> Héritage & Polymorphisme</h1>
+    <p>extends vs :, parent:: vs base(), abstract, interfaces — Exercice 3 de l'examen (5 pts).</p>
+</div>
+
+<!-- ====== TABLE RÉCAP ====== -->
+<div class="section">
+    <h2><i class="fas fa-table"></i> Tableau comparatif rapide</h2>
+    <table class="diff-table">
+        <thead>
+            <tr><th>Concept</th><th>PHP</th><th>C#</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Hériter</td><td class="php-col"><code>class B extends A</code></td><td class="cs-col"><code>class B : A</code></td></tr>
+            <tr><td>Appel parent</td><td class="php-col"><code>parent::__construct()</code></td><td class="cs-col"><code>base()</code></td></tr>
+            <tr><td>Surcharger</td><td class="php-col">Même nom suffit</td><td class="cs-col"><code>virtual</code> + <code>override</code></td></tr>
+            <tr><td>Classe abstraite</td><td class="php-col"><code>abstract class A</code></td><td class="cs-col"><code>abstract class A</code></td></tr>
+            <tr><td>Méthode abstraite</td><td class="php-col"><code>abstract public function f();</code></td><td class="cs-col"><code>public abstract void F();</code></td></tr>
+            <tr><td>Interface</td><td class="php-col"><code>interface I { }</code></td><td class="cs-col"><code>interface I { }</code></td></tr>
+            <tr><td>Implémenter</td><td class="php-col"><code>implements I</code></td><td class="cs-col"><code>: I</code> (même syntaxe que extends)</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ====== 1. EXTENDS ====== -->
+<div class="section">
+    <h2><i class="fas fa-arrow-down"></i> Héritage simple</h2>
+    <p>La classe enfant récupère TOUT ce qui est public/protected du parent.</p>
+
+    <div class="compare">
+        <div class="side php-side">
+            <div class="side-label php"><i class="fas fa-elephant"></i> PHP</div>
+<pre><code class="language-php">class Livre {
+    private $titre;
+    private $auteur;
+    private $prix;
+
+    public function __construct($titre, $auteur, $prix) {
+        $this->titre = $titre;
+        $this->auteur = $auteur;
+        $this->setPrix($prix);
+    }
+
+    public function getTitre() { return $this->titre; }
+    public function getAuteur() { return $this->auteur; }
+    public function getPrix() { return $this->prix; }
+    public function setPrix($p) {
+        if ($p < 0) throw new Exception("Prix < 0");
+        $this->prix = $p;
+    }
+
+    public function afficher() {
+        return "{$this->titre} par {$this->auteur} — {$this->prix}€";
+    }
+}
+
+// HÉRITAGE avec extends
+class LivreElectronique extends Livre {
+    private $tailleFichier;
+
+    public function __construct($titre, $auteur, $prix, $taille) {
+        parent::__construct($titre, $auteur, $prix);
+        $this->tailleFichier = $taille;
+    }
+
+    public function getTailleFichier() {
+        return $this->tailleFichier;
+    }
+
+    // SURCHARGE (override)
+    public function afficher() {
+        return parent::afficher()
+             . " [PDF: {$this->tailleFichier} Mo]";
+    }
+}
+
+$e = new LivreElectronique("PHP", "Alice", 15, 2.5);
+echo $e->afficher();
+// PHP par Alice — 15€ [PDF: 2.5 Mo]
+</code></pre>
+        </div>
+        <div class="side cs-side">
+            <div class="side-label cs"><i class="fas fa-hashtag"></i> C#</div>
+<pre><code class="language-csharp">class Livre {
+    public string Titre { get; private set; }
+    public string Auteur { get; private set; }
+    private double prix;
+    public double Prix {
+        get => prix;
+        set {
+            if (value < 0) throw new Exception("Prix < 0");
+            prix = value;
+        }
+    }
+
+    public Livre(string titre, string auteur, double prix) {
+        Titre = titre;
+        Auteur = auteur;
+        Prix = prix;
+    }
+
+    // virtual = peut être surchargée
+    public virtual string Afficher() {
+        return $"{Titre} par {Auteur} — {Prix}€";
+    }
+}
+
+// HÉRITAGE avec :
+class LivreElectronique : Livre {
+    public double TailleFichier { get; private set; }
+
+    public LivreElectronique(string titre, string auteur,
+        double prix, double taille)
+        : base(titre, auteur, prix)   // appel parent
+    {
+        TailleFichier = taille;
+    }
+
+    // override OBLIGATOIRE
+    public override string Afficher() {
+        return base.Afficher()
+             + $" [PDF: {TailleFichier} Mo]";
+    }
+}
+
+var e = new LivreElectronique("C#", "Alice", 15, 2.5);
+Console.WriteLine(e.Afficher());
+// C# par Alice — 15€ [PDF: 2.5 Mo]
+</code></pre>
+        </div>
+    </div>
+
+    <div class="tip amber">
+        <strong>⚡ Les 3 piège C# à retenir :</strong><br>
+        1. <code>virtual</code> dans le <strong>parent</strong> = "je permets la surcharge"<br>
+        2. <code>override</code> dans <strong>l'enfant</strong> = "je surcharge"<br>
+        3. <code>: base()</code> <strong>après</strong> la signature du constructeur (pas dans le corps)<br>
+        En PHP, rien de tout ça → on surcharge juste en redéfinissant la méthode.
+    </div>
+</div>
+
+<!-- ====== 2. ABSTRACT ====== -->
+<div class="section">
+    <h2><i class="fas fa-drafting-compass"></i> Classes & Méthodes Abstraites</h2>
+    <p>Une classe abstraite ne peut pas être instanciée. Elle force les enfants à implémenter certaines méthodes.</p>
+
+    <div class="compare">
+        <div class="side php-side">
+            <div class="side-label php"><i class="fas fa-elephant"></i> PHP</div>
+<pre><code class="language-php">abstract class Forme {
+    protected $couleur;
+
+    public function __construct($couleur) {
+        $this->couleur = $couleur;
+    }
+
+    // Méthode abstraite = PAS de corps
+    abstract public function aire();
+
+    // Méthode concrète = partagée
+    public function decrire() {
+        return "Forme {$this->couleur}, "
+             . "aire=" . $this->aire();
+    }
+}
+
+class Cercle extends Forme {
+    private $rayon;
+
+    public function __construct($couleur, $rayon) {
+        parent::__construct($couleur);
+        $this->rayon = $rayon;
+    }
+
+    // OBLIGÉ d'implémenter aire()
+    public function aire() {
+        return round(M_PI * $this->rayon ** 2, 2);
+    }
+}
+
+$c = new Cercle("rouge", 5);
+echo $c->decrire(); // Forme rouge, aire=78.54
+// new Forme("bleu"); ❌ ERREUR
+</code></pre>
+        </div>
+        <div class="side cs-side">
+            <div class="side-label cs"><i class="fas fa-hashtag"></i> C#</div>
+<pre><code class="language-csharp">abstract class Forme {
+    protected string Couleur;
+
+    public Forme(string couleur) {
+        Couleur = couleur;
+    }
+
+    // Méthode abstraite
+    public abstract double Aire();
+
+    // Méthode concrète
+    public string Decrire() {
+        return $"Forme {Couleur}, aire={Aire()}";
+    }
+}
+
+class Cercle : Forme {
+    private double rayon;
+
+    public Cercle(string couleur, double rayon)
+        : base(couleur)
+    {
+        this.rayon = rayon;
+    }
+
+    // override OBLIGATOIRE
+    public override double Aire() {
+        return Math.Round(Math.PI * rayon * rayon, 2);
+    }
+}
+
+Cercle c = new Cercle("rouge", 5);
+Console.WriteLine(c.Decrire());
+// new Forme("bleu"); ❌ ERREUR
+</code></pre>
+        </div>
+    </div>
+</div>
+
+<!-- ====== 3. INTERFACES ====== -->
+<div class="section">
+    <h2><i class="fas fa-plug"></i> Interfaces</h2>
+    <p>Un contrat : la classe DOIT implémenter toutes les méthodes de l'interface.</p>
+
+    <div class="compare">
+        <div class="side php-side">
+            <div class="side-label php"><i class="fas fa-elephant"></i> PHP</div>
+<pre><code class="language-php">interface Affichable {
+    public function afficher();
+}
+
+interface Calculable {
+    public function calculer();
+}
+
+// implements (peut en avoir plusieurs)
+class Facture implements Affichable, Calculable {
+    private $montant;
+
+    public function __construct($montant) {
+        $this->montant = $montant;
+    }
+
+    public function afficher() {
+        return "Facture : {$this->montant}€";
+    }
+
+    public function calculer() {
+        return $this->montant * 1.20; // TTC
+    }
+}
+</code></pre>
+        </div>
+        <div class="side cs-side">
+            <div class="side-label cs"><i class="fas fa-hashtag"></i> C#</div>
+<pre><code class="language-csharp">interface IAffichable {
+    string Afficher();
+}
+
+interface ICalculable {
+    double Calculer();
+}
+
+// : (même syntaxe que l'héritage)
+class Facture : IAffichable, ICalculable {
+    private double montant;
+
+    public Facture(double montant) {
+        this.montant = montant;
+    }
+
+    public string Afficher() {
+        return $"Facture : {montant}€";
+    }
+
+    public double Calculer() {
+        return montant * 1.20; // TTC
+    }
+}
+</code></pre>
+        </div>
+    </div>
+
+    <div class="tip green">
+        <strong>🔑 Convention C# :</strong> Les interfaces commencent par <code>I</code> majuscule : <code>IAffichable</code>, <code>ICalculable</code>. En PHP, pas de convention imposée (mais <code>Affichable</code> est courant).
+    </div>
+
+    <div class="tip amber">
+        <strong>⚡ Piège C# :</strong> Pour hériter + implémenter :<br>
+        • PHP : <code>class B extends A implements I</code><br>
+        • C# : <code>class B : A, I</code> (classe parent EN PREMIER, interfaces après)
+    </div>
+</div>
+
+<!-- ====== EXERCICE ====== -->
+<div class="exo">
+    <h3><i class="fas fa-graduation-cap"></i> Exercice examen — LivreElectronique (PHP + C#)</h3>
+    <div class="consigne">
+        <strong>Consigne (examen 2024/2025, exercice 3 — 5 pts) :</strong><br>
+        1. Crée une classe <code>LivreElectronique</code> qui hérite de <code>Livre</code><br>
+        2. Ajoute un attribut <code>tailleFichier</code> (float/double) avec getter<br>
+        3. Le constructeur appelle le constructeur parent + initialise tailleFichier<br>
+        4. Surcharge <code>afficher()</code> pour ajouter "[PDF: X Mo]"<br>
+        5. Crée 2 objets (un Livre, un LivreElectronique) et affiche-les
+    </div>
+
+    <button class="btn-correction" onclick="this.nextElementSibling.classList.toggle('visible')">
+        <i class="fas fa-eye"></i> Voir la correction
+    </button>
+    <div class="correction-box">
+        <div class="compare">
+            <div class="side php-side">
+                <div class="side-label php"><i class="fas fa-elephant"></i> PHP</div>
+<pre><code class="language-php">&lt;?php
+// Livre (classe parent — déjà faite au TP3)
+class Livre {
+    private $titre;
+    private $auteur;
+    private $prix;
+
+    public function __construct($t, $a, $p) {
+        $this->titre = $t;
+        $this->auteur = $a;
+        $this->setPrix($p);
+    }
+    public function getTitre() { return $this->titre; }
+    public function getAuteur() { return $this->auteur; }
+    public function getPrix() { return $this->prix; }
+    public function setPrix($p) {
+        if ($p < 0) throw new Exception("Prix < 0");
+        $this->prix = $p;
+    }
+    public function afficher() {
+        return "{$this->titre} par {$this->auteur} — {$this->prix}€";
+    }
+}
+
+// LivreElectronique (enfant)
+class LivreElectronique extends Livre {
+    private $tailleFichier;
+
+    public function __construct($t, $a, $p, $taille) {
+        parent::__construct($t, $a, $p);
+        $this->tailleFichier = $taille;
+    }
+
+    public function getTailleFichier() {
+        return $this->tailleFichier;
+    }
+
+    public function afficher() {
+        return parent::afficher()
+             . " [PDF: {$this->tailleFichier} Mo]";
+    }
+}
+
+// Test
+$l1 = new Livre("PHP POO", "Dupont", 29.90);
+$l2 = new LivreElectronique("SQL", "Martin", 19.90, 3.2);
+
+echo $l1->afficher() . "\n";
+// PHP POO par Dupont — 29.90€
+echo $l2->afficher() . "\n";
+// SQL par Martin — 19.90€ [PDF: 3.2 Mo]
+</code></pre>
+            </div>
+            <div class="side cs-side">
+                <div class="side-label cs"><i class="fas fa-hashtag"></i> C#</div>
+<pre><code class="language-csharp">class Livre {
+    public string Titre { get; private set; }
+    public string Auteur { get; private set; }
+    private double prix;
+    public double Prix {
+        get => prix;
+        set {
+            if (value < 0) throw new Exception("Prix < 0");
+            prix = value;
+        }
+    }
+
+    public Livre(string t, string a, double p) {
+        Titre = t; Auteur = a; Prix = p;
+    }
+
+    public virtual string Afficher() {
+        return $"{Titre} par {Auteur} — {Prix}€";
+    }
+}
+
+class LivreElectronique : Livre {
+    public double TailleFichier { get; private set; }
+
+    public LivreElectronique(string t, string a,
+        double p, double taille) : base(t, a, p)
+    {
+        TailleFichier = taille;
+    }
+
+    public override string Afficher() {
+        return base.Afficher()
+             + $" [PDF: {TailleFichier} Mo]";
+    }
+}
+
+// Test
+Livre l1 = new Livre("C# POO", "Dupont", 29.90);
+LivreElectronique l2 = new("SQL", "Martin", 19.90, 3.2);
+
+Console.WriteLine(l1.Afficher());
+Console.WriteLine(l2.Afficher());
+</code></pre>
+            </div>
+        </div>
+        <div class="why">
+            <strong>Ce qui rapporte les points :</strong><br>
+            • <code>extends</code> / <code>:</code> → 1 pt<br>
+            • <code>parent::__construct()</code> / <code>base()</code> → 1 pt<br>
+            • Attribut propre + getter → 1 pt<br>
+            • Surcharge <code>afficher()</code> avec appel parent → 2 pts<br>
+            En C#, n'oublie pas <code>virtual</code> dans le parent et <code>override</code> dans l'enfant !
+        </div>
+    </div>
+</div>
+
+<nav class="nav-bottom">
+    <a href="03-encapsulation.html"><i class="fas fa-arrow-left"></i> Encapsulation</a>
+    <a href="05-exceptions.html">Exceptions <i class="fas fa-arrow-right"></i></a>
+</nav>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+</body>
+</html>

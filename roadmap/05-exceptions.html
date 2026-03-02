@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exceptions — PHP vs C#</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root{--php:#8b5cf6;--cs:#10b981;--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#f1f5f9;--dim:#94a3b8;--accent:#f59e0b}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+        .container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+        .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+        .topbar a{color:var(--dim);text-decoration:none;font-size:.9rem;transition:color .2s}.topbar a:hover{color:var(--text)}
+        .topbar .title{font-weight:700;font-size:1rem}.topbar .title .php{color:var(--php)}.topbar .title .cs{color:var(--cs)}
+        .hero{padding:2.5rem 0 1.5rem;text-align:center}
+        .hero h1{font-size:2rem;margin-bottom:.5rem}.hero h1 i{color:var(--accent)}
+        .hero p{color:var(--dim);max-width:600px;margin:0 auto}
+        .compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:2rem 0}
+        .compare .side{background:var(--card);border-radius:12px;padding:1.25rem 1.5rem;border:1px solid var(--border);overflow-x:auto}
+        .compare .side.php-side{border-top:3px solid var(--php)}.compare .side.cs-side{border-top:3px solid var(--cs)}
+        .side-label{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+        .side-label.php{color:var(--php)}.side-label.cs{color:var(--cs)}
+        .side pre{margin:0;font-size:.85rem;border-radius:8px;background:#0d1117!important}
+        .section{margin:3rem 0}.section h2{font-size:1.4rem;margin-bottom:.3rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+        .section h2 i{color:var(--accent);margin-right:.4rem}.section>p{color:var(--dim);margin-bottom:1rem}
+        .tip{background:rgba(139,92,246,.1);border-left:3px solid var(--php);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1rem 0;font-size:.92rem}
+        .tip.green{background:rgba(16,185,129,.1);border-left-color:var(--cs)}
+        .tip.amber{background:rgba(245,158,11,.1);border-left-color:var(--accent)}
+        .tip strong{color:var(--text)}
+        .exo{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+        .exo h3{color:var(--accent);font-size:1.05rem;margin-bottom:.5rem}.exo h3 i{margin-right:.3rem}
+        .exo p{color:var(--dim);font-size:.92rem}
+        .exo .consigne{background:rgba(255,255,255,.04);padding:.75rem 1rem;border-radius:8px;margin:.75rem 0;font-size:.9rem}
+        .btn-correction{background:var(--accent);color:#000;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-weight:600;font-size:.88rem;margin-top:.75rem}.btn-correction:hover{opacity:.85}
+        .correction-box{display:none;margin-top:1rem}.correction-box.visible{display:block}
+        .why{background:rgba(139,92,246,.08);border-left:3px solid var(--php);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:.75rem;font-size:.88rem;color:var(--dim)}.why strong{color:var(--text)}
+        .diff-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;margin:1rem 0;font-size:.88rem}
+        .diff-table th{background:rgba(255,255,255,.06);padding:.6rem 1rem;text-align:left;color:var(--dim);font-size:.82rem}
+        .diff-table td{padding:.6rem 1rem;border-top:1px solid var(--border)}
+        .diff-table .php-col{color:var(--php)}.diff-table .cs-col{color:var(--cs)}
+        .nav-bottom{display:flex;justify-content:space-between;padding:2rem 0;border-top:1px solid var(--border);margin-top:3rem}
+        .nav-bottom a{color:var(--dim);text-decoration:none;font-size:.9rem;padding:.5rem 1rem;border-radius:8px;background:var(--card);border:1px solid var(--border);transition:all .2s}.nav-bottom a:hover{color:var(--text);background:var(--border)}
+        @media(max-width:768px){.compare{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+
+<nav class="topbar">
+    <a href="index.html"><i class="fas fa-arrow-left"></i> Roadmap</a>
+    <span class="title"><span class="php">PHP</span> vs <span class="cs">C#</span> — Exceptions</span>
+    <a href="../php/tp5-exceptions.html">TP PHP <i class="fas fa-external-link-alt"></i></a>
+</nav>
+
+<div class="container">
+
+<div class="hero">
+    <h1><i class="fas fa-bug"></i> Exceptions & Gestion des erreurs</h1>
+    <p>try/catch/finally, throw, exceptions personnalisées — Le concept le PLUS similaire entre PHP et C#.</p>
+</div>
+
+<!-- ====== RECAP ====== -->
+<div class="section">
+    <h2><i class="fas fa-table"></i> Différences clés</h2>
+
+    <table class="diff-table">
+        <thead><tr><th>Concept</th><th>PHP</th><th>C#</th></tr></thead>
+        <tbody>
+            <tr><td>Try/catch</td><td class="php-col">Identique</td><td class="cs-col">Identique</td></tr>
+            <tr><td>Finally</td><td class="php-col"><code>finally { }</code></td><td class="cs-col"><code>finally { }</code></td></tr>
+            <tr><td>Lancer</td><td class="php-col"><code>throw new Exception("msg")</code></td><td class="cs-col"><code>throw new Exception("msg")</code></td></tr>
+            <tr><td>Message</td><td class="php-col"><code>$e->getMessage()</code></td><td class="cs-col"><code>e.Message</code> (propriété)</td></tr>
+            <tr><td>Custom</td><td class="php-col"><code>class X extends Exception</code></td><td class="cs-col"><code>class X : Exception</code></td></tr>
+            <tr><td>Multi-catch</td><td class="php-col"><code>catch (A | B $e)</code></td><td class="cs-col"><code>catch (A) { } catch (B) { }</code></td></tr>
+        </tbody>
+    </table>
+
+    <div class="tip amber">
+        <strong>⚡ Bonne nouvelle :</strong> Les exceptions sont le concept le PLUS identique entre PHP et C#. Si tu connais try/catch en PHP, tu le connais déjà en C#. Les différences sont minimes.
+    </div>
+</div>
+
+<!-- ====== 1. TRY / CATCH ====== -->
+<div class="section">
+    <h2><i class="fas fa-shield-alt"></i> try / catch / finally</h2>
+
+    <div class="compare">
+        <div class="side php-side">
+            <div class="side-label php"><i class="fas fa-elephant"></i> PHP</div>
+<pre><code class="language-php">try {
+    $resultat = 10 / 0;
+    echo $resultat;
+} catch (DivisionByZeroError $e) {
+    echo "Erreur : " . $e->getMessage();
+} finally {
+    echo "\nToujours exécuté !";
+}
+
+// Avec une fonction qui throw
+function diviser($a, $b) {
+    if ($b == 0) {
+        throw new Exception("Division par zéro !");
+    }
+    return $a / $b;
+}
+
+try {
+    echo diviser(10, 0);
+} catch (Exception $e) {
+    echo "Erreur : " . $e->getMessage();
+    // getMessage() = méthode
+}
+</code></pre>
+        </div>
+        <div class="side cs-side">
+            <div class="side-label cs"><i class="fas fa-hashtag"></i> C#</div>
+<pre><code class="language-csharp">try {
+    int resultat = 10 / 0;
+    Console.WriteLine(resultat);
+} catch (DivideByZeroException e) {
+    Console.WriteLine($"Erreur : {e.Message}");
+} finally {
+    Console.WriteLine("Toujours exécuté !");
+}
+
+// Avec une méthode qui throw
+static double Diviser(double a, double b) {
+    if (b == 0)
+        throw new Exception("Division par zéro !");
+    return a / b;
+}
+
+try {
+    Console.WriteLine(Diviser(10, 0));
+} catch (Exception e) {
+    Console.WriteLine($"Erreur : {e.Message}");
+    // Message = propriété (pas de parenthèses)
+}
+</code></pre>
+        </div>
+    </div>
+
+    <div class="tip">
+        <strong>💡 Seule différence :</strong><br>
+        • PHP: <code>$e->getMessage()</code> — c'est une <strong>méthode</strong> (avec parenthèses)<br>
+        • C#: <code>e.Message</code> — c'est une <strong>propriété</strong> (sans parenthèses)
+    </div>
+</div>
+
+<!-- ====== 2. EXCEPTIONS PERSONNALISÉES ====== -->
+<div class="section">
+    <h2><i class="fas fa-plus-circle"></i> Exceptions personnalisées</h2>
+    <p>Créer ses propres exceptions pour des erreurs métier spécifiques. C'est de l'héritage appliqué !</p>
+
+    <div class="compare">
+        <div class="side php-side">
+            <div class="side-label php"><i class="fas fa-elephant"></i> PHP</div>
+<pre><code class="language-php">// Exception personnalisée
+class PrixInvalideException extends Exception {
+    private $prixTente;
+
+    public function __construct($prix) {
+        parent::__construct(
+            "Prix invalide : $prix"
+        );
+        $this->prixTente = $prix;
+    }
+
+    public function getPrixTente() {
+        return $this->prixTente;
+    }
+}
+
+class StockInsuffisantException extends Exception {
+    public function __construct($dispo, $demande) {
+        parent::__construct(
+            "Stock insuffisant : $dispo dispo, "
+            . "$demande demandé"
+        );
+    }
+}
+
+// Utilisation
+class Produit {
+    private $prix;
+    private $stock;
+
+    public function __construct($prix, $stock) {
+        $this->setPrix($prix);
+        $this->stock = $stock;
+    }
+
+    public function setPrix($p) {
+        if ($p < 0) {
+            throw new PrixInvalideException($p);
+        }
+        $this->prix = $p;
+    }
+
+    public function vendre($qte) {
+        if ($qte > $this->stock) {
+            throw new StockInsuffisantException(
+                $this->stock, $qte
+            );
+        }
+        $this->stock -= $qte;
+    }
+}
+
+// Multi-catch
+try {
+    $p = new Produit(25, 10);
+    $p->vendre(15);
+} catch (PrixInvalideException $e) {
+    echo "Prix: " . $e->getMessage();
+} catch (StockInsuffisantException $e) {
+    echo "Stock: " . $e->getMessage();
+} catch (Exception $e) {
+    echo "Autre: " . $e->getMessage();
+}
+</code></pre>
+        </div>
+        <div class="side cs-side">
+            <div class="side-label cs"><i class="fas fa-hashtag"></i> C#</div>
+<pre><code class="language-csharp">// Exception personnalisée
+class PrixInvalideException : Exception {
+    public double PrixTente { get; }
+
+    public PrixInvalideException(double prix)
+        : base($"Prix invalide : {prix}")
+    {
+        PrixTente = prix;
+    }
+}
+
+class StockInsuffisantException : Exception {
+    public StockInsuffisantException(int dispo, int demande)
+        : base($"Stock insuffisant : {dispo} dispo, "
+             + $"{demande} demandé")
+    { }
+}
+
+// Utilisation
+class Produit {
+    private double prix;
+    private int stock;
+
+    public Produit(double prix, int stock) {
+        Prix = prix; // passe par set
+        this.stock = stock;
+    }
+
+    public double Prix {
+        get => prix;
+        set {
+            if (value < 0)
+                throw new PrixInvalideException(value);
+            prix = value;
+        }
+    }
+
+    public void Vendre(int qte) {
+        if (qte > stock)
+            throw new StockInsuffisantException(stock, qte);
+        stock -= qte;
+    }
+}
+
+// Multi-catch (catch séparés)
+try {
+    Produit p = new Produit(25, 10);
+    p.Vendre(15);
+} catch (PrixInvalideException e) {
+    Console.WriteLine($"Prix: {e.Message}");
+} catch (StockInsuffisantException e) {
+    Console.WriteLine($"Stock: {e.Message}");
+} catch (Exception e) {
+    Console.WriteLine($"Autre: {e.Message}");
+}
+</code></pre>
+        </div>
+    </div>
+
+    <div class="tip amber">
+        <strong>⚡ Différences mineures :</strong><br>
+        • PHP: <code>extends Exception</code> / C#: <code>: Exception</code> (comme pour l'héritage normal)<br>
+        • PHP: <code>parent::__construct($msg)</code> / C#: <code>: base($msg)</code><br>
+        • PHP: <code>catch (A | B $e)</code> multi-catch en 1 bloc / C#: <code>catch</code> séparés<br>
+        • La logique est <strong>100% identique</strong>
+    </div>
+</div>
+
+<!-- ====== 3. PATTERN COMPLET ====== -->
+<div class="section">
+    <h2><i class="fas fa-project-diagram"></i> Pattern complet — Classe + Encapsulation + Exceptions</h2>
+    <p>Le schéma qui combine TOUT ce que tu as appris (examen exercice 4) :</p>
+
+    <div class="compare">
+        <div class="side php-side">
+            <div class="side-label php"><i class="fas fa-elephant"></i> PHP — Pattern complet</div>
+<pre><code class="language-php">// 1. Exception custom
+class NoteInvalideException extends Exception {
+    public function __construct($note) {
+        parent::__construct(
+            "Note invalide : $note (0-20 requis)"
+        );
+    }
+}
+
+// 2. Classe encapsulée
+class Etudiant {
+    private $nom;
+    private $notes = [];
+
+    public function __construct($nom) {
+        $this->nom = $nom;
+    }
+
+    // 3. Setter avec exception
+    public function ajouterNote($note) {
+        if ($note < 0 || $note > 20) {
+            throw new NoteInvalideException($note);
+        }
+        $this->notes[] = $note;
+    }
+
+    public function moyenne() {
+        if (empty($this->notes)) return 0;
+        return array_sum($this->notes)
+             / count($this->notes);
+    }
+}
+
+// 4. Try/catch
+try {
+    $e = new Etudiant("Alice");
+    $e->ajouterNote(15);
+    $e->ajouterNote(25); // ❌ Exception
+} catch (NoteInvalideException $ex) {
+    echo $ex->getMessage();
+}
+</code></pre>
+        </div>
+        <div class="side cs-side">
+            <div class="side-label cs"><i class="fas fa-hashtag"></i> C# — Pattern complet</div>
+<pre><code class="language-csharp">// 1. Exception custom
+class NoteInvalideException : Exception {
+    public NoteInvalideException(double note)
+        : base($"Note invalide : {note} (0-20 requis)")
+    { }
+}
+
+// 2. Classe encapsulée
+class Etudiant {
+    public string Nom { get; private set; }
+    private List&lt;double&gt; notes = new();
+
+    public Etudiant(string nom) {
+        Nom = nom;
+    }
+
+    // 3. Méthode avec exception
+    public void AjouterNote(double note) {
+        if (note < 0 || note > 20)
+            throw new NoteInvalideException(note);
+        notes.Add(note);
+    }
+
+    public double Moyenne() {
+        if (notes.Count == 0) return 0;
+        return notes.Average();
+    }
+}
+
+// 4. Try/catch
+try {
+    Etudiant e = new Etudiant("Alice");
+    e.AjouterNote(15);
+    e.AjouterNote(25); // ❌ Exception
+} catch (NoteInvalideException ex) {
+    Console.WriteLine(ex.Message);
+}
+</code></pre>
+        </div>
+    </div>
+</div>
+
+<!-- ====== EXERCICE ====== -->
+<div class="exo">
+    <h3><i class="fas fa-graduation-cap"></i> Exercice examen — Gestion d'erreurs (PHP + C#)</h3>
+    <div class="consigne">
+        <strong>Consigne (inspirée examen 2024/2025, exercice 4 — 5 pts) :</strong><br>
+        1. Crée une exception <code>SoldeInsuffisantException</code> avec montant tenté et solde actuel<br>
+        2. Crée une classe <code>CompteBancaire</code> avec solde (private), getter, méthode <code>retirer()</code><br>
+        3. <code>retirer()</code> lance l'exception si montant > solde<br>
+        4. Dans le programme principal, crée un compte avec 500€ et tente de retirer 800€<br>
+        5. Attrape l'exception et affiche un message clair
+    </div>
+
+    <button class="btn-correction" onclick="this.nextElementSibling.classList.toggle('visible')">
+        <i class="fas fa-eye"></i> Voir la correction
+    </button>
+    <div class="correction-box">
+        <div class="compare">
+            <div class="side php-side">
+                <div class="side-label php"><i class="fas fa-elephant"></i> PHP</div>
+<pre><code class="language-php">&lt;?php
+class SoldeInsuffisantException extends Exception {
+    private $montant;
+    private $solde;
+
+    public function __construct($montant, $solde) {
+        parent::__construct(
+            "Retrait de {$montant}€ impossible "
+            . "(solde: {$solde}€)"
+        );
+        $this->montant = $montant;
+        $this->solde = $solde;
+    }
+}
+
+class CompteBancaire {
+    private $solde;
+
+    public function __construct($solde) {
+        $this->solde = $solde;
+    }
+
+    public function getSolde() {
+        return $this->solde;
+    }
+
+    public function retirer($montant) {
+        if ($montant > $this->solde) {
+            throw new SoldeInsuffisantException(
+                $montant, $this->solde
+            );
+        }
+        $this->solde -= $montant;
+    }
+}
+
+// Test
+try {
+    $compte = new CompteBancaire(500);
+    echo "Solde : {$compte->getSolde()}€\n";
+    $compte->retirer(200); // ✅ OK
+    echo "Après retrait : {$compte->getSolde()}€\n";
+    $compte->retirer(800); // ❌ Exception
+} catch (SoldeInsuffisantException $e) {
+    echo "❌ " . $e->getMessage();
+}
+</code></pre>
+            </div>
+            <div class="side cs-side">
+                <div class="side-label cs"><i class="fas fa-hashtag"></i> C#</div>
+<pre><code class="language-csharp">class SoldeInsuffisantException : Exception {
+    public double Montant { get; }
+    public double SoldeActuel { get; }
+
+    public SoldeInsuffisantException(
+        double montant, double solde)
+        : base($"Retrait de {montant}€ impossible "
+             + $"(solde: {solde}€)")
+    {
+        Montant = montant;
+        SoldeActuel = solde;
+    }
+}
+
+class CompteBancaire {
+    public double Solde { get; private set; }
+
+    public CompteBancaire(double solde) {
+        Solde = solde;
+    }
+
+    public void Retirer(double montant) {
+        if (montant > Solde)
+            throw new SoldeInsuffisantException(
+                montant, Solde);
+        Solde -= montant;
+    }
+}
+
+// Test
+try {
+    var compte = new CompteBancaire(500);
+    Console.WriteLine($"Solde : {compte.Solde}€");
+    compte.Retirer(200); // ✅
+    Console.WriteLine($"Après : {compte.Solde}€");
+    compte.Retirer(800); // ❌
+} catch (SoldeInsuffisantException e) {
+    Console.WriteLine($"❌ {e.Message}");
+}
+</code></pre>
+            </div>
+        </div>
+        <div class="why">
+            <strong>Points examen :</strong> Exception custom héritant d'Exception (2 pts) + Constructeur avec <code>parent::/base()</code> (1 pt) + throw dans la bonne méthode (1 pt) + try/catch dans le main (1 pt) = 5 pts. Identique en PHP et C# !
+        </div>
+    </div>
+</div>
+
+<!-- ====== RÉCAP FINAL ====== -->
+<div style="background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(16,185,129,.1));border:1px solid var(--border);border-radius:14px;padding:2rem;margin:2rem 0;text-align:center">
+    <h2 style="margin-bottom:.75rem"><i class="fas fa-check-circle" style="color:var(--cs)"></i> Tu connais maintenant les 5 concepts clés !</h2>
+    <p style="color:var(--dim);max-width:500px;margin:0 auto .75rem">Procédural, Classes, Encapsulation, Héritage, Exceptions — en PHP ET en C#.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+        <a href="../php/tp6-synthese.html" style="background:var(--php);color:#fff;padding:.6rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600"><i class="fas fa-file-alt"></i> Examen blanc PHP</a>
+        <a href="../csharp/exercices/exercices.html" style="background:var(--cs);color:#fff;padding:.6rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600"><i class="fas fa-file-alt"></i> Exercices C#</a>
+    </div>
+</div>
+
+<nav class="nav-bottom">
+    <a href="04-heritage.html"><i class="fas fa-arrow-left"></i> Héritage</a>
+    <a href="index.html">Roadmap <i class="fas fa-home"></i></a>
+</nav>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+</body>
+</html>

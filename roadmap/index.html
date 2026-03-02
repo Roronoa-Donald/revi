@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roadmap C# → PHP — Transition Visuelle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --csharp-color: #10b981;
+            --php-color: #8b5cf6;
+            --bg: #0a0e1a;
+            --bg-card: rgba(17, 24, 39, 0.85);
+            --bg-card-hover: rgba(30, 41, 59, 0.9);
+            --text: #f1f5f9;
+            --text-dim: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(255,255,255,0.08);
+            --accent: #f59e0b;
+            --radius: 16px;
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(16,185,129,0.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(245,158,11,0.04) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ============ HEADER ============ */
+        .rm-header {
+            position: relative;
+            background: linear-gradient(135deg, #064e3b 0%, #0a0e1a 50%, #1e1b4b 100%);
+            padding: 3.5rem 2rem 2.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
+            z-index: 1;
+        }
+        .rm-header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background:
+                radial-gradient(circle at 30% 50%, rgba(16,185,129,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(139,92,246,0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        .rm-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 900;
+            position: relative;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+        .rm-header h1 .csharp { color: var(--csharp-color); }
+        .rm-header h1 .php { color: var(--php-color); }
+        .rm-header h1 .arrow { color: var(--text-dim); font-weight: 400; margin: 0 0.3rem; font-size: 0.8em; }
+        .rm-header .subtitle {
+            color: var(--text-dim);
+            font-size: clamp(0.95rem, 2vw, 1.15rem);
+            max-width: 640px;
+            margin: 0 auto;
+            position: relative;
+            line-height: 1.7;
+        }
+        .rm-back {
+            position: absolute;
+            top: 1.5rem; left: 1.5rem;
+            background: rgba(255,255,255,0.08);
+            color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.5rem 1.1rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+        .rm-back:hover { background: rgba(255,255,255,0.15); color: var(--text); border-color: rgba(255,255,255,0.2); }
+        .rm-portal {
+            position: absolute;
+            top: 1.5rem; right: 1.5rem;
+            background: rgba(255,255,255,0.08);
+            color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.5rem 1.1rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+        .rm-portal:hover { background: rgba(255,255,255,0.15); color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+        /* ============ LEGEND ============ */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            padding: 1.5rem 1.5rem 1rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-dim);
+        }
+        .legend-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(0,0,0,0.3);
+        }
+        .legend-dot.csharp { background: var(--csharp-color); }
+        .legend-dot.php { background: var(--php-color); }
+        .legend-dot.exam { background: var(--accent); }
+
+        /* ============ TIMER ============ */
+        .timer-section {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 620px;
+            margin: 1.5rem auto 2.5rem;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+        .timer-section h2 {
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .timer-section > p {
+            color: var(--text-dim);
+            font-size: 0.92rem;
+            margin-bottom: 1.25rem;
+        }
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        .time-item {
+            padding: 1.1rem 0.75rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .time-item .t-val { font-size: 1.5rem; font-weight: 800; display: block; }
+        .time-item .t-label { font-size: 0.82rem; color: var(--text-dim); margin-top: 0.2rem; }
+        .time-item.csharp .t-val { color: var(--csharp-color); }
+        .time-item.php .t-val { color: var(--php-color); }
+        .time-item.total .t-val { color: var(--accent); }
+
+        /* ============ TIMELINE ============ */
+        .timeline {
+            max-width: 940px;
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem;
+            position: relative;
+            z-index: 1;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 3px; height: 100%;
+            background: linear-gradient(to bottom, var(--csharp-color), var(--php-color));
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+
+        /* Step */
+        .step {
+            position: relative;
+            margin-bottom: 2.5rem;
+            display: grid;
+            grid-template-columns: 1fr 64px 1fr;
+            align-items: start;
+            gap: 0;
+        }
+        .step-dot {
+            grid-column: 2;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+            z-index: 2;
+            justify-self: center;
+            border: 3px solid var(--bg);
+            box-shadow: 0 0 12px rgba(0,0,0,0.4);
+        }
+        .step-dot.csharp-side { background: var(--csharp-color); color: #fff; }
+        .step-dot.php-side { background: var(--php-color); color: #fff; }
+        .step-dot.exam-dot { background: var(--accent); color: #000; }
+
+        /* Cards */
+        .step-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.6rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+        .step-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+            border-color: rgba(255,255,255,0.12);
+        }
+        .step-card.left { grid-column: 1; text-align: right; }
+        .step-card.right { grid-column: 3; }
+
+        .step-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        .step-card h3 i { opacity: 0.7; }
+        .step-card h3 i.left-icon { margin-left: 0.5rem; }
+        .step-card h3 i.right-icon { margin-right: 0.5rem; }
+        .step-card .desc {
+            color: var(--text-dim);
+            font-size: 0.92rem;
+            line-height: 1.65;
+            margin-bottom: 0.85rem;
+        }
+
+        /* Keywords */
+        .step-card .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-bottom: 0.6rem;
+        }
+        .step-card.left .keywords { justify-content: flex-end; }
+        .kw {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            border-left: 2.5px solid transparent;
+        }
+        .kw.csharp { border-left-color: var(--csharp-color); background: rgba(16,185,129,0.08); }
+        .kw.php { border-left-color: var(--php-color); background: rgba(139,92,246,0.08); }
+
+        .step-card .duration {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin-bottom: 0.6rem;
+        }
+        .step-card .btn-go {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+            padding: 0.55rem 1.15rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-go.csharp { background: var(--csharp-color); }
+        .btn-go.php { background: var(--php-color); }
+        .btn-go.exam { background: var(--accent); color: #000; }
+        .btn-go:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+        /* ============ CHEAT SHEET ============ */
+        .cheatsheet {
+            max-width: 860px;
+            margin: 0 auto 2.5rem;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .cheatsheet h2 {
+            text-align: center;
+            margin-bottom: 1.25rem;
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+        .cheatsheet h2 i { color: var(--accent); margin-right: 0.4rem; }
+        .cheatsheet-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .cheatsheet-table thead tr {
+            background: rgba(255,255,255,0.06);
+        }
+        .cheatsheet-table th {
+            padding: 0.9rem 1.2rem;
+            text-align: left;
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .cheatsheet-table th:first-child { color: var(--text-dim); }
+        .cheatsheet-table th:nth-child(2) { color: var(--csharp-color); }
+        .cheatsheet-table th:nth-child(3) { color: var(--php-color); }
+        .cheatsheet-table td {
+            padding: 0.75rem 1.2rem;
+            font-size: 0.88rem;
+            border-top: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .cheatsheet-table td:first-child {
+            color: var(--text-dim);
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        .cheatsheet-table td:nth-child(2),
+        .cheatsheet-table td:nth-child(3) {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.84rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+        .cheatsheet-table tbody tr {
+            transition: background 0.15s;
+        }
+        .cheatsheet-table tbody tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* ============ FOOTER ============ */
+        .rm-footer {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            color: var(--text-dim);
+            font-size: 0.88rem;
+            border-top: 1px solid var(--border);
+            position: relative;
+            z-index: 1;
+        }
+        .rm-footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .rm-footer a:hover { color: var(--text); }
+        .rm-footer .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .rm-footer .footer-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .rm-footer .footer-links a:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.15);
+        }
+        .rm-footer .footer-links a.csharp-link { color: var(--csharp-color); }
+        .rm-footer .footer-links a.php-link { color: var(--php-color); }
+        .rm-footer .footer-links a.portal-link { color: var(--accent); }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .timeline::before { left: 24px; }
+            .step { grid-template-columns: 48px 1fr; gap: 0; }
+            .step-dot { grid-column: 1; grid-row: 1; width: 38px; height: 38px; font-size: 0.9rem; }
+            .step-card.left, .step-card.right { grid-column: 2; text-align: left; }
+            .step-card.left .keywords { justify-content: flex-start; }
+            .step-card { padding: 1.2rem; }
+            .rm-header h1 { font-size: 1.5rem; }
+            .rm-header { padding: 2.5rem 1rem 2rem; }
+            .rm-back, .rm-portal { position: static; display: inline-block; margin: 0 0.3rem 1rem; }
+            .rm-header .nav-row { margin-bottom: 1rem; }
+            .time-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+            .cheatsheet-table th, .cheatsheet-table td { padding: 0.6rem 0.75rem; font-size: 0.8rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .step-card { transition: none; }
+            .step-card:hover { transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="rm-header">
+    <div class="nav-row">
+        <a href="../csharp/index.html" class="rm-back"><i class="fas fa-arrow-left"></i> Cours C#</a>
+        <a href="../index.html" class="rm-portal"><i class="fas fa-th-large"></i> Portail</a>
+    </div>
+    <h1><span class="csharp">C#</span> <span class="arrow">→</span> <span class="php">PHP</span> Roadmap</h1>
+    <p class="subtitle">Tu connais déjà C# ? Chaque concept que tu maîtrises a son équivalent direct en PHP. Cette roadmap te montre la transition concept par concept.</p>
+</header>
+
+<div class="legend">
+    <div class="legend-item"><div class="legend-dot csharp"></div> C# (tu connais)</div>
+    <div class="legend-item"><div class="legend-dot php"></div> PHP (à apprendre)</div>
+    <div class="legend-item"><div class="legend-dot exam"></div> Épreuve de synthèse</div>
+</div>
+
+<!-- Time budget -->
+<div class="timer-section">
+    <h2><i class="fas fa-stopwatch"></i> Budget Temps</h2>
+    <p>~5 h max sur les 2 matières. Répartition suggerée :</p>
+    <div class="time-grid">
+        <div class="time-item csharp">
+            <span class="t-val">~2h</span>
+            <div class="t-label">C# (acquis)</div>
+        </div>
+        <div class="time-item php">
+            <span class="t-val">~2h30</span>
+            <div class="t-label">PHP (6 TPs)</div>
+        </div>
+        <div class="time-item total">
+            <span class="t-val">~30min</span>
+            <div class="t-label">Révision croisée</div>
+        </div>
+    </div>
+</div>
+
+<!-- Timeline -->
+<div class="timeline">
+
+    <!-- Step 1: Procédural -->
+    <div class="step">
+        <div class="step-card left">
+            <h3>Procédural C# <i class="fas fa-terminal left-icon"></i></h3>
+            <p class="desc">Variables typées, string[], for, méthodes static — tu connais déjà tout ça.</p>
+            <div class="keywords">
+                <span class="kw csharp">int x</span>
+                <span class="kw csharp">foreach</span>
+                <span class="kw csharp">static void</span>
+                <span class="kw csharp">string[]</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~20 min de relecture</div>
+            <a href="../csharp/chapitres/chapitre1.html" class="btn-go csharp"><i class="fas fa-book-open"></i> Revoir C#</a>
+        </div>
+        <div class="step-dot csharp-side">1</div>
+        <div class="step-card right">
+            <h3><i class="fas fa-terminal right-icon"></i> Procédural PHP</h3>
+            <p class="desc">Même logique, pas de type obligatoire. $ devant chaque variable, array() ou []. Pas de main().</p>
+            <div class="keywords">
+                <span class="kw php">$variable</span>
+                <span class="kw php">foreach</span>
+                <span class="kw php">function</span>
+                <span class="kw php">array()</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~30 min</div>
+            <a href="../php/tp1-procedural.html" class="btn-go php"><i class="fas fa-arrow-right"></i> TP1 PHP</a>
+        </div>
+    </div>
+
+    <!-- Step 2: Classes & Objets -->
+    <div class="step">
+        <div class="step-card left">
+            <h3>Classes C# <i class="fas fa-cube left-icon"></i></h3>
+            <p class="desc">class, new, constructeur = nom de la classe, this. — la base que tu maîtrises.</p>
+            <div class="keywords">
+                <span class="kw csharp">class Livre</span>
+                <span class="kw csharp">Livre()</span>
+                <span class="kw csharp">this.</span>
+                <span class="kw csharp">new Livre()</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~20 min de relecture</div>
+            <a href="../csharp/chapitres/chapitre5.html" class="btn-go csharp"><i class="fas fa-book-open"></i> Revoir C#</a>
+        </div>
+        <div class="step-dot csharp-side">2</div>
+        <div class="step-card right">
+            <h3><i class="fas fa-cube right-icon"></i> Classes PHP</h3>
+            <p class="desc">Même structure ! Constructeur = __construct(), accès via $this->. Le $ est partout.</p>
+            <div class="keywords">
+                <span class="kw php">class Livre</span>
+                <span class="kw php">__construct()</span>
+                <span class="kw php">$this-></span>
+                <span class="kw php">new</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~30 min</div>
+            <a href="../php/tp2-poo-bases.html" class="btn-go php"><i class="fas fa-arrow-right"></i> TP2 PHP</a>
+        </div>
+    </div>
+
+    <!-- Step 3: Encapsulation -->
+    <div class="step">
+        <div class="step-card left">
+            <h3>Encapsulation C# <i class="fas fa-lock left-icon"></i></h3>
+            <p class="desc">Propriétés { get; set; } élégantes, validation dans le set, mot-clé value.</p>
+            <div class="keywords">
+                <span class="kw csharp">private decimal prix</span>
+                <span class="kw csharp">{ get; set; }</span>
+                <span class="kw csharp">value</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~20 min de relecture</div>
+            <a href="../csharp/chapitres/chapitre6.html" class="btn-go csharp"><i class="fas fa-book-open"></i> Revoir C#</a>
+        </div>
+        <div class="step-dot php-side">3</div>
+        <div class="step-card right">
+            <h3><i class="fas fa-lock right-icon"></i> Encapsulation PHP</h3>
+            <p class="desc">Pas de { get; set; } en PHP — getters/setters classiques avec validation manuelle. Exercice 2 du partiel.</p>
+            <div class="keywords">
+                <span class="kw php">private $prix</span>
+                <span class="kw php">getPrix()</span>
+                <span class="kw php">setPrix($p)</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~25 min</div>
+            <a href="../php/tp3-encapsulation.html" class="btn-go php"><i class="fas fa-arrow-right"></i> TP3 PHP</a>
+        </div>
+    </div>
+
+    <!-- Step 4: Héritage -->
+    <div class="step">
+        <div class="step-card left">
+            <h3>Héritage C# <i class="fas fa-sitemap left-icon"></i></h3>
+            <p class="desc"> : pour hériter, base() pour le parent, virtual + override obligatoires, abstract.</p>
+            <div class="keywords">
+                <span class="kw csharp">: Livre</span>
+                <span class="kw csharp">base()</span>
+                <span class="kw csharp">virtual / override</span>
+                <span class="kw csharp">abstract</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~25 min de relecture</div>
+            <a href="../csharp/chapitres/chapitre7.html" class="btn-go csharp"><i class="fas fa-book-open"></i> Revoir C#</a>
+        </div>
+        <div class="step-dot php-side">4</div>
+        <div class="step-card right">
+            <h3><i class="fas fa-sitemap right-icon"></i> Héritage PHP</h3>
+            <p class="desc">extends au lieu de :, parent:: au lieu de base(). Surcharge = juste réécrire la méthode. Exercice 3 du partiel.</p>
+            <div class="keywords">
+                <span class="kw php">extends</span>
+                <span class="kw php">parent::__construct()</span>
+                <span class="kw php">abstract class</span>
+                <span class="kw php">interface</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~30 min</div>
+            <a href="../php/tp4-heritage.html" class="btn-go php"><i class="fas fa-arrow-right"></i> TP4 PHP</a>
+        </div>
+    </div>
+
+    <!-- Step 5: Exceptions -->
+    <div class="step">
+        <div class="step-card left">
+            <h3>Exceptions C# <i class="fas fa-bug left-icon"></i></h3>
+            <p class="desc">try/catch/finally, throw new, : Exception pour hériter. Quasi identique à PHP !</p>
+            <div class="keywords">
+                <span class="kw csharp">try { } catch</span>
+                <span class="kw csharp">throw new</span>
+                <span class="kw csharp">: Exception</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~15 min de relecture</div>
+            <a href="../csharp/chapitres/chapitre10.html" class="btn-go csharp"><i class="fas fa-book-open"></i> Revoir C#</a>
+        </div>
+        <div class="step-dot csharp-side">5</div>
+        <div class="step-card right">
+            <h3><i class="fas fa-bug right-icon"></i> Exceptions PHP</h3>
+            <p class="desc">Même syntaxe ! extends Exception au lieu de : Exception. Exercice 4 du partiel PHP.</p>
+            <div class="keywords">
+                <span class="kw php">try { } catch</span>
+                <span class="kw php">throw new</span>
+                <span class="kw php">extends Exception</span>
+            </div>
+            <div class="duration"><i class="fas fa-clock"></i> ~25 min</div>
+            <a href="../php/tp5-exceptions.html" class="btn-go php"><i class="fas fa-arrow-right"></i> TP5 PHP</a>
+        </div>
+    </div>
+
+    <!-- Step 6: Synthèse Examen -->
+    <div class="step">
+        <div class="step-card left" style="border-color: rgba(245,158,11,0.4);">
+            <h3>Épreuve Synthèse C# <i class="fas fa-trophy left-icon"></i></h3>
+            <p class="desc">Exercices C# pour t'entraîner en conditions réelles avant le jour J.</p>
+            <div class="duration"><i class="fas fa-clock"></i> 2h</div>
+            <a href="../csharp/exercices/exercices.html" class="btn-go exam"><i class="fas fa-file-alt"></i> Exercices C#</a>
+        </div>
+        <div class="step-dot exam-dot"><i class="fas fa-star" style="font-size:.8rem"></i></div>
+        <div class="step-card right" style="border-color: rgba(245,158,11,0.4);">
+            <h3><i class="fas fa-trophy right-icon"></i> Épreuve Synthèse PHP</h3>
+            <p class="desc">Examen blanc complet inspiré du partiel — 3 exercices, 20 pts, 2h.</p>
+            <div class="duration"><i class="fas fa-clock"></i> 2h</div>
+            <a href="../php/tp6-synthese.html" class="btn-go exam"><i class="fas fa-file-alt"></i> Examen PHP</a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Cheat Sheet -->
+<div class="cheatsheet">
+    <h2><i class="fas fa-exchange-alt"></i> Cheat Sheet — Syntaxe côte à côte</h2>
+    <div style="overflow-x:auto">
+        <table class="cheatsheet-table">
+            <thead>
+                <tr>
+                    <th>Concept</th>
+                    <th><i class="fas fa-hashtag"></i> C# (tu connais)</th>
+                    <th><i class="fab fa-php"></i> PHP (à retenir)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Variable</td>
+                    <td>string nom = "C#";</td>
+                    <td>$nom = "PHP";</td>
+                </tr>
+                <tr>
+                    <td>Classe</td>
+                    <td>class Livre { }</td>
+                    <td>class Livre { }</td>
+                </tr>
+                <tr>
+                    <td>Constructeur</td>
+                    <td>Livre(string t)</td>
+                    <td>__construct($t)</td>
+                </tr>
+                <tr>
+                    <td>Attribut privé</td>
+                    <td>private string titre;</td>
+                    <td>private $titre;</td>
+                </tr>
+                <tr>
+                    <td>Getter</td>
+                    <td>Titre { get; }</td>
+                    <td>getTitre()</td>
+                </tr>
+                <tr>
+                    <td>Héritage</td>
+                    <td>class B : A</td>
+                    <td>class B extends A</td>
+                </tr>
+                <tr>
+                    <td>Appel parent</td>
+                    <td>base()</td>
+                    <td>parent::__construct()</td>
+                </tr>
+                <tr>
+                    <td>Surcharge</td>
+                    <td>virtual + override</td>
+                    <td>même nom suffit</td>
+                </tr>
+                <tr>
+                    <td>Abstrait</td>
+                    <td>abstract class A</td>
+                    <td>abstract class A</td>
+                </tr>
+                <tr>
+                    <td>Interface</td>
+                    <td>interface I { }</td>
+                    <td>interface I { }</td>
+                </tr>
+                <tr>
+                    <td>Exception</td>
+                    <td>: Exception</td>
+                    <td>extends Exception</td>
+                </tr>
+                <tr>
+                    <td>Affichage</td>
+                    <td>Console.WriteLine(obj);</td>
+                    <td>echo $obj;</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer class="rm-footer">
+    <div class="footer-links">
+        <a href="../csharp/index.html" class="csharp-link"><i class="fas fa-arrow-left"></i> Cours C#</a>
+        <a href="../index.html" class="portal-link"><i class="fas fa-th-large"></i> Portail</a>
+        <a href="../php/index.html" class="php-link">Cours PHP <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <p>Roadmap C# → PHP — Préparation Exam</p>
+</footer>
+
+</body>
+</html>
