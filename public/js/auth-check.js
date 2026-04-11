@@ -10,7 +10,7 @@
   // Ne pas exécuter sur les pages d'auth elles-mêmes
   if (window.location.pathname.startsWith('/_auth/')) return;
 
-  var COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'RD-RO', 'sql', 'csharp', 'ccna', 'uml', 'uiux', 'epreuves'];
+  var COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'admin-vm', 'droit', 'RD-RO', 'sql', 'csharp', 'ccna', 'uml', 'uiux', 'epreuves'];
   var path = window.location.pathname;
 
   /**
@@ -32,8 +32,12 @@
     // Épreuves passées → tout protégé (index + PDF)
     if (courseName === 'epreuves') return true;
 
-    // Assets toujours libres (CSS, JS, images)
-    if (parts[1] === 'assets') return false;
+    var filename = parts[parts.length - 1] || '';
+    var isQcmData = /qcm/i.test(filename) && (filename.endsWith('.js') || filename.endsWith('.json'));
+    if (isQcmData) return true;
+
+    // Assets toujours libres (CSS, JS, images) sauf PDF
+    if (parts[1] === 'assets') return cleanUrl.endsWith('.pdf');
 
     // index.html du cours → libre
     if (parts.length === 2 && (parts[1] === 'index.html' || parts[1] === '')) return false;
@@ -41,8 +45,8 @@
     // Chapitre 1 → libre
     if (parts[1] === 'chapitres' && parts.length >= 3 && parts[2] === 'chapitre1.html') return false;
 
-    // Seuls les fichiers HTML sont protégés
-    if (!cleanUrl.endsWith('.html')) return false;
+    // Seuls les fichiers HTML et PDF sont protégés
+    if (!cleanUrl.endsWith('.html') && !cleanUrl.endsWith('.pdf')) return false;
 
     // Tout le reste dans un cours est protégé
     return true;
@@ -89,7 +93,7 @@
       } else {
         if (protectedPage) {
           // Page protégée sans authentification → BLOQUER
-          showBlockingOverlay('auth');
+          showBlockingOverlay(data.reason === 'expired' ? 'expired' : 'auth');
         } else {
           // Page libre → bandeau informatif
           showDemoBanner();
@@ -119,6 +123,9 @@
     if (reason === 'scope') {
       title = 'Acc\u00e8s non inclus dans votre licence';
       message = 'Votre cl\u00e9 d\'activation ne couvre pas ce cours. Contactez votre administrateur ou activez une cl\u00e9 valide pour ce module.';
+    } else if (reason === 'expired') {
+      title = 'Cl\u00e9 expir\u00e9e';
+      message = 'Votre cl\u00e9 d\'activation a expir\u00e9. Contactez l\'administrateur pour la renouveler ou activer une nouvelle cl\u00e9.';
     } else {
       title = 'Contenu r\u00e9serv\u00e9 aux abonn\u00e9s';
       message = 'Ce chapitre n\u00e9cessite une cl\u00e9 d\'activation. Obtenez votre acc\u00e8s complet pour seulement <strong>1 000 F</strong> ! Contactez Donald pour votre cl\u00e9.';
@@ -188,7 +195,7 @@
    * (index du cours, chapitre 1, page d'accueil)
    */
   function showDemoBanner() {
-    var coursePattern = /^\/(linux|php|probabilites|rd_java|rd_winserver|RD-RO|sql|csharp|ccna|uml|uiux)\//;
+    var coursePattern = /^\/(linux|php|probabilites|rd_java|rd_winserver|admin-vm|droit|RD-RO|sql|csharp|ccna|uml|uiux)\//;
     var courseMatch = path.match(coursePattern);
 
     if (!courseMatch && path !== '/' && !path.endsWith('/index.html')) return;

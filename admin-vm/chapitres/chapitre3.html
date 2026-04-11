@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 3 - Installation et configuration des hyperviseurs</title>
+    <meta name="description" content="Installer Proxmox VE, configurer le reseau, les depots, les mises a jour et les comptes.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-layer-group"></i><span>RD Admin-VM</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="chapitre2.html">Chapitre 2</a></li>
+                <li><a href="chapitre3.html" class="active">Chapitre 3</a></li>
+                <li><a href="chapitre4.html">Chapitre 4</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le theme"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-layer-group"></i> 1. Introduction</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-screwdriver-wrench"></i> 2. Prerequis</a></li>
+            <li><a href="chapitre3.html" class="active"><i class="fas fa-server"></i> 3. Hyperviseurs</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-desktop"></i> 4. Creation de VMs</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Stockage</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-network-wired"></i> 6. Reseau virtualise</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-shield-halved"></i> 7. Admin avancee</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-server"></i> Chapitre 3</span>
+        <h1 class="hero-title">Installation & <span class="gradient-text">Configuration</span> des Hyperviseurs</h1>
+        <p class="hero-description">Installer Proxmox VE proprement, configurer le reseau, les depots et la securite de base.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 3rem;">
+        <article class="glass-card">
+            <h2><i class="fas fa-list-check"></i> Avant de commencer</h2>
+            <ul>
+                <li>ISO Proxmox VE telechargee et cle USB bootable.</li>
+                <li>Plan IP simple (ex. 192.168.10.0/24) et un nom de host clair.</li>
+                <li>Mot de passe root solide.</li>
+            </ul>
+            <div class="info-box">Proxmox se gere via une interface web : tu auras besoin d'un navigateur et d'une IP fixe pour l'hote.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-download"></i> Installation de Proxmox VE (pas a pas)</h2>
+            <ol>
+                <li>Boote sur la cle USB Proxmox.</li>
+                <li>Accepte la licence et choisis le disque (LVM ou ZFS).</li>
+                <li>Definis la langue, le fuseau horaire et le clavier.</li>
+                <li>Configure le reseau : IP fixe, passerelle, DNS.</li>
+                <li>Fixe le mot de passe root et un email d'admin.</li>
+            </ol>
+            <div class="warning-box">Choisis un disque fiable. Les VMs dependent directement de la qualite du stockage.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-globe"></i> Premier acces a l'interface web</h2>
+            <p>Apres l'installation :</p>
+            <ul>
+                <li>Accede a <code>https://IP_DU_HOST:8006</code></li>
+                <li>Connecte-toi avec <code>root</code> et ton mot de passe.</li>
+                <li>Verifie l'heure, la zone et l'etat du reseau.</li>
+            </ul>
+            <div class="success-box">Si l'interface web s'affiche, Proxmox est operationnel.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-rotate"></i> Depots et mises a jour</h2>
+            <p>Proxmox propose deux depots :</p>
+            <ul>
+                <li><strong>Enterprise</strong> : payant, tres stable.</li>
+                <li><strong>No-subscription</strong> : gratuit, ideal pour les labs.</li>
+            </ul>
+            <div class="code-block">
+                <span class="comment"># Activer le depot gratuit</span><br>
+                <span class="cmd">nano</span> /etc/apt/sources.list.d/pve-enterprise.list<br>
+                <span class="comment"># Commente la ligne, puis ajoute :</span><br>
+                <span class="cmd">echo</span> "deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription" | <span class="cmd">tee</span> /etc/apt/sources.list.d/pve-no-subscription.list<br>
+                <span class="cmd">apt</span> update && <span class="cmd">apt</span> full-upgrade
+            </div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-user-shield"></i> Comptes et securite de base</h2>
+            <ul>
+                <li>Cree un compte admin non-root pour la gestion quotidienne.</li>
+                <li>Active le pare-feu Proxmox (Datacenter > Firewall).</li>
+                <li>Limite l'acces a l'interface web par IP si possible.</li>
+            </ul>
+            <div class="warning-box">Ne laisse pas l'interface exposee sur Internet sans VPN ou filtre IP.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-warehouse"></i> Stockage et reseau initial</h2>
+            <ul>
+                <li>Verifie la presence de <code>local</code> et <code>local-lvm</code>.</li>
+                <li>Configure un bridge <code>vmbr0</code> pour les VMs.</li>
+                <li>Ajoute un stockage NFS/iSCSI si besoin (chapitre 5).</li>
+            </ul>
+            <div class="info-box">Un bridge = un switch virtuel. Il relie les VMs au reseau physique.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-lightbulb"></i> Et VMware ESXi ?</h2>
+            <p>ESXi suit une logique similaire : installation sur serveur nu, interface web, configuration reseau et datastore. Il reste une reference, mais Proxmox est plus accessible en open-source.</p>
+            <div class="success-box"><strong>Objectif du cours :</strong> maitriser Proxmox, comprendre ESXi pour pouvoir s'adapter sur le terrain.</div>
+        </article>
+    </main>
+
+    <div class="chapter-nav">
+        <a href="chapitre2.html"><i class="fas fa-arrow-left"></i> Chapitre 2</a>
+        <a href="chapitre4.html">Chapitre 4 <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

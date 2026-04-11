@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 5 - Stockage et gestion des volumes</title>
+    <meta name="description" content="Comprendre LVM, les types de stockage Proxmox, NFS/iSCSI et la strategie de sauvegarde.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-layer-group"></i><span>RD Admin-VM</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="chapitre4.html">Chapitre 4</a></li>
+                <li><a href="chapitre5.html" class="active">Chapitre 5</a></li>
+                <li><a href="chapitre6.html">Chapitre 6</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le theme"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-layer-group"></i> 1. Introduction</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-screwdriver-wrench"></i> 2. Prerequis</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-server"></i> 3. Hyperviseurs</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-desktop"></i> 4. Creation de VMs</a></li>
+            <li><a href="chapitre5.html" class="active"><i class="fas fa-database"></i> 5. Stockage</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-network-wired"></i> 6. Reseau virtualise</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-shield-halved"></i> 7. Admin avancee</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-database"></i> Chapitre 5</span>
+        <h1 class="hero-title">Stockage & <span class="gradient-text">Gestion des Volumes</span></h1>
+        <p class="hero-description">Un stockage fiable, c'est la cle : LVM, NFS/iSCSI, snapshots et strategie de backup.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 3rem;">
+        <article class="glass-card">
+            <h2><i class="fas fa-hdd"></i> Pourquoi le stockage est critique ?</h2>
+            <p>Toutes les VMs reposent sur le stockage. Une panne disque = plusieurs services arretes.</p>
+            <ul>
+                <li>Priorise la fiabilite avant la performance.</li>
+                <li>Planifie sauvegarde et redondance (RAID/NAS).</li>
+            </ul>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-layer-group"></i> LVM en 3 notions</h2>
+            <ul>
+                <li><strong>PV</strong> : disque ou partition physique.</li>
+                <li><strong>VG</strong> : groupe de volumes (pool).</li>
+                <li><strong>LV</strong> : volume logique (disque d'une VM).</li>
+            </ul>
+            <div class="info-box">LVM permet d'agrandir un disque de VM sans tout reinstaller.</div>
+            <div class="warning-box">LVM thin = flexible mais besoin de surveillance pour eviter la saturation.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-boxes-stacked"></i> Types de stockage dans Proxmox</h2>
+            <table class="styled-table">
+                <thead>
+                    <tr><th>Type</th><th>Usage</th><th>Avantage</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Directory</td><td>ISO, backups, templates</td><td>Simple a configurer</td></tr>
+                    <tr><td>LVM-thin</td><td>Disques de VM</td><td>Souple et rapide</td></tr>
+                    <tr><td>ZFS</td><td>Snapshots, compression</td><td>Robuste et performant</td></tr>
+                    <tr><td>Ceph</td><td>Cluster multi-noeuds</td><td>Haute dispo scalable</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-network-wired"></i> NFS vs iSCSI</h2>
+            <table class="styled-table">
+                <thead>
+                    <tr><th>Protocole</th><th>Principe</th><th>Points forts</th><th>Limites</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>NFS</td><td>Partage fichier</td><td>Simple, compatible</td><td>Moins rapide sur gros I/O</td></tr>
+                    <tr><td>iSCSI</td><td>Disque reseau</td><td>Performant</td><td>Config plus technique</td></tr>
+                </tbody>
+            </table>
+            <div class="info-box">Pour un petit lab : NFS suffit. Pour la production : iSCSI ou ZFS.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-camera"></i> Snapshots vs Backup</h2>
+            <ul>
+                <li><strong>Snapshot</strong> : rapide, mais reste sur le meme stockage.</li>
+                <li><strong>Backup</strong> : copie externe, indispensable en cas de panne.</li>
+            </ul>
+            <div class="success-box">Regle d'or : 3 copies, 2 supports differents, 1 hors site.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-rotate"></i> Strategie de sauvegarde (GFS)</h2>
+            <p>La strategie GFS (Grandfather-Father-Son) structure tes sauvegardes :</p>
+            <ul>
+                <li><strong>Quotidien</strong> : 7 jours</li>
+                <li><strong>Hebdo</strong> : 4 semaines</li>
+                <li><strong>Mensuel</strong> : 6 a 12 mois</li>
+            </ul>
+            <div class="info-box">Avec Proxmox, utilise <code>vzdump</code> ou Proxmox Backup Server (PBS).</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-gauge-high"></i> Bonnes pratiques stockage</h2>
+            <ul>
+                <li>Surveille l'espace libre (alerte a 80%).</li>
+                <li>Teste une restauration chaque trimestre.</li>
+                <li>Separer stockage VM et stockage backup.</li>
+                <li>Documenter le plan de reprise d'activite.</li>
+            </ul>
+        </article>
+    </main>
+
+    <div class="chapter-nav">
+        <a href="chapitre4.html"><i class="fas fa-arrow-left"></i> Chapitre 4</a>
+        <a href="chapitre6.html">Chapitre 6 <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

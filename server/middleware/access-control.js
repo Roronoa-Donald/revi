@@ -10,6 +10,8 @@ const COURSES = {
   'probabilites': 'Probabilités',
   'rd_java': 'Java',
   'rd_winserver': 'Windows Server',
+  'admin-vm': 'Administration des Machines Virtuelles',
+  'droit': 'Droit Informatique',
   'RD-RO': 'Recherche Opérationnelle',
   'sql': 'SQL',
   'csharp': 'C#',
@@ -25,6 +27,8 @@ const COURSE_ICONS = {
   'probabilites': '🎲',
   'rd_java': '☕',
   'rd_winserver': '🖥️',
+  'admin-vm': '🧩',
+  'droit': '⚖️',
   'RD-RO': '📊',
   'sql': '🗃️',
   'csharp': '🔷',
@@ -40,6 +44,8 @@ const COURSE_THEMES = {
   'probabilites': { mode: 'dark',  accent: '#6366f1', accentLight: '#818cf8', accentDark: '#4f46e5', gradient: 'linear-gradient(135deg, #6366f1, #a855f7)' },
   'rd_java':      { mode: 'light', accent: '#ef4444', accentLight: '#f87171', accentDark: '#dc2626', gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
   'rd_winserver': { mode: 'light', accent: '#6366f1', accentLight: '#818cf8', accentDark: '#4f46e5', gradient: 'linear-gradient(135deg, #6366f1, #4f46e5)' },
+  'admin-vm':     { mode: 'light', accent: '#0ea5e9', accentLight: '#38bdf8', accentDark: '#0284c7', gradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)' },
+  'droit':        { mode: 'light', accent: '#f59e0b', accentLight: '#fbbf24', accentDark: '#d97706', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
   'RD-RO':        { mode: 'dark',  accent: '#10b981', accentLight: '#34d399', accentDark: '#059669', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
   'sql':          { mode: 'dark',  accent: '#2563eb', accentLight: '#60a5fa', accentDark: '#1e40af', gradient: 'linear-gradient(135deg, #2563eb, #1e40af)' },
   'csharp': { mode: 'light', accent: '#f59e0b', accentLight: '#fbbf24', accentDark: '#d97706', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
@@ -70,8 +76,12 @@ function isProtected(urlPath) {
   // Épreuves passées → tout protégé (y compris index et PDF)
   if (courseName === 'epreuves') return true;
 
-  // Assets toujours libres (CSS, JS, images)
-  if (parts[1] === 'assets') return false;
+  const filename = parts[parts.length - 1] || '';
+  const isQcmData = /qcm/i.test(filename) && (filename.endsWith('.js') || filename.endsWith('.json'));
+  if (isQcmData) return true;
+
+  // Assets toujours libres (CSS, JS, images) sauf PDF
+  if (parts[1] === 'assets') return cleanUrl.endsWith('.pdf');
 
   // index.html du cours → libre
   if (parts.length === 2 && (parts[1] === 'index.html' || parts[1] === '')) return false;

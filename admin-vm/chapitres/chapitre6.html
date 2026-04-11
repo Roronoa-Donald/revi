@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 6 - Reseau virtualise et segmentation</title>
+    <meta name="description" content="Bridges, VLAN, DMZ, pare-feu et bonnes pratiques pour un reseau virtualise securise.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-layer-group"></i><span>RD Admin-VM</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="chapitre5.html">Chapitre 5</a></li>
+                <li><a href="chapitre6.html" class="active">Chapitre 6</a></li>
+                <li><a href="chapitre7.html">Chapitre 7</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le theme"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-layer-group"></i> 1. Introduction</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-screwdriver-wrench"></i> 2. Prerequis</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-server"></i> 3. Hyperviseurs</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-desktop"></i> 4. Creation de VMs</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Stockage</a></li>
+            <li><a href="chapitre6.html" class="active"><i class="fas fa-network-wired"></i> 6. Reseau virtualise</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-shield-halved"></i> 7. Admin avancee</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-network-wired"></i> Chapitre 6</span>
+        <h1 class="hero-title">Reseau <span class="gradient-text">Virtualise</span> & Segmentation</h1>
+        <p class="hero-description">Organiser les flux, isoler les zones et securiser les communications entre VMs.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 3rem;">
+        <article class="glass-card">
+            <h2><i class="fas fa-sitemap"></i> Les briques reseau</h2>
+            <ul>
+                <li><strong>Bridge (vmbr)</strong> : switch virtuel relie au physique.</li>
+                <li><strong>NAT</strong> : permet aux VMs d'acceder a Internet sans IP publique.</li>
+                <li><strong>VLAN</strong> : segmentation logique dans un meme switch.</li>
+                <li><strong>Firewall virtuel</strong> : filtre le trafic entre zones.</li>
+            </ul>
+            <div class="analogy-box">Un bridge, c'est comme une multiprise : plusieurs VMs branchent dessus.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-code-branch"></i> Configuration d'un bridge Proxmox</h2>
+            <p>Par defaut, Proxmox cree <code>vmbr0</code> lie a la carte reseau physique.</p>
+            <ul>
+                <li><strong>vmbr0</strong> : reseau principal (LAN).</li>
+                <li><strong>vmbr1</strong> : reseau isole (test ou DMZ).</li>
+            </ul>
+            <div class="code-block">
+                <span class="comment"># Exemple de bridge (Linux)</span><br>
+                auto vmbr0<br>
+                iface vmbr0 inet static<br>
+                &nbsp;&nbsp;address 192.168.10.2/24<br>
+                &nbsp;&nbsp;gateway 192.168.10.1<br>
+                &nbsp;&nbsp;bridge-ports eno1
+            </div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-layer-group"></i> VLAN et segmentation</h2>
+            <p>Les VLAN isolent les flux sans multiplier les switchs physiques.</p>
+            <ul>
+                <li>VLAN 10 : utilisateurs</li>
+                <li>VLAN 20 : serveurs</li>
+                <li>VLAN 30 : DMZ</li>
+            </ul>
+            <div class="info-box">Avec Proxmox, active le VLAN tagging dans la configuration de la VM.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-shield"></i> DMZ et pare-feu</h2>
+            <p>Une DMZ contient les services exposes (web, mail). Elle doit etre isolee du LAN.</p>
+            <ul>
+                <li>Place les VMs web en DMZ.</li>
+                <li>Autorise uniquement les ports necessaires.</li>
+                <li>Utilise un pare-feu (pfSense, OPNsense).</li>
+            </ul>
+            <div class="warning-box">Ne mets jamais la base de donnees en DMZ.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-magnifying-glass"></i> Diagnostiquer le reseau</h2>
+            <ul>
+                <li><code>ping</code> : test de connectivite basique.</li>
+                <li><code>traceroute</code> : chemin des paquets.</li>
+                <li><code>tcpdump</code> : inspection du trafic.</li>
+                <li>Verifie les regles firewall et les VLAN tags.</li>
+            </ul>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-briefcase"></i> Mini cas pratique</h2>
+            <p>Une agence veut heberger un site web et un ERP interne.</p>
+            <ul>
+                <li>Web en DMZ (VLAN 30).</li>
+                <li>ERP en LAN (VLAN 20).</li>
+                <li>Utilisateurs en VLAN 10.</li>
+                <li>Firewall : LAN &lt;-&gt; DMZ uniquement sur port 443.</li>
+            </ul>
+            <div class="success-box">Resultat : web accessible, ERP protege.</div>
+        </article>
+    </main>
+
+    <div class="chapter-nav">
+        <a href="chapitre5.html"><i class="fas fa-arrow-left"></i> Chapitre 5</a>
+        <a href="chapitre7.html">Chapitre 7 <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

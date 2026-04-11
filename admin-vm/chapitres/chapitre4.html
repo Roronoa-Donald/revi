@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 4 - Creation et gestion des machines virtuelles</title>
+    <meta name="description" content="Creer des VMs dans Proxmox, gerer snapshots, templates, clones et reseau inter-VM.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress"></div>
+
+    <nav class="glass-nav" role="navigation">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-layer-group"></i><span>RD Admin-VM</span></a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Accueil</a></li>
+                <li><a href="chapitre3.html">Chapitre 3</a></li>
+                <li><a href="chapitre4.html" class="active">Chapitre 4</a></li>
+                <li><a href="chapitre5.html">Chapitre 5</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le theme"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-layer-group"></i> 1. Introduction</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-screwdriver-wrench"></i> 2. Prerequis</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-server"></i> 3. Hyperviseurs</a></li>
+            <li><a href="chapitre4.html" class="active"><i class="fas fa-desktop"></i> 4. Creation de VMs</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Stockage</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-network-wired"></i> 6. Reseau virtualise</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-shield-halved"></i> 7. Admin avancee</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-desktop"></i> Chapitre 4</span>
+        <h1 class="hero-title">Creation & <span class="gradient-text">Gestion des VMs</span></h1>
+        <p class="hero-description">Creer des VMs propres, gerer templates, clones et snapshots, puis connecter les VMs entre elles.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 3rem;">
+        <article class="glass-card">
+            <h2><i class="fas fa-cubes"></i> Concepts essentiels</h2>
+            <ul>
+                <li><strong>VM</strong> : machine virtuelle isolee.</li>
+                <li><strong>Template</strong> : modele pour cloner rapidement.</li>
+                <li><strong>Clone</strong> : copie d'une VM (full ou linked).</li>
+                <li><strong>Snapshot</strong> : etat fige pour retour arriere rapide.</li>
+            </ul>
+            <div class="info-box">Astuce : utilise un template Windows/Ubuntu propre, puis clone pour gagner du temps.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-plus"></i> Creer une VM (Proxmox)</h2>
+            <ol>
+                <li>Upload de l'ISO dans <code>local</code> (Datacenter &gt; Storage).</li>
+                <li>Bouton <strong>Create VM</strong> : nom clair (ex. <code>SRV-AD</code>).</li>
+                <li>Choisir l'ISO, la taille disque, le type de stockage.</li>
+                <li>Allouer CPU, RAM et reseau (bridge <code>vmbr0</code>).</li>
+                <li>Demarrer la VM et installer l'OS.</li>
+            </ol>
+            <div class="warning-box">Pour Windows, active le disque <strong>VirtIO</strong> et installe les drivers VirtIO.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-gauge-high"></i> Allocation de ressources</h2>
+            <ul>
+                <li><strong>vCPU</strong> : 1 a 2 vCPU pour un serveur leger, 4+ pour base de donnees.</li>
+                <li><strong>RAM</strong> : ne donne pas tout, laisse 20-30% libre pour l'hote.</li>
+                <li><strong>Disque</strong> : thin si stockage limite, thick si performance.</li>
+            </ul>
+            <div class="success-box">Regle simple : commence petit, puis augmente selon la charge.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-link"></i> Reseau entre VMs</h2>
+            <p>Un bridge relie les VMs au reseau physique. Pour que les VMs se voient :</p>
+            <ul>
+                <li>Attribue des IP fixes (ex. 192.168.10.10 / 11 / 12).</li>
+                <li>Verifie le ping entre les VMs.</li>
+                <li>Utilise un VLAN si tu veux isoler les environnements.</li>
+            </ul>
+            <div class="info-box">Exemple : une VM AD + une VM Web + une VM DB sur le meme bridge.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-camera"></i> Snapshots et restauration</h2>
+            <p>Un snapshot permet de revenir en arriere apres un test risque.</p>
+            <ul>
+                <li>Prends un snapshot avant une mise a jour.</li>
+                <li>Supprime les snapshots anciens pour economiser le stockage.</li>
+            </ul>
+            <div class="warning-box">Un snapshot n'est <strong>pas</strong> un backup complet. Il reste sur le meme stockage.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-clone"></i> Templates et clones</h2>
+            <ol>
+                <li>Installe un OS propre (updates + agents).</li>
+                <li>Nettoie et generalise (sysprep pour Windows).</li>
+                <li>Convertis en <strong>template</strong>.</li>
+                <li>Clone a partir du template pour tes nouvelles VMs.</li>
+            </ol>
+            <div class="success-box">Resultat : creation d'une VM en moins de 2 minutes.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-list-check"></i> Bonnes pratiques</h2>
+            <ul>
+                <li>Nommer clairement : <code>SRV-AD</code>, <code>WEB-01</code>, <code>DB-01</code>.</li>
+                <li>Tagger les VMs (prod, test, dev).</li>
+                <li>Activer <strong>QEMU Guest Agent</strong> pour une meilleure gestion.</li>
+                <li>Surveiller l'usage CPU/RAM via le dashboard.</li>
+            </ul>
+        </article>
+    </main>
+
+    <div class="chapter-nav">
+        <a href="chapitre3.html"><i class="fas fa-arrow-left"></i> Chapitre 3</a>
+        <a href="chapitre5.html">Chapitre 5 <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

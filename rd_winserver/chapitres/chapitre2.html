@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chapitre 2 — Active Directory DS | RD WinServer</title>
-    <meta name="description" content="Active Directory Domain Services : domaines, forêts, arbres, OU, objets AD et analogies détaillées.">
+    <title>Chapitre 2 — Haute Disponibilité &amp; Clustering | RD WinServer</title>
+    <meta name="description" content="Fiche de révision : haute disponibilité, redondance, failover, monitoring, types de clustering.">
     <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
@@ -25,8 +25,6 @@
                 <li><a href="chapitre3.html">Module 3 →</a></li>
             </ul>
             <div class="nav-actions">
-                <button data-download="pdf" class="download-btn" aria-label="Télécharger en PDF" title="Télécharger PDF"><i class="fas fa-file-pdf"></i></button>
-                <button data-download="txt" class="download-btn" aria-label="Télécharger en TXT" title="Télécharger TXT"><i class="fas fa-file-lines"></i></button>
                 <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
                 <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
             </div>
@@ -38,316 +36,226 @@
         <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
         <ul>
             <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
-            <li><a href="chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
-            <li><a href="chapitre2.html" class="active"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
-            <li><a href="chapitre3.html"><i class="fas fa-scroll"></i> 3. GPO</a></li>
-            <li><a href="chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
-            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
-            <li><a href="chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
-            <li><a href="chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
-            <li><a href="chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
-            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
-            <li><a href="cartes.html"><i class="fas fa-clone"></i> Flashcards</a></li>
-            <li><a href="simulateur-examen.html"><i class="fas fa-clipboard-check"></i> Examen</a></li>
-            <li><a href="../exercices/exercices.html"><i class="fas fa-laptop-code"></i> Exercices TP</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-database"></i> 1. Sauvegarde</a></li>
+            <li><a href="chapitre2.html" class="active"><i class="fas fa-arrows-rotate"></i> 2. Haute Disponibilité</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-wrench"></i> 3. Maintenance</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-server"></i> 4. Virtualisation &amp; VMware</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-camera"></i> 5. Snapshots, Clones &amp; Templates</a></li>
+            <li><a href="qcm-100.html"><i class="fas fa-clipboard-check"></i> 100 QCM Interactifs</a></li>
         </ul>
     </div>
 
     <section class="hero-section">
-        <span class="hero-badge"><i class="fas fa-sitemap"></i> Module 2</span>
-        <h1 class="hero-title">Active Directory <span class="gradient-text">Domain Services</span></h1>
-        <p class="hero-description">Le responsable de Blaise lui dit : « Sans AD, ton réseau n'est qu'un amas d'ordinateurs qui ne se connaissent pas. » Il est temps de leur donner une identité.</p>
+        <span class="hero-badge"><i class="fas fa-arrows-rotate"></i> Module 2</span>
+        <h1 class="hero-title">Haute Disponibilité &amp; <span class="gradient-text">Clustering</span></h1>
+        <p class="hero-description">HA, redondance, failover, monitoring, SLA et les 5 types de clustering.</p>
     </section>
 
     <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
 
-        <!-- C'est quoi AD DS -->
+        <!-- Définition HA -->
         <article class="glass-card reveal-on-scroll">
-            <h2><i class="fas fa-landmark" class="accent-icon"></i> Qu'est-ce qu'Active Directory DS ?</h2>
-            <p><strong>Active Directory Domain Services (AD DS)</strong> est le service qui permet de <strong>centraliser la gestion</strong> de tous les objets d'un réseau : utilisateurs, ordinateurs, groupes, imprimantes…</p>
+            <h2><i class="fas fa-server"></i> Qu'est-ce que la Haute Disponibilité (HA) ?</h2>
+            <p>La haute disponibilité (souvent abrégée <strong>HA</strong>, de l'anglais <em>High Availability</em>) est un ensemble de mécanismes et de configurations techniques qui permettent à un système informatique de <strong>continuer à fonctionner même en cas de panne</strong> d'un de ses composants (serveur, disque, réseau, etc.).</p>
+            <div class="info-box">
+                <strong>Objectif :</strong> Minimiser ou éviter les interruptions de service pour garantir un fonctionnement continu, surtout pour les applications critiques (banques, e-commerce, hôpitaux, etc.).
+            </div>
+        </article>
 
-            <p>C'est le <strong>cœur battant</strong> de tout réseau Windows en entreprise. Sans lui, chaque PC serait indépendant — chaque utilisateur aurait un compte différent sur chaque machine. Un cauchemar pour 500 postes.</p>
+        <!-- Les 3 piliers -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-pillars"></i> Les 3 Piliers de la HA</h2>
+            <p>La haute disponibilité repose sur trois mécanismes :</p>
 
-            <div class="analogy-box">
-                AD DS, c'est le <strong>registre d'état civil d'une ville</strong>. Chaque citoyen (utilisateur) y est inscrit avec son identité, son adresse (OU), ses droits (groupes). Sans état civil, personne ne sait qui est qui.
+            <h3>1. Redondance</h3>
+            <p>La redondance consiste à <strong>dupliquer des composants critiques</strong> d'un système (serveurs, disques, alimentations, connexions réseau, etc.) afin de garantir la continuité de service en cas de défaillance. L'objectif est d'éviter un <strong>point unique de défaillance</strong> : si un élément tombe en panne, un autre, déjà prêt et fonctionnel, peut prendre le relais.</p>
+            <div class="info-box">
+                <strong>Exemple :</strong> Deux serveurs web configurés en parallèle : si l'un tombe, l'autre continue à répondre aux requêtes.
             </div>
 
-            <h3>Ce que fait AD DS concrètement</h3>
+            <h3>2. Basculement automatique (Failover)</h3>
+            <p>Le failover est un mécanisme permettant de <strong>transférer automatiquement l'activité</strong> d'un composant défaillant vers un autre composant redondant, sans intervention humaine et avec un minimum d'interruption de service.</p>
+            <div class="info-box">
+                <strong>Exemple :</strong> Si une base de données principale devient inaccessible, le système bascule automatiquement sur une base de secours.
+            </div>
+
+            <h3>3. Supervision (Monitoring)</h3>
+            <p>La supervision désigne l'ensemble des outils et processus permettant de <strong>surveiller en temps réel</strong> l'état de santé des ressources informatiques (serveurs, services, performances, etc.). Elle permet de détecter les anomalies et, dans un système redondant, de déclencher automatiquement un basculement.</p>
+            <div class="info-box">
+                <strong>Exemple :</strong> Un outil comme <strong>Zabbix</strong> ou <strong>Nagios</strong> vérifie constamment si les serveurs sont disponibles et alerte (ou agit) dès qu'une panne est détectée.
+            </div>
+        </article>
+
+        <!-- SLA -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-chart-line"></i> Niveaux de Disponibilité (SLA)</h2>
+            <p>La disponibilité s'exprime souvent en pourcentage par an :</p>
+            <div style="overflow-x:auto;">
+            <table class="styled-table">
+                <thead><tr><th>Disponibilité</th><th>Indisponibilité / an</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>99 %</strong></td><td>3 jours 15 h 36 min</td></tr>
+                    <tr><td><strong>99,9 %</strong></td><td>8 h 45 min 36 s</td></tr>
+                    <tr><td><strong>99,99 %</strong></td><td>52 min 34 s</td></tr>
+                    <tr><td><strong>99,999 %</strong></td><td>≈ 5 min 15 s</td></tr>
+                    <tr><td><strong>99,9999 %</strong></td><td>≈ 31,5 secondes</td></tr>
+                </tbody>
+            </table>
+            </div>
+        </article>
+
+        <!-- Exemple Load Balancer -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-network-wired"></i> Exemple Concret : Load Balancer</h2>
+            <p>Un site web est hébergé sur <strong>2 serveurs web</strong> avec un <strong>équilibreur de charge (load balancer)</strong> devant eux. Si un serveur tombe :</p>
+            <ol class="tp-list">
+                <li>Le load balancer détecte l'échec.</li>
+                <li>Il redirige les utilisateurs vers le serveur qui fonctionne.</li>
+                <li>L'utilisateur ne remarque aucune interruption.</li>
+            </ol>
+        </article>
+
+        <!-- HA en virtualisation -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-cloud"></i> HA en Environnement Virtualisé</h2>
+            <p>Dans un environnement comme <strong>Proxmox</strong> ou <strong>VMware vSphere</strong> :</p>
             <ul class="tp-list">
-                <li>🆔 <strong>Authentification centralisée</strong> — Un seul login pour accéder à tout</li>
-                <li>🔐 <strong>Autorisation</strong> — Qui a le droit de faire quoi</li>
-                <li>📂 <strong>Organisation</strong> — Structurer les ressources par département, site, etc.</li>
-                <li>📜 <strong>Politiques de sécurité</strong> — Appliquer des règles à tous les postes</li>
-                <li>🔍 <strong>Annuaire LDAP</strong> — Rechercher n'importe quelle ressource</li>
+                <li>On peut créer un <strong>cluster de plusieurs hôtes</strong>.</li>
+                <li>Les machines virtuelles peuvent être automatiquement <strong>redémarrées sur un autre hôte</strong> en cas de panne matérielle.</li>
+                <li>Si un hyperviseur tombe, ses VM redémarrent ailleurs (selon les règles HA configurées).</li>
             </ul>
         </article>
 
-        <!-- La hiérarchie AD -->
+        <!-- Clustering -->
         <article class="glass-card reveal-on-scroll">
-            <h2><i class="fas fa-tree" class="accent-icon"></i> La Hiérarchie AD : Forêt, Arbre, Domaine</h2>
-            <p>AD DS est organisé comme une structure <strong>hiérarchique naturelle</strong>. Comprendre cette hiérarchie est fondamental.</p>
-
-            <div class="analogy-box">
-                Pense à la géographie : une <strong>Forêt</strong> = un pays, un <strong>Arbre</strong> = une région, un <strong>Domaine</strong> = une ville, une <strong>OU</strong> = un quartier. Chaque niveau a son administration, mais ils font tous partie du même ensemble.
-            </div>
-
-            <h3>🌲 La Forêt (Forest)</h3>
-            <p>C'est le <strong>conteneur le plus large</strong> d'Active Directory. Une forêt est un ensemble d'arbres qui partagent :</p>
+            <h2><i class="fas fa-cubes"></i> Le Clustering</h2>
+            <p>Le clustering (ou <em>grappes de serveurs</em>) est une technique d'architecture informatique qui consiste à <strong>regrouper plusieurs serveurs (ou nœuds)</strong> pour qu'ils fonctionnent ensemble comme un seul système afin de garantir :</p>
             <ul class="tp-list">
-                <li>Un <strong>schéma commun</strong> (structure des objets)</li>
-                <li>Un <strong>catalogue global</strong> (index de tous les objets)</li>
-                <li>Des <strong>relations de confiance automatiques</strong> entre tous les domaines</li>
+                <li>La haute disponibilité</li>
+                <li>La répartition de charge</li>
+                <li>La tolérance aux pannes</li>
             </ul>
             <div class="info-box">
-                <strong>💡</strong> La plupart des entreprises n'ont qu'<strong>une seule forêt</strong>. Plusieurs forêts = organisations distinctes qui fusionnent (ex : rachat d'entreprise).
+                <strong>Exemple :</strong> Une application web importante (site d'e-commerce) est déployée sur 3 serveurs en cluster. Si l'un des serveurs tombe en panne, les autres prennent automatiquement le relais (failover). Le trafic est partagé entre les serveurs (load balancing). Cela évite les interruptions de service.
             </div>
+        </article>
 
-            <h3>🌳 L'Arbre (Tree)</h3>
-            <p>Un arbre est un <strong>ensemble de domaines partageant le même espace de noms DNS</strong>.</p>
-            <pre class="code-block"><code><span class="comment"># Exemple d'arbre</span>
-<span class="path">entreprise.local</span>          <span class="comment">← Domaine racine de l'arbre</span>
-  ├── <span class="path">paris.entreprise.local</span>   <span class="comment">← Sous-domaine</span>
-  └── <span class="path">lyon.entreprise.local</span>    <span class="comment">← Sous-domaine</span></code></pre>
+        <!-- 5 types de cluster -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-sitemap"></i> Les 5 Types de Clustering</h2>
 
-            <h3>🏙️ Le Domaine (Domain)</h3>
-            <p>Le domaine est l'<strong>unité de base</strong> d'AD DS. C'est une frontière administrative et de sécurité.</p>
-            <ul class="tp-list">
-                <li>Contient les objets : utilisateurs, groupes, ordinateurs, GPO</li>
-                <li>A son propre <strong>nom DNS</strong> (ex : <code>entreprise.local</code>)</li>
-                <li>A au moins un <strong>Contrôleur de Domaine (DC)</strong></li>
-                <li>Définit une <strong>politique de mots de passe</strong></li>
-            </ul>
-
-            <div class="analogy-box">
-                Le domaine, c'est ta <strong>ville</strong>. Elle a son propre maire (DC), ses propres lois (GPO), ses propres habitants (utilisateurs). Les habitants d'une ville peuvent visiter les autres villes de la même région (arbre) grâce à des accords de confiance.
-            </div>
-
-            <h3>Vue d'ensemble</h3>
+            <!-- Active-Passive -->
+            <h3>1. Cluster Active-Passive</h3>
+            <p>Un ou plusieurs nœuds sont <strong>actifs</strong> et traitent les requêtes. Les autres sont <strong>passifs</strong> (en veille), prêts à prendre le relais si un nœud actif tombe.</p>
+            <p><em>Exemple :</em> Serveur A est actif. Serveur B est en veille. Si A tombe, B devient actif automatiquement.</p>
+            <div style="overflow-x:auto;">
             <table class="styled-table">
-                <thead><tr><th>Niveau</th><th>Contient</th><th>Analogie</th><th>Nombre typique</th></tr></thead>
+                <thead><tr><th>Avantages</th><th>Inconvénients</th><th>Cas d'usage</th></tr></thead>
+                <tbody><tr>
+                    <td>Configuration simple<br>Moins de conflits de synchronisation</td>
+                    <td>Serveur passif ne travaille pas (sous-utilisation)<br>Temps de basculement peut être perceptible</td>
+                    <td>Applications critiques mais à faible charge constante<br>Services financiers, ERP</td>
+                </tr></tbody>
+            </table>
+            </div>
+
+            <!-- Active-Active -->
+            <h3>2. Cluster Active-Active</h3>
+            <p><strong>Tous les nœuds sont actifs</strong> en même temps. Ils partagent les tâches de traitement. S'ils sont bien configurés, ils se remplacent automatiquement en cas de panne.</p>
+            <p><em>Exemple :</em> 3 serveurs d'une application web partagent les requêtes des utilisateurs.</p>
+            <div style="overflow-x:auto;">
+            <table class="styled-table">
+                <thead><tr><th>Avantages</th><th>Inconvénients</th><th>Cas d'usage</th></tr></thead>
+                <tbody><tr>
+                    <td>Meilleure performance (répartition)<br>Haute tolérance aux pannes<br>Aucun nœud inactif</td>
+                    <td>Configuration complexe<br>Gestion des conflits/synchronisation plus difficile</td>
+                    <td>Sites web à fort trafic<br>Infrastructures virtualisées</td>
+                </tr></tbody>
+            </table>
+            </div>
+
+            <!-- Load Balancing -->
+            <h3>3. Load Balancing Cluster</h3>
+            <p>Un <strong>répartiteur de charge (load balancer)</strong> distribue les requêtes entre plusieurs serveurs actifs. Utilisé principalement pour améliorer la performance et la scalabilité.</p>
+            <p><em>Exemple :</em> Un site web reçoit 1000 requêtes/seconde, réparties sur 4 serveurs web via un load balancer.</p>
+            <div style="overflow-x:auto;">
+            <table class="styled-table">
+                <thead><tr><th>Avantages</th><th>Inconvénients</th><th>Cas d'usage</th></tr></thead>
+                <tbody><tr>
+                    <td>Équilibrage du trafic<br>Mise à l'échelle horizontale facile<br>Améliore disponibilité et réactivité</td>
+                    <td>Ne remplace pas un failover complet<br>Load balancer = point critique (sauf s'il est redondant)</td>
+                    <td>Serveurs web, serveurs d'applications, frontaux API</td>
+                </tr></tbody>
+            </table>
+            </div>
+
+            <!-- Failover Cluster -->
+            <h3>4. Failover Cluster (Cluster de basculement)</h3>
+            <p>Chaque nœud <strong>partage un même espace de stockage</strong>. Si un nœud échoue, un autre reprend les services avec le même état, via le stockage partagé.</p>
+            <p><em>Exemple :</em> Deux nœuds SQL Server partagent un disque SAN. En cas de panne, le deuxième nœud démarre le service SQL avec les mêmes données.</p>
+            <div style="overflow-x:auto;">
+            <table class="styled-table">
+                <thead><tr><th>Avantages</th><th>Inconvénients</th><th>Cas d'usage</th></tr></thead>
+                <tbody><tr>
+                    <td>Tolérance élevée aux pannes<br>Restauration automatique des services<br>Haute cohérence des données</td>
+                    <td>Besoin d'un stockage partagé<br>Dépend de la qualité du SAN ou NAS</td>
+                    <td>Bases de données critiques<br>Applications métier vitales</td>
+                </tr></tbody>
+            </table>
+            </div>
+
+            <!-- Grid Cluster -->
+            <h3>5. Grid Cluster / Compute Cluster</h3>
+            <p>Utilisé pour le <strong>calcul intensif distribué</strong>. Plusieurs nœuds traitent en parallèle des calculs complexes.</p>
+            <p><em>Exemple :</em> Simulation météo, rendu 3D, intelligence artificielle.</p>
+            <p><strong>Cas d'usage :</strong> Laboratoires, universités, industrie scientifique.</p>
+        </article>
+
+        <!-- Tableau récapitulatif -->
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-table"></i> Tableau Récapitulatif des Clusters</h2>
+            <div style="overflow-x:auto;">
+            <table class="styled-table">
+                <thead><tr><th>Type</th><th>Tous actifs ?</th><th>Haute disponibilité</th><th>Répartition de charge</th><th>Utilisation</th></tr></thead>
                 <tbody>
-                    <tr><td><strong>Forêt</strong></td><td>1+ arbres</td><td>🌍 Le pays</td><td>1 par organisation</td></tr>
-                    <tr><td><strong>Arbre</strong></td><td>1+ domaines (même namespace)</td><td>🗺️ La région</td><td>1-3 par forêt</td></tr>
-                    <tr><td><strong>Domaine</strong></td><td>Objets AD (users, PCs, GPO…)</td><td>🏙️ La ville</td><td>1-10 par arbre</td></tr>
-                    <tr><td><strong>OU</strong></td><td>Objets organisés</td><td>🏘️ Le quartier</td><td>10-100+ par domaine</td></tr>
+                    <tr><td><strong>Active-Passive</strong></td><td>Non</td><td>Oui</td><td>Non</td><td>Pannes critiques</td></tr>
+                    <tr><td><strong>Active-Active</strong></td><td>Oui</td><td>Oui</td><td>Oui</td><td>Performance &amp; disponibilité</td></tr>
+                    <tr><td><strong>Load Balancing</strong></td><td>Oui</td><td>Oui (si redondant)</td><td>Oui</td><td>Sites web, APIs</td></tr>
+                    <tr><td><strong>Failover</strong></td><td>Non</td><td>Très haute</td><td>Non</td><td>Bases de données</td></tr>
+                    <tr><td><strong>Grid</strong></td><td>Oui</td><td>Non (souvent)</td><td>Oui</td><td>Calculs complexes</td></tr>
                 </tbody>
             </table>
-        </article>
-
-        <!-- Le Contrôleur de Domaine -->
-        <article class="glass-card reveal-on-scroll">
-            <h2><i class="fas fa-crown" class="accent-icon"></i> Le Contrôleur de Domaine (DC)</h2>
-            <p>Un <strong>Contrôleur de Domaine</strong> (Domain Controller, DC) est un serveur sur lequel le rôle AD DS est installé. C'est lui qui <strong>stocke la base de données AD</strong> et répond aux demandes d'authentification.</p>
-
-            <div class="analogy-box">
-                Le DC, c'est le <strong>maire de la ville</strong>. C'est lui qui valide les cartes d'identité, délivre les permis, applique les règles. Sans maire, c'est l'anarchie. Sans DC, personne ne peut se connecter.
-            </div>
-
-            <h3>Pourquoi au minimum 2 DC ?</h3>
-            <p>Imagine que le seul maire tombe malade. Plus rien ne fonctionne ! C'est pourquoi on installe <strong>toujours au minimum 2 DC</strong> :</p>
-            <ul class="tp-list">
-                <li><strong>DC1</strong> (principal) — Gère les authentifications</li>
-                <li><strong>DC2</strong> (réplica) — Copie synchronisée, prêt à prendre le relais</li>
-            </ul>
-
-            <div class="danger-box">
-                <strong>🚨 Règle absolue :</strong> JAMAIS un seul DC en production. Si ton unique DC tombe, TOUS les utilisateurs sont bloqués. C'est un <strong>Single Point of Failure (SPOF)</strong>.
-            </div>
-
-            <h3>Les rôles FSMO</h3>
-            <p>Dans chaque forêt AD, il y a <strong>5 rôles FSMO</strong> (Flexible Single Master Operations) — des responsabilités spéciales attribuées à certains DC :</p>
-            <table class="styled-table">
-                <thead><tr><th>Rôle FSMO</th><th>Portée</th><th>Fonction</th></tr></thead>
-                <tbody>
-                    <tr><td><strong>Schema Master</strong></td><td>Forêt (unique)</td><td>Modifie le schéma AD</td></tr>
-                    <tr><td><strong>Domain Naming Master</strong></td><td>Forêt (unique)</td><td>Ajoute/supprime des domaines</td></tr>
-                    <tr><td><strong>PDC Emulator</strong></td><td>Domaine</td><td>Heure, mots de passe, GPO</td></tr>
-                    <tr><td><strong>RID Master</strong></td><td>Domaine</td><td>Distribue les identifiants uniques</td></tr>
-                    <tr><td><strong>Infrastructure Master</strong></td><td>Domaine</td><td>Résout les références inter-domaines</td></tr>
-                </tbody>
-            </table>
-            <pre class="code-block"><code><span class="comment"># Voir les rôles FSMO</span>
-<span class="cmd">netdom query fsmo</span></code></pre>
-        </article>
-
-        <!-- Les Objets AD -->
-        <article class="glass-card reveal-on-scroll">
-            <h2><i class="fas fa-cubes" class="accent-icon"></i> Les Objets Active Directory</h2>
-            <p>Tout ce qui existe dans AD est un <strong>objet</strong>. Chaque objet a des <strong>attributs</strong> (propriétés).</p>
-
-            <h3>Les objets principaux</h3>
-            <table class="styled-table">
-                <thead><tr><th>Objet</th><th>Description</th><th>Icône</th></tr></thead>
-                <tbody>
-                    <tr><td><strong>User</strong></td><td>Compte utilisateur (login, mot de passe, email…)</td><td>👤</td></tr>
-                    <tr><td><strong>Computer</strong></td><td>Machine jointe au domaine</td><td>🖥️</td></tr>
-                    <tr><td><strong>Group</strong></td><td>Regroupement d'utilisateurs/ordinateurs pour gérer les droits</td><td>👥</td></tr>
-                    <tr><td><strong>OU</strong></td><td>Unité d'Organisation — conteneur pour organiser les objets</td><td>📁</td></tr>
-                    <tr><td><strong>GPO</strong></td><td>Stratégie de Groupe — règles appliquées aux OU</td><td>📜</td></tr>
-                    <tr><td><strong>Printer</strong></td><td>Imprimante partagée sur le réseau</td><td>🖨️</td></tr>
-                    <tr><td><strong>Contact</strong></td><td>Entrée d'annuaire sans authentification</td><td>📇</td></tr>
-                </tbody>
-            </table>
-
-            <h3>Créer des objets via PowerShell</h3>
-            <pre class="code-block"><code><span class="comment"># Créer une OU</span>
-<span class="cmd">New-ADOrganizationalUnit</span> <span class="flag">-Name</span> <span class="string">"Comptabilité"</span> <span class="flag">-Path</span> <span class="string">"DC=entreprise,DC=local"</span>
-
-<span class="comment"># Créer un utilisateur</span>
-<span class="cmd">New-ADUser</span> <span class="flag">-Name</span> <span class="string">"Blaise Dupont"</span> `
-    <span class="flag">-SamAccountName</span> <span class="string">"bdupont"</span> `
-    <span class="flag">-UserPrincipalName</span> <span class="string">"bdupont@entreprise.local"</span> `
-    <span class="flag">-Path</span> <span class="string">"OU=Comptabilité,DC=entreprise,DC=local"</span> `
-    <span class="flag">-AccountPassword</span> (<span class="cmd">ConvertTo-SecureString</span> <span class="string">"P@ssw0rd!"</span> <span class="flag">-AsPlainText</span> <span class="flag">-Force</span>) `
-    <span class="flag">-Enabled</span> <span class="var">$true</span>
-
-<span class="comment"># Créer un groupe</span>
-<span class="cmd">New-ADGroup</span> <span class="flag">-Name</span> <span class="string">"GRP_Compta"</span> <span class="flag">-GroupScope</span> <span class="string">Global</span> `
-    <span class="flag">-Path</span> <span class="string">"OU=Comptabilité,DC=entreprise,DC=local"</span>
-
-<span class="comment"># Ajouter un utilisateur au groupe</span>
-<span class="cmd">Add-ADGroupMember</span> <span class="flag">-Identity</span> <span class="string">"GRP_Compta"</span> <span class="flag">-Members</span> <span class="string">"bdupont"</span></code></pre>
-        </article>
-
-        <!-- Les OU -->
-        <article class="glass-card reveal-on-scroll">
-            <h2><i class="fas fa-folder-tree" class="accent-icon"></i> Les Unités d'Organisation (OU)</h2>
-            <p>Les OU sont des <strong>conteneurs logiques</strong> qui permettent d'organiser les objets AD et d'y appliquer des GPO.</p>
-
-            <div class="analogy-box">
-                Si le domaine est une ville, les OU sont les <strong>quartiers</strong>. Tu peux avoir le quartier Comptabilité, le quartier RH, le quartier IT. Chaque quartier peut avoir ses propres règles (GPO) tout en faisant partie de la même ville.
-            </div>
-
-            <h3>Bonne pratique de structuration</h3>
-            <pre class="code-block"><code><span class="path">entreprise.local</span>
-├── <span class="path">OU=Utilisateurs</span>
-│   ├── <span class="path">OU=Direction</span>
-│   ├── <span class="path">OU=Comptabilité</span>
-│   ├── <span class="path">OU=RH</span>
-│   └── <span class="path">OU=IT</span>
-├── <span class="path">OU=Ordinateurs</span>
-│   ├── <span class="path">OU=Postes_Fixes</span>
-│   └── <span class="path">OU=Portables</span>
-├── <span class="path">OU=Serveurs</span>
-├── <span class="path">OU=Groupes</span>
-└── <span class="path">OU=Comptes_Désactivés</span></code></pre>
-
-            <div class="warning-box">
-                <strong>⚠️ OU ≠ Groupe.</strong> Une OU est un <strong>conteneur</strong> (pour organiser et appliquer des GPO). Un <strong>Groupe</strong> sert à donner des <strong>permissions</strong>. On ne donne JAMAIS de permissions à une OU directement.
             </div>
         </article>
 
-        <!-- Relations de confiance -->
-        <article class="glass-card reveal-on-scroll">
-            <h2><i class="fas fa-handshake" class="accent-icon"></i> Relations de Confiance (Trusts)</h2>
-            <p>Les <strong>relations de confiance</strong> permettent aux utilisateurs d'un domaine d'accéder aux ressources d'un autre domaine.</p>
-
-            <div class="analogy-box">
-                C'est comme le <strong>passeport dans l'Union Européenne</strong>. Si la France fait confiance à l'Allemagne, un Français peut entrer en Allemagne sans visa. De même, si le domaine Paris fait confiance au domaine Lyon, les utilisateurs de Paris peuvent accéder aux ressources de Lyon.
-            </div>
-
-            <h3>Types de confiance</h3>
-            <table class="styled-table">
-                <thead><tr><th>Type</th><th>Direction</th><th>Automatique ?</th><th>Usage</th></tr></thead>
-                <tbody>
-                    <tr><td><strong>Parent-Enfant</strong></td><td>Bidirectionnelle transitive</td><td>Oui</td><td>Entre domaine parent et enfant</td></tr>
-                    <tr><td><strong>Arbre-Racine</strong></td><td>Bidirectionnelle transitive</td><td>Oui</td><td>Entre arbres d'une même forêt</td></tr>
-                    <tr><td><strong>Externe</strong></td><td>Unidirectionnelle non-transitive</td><td>Non</td><td>Vers un domaine externe</td></tr>
-                    <tr><td><strong>Forêt</strong></td><td>Bidirectionnelle transitive</td><td>Non</td><td>Entre deux forêts</td></tr>
-                </tbody>
-            </table>
-        </article>
-
-        <!-- Installer AD DS -->
-        <article class="glass-card reveal-on-scroll">
-            <h2><i class="fas fa-wand-magic-sparkles" class="accent-icon"></i> Promouvoir un Serveur en DC</h2>
-            <p>Blaise est prêt. Il va transformer son serveur en <strong>Contrôleur de Domaine</strong>.</p>
-
-            <h3>Étape 1 : Installer le rôle AD DS</h3>
-            <pre class="code-block"><code><span class="cmd">Install-WindowsFeature</span> <span class="flag">-Name</span> <span class="string">AD-Domain-Services</span> <span class="flag">-IncludeManagementTools</span></code></pre>
-
-            <h3>Étape 2 : Promouvoir en DC (nouvelle forêt)</h3>
-            <pre class="code-block"><code><span class="cmd">Install-ADDSForest</span> `
-    <span class="flag">-DomainName</span> <span class="string">"entreprise.local"</span> `
-    <span class="flag">-DomainNetbiosName</span> <span class="string">"ENTREPRISE"</span> `
-    <span class="flag">-ForestMode</span> <span class="string">"WinThreshold"</span> `
-    <span class="flag">-DomainMode</span> <span class="string">"WinThreshold"</span> `
-    <span class="flag">-InstallDns</span>:<span class="var">$true</span> `
-    <span class="flag">-SafeModeAdministratorPassword</span> (<span class="cmd">ConvertTo-SecureString</span> <span class="string">"Recovery@2024"</span> <span class="flag">-AsPlainText</span> <span class="flag">-Force</span>)
-
-<span class="comment"># Le serveur va redémarrer automatiquement</span></code></pre>
-
-            <h3>Étape 3 : Vérifier</h3>
-            <pre class="code-block"><code><span class="cmd">Get-ADDomain</span>          <span class="comment"># Infos du domaine</span>
-<span class="cmd">Get-ADForest</span>          <span class="comment"># Infos de la forêt</span>
-<span class="cmd">Get-ADDomainController</span> <span class="flag">-Filter *</span>  <span class="comment"># Liste des DC</span></code></pre>
-
-            <div class="success-box">
-                <strong>✅ Félicitations !</strong> Ton serveur est maintenant un Contrôleur de Domaine. Le service DNS a été installé automatiquement (il est indispensable pour AD DS).
-            </div>
-        </article>
-
-        <!-- Protocoles -->
-        <article class="glass-card reveal-on-scroll">
-            <h2><i class="fas fa-lock" class="accent-icon"></i> Les Protocoles d'AD DS</h2>
-            <table class="styled-table">
-                <thead><tr><th>Protocole</th><th>Rôle</th><th>Port</th></tr></thead>
-                <tbody>
-                    <tr><td><strong>LDAP</strong></td><td>Accès à l'annuaire AD (lecture/écriture)</td><td>389 / 636 (SSL)</td></tr>
-                    <tr><td><strong>Kerberos</strong></td><td>Authentification sécurisée (tickets)</td><td>88</td></tr>
-                    <tr><td><strong>DNS</strong></td><td>Résolution de noms (vital pour AD)</td><td>53</td></tr>
-                    <tr><td><strong>SMB</strong></td><td>Partage de fichiers & réplication</td><td>445</td></tr>
-                    <tr><td><strong>RPC</strong></td><td>Communication inter-services</td><td>135 + dynamique</td></tr>
-                </tbody>
-            </table>
-
-            <div class="analogy-box">
-                <strong>Kerberos</strong> fonctionne comme un concert avec des billets : tu te présentes au guichet (DC), il te donne un <strong>ticket</strong> (TGT). Avec ce ticket, tu accèdes aux différentes scènes (ressources) sans repasser au guichet. Rapide et sécurisé.
-            </div>
-        </article>
-
+        <!-- Résumé -->
         <article class="glass-card reveal-on-scroll" style="border-left:3px solid var(--accent);">
-            <h2><i class="fas fa-clipboard-check" class="accent-icon"></i> Résumé du Module</h2>
+            <h2><i class="fas fa-clipboard-check"></i> Résumé Express</h2>
             <ul class="tp-list">
-                <li><strong>AD DS</strong> = service centralisé de gestion des identités et ressources</li>
-                <li>Hiérarchie : <strong>Forêt > Arbre > Domaine > OU</strong></li>
-                <li>Le <strong>Contrôleur de Domaine</strong> stocke la base AD et authentifie les utilisateurs</li>
-                <li>Toujours avoir <strong>au minimum 2 DC</strong> (pas de SPOF)</li>
-                <li><strong>5 rôles FSMO</strong> = responsabilités spéciales des DC</li>
-                <li>Les <strong>objets AD</strong> : User, Computer, Group, OU, GPO</li>
-                <li>OU = conteneur pour <strong>organiser</strong>, Groupe = pour les <strong>permissions</strong></li>
-                <li><strong>Kerberos</strong> = authentification par tickets, <strong>LDAP</strong> = accès annuaire</li>
+                <li><strong>HA :</strong> garantir un fonctionnement continu même en cas de panne</li>
+                <li><strong>3 piliers :</strong> Redondance, Failover, Monitoring</li>
+                <li><strong>SLA :</strong> de 99 % (3,6 j/an) à 99,9999 % (31,5 s/an)</li>
+                <li><strong>Clustering :</strong> regrouper plusieurs serveurs pour HA + répartition de charge + tolérance aux pannes</li>
+                <li><strong>Active-Passive :</strong> un actif, un en veille (simple, sous-utilisation)</li>
+                <li><strong>Active-Active :</strong> tous actifs, remplacements automatiques (performant, complexe)</li>
+                <li><strong>Load Balancing :</strong> distribution des requêtes via load balancer</li>
+                <li><strong>Failover Cluster :</strong> stockage partagé, reprise de services automatique</li>
+                <li><strong>Grid Cluster :</strong> calcul distribué intensif</li>
+                <li><strong>HA virtualisée :</strong> Proxmox/VMware, redémarrage auto des VM sur un autre hôte</li>
             </ul>
         </article>
-
-    <article class="glass-card reveal-on-scroll">
-        <div class="success-box">
-            <strong>🧠 Mémo — AD DS : « F.D.O.U = la Forêt contient des Domaines, les OU rangent les Utilisateurs »</strong><br>
-            • <strong>F</strong>orêt → le conteneur le plus haut (une entreprise = une forêt)<br>
-            • <strong>D</strong>omaine → un périmètre de sécurité (ex: monentreprise.local)<br>
-            • <strong>O</strong>U → Unité d'Organisation (dossier pour ranger users/PCs)<br>
-            • <strong>U</strong>tilisateurs → les comptes dans les OU<br>
-            <span style="font-size:0.88rem;opacity:0.8;">L'AD est comme un annuaire téléphonique géant : il sait qui est qui et qui a le droit de faire quoi.</span>
-        </div>
-    </article>
-
-        <div id="interactive-exercises"></div>
 
         <div class="chapter-nav">
-            <a href="chapitre1.html"><i class="fas fa-arrow-left"></i> Module 1 — Fondamentaux</a>
-            <a href="chapitre3.html">Module 3 — GPO <i class="fas fa-arrow-right"></i></a>
+            <a href="chapitre1.html"><i class="fas fa-arrow-left"></i> Module 1 — Sauvegarde</a>
+            <a href="chapitre3.html">Module 3 — Maintenance <i class="fas fa-arrow-right"></i></a>
         </div>
     </main>
 
     <footer class="site-footer">
         <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
-        <p class="footer-copy">© 2025-2026 — Windows Server 2022</p>
+        <p class="footer-copy">© 2025-2026 — B2 IT · Collège De Paris Supérieur</p>
     </footer>
 
-    <div class="xp-bar-container"></div>
-    <script src="../assets/js/exercises.js"></script>
-    <script src="../assets/js/gamification.js"></script>
-    <script src="../assets/js/download.js"></script>
     <script src="../assets/js/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 3 — GPO & Sécurité | RD WinServer</title>
+    <meta name="description" content="Stratégies de groupe (GPO) : création, héritage, filtrage, audit, sécurité et bonnes pratiques Windows Server 2022.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre2.html">← Module 2</a></li>
+                <li><a href="chapitre3.html" class="active">Module 3</a></li>
+                <li><a href="chapitre4.html">Module 4 →</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button data-download="pdf" class="download-btn" aria-label="Télécharger en PDF" title="Télécharger PDF"><i class="fas fa-file-pdf"></i></button>
+                <button data-download="txt" class="download-btn" aria-label="Télécharger en TXT" title="Télécharger TXT"><i class="fas fa-file-lines"></i></button>
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-server"></i> 1. Fondamentaux</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-sitemap"></i> 2. Active Directory</a></li>
+            <li><a href="chapitre3.html" class="active"><i class="fas fa-scroll"></i> 3. GPO</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-network-wired"></i> 4. DNS & DHCP</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-database"></i> 5. Sauvegarde</a></li>
+            <li><a href="chapitre6.html"><i class="fas fa-arrows-rotate"></i> 6. Haute Dispo</a></li>
+            <li><a href="chapitre7.html"><i class="fas fa-wrench"></i> 7. Maintenance</a></li>
+            <li><a href="chapitre8.html"><i class="fas fa-cube"></i> 8. Hyper-V</a></li>
+            <li><a href="formules.html"><i class="fas fa-book-open"></i> Cheat Sheet</a></li>
+            <li><a href="cartes.html"><i class="fas fa-clone"></i> Flashcards</a></li>
+            <li><a href="simulateur-examen.html"><i class="fas fa-clipboard-check"></i> Examen</a></li>
+            <li><a href="../exercices/exercices.html"><i class="fas fa-laptop-code"></i> Exercices TP</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-scroll"></i> Module 3</span>
+        <h1 class="hero-title">GPO & <span class="gradient-text">Sécurité</span></h1>
+        <p class="hero-description">Blaise découvre le pouvoir des GPO : « Tu veux interdire l'USB sur 200 postes ? Une seule GPO et c'est fait. » C'est la télécommande magique de l'admin.</p>
+    </section>
+
+    <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;">
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-scroll" class="accent-icon"></i> Qu'est-ce qu'une GPO ?</h2>
+            <p>Une <strong>Group Policy Object (GPO)</strong> est un ensemble de règles que tu appliques à des utilisateurs ou des ordinateurs via Active Directory. Plutôt que de configurer chaque poste un par un, tu définis une règle <strong>une seule fois</strong> et elle s'applique à tous.</p>
+
+            <div class="analogy-box">
+                Les GPO, c'est comme les <strong>lois d'un pays</strong>. Le gouvernement (l'admin) publie une loi (GPO) qui s'applique à tous les citoyens (utilisateurs/ordinateurs) d'une zone (OU). Pas besoin d'aller voir chaque citoyen individuellement — la loi s'applique automatiquement.
+            </div>
+
+            <h3>Les deux types de paramètres</h3>
+            <table class="styled-table">
+                <thead><tr><th>Catégorie</th><th>S'applique à</th><th>Exemples</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Computer Configuration</strong></td><td>La machine (au démarrage)</td><td>Pare-feu, BitLocker, services, scripts de démarrage</td></tr>
+                    <tr><td><strong>User Configuration</strong></td><td>L'utilisateur (à la connexion)</td><td>Fond d'écran, lecteurs réseau, menu Démarrer, restrictions</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-sitemap" class="accent-icon"></i> Héritage et Ordre d'Application</h2>
+            <p>Les GPO suivent un ordre strict d'application appelé <strong>LSDOU</strong> :</p>
+
+            <table class="styled-table">
+                <thead><tr><th>Ordre</th><th>Niveau</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><strong>L</strong>ocal</td><td>GPO locale de la machine (gpedit.msc)</td></tr>
+                    <tr><td>2</td><td><strong>S</strong>ite</td><td>GPO liée au site AD (rarement utilisé)</td></tr>
+                    <tr><td>3</td><td><strong>D</strong>omaine</td><td>GPO liée au domaine (ex : politique de mots de passe)</td></tr>
+                    <tr><td>4</td><td><strong>O</strong>U</td><td>GPO liée à l'OU (la plus spécifique gagne)</td></tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <strong>💡 Règle :</strong> La dernière GPO appliquée <strong>gagne</strong> en cas de conflit. Comme les OU sont appliquées en dernier, une GPO d'OU peut écraser une GPO de domaine.
+            </div>
+
+            <h3>Bloquer l'héritage & Forcer l'application</h3>
+            <ul class="tp-list">
+                <li><strong>Block Inheritance</strong> — Sur une OU, empêche les GPO parentes de s'appliquer</li>
+                <li><strong>Enforced (No Override)</strong> — Force une GPO à s'appliquer même si l'héritage est bloqué</li>
+            </ul>
+
+            <div class="analogy-box">
+                <strong>Block Inheritance</strong> = un quartier qui déclare son indépendance et refuse les lois de la ville. <strong>Enforced</strong> = une loi constitutionnelle que même les quartiers indépendants doivent respecter.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-wand-magic-sparkles" class="accent-icon"></i> Créer et Lier une GPO</h2>
+
+            <h3>Via la console GPMC</h3>
+            <pre class="code-block"><code><span class="gui">Server Manager</span> → <span class="gui">Tools</span> → <span class="gui">Group Policy Management</span>
+→ Domaine → Clic droit sur l'OU → <span class="gui">Create a GPO in this domain, and Link it here...</span>
+→ Nommer la GPO → Clic droit → <span class="gui">Edit</span></code></pre>
+
+            <h3>Via PowerShell</h3>
+            <pre class="code-block"><code><span class="comment"># Créer une GPO</span>
+<span class="cmd">New-GPO</span> <span class="flag">-Name</span> <span class="string">"Interdire USB"</span>
+
+<span class="comment"># Lier la GPO à une OU</span>
+<span class="cmd">New-GPLink</span> <span class="flag">-Name</span> <span class="string">"Interdire USB"</span> `
+    <span class="flag">-Target</span> <span class="string">"OU=Ordinateurs,DC=entreprise,DC=local"</span>
+
+<span class="comment"># Forcer la mise à jour GPO sur un poste (sans attendre)</span>
+<span class="cmd">Invoke-GPUpdate</span> <span class="flag">-Computer</span> <span class="string">"PC-COMPTA01"</span> <span class="flag">-Force</span>
+
+<span class="comment"># Depuis le poste client (vérifier les GPO appliquées)</span>
+<span class="cmd">gpresult</span> <span class="flag">/r</span>         <span class="comment"># Résumé texte</span>
+<span class="cmd">gpresult</span> <span class="flag">/h</span> <span class="path">rapport.html</span>  <span class="comment"># Rapport HTML</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-cog" class="accent-icon"></i> GPO Courantes — Exemples Pratiques</h2>
+
+            <h3>🔒 Politique de mot de passe</h3>
+            <pre class="code-block"><code><span class="gui">Computer Config</span> → <span class="gui">Policies</span> → <span class="gui">Windows Settings</span>
+→ <span class="gui">Security Settings</span> → <span class="gui">Account Policies</span> → <span class="gui">Password Policy</span>
+
+<span class="var">Minimum password length</span>     : <span class="num">12</span> caractères
+<span class="var">Password complexity</span>          : <span class="string">Enabled</span>
+<span class="var">Maximum password age</span>         : <span class="num">90</span> jours
+<span class="var">Enforce password history</span>     : <span class="num">24</span> mots de passe</code></pre>
+
+            <h3>🖥️ Fond d'écran imposé</h3>
+            <pre class="code-block"><code><span class="gui">User Config</span> → <span class="gui">Policies</span> → <span class="gui">Administrative Templates</span>
+→ <span class="gui">Desktop</span> → <span class="gui">Desktop Wallpaper</span>
+
+<span class="var">Wallpaper Name</span> : <span class="path">\\SRV-DC01\Partage\wallpaper.jpg</span>
+<span class="var">Wallpaper Style</span> : <span class="string">Fill</span></code></pre>
+
+            <h3>🚫 Bloquer l'accès USB</h3>
+            <pre class="code-block"><code><span class="gui">Computer Config</span> → <span class="gui">Policies</span> → <span class="gui">Administrative Templates</span>
+→ <span class="gui">System</span> → <span class="gui">Removable Storage Access</span>
+
+<span class="var">All Removable Storage classes: Deny all access</span> : <span class="string">Enabled</span></code></pre>
+
+            <h3>📁 Mapper un lecteur réseau</h3>
+            <pre class="code-block"><code><span class="gui">User Config</span> → <span class="gui">Preferences</span> → <span class="gui">Windows Settings</span> → <span class="gui">Drive Maps</span>
+→ Clic droit → <span class="gui">New</span> → <span class="gui">Mapped Drive</span>
+
+<span class="var">Location</span>     : <span class="path">\\SRV-FILES\Commun</span>
+<span class="var">Drive Letter</span> : <span class="string">Z:</span>
+<span class="var">Action</span>       : <span class="string">Update</span></code></pre>
+
+            <h3>📜 Script de connexion</h3>
+            <pre class="code-block"><code><span class="gui">User Config</span> → <span class="gui">Policies</span> → <span class="gui">Windows Settings</span> → <span class="gui">Scripts</span>
+→ <span class="gui">Logon</span> → Ajouter le script (.bat ou .ps1)</code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-filter" class="accent-icon"></i> Filtrage des GPO</h2>
+            <p>Parfois, tu veux qu'une GPO s'applique <strong>seulement à certains utilisateurs/ordinateurs</strong> dans une OU.</p>
+
+            <h3>Security Filtering</h3>
+            <p>Par défaut, une GPO s'applique à « Authenticated Users ». Tu peux restreindre :</p>
+            <pre class="code-block"><code><span class="gui">GPMC</span> → Sélectionner la GPO → Onglet <span class="gui">Scope</span>
+→ <span class="gui">Security Filtering</span> → Supprimer <span class="string">Authenticated Users</span>
+→ Ajouter le groupe spécifique (ex : <span class="string">GRP_Direction</span>)</code></pre>
+
+            <h3>WMI Filtering</h3>
+            <p>Appliquer une GPO selon des <strong>critères techniques</strong> (OS, RAM, modèle…) :</p>
+            <pre class="code-block"><code><span class="comment"># Exemple : GPO uniquement pour Windows 11</span>
+<span class="keyword">SELECT * FROM Win32_OperatingSystem WHERE Version LIKE "10.0.22%"</span></code></pre>
+
+            <div class="info-box">
+                <strong>💡</strong> Le WMI Filtering est puissant mais peut ralentir l'application des GPO. Utilise-le avec parcimonie.
+            </div>
+        </article>
+
+        <article class="glass-card reveal-on-scroll">
+            <h2><i class="fas fa-shield-halved" class="accent-icon"></i> Audit & Sécurité</h2>
+
+            <h3>Activer l'audit des connexions</h3>
+            <pre class="code-block"><code><span class="gui">Computer Config</span> → <span class="gui">Policies</span> → <span class="gui">Windows Settings</span>
+→ <span class="gui">Security Settings</span> → <span class="gui">Advanced Audit Policy Configuration</span>
+→ <span class="gui">Logon/Logoff</span>
+
+<span class="var">Audit Logon</span>            : <span class="string">Success, Failure</span>
+<span class="var">Audit Account Lockout</span>  : <span class="string">Success, Failure</span></code></pre>
+
+            <h3>Verrouillage de compte</h3>
+            <pre class="code-block"><code><span class="gui">Computer Config</span> → <span class="gui">Security Settings</span> → <span class="gui">Account Lockout Policy</span>
+
+<span class="var">Account lockout threshold</span>    : <span class="num">5</span> tentatives
+<span class="var">Account lockout duration</span>     : <span class="num">30</span> minutes
+<span class="var">Reset lockout counter after</span>  : <span class="num">15</span> minutes</code></pre>
+
+            <h3>Commandes de diagnostic GPO</h3>
+            <pre class="code-block"><code><span class="cmd">gpresult</span> <span class="flag">/r</span>                    <span class="comment"># GPO appliquées (résumé)</span>
+<span class="cmd">gpresult</span> <span class="flag">/h</span> <span class="path">C:\gpo-report.html</span>  <span class="comment"># Rapport HTML détaillé</span>
+<span class="cmd">gpupdate</span> <span class="flag">/force</span>                 <span class="comment"># Forcer l'application immédiate</span>
+<span class="cmd">rsop.msc</span>                        <span class="comment"># Resultant Set of Policy (console)</span>
+
+<span class="comment"># PowerShell : rapport étendu</span>
+<span class="cmd">Get-GPResultantSetOfPolicy</span> <span class="flag">-ReportType</span> <span class="string">Html</span> `
+    <span class="flag">-Path</span> <span class="path">C:\rsop-report.html</span></code></pre>
+        </article>
+
+        <article class="glass-card reveal-on-scroll" style="border-left:3px solid var(--accent);">
+            <h2><i class="fas fa-clipboard-check" class="accent-icon"></i> Résumé du Module</h2>
+            <ul class="tp-list">
+                <li><strong>GPO</strong> = règles centralisées pour utilisateurs/ordinateurs</li>
+                <li>Deux catégories : <strong>Computer Configuration</strong> et <strong>User Configuration</strong></li>
+                <li>Ordre d'application : <strong>LSDOU</strong> (Local, Site, Domaine, OU)</li>
+                <li><strong>Block Inheritance</strong> et <strong>Enforced</strong> pour contrôler l'héritage</li>
+                <li><strong>Security Filtering</strong> = restreindre à un groupe spécifique</li>
+                <li><strong>WMI Filtering</strong> = restreindre selon des critères techniques</li>
+                <li><code>gpresult /r</code> pour diagnostiquer, <code>gpupdate /force</code> pour appliquer</li>
+                <li>Toujours <strong>tester sur une OU de test</strong> avant déploiement global</li>
+            </ul>
+        </article>
+
+    <article class="glass-card reveal-on-scroll">
+        <div class="success-box">
+            <strong>🧠 Mémo — Ordre d'application GPO : « L.S.D.O = Local, Site, Domaine, OU »</strong><br>
+            • Les GPO s'appliquent dans cet ordre exact<br>
+            • <strong>La dernière appliquée gagne</strong> en cas de conflit (OU > Domaine > Site > Local)<br>
+            • <strong>gpupdate /force</strong> → forcer la mise à jour immédiate<br>
+            <strong>Règle d'or :</strong> lier les GPO aux OU, pas au domaine entier. Plus précis = plus propre.<br>
+            <span style="font-size:0.88rem;opacity:0.8;">GPO = Group Policy Object. C'est comme des règles dans un règlement intérieur : tout le monde doit les suivre.</span>
+        </div>
+    </article>
+
+        <div id="interactive-exercises"></div>
+
+        <div class="chapter-nav">
+            <a href="chapitre2.html"><i class="fas fa-arrow-left"></i> Module 2 — Active Directory</a>
+            <a href="chapitre4.html">Module 4 — DNS & DHCP <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025-2026 — Windows Server 2022</p>
+    </footer>
+
+    <div class="xp-bar-container"></div>
+    <script src="../assets/js/exercises.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

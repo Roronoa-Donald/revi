@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 QCM - Droit Informatique</title>
+    <meta name="description" content="100 QCM pour tester les notions de droit informatique, enjeux du numerique et regulation RGPD.">
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#fbbf24',500:'#f59e0b',600:'#d97706'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .qcm-container{max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;}
+        .qcm-card{margin-bottom:1.5rem;}
+        .qcm-card .question-text{font-weight:600;margin-bottom:1rem;line-height:1.6;}
+        .qcm-card .options-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem;}
+        .qcm-card .option-btn{display:block;width:100%;text-align:left;padding:.75rem 1rem;border-radius:12px;border:2px solid rgba(245,158,11,.25);background:rgba(245,158,11,.08);cursor:pointer;transition:all .2s;font-size:.95rem;}
+        .qcm-card .option-btn:hover{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.14);}
+        .qcm-card .option-btn.correct{border-color:#22c55e;background:rgba(34,197,94,.15);color:#16a34a;}
+        .qcm-card .option-btn.incorrect{border-color:#ef4444;background:rgba(239,68,68,.15);color:#dc2626;}
+        .qcm-card .option-btn.disabled{pointer-events:none;opacity:.9;}
+        .qcm-card .explanation{display:none;margin-top:.75rem;padding:.75rem 1rem;border-radius:12px;background:rgba(245,158,11,.08);font-size:.9rem;line-height:1.5;}
+        .qcm-card .explanation.show{display:block;}
+        .mode-selector{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin:2rem 0;}
+        .mode-btn{padding:.6rem 1.2rem;border-radius:12px;border:2px solid rgba(245,158,11,.3);background:rgba(245,158,11,.08);cursor:pointer;font-weight:600;transition:all .2s;}
+        .mode-btn:hover,.mode-btn.active{border-color:var(--accent);background:rgba(245,158,11,.2);}
+        .progress-bar{height:6px;background:rgba(245,158,11,.15);border-radius:99px;margin:1rem 0;overflow:hidden;}
+        .progress-bar .fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s;}
+        .score-display{text-align:center;padding:2rem;font-size:1.2rem;font-weight:700;}
+        .chapter-filter{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1rem 0;}
+        .chapter-filter button{padding:.4rem .8rem;border-radius:8px;border:1px solid rgba(245,158,11,.2);background:rgba(245,158,11,.05);cursor:pointer;font-size:.85rem;transition:all .2s;}
+        .chapter-filter button:hover,.chapter-filter button.active{border-color:var(--accent);background:rgba(245,158,11,.2);font-weight:600;}
+        .qcm-badge{display:inline-block;padding:0.15rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;margin-right:0.4rem;}
+        .qcm-badge.ch1{background:rgba(59,130,246,.15);color:#3b82f6;}
+        .qcm-badge.ch2{background:rgba(239,68,68,.15);color:#ef4444;}
+        .qcm-badge.ch3{background:rgba(16,185,129,.15);color:#10b981;}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo"><i class="fas fa-scale-balanced"></i><span>RD Droit</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitres/chapitre3.html">Chapitre 3</a></li>
+                <li><a href="qcm-100.html" class="active">100 QCM</a></li>
+                <li><a href="tp-exposes.html">TP / Exposes</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le theme"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitres/chapitre1.html"><i class="fas fa-book"></i> 1. Notions generales</a></li>
+            <li><a href="chapitres/chapitre2.html"><i class="fas fa-triangle-exclamation"></i> 2. Enjeux</a></li>
+            <li><a href="chapitres/chapitre3.html"><i class="fas fa-gavel"></i> 3. Regulation</a></li>
+            <li><a href="qcm-100.html" class="active"><i class="fas fa-clipboard-check"></i> 100 QCM</a></li>
+            <li><a href="tp-exposes.html"><i class="fas fa-people-group"></i> TP / Exposes</a></li>
+            <li><a href="annexes/rgpd-togo.html"><i class="fas fa-file-lines"></i> RGPD Togo</a></li>
+            <li><a href="annexes/rgpd-ue.html"><i class="fas fa-flag"></i> RGPD UE</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-clipboard-check"></i> 100 QCM</span>
+        <h1 class="hero-title">100 QCM <span class="gradient-text">Droit Informatique</span></h1>
+        <p class="hero-description">Testez vos connaissances sur les notions, les enjeux et la regulation du numerique.</p>
+    </section>
+
+    <main id="main-content" class="qcm-container">
+        <div class="glass-card">
+            <h2 style="text-align:center;margin-bottom:1rem;"><i class="fas fa-gamepad"></i> Choisissez votre mode</h2>
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('chapter')"><i class="fas fa-book"></i> Par chapitre</button>
+                <button class="mode-btn" onclick="setMode('exam')"><i class="fas fa-graduation-cap"></i> Examen (20 Q)</button>
+                <button class="mode-btn" onclick="setMode('random')"><i class="fas fa-shuffle"></i> Aleatoire</button>
+                <button class="mode-btn" onclick="setMode('errors')"><i class="fas fa-rotate-left"></i> Revision erreurs</button>
+            </div>
+            <div class="chapter-filter" id="chapterFilter">
+                <button class="active" onclick="filterChapter(0)">Tous</button>
+                <button onclick="filterChapter(1)">Ch.1 Notions</button>
+                <button onclick="filterChapter(2)">Ch.2 Enjeux</button>
+                <button onclick="filterChapter(3)">Ch.3 Regulation</button>
+            </div>
+            <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+            <div class="score-display" id="scoreDisplay">Score : 0 / 0</div>
+        </div>
+
+        <div id="qcmArea"></div>
+
+        <div class="chapter-nav" style="margin-top:2rem;">
+            <a href="chapitres/chapitre3.html"><i class="fas fa-arrow-left"></i> Chapitre 3</a>
+            <a href="index.html">Accueil <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-scale-balanced" style="color:var(--accent);margin-right:0.4rem;"></i>RD Droit</div>
+        <p class="footer-copy">(c) 2025-2026 - B2 IT - College De Paris Superieur</p>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+    const ALL_QUESTIONS = [
+    // ===================== CHAPITRE 1 - NOTIONS GENERALES (34) =====================
+    {id:1,ch:1,q:"Le droit informatique encadre principalement :",o:["Le materiel uniquement","Les donnees, les logiciels et les reseaux","La comptabilite","Le sport"],a:1,e:"Il encadre les donnees, les logiciels, les reseaux et les activites numeriques."},
+    {id:2,ch:1,q:"Les droits fondamentaux s'appliquent en ligne :",o:["Uniquement pour les entreprises","Oui, comme hors ligne","Seulement sur les reseaux sociaux","Non, Internet est hors droit"],a:1,e:"Les droits humains s'appliquent aussi en ligne."},
+    {id:3,ch:1,q:"Le droit a la vie privee dans le numerique est :",o:["Inexistant","Un droit fondamental","Reserve aux mineurs","Un bonus contractuel"],a:1,e:"La vie privee est un droit fondamental."},
+    {id:4,ch:1,q:"Une donnee personnelle est :",o:["Toute information permettant d'identifier une personne","Un fichier systeme","Une idee","Un numero de version"],a:0,e:"Une donnee personnelle identifie directement ou indirectement une personne."},
+    {id:5,ch:1,q:"Exemple de donnee personnelle :",o:["Adresse IP","Couleur d'un mur","Temperature d'une salle","Nom d'un logiciel"],a:0,e:"Une adresse IP peut identifier un utilisateur."},
+    {id:6,ch:1,q:"Une donnee sensible peut etre :",o:["Une opinion politique","Un numero de ticket","Un code produit","Un logo"],a:0,e:"Les opinions politiques font partie des donnees sensibles."},
+    {id:7,ch:1,q:"Le responsable de traitement :",o:["Decide des finalites et moyens","Heberge uniquement les serveurs","Est toujours l'utilisateur","Ne peut pas acceder aux donnees"],a:0,e:"Il decide pourquoi et comment les donnees sont traitees."},
+    {id:8,ch:1,q:"Le sous-traitant :",o:["Traite les donnees pour le compte du responsable","Definit la finalite","Est la personne concernee","Est toujours une autorite publique"],a:0,e:"Le sous-traitant agit pour le compte du responsable."},
+    {id:9,ch:1,q:"La personne concernee est :",o:["L'utilisateur dont les donnees sont traitees","Le DPO","Le fournisseur d'acces","Le technicien reseau"],a:0,e:"C'est l'individu dont les donnees sont traitees."},
+    {id:10,ch:1,q:"La finalite d'un traitement est :",o:["Le lieu de stockage","L'objectif precis de la collecte","Le type de serveur","Le prix du service"],a:1,e:"Une finalite est un objectif clair et legitime."},
+    {id:11,ch:1,q:"Le principe de minimisation impose :",o:["Collecter tout pour etre sur","Collecter uniquement le necessaire","Ne jamais collecter","Conserver indefiniment"],a:1,e:"On ne collecte que ce qui est utile."},
+    {id:12,ch:1,q:"Le droit d'acces permet a une personne de :",o:["Supprimer toutes les donnees","Connaitre les donnees detenu sur elle","Bloquer tous les traitements","Changer les lois"],a:1,e:"La personne peut acceder aux donnees qui la concernent."},
+    {id:13,ch:1,q:"Le droit de rectification sert a :",o:["Corriger des donnees inexactes","Supprimer un compte","Interdire Internet","Creer un compte"],a:0,e:"Il permet de corriger des informations fausses."},
+    {id:14,ch:1,q:"Le droit a l'effacement permet :",o:["Demander la suppression de donnees sous conditions","Obliger a garder les donnees","Telecharger un logiciel","Changer de serveur"],a:0,e:"Le droit a l'effacement existe dans certains cas."},
+    {id:15,ch:1,q:"La portabilite des donnees consiste a :",o:["Recevoir ses donnees dans un format exploitable","Tout effacer automatiquement","Rendre les donnees publiques","Stocker dans un seul cloud"],a:0,e:"La portabilite permet de recuperer ses donnees."},
+    {id:16,ch:1,q:"Un consentement valable doit etre :",o:["Libre, specifique, eclaire, univoque","Obtenu par force","Cache dans un texte","Donne par defaut"],a:0,e:"Le consentement doit etre clair et libre."},
+    {id:17,ch:1,q:"Une base legale possible est :",o:["Un contrat ou une obligation legale","Uniquement le consentement","Le hasard","La coutume"],a:0,e:"La base legale peut etre un contrat ou la loi."},
+    {id:18,ch:1,q:"L'anonymisation signifie :",o:["Impossible d'identifier la personne","Changement de nom temporaire","Chiffrement reversible","Duplication des donnees"],a:0,e:"Une donnee anonymisee ne permet plus d'identifier."},
+    {id:19,ch:1,q:"La pseudonymisation :",o:["Remplace l'identite mais reste reversible","Supprime toute relation","Interdit tout traitement","Est identique a l'anonymisation"],a:0,e:"La pseudonymisation reste reversible par recoupement."},
+    {id:20,ch:1,q:"Un email professionnel est une donnee personnelle :",o:["Oui, car il identifie une personne","Non, jamais","Seulement si c'est Gmail","Seulement hors UE"],a:0,e:"Un email professionnel identifie une personne."},
+    {id:21,ch:1,q:"Le droit informatique concerne :",o:["Uniquement les internautes","Les entreprises, administrations et utilisateurs","Uniquement les developpeurs","Uniquement l'Etat"],a:1,e:"Il concerne tous les acteurs du numerique."},
+    {id:22,ch:1,q:"Le droit d'auteur protege notamment :",o:["Les logiciels et creations originales","Les idees seules","Les faits bruts","Les adresses IP"],a:0,e:"Le logiciel est protege par le droit d'auteur."},
+    {id:23,ch:1,q:"Les regles du droit informatique sont :",o:["Toutes dans un seul code unique","Dispersees dans plusieurs textes","Uniquement orales","Limitees aux reseaux sociaux"],a:1,e:"Elles sont reparties dans plusieurs lois."},
+    {id:24,ch:1,q:"Un cookie de suivi peut etre une donnee personnelle :",o:["Oui, s'il identifie un utilisateur","Non, jamais","Uniquement en papier","Uniquement pour les jeux"],a:0,e:"Un cookie peut identifier un utilisateur."},
+    {id:25,ch:1,q:"Une etape du cycle de vie d'une donnee est :",o:["Supprimer la donnee quand la finalite est atteinte","Changer de couleur d'ecran","Reparer un clavier","Installer un jeu"],a:0,e:"La suppression fait partie du cycle de vie."},
+    {id:26,ch:1,q:"La collecte doit etre proportionnee signifie :",o:["Trop de donnees = mieux","Juste ce qui est utile","Collecter tout par precaution","Ne rien collecter"],a:1,e:"On collecte uniquement ce qui est necessaire."},
+    {id:27,ch:1,q:"Un traitement de donnees, c'est :",o:["Stocker des emails clients","Changer un mot de passe admin","Nettoyer un ventilateur","Installer un switch"],a:0,e:"Le stockage d'emails est un traitement."},
+    {id:28,ch:1,q:"La conservation des donnees doit etre :",o:["Illimitee","Limitee au besoin","Toujours 10 ans","Toujours 1 jour"],a:1,e:"On conserve seulement le temps necessaire."},
+    {id:29,ch:1,q:"La transparence signifie :",o:["Informer clairement la personne","Cacher la finalite","Supprimer les logs","Eviter les mentions"],a:0,e:"La personne doit etre informee clairement."},
+    {id:30,ch:1,q:"Le droit d'opposition permet :",o:["Refuser certains traitements","Changer de banque","Bloquer Internet","Supprimer un logiciel"],a:0,e:"On peut s'opposer a certains traitements."},
+    {id:31,ch:1,q:"Le droit a la limitation permet :",o:["Geler temporairement un traitement","Effacer definitivement tout","Rendre les donnees publiques","Augmenter la collecte"],a:0,e:"La limitation permet de mettre en pause un traitement."},
+    {id:32,ch:1,q:"Identifier indirectement une personne signifie :",o:["La reconnaitre par recoupement (IP, cookie, contexte)","Voir son visage","Lire son CV papier","Aucune idee"],a:0,e:"L'identification indirecte se fait par recoupement."},
+    {id:33,ch:1,q:"L'objectif principal du droit informatique est :",o:["Proteger les personnes et encadrer les usages numeriques","Vendre des logiciels","Supprimer Internet","Accelerer les jeux"],a:0,e:"Il vise a proteger les personnes et encadrer les usages."},
+    {id:34,ch:1,q:"Une photo de visage est une donnee personnelle :",o:["Oui","Non","Uniquement en noir et blanc","Seulement sur papier"],a:0,e:"Une photo peut identifier une personne."},
+
+    // ===================== CHAPITRE 2 - ENJEUX DU NUMERIQUE (33) =====================
+    {id:35,ch:2,q:"La liberte d'expression en ligne :",o:["Autorise tout sans limite","Existe mais est limitee par la loi","Est reservee aux journalistes","Est interdite"],a:1,e:"La liberte d'expression est limitee par la loi."},
+    {id:36,ch:2,q:"La diffamation en ligne :",o:["N'existe pas","Peut engager la responsabilite de l'auteur","Est obligatoire","Est un droit"],a:1,e:"La diffamation engage la responsabilite."},
+    {id:37,ch:2,q:"Le discours de haine :",o:["Est protege","Est interdit par la loi","Est recommande","Est un droit commercial"],a:1,e:"Les propos haineux sont interdits."},
+    {id:38,ch:2,q:"L'anonymat en ligne est :",o:["Absolu et jamais leve","Possible mais peut etre leve par la justice","Interdit partout","Obligatoire"],a:1,e:"Il peut etre leve sur decision judiciaire."},
+    {id:39,ch:2,q:"L'usurpation d'identite, c'est :",o:["Se faire passer pour quelqu'un d'autre","Changer de mail","Acheter un ordinateur","Partager une photo"],a:0,e:"Usurper une identite est un delit."},
+    {id:40,ch:2,q:"Le cyberharcelement est :",o:["Sans consequence","Un delit pouvant etre sanctionne","Une blague","Un droit"],a:1,e:"Le cyberharcelement est sanctionne par la loi."},
+    {id:41,ch:2,q:"L'e-reputation correspond a :",o:["L'image d'une personne ou entreprise sur internet","Un antivirus","Un serveur","Un type de firewall"],a:0,e:"L'e-reputation est l'image en ligne."},
+    {id:42,ch:2,q:"Le droit a l'oubli permet :",o:["Demander suppression ou dereferencement dans certains cas","Supprimer tout Internet","Bloquer un reseau social","Obtenir un nouveau PC"],a:0,e:"Le droit a l'oubli est conditionnel."},
+    {id:43,ch:2,q:"Une capture d'ecran :",o:["Peut conserver un contenu meme supprime","Detruit les donnees","Empache toute diffusion","Remplace un backup"],a:0,e:"Une capture garde une trace du contenu."},
+    {id:44,ch:2,q:"Le phishing est :",o:["Un faux message pour voler des identifiants","Une sauvegarde","Un protocole reseau","Un pare-feu"],a:0,e:"Le phishing vise a voler des identifiants."},
+    {id:45,ch:2,q:"Un ransomware :",o:["Chiffre les donnees et demande une rancon","Ameliore le reseau","Supprime la RAM","Repare Windows"],a:0,e:"Le ransomware chiffre et demande une rancon."},
+    {id:46,ch:2,q:"Une intrusion sans autorisation :",o:["Est illegale meme sans dommage","Est permise si curiosite","Est legale si rapide","Est un droit"],a:0,e:"Toute intrusion sans autorisation est illegale."},
+    {id:47,ch:2,q:"La cybercriminalite inclut :",o:["Vol de donnees, fraude, intrusion","Uniquement les virus","Uniquement les jeux","Uniquement les reseaux sociaux"],a:0,e:"La cybercriminalite couvre plusieurs infractions."},
+    {id:48,ch:2,q:"Cambridge Analytica est surtout lie a :",o:["L'utilisation non autorisee de donnees Facebook pour du profilage","Une panne electrique","Un bug de serveur","Une loi fiscale"],a:0,e:"Affaire liee a l'usage abusif des donnees."},
+    {id:49,ch:2,q:"Un deepfake est :",o:["Un contenu audio/video truque","Un antivirus","Un routeur","Un format de sauvegarde"],a:0,e:"Un deepfake est un contenu truque."},
+    {id:50,ch:2,q:"La desinformation correspond a :",o:["Propagation de fausses informations","Une sauvegarde","Un protocole","Un firewall"],a:0,e:"La desinformation diffuse de fausses nouvelles."},
+    {id:51,ch:2,q:"La nomophobie est :",o:["La peur d'etre sans telephone","La peur des ordinateurs","La peur du noir","Un virus"],a:0,e:"Nomophobie = peur d'etre sans telephone."},
+    {id:52,ch:2,q:"Le FOMO signifie :",o:["Fear of Missing Out, peur de rater quelque chose","Fast Online Money Order","Free Open Media Options","Fake Online Message"],a:0,e:"FOMO = peur de rater quelque chose."},
+    {id:53,ch:2,q:"Le selfitisme est :",o:["Une addiction aux selfies","Un protocole","Un virus","Un langage"],a:0,e:"Selfitisme = addiction aux selfies."},
+    {id:54,ch:2,q:"Une coupure d'internet peut :",o:["Limiter des libertes et impacter l'economie","Ameliorer la productivite","Supprimer la loi","Remplacer un backup"],a:0,e:"Les coupures limitent les libertes et l'economie."},
+    {id:55,ch:2,q:"Un risque majeur des reseaux sociaux est :",o:["La surexposition de donnees personnelles","La disparition des donnees","L'absence de contenus","L'impossibilite de partager"],a:0,e:"Les reseaux sociaux exposent des donnees personnelles."},
+    {id:56,ch:2,q:"Le doxxing est :",o:["La publication malveillante d'informations personnelles","Une sauvegarde","Un antivirus","Un type de cable"],a:0,e:"Le doxxing expose des infos privees."},
+    {id:57,ch:2,q:"Le harcelement en ligne peut :",o:["Entrainer des poursuites","Etre legal","Etre obligatoire","Etre ignore par la loi"],a:0,e:"Le harcelement est sanctionne."},
+    {id:58,ch:2,q:"Les CGU d'une plateforme :",o:["Fixent des regles que l'utilisateur accepte","Ne servent a rien","Remplacent la loi","Sont secretes"],a:0,e:"Les CGU sont des regles contractuelles."},
+    {id:59,ch:2,q:"Les plateformes doivent souvent :",o:["Agir apres signalement de contenu illicite","Ignorer les signalements","Supprimer tout contenu","Fermer Internet"],a:0,e:"Elles doivent agir apres signalement."},
+    {id:60,ch:2,q:"Une entreprise doit former ses employes car :",o:["Les erreurs humaines sont une cause majeure d'incident","La formation est inutile","La loi l'interdit","Les hackers n'existent pas"],a:0,e:"La sensibilisation reduit les incidents."},
+    {id:61,ch:2,q:"L'ingenierie sociale consiste a :",o:["Manipuler une personne pour obtenir un acces","Installer un serveur","Construire un routeur","Faire un backup"],a:0,e:"L'ingenierie sociale cible l'humain."},
+    {id:62,ch:2,q:"Un mot de passe faible :",o:["Facilite l'intrusion","Renforce la securite","Remplace le 2FA","Bloque les hackers"],a:0,e:"Un mot de passe faible facilite l'attaque."},
+    {id:63,ch:2,q:"L'IoT souleve des enjeux car :",o:["Il multiplie les capteurs et la collecte de donnees","Il supprime les donnees","Il elimine la vie privee par defaut","Il remplace les lois"],a:0,e:"Les objets connectes collectent beaucoup de donnees."},
+    {id:64,ch:2,q:"Une fuite de donnees peut entrainer :",o:["Usurpation d'identite et fraude","Plus de RAM","Un nouveau clavier","Aucun impact"],a:0,e:"Une fuite peut mener a la fraude."},
+    {id:65,ch:2,q:"Les fake news peuvent :",o:["Influencer l'opinion publique","Augmenter la vitesse Internet","Supprimer les cookies","Remplacer la loi"],a:0,e:"Les fake news influencent l'opinion."},
+    {id:66,ch:2,q:"Publier un contenu illicite engage :",o:["La responsabilite de l'auteur","Uniquement la plateforme","Personne","Le fournisseur d'acces seulement"],a:0,e:"L'auteur est responsable de ses contenus."},
+    {id:67,ch:2,q:"Les reseaux sociaux conservent souvent :",o:["Des traces meme apres suppression","Aucune trace","Uniquement les photos","Uniquement les likes"],a:0,e:"Les traces peuvent rester (copies, caches)."},
+
+    // ===================== CHAPITRE 3 - REGULATION ET RGPD (33) =====================
+    {id:68,ch:3,q:"RGPD signifie :",o:["Reglement General sur la Protection des Donnees","Regime Global des Donnees","Reglement General des Projets Digitaux","Reseau General de Protection"],a:0,e:"RGPD = Reglement General sur la Protection des Donnees."},
+    {id:69,ch:3,q:"Le RGPD s'applique :",o:["Aux organisations traitant des donnees de residents UE, meme hors UE","Uniquement aux entreprises europeennes","Uniquement aux reseaux sociaux","Uniquement aux ONG"],a:0,e:"Le RGPD a une portee extraterritoriale."},
+    {id:70,ch:3,q:"Principe de finalite :",o:["Objectif precis et legitime","Collecte illimitee","Suppression automatique","Aucune raison"],a:0,e:"Chaque traitement doit avoir un objectif clair."},
+    {id:71,ch:3,q:"Principe de minimisation :",o:["Donnees strictement necessaires","Plus on collecte mieux c'est","Donnees publiques uniquement","Pas de traitement"],a:0,e:"On collecte uniquement ce qui est necessaire."},
+    {id:72,ch:3,q:"Principe d'exactitude :",o:["Donnees exactes et mises a jour","Donnees anciennes","Donnees anonymes uniquement","Aucune mise a jour"],a:0,e:"Les donnees doivent etre exactes et a jour."},
+    {id:73,ch:3,q:"Limitation de conservation :",o:["Pas de stockage infini","Conserver a vie","Conserver 100 ans","Toujours stocker"],a:0,e:"La conservation est limitee au besoin."},
+    {id:74,ch:3,q:"Integrite et confidentialite :",o:["Securiser les donnees contre acces non autorise","Partager librement","Desactiver le chiffrement","Publier en ligne"],a:0,e:"La securite est obligatoire."},
+    {id:75,ch:3,q:"Responsabilisation (accountability) :",o:["Prouver sa conformite","Ignorer les audits","Cacher les traitements","Ne pas documenter"],a:0,e:"Il faut pouvoir demontrer la conformite."},
+    {id:76,ch:3,q:"Base legale possible :",o:["Consentement, contrat, obligation legale, interet legitime","Uniquement la pub","Uniquement la coutume","Uniquement le hasard"],a:0,e:"Plusieurs bases legales existent."},
+    {id:77,ch:3,q:"Le consentement doit etre :",o:["Libre et eclaire","Force","Implicite par defaut","Secret"],a:0,e:"Le consentement doit etre clair et libre."},
+    {id:78,ch:3,q:"Un traitement de donnees, c'est :",o:["Toute operation sur des donnees (collecte, stockage, modification)","Uniquement la suppression","Uniquement le chiffrement","Uniquement le transfert"],a:0,e:"Le traitement couvre toutes les operations."},
+    {id:79,ch:3,q:"Le DPO (delegue) sert a :",o:["Conseiller et controler la conformite","Vendre des logiciels","Supprimer des serveurs","Creer des comptes"],a:0,e:"Le DPO conseille et controle la conformite."},
+    {id:80,ch:3,q:"La DPIA est :",o:["Une analyse d'impact pour traitements a risque","Un antivirus","Un rapport financier","Un logiciel de chat"],a:0,e:"La DPIA est requise pour les traitements a risque."},
+    {id:81,ch:3,q:"Une violation de donnees est :",o:["Perte, alteration ou acces non autorise","Une mise a jour","Une sauvegarde","Un login reussi"],a:0,e:"Une violation concerne la securite des donnees."},
+    {id:82,ch:3,q:"Notification a l'autorite :",o:["Sous 72h si risque","Sous 1 an","Jamais necessaire","Seulement pour les PME"],a:0,e:"Le RGPD impose une notification sous 72h en cas de risque."},
+    {id:83,ch:3,q:"Le registre des traitements doit contenir :",o:["Finalites, categories, durees, mesures de securite","Uniquement le logo","Les salaires","Les horaires"],a:0,e:"Le registre documente les traitements."},
+    {id:84,ch:3,q:"Le sous-traitant doit :",o:["Respecter les instructions et securiser","Decider des finalites","Vendre les donnees","Ignorer le contrat"],a:0,e:"Il agit selon les instructions du responsable."},
+    {id:85,ch:3,q:"Sanctions RGPD maximales :",o:["20 M EUR ou 4% du CA mondial","20 000 EUR","4% du CA local","Aucune sanction"],a:0,e:"Le RGPD prevoit de lourdes sanctions."},
+    {id:86,ch:3,q:"Transfert hors UE :",o:["Necessite garanties (clauses, adequation)","Toujours interdit","Toujours libre","Sans condition"],a:0,e:"Des garanties juridiques sont requises."},
+    {id:87,ch:3,q:"L'IPDCP est :",o:["L'autorite de controle au Togo","Une entreprise privee","Un logiciel","Un protocole"],a:0,e:"L'IPDCP controle la protection des donnees au Togo."},
+    {id:88,ch:3,q:"La loi togolaise 2019-014 porte sur :",o:["La protection des donnees personnelles","Les routes","La plomberie","La meteorologie"],a:0,e:"La loi 2019-014 protege les donnees personnelles."},
+    {id:89,ch:3,q:"Le droit d'opposition permet :",o:["Refuser un traitement dans certains cas","Imposer un traitement","Changer un mot de passe","Installer un logiciel"],a:0,e:"On peut s'opposer a certains traitements."},
+    {id:90,ch:3,q:"Le droit a la portabilite permet :",o:["Recevoir ses donnees dans un format reutilisable","Vendre ses donnees","Effacer les sauvegardes","Desactiver Internet"],a:0,e:"La portabilite facilite la reutilisation des donnees."},
+    {id:91,ch:3,q:"Le droit a l'effacement s'applique :",o:["Quand la finalite est atteinte ou consentement retire","Jamais","Seulement pour les entreprises","Uniquement pour les mineurs"],a:0,e:"Il est possible dans certains cas."},
+    {id:92,ch:3,q:"Les cookies non essentiels :",o:["Demandent en general un consentement","Sont toujours imposes","Ne sont jamais utilises","Sont interdits partout"],a:0,e:"Le consentement est souvent requis."},
+    {id:93,ch:3,q:"La securite ne se limite pas a :",o:["Un antivirus","Des sauvegardes","Le chiffrement","La formation"],a:0,e:"Un antivirus seul ne suffit pas."},
+    {id:94,ch:3,q:"Privacy by design :",o:["Integrer la protection des donnees des la conception","Ajouter a la fin","Ignorer les risques","Copier un concurrent"],a:0,e:"La protection doit etre integree des le depart."},
+    {id:95,ch:3,q:"Privacy by default :",o:["Parametres minimaux par defaut","Tout partager par defaut","Aucune securite","Zero documentation"],a:0,e:"Les options par defaut doivent limiter les donnees."},
+    {id:96,ch:3,q:"Conserver des donnees indefiniment est :",o:["Interdit sauf obligation legale","Toujours autorise","Obligatoire","Recommande"],a:0,e:"La conservation doit etre limitee."},
+    {id:97,ch:3,q:"Donnees sensibles :",o:["Exigent des garanties renforcees","Sont libres","Sont des donnees techniques","Sont toujours publiques"],a:0,e:"Les donnees sensibles demandent plus de garanties."},
+    {id:98,ch:3,q:"Informer les personnes signifie :",o:["Expliquer qui traite, pourquoi et leurs droits","Ne rien dire","Envoyer un sms vide","Cacher la finalite"],a:0,e:"L'information doit etre claire et complete."},
+    {id:99,ch:3,q:"En cas de risque eleve pour les personnes :",o:["Il faut aussi informer les personnes concernees","Il faut ignorer","Il faut detruire les logs","Il faut payer un hacker"],a:0,e:"Si le risque est eleve, il faut informer les personnes."},
+    {id:100,ch:3,q:"La conformite RGPD apporte :",o:["Confiance et reduction des risques","Aucune valeur","Une baisse automatique des ventes","Un droit de pirater"],a:0,e:"La conformite renforce la confiance et limite les risques."}
+    ];
+
+    // ===================== QCM ENGINE =====================
+    let currentMode = 'chapter';
+    let currentChapter = 0;
+    let filteredQuestions = [];
+    let answered = 0;
+    let correct = 0;
+    let errors = JSON.parse(localStorage.getItem('droit_qcm_errors') || '[]');
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        event.target.closest('.mode-btn').classList.add('active');
+        document.getElementById('chapterFilter').style.display = mode === 'chapter' ? 'flex' : 'none';
+        loadQuestions();
+    }
+
+    function filterChapter(ch) {
+        currentChapter = ch;
+        document.querySelectorAll('.chapter-filter button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        loadQuestions();
+    }
+
+    function loadQuestions() {
+        answered = 0; correct = 0;
+        updateScore();
+        let qs = [];
+        switch(currentMode) {
+            case 'chapter':
+                qs = currentChapter === 0 ? [...ALL_QUESTIONS] : ALL_QUESTIONS.filter(q => q.ch === currentChapter);
+                break;
+            case 'exam':
+                qs = shuffle([...ALL_QUESTIONS]).slice(0, 20);
+                break;
+            case 'random':
+                qs = shuffle([...ALL_QUESTIONS]);
+                break;
+            case 'errors':
+                qs = ALL_QUESTIONS.filter(q => errors.includes(q.id));
+                if (qs.length === 0) {
+                    document.getElementById('qcmArea').innerHTML = '<div class="glass-card" style="text-align:center;padding:2rem;"><h3>Bravo !</h3><p>Aucune erreur a reviser pour le moment.</p></div>';
+                    return;
+                }
+                break;
+        }
+        filteredQuestions = qs;
+        renderQuestions(qs);
+    }
+
+    function renderQuestions(qs) {
+        const area = document.getElementById('qcmArea');
+        area.innerHTML = qs.map((q, idx) => `
+            <div class="glass-card qcm-card" id="q${q.id}">
+                <p class="question-text">
+                    <span class="qcm-badge ch${q.ch}">Ch.${q.ch}</span>
+                    <strong>Q${idx+1}.</strong> ${q.q}
+                </p>
+                <ul class="options-list">
+                    ${q.o.map((opt, oi) => `<li><button class="option-btn" onclick="checkAnswer(${q.id},${oi},this)">${String.fromCharCode(65+oi)}. ${opt}</button></li>`).join('')}
+                </ul>
+                <div class="explanation" id="exp${q.id}">${q.e}</div>
+            </div>
+        `).join('');
+    }
+
+    function checkAnswer(qId, selected, btn) {
+        const q = ALL_QUESTIONS.find(x => x.id === qId);
+        const card = document.getElementById('q' + qId);
+        const buttons = card.querySelectorAll('.option-btn');
+        if (btn.classList.contains('disabled')) return;
+
+        buttons.forEach((b, i) => {
+            b.classList.add('disabled');
+            if (i === q.a) b.classList.add('correct');
+        });
+
+        answered++;
+        if (selected === q.a) {
+            correct++;
+            btn.classList.add('correct');
+            errors = errors.filter(x => x !== qId);
+        } else {
+            btn.classList.add('incorrect');
+            if (!errors.includes(qId)) errors.push(qId);
+        }
+        localStorage.setItem('droit_qcm_errors', JSON.stringify(errors));
+        document.getElementById('exp' + qId).classList.add('show');
+        updateScore();
+    }
+
+    function updateScore() {
+        const total = filteredQuestions.length;
+        const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('scoreDisplay').innerHTML = `Score : <strong>${correct}</strong> / ${answered} ${answered > 0 ? `(${Math.round(correct/answered*100)}%)` : ''} - ${total - answered} restantes`;
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    loadQuestions();
+    </script>
+</body>
+</html>

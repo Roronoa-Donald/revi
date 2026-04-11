@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 QCM — Administration Windows Server &amp; VMware | RD WinServer</title>
+    <meta name="description" content="100 questions QCM couvrant les 5 modules : sauvegarde, HA, maintenance, virtualisation VMware, snapshots/clones/templates.">
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#9ca3af',500:'#6b7280',600:'#4b5563'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .qcm-container{max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;}
+        .qcm-card{margin-bottom:1.5rem;}
+        .qcm-card .question-text{font-weight:600;margin-bottom:1rem;line-height:1.6;}
+        .qcm-card .options-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem;}
+        .qcm-card .option-btn{display:block;width:100%;text-align:left;padding:.75rem 1rem;border-radius:12px;border:2px solid rgba(99,102,241,.2);background:rgba(99,102,241,.05);cursor:pointer;transition:all .2s;font-size:.95rem;}
+        .qcm-card .option-btn:hover{border-color:rgba(99,102,241,.5);background:rgba(99,102,241,.1);}
+        .qcm-card .option-btn.correct{border-color:#22c55e;background:rgba(34,197,94,.15);color:#16a34a;}
+        .qcm-card .option-btn.incorrect{border-color:#ef4444;background:rgba(239,68,68,.15);color:#dc2626;}
+        .qcm-card .option-btn.disabled{pointer-events:none;opacity:.85;}
+        .qcm-card .explanation{display:none;margin-top:.75rem;padding:.75rem 1rem;border-radius:12px;background:rgba(99,102,241,.08);font-size:.9rem;line-height:1.5;}
+        .qcm-card .explanation.show{display:block;}
+        .mode-selector{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin:2rem 0;}
+        .mode-btn{padding:.6rem 1.2rem;border-radius:12px;border:2px solid rgba(99,102,241,.3);background:rgba(99,102,241,.08);cursor:pointer;font-weight:600;transition:all .2s;}
+        .mode-btn:hover,.mode-btn.active{border-color:var(--accent);background:rgba(99,102,241,.2);}
+        .progress-bar{height:6px;background:rgba(99,102,241,.15);border-radius:99px;margin:1rem 0;overflow:hidden;}
+        .progress-bar .fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s;}
+        .score-display{text-align:center;padding:2rem;font-size:1.3rem;font-weight:700;}
+        .chapter-filter{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1rem 0;}
+        .chapter-filter button{padding:.4rem .8rem;border-radius:8px;border:1px solid rgba(99,102,241,.2);background:rgba(99,102,241,.05);cursor:pointer;font-size:.85rem;transition:all .2s;}
+        .chapter-filter button:hover,.chapter-filter button.active{border-color:var(--accent);background:rgba(99,102,241,.2);font-weight:600;}
+        .qcm-badge{display:inline-block;padding:0.15rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;margin-right:0.4rem;}
+        .qcm-badge.ch1{background:rgba(59,130,246,.15);color:#3b82f6;}
+        .qcm-badge.ch2{background:rgba(168,85,247,.15);color:#a855f7;}
+        .qcm-badge.ch3{background:rgba(236,72,153,.15);color:#ec4899;}
+        .qcm-badge.ch4{background:rgba(245,158,11,.15);color:#f59e0b;}
+        .qcm-badge.ch5{background:rgba(34,197,94,.15);color:#22c55e;}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="../index.html" class="nav-logo"><i class="fas fa-shield-halved"></i><span>RD WinServer</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitre5.html">← Module 5</a></li>
+                <li><a href="qcm-100.html" class="active">100 QCM</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le thème"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitre1.html"><i class="fas fa-database"></i> 1. Sauvegarde</a></li>
+            <li><a href="chapitre2.html"><i class="fas fa-arrows-rotate"></i> 2. Haute Disponibilité</a></li>
+            <li><a href="chapitre3.html"><i class="fas fa-wrench"></i> 3. Maintenance</a></li>
+            <li><a href="chapitre4.html"><i class="fas fa-server"></i> 4. Virtualisation &amp; VMware</a></li>
+            <li><a href="chapitre5.html"><i class="fas fa-camera"></i> 5. Snapshots, Clones &amp; Templates</a></li>
+            <li><a href="qcm-100.html" class="active"><i class="fas fa-clipboard-check"></i> 100 QCM Interactifs</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-clipboard-check"></i> 100 QCM</span>
+        <h1 class="hero-title">100 QCM <span class="gradient-text">Interactifs</span></h1>
+        <p class="hero-description">Testez vos connaissances sur les 5 modules du cours.</p>
+    </section>
+
+    <main id="main-content" class="qcm-container">
+
+        <!-- Mode selector -->
+        <div class="glass-card">
+            <h2 style="text-align:center;margin-bottom:1rem;"><i class="fas fa-gamepad"></i> Choisissez votre mode</h2>
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('chapter')"><i class="fas fa-book"></i> Par chapitre</button>
+                <button class="mode-btn" onclick="setMode('exam')"><i class="fas fa-graduation-cap"></i> Examen (20 Q)</button>
+                <button class="mode-btn" onclick="setMode('random')"><i class="fas fa-shuffle"></i> Aléatoire</button>
+                <button class="mode-btn" onclick="setMode('errors')"><i class="fas fa-rotate-left"></i> Révision erreurs</button>
+            </div>
+            <div class="chapter-filter" id="chapterFilter">
+                <button class="active" onclick="filterChapter(0)">Tous</button>
+                <button onclick="filterChapter(1)">Ch.1 Sauvegarde</button>
+                <button onclick="filterChapter(2)">Ch.2 HA &amp; Clustering</button>
+                <button onclick="filterChapter(3)">Ch.3 Maintenance</button>
+                <button onclick="filterChapter(4)">Ch.4 Virtualisation</button>
+                <button onclick="filterChapter(5)">Ch.5 Snapshots/Clones</button>
+            </div>
+            <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+            <div class="score-display" id="scoreDisplay">Score : 0 / 0</div>
+        </div>
+
+        <div id="qcmArea"></div>
+
+        <div class="chapter-nav" style="margin-top:2rem;">
+            <a href="chapitre5.html"><i class="fas fa-arrow-left"></i> Module 5</a>
+            <a href="../index.html">Accueil <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-shield-halved" style="color:var(--accent);margin-right:0.4rem;"></i>RD WinServer</div>
+        <p class="footer-copy">© 2025-2026 — B2 IT · Collège De Paris Supérieur</p>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+    const ALL_QUESTIONS = [
+    // ===================== CHAPITRE 1 — SAUVEGARDE (20 questions) =====================
+    {id:1,ch:1,q:"Que désigne la sauvegarde des données ?",o:["Un système de pare-feu","L'infrastructure et les processus qui copient les données pour les restaurer en cas de défaillance","Un logiciel antivirus","Une méthode de chiffrement des fichiers"],a:1,e:"La sauvegarde des données fait référence à l'infrastructure, aux technologies et aux processus qui copient les données de l'organisation pour les restaurer en cas de défaillance."},
+    {id:2,ch:1,q:"Quels sont les trois principaux types de sauvegarde ?",o:["Locale, distante, cloud","Complète, incrémentielle, différentielle","Rapide, lente, moyenne","Manuelle, automatique, hybride"],a:1,e:"Les trois principaux types sont : complète, incrémentielle et différentielle."},
+    {id:3,ch:1,q:"Que copie une sauvegarde complète ?",o:["Uniquement les fichiers modifiés","L'ensemble des données à chaque fois","Seulement les métadonnées","Les fichiers système uniquement"],a:1,e:"Une sauvegarde complète fait une copie de l'ensemble des données — fichiers, dossiers, images systèmes entiers."},
+    {id:4,ch:1,q:"Quel est l'avantage principal d'une sauvegarde complète pour la restauration ?",o:["Elle est la plus rapide à exécuter","Elle nécessite une seule étape pour restaurer toutes les données","Elle occupe le moins d'espace disque","Elle ne nécessite pas de logiciel spécifique"],a:1,e:"La restauration d'une sauvegarde complète est directe et ne nécessite qu'une seule étape."},
+    {id:5,ch:1,q:"Que sauvegarde une sauvegarde incrémentielle ?",o:["Tout depuis la dernière sauvegarde complète","Uniquement les données modifiées depuis la dernière sauvegarde (complète ou incrémentielle)","Tous les fichiers sauf ceux système","Une copie miroir du disque"],a:1,e:"Une sauvegarde incrémentielle ne sauvegarde que les données modifiées depuis la dernière sauvegarde."},
+    {id:6,ch:1,q:"Quels sont les avantages de la sauvegarde incrémentielle ?",o:["Restauration simple en une étape","Stockage moindre et exécution très rapide","Copie de toutes les données à chaque fois","Ne nécessite jamais de sauvegarde complète initiale"],a:1,e:"Les sauvegardes incrémentielles occupent moins de stockage et sont effectuées plus rapidement."},
+    {id:7,ch:1,q:"Que sauvegarde une sauvegarde différentielle ?",o:["Les données modifiées depuis la dernière sauvegarde (complète ou incrémentielle)","Toutes les modifications depuis la dernière sauvegarde complète initiale","Uniquement les fichiers système","Exactement les mêmes données que l'incrémentielle"],a:1,e:"La sauvegarde différentielle copie toutes les modifications apportées depuis la sauvegarde complète initiale."},
+    {id:8,ch:1,q:"Comment restaurer à partir d'une sauvegarde différentielle ?",o:["Il faut toute la chaîne de sauvegardes","Il suffit de la dernière complète + la dernière différentielle","Il faut uniquement la dernière différentielle","Il faut toutes les différentielles depuis la complète"],a:1,e:"Pour restaurer, il suffit de la dernière sauvegarde complète et de la dernière sauvegarde différentielle."},
+    {id:9,ch:1,q:"Que signifie la stratégie 3-2-1 ?",o:["3 serveurs, 2 disques, 1 cloud","3 copies des données, 2 supports différents, 1 copie hors site","3 sauvegardes par jour, 2 par semaine, 1 par mois","3 types de sauvegarde, 2 fréquences, 1 test"],a:1,e:"La stratégie 3-2-1 : au moins 3 copies des données, 2 sur des supports différents, 1 copie hors site."},
+    {id:10,ch:1,q:"Quel est l'objectif de la stratégie 3-2-1 ?",o:["Accélérer les sauvegardes","Diversifier les lieux de stockage pour protéger les données contre tout type de perte","Réduire le coût du stockage","Automatiser les sauvegardes"],a:1,e:"Cette stratégie vise à diversifier les lieux de stockage afin de garantir la protection des données."},
+    {id:11,ch:1,q:"Quelle est la première étape pour créer une stratégie de sauvegarde efficace ?",o:["Déployer les sauvegardes","Tester la restauration","Déterminer l'importance et la disponibilité des données","Décider la fréquence"],a:2,e:"La première étape est de déterminer quelles données sont cruciales pour les opérations."},
+    {id:12,ch:1,q:"Pourquoi est-il important de décider la fréquence des sauvegardes ?",o:["Pour réduire les coûts de stockage","En cas de perte, seules les données les plus récemment sauvegardées seront récupérables","Pour accélérer la connexion réseau","Pour éviter les conflits de fichiers"],a:1,e:"La fréquence détermine quelles données vous pourrez récupérer : tout ce qui a été fait depuis la dernière sauvegarde sera perdu."},
+    {id:13,ch:1,q:"Que signifie 'déploiement' dans le contexte de la stratégie de sauvegarde ?",o:["Acheter du nouveau matériel","Mettre en place les sauvegardes (manuellement ou automatiquement) selon le calendrier défini","Former les utilisateurs","Tester la restauration"],a:1,e:"Le déploiement consiste à exécuter les sauvegardes selon le calendrier basé sur la fréquence décidée."},
+    {id:14,ch:1,q:"Pourquoi faut-il tester le processus de restauration ?",o:["Pour vérifier la vitesse du réseau","Pour s'assurer que la stratégie fonctionne réellement via des simulations","Pour former les nouveaux employés","Pour réduire les coûts"],a:1,e:"Les simulations permettent de mettre en évidence tout problème lié au processus de sauvegarde et de restauration."},
+    {id:15,ch:1,q:"Que signifie PCA ?",o:["Plan de Configuration Automatique","Plan de Continuité d'Activité","Processus de Copie Avancée","Protocole de Communication Applicative"],a:1,e:"PCA = Plan de Continuité d'Activité : lutte contre les arrêts opérationnels."},
+    {id:16,ch:1,q:"Quel est l'objectif du PCA ?",o:["Préparer une remise en service rapide","Que le service ne s'arrête jamais","Optimiser les performances réseau","Remplacer les sauvegardes"],a:1,e:"Les plans de continuité efficaces luttent contre les arrêts opérationnels."},
+    {id:17,ch:1,q:"Que signifie PRA ?",o:["Plan de Reprise d'Activité","Plan de Restauration Automatique","Processus de Récupération des Archives","Protocole de Redémarrage Applicatif"],a:0,e:"PRA = Plan de Reprise d'Activité : prépare une remise en service la plus rapide possible après une interruption."},
+    {id:18,ch:1,q:"Quelle est la différence entre PCA et PRA ?",o:["PCA est plus cher que PRA","PCA vise la continuité sans interruption, PRA vise la reprise rapide après interruption","PCA concerne le matériel, PRA concerne les logiciels","Il n'y a pas de différence"],a:1,e:"PCA = continuité sans interruption / PRA = reprise rapide après sinistre. Objectifs différents."},
+    {id:19,ch:1,q:"Quel type de sauvegarde est le plus lent à exécuter ?",o:["Incrémentielle","Différentielle","Complète","Toutes sont équivalentes"],a:2,e:"La sauvegarde complète est la plus lente car elle copie l'ensemble des données à chaque fois."},
+    {id:20,ch:1,q:"Quel type de sauvegarde a la restauration la plus complexe ?",o:["Complète","Différentielle","Incrémentielle","Les trois sont identiques"],a:2,e:"L'incrémentielle nécessite la sauvegarde complète + toute la chaîne des sauvegardes incrémentielles."},
+
+    // ===================== CHAPITRE 2 — HAUTE DISPONIBILITÉ (20 questions) =====================
+    {id:21,ch:2,q:"Que signifie HA (High Availability) ?",o:["Un système qui fonctionne uniquement en heures ouvrées","Un ensemble de mécanismes permettant à un système de continuer à fonctionner même en cas de panne","Un protocole de communication réseau","Un type de sauvegarde cloud"],a:1,e:"La haute disponibilité permet à un système de continuer à fonctionner même en cas de panne d'un composant."},
+    {id:22,ch:2,q:"Quels sont les 3 piliers de la haute disponibilité ?",o:["Sauvegarde, restauration, migration","Redondance, failover, monitoring","Chiffrement, authentification, autorisation","CPU, RAM, stockage"],a:1,e:"La HA repose sur : la redondance, le basculement automatique (failover), et la supervision (monitoring)."},
+    {id:23,ch:2,q:"Qu'est-ce que la redondance ?",o:["Dupliquer des composants critiques pour garantir la continuité de service","Supprimer les composants inutiles","Chiffrer les données en double","Augmenter la bande passante"],a:0,e:"La redondance consiste à dupliquer des composants critiques pour éviter un point unique de défaillance."},
+    {id:24,ch:2,q:"Qu'est-ce que le failover ?",o:["Le transfert automatique de l'activité vers un composant redondant en cas de défaillance","La désactivation manuelle d'un serveur","La migration d'une VM vers le cloud","La répartition de charge"],a:0,e:"Le failover est un mécanisme de transfer automatique de l'activité vers un composant redondant sans intervention humaine."},
+    {id:25,ch:2,q:"Quels outils sont cités pour la supervision (monitoring) ?",o:["Word et Excel","Zabbix et Nagios","Photoshop et Illustrator","Git et Docker"],a:1,e:"Un outil comme Zabbix ou Nagios vérifie constamment si les serveurs sont disponibles."},
+    {id:26,ch:2,q:"Quelle indisponibilité annuelle correspond à 99,9 % de disponibilité ?",o:["3 jours 15h 36min","8h 45min 36s","52 min 34s","≈ 5 min 15s"],a:1,e:"99,9 % → 8h 45min 36s par an d'indisponibilité."},
+    {id:27,ch:2,q:"Quelle indisponibilité annuelle correspond à 99,99 % de disponibilité ?",o:["8h 45min 36s","3 jours 15h 36min","52 min 34s","≈ 31,5 secondes"],a:2,e:"99,99 % → 52 min 34s par an d'indisponibilité."},
+    {id:28,ch:2,q:"Dans un exemple avec un load balancer devant 2 serveurs web, que se passe-t-il si un serveur tombe ?",o:["Le site est hors ligne","Le load balancer redirige les utilisateurs vers le serveur qui fonctionne","Les deux serveurs redémarrent","Le load balancer s'arrête aussi"],a:1,e:"Le load balancer détecte l'échec et redirige les utilisateurs vers le serveur qui fonctionne."},
+    {id:29,ch:2,q:"Qu'est-ce que le clustering ?",o:["Installer un seul gros serveur","Regrouper plusieurs serveurs pour qu'ils fonctionnent comme un seul système","Créer une copie de sauvegarde","Diviser un serveur en plusieurs partitions"],a:1,e:"Le clustering consiste à regrouper plusieurs serveurs (nœuds) pour garantir HA, répartition de charge et tolérance aux pannes."},
+    {id:30,ch:2,q:"Comment fonctionne un cluster Active-Passive ?",o:["Tous les nœuds sont actifs","Un ou plusieurs nœuds sont actifs, les autres passifs (en veille) prêts à prendre le relais","Aucun nœud n'est actif","Les nœuds alternent toutes les heures"],a:1,e:"Active-Passive : nœuds actifs traitent les requêtes, nœuds passifs en veille prennent le relais en cas de panne."},
+    {id:31,ch:2,q:"Quel est l'inconvénient principal du cluster Active-Passive ?",o:["Trop complexe à configurer","Le serveur passif ne travaille pas (sous-utilisation)","Pas de haute disponibilité","Coût trop élevé"],a:1,e:"Inconvénient : le serveur passif ne travaille pas et est sous-utilisé."},
+    {id:32,ch:2,q:"Comment fonctionne un cluster Active-Active ?",o:["Un seul nœud est actif à la fois","Tous les nœuds sont actifs et partagent les tâches","Aucun nœud ne traite de requêtes","Les nœuds fonctionnent séquentiellement"],a:1,e:"Active-Active : tous les nœuds sont actifs en même temps et partagent les tâches de traitement."},
+    {id:33,ch:2,q:"Quel est l'avantage principal du cluster Active-Active ?",o:["Configuration simple","Meilleure performance grâce à la répartition de charge","Aucune synchronisation nécessaire","Moins cher que Active-Passive"],a:1,e:"Avantages : meilleure performance (répartition), haute tolérance aux pannes, aucun nœud inactif."},
+    {id:34,ch:2,q:"Quel est le rôle d'un Load Balancing Cluster ?",o:["Sauvegarder les données","Distribuer les requêtes entre plusieurs serveurs actifs","Chiffrer le trafic réseau","Redémarrer les serveurs en panne"],a:1,e:"Un répartiteur de charge distribue les requêtes entre plusieurs serveurs actifs pour améliorer la performance."},
+    {id:35,ch:2,q:"Quel est l'inconvénient d'un Load Balancing Cluster ?",o:["Il est très lent","Le load balancer lui-même devient un point critique (sauf s'il est redondant)","Il ne supporte qu'un seul serveur","Il est incompatible avec le cloud"],a:1,e:"Le load balancer peut devenir un point critique s'il n'est pas lui-même redondant."},
+    {id:36,ch:2,q:"Comment fonctionne un Failover Cluster ?",o:["Les nœuds partagent un même espace de stockage et reprennent les services en cas de panne","Tous les nœuds sont indépendants","Il n'utilise pas de stockage","Il fonctionne sans réseau"],a:0,e:"Les nœuds partagent un même espace de stockage. Si un nœud échoue, un autre reprend les services avec le même état."},
+    {id:37,ch:2,q:"Pour quel usage le Grid Cluster est-il conçu ?",o:["Hébergement web","Calcul intensif distribué (simulation météo, rendu 3D, IA)","Stockage de fichiers","Impression en réseau"],a:1,e:"Le Grid Cluster est utilisé pour le calcul intensif distribué : simulation météo, rendu 3D, IA."},
+    {id:38,ch:2,q:"Quel type de cluster offre la 'très haute' disponibilité grâce au stockage partagé ?",o:["Active-Passive","Active-Active","Grid Cluster","Failover Cluster"],a:3,e:"Le Failover Cluster offre une très haute disponibilité grâce au stockage partagé (SAN)."},
+    {id:39,ch:2,q:"Dans un environnement Proxmox ou VMware vSphere, que se passe-t-il si un hyperviseur tombe ?",o:["Toutes les VM sont perdues","Les VM redémarrent ailleurs selon les règles HA configurées","Rien ne se passe","Le cluster entier s'arrête"],a:1,e:"Si un hyperviseur tombe, ses VM redémarrent ailleurs selon les règles HA configurées."},
+    {id:40,ch:2,q:"Quelle indisponibilité annuelle correspond à 99 % de disponibilité ?",o:["52 min 34s","8h 45min 36s","3 jours 15h 36min (87,6 heures)","≈ 31,5 secondes"],a:2,e:"99 % → 3 jours 15h 36min par an d'indisponibilité (87,6 heures)."},
+
+    // ===================== CHAPITRE 3 — MAINTENANCE (20 questions) =====================
+    {id:41,ch:3,q:"Que regroupe la maintenance de Windows Server ?",o:["Uniquement l'installation du système","L'ensemble des actions garantissant disponibilité, performance, sécurité et continuité de service","Le remplacement de matériel","La formation des utilisateurs"],a:1,e:"La maintenance regroupe les actions garantissant disponibilité, performance, sécurité et continuité de service."},
+    {id:42,ch:3,q:"Quel est l'objectif de la maintenance préventive ?",o:["Corriger les pannes existantes","Exécuter des actions pour éviter l'apparition de pannes et anticiper les incidents","Moderniser l'infrastructure","Supprimer les anciens comptes"],a:1,e:"La maintenance préventive consiste à exécuter régulièrement des actions destinées à éviter l'apparition de pannes."},
+    {id:43,ch:3,q:"Que faut-il faire avant d'appliquer une mise à jour sur un serveur de production ?",o:["L'appliquer immédiatement sans tester","Tester sur serveur de préproduction et prendre un snapshot de la VM","Désactiver le pare-feu","Supprimer les sauvegardes existantes"],a:1,e:"Bons procédés : tester sur serveur de préproduction, prendre un snapshot avant mise à jour, programmer après les heures de production."},
+    {id:44,ch:3,q:"Quel outil permet de détecter une surutilisation CPU ou RAM ?",o:["Event Viewer","Task Manager ou Resource Monitor","Disk Management","Wireshark"],a:1,e:"CPU & RAM : outils Task Manager, Resource Monitor → détecter surutilisation ou fuite mémoire."},
+    {id:45,ch:3,q:"Quel outil est recommandé pour détecter des erreurs et anomalies dans les logs système ?",o:["Task Manager","Performance Monitor","Event Viewer","netstat"],a:2,e:"Logs système : Event Viewer → détecter erreurs, anomalies ou alertes."},
+    {id:46,ch:3,q:"Quels outils réseau sont cités pour la surveillance ?",o:["Word, Excel, PowerPoint","netstat, ping, Wireshark","Photoshop, Illustrator","Git, Docker, Kubernetes"],a:1,e:"Réseau : netstat, ping, Wireshark → vérifier bande passante, latence, ports ouverts."},
+    {id:47,ch:3,q:"Que faut-il vérifier concernant les sauvegardes en maintenance préventive ?",o:["Que le serveur est éteint","Que les sauvegardes ont été exécutées, tester la restauration, vérifier l'espace","Que les utilisateurs ont accès root","Que le pare-feu est désactivé"],a:1,e:"Vérifier exécution des sauvegardes, tester la restauration, vérifier l'espace, AD sauvegardé, VM exportées/snappées."},
+    {id:48,ch:3,q:"Quelle plage de température processeur est considérée 'normale' ?",o:["0 – 30 °C","30 – 60 °C","60 – 80 °C","> 85 °C"],a:1,e:"Normal : 30-60°C. Chaud : 60-80°C. Danger : >85°C."},
+    {id:49,ch:3,q:"À partir de quelle température y a-t-il risque de dommage matériel ?",o:["> 60 °C","> 80 °C","> 85 °C","> 95 °C"],a:3,e:"Critique : > 95°C → risque de dommage matériel."},
+    {id:50,ch:3,q:"Que doit-on faire de façon hebdomadaire en maintenance préventive ?",o:["Audit sécurité et documentation complète","Analyse logs, vérification CPU/RAM/disque","Mise à jour firmware et test PRA","Nettoyage disque et patchs"],a:1,e:"Hebdomadaire : analyse logs, vérification CPU/RAM/disque."},
+    {id:51,ch:3,q:"Que doit-on faire de façon mensuelle en maintenance préventive ?",o:["Analyse logs uniquement","Nettoyage disque, test sauvegarde, patchs","Audit sécurité complet","Mise à jour firmware"],a:1,e:"Mensuelle : nettoyage disque, test sauvegarde, patchs."},
+    {id:52,ch:3,q:"Que doit-on faire de façon trimestrielle ?",o:["Analyse logs","Nettoyage disque","Mise à jour firmware, test PRA","Audit sécurité complet"],a:2,e:"Trimestrielle : mise à jour firmware, test PRA (Plan de Reprise d'Activité)."},
+    {id:53,ch:3,q:"Que doit-on faire de façon annuelle ?",o:["Analyse logs","Nettoyage disque","Mise à jour firmware","Audit sécurité, documentation complète"],a:3,e:"Annuelle : audit sécurité, documentation complète."},
+    {id:54,ch:3,q:"Quand intervient la maintenance corrective ?",o:["Avant toute panne, préventivement","Lorsqu'une panne, un incident ou un dysfonctionnement apparaît","À chaque mise à jour Windows","Lors de la création du serveur"],a:1,e:"La maintenance corrective intervient lorsqu'une panne, un incident ou un dysfonctionnement apparaît."},
+    {id:55,ch:3,q:"Que faire si AD DS ne démarre plus (panne de service) ?",o:["Réinstaller Windows","Redémarrer le service (Restart-Service) ou corriger la configuration corrompue","Remplacer le disque dur","Créer un nouveau serveur"],a:1,e:"Actions : redémarrer le service (Restart-Service), corriger le fichier ou la configuration corrompue."},
+    {id:56,ch:3,q:"Que faire si le CPU est utilisé à 100 % en permanence ?",o:["Ignorer le problème","Stopper le processus anormal, ajouter de la RAM, optimiser les services","Réinstaller le système d'exploitation","Désactiver le réseau"],a:1,e:"Actions pour problèmes de performance : stopper processus anormal, ajouter RAM ou étendre le disque, optimiser les services."},
+    {id:57,ch:3,q:"Quels outils utiliser pour diagnostiquer les problèmes réseau ?",o:["Event Viewer","ping, tracert, nslookup","Task Manager","Disk Management"],a:1,e:"Test réseau : ping, tracert, nslookup. Puis reconfigurer l'interface IP ou redémarrer DNS/DHCP."},
+    {id:58,ch:3,q:"Quel est l'objectif de la maintenance évolutive ?",o:["Corriger les pannes","Améliorer, moderniser ou faire évoluer l'infrastructure","Désinstaller les logiciels obsolètes","Réduire le nombre de serveurs"],a:1,e:"La maintenance évolutive renforce la sécurité, ajoute de nouvelles fonctionnalités, améliore la performance et prépare la croissance future."},
+    {id:59,ch:3,q:"Quel chemin de migration des versions Windows Server est mentionné dans le cours ?",o:["2008 → 2010 → 2012","2012 R2 → 2016 → 2019 → 2022","2003 → 2008 → 2016","2019 → 2020 → 2021 → 2022"],a:1,e:"Migration de versions : 2012 R2 → 2016 → 2019 → 2022."},
+    {id:60,ch:3,q:"Que faut-il vérifier pour le contrôle de la sécurité ?",o:["Uniquement le pare-feu","Comptes inactifs, groupes sensibles, pare-feu, antivirus, logs de sécurité","Le nombre de fichiers sur le disque","La version de l'Office"],a:1,e:"Vérifier comptes inactifs, groupes Domain Admins, règles pare-feu, antivirus, tentatives d'intrusions."},
+
+    // ===================== CHAPITRE 4 — VIRTUALISATION & VMWARE (20 questions) =====================
+    {id:61,ch:4,q:"Quel est le rôle principal d'un hyperviseur de type 1 ?",o:["Exécuter des applications Windows sur Linux","Installer automatiquement les systèmes d'exploitation","Permettre la virtualisation directement sur le matériel physique","Gérer les imprimantes et les périphériques externes"],a:2,e:"Un hyperviseur de type 1 permet la virtualisation directement sur le matériel physique, sans OS intermédiaire."},
+    {id:62,ch:4,q:"Parmi les solutions suivantes, laquelle est un hyperviseur de type 1 ?",o:["VMware Workstation","Oracle VirtualBox","VMware ESXi","Microsoft Windows"],a:2,e:"VMware ESXi est un hyperviseur de type 1 (bare-metal)."},
+    {id:63,ch:4,q:"Quel est le rôle de vCenter ?",o:["Exécuter des VM","Gérer de façon centralisée plusieurs hôtes ESXi, créer des clusters et configurer la HA","Installer des systèmes d'exploitation","Remplacer ESXi"],a:1,e:"vCenter est un serveur de gestion centralisée pour administrer plusieurs hôtes ESXi."},
+    {id:64,ch:4,q:"Qu'est-ce que vSphere Client ?",o:["Un hyperviseur","Un système d'exploitation","L'interface graphique (web) permettant d'administrer l'infrastructure VMware","Un outil de sauvegarde"],a:2,e:"vSphere Client est l'interface web pour créer des VM, allouer des ressources et surveiller les performances."},
+    {id:65,ch:4,q:"En mode NAT, comment la VM accède-t-elle à Internet ?",o:["Via sa propre adresse IP publique","En utilisant l'adresse IP de l'hôte comme passerelle","En se connectant directement au routeur physique","Elle n'a pas accès à Internet"],a:1,e:"En NAT, la VM utilise l'adresse IP de l'hôte pour accéder à Internet. L'hôte fait office de passerelle."},
+    {id:66,ch:4,q:"En mode NAT, la VM est-elle accessible depuis le réseau LAN externe ?",o:["Oui, directement","Non, la VM n'est pas directement accessible depuis l'extérieur","Oui, mais uniquement via SSH","Oui, via un VPN"],a:1,e:"En NAT, la VM n'est pas directement accessible depuis l'extérieur (limite du mode NAT)."},
+    {id:67,ch:4,q:"En mode Bridge, comment la VM se comporte-t-elle sur le réseau ?",o:["Comme un périphérique isolé","Comme une machine physique sur le même réseau que l'hôte","Comme un serveur DNS","Comme un routeur"],a:1,e:"En Bridge, la VM se comporte comme une machine physique sur le même réseau et obtient une IP depuis le DHCP du réseau physique."},
+    {id:68,ch:4,q:"En mode Bridge, la VM peut-elle communiquer avec les machines du LAN ?",o:["Non, jamais","Oui, librement avec toutes les machines du réseau","Uniquement avec l'hôte","Uniquement avec d'autres VM"],a:1,e:"En Bridge, la VM peut communiquer librement avec toutes les machines du réseau."},
+    {id:69,ch:4,q:"À quoi sert le mode Host-Only ?",o:["Accéder à Internet rapidement","Créer un réseau privé entre l'hôte et les VM, sans accès Internet par défaut","Se connecter au cloud","Partager des fichiers sur le réseau"],a:1,e:"Host-Only : réseau privé entre l'hôte et les VM, pas d'accès Internet par défaut, pour environnements isolés."},
+    {id:70,ch:4,q:"Quel mode réseau offre accès Internet + accès à l'hôte + accessibilité depuis le LAN ?",o:["NAT","Host-Only","Bridge","Aucun"],a:2,e:"Bridge offre accès Internet ✅, accès à l'hôte ✅, et accessibilité depuis le LAN ✅."},
+    {id:71,ch:4,q:"Quel mode réseau n'offre PAS d'accès Internet par défaut ?",o:["NAT","Bridge","Host-Only","Les trois offrent Internet"],a:2,e:"Host-Only n'offre pas d'accès Internet par défaut."},
+    {id:72,ch:4,q:"Qu'est-ce qu'un fichier ISO ?",o:["Un fichier de configuration réseau","Une image d'un disque optique (CD, DVD) pour installer un OS dans une VM","Un format de sauvegarde VMware","Un fichier texte"],a:1,e:"ISO : image d'un disque optique (CD, DVD), utilisé pour installer un système d'exploitation dans une VM."},
+    {id:73,ch:4,q:"Qu'est-ce qu'un fichier VMDK dans un environnement VMware ?",o:["Un script d'installation de VM","Une image ISO du système","Un fichier de configuration réseau","Un disque virtuel contenant les données de la VM"],a:3,e:"VMDK (Virtual Machine Disk) : format utilisé principalement par VMware, contient toutes les données du disque virtuel."},
+    {id:74,ch:4,q:"Quelle est la différence entre VMDK thick et thin ?",o:["Thick est plus rapide, thin est plus stable","Thick réserve l'espace d'avance, thin alloue dynamiquement selon l'usage","Thick est pour Linux, thin est pour Windows","Il n'y a pas de différence"],a:1,e:"Thick : espace réservé d'avance. Thin : s'agrandit selon l'usage (allocation dynamique)."},
+    {id:75,ch:4,q:"Quel format de disque virtuel est développé par Microsoft pour Hyper-V ?",o:["VMDK","ISO","VHD / VHDX","OVA"],a:2,e:"VHD (Virtual Hard Disk) est développé par Microsoft pour Hyper-V. VHDX est la version améliorée."},
+    {id:76,ch:4,q:"Que signifie le terme 'thin provisioning' ?",o:["La VM utilise tout l'espace disque immédiatement","Le disque est sauvegardé en mode compressé","L'espace disque est alloué dynamiquement selon les besoins","L'espace est partagé uniquement entre deux VM"],a:2,e:"Thin provisioning : l'espace disque est alloué dynamiquement selon les besoins de la VM."},
+    {id:77,ch:4,q:"Qu'est-ce qu'un vCPU ?",o:["Un CPU virtuel alloué à une VM","Un processeur physique","Un GPU virtuel","Une carte réseau virtuelle"],a:0,e:"Un vCPU (virtual CPU) est un processeur virtuel alloué à une VM, correspondant à un cœur physique de l'hôte."},
+    {id:78,ch:4,q:"Quelle est l'unité de mesure de la consommation CPU dans un environnement VMware ?",o:["vMIPS","GHz","CPU Ready Time","vCPU Seconds"],a:2,e:"Le CPU Ready Time est l'unité de mesure de consommation CPU en environnement VMware."},
+    {id:79,ch:4,q:"Quelle est la principale conséquence d'une surallocation de vCPU ?",o:["Réduction de la mémoire RAM disponible","Utilisation excessive de l'espace disque","Allongement du CPU Ready Time","Augmentation du trafic réseau"],a:2,e:"La surallocation de vCPU provoque l'allongement du CPU Ready Time (les VM attendent plus longtemps)."},
+    {id:80,ch:4,q:"Dans l'exercice d'examen, combien de vCPU Max alloue-t-il à sa VM ?",o:["1 vCPU","2 vCPU","4 vCPU","8 vCPU"],a:1,e:"Max alloue 2 vCPU, 8 Go de RAM et 100 Go de stockage à sa VM Ubuntu Server 22.04."},
+
+    // ===================== CHAPITRE 5 — SNAPSHOTS, CLONES & TEMPLATES (20 questions) =====================
+    {id:81,ch:5,q:"Quelle technologie permet de sauvegarder l'état d'une VM à un instant donné ?",o:["Clonage","Snapshot","RAID","Reboot"],a:1,e:"Un snapshot est une capture de l'état d'une machine virtuelle à un moment donné."},
+    {id:82,ch:5,q:"Que capture un snapshot de VM ?",o:["Uniquement les fichiers","Le contenu de la mémoire, l'état du processeur et l'état des disques virtuels","Uniquement la configuration réseau","Le BIOS uniquement"],a:1,e:"Le snapshot enregistre : le contenu de la mémoire, l'état du processeur, l'état des disques virtuels."},
+    {id:83,ch:5,q:"Quelle est l'utilité principale d'un snapshot ?",o:["Remplacer une sauvegarde long terme","Faire des sauvegardes rapides avant une mise à jour et pouvoir revenir en arrière","Accélérer la VM","Chiffrer les données"],a:1,e:"Utilité : sauvegardes rapides avant mise à jour, retour en arrière si problème."},
+    {id:84,ch:5,q:"Pourquoi ne faut-il PAS conserver un snapshot longtemps en production ?",o:["Parce qu'il ralentit le réseau","Parce qu'il consomme de l'espace disque supplémentaire et s'accumule","Parce qu'il chiffre les données","Parce qu'il désactive la HA"],a:1,e:"Les snapshots consomment de l'espace disque supplémentaire et ne doivent pas être conservés longtemps en production."},
+    {id:85,ch:5,q:"Quelle est la différence entre un snapshot et une sauvegarde ?",o:["Il n'y a pas de différence","Le snapshot est temporaire (court terme), la sauvegarde est pour le long terme","Le snapshot est plus complet que la sauvegarde","La sauvegarde est plus rapide que le snapshot"],a:1,e:"Snapshot = temporaire, court terme, retour rapide. Sauvegarde = long terme, restauration complète."},
+    {id:86,ch:5,q:"Qu'est-ce qu'un clone complet de VM ?",o:["Un snapshot de la VM","Une copie indépendante de la VM (fichiers de disque, configuration)","Un lien vers la VM originale","Une migration de la VM"],a:1,e:"Clone complet : copie indépendante de la VM qui fonctionne même si la VM d'origine est supprimée."},
+    {id:87,ch:5,q:"Le clone complet fonctionne-t-il si la VM source est supprimée ?",o:["Non, il dépend de la source","Oui, il est totalement indépendant","Seulement si on le reconfigure","Seulement après un redémarrage"],a:1,e:"Le clone complet fonctionne même si la VM d'origine est supprimée car il est totalement indépendant."},
+    {id:88,ch:5,q:"Qu'est-ce qu'un clone lié (linked clone) ?",o:["Une copie totalement indépendante","Une VM qui partage une partie des fichiers de disque avec l'originale","Un snapshot avancé","Une sauvegarde automatique"],a:1,e:"Clone lié : la nouvelle VM partage une partie des fichiers de disque avec l'originale, dépendant de la source."},
+    {id:89,ch:5,q:"Quel est l'avantage du clone lié par rapport au clone complet ?",o:["Il est totalement indépendant","Il est moins gourmand en espace disque","Il est plus rapide à exécuter les applications","Il ne nécessite pas d'hyperviseur"],a:1,e:"Le clone lié est moins gourmand en espace disque car il partage des fichiers avec la VM source."},
+    {id:90,ch:5,q:"Quel est le risque d'un clone lié ?",o:["Il prend trop d'espace disque","Il est lent","Si la VM source est supprimée, le clone lié ne fonctionne plus","Il n'a pas accès au réseau"],a:2,e:"Le clone lié dépend de la VM source. Si elle est supprimée, le clone ne fonctionne plus."},
+    {id:91,ch:5,q:"À quoi sert le clonage de VM ?",o:["Chiffrer les données","Déployer rapidement plusieurs machines basées sur un modèle existant","Supprimer les VM inutilisées","Optimiser le CPU"],a:1,e:"Le clonage permet de déployer rapidement plusieurs machines basées sur un modèle existant."},
+    {id:92,ch:5,q:"Qu'est-ce qu'un template de VM ?",o:["Un disque dur virtuel","Une VM préconfigurée figée (souvent en lecture seule) utilisée comme modèle","Un outil de diagnostic","Un type de snapshot"],a:1,e:"Un template est une VM configurée avec OS + outils + paramètres, figée comme modèle pour créer de nouvelles VM."},
+    {id:93,ch:5,q:"Que permet la fonctionnalité 'template' dans la gestion des VM ?",o:["Optimiser le CPU Ready Time","Cloner rapidement une VM préconfigurée pour standardiser les déploiements","Réinitialiser une VM aux valeurs d'usine","Lancer une VM en mode sans échec"],a:1,e:"Le template permet de cloner rapidement une VM préconfigurée pour standardiser les déploiements."},
+    {id:94,ch:5,q:"Quels éléments contient un template de VM ?",o:["Uniquement le système d'exploitation","Un OS installé + les outils de base + des paramètres prédéfinis (réseau, sécurité)","Uniquement des fichiers de configuration","Uniquement les drivers"],a:1,e:"Un template contient : un OS installé, les outils de base (mises à jour, logiciels) et des paramètres prédéfinis."},
+    {id:95,ch:5,q:"Quelle commande/action permet de migrer une VM en cours d'exécution sans interruption ?",o:["vMotion","vClone","vSnapshot","vStop"],a:0,e:"vMotion permet de migrer une VM en cours d'exécution sans interruption de service."},
+    {id:96,ch:5,q:"Pourquoi Max utilise-t-il vMotion dans l'exercice d'examen ?",o:["Pour supprimer la VM","Pour déplacer la VM vers un hôte moins sollicité et retrouver les performances","Pour faire un snapshot","Pour sauvegarder la VM"],a:1,e:"La VM de Max est lente car plusieurs VM surconsomment les ressources. vMotion la déplace vers un hôte moins chargé."},
+    {id:97,ch:5,q:"Quelle fonctionnalité est essentielle pour la haute disponibilité (HA) des VM ?",o:["Hyper-threading","vSwitch","Redondance réseau","Cluster de virtualisation"],a:3,e:"La fonctionnalité essentielle pour la HA des VM est le cluster de virtualisation."},
+    {id:98,ch:5,q:"Que fait un cluster HA lorsqu'un hôte tombe en panne ?",o:["Il éteint toutes les VM","Les VM redémarrent automatiquement sur un autre hôte disponible","Il envoie un email d'alerte","Il restaure une sauvegarde"],a:1,e:"Grâce au cluster HA, les VM redémarrent automatiquement sur un autre hôte disponible du cluster."},
+    {id:99,ch:5,q:"Quel outil de sauvegarde VM est cité dans l'examen de Max ?",o:["Windows Backup","Veeam","Acronis","Bacula"],a:1,e:"Max avait configuré une sauvegarde automatique quotidienne avec Veeam pour protéger les VM."},
+    {id:100,ch:5,q:"Pourquoi est-il important de documenter les actions et surveiller les VM régulièrement ?",o:["Pour obtenir une promotion","Pour garantir la stabilité, la performance et la résilience de l'infrastructure","Pour remplir un rapport obligatoire","Pour occuper le temps libre"],a:1,e:"Documentation et surveillance régulière garantissent stabilité, performance et résilience de l'infrastructure."}
+    ];
+
+    // ===================== QCM ENGINE =====================
+    let currentMode = 'chapter';
+    let currentChapter = 0;
+    let filteredQuestions = [];
+    let answered = 0;
+    let correct = 0;
+    let errors = JSON.parse(localStorage.getItem('rdws_qcm_errors') || '[]');
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        event.target.closest('.mode-btn').classList.add('active');
+        document.getElementById('chapterFilter').style.display = mode === 'chapter' ? 'flex' : 'none';
+        loadQuestions();
+    }
+
+    function filterChapter(ch) {
+        currentChapter = ch;
+        document.querySelectorAll('.chapter-filter button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        loadQuestions();
+    }
+
+    function loadQuestions() {
+        answered = 0; correct = 0;
+        updateScore();
+        let qs = [];
+        switch(currentMode) {
+            case 'chapter':
+                qs = currentChapter === 0 ? [...ALL_QUESTIONS] : ALL_QUESTIONS.filter(q => q.ch === currentChapter);
+                break;
+            case 'exam':
+                qs = shuffle([...ALL_QUESTIONS]).slice(0, 20);
+                break;
+            case 'random':
+                qs = shuffle([...ALL_QUESTIONS]);
+                break;
+            case 'errors':
+                qs = ALL_QUESTIONS.filter(q => errors.includes(q.id));
+                if (qs.length === 0) {
+                    document.getElementById('qcmArea').innerHTML = '<div class="glass-card" style="text-align:center;padding:2rem;"><h3>🎉 Aucune erreur à réviser !</h3><p>Vous n\'avez commis aucune erreur, ou vous avez corrigé toutes vos erreurs.</p></div>';
+                    return;
+                }
+                break;
+        }
+        filteredQuestions = qs;
+        renderQuestions(qs);
+    }
+
+    function renderQuestions(qs) {
+        const area = document.getElementById('qcmArea');
+        const chLabels = ['','Sauvegarde','HA & Clustering','Maintenance','Virtualisation','Snapshots/Clones'];
+        area.innerHTML = qs.map((q, idx) => `
+            <div class="glass-card qcm-card" id="q${q.id}">
+                <p class="question-text">
+                    <span class="qcm-badge ch${q.ch}">Ch.${q.ch}</span>
+                    <strong>Q${idx+1}.</strong> ${q.q}
+                </p>
+                <ul class="options-list">
+                    ${q.o.map((opt, oi) => `<li><button class="option-btn" onclick="checkAnswer(${q.id},${oi},this)">${String.fromCharCode(65+oi)}. ${opt}</button></li>`).join('')}
+                </ul>
+                <div class="explanation" id="exp${q.id}">${q.e}</div>
+            </div>
+        `).join('');
+    }
+
+    function checkAnswer(qId, selected, btn) {
+        const q = ALL_QUESTIONS.find(x => x.id === qId);
+        const card = document.getElementById('q' + qId);
+        const buttons = card.querySelectorAll('.option-btn');
+        if (btn.classList.contains('disabled')) return;
+
+        buttons.forEach((b, i) => {
+            b.classList.add('disabled');
+            if (i === q.a) b.classList.add('correct');
+        });
+
+        answered++;
+        if (selected === q.a) {
+            correct++;
+            btn.classList.add('correct');
+            errors = errors.filter(x => x !== qId);
+        } else {
+            btn.classList.add('incorrect');
+            if (!errors.includes(qId)) errors.push(qId);
+        }
+        localStorage.setItem('rdws_qcm_errors', JSON.stringify(errors));
+        document.getElementById('exp' + qId).classList.add('show');
+        updateScore();
+    }
+
+    function updateScore() {
+        const total = filteredQuestions.length;
+        const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('scoreDisplay').innerHTML = `Score : <strong>${correct}</strong> / ${answered} ${answered > 0 ? `(${Math.round(correct/answered*100)}%)` : ''} — ${total - answered} restantes`;
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // Init
+    loadQuestions();
+    </script>
+</body>
+</html>

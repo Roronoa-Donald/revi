@@ -184,6 +184,16 @@ module.exports = async function authRoutes(fastify) {
         return reply.send({ authenticated: false });
       }
 
+      // Vérifier si la clé est expirée
+      if (keyRecord.expires_at && new Date(keyRecord.expires_at) < new Date()) {
+        return reply.send({ authenticated: false, reason: 'expired' });
+      }
+
+      // Vérifier la classe de clé
+      if (keyRecord.class && keyRecord.class !== 'b2') {
+        return reply.send({ authenticated: false });
+      }
+
       // Note : on ne vérifie PAS l'expiration ici.
       // Seule la déconnexion manuelle ou la révocation admin coupe l'accès.
 
