@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chapitre 4 - Creation et gestion des machines virtuelles</title>
-    <meta name="description" content="Creer des VMs dans Proxmox, gerer snapshots, templates, clones et reseau inter-VM.">
+    <title>Chapitre 4 - Cycle de vie des machines virtuelles</title>
+    <meta name="description" content="Cycle de vie des VMs, allocation des ressources, snapshots, templates, clones et identite reseau.">
     <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
@@ -49,83 +49,81 @@
 
     <section class="hero-section">
         <span class="hero-badge"><i class="fas fa-desktop"></i> Chapitre 4</span>
-        <h1 class="hero-title">Creation & <span class="gradient-text">Gestion des VMs</span></h1>
-        <p class="hero-description">Creer des VMs propres, gerer templates, clones et snapshots, puis connecter les VMs entre elles.</p>
+        <h1 class="hero-title">Cycle de vie des <span class="gradient-text">VMs</span></h1>
+        <p class="hero-description">Comprendre le cycle de vie des VMs, les ressources et les liens entre identite, stockage et reseau.</p>
     </section>
 
     <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 3rem;">
         <article class="glass-card">
             <h2><i class="fas fa-cubes"></i> Concepts essentiels</h2>
             <ul>
-                <li><strong>VM</strong> : machine virtuelle isolee.</li>
-                <li><strong>Template</strong> : modele pour cloner rapidement.</li>
-                <li><strong>Clone</strong> : copie d'une VM (full ou linked).</li>
-                <li><strong>Snapshot</strong> : etat fige pour retour arriere rapide.</li>
+                <li><strong>VM</strong> : unite d'execution isolee avec ses ressources.</li>
+                <li><strong>Template</strong> : modele standardise pour uniformiser.</li>
+                <li><strong>Clone</strong> : duplication d'un etat existant.</li>
+                <li><strong>Snapshot</strong> : point de retour temporel.</li>
             </ul>
-            <div class="info-box">Astuce : utilise un template Windows/Ubuntu propre, puis clone pour gagner du temps.</div>
+            <div class="info-box">Ces notions se combinent pour accelerer la creation sans perdre le controle.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-plus"></i> Creer une VM (Proxmox)</h2>
-            <ol>
-                <li>Upload de l'ISO dans <code>local</code> (Datacenter &gt; Storage).</li>
-                <li>Bouton <strong>Create VM</strong> : nom clair (ex. <code>SRV-AD</code>).</li>
-                <li>Choisir l'ISO, la taille disque, le type de stockage.</li>
-                <li>Allouer CPU, RAM et reseau (bridge <code>vmbr0</code>).</li>
-                <li>Demarrer la VM et installer l'OS.</li>
-            </ol>
-            <div class="warning-box">Pour Windows, active le disque <strong>VirtIO</strong> et installe les drivers VirtIO.</div>
+            <h2><i class="fas fa-plus"></i> Cycle de vie d'une VM</h2>
+            <ul>
+                <li><strong>Conception</strong> : objectifs, charges, criticite.</li>
+                <li><strong>Provisioning</strong> : ressources, stockage, reseau.</li>
+                <li><strong>Exploitation</strong> : supervision, mises a jour, sauvegarde.</li>
+                <li><strong>Retrait</strong> : archivage, nettoyage, tracabilite.</li>
+            </ul>
+            <div class="warning-box">Une VM sans cycle de vie clair devient vite un risque.</div>
         </article>
 
         <article class="glass-card">
             <h2><i class="fas fa-gauge-high"></i> Allocation de ressources</h2>
             <ul>
-                <li><strong>vCPU</strong> : 1 a 2 vCPU pour un serveur leger, 4+ pour base de donnees.</li>
-                <li><strong>RAM</strong> : ne donne pas tout, laisse 20-30% libre pour l'hote.</li>
-                <li><strong>Disque</strong> : thin si stockage limite, thick si performance.</li>
+                <li><strong>vCPU</strong> : partage temporel du CPU physique.</li>
+                <li><strong>RAM</strong> : ressource non elastique, a dimensionner finement.</li>
+                <li><strong>Disque</strong> : thin pour la souplesse, thick pour la performance.</li>
             </ul>
-            <div class="success-box">Regle simple : commence petit, puis augmente selon la charge.</div>
+            <div class="success-box">Principe : dimensionner selon la charge et la priorite.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-link"></i> Reseau entre VMs</h2>
-            <p>Un bridge relie les VMs au reseau physique. Pour que les VMs se voient :</p>
+            <h2><i class="fas fa-link"></i> Identite et reseau des VMs</h2>
+            <p>Le reseau donne une identite et un perimetre a la VM.</p>
             <ul>
-                <li>Attribue des IP fixes (ex. 192.168.10.10 / 11 / 12).</li>
-                <li>Verifie le ping entre les VMs.</li>
-                <li>Utilise un VLAN si tu veux isoler les environnements.</li>
+                <li><strong>Bridge</strong> : lien entre virtuel et physique.</li>
+                <li><strong>VLAN</strong> : isolation logique des flux.</li>
+                <li><strong>Adressage</strong> : lisibilite et gouvernance.</li>
             </ul>
-            <div class="info-box">Exemple : une VM AD + une VM Web + une VM DB sur le meme bridge.</div>
+            <div class="info-box">Une topologie claire facilite la securite et le diagnostic.</div>
         </article>
 
         <article class="glass-card">
             <h2><i class="fas fa-camera"></i> Snapshots et restauration</h2>
-            <p>Un snapshot permet de revenir en arriere apres un test risque.</p>
+            <p>Un snapshot fige l'etat d'une VM a un instant T.</p>
             <ul>
-                <li>Prends un snapshot avant une mise a jour.</li>
-                <li>Supprime les snapshots anciens pour economiser le stockage.</li>
+                <li>Utile pour revenir en arriere apres un changement.</li>
+                <li>Ne remplace pas une sauvegarde externe.</li>
             </ul>
-            <div class="warning-box">Un snapshot n'est <strong>pas</strong> un backup complet. Il reste sur le meme stockage.</div>
+            <div class="warning-box">Snapshot = retour rapide, backup = resilence.</div>
         </article>
 
         <article class="glass-card">
             <h2><i class="fas fa-clone"></i> Templates et clones</h2>
-            <ol>
-                <li>Installe un OS propre (updates + agents).</li>
-                <li>Nettoie et generalise (sysprep pour Windows).</li>
-                <li>Convertis en <strong>template</strong>.</li>
-                <li>Clone a partir du template pour tes nouvelles VMs.</li>
-            </ol>
-            <div class="success-box">Resultat : creation d'une VM en moins de 2 minutes.</div>
+            <ul>
+                <li><strong>Template</strong> : standard de reference pour coherence.</li>
+                <li><strong>Clone full</strong> : independant, plus lourd.</li>
+                <li><strong>Clone linked</strong> : rapide, depend du template.</li>
+            </ul>
+            <div class="success-box">La strategie template garantit la qualite et la rapidite.</div>
         </article>
 
         <article class="glass-card">
             <h2><i class="fas fa-list-check"></i> Bonnes pratiques</h2>
             <ul>
-                <li>Nommer clairement : <code>SRV-AD</code>, <code>WEB-01</code>, <code>DB-01</code>.</li>
-                <li>Tagger les VMs (prod, test, dev).</li>
-                <li>Activer <strong>QEMU Guest Agent</strong> pour une meilleure gestion.</li>
-                <li>Surveiller l'usage CPU/RAM via le dashboard.</li>
+                <li>Nommer et classer pour la lisibilite.</li>
+                <li>Tagger les VMs selon leur criticite.</li>
+                <li>Surveiller les ressources pour eviter la contention.</li>
+                <li>Documenter les dependances entre VMs.</li>
             </ul>
         </article>
     </main>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapitre 2 - Prerequis et virtualisation imbriquee</title>
-    <meta name="description" content="Materiel, BIOS/UEFI, Windows, macOS et Linux pour activer la virtualisation et la nested virtualisation.">
+    <meta name="description" content="Prerequis conceptuels : couches materiel/firmware/OS, virtualisation imbriquee et limites de performance.">
     <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
@@ -50,104 +50,97 @@
     <section class="hero-section">
         <span class="hero-badge"><i class="fas fa-screwdriver-wrench"></i> Chapitre 2</span>
         <h1 class="hero-title">Prerequis & <span class="gradient-text">Virtualisation Imbriquee</span></h1>
-        <p class="hero-description">Tout preparer pour lancer un lab solide : materiel, BIOS/UEFI, systeme et verification.</p>
+        <p class="hero-description">Comprendre les prerequis conceptuels : CPU, firmware, OS et couches d'abstraction.</p>
     </section>
 
     <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 3rem;">
         <article class="glass-card">
             <h2><i class="fas fa-question"></i> Pourquoi la virtualisation imbriquee ?</h2>
-            <p>La virtualisation imbriquee (nested) permet d'executer un hyperviseur <em>dans</em> une VM. C'est ideal pour :</p>
+            <p>La virtualisation imbriquee consiste a executer un hyperviseur <em>dans</em> une VM. Elle met en evidence la chaine d'abstraction : materiel -> hyperviseur -> VM -> hyperviseur -> VM.</p>
             <ul>
-                <li>les laboratoires (ex. installer Proxmox dans une VM),</li>
-                <li>la formation sans multiplier les serveurs,</li>
-                <li>les tests d'architecture ou de migration.</li>
+                <li>Utile pour comprendre les couches, pas pour la performance.</li>
+                <li>Montre la difference entre isolement logique et limites physiques.</li>
+                <li>Aide a raisonner sur les dependances (CPU, I/O, reseau).</li>
             </ul>
-            <div class="warning-box"><strong>Limite :</strong> la performance est plus faible. Utilise-la pour apprendre et tester, pas pour la production.</div>
+            <div class="warning-box"><strong>A retenir :</strong> plus on empile les couches, plus la latence augmente.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-microchip"></i> Prerequis materiels</h2>
+            <h2><i class="fas fa-microchip"></i> Prerequis materiels (concepts)</h2>
             <ul>
-                <li><strong>CPU</strong> avec Intel VT-x ou AMD-V active.</li>
-                <li><strong>RAM</strong> : minimum 16 Go (32 Go recommande pour un lab complet).</li>
-                <li><strong>Disque</strong> : SSD avec 100 Go libres (plus si plusieurs VMs).</li>
-                <li><strong>BIOS/UEFI</strong> a jour (met a jour si possible).</li>
+                <li><strong>Extensions CPU</strong> (VT-x / AMD-V) : base de l'isolation materielle.</li>
+                <li><strong>RAM</strong> : ressource la plus critique, car partagee entre VMs.</li>
+                <li><strong>I/O disque</strong> : limite directe de la reactivite des VMs.</li>
+                <li><strong>Reseau</strong> : debit et latence conditionnent les migrations et services.</li>
             </ul>
-            <div class="info-box">Astuce : un CPU 6 a 8 coeurs + 32 Go RAM permet de simuler un mini datacenter.</div>
+            <div class="info-box">Le prerequis principal est la <strong>capacite</strong> (CPU/RAM/I/O), pas une marque ou un modele.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-wrench"></i> Activer la virtualisation dans le BIOS/UEFI</h2>
-            <ol>
-                <li>Redemarre le PC et entre dans le BIOS/UEFI (F2, Del, Esc selon la marque).</li>
-                <li>Active <strong>Intel VT-x</strong> ou <strong>AMD-V/SVM</strong>.</li>
-                <li>Active aussi <strong>VT-d</strong> (IOMMU) si disponible.</li>
-                <li>Sauvegarde et redemarre.</li>
-            </ol>
-            <div class="success-box">Apres activation, Windows doit afficher "Virtualisation : activee" dans le Gestionnaire des taches.</div>
-        </article>
-
-        <article class="glass-card">
-            <h2><i class="fas fa-windows"></i> Configurer Windows (Hyper-V vs VMware/VirtualBox)</h2>
-            <p>Sur Windows, Hyper-V peut bloquer VMware/VirtualBox. Choisis <strong>une seule pile</strong> :</p>
+            <h2><i class="fas fa-wrench"></i> Role du BIOS/UEFI et des extensions</h2>
+            <p>Le firmware expose ou bloque les extensions de virtualisation. Sans elles, l'hyperviseur ne peut pas isoler les VMs correctement.</p>
             <ul>
-                <li><strong>Option A</strong> : utiliser Hyper-V (bon pour WSL2, mais limite VMware).</li>
-                <li><strong>Option B</strong> : desactiver Hyper-V pour VMware/VirtualBox.</li>
+                <li><strong>VT-x / AMD-V</strong> : execution directe des instructions privilegiees.</li>
+                <li><strong>VT-d / IOMMU</strong> : isolation des acces peripheriques.</li>
+                <li><strong>Secure Boot</strong> : influence le chargement de certains hyperviseurs.</li>
             </ul>
-            <div class="code-block">
-                <span class="comment"># Desactiver Hyper-V (option B)</span><br>
-                <span class="cmd">bcdedit</span> /set hypervisorlaunchtype off<br>
-                <span class="comment"># Redemarrer ensuite</span>
-            </div>
-            <p>Verifie avec <code>msinfo32</code> : la ligne "Hyper-V - Extensions de virtualisation" doit etre OK.</p>
-            <div class="warning-box">Sous Windows 11, desactive aussi "Integrite de la memoire" si VirtualBox refuse de demarrer.</div>
+            <div class="success-box">A retenir : le firmware controle l'acces au materiel et conditionne la virtualisation.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-linux"></i> Configurer Linux (KVM)</h2>
-            <p>Sur Linux, verifie le support CPU :</p>
-            <div class="code-block">
-                <span class="cmd">egrep</span> -c '(vmx|svm)' /proc/cpuinfo
-            </div>
-            <p>Installe KVM et verifie :</p>
-            <div class="code-block">
-                <span class="cmd">sudo</span> apt install qemu-kvm libvirt-daemon-system<br>
-                <span class="cmd">kvm-ok</span>
-            </div>
-            <div class="success-box">Si "KVM acceleration can be used", ton systeme est pret.</div>
-        </article>
-
-        <article class="glass-card">
-            <h2><i class="fas fa-apple"></i> Configurer macOS</h2>
+            <h2><i class="fas fa-windows"></i> Conflits de couches sur un meme OS</h2>
+            <p>Sur un OS hote, plusieurs hyperviseurs peuvent entrer en conflit car ils cherchent a controler les memes extensions CPU.</p>
             <ul>
-                <li><strong>Mac Intel</strong> : VMware Fusion ou Parallels supportent bien la virtualisation.</li>
-                <li><strong>Apple Silicon (M1/M2)</strong> : prefere UTM ou Parallels, mais la nested virtualisation est limitee.</li>
+                <li><strong>Hyper-V</strong> s'interpose entre l'OS et le materiel.</li>
+                <li><strong>Hyperviseurs de type 2</strong> s'appuient sur l'OS hote.</li>
+                <li>Le choix d'une pile conditionne les performances et la compatibilite.</li>
             </ul>
-            <div class="info-box">Sur Apple Silicon, l'objectif est surtout d'apprendre les concepts, pas de monter un cluster complet.</div>
+            <div class="warning-box">Concept cle : un seul moteur doit posseder l'acces privilegie au CPU.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-check-circle"></i> Verifier avant de continuer</h2>
+            <h2><i class="fas fa-linux"></i> Pile KVM : noyau, QEMU, libvirt</h2>
+            <p>Sur Linux, KVM est un module du noyau qui fournit l'acceleration materielle. QEMU emule et orchestre, libvirt unifie la gestion.</p>
             <ul>
-                <li>Le BIOS/UEFI affiche VT-x/AMD-V actif.</li>
-                <li>Windows : "Virtualisation activee" dans le Gestionnaire des taches.</li>
-                <li>Linux : <code>kvm-ok</code> renvoie OK.</li>
-                <li>Une VM peut demarrer sans erreur.</li>
+                <li><strong>Noyau</strong> : support des extensions CPU.</li>
+                <li><strong>QEMU</strong> : creation et execution des VMs.</li>
+                <li><strong>Libvirt</strong> : couche de pilotage et d'API.</li>
             </ul>
-            <div class="success-box">Si tout est OK, tu peux installer Proxmox VE dans le chapitre suivant.</div>
+            <div class="success-box">Concept cle : l'acceleration materielle reduit la penalite de virtualisation.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-triangle-exclamation"></i> Depannage rapide</h2>
+            <h2><i class="fas fa-apple"></i> macOS et differences d'architecture</h2>
+            <ul>
+                <li><strong>Mac Intel</strong> : architecture proche x86 classique.</li>
+                <li><strong>Apple Silicon</strong> : architecture ARM, compatibilite differente.</li>
+                <li>Les performances et limites decoulent surtout de l'architecture CPU.</li>
+            </ul>
+            <div class="info-box">Sur ARM, l'objectif est surtout de comprendre les concepts, pas de simuler un grand cluster.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-check-circle"></i> Verifier la coherence du modele</h2>
+            <ul>
+                <li>Tu sais distinguer materiel, hyperviseur et VM.</li>
+                <li>Tu comprends ou se situe le plan de gestion.</li>
+                <li>Tu peux expliquer pourquoi la nested virtualisation est plus lente.</li>
+                <li>Tu peux argumenter un choix d'architecture.</li>
+            </ul>
+            <div class="success-box">Si ces points sont clairs, tu es pret pour la suite.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-triangle-exclamation"></i> Erreurs conceptuelles courantes</h2>
             <table class="styled-table">
                 <thead>
-                    <tr><th>Symptome</th><th>Cause probable</th><th>Solution</th></tr>
+                    <tr><th>Confusion</th><th>Risque</th><th>Clarification</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>VM ne demarre pas</td><td>VT-x/AMD-V desactive</td><td>Activer dans le BIOS/UEFI</td></tr>
-                    <tr><td>VM lent</td><td>Pas assez de RAM</td><td>Augmenter RAM, fermer apps</td></tr>
-                    <tr><td>VirtualBox refuse</td><td>Hyper-V actif</td><td>Desactiver Hyper-V (bcdedit)</td></tr>
-                    <tr><td>Erreur KVM</td><td>Module non charge</td><td>Verifier <code>lsmod | grep kvm</code></td></tr>
+                    <tr><td>Hyperviseur = OS hote</td><td>Mauvais choix de modele</td><td>Un hyperviseur pilote le materiel, l'OS hote est une couche differente.</td></tr>
+                    <tr><td>Nested = production</td><td>Performance insuffisante</td><td>Nested est avant tout pedagogique.</td></tr>
+                    <tr><td>CPU suffisant, RAM secondaire</td><td>Saturation rapide</td><td>La RAM limite le nombre de VMs.</td></tr>
+                    <tr><td>Stockage secondaire</td><td>Services instables</td><td>Les I/O disque conditionnent la reactivite.</td></tr>
                 </tbody>
             </table>
         </article>

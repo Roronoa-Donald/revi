@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapitre 6 - Reseau virtualise et segmentation</title>
-    <meta name="description" content="Bridges, VLAN, DMZ, pare-feu et bonnes pratiques pour un reseau virtualise securise.">
+    <meta name="description" content="Bridges, VLAN, DMZ, NAT et modeles d'isolation pour un reseau virtualise securise.">
     <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
@@ -66,20 +66,13 @@
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-code-branch"></i> Configuration d'un bridge Proxmox</h2>
-            <p>Par defaut, Proxmox cree <code>vmbr0</code> lie a la carte reseau physique.</p>
+            <h2><i class="fas fa-code-branch"></i> Modele de bridge</h2>
+            <p>Un bridge est un switch virtuel. Il relie des VMs entre elles et vers le reseau physique.</p>
             <ul>
-                <li><strong>vmbr0</strong> : reseau principal (LAN).</li>
-                <li><strong>vmbr1</strong> : reseau isole (test ou DMZ).</li>
+                <li><strong>Bridge principal</strong> : LAN de production.</li>
+                <li><strong>Bridge isole</strong> : tests ou DMZ.</li>
             </ul>
-            <div class="code-block">
-                <span class="comment"># Exemple de bridge (Linux)</span><br>
-                auto vmbr0<br>
-                iface vmbr0 inet static<br>
-                &nbsp;&nbsp;address 192.168.10.2/24<br>
-                &nbsp;&nbsp;gateway 192.168.10.1<br>
-                &nbsp;&nbsp;bridge-ports eno1
-            </div>
+            <div class="info-box">Concept cle : le bridge transporte le trafic, pas les politiques de securite.</div>
         </article>
 
         <article class="glass-card">
@@ -90,7 +83,7 @@
                 <li>VLAN 20 : serveurs</li>
                 <li>VLAN 30 : DMZ</li>
             </ul>
-            <div class="info-box">Avec Proxmox, active le VLAN tagging dans la configuration de la VM.</div>
+            <div class="info-box">Le tagging VLAN est un mecanisme logique : il ne remplace pas le pare-feu.</div>
         </article>
 
         <article class="glass-card">
@@ -105,17 +98,17 @@
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-magnifying-glass"></i> Diagnostiquer le reseau</h2>
+            <h2><i class="fas fa-magnifying-glass"></i> Diagnostiquer le reseau (concepts)</h2>
             <ul>
-                <li><code>ping</code> : test de connectivite basique.</li>
-                <li><code>traceroute</code> : chemin des paquets.</li>
-                <li><code>tcpdump</code> : inspection du trafic.</li>
-                <li>Verifie les regles firewall et les VLAN tags.</li>
+                <li><strong>Connectivite</strong> : la VM atteint-elle sa cible ?</li>
+                <li><strong>Chemin</strong> : par quelles zones passe le trafic ?</li>
+                <li><strong>Filtrage</strong> : quelles regles bloquent ou autorisent ?</li>
+                <li><strong>Segmentation</strong> : VLAN et DMZ respectes ?</li>
             </ul>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-briefcase"></i> Mini cas pratique</h2>
+            <h2><i class="fas fa-briefcase"></i> Scenario type</h2>
             <p>Une agence veut heberger un site web et un ERP interne.</p>
             <ul>
                 <li>Web en DMZ (VLAN 30).</li>

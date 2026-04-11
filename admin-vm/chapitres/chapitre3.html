@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chapitre 3 - Installation et configuration des hyperviseurs</title>
-    <meta name="description" content="Installer Proxmox VE, configurer le reseau, les depots, les mises a jour et les comptes.">
+    <title>Chapitre 3 - Architecture des hyperviseurs</title>
+    <meta name="description" content="Architecture des hyperviseurs, plans de gestion et de donnees, cycle de vie et securite.">
     <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
@@ -49,84 +49,81 @@
 
     <section class="hero-section">
         <span class="hero-badge"><i class="fas fa-server"></i> Chapitre 3</span>
-        <h1 class="hero-title">Installation & <span class="gradient-text">Configuration</span> des Hyperviseurs</h1>
-        <p class="hero-description">Installer Proxmox VE proprement, configurer le reseau, les depots et la securite de base.</p>
+        <h1 class="hero-title">Architecture des <span class="gradient-text">Hyperviseurs</span></h1>
+        <p class="hero-description">Comprendre l'architecture, les roles et le cycle de vie des hyperviseurs.</p>
     </section>
 
     <main id="main-content" style="max-width:900px;margin:0 auto;padding:0 1.5rem 3rem;">
         <article class="glass-card">
-            <h2><i class="fas fa-list-check"></i> Avant de commencer</h2>
+            <h2><i class="fas fa-list-check"></i> Architecture d'un hyperviseur</h2>
             <ul>
-                <li>ISO Proxmox VE telechargee et cle USB bootable.</li>
-                <li>Plan IP simple (ex. 192.168.10.0/24) et un nom de host clair.</li>
-                <li>Mot de passe root solide.</li>
+                <li><strong>Plan de donnees</strong> : execution des VMs et I/O.</li>
+                <li><strong>Plan de gestion</strong> : interface, API, roles et audit.</li>
+                <li><strong>Stockage</strong> : modele de disques et snapshots.</li>
+                <li><strong>Reseau</strong> : commutation virtuelle, VLAN, securite.</li>
             </ul>
-            <div class="info-box">Proxmox se gere via une interface web : tu auras besoin d'un navigateur et d'une IP fixe pour l'hote.</div>
+            <div class="info-box">Un hyperviseur reunit compute, stockage et reseau sous un pilotage central.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-download"></i> Installation de Proxmox VE (pas a pas)</h2>
-            <ol>
-                <li>Boote sur la cle USB Proxmox.</li>
-                <li>Accepte la licence et choisis le disque (LVM ou ZFS).</li>
-                <li>Definis la langue, le fuseau horaire et le clavier.</li>
-                <li>Configure le reseau : IP fixe, passerelle, DNS.</li>
-                <li>Fixe le mot de passe root et un email d'admin.</li>
-            </ol>
-            <div class="warning-box">Choisis un disque fiable. Les VMs dependent directement de la qualite du stockage.</div>
-        </article>
-
-        <article class="glass-card">
-            <h2><i class="fas fa-globe"></i> Premier acces a l'interface web</h2>
-            <p>Apres l'installation :</p>
+            <h2><i class="fas fa-download"></i> Modele d'installation et dependances</h2>
+            <p>Un hyperviseur de type 1 s'installe directement sur le materiel. Les choix initiaux structurent la suite :</p>
             <ul>
-                <li>Accede a <code>https://IP_DU_HOST:8006</code></li>
-                <li>Connecte-toi avec <code>root</code> et ton mot de passe.</li>
-                <li>Verifie l'heure, la zone et l'etat du reseau.</li>
+                <li><strong>Stockage</strong> : LVM-thin privilegie la souplesse, ZFS la robustesse.</li>
+                <li><strong>Reseau</strong> : plan IP et segmentation definissent la gouvernance.</li>
+                <li><strong>Identite</strong> : noms clairs, roles et perimetres.</li>
             </ul>
-            <div class="success-box">Si l'interface web s'affiche, Proxmox est operationnel.</div>
+            <div class="warning-box">Le stockage est le point de defaillance principal : il conditionne toute la plateforme.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-rotate"></i> Depots et mises a jour</h2>
-            <p>Proxmox propose deux depots :</p>
+            <h2><i class="fas fa-globe"></i> Plan de gestion et gouvernance</h2>
             <ul>
-                <li><strong>Enterprise</strong> : payant, tres stable.</li>
-                <li><strong>No-subscription</strong> : gratuit, ideal pour les labs.</li>
+                <li><strong>Acces d'administration</strong> : qui peut faire quoi ?</li>
+                <li><strong>Tracabilite</strong> : journaliser les changements.</li>
+                <li><strong>Disponibilite</strong> : planifier la maintenance.</li>
             </ul>
-            <div class="code-block">
-                <span class="comment"># Activer le depot gratuit</span><br>
-                <span class="cmd">nano</span> /etc/apt/sources.list.d/pve-enterprise.list<br>
-                <span class="comment"># Commente la ligne, puis ajoute :</span><br>
-                <span class="cmd">echo</span> "deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription" | <span class="cmd">tee</span> /etc/apt/sources.list.d/pve-no-subscription.list<br>
-                <span class="cmd">apt</span> update && <span class="cmd">apt</span> full-upgrade
-            </div>
+            <div class="success-box">Un bon plan de gestion limite les erreurs humaines.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-user-shield"></i> Comptes et securite de base</h2>
+            <h2><i class="fas fa-rotate"></i> Cycle de maintenance</h2>
+            <p>Les hyperviseurs suivent un cycle de maintenance qui equilibre stabilite et innovation.</p>
             <ul>
-                <li>Cree un compte admin non-root pour la gestion quotidienne.</li>
-                <li>Active le pare-feu Proxmox (Datacenter > Firewall).</li>
-                <li>Limite l'acces a l'interface web par IP si possible.</li>
+                <li><strong>Canal stable</strong> : moins de surprises, support structure.</li>
+                <li><strong>Canal communautaire</strong> : plus agile, plus de changements.</li>
+                <li><strong>Fenetre de maintenance</strong> : limite l'impact sur la prod.</li>
             </ul>
-            <div class="warning-box">Ne laisse pas l'interface exposee sur Internet sans VPN ou filtre IP.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-warehouse"></i> Stockage et reseau initial</h2>
+            <h2><i class="fas fa-user-shield"></i> Comptes et securite</h2>
             <ul>
-                <li>Verifie la presence de <code>local</code> et <code>local-lvm</code>.</li>
-                <li>Configure un bridge <code>vmbr0</code> pour les VMs.</li>
-                <li>Ajoute un stockage NFS/iSCSI si besoin (chapitre 5).</li>
+                <li><strong>Moindre privilege</strong> : roles limites et delegation.</li>
+                <li><strong>Surface d'attaque</strong> : reduire l'exposition du plan de gestion.</li>
+                <li><strong>Audit</strong> : tracer les actions critiques.</li>
             </ul>
-            <div class="info-box">Un bridge = un switch virtuel. Il relie les VMs au reseau physique.</div>
+            <div class="warning-box">Un hyperviseur non gouverne expose toutes les VMs.</div>
         </article>
 
         <article class="glass-card">
-            <h2><i class="fas fa-lightbulb"></i> Et VMware ESXi ?</h2>
-            <p>ESXi suit une logique similaire : installation sur serveur nu, interface web, configuration reseau et datastore. Il reste une reference, mais Proxmox est plus accessible en open-source.</p>
-            <div class="success-box"><strong>Objectif du cours :</strong> maitriser Proxmox, comprendre ESXi pour pouvoir s'adapter sur le terrain.</div>
+            <h2><i class="fas fa-warehouse"></i> Lien compute, stockage, reseau</h2>
+            <ul>
+                <li><strong>Compute</strong> : vCPU et RAM disponibles pour les VMs.</li>
+                <li><strong>Stockage</strong> : performance et resilience des disques virtuels.</li>
+                <li><strong>Reseau</strong> : flux entre VMs et vers l'exterieur.</li>
+            </ul>
+            <div class="info-box">Le bridge est le concept de base pour relier VMs et reseau physique.</div>
+        </article>
+
+        <article class="glass-card">
+            <h2><i class="fas fa-lightbulb"></i> Proxmox vs ESXi (vision theorique)</h2>
+            <p>Les deux suivent la meme logique : hyperviseur type 1, plan de gestion, stockage et reseau virtuels.</p>
+            <ul>
+                <li><strong>ESXi</strong> : reference entreprise, ecosyste mature.</li>
+                <li><strong>Proxmox</strong> : open-source, accessible et flexible.</li>
+            </ul>
+            <div class="success-box"><strong>Objectif :</strong> comprendre les principes communs pour s'adapter a tout outil.</div>
         </article>
     </main>
 
