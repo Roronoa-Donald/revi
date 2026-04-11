@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+export const config = { runtime: 'edge' };
 
 const COURSE_DIRS = [
   'linux',
@@ -44,27 +44,28 @@ function getCourseFromPath(pathname) {
   return null;
 }
 
-function buildRedirect(request, course, reason) {
-  const redirectTarget = encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search);
-  let url = `/_auth/activate.html?redirect=${redirectTarget}`;
+function buildRedirect(requestUrl, course, reason) {
+  const redirectTarget = encodeURIComponent(requestUrl.pathname + requestUrl.search);
+  let url = `${requestUrl.origin}/_auth/activate.html?redirect=${redirectTarget}`;
   if (course) url += `&course=${encodeURIComponent(course)}`;
   if (reason === 'scope') url += '&error=scope';
-  return NextResponse.redirect(new URL(url, request.nextUrl.origin));
+  return Response.redirect(url, 307);
 }
 
-export async function middleware(request) {
-  const { pathname } = request.nextUrl;
+export default async function middleware(request) {
+  const requestUrl = new URL(request.url);
+  const { pathname } = requestUrl;
 
   if (pathname.startsWith('/_auth/') || pathname.startsWith('/api/')) {
-    return NextResponse.next();
+    return fetch(request);
   }
 
   if (!isProtectedPath(pathname)) {
-    return NextResponse.next();
+    return fetch(request);
   }
 
   const course = getCourseFromPath(pathname);
-  const verifyUrl = new URL('/api/verify', request.nextUrl.origin);
+  const verifyUrl = new URL('/api/verify', requestUrl.origin);
 
   let data = null;
   try {
@@ -79,13 +80,13 @@ export async function middleware(request) {
   }
 
   if (!data || !data.authenticated) {
-    return buildRedirect(request, course, 'auth');
+    return buildRedirect(requestUrl, course, 'auth');
   }
 
   const scope = data.scope || '';
   if (course && scope !== 'all' && !scope.split(',').includes(course)) {
-    return buildRedirect(request, course, 'scope');
+    return buildRedirect(requestUrl, course, 'scope');
   }
 
-  return NextResponse.next();
+  return fetch(request);
 }
