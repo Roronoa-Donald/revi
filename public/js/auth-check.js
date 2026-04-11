@@ -125,10 +125,10 @@
       message = 'Votre cl\u00e9 d\'activation ne couvre pas ce cours. Contactez votre administrateur ou activez une cl\u00e9 valide pour ce module.';
     } else if (reason === 'expired') {
       title = 'Cl\u00e9 expir\u00e9e';
-      message = 'Votre cl\u00e9 d\'activation a expir\u00e9. Contactez l\'administrateur pour la renouveler ou activer une nouvelle cl\u00e9.';
+      message = 'Votre cle d\'activation a expire. Renouvelez l\'abonnement ou activez une nouvelle cle.';
     } else {
       title = 'Contenu r\u00e9serv\u00e9 aux abonn\u00e9s';
-      message = 'Ce chapitre n\u00e9cessite une cl\u00e9 d\'activation. Obtenez votre acc\u00e8s complet pour seulement <strong>1 000 F</strong> ! Contactez Donald pour votre cl\u00e9.';
+      message = 'Ce chapitre necessite une cle d\'activation. Abonnement mensuel a <strong>1 000 F / mois</strong> pour tout le contenu, simple et abordable. Contactez Donald pour votre cle.';
     }
 
     var overlay = document.createElement('div');
@@ -208,7 +208,7 @@
       '<div class="demo-banner-content">' +
         '<span class="demo-banner-icon">🔒</span>' +
         '<span class="demo-banner-text">' +
-          '<strong>Mode démonstration</strong> — Accès complet à <strong>1 000 F</strong> seulement ! ' +
+          '<strong>Mode demonstration</strong> — Abonnement mensuel a <strong>1 000 F / mois</strong> pour tout le contenu, petit budget et grand impact. ' +
           '<a href="/_auth/activate.html?redirect=' + encodeURIComponent(path) + courseParam + '" class="demo-banner-link">' +
             'Activer une clé d\'accès →' +
           '</a>' +

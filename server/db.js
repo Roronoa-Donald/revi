@@ -38,7 +38,8 @@ async function initDB() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       is_active BOOLEAN DEFAULT TRUE,
       note VARCHAR(255),
-      expires_at TIMESTAMP DEFAULT NULL
+      expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days'),
+      renewed_at TIMESTAMP DEFAULT NULL
     );
 
     CREATE TABLE IF NOT EXISTS sessions (
@@ -77,13 +78,25 @@ async function initDB() {
   await client.query(`
     DO $$ BEGIN
       IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='activation_keys' AND column_name='expires_at') THEN
-        ALTER TABLE activation_keys ADD COLUMN expires_at TIMESTAMP DEFAULT NULL;
+        ALTER TABLE activation_keys ADD COLUMN expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days');
+      END IF;
+    END $$;
+  `);
+
+  await client.query(`
+    DO $$ BEGIN
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='activation_keys' AND column_name='renewed_at') THEN
+        ALTER TABLE activation_keys ADD COLUMN renewed_at TIMESTAMP DEFAULT NULL;
       END IF;
     END $$;
   `);
 
   // Index sur expires_at (après migration)
   await client.query(`CREATE INDEX IF NOT EXISTS idx_keys_expires ON activation_keys(expires_at);`);
+
+  // S'assurer que toutes les cles ont une expiration mensuelle
+  await client.query(`ALTER TABLE activation_keys ALTER COLUMN expires_at SET DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days');`);
+  await client.query(`UPDATE activation_keys SET expires_at = created_at + INTERVAL '30 days' WHERE renewed_at IS NULL;`);
 
   // Migration : ajouter la colonne class (b1/b2) pour séparer les clés Bachelor 1 / Bachelor 2
   await client.query(`
@@ -181,7 +194,7 @@ async function query(text, params) {
 
 async function createKey(keyCode, scope, note, expiresAt, keyClass) {
   const result = await query(
-    'INSERT INTO activation_keys (key_code, scope, note, expires_at, class) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    'INSERT INTO activation_keys (key_code, scope, note, expires_at, class) VALUES ($1, $2, $3, COALESCE($4, CURRENT_TIMESTAMP + INTERVAL \'30 days\'), $5) RETURNING *',
     [keyCode, scope, note || null, expiresAt || null, keyClass || 'b2']
   );
   return result.rows[0];
@@ -259,6 +272,14 @@ async function revokeKey(keyId) {
 async function reactivateKey(keyId) {
   const result = await query(
     'UPDATE activation_keys SET is_active = TRUE WHERE id = $1 RETURNING *',
+    [keyId]
+  );
+  return result.rows[0];
+}
+
+async function renewKey(keyId) {
+  const result = await query(
+    'UPDATE activation_keys SET expires_at = CURRENT_TIMESTAMP + INTERVAL \'30 days\', renewed_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *',
     [keyId]
   );
   return result.rows[0];
@@ -542,6 +563,7 @@ module.exports = {
   resetKey,
   revokeKey,
   reactivateKey,
+  renewKey,
   deleteKey,
   createSession,
   getSessionByJti,

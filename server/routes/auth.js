@@ -81,7 +81,7 @@ module.exports = async function authRoutes(fastify) {
       if (keyRecord.expires_at && new Date(keyRecord.expires_at) < new Date()) {
         return reply.code(403).send({
           success: false,
-          message: 'Cette clé a expiré. Contactez l\'administrateur.'
+          message: 'Cette cle a expire. Renouvelez votre abonnement aupres de l\'administrateur.'
         });
       }
 
@@ -111,7 +111,7 @@ module.exports = async function authRoutes(fastify) {
       const jti = generateJti();
       await db.createSession(keyRecord.id, jti, fpHash, 'b2');
 
-      // Générer le JWT (1 an — seule la déconnexion manuelle y met fin)
+      // Generer le JWT (longue duree). L'expiration de la cle coupe l'acces.
       const token = jwt.sign(
         {
           keyId: keyRecord.id,

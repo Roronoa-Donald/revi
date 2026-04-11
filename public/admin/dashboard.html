@@ -331,7 +331,7 @@
     </div>
 
     <div class="card">
-      <div class="card-header"><h2>🔑 Créer des clés d'activation</h2></div>
+      <div class="card-header"><h2>🔑 Creer des cles d'abonnement (30 jours)</h2></div>
       <div class="card-body">
         <form id="createForm" class="create-form">
           <div class="form-group">
@@ -350,14 +350,9 @@
             <div class="course-checkboxes" id="courseCheckboxes"></div>
           </div>
           <div class="form-group">
-            <label>Expiration</label>
-            <select id="expiresIn">
-              <option value="never">Sans expiration</option>
-              <option value="7d">7 jours</option>
-              <option value="30d">30 jours</option>
-              <option value="90d">3 mois</option>
-              <option value="180d">6 mois</option>
-              <option value="365d">1 an</option>
+            <label>Expiration (abonnement mensuel)</label>
+            <select id="expiresIn" disabled>
+              <option value="30d">30 jours (mensuel)</option>
             </select>
           </div>
           <div class="form-group full">
@@ -533,7 +528,6 @@
       const scopeType = document.getElementById('scopeType').value;
       const count = parseInt(document.getElementById('keyCount').value) || 1;
       const note = document.getElementById('keyNote').value.trim();
-      const expiresIn = document.getElementById('expiresIn').value;
       let scope = 'all';
       if (scopeType === 'specific') {
         const checked = [...document.querySelectorAll('#courseCheckboxes input:checked')].map(c => c.value);
@@ -542,7 +536,7 @@
       }
       const btn = document.getElementById('btnCreate');
       btn.disabled = true; btn.textContent = 'Génération...';
-      const data = await api('/api/admin/keys', { method: 'POST', body: JSON.stringify({ scope, count, note, expiresIn }) });
+      const data = await api('/api/admin/keys', { method: 'POST', body: JSON.stringify({ scope, count, note }) });
       btn.disabled = false; btn.textContent = '✨ Générer les clés';
       if (data && data.success) {
         showToast(data.keys.length + ' clé(s) créée(s)', 'success');
@@ -582,8 +576,13 @@
         const exp = k.expires_at ? new Date(k.expires_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '∞';
         const dt = new Date(k.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
         let acts = '';
-        if (k.is_active) { if (k.is_used) acts += '<button class="btn btn-warning btn-sm" onclick="confirmAction(\'reset\',' + k.id + ',\'' + k.key_code + '\')">🔄</button> '; acts += '<button class="btn btn-danger btn-sm" onclick="confirmAction(\'revoke\',' + k.id + ',\'' + k.key_code + '\')">⛔</button> '; }
-        else acts += '<button class="btn btn-success btn-sm" onclick="confirmAction(\'reactivate\',' + k.id + ',\'' + k.key_code + '\')">✅</button> ';
+        if (k.is_active) {
+          acts += '<button class="btn btn-success btn-sm" onclick="confirmAction(\'renew\',' + k.id + ',\'' + k.key_code + '\')" title="Renouveler 30 jours">⟳ Renouveler</button> ';
+          if (k.is_used) acts += '<button class="btn btn-warning btn-sm" onclick="confirmAction(\'reset\',' + k.id + ',\'' + k.key_code + '\')">🔄</button> ';
+          acts += '<button class="btn btn-danger btn-sm" onclick="confirmAction(\'revoke\',' + k.id + ',\'' + k.key_code + '\')">⛔</button> ';
+        } else {
+          acts += '<button class="btn btn-success btn-sm" onclick="confirmAction(\'reactivate\',' + k.id + ',\'' + k.key_code + '\')">✅</button> ';
+        }
         acts += '<button class="btn btn-ghost btn-sm" onclick="confirmAction(\'delete\',' + k.id + ',\'' + k.key_code + '\')" style="color:var(--error)">🗑️</button>';
         return '<tr><td>'+k.id+'</td><td><span class="key-code">'+k.key_code+'</span></td><td>'+sc+'</td><td>'+st+'</td><td>'+exp+'</td><td class="desc-cell">'+(k.note||'<span style="color:var(--text-muted)">—</span>')+'</td><td>'+dt+'</td><td class="actions-cell">'+acts+'</td></tr>';
       }).join('');
@@ -660,6 +659,7 @@
       'key_created': { icon: '🔑', css: 'key', label: 'Clé créée' },
       'key_revoked': { icon: '⛔', css: 'revoke', label: 'Clé révoquée' },
       'key_reactivated': { icon: '✅', css: 'activation', label: 'Clé réactivée' },
+      'key_renewed': { icon: '⟳', css: 'activation', label: 'Abonnement renouvelle' },
       'key_reset': { icon: '🔄', css: 'session', label: 'Clé réinitialisée' },
       'key_deleted': { icon: '🗑️', css: 'revoke', label: 'Clé supprimée' },
       'admin_login': { icon: '👤', css: 'admin', label: 'Connexion admin' },
@@ -724,14 +724,16 @@
         revoke: { t:'Révoquer la clé ?', m:'La clé <strong>'+keyCode+'</strong> sera désactivée. L\'utilisateur perd l\'accès immédiatement.' },
         reactivate: { t:'Réactiver la clé ?', m:'La clé <strong>'+keyCode+'</strong> sera réactivée.' },
         delete: { t:'Supprimer définitivement ?', m:'La clé <strong>'+keyCode+'</strong> et ses sessions seront supprimées. Irréversible.' },
-        revokeSession: { t:'Révoquer la session ?', m:'La session liée à <strong>'+keyCode+'</strong> sera invalidée.' }
+        revokeSession: { t:'Révoquer la session ?', m:'La session liée à <strong>'+keyCode+'</strong> sera invalidée.' },
+        renew: { t:'Renouveler abonnement ?', m:'La cle <strong>'+keyCode+'</strong> recoit +30 jours a partir d\'aujourd\'hui.' }
       };
       const cfg = m[action];
       document.getElementById('modalTitle').textContent = cfg.t;
       document.getElementById('modalMessage').innerHTML = cfg.m;
       document.getElementById('confirmModal').classList.add('visible');
       const cb = document.getElementById('modalConfirm');
-      cb.className = action === 'reactivate' ? 'btn btn-success' : 'btn btn-danger';
+      const isPositive = action === 'reactivate' || action === 'renew';
+      cb.className = isPositive ? 'btn btn-success' : 'btn btn-danger';
       pendingAction = { action, id };
     }
 
@@ -743,7 +745,8 @@
         revoke: { url:'/api/admin/keys/'+id+'/revoke', method:'POST' },
         reactivate: { url:'/api/admin/keys/'+id+'/reactivate', method:'POST' },
         delete: { url:'/api/admin/keys/'+id, method:'DELETE' },
-        revokeSession: { url:'/api/admin/sessions/'+id+'/revoke', method:'POST' }
+        revokeSession: { url:'/api/admin/sessions/'+id+'/revoke', method:'POST' },
+        renew: { url:'/api/admin/keys/'+id+'/renew', method:'POST' }
       }[action];
       const data = await api(ep.url, { method: ep.method });
       if (data && data.success) { showToast(data.message, 'success'); loadStats(); loadKeys(currentFilter); loadSessions(); }

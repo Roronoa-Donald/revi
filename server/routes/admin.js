@@ -149,24 +149,12 @@ module.exports = async function adminRoutes(fastify) {
    */
   fastify.post('/keys', async (request, reply) => {
     try {
-      const { scope = 'all', note = '', count = 1, expiresIn = null } = request.body || {};
+      const { scope = 'all', note = '', count = 1 } = request.body || {};
       const numKeys = Math.min(Math.max(1, parseInt(count) || 1), 50); // Max 50 clés à la fois
 
-      // Calculer la date d'expiration si spécifiée
-      let expiresAt = null;
-      if (expiresIn && expiresIn !== 'never') {
-        const now = new Date();
-        const durations = {
-          '7d': 7 * 24 * 60 * 60 * 1000,
-          '30d': 30 * 24 * 60 * 60 * 1000,
-          '90d': 90 * 24 * 60 * 60 * 1000,
-          '180d': 180 * 24 * 60 * 60 * 1000,
-          '365d': 365 * 24 * 60 * 60 * 1000
-        };
-        if (durations[expiresIn]) {
-          expiresAt = new Date(now.getTime() + durations[expiresIn]);
-        }
-      }
+      // Abonnement mensuel : expiration fixe a 30 jours
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
       const createdKeys = [];
       for (let i = 0; i < numKeys; i++) {
@@ -177,7 +165,7 @@ module.exports = async function adminRoutes(fastify) {
 
       return reply.send({
         success: true,
-        message: `${numKeys} clé(s) créée(s)`,
+        message: `${numKeys} cles creees - abonnement mensuel 30 jours`,
         keys: createdKeys
       });
 
@@ -253,6 +241,39 @@ module.exports = async function adminRoutes(fastify) {
       return reply.send({
         success: true,
         message: 'Clé réactivée.',
+        key
+      });
+
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ success: false, message: 'Erreur serveur' });
+    }
+  });
+
+  /**
+   * POST /api/admin/keys/:id/renew
+   * Renouvelle l'abonnement (ajoute 30 jours a partir d'aujourd'hui)
+   */
+  fastify.post('/keys/:id/renew', async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const key = await db.renewKey(parseInt(id));
+
+      if (!key) {
+        return reply.code(404).send({ success: false, message: 'Clé introuvable' });
+      }
+
+      await db.logActivity('key_renewed', {
+        keyId: key.id,
+        keyCode: key.key_code,
+        scope: key.scope,
+        ip: request.ip,
+        details: 'Abonnement renouvele (+30 jours)'
+      });
+
+      return reply.send({
+        success: true,
+        message: 'Abonnement renouvele (+30 jours).',
         key
       });
 
