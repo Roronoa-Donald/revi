@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 QCM - Administration VM</title>
+    <meta name="description" content="100 QCM pour tester les notions de virtualisation, hyperviseurs, stockage, reseau et haute disponibilite.">
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{accent:{400:'#38bdf8',500:'#0ea5e9',600:'#0284c7'}},fontFamily:{sans:['Inter','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .qcm-container{max-width:900px;margin:0 auto;padding:0 1.5rem 4rem;}
+        .qcm-card{margin-bottom:1.5rem;}
+        .qcm-card .question-text{font-weight:600;margin-bottom:1rem;line-height:1.6;}
+        .qcm-card .options-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem;}
+        .qcm-card .option-btn{display:block;width:100%;text-align:left;padding:.75rem 1rem;border-radius:12px;border:2px solid rgba(14,165,233,.25);background:rgba(14,165,233,.08);cursor:pointer;transition:all .2s;font-size:.95rem;}
+        .qcm-card .option-btn:hover{border-color:rgba(14,165,233,.5);background:rgba(14,165,233,.14);}
+        .qcm-card .option-btn.correct{border-color:#22c55e;background:rgba(34,197,94,.15);color:#16a34a;}
+        .qcm-card .option-btn.incorrect{border-color:#ef4444;background:rgba(239,68,68,.15);color:#dc2626;}
+        .qcm-card .option-btn.disabled{pointer-events:none;opacity:.9;}
+        .qcm-card .explanation{display:none;margin-top:.75rem;padding:.75rem 1rem;border-radius:12px;background:rgba(14,165,233,.08);font-size:.9rem;line-height:1.5;}
+        .qcm-card .explanation.show{display:block;}
+        .mode-selector{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin:2rem 0;}
+        .mode-btn{padding:.6rem 1.2rem;border-radius:12px;border:2px solid rgba(14,165,233,.3);background:rgba(14,165,233,.08);cursor:pointer;font-weight:600;transition:all .2s;}
+        .mode-btn:hover,.mode-btn.active{border-color:var(--accent);background:rgba(14,165,233,.2);}
+        .progress-bar{height:6px;background:rgba(14,165,233,.15);border-radius:99px;margin:1rem 0;overflow:hidden;}
+        .progress-bar .fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s;}
+        .score-display{text-align:center;padding:2rem;font-size:1.2rem;font-weight:700;}
+        .chapter-filter{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1rem 0;}
+        .chapter-filter button{padding:.4rem .8rem;border-radius:8px;border:1px solid rgba(14,165,233,.2);background:rgba(14,165,233,.05);cursor:pointer;font-size:.85rem;transition:all .2s;}
+        .chapter-filter button:hover,.chapter-filter button.active{border-color:var(--accent);background:rgba(14,165,233,.2);font-weight:600;}
+        .qcm-badge{display:inline-block;padding:0.15rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;margin-right:0.4rem;}
+        .qcm-badge.ch1{background:rgba(56,189,248,.15);color:#38bdf8;}
+        .qcm-badge.ch2{background:rgba(16,185,129,.15);color:#10b981;}
+        .qcm-badge.ch3{background:rgba(245,158,11,.15);color:#f59e0b;}
+        .qcm-badge.ch4{background:rgba(139,92,246,.15);color:#8b5cf6;}
+        .qcm-badge.ch5{background:rgba(239,68,68,.15);color:#ef4444;}
+        .qcm-badge.ch6{background:rgba(14,165,233,.15);color:#0ea5e9;}
+        .qcm-badge.ch7{background:rgba(99,102,241,.15);color:#6366f1;}
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+    <div class="reading-progress" style="width:0%"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo"><i class="fas fa-layer-group"></i><span>RD Admin-VM</span></a>
+            <ul class="nav-links">
+                <li><a href="chapitres/chapitre7.html">Chapitre 7</a></li>
+                <li><a href="qcm-100.html" class="active">100 QCM</a></li>
+                <li><a href="chapitres/chapitre1.html">Chapitre 1</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" aria-label="Changer le theme"><i class="fas fa-sun"></i></button>
+                <button class="hamburger-btn" aria-label="Menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel">
+        <button class="mobile-nav-close"><i class="fas fa-times"></i></button>
+        <ul>
+            <li><a href="index.html"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="chapitres/chapitre1.html"><i class="fas fa-layer-group"></i> 1. Introduction</a></li>
+            <li><a href="chapitres/chapitre2.html"><i class="fas fa-screwdriver-wrench"></i> 2. Prerequis</a></li>
+            <li><a href="chapitres/chapitre3.html"><i class="fas fa-server"></i> 3. Hyperviseurs</a></li>
+            <li><a href="chapitres/chapitre4.html"><i class="fas fa-desktop"></i> 4. Cycle des VMs</a></li>
+            <li><a href="chapitres/chapitre5.html"><i class="fas fa-database"></i> 5. Stockage</a></li>
+            <li><a href="chapitres/chapitre6.html"><i class="fas fa-network-wired"></i> 6. Reseau virtualise</a></li>
+            <li><a href="chapitres/chapitre7.html"><i class="fas fa-shield-halved"></i> 7. Admin avancee</a></li>
+            <li><a href="qcm-100.html" class="active"><i class="fas fa-clipboard-check"></i> QCM 100</a></li>
+        </ul>
+    </div>
+
+    <section class="hero-section">
+        <span class="hero-badge"><i class="fas fa-clipboard-check"></i> 100 QCM</span>
+        <h1 class="hero-title">100 QCM <span class="gradient-text">Admin VM</span></h1>
+        <p class="hero-description">Testez vos connaissances sur la virtualisation, les hyperviseurs, le stockage, le reseau et la HA.</p>
+    </section>
+
+    <main id="main-content" class="qcm-container">
+        <div class="glass-card">
+            <h2 style="text-align:center;margin-bottom:1rem;"><i class="fas fa-gamepad"></i> Choisissez votre mode</h2>
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('chapter')"><i class="fas fa-book"></i> Par chapitre</button>
+                <button class="mode-btn" onclick="setMode('exam')"><i class="fas fa-graduation-cap"></i> Examen (20 Q)</button>
+                <button class="mode-btn" onclick="setMode('random')"><i class="fas fa-shuffle"></i> Aleatoire</button>
+                <button class="mode-btn" onclick="setMode('errors')"><i class="fas fa-rotate-left"></i> Revision erreurs</button>
+            </div>
+            <div class="chapter-filter" id="chapterFilter">
+                <button class="active" onclick="filterChapter(0)">Tous</button>
+                <button onclick="filterChapter(1)">Ch.1 Intro</button>
+                <button onclick="filterChapter(2)">Ch.2 Prerequis</button>
+                <button onclick="filterChapter(3)">Ch.3 Hyperviseurs</button>
+                <button onclick="filterChapter(4)">Ch.4 Cycle VM</button>
+                <button onclick="filterChapter(5)">Ch.5 Stockage</button>
+                <button onclick="filterChapter(6)">Ch.6 Reseau</button>
+                <button onclick="filterChapter(7)">Ch.7 Admin</button>
+            </div>
+            <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+            <div class="score-display" id="scoreDisplay">Score : 0 / 0</div>
+        </div>
+
+        <div id="qcmArea"></div>
+
+        <div class="chapter-nav" style="margin-top:2rem;">
+            <a href="chapitres/chapitre7.html"><i class="fas fa-arrow-left"></i> Chapitre 7</a>
+            <a href="index.html">Accueil <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-logo"><i class="fas fa-layer-group" style="color:var(--accent);margin-right:0.4rem;"></i>RD Admin-VM</div>
+        <p class="footer-copy">(c) 2025-2026 - B2 IT - College De Paris Superieur</p>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+    const ALL_QUESTIONS = [
+    // ===================== CHAPITRE 1 - INTRODUCTION (14) =====================
+    {id:1,ch:1,q:"La virtualisation permet surtout de :",o:["Executer plusieurs OS sur un meme serveur physique","Doubler la vitesse Internet","Supprimer le besoin de stockage","Remplacer le reseau"],a:0,e:"Elle permet d'executer plusieurs systemes sur un seul serveur physique."},
+    {id:2,ch:1,q:"Le role principal d'un hyperviseur est de :",o:["Gerer et isoler les ressources entre VMs","Supprimer les mises a jour","Compiler des applications","Remplacer le BIOS"],a:0,e:"Il attribue et isole CPU, RAM, stockage et reseau aux VMs."},
+    {id:3,ch:1,q:"La consolidation signifie :",o:["Utiliser moins de serveurs physiques pour la meme charge","Augmenter le nombre de PC","Bloquer les sauvegardes","Supprimer les VMs"],a:0,e:"On regroupe plusieurs charges sur moins de machines."},
+    {id:4,ch:1,q:"Le serveur physique qui heberge les VMs est le :",o:["Guest","Host","Snapshot","Template"],a:1,e:"Le host est la machine physique."},
+    {id:5,ch:1,q:"Un hyperviseur de type 1 tourne :",o:["Directement sur le materiel","A l'interieur d'un navigateur","Sur un OS invite","Uniquement sur un laptop"],a:0,e:"Type 1 = bare-metal, installe sur le serveur."},
+    {id:6,ch:1,q:"Un hyperviseur de type 2 tourne :",o:["Sur un OS hote","Directement sur le materiel","Dans le BIOS","Sans OS"],a:0,e:"Type 2 s'appuie sur un OS existant."},
+    {id:7,ch:1,q:"Un snapshot est :",o:["Une photo de l'etat d'une VM a un instant T","Une sauvegarde longue duree","Un antivirus","Un reseau virtuel"],a:0,e:"Le snapshot capture un etat ponctuel."},
+    {id:8,ch:1,q:"Un template est :",o:["Un modele reutilisable pour creer des VMs","Un disque de sauvegarde","Un switch physique","Un type de CPU"],a:0,e:"Le template sert de base standard."},
+    {id:9,ch:1,q:"Un avantage cle de la virtualisation est :",o:["Provisionner vite de nouvelles VMs","Supprimer le besoin d'admin","Rendre le reseau inutile","Remplacer les backups"],a:0,e:"La creation de VMs est rapide."},
+    {id:10,ch:1,q:"L'isolation entre VMs signifie que :",o:["Une panne d'une VM n'affecte pas forcement les autres","Toutes les VMs partagent le meme OS","Les VMs ne peuvent pas communiquer","Les VMs n'ont pas de disque"],a:0,e:"L'isolation reduit les impacts croises."},
+    {id:11,ch:1,q:"Difference VM vs conteneur :",o:["Une VM embarque son propre OS, un conteneur partage le noyau","Un conteneur est plus lourd qu'une VM","Une VM ne peut pas etre isolee","Un conteneur a toujours un hyperviseur type 1"],a:0,e:"Les conteneurs partagent l'OS hote."},
+    {id:12,ch:1,q:"L'overcommit consiste a :",o:["Allouer plus de vCPU ou RAM que le physique disponible","Remplacer la RAM par du disque","Bloquer l'acces reseau","Supprimer les snapshots"],a:0,e:"On suralloue des ressources par rapport au physique."},
+    {id:13,ch:1,q:"La virtualisation apporte souvent :",o:["Des economies d'energie et de materiel","Plus de serveurs physiques","Moins d'automatisation","Plus de cablage"],a:0,e:"Moins de serveurs = moins de couts."},
+    {id:14,ch:1,q:"La virtualisation est utile pour :",o:["Des environnements de test et de formation","Supprimer les mises a jour","Eviter les sauvegardes","Remplacer la securite"],a:0,e:"Elle facilite les labs et les tests."},
+
+    // ===================== CHAPITRE 2 - PREREQUIS & NESTED (14) =====================
+    {id:15,ch:2,q:"Les extensions CPU (VT-x/AMD-V) servent a :",o:["Accelerer la virtualisation materielle","Bloquer le reseau","Changer le type de disque","Remplacer le BIOS"],a:0,e:"Elles permettent l'execution virtuelle assistee."},
+    {id:16,ch:2,q:"Si la virtualisation est desactivee dans le BIOS/UEFI :",o:["L'hyperviseur ne peut pas isoler correctement les VMs","La RAM devient illimitee","Le reseau devient plus rapide","Les backups disparaissent"],a:0,e:"L'hyperviseur perd l'acces aux extensions."},
+    {id:17,ch:2,q:"VT-d/IOMMU permet surtout :",o:["L'isolation et le passthrough de peripheriques","La compression des disques","La creation de VLAN","La gestion des mots de passe"],a:0,e:"Il isole les acces I/O."},
+    {id:18,ch:2,q:"La ressource la plus limitante pour le nombre de VMs est souvent :",o:["La RAM","La couleur du boitier","Le clavier","Le type de souris"],a:0,e:"La RAM se partage entre toutes les VMs."},
+    {id:19,ch:2,q:"La latence disque influence :",o:["La reactivite des VMs","La version du BIOS","Le nombre d'utilisateurs AD","Le nombre de VLAN"],a:0,e:"Le stockage lent rend les VMs lentes."},
+    {id:20,ch:2,q:"Une bande passante faible affecte surtout :",o:["Les migrations et le trafic reseau des VMs","La couleur des snapshots","Le type de CPU","Le nombre de comptes admin"],a:0,e:"Les migrations exigent du debit."},
+    {id:21,ch:2,q:"La virtualisation imbriquee (nested) signifie :",o:["Executer un hyperviseur a l'interieur d'une VM","Ajouter un VLAN","Compresser les disques","Supprimer les snapshots"],a:0,e:"Un hyperviseur tourne dans une VM."},
+    {id:22,ch:2,q:"Le nested est surtout recommande pour :",o:["Les labs et la formation","La production critique","Les workloads temps reel","Les bases de donnees lourdes"],a:0,e:"C'est un outil pedagogique."},
+    {id:23,ch:2,q:"Empiler des couches de virtualisation entraine :",o:["Plus de latence et de surcharge","Moins de latence","Zero perte de performance","Des disques plus grands"],a:0,e:"Chaque couche ajoute un cout."},
+    {id:24,ch:2,q:"Deux hyperviseurs concurrents sur le meme hote :",o:["Peuvent entrer en conflit sur les extensions CPU","Augmentent toujours la performance","Sont obligatoires","Suppriment les VM"],a:0,e:"Ils se disputent l'acces privilegie."},
+    {id:25,ch:2,q:"L'acceleration materielle permet :",o:["De reduire l'overhead par rapport a l'emulation pure","D'eviter les sauvegardes","De remplacer le reseau","D'ignorer la RAM"],a:0,e:"L'assistance CPU reduit l'emulation."},
+    {id:26,ch:2,q:"Trop de vCPU alloues par rapport au physique provoque :",o:["De la contention et des performances instables","Une hausse automatique de RAM","Des snapshots plus rapides","Un reseau plus securise"],a:0,e:"Le CPU devient un goulot."},
+    {id:27,ch:2,q:"Pour executer des OS 64-bit en VM, il faut :",o:["Un CPU 64-bit avec virtualisation activee","Un disque USB","Un routeur Wi-Fi","Un ecran 4K"],a:0,e:"Le materiel doit supporter le 64-bit."},
+    {id:28,ch:2,q:"Pourquoi surveiller l'I/O stockage avant d'ajouter des VMs ?",o:["Parce qu'un stockage sature degrade toutes les VMs","Parce que le CPU devient inutile","Parce que le reseau disparait","Parce que la RAM double"],a:0,e:"Le stockage est partage par toutes les VMs."},
+
+    // ===================== CHAPITRE 3 - ARCHITECTURE HYPERVISEUR (14) =====================
+    {id:29,ch:3,q:"Le plan de gestion (management plane) sert a :",o:["Configurer et administrer l'hyperviseur","Transporter le trafic utilisateur","Stocker les sauvegardes","Remplacer le BIOS"],a:0,e:"Il centralise l'administration."},
+    {id:30,ch:3,q:"Le plan de donnees (data plane) concerne :",o:["Le trafic des VMs et leurs operations","La creation des comptes admin","Les mises a jour du navigateur","La documentation"],a:0,e:"C'est le plan du trafic et des traitements."},
+    {id:31,ch:3,q:"Pourquoi separer reseau de gestion et reseau des VMs ?",o:["Pour reduire le risque et isoler l'admin","Pour supprimer les firewalls","Pour eviter les VLAN","Pour accelerer le CPU"],a:0,e:"On protege l'administration des attaques."},
+    {id:32,ch:3,q:"Le scheduler hyperviseur sert a :",o:["Partager le temps CPU entre VMs","Mettre a jour le BIOS","Creer des VLAN","Gerer les mots de passe"],a:0,e:"Il repartit le CPU entre VMs."},
+    {id:33,ch:3,q:"Patcher l'hyperviseur est critique car :",o:["Une faille expose toutes les VMs","La RAM devient illimitee","Le reseau devient inutile","Les sauvegardes s'arretent toujours"],a:0,e:"Le point central doit etre securise."},
+    {id:34,ch:3,q:"KVM est principalement :",o:["Un module noyau qui active la virtualisation","Un antivirus","Un outil de sauvegarde","Un routeur"],a:0,e:"KVM s'integre au noyau Linux."},
+    {id:35,ch:3,q:"QEMU sert a :",o:["Emuler et executer des VMs","Gerer les comptes AD","Monitorer le reseau Wi-Fi","Remplacer le BIOS"],a:0,e:"QEMU emule et execute les machines."},
+    {id:36,ch:3,q:"Libvirt sert a :",o:["Piloter les hyperviseurs via une API","Chiffrer les disques","Creer des VLAN","Installer des mises a jour Windows"],a:0,e:"Libvirt fournit une couche d'administration."},
+    {id:37,ch:3,q:"Par rapport a un type 2, un hyperviseur type 1 offre :",o:["Moins de couche OS et une surface d'attaque reduite","Toujours moins de performance","Plus d'emulation","Moins de controle"],a:0,e:"Moins de couches = plus de controle."},
+    {id:38,ch:3,q:"Un cluster d'hyperviseurs permet surtout :",o:["HA et migrations entre hotes","Supprimer les VMs","Remplacer le stockage","Eviter les sauvegardes"],a:0,e:"On gagne en disponibilite."},
+    {id:39,ch:3,q:"Les journaux (logs) sont utiles pour :",o:["La tracabilite et l'analyse d'incident","Augmenter la RAM","Installer des OS","Changer le BIOS"],a:0,e:"Ils servent a prouver et analyser."},
+    {id:40,ch:3,q:"Le RBAC (role based access control) sert a :",o:["Limiter les droits par role","Augmenter le debit reseau","Supprimer les snapshots","Dupliquer les disques"],a:0,e:"On limite les privileges."},
+    {id:41,ch:3,q:"Le stockage partage dans l'architecture permet :",o:["D'heberger les disques des VMs pour plusieurs hotes","De remplacer le CPU","D'eviter le reseau","De supprimer le management"],a:0,e:"Les hotes accedent aux memes disques."},
+    {id:42,ch:3,q:"Un plan de gestion expose souvent :",o:["Une console ou API d'administration","Le trafic utilisateur final","Le BIOS des VMs","Le serveur de mail"],a:0,e:"La gestion passe par une console ou API."},
+
+    // ===================== CHAPITRE 4 - CYCLE DE VIE VM (14) =====================
+    {id:43,ch:4,q:"Un cycle de vie VM commence souvent par :",o:["Le provisionnement depuis un template","La suppression directe","Le formatage du reseau","La creation d'un VLAN"],a:0,e:"On demarre souvent a partir d'un template."},
+    {id:44,ch:4,q:"Un clone est :",o:["Une copie d'une VM existante","Un snapshot","Un reseau","Un BIOS"],a:0,e:"Le clone duplique une VM."},
+    {id:45,ch:4,q:"Un template est preferable quand :",o:["On veut creer rapidement plusieurs VMs identiques","On veut supprimer une VM","On veut tester un patch reseau","On veut remplacer la RAM"],a:0,e:"Le template standardise le deploiement."},
+    {id:46,ch:4,q:"Un snapshot sert surtout a :",o:["Revenir en arriere apres un changement","Stocker des archives long terme","Supprimer un disque","Changer l'IP"],a:0,e:"Il facilite un retour rapide."},
+    {id:47,ch:4,q:"Une sauvegarde se distingue d'un snapshot car :",o:["Elle est stockee hors de l'hyperviseur","Elle ralentit moins le CPU","Elle ne peut pas etre restauree","Elle est toujours instantanee"],a:0,e:"Le backup est externe et durable."},
+    {id:48,ch:4,q:"Allouer trop de vCPU a une VM peut :",o:["Diminuer la performance globale par contention","Doubler la RAM","Supprimer les logs","Eviter les backups"],a:0,e:"Le CPU devient sature."},
+    {id:49,ch:4,q:"La memory ballooning sert a :",o:["Recuperer de la RAM inutilisee dans les VMs","Augmenter la taille du disque","Creer un VLAN","Bloquer le reseau"],a:0,e:"On reprend de la RAM si possible."},
+    {id:50,ch:4,q:"Les outils/agents guest apportent :",o:["De meilleurs drivers et informations d'etat","Une nouvelle carte mere","Un nouveau BIOS","Un antivirus obligatoire"],a:0,e:"Ils optimisent l'integration VM."},
+    {id:51,ch:4,q:"Suspendre une VM signifie :",o:["Mettre son etat en pause dans un fichier","Effacer le disque","Desactiver le reseau physique","Supprimer l'hyperviseur"],a:0,e:"L'etat est sauvegarde puis stoppe."},
+    {id:52,ch:4,q:"Eteindre une VM proprement correspond a :",o:["Un shutdown de l'OS invite","Un hard reset systematique","Un retrait de disque","Une suppression de VLAN"],a:0,e:"On arrete l'OS comme sur un PC."},
+    {id:53,ch:4,q:"Le hot add de ressources signifie :",o:["Ajouter CPU ou RAM sans arreter la VM (si supporte)","Changer le BIOS a chaud","Supprimer le reseau","Deplacer le stockage sans copie"],a:0,e:"On ajuste les ressources a chaud."},
+    {id:54,ch:4,q:"Une golden image est :",o:["Une image de reference pour standardiser les VMs","Un type de VLAN","Un switch physique","Un backup sur bande"],a:0,e:"C'est le modele officiel de deploiement."},
+    {id:55,ch:4,q:"Trop de snapshots gardes longtemps peut :",o:["Degrader les performances du disque","Accelerer le reseau","Doubler la RAM","Supprimer les logs"],a:0,e:"Les disques differentiels grossissent."},
+    {id:56,ch:4,q:"Le redimensionnement de disque en VM doit tenir compte :",o:["Du format et de l'espace libre du datastore","De la couleur du theme","Du type de clavier","Du nombre de VLAN"],a:0,e:"Il faut de l'espace et un format compatible."},
+
+    // ===================== CHAPITRE 5 - STOCKAGE & VOLUMES (14) =====================
+    {id:57,ch:5,q:"Un NAS fournit surtout :",o:["Du stockage fichier (NFS/SMB)","Du stockage bloc uniquement","Du CPU supplementaire","Du reseau Wi-Fi"],a:0,e:"NAS = stockage fichier."},
+    {id:58,ch:5,q:"Un SAN fournit surtout :",o:["Du stockage bloc (iSCSI/FC)","Des fichiers locaux uniquement","Un hyperviseur","Un DNS"],a:0,e:"SAN = stockage bloc."},
+    {id:59,ch:5,q:"NFS est :",o:["Un protocole de partage de fichiers","Un protocole de chiffrement","Un type de RAM","Un hyperviseur"],a:0,e:"NFS partage des fichiers en reseau."},
+    {id:60,ch:5,q:"iSCSI est :",o:["Un protocole de stockage bloc sur IP","Un protocole de mail","Un type de VLAN","Un OS"],a:0,e:"iSCSI transporte du bloc sur IP."},
+    {id:61,ch:5,q:"LVM sert a :",o:["Gerer des volumes logiques et leurs tailles","Gerer le reseau","Supprimer les snapshots","Remplacer le CPU"],a:0,e:"LVM facilite la gestion des disques."},
+    {id:62,ch:5,q:"Le RAID apporte surtout :",o:["Redondance et/ou performance disque","Plus de RAM","Un nouveau BIOS","Un firewall"],a:0,e:"Le RAID securise ou accelere."},
+    {id:63,ch:5,q:"Ceph est :",o:["Un stockage distribue a grande echelle","Un hyperviseur type 2","Un protocole Wi-Fi","Un outil de monitoring"],a:0,e:"Ceph distribue les donnees sur plusieurs noeuds."},
+    {id:64,ch:5,q:"Un snapshot de stockage est utile pour :",o:["Capturer un etat avant changement","Augmenter le CPU","Changer l'IP","Supprimer le reseau"],a:0,e:"Il fige l'etat d'un volume."},
+    {id:65,ch:5,q:"La strategie GFS signifie :",o:["Grandfather-Father-Son pour la rotation de backups","Gestion finale systeme","Groupe de fichiers securises","Garantie de flux stable"],a:0,e:"GFS organise la rotation des sauvegardes."},
+    {id:66,ch:5,q:"Les IOPS mesurent :",o:["Le nombre d'operations d'entree/sortie par seconde","La taille des disques","La vitesse du reseau","La temperature CPU"],a:0,e:"IOPS = operations par seconde."},
+    {id:67,ch:5,q:"Le stockage partage est requis pour :",o:["Les migrations a chaud et la HA","Changer le BIOS","Supprimer les VMs","Installer un OS"],a:0,e:"Le stockage commun facilite la mobilite."},
+    {id:68,ch:5,q:"Le thin provisioning peut poser un risque car :",o:["On peut surallouer l'espace et saturer le datastore","Il supprime la RAM","Il bloque le reseau","Il empeche les snapshots"],a:0,e:"On peut manquer d'espace reel."},
+    {id:69,ch:5,q:"La latence stockage elevee provoque :",o:["Des VMs lentes et instables","Plus de CPU disponible","Des backups plus rapides","Un reseau plus stable"],a:0,e:"La latence impacte toutes les VMs."},
+    {id:70,ch:5,q:"La replication differe du backup car elle :",o:["Copie en continu pour la reprise rapide","Remplace le stockage local","Supprime les snapshots","Evite tout besoin de plan DR"],a:0,e:"La replication vise une reprise rapide."},
+
+    // ===================== CHAPITRE 6 - RESEAU VIRTUALISE (15) =====================
+    {id:71,ch:6,q:"Un vSwitch sert a :",o:["Connecter les VMs au reseau virtuel","Changer le BIOS","Gerer le stockage","Supprimer les snapshots"],a:0,e:"Le vSwitch relie les VMs au reseau."},
+    {id:72,ch:6,q:"Un bridge permet :",o:["Un acces direct des VMs au reseau physique","Un reseau isole sans sortie","Un chiffrement des disques","Une sauvegarde automatique"],a:0,e:"Bridge = acces reseau physique."},
+    {id:73,ch:6,q:"Le NAT permet :",o:["De faire sortir les VMs via l'IP de l'hote","De supprimer les VLAN","D'augmenter la RAM","De patcher l'hyperviseur"],a:0,e:"Le NAT partage l'IP de l'hote."},
+    {id:74,ch:6,q:"Une VLAN sert a :",o:["Segmenter le reseau en domaines logiques","Augmenter la taille du disque","Supprimer le firewall","Remplacer le DNS"],a:0,e:"Les VLAN segmentent le reseau."},
+    {id:75,ch:6,q:"La DMZ est utilisee pour :",o:["Isoler les services exposes d'Internet","Stocker les backups","Virtualiser le CPU","Supprimer les logs"],a:0,e:"La DMZ isole les services publics."},
+    {id:76,ch:6,q:"Une vNIC est :",o:["L'interface reseau virtuelle d'une VM","Un disque logique","Un hyperviseur","Un backup"],a:0,e:"La VM se connecte via une vNIC."},
+    {id:77,ch:6,q:"Pourquoi isoler reseau de gestion et reseau des VMs ?",o:["Pour limiter l'exposition des interfaces d'admin","Pour augmenter la taille des disques","Pour supprimer les VLAN","Pour eviter les snapshots"],a:0,e:"On protege l'administration."},
+    {id:78,ch:6,q:"Un port group ou reseau logique sert a :",o:["Appliquer des parametres reseau a plusieurs VMs","Augmenter la RAM","Changer le BIOS","Supprimer les logs"],a:0,e:"On regroupe des VMs avec les memes regles."},
+    {id:79,ch:6,q:"La QoS reseau permet :",o:["De prioriser certains flux","De desactiver les switches","De compresser les disques","D'installer un OS"],a:0,e:"La QoS gere les priorites de trafic."},
+    {id:80,ch:6,q:"Un reseau plat sans segmentation augmente :",o:["Le risque de propagation d'attaque","La redondance CPU","La vitesse des backups","La taille des snapshots"],a:0,e:"Sans segmentation, les attaques circulent."},
+    {id:81,ch:6,q:"Le trunk VLAN sert a :",o:["Transporter plusieurs VLAN sur un meme lien","Supprimer la DMZ","Changer le type de disque","Installer des mises a jour"],a:0,e:"Un trunk porte plusieurs VLAN."},
+    {id:82,ch:6,q:"Une surcharge reseau peut provoquer :",o:["Des migrations lentes et des VMs instables","Plus de CPU libre","Des backups plus rapides","Un hyperviseur plus securise"],a:0,e:"Le reseau sature degrade les operations."},
+    {id:83,ch:6,q:"Le mode 'isole' d'un reseau virtuel signifie :",o:["VMs qui communiquent entre elles sans acces externe","Acces direct a Internet","Connexion au SAN","Connexion au BIOS"],a:0,e:"Isole = pas d'acces externe."},
+    {id:84,ch:6,q:"Le filtrage par firewall virtuel sert a :",o:["Limiter les flux entre VMs","Augmenter la RAM","Supprimer les backups","Changer l'OS"],a:0,e:"On controle les communications."},
+    {id:85,ch:6,q:"Un plan d'adressage clair est important pour :",o:["Eviter les conflits IP et simplifier l'admin","Augmenter la taille des disques","Supprimer le monitoring","Eviter la HA"],a:0,e:"Un plan IP clair evite les erreurs."},
+
+    // ===================== CHAPITRE 7 - ADMIN AVANCEE (15) =====================
+    {id:86,ch:7,q:"La haute disponibilite (HA) vise a :",o:["Reduire les interruptions de service","Supprimer les sauvegardes","Limiter le stockage","Arreter les migrations"],a:0,e:"La HA reduit l'indisponibilite."},
+    {id:87,ch:7,q:"Le quorum en cluster sert a :",o:["Eviter le split-brain et valider les decisions","Augmenter la RAM","Supprimer le reseau","Installer un OS"],a:0,e:"Le quorum valide la majorite."},
+    {id:88,ch:7,q:"Le failover correspond a :",o:["Basculer les VMs vers un autre hote","Supprimer les snapshots","Ajouter un VLAN","Changer la marque du serveur"],a:0,e:"Le failover redemarre ailleurs."},
+    {id:89,ch:7,q:"La live migration permet :",o:["De deplacer une VM en fonctionnement sans interruption","De supprimer le stockage","De desactiver le reseau","De changer le BIOS"],a:0,e:"La VM continue de tourner pendant le deplacement."},
+    {id:90,ch:7,q:"La storage migration consiste a :",o:["Deplacer les disques d'une VM vers un autre stockage","Supprimer la VM","Changer l'IP","Arreter le cluster"],a:0,e:"On deplace les disques sans arret."},
+    {id:91,ch:7,q:"RPO signifie :",o:["Perte de donnees maximale acceptable","Temps de redemarrage","Budget materiel","Nombre de VLAN"],a:0,e:"RPO = perte de donnees toleree."},
+    {id:92,ch:7,q:"RTO signifie :",o:["Temps maximum pour restaurer un service","Volume de stockage","Nombre de snapshots","Type de CPU"],a:0,e:"RTO = delai de reprise."},
+    {id:93,ch:7,q:"La regle 3-2-1 indique :",o:["3 copies, 2 supports, 1 copie hors site","3 hyperviseurs, 2 reseaux, 1 VLAN","3 snapshots, 2 VMs, 1 backup","3 CPU, 2 disques, 1 RAM"],a:0,e:"3-2-1 est une regle de sauvegarde."},
+    {id:94,ch:7,q:"Un monitoring efficace suit surtout :",o:["CPU, RAM, I/O disque, reseau","La couleur des ecrans","Le nombre de claviers","La taille des fenetres"],a:0,e:"On suit les ressources critiques."},
+    {id:95,ch:7,q:"Pourquoi planifier une fenetre de maintenance ?",o:["Pour appliquer des mises a jour avec risque controle","Pour supprimer le firewall","Pour augmenter la RAM automatiquement","Pour eviter les backups"],a:0,e:"On limite l'impact des operations."},
+    {id:96,ch:7,q:"Le principe du moindre privilege signifie :",o:["Donner le minimum de droits necessaires","Donner tous les droits a tous","Supprimer les logs","Desactiver le monitoring"],a:0,e:"On limite les droits aux besoins."},
+    {id:97,ch:7,q:"Les logs d'audit servent a :",o:["Prouver les actions et enqueter en cas d'incident","Augmenter le stockage","Supprimer les VMs","Changer le BIOS"],a:0,e:"Ils servent a la tracabilite."},
+    {id:98,ch:7,q:"Un plan de reprise (DR/PRA) vise a :",o:["Redemarrer le service apres un sinistre majeur","Supprimer les sauvegardes","Desactiver la HA","Eviter les migrations"],a:0,e:"Le DR relance l'activite apres sinistre."},
+    {id:99,ch:7,q:"Un snapshot ne remplace pas un backup car :",o:["Il depend du meme stockage et n'est pas une archive","Il est trop lent","Il est interdit","Il supprime la VM"],a:0,e:"Le snapshot reste sur le stockage primaire."},
+    {id:100,ch:7,q:"Exposer l'interface de gestion sur Internet est :",o:["Un risque majeur de securite","Obligatoire","Recommande","Sans impact"],a:0,e:"L'interface d'admin doit rester isolee."}
+    ];
+
+    // ===================== QCM ENGINE =====================
+    let currentMode = 'chapter';
+    let currentChapter = 0;
+    let filteredQuestions = [];
+    let answered = 0;
+    let correct = 0;
+    let errors = JSON.parse(localStorage.getItem('admin_vm_qcm_errors') || '[]');
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        event.target.closest('.mode-btn').classList.add('active');
+        document.getElementById('chapterFilter').style.display = mode === 'chapter' ? 'flex' : 'none';
+        loadQuestions();
+    }
+
+    function filterChapter(ch) {
+        currentChapter = ch;
+        document.querySelectorAll('.chapter-filter button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        loadQuestions();
+    }
+
+    function loadQuestions() {
+        answered = 0; correct = 0;
+        updateScore();
+        let qs = [];
+        switch(currentMode) {
+            case 'chapter':
+                qs = currentChapter === 0 ? [...ALL_QUESTIONS] : ALL_QUESTIONS.filter(q => q.ch === currentChapter);
+                break;
+            case 'exam':
+                qs = shuffle([...ALL_QUESTIONS]).slice(0, 20);
+                break;
+            case 'random':
+                qs = shuffle([...ALL_QUESTIONS]);
+                break;
+            case 'errors':
+                qs = ALL_QUESTIONS.filter(q => errors.includes(q.id));
+                if (qs.length === 0) {
+                    document.getElementById('qcmArea').innerHTML = '<div class="glass-card" style="text-align:center;padding:2rem;"><h3>Bravo !</h3><p>Aucune erreur a reviser pour le moment.</p></div>';
+                    return;
+                }
+                break;
+        }
+        filteredQuestions = qs;
+        renderQuestions(qs);
+    }
+
+    function renderQuestions(qs) {
+        const area = document.getElementById('qcmArea');
+        area.innerHTML = qs.map((q, idx) => `
+            <div class="glass-card qcm-card" id="q${q.id}">
+                <p class="question-text">
+                    <span class="qcm-badge ch${q.ch}">Ch.${q.ch}</span>
+                    <strong>Q${idx+1}.</strong> ${q.q}
+                </p>
+                <ul class="options-list">
+                    ${q.o.map((opt, oi) => `<li><button class="option-btn" onclick="checkAnswer(${q.id},${oi},this)">${String.fromCharCode(65+oi)}. ${opt}</button></li>`).join('')}
+                </ul>
+                <div class="explanation" id="exp${q.id}">${q.e}</div>
+            </div>
+        `).join('');
+    }
+
+    function checkAnswer(qId, selected, btn) {
+        const q = ALL_QUESTIONS.find(x => x.id === qId);
+        const card = document.getElementById('q' + qId);
+        const buttons = card.querySelectorAll('.option-btn');
+        if (btn.classList.contains('disabled')) return;
+
+        buttons.forEach((b, i) => {
+            b.classList.add('disabled');
+            if (i === q.a) b.classList.add('correct');
+        });
+
+        answered++;
+        if (selected === q.a) {
+            correct++;
+            btn.classList.add('correct');
+            errors = errors.filter(x => x !== qId);
+        } else {
+            btn.classList.add('incorrect');
+            if (!errors.includes(qId)) errors.push(qId);
+        }
+        localStorage.setItem('admin_vm_qcm_errors', JSON.stringify(errors));
+        document.getElementById('exp' + qId).classList.add('show');
+        updateScore();
+    }
+
+    function updateScore() {
+        const total = filteredQuestions.length;
+        const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('scoreDisplay').innerHTML = `Score : <strong>${correct}</strong> / ${answered} ${answered > 0 ? `(${Math.round(correct/answered*100)}%)` : ''} - ${total - answered} restantes`;
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    loadQuestions();
+    </script>
+</body>
+</html>
