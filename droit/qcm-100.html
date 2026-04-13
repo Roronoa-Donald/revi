@@ -243,6 +243,16 @@
         loadQuestions();
     }
 
+    function shuffleAnswers(qs) {
+        return qs.map(q => {
+            const options = q.o.map((opt, idx) => ({ opt, isCorrect: idx === q.a }));
+            const shuffled = shuffle(options);
+            const newOptions = shuffled.map(item => item.opt);
+            const newCorrect = shuffled.findIndex(item => item.isCorrect);
+            return { ...q, o: newOptions, a: newCorrect };
+        });
+    }
+
     function loadQuestions() {
         answered = 0; correct = 0;
         updateScore();
@@ -265,6 +275,7 @@
                 }
                 break;
         }
+        qs = shuffleAnswers(qs);
         filteredQuestions = qs;
         renderQuestions(qs);
     }
@@ -286,7 +297,8 @@
     }
 
     function checkAnswer(qId, selected, btn) {
-        const q = ALL_QUESTIONS.find(x => x.id === qId);
+        const q = filteredQuestions.find(x => x.id === qId);
+        if (!q) return;
         const card = document.getElementById('q' + qId);
         const buttons = card.querySelectorAll('.option-btn');
         if (btn.classList.contains('disabled')) return;
