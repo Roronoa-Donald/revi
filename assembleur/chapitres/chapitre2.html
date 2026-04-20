@@ -32,53 +32,77 @@
     <header class="chapter-hero">
       <span class="hero-badge">Chapitre 2</span>
       <h1 class="chapter-title">CPU, machine a etats et memoire</h1>
-      <p class="chapter-meta">Comprendre l'execution d'une instruction avant d'ecrire du code bas niveau.</p>
+      <p class="chapter-meta">Comprendre comment une instruction traverse le CPU, pourquoi les registres sont si rapides et comment les flags pilotent les branches.</p>
     </header>
 
     <section class="content-block">
       <h3>Objectifs</h3>
       <ul class="list">
-        <li>Decrire le cycle fetch/decode/execute.</li>
-        <li>Identifier registres, ALU, bus et memoire.</li>
-        <li>Comprendre flags et etats du processeur.</li>
+        <li>Decrire le cycle d'instruction avec ses etapes.</li>
+        <li>Expliquer le role des registres, de l'ALU, des bus et de la memoire.</li>
+        <li>Comprendre flags, interruptions et machine a etats.</li>
       </ul>
     </section>
 
     <section class="content-block">
-      <h3>1) Composants d'un CPU</h3>
+      <h3>1) Anatomie d'un CPU (vision utile)</h3>
+      <p>Un CPU est un ensemble de blocs qui cooperent a chaque instruction.</p>
       <ul class="list">
-        <li>ALU: effectue les operations arithmetiques et logiques.</li>
-        <li>Unite de controle: orchestre le cycle d'instruction.</li>
-        <li>Registres: stockages tres rapides a l'interieur du CPU.</li>
-        <li>Bus: adresses, donnees, controle.</li>
+        <li><strong>ALU</strong>: calcule (addition, AND, XOR...).</li>
+        <li><strong>Unite de controle</strong>: orchestre les etapes et decode l'opcode.</li>
+        <li><strong>Registres</strong>: stockage ultra rapide, tres proche de l'ALU.</li>
+        <li><strong>Cache</strong>: memoire rapide entre CPU et RAM.</li>
+        <li><strong>Bus</strong>: chemin des adresses, donnees, signaux de controle.</li>
       </ul>
+      <div class="callout"><strong>Memo technique:</strong> CPU = ALU + controle + registres + bus. Tout le reste sert a alimenter ces blocs.</div>
     </section>
 
     <section class="content-block">
-      <h3>2) Cycle d'execution</h3>
-      <p>Le cycle se repete en 3 etapes principales:</p>
+      <h3>2) Cycle d'instruction (pas a pas)</h3>
+      <p>Le cycle se repete en plusieurs etapes. Chaque instruction suit la meme logique.</p>
       <ul class="list">
-        <li><strong>Fetch</strong>: lecture de l'instruction en memoire.</li>
-        <li><strong>Decode</strong>: interpretation de l'opcode.</li>
-        <li><strong>Execute</strong>: execution par l'ALU ou les unites speciales.</li>
+        <li><strong>Fetch</strong>: lecture de l'instruction a l'adresse de RIP.</li>
+        <li><strong>Decode</strong>: interpretation de l'opcode et des operandes.</li>
+        <li><strong>Execute</strong>: calcul par l'ALU ou acces memoire.</li>
+        <li><strong>Write-back</strong>: ecriture du resultat dans un registre.</li>
       </ul>
-      <div class="callout">Une interruption peut couper le cycle pour traiter un evenement prioritaire.</div>
+      <div class="callout"><strong>Exemple:</strong> ADD R1, R2 -> fetch de l'opcode, decode des registres, addition dans l'ALU, ecriture du resultat et mise a jour des flags.</div>
     </section>
 
     <section class="content-block">
-      <h3>3) Memoire et hierarchie</h3>
-      <p>La memoire est organisee par niveaux: registres &gt; cache &gt; RAM &gt; stockage. Plus on est proche du CPU, plus c'est rapide.</p>
+      <h3>3) Bus et hierarchie memoire</h3>
+      <p>Les bus sont specialises: bus d'adresses (ou aller), bus de donnees (quoi lire/ecrire), bus de controle (quand et comment).</p>
+      <p>La memoire est organisee par niveaux: registres &gt; cache &gt; RAM &gt; stockage.</p>
       <ul class="list">
-        <li>Registres: ultra rapides, peu nombreux.</li>
-        <li>RAM: acces plus lent mais capacite elevee.</li>
-        <li>Stockage: SSD/HDD, latence plus grande.</li>
+        <li>Registres: ultra rapides, tres petits.</li>
+        <li>Cache: rapide, limite, reduit les acces RAM.</li>
+        <li>RAM: plus lente, plus grande.</li>
+        <li>Stockage: tres lent, tres grand.</li>
       </ul>
+      <div class="callout"><strong>Memo technique:</strong> plus c'est proche du CPU, plus c'est rapide et petit.</div>
     </section>
 
     <section class="content-block">
-      <h3>4) Flags et machine a etats</h3>
-      <p>Les flags indiquent le resultat d'une operation: Zero, Carry, Overflow, Sign. Ils servent aux branches conditionnelles.</p>
-      <p>Une machine a etats modele le processeur comme un ensemble d'etats: lecture, execution, attente, interruption.</p>
+      <h3>4) Flags et branches</h3>
+      <p>Les flags memorisent des informations sur le dernier calcul. Ils pilotent les sauts conditionnels.</p>
+      <ul class="list">
+        <li><strong>Z</strong>: resultat nul.</li>
+        <li><strong>C</strong>: depassement en non signe (carry).</li>
+        <li><strong>N</strong>: resultat negatif (bit de signe).</li>
+        <li><strong>V</strong>: overflow en signe.</li>
+      </ul>
+      <div class="callout"><strong>Piege:</strong> Carry (non signe) et Overflow (signe) ne veulent pas dire la meme chose.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>5) Interruptions et machine a etats</h3>
+      <p>Une interruption stoppe temporairement le flux normal pour executer une routine speciale (ISR).</p>
+      <ul class="list">
+        <li>Le CPU sauvegarde le contexte (adresse, flags).</li>
+        <li>Il saute a l'adresse de l'ISR.</li>
+        <li>Il revient ensuite pour continuer le programme.</li>
+      </ul>
+      <div class="callout"><strong>Memo technique:</strong> interruption = detour temporaire, pas un arret definitif.</div>
     </section>
 
     <section class="content-block">
@@ -90,6 +114,7 @@
             <li>Fetch</li>
             <li>Decode</li>
             <li>Execute</li>
+            <li>Write-back</li>
           </ul>
         </div>
         <div class="cheat-card">
@@ -97,7 +122,8 @@
           <ul class="list">
             <li>ALU</li>
             <li>Registres</li>
-            <li>Unite de controle</li>
+            <li>Bus</li>
+            <li>Cache</li>
           </ul>
         </div>
         <div class="cheat-card">
@@ -105,7 +131,8 @@
           <ul class="list">
             <li>Z (zero)</li>
             <li>C (carry)</li>
-            <li>O (overflow)</li>
+            <li>V (overflow)</li>
+            <li>N (negatif)</li>
           </ul>
         </div>
       </div>
@@ -129,54 +156,16 @@
   <script src="../assets/js/main.js"></script>
   <script>
     const quizData = [
-      {
-        question: "Quel composant execute les operations arithmetiques ?",
-        options: ["ALU", "Bus", "RAM", "Controleur d'interruptions"],
-        answer: 0,
-        explanation: "L'ALU effectue les operations arithmetiques et logiques."
-      },
-      {
-        question: "La premiere etape du cycle d'instruction est :",
-        options: ["Decode", "Execute", "Fetch", "Writeback"],
-        answer: 2,
-        explanation: "On commence par lire l'instruction en memoire (fetch)."
-      },
-      {
-        question: "Quel niveau de memoire est le plus rapide ?",
-        options: ["RAM", "Cache", "Registres", "SSD"],
-        answer: 2,
-        explanation: "Les registres sont les plus proches du CPU."
-      },
-      {
-        question: "A quoi servent les flags ?",
-        options: ["A stocker du code", "A indiquer le resultat d'une operation", "A gerer le bus", "A charger la RAM"],
-        answer: 1,
-        explanation: "Les flags indiquent zero, carry, overflow, etc."
-      },
-      {
-        question: "La memoire la plus lente est en general :",
-        options: ["Cache L1", "Registres", "RAM", "Disque"],
-        answer: 3,
-        explanation: "Le disque est le plus lent par rapport aux autres niveaux."
-      },
-      {
-        question: "Un bus d'adresses transporte :",
-        options: ["Des instructions", "Des adresses memoire", "Des caracteres ASCII", "Des flags"],
-        answer: 1,
-        explanation: "Il transporte les adresses pour acceder a la memoire."
-      },
-      {
-        question: "Une interruption provoque :",
-        options: ["La fin du programme", "Une pause pour traiter un evenement", "Une acceleration du CPU", "Une erreur fatale"],
-        answer: 1,
-        explanation: "Une interruption coupe temporairement le cycle pour traiter un evenement."
-      },
-      {
-        question: "Zero flag est actif quand :",
-        options: ["Le resultat est negatif", "Le resultat est nul", "La RAM est pleine", "Le CPU est bloque"],
-        answer: 1,
-        explanation: "Le flag Z indique un resultat nul."
-      }
+      { question: "L'ordre classique du cycle est :", options: ["Execute-Decode-Fetch", "Fetch-Decode-Execute-Writeback", "Decode-Fetch-Execute", "Fetch-Execute-Decode"], answer: 1, explanation: "Cycle standard: fetch, decode, execute, write-back." },
+      { question: "Le role principal de l'ALU est :", options: ["Gerer le bus", "Calculer", "Stocker", "Debugger"], answer: 1, explanation: "ALU = operations arithmetiques et logiques." },
+      { question: "Le composant le plus rapide est :", options: ["RAM", "Cache", "Registres", "SSD"], answer: 2, explanation: "Les registres sont au plus pres du CPU." },
+      { question: "Le bus d'adresses transporte :", options: ["Des adresses", "Des donnees", "Des flags", "Des caracteres"], answer: 0, explanation: "Il indique ou lire/ecrire." },
+      { question: "Le cache sert surtout a :", options: ["Remplacer la RAM", "Eviter des acces RAM lents", "Stocker le programme", "Gerer les interruptions"], answer: 1, explanation: "Le cache reduit la latence memoire." },
+      { question: "Le flag Z vaut 1 si :", options: ["Resultat negatif", "Resultat nul", "Carry actif", "Overflow actif"], answer: 1, explanation: "Z=1 quand le resultat vaut 0." },
+      { question: "Carry et Overflow differencent :", options: ["Signe vs non signe", "RAM vs cache", "Fetch vs decode", "Pile vs heap"], answer: 0, explanation: "Carry = non signe, Overflow = signe." },
+      { question: "Une interruption fait :", options: ["Arret total", "Detour temporaire vers une ISR", "Reset", "Effacement RAM"], answer: 1, explanation: "Le CPU traite l'ISR puis revient." },
+      { question: "Le pointeur d'instruction x64 est :", options: ["RSP", "RIP", "RAX", "RDI"], answer: 1, explanation: "RIP pointe l'instruction courante." },
+      { question: "Hierarchie du plus rapide au plus lent :", options: ["RAM-Cache-Registres-Disque", "Registres-Cache-RAM-Disque", "Cache-RAM-Registres-Disque", "Registres-RAM-Cache-Disque"], answer: 1, explanation: "Registres > cache > RAM > disque." }
     ];
     renderQuiz("quiz-container", quizData);
   </script>

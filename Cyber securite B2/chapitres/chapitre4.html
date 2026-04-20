@@ -32,15 +32,15 @@
     <header class="chapter-hero">
       <span class="hero-badge">Chapitre 4</span>
       <h1 class="chapter-title">Cryptographie de base</h1>
-      <p class="chapter-meta">Confidentialite, integrite et authentification.</p>
+      <p class="chapter-meta">Comprendre chiffrement, hash, signatures et echange de cles.</p>
     </header>
 
     <section class="content-block">
       <h3>Objectifs</h3>
       <ul class="list">
         <li>Distinguer chiffrement symetrique et asymetrique.</li>
-        <li>Comprendre hash et signature numerique.</li>
-        <li>Connaitre les usages courants.</li>
+        <li>Comprendre hash, signature et echange de cles.</li>
+        <li>Eviter les confusions hash vs chiffrement.</li>
       </ul>
     </section>
 
@@ -51,6 +51,7 @@
         <li>Exemples: AES, ChaCha20.</li>
         <li>Usage: stockage, VPN, disques.</li>
       </ul>
+      <div class="callout"><strong>Memo technique:</strong> symetrique = 1 cle = rapide.</div>
     </section>
 
     <section class="content-block">
@@ -60,6 +61,7 @@
         <li>Exemples: RSA, ECC.</li>
         <li>Usage: echange de cles, signatures, TLS.</li>
       </ul>
+      <div class="callout"><strong>Memo technique:</strong> asymetrique = 2 cles = plus lent mais pratique pour l'echange.</div>
     </section>
 
     <section class="content-block">
@@ -70,6 +72,26 @@
         <li>Integrite: verifier que le message n'a pas change.</li>
       </ul>
       <div class="callout">Le hash est a sens unique: on ne peut pas "dechiffrer" un hash.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>4) Echange de cles et TLS</h3>
+      <p>Dans TLS, l'asymetrique sert a negocier une cle symetrique, puis les donnees sont chiffrees en symetrique.</p>
+      <ul class="list">
+        <li>Asymetrique pour l'authentification.</li>
+        <li>Symetrique pour le debit et la vitesse.</li>
+      </ul>
+      <div class="callout"><strong>Piege:</strong> TLS ne chiffre pas tout avec RSA, il negocie une cle symetrique.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>5) Hash de mots de passe</h3>
+      <ul class="list">
+        <li>Un hash n'est pas un chiffrement.</li>
+        <li>Un <strong>salt</strong> evite les tables arc-en-ciel.</li>
+        <li>On prefere des fonctions lentes (bcrypt, scrypt, Argon2).</li>
+      </ul>
+      <div class="callout"><strong>Memo technique:</strong> mot de passe = hash + salt, jamais en clair.</div>
     </section>
 
     <section class="content-block">
@@ -94,6 +116,7 @@
           <ul class="list">
             <li>Empreinte</li>
             <li>Integrite</li>
+            <li>+ salt pour mots de passe</li>
           </ul>
         </div>
       </div>
@@ -117,14 +140,15 @@
   <script src="../assets/js/main.js"></script>
   <script>
     const quizData = [
-      { question: "Le chiffrement symetrique utilise :", options: ["Deux cles", "Une seule cle", "Trois cles", "Aucune cle"], answer: 1, explanation: "Symetrique = une seule cle pour chiffrer/dechiffrer." },
-      { question: "Un exemple de chiffrement symetrique :", options: ["RSA", "AES", "ECC", "DSA"], answer: 1, explanation: "AES est symetrique." },
+      { question: "Le chiffrement symetrique utilise :", options: ["Deux cles", "Une seule cle", "Trois cles", "Aucune cle"], answer: 1, explanation: "Symetrique = une seule cle." },
+      { question: "Un exemple symetrique :", options: ["RSA", "AES", "ECC", "DSA"], answer: 1, explanation: "AES est symetrique." },
       { question: "En asymetrique, la cle publique sert a :", options: ["Dechiffrer", "Chiffrer", "Supprimer", "Hash"], answer: 1, explanation: "La cle publique chiffre." },
       { question: "Un hash est :", options: ["Reversible", "Une empreinte", "Une cle", "Un certificat"], answer: 1, explanation: "Le hash est une empreinte a sens unique." },
       { question: "La signature numerique prouve :", options: ["La vitesse", "L'auteur et l'integrite", "Le stockage", "Le Wi-Fi"], answer: 1, explanation: "Signature = auteur + integrite." },
-      { question: "SHA-256 est :", options: ["Un chiffrement", "Un hash", "Un pare-feu", "Un port"], answer: 1, explanation: "SHA-256 est un algorithme de hash." },
-      { question: "Pourquoi utiliser l'asymetrique ?", options: ["Pour partager une cle secrete", "Pour accelerer le CPU", "Pour chiffrer sans cle", "Pour supprimer les logs"], answer: 0, explanation: "Il facilite l'echange de cles et les signatures." },
-      { question: "Integrite signifie :", options: ["Donnees disponibles", "Donnees non modifiees", "Donnees chiffrees", "Donnees supprimees"], answer: 1, explanation: "Integrite = pas de modification non autorisee." }
+      { question: "TLS utilise surtout :", options: ["Asymetrique pour tout", "Asymetrique pour echange + symetrique pour data", "Hash uniquement", "Aucune cle"], answer: 1, explanation: "TLS negocie une cle symetrique." },
+      { question: "Un salt sert a :", options: ["Renforcer le hash", "Chiffrer plus vite", "Changer le port", "Supprimer les logs"], answer: 0, explanation: "Le salt evite les tables arc-en-ciel." },
+      { question: "Un hash n'est pas :", options: ["Un chiffrement", "Une empreinte", "Une fonction a sens unique", "Un controle d'integrite"], answer: 0, explanation: "Le hash n'est pas reversible." },
+      { question: "Integrite signifie :", options: ["Donnees non modifiees", "Service dispo", "Donnees publiques", "Donnees supprimees"], answer: 0, explanation: "Integrite = pas de modification non autorisee." }
     ];
     renderQuiz("quiz-container", quizData);
   </script>

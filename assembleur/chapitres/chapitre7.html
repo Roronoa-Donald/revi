@@ -32,54 +32,67 @@
     <header class="chapter-hero">
       <span class="hero-badge">Chapitre 7</span>
       <h1 class="chapter-title">NASM avance: pile, syscall et compilation</h1>
-      <p class="chapter-meta">Couvrir les points frequents des controles et de l'examen final.</p>
+      <p class="chapter-meta">Maitriser la pile, les appels, les syscalls et les differences Linux/Windows.</p>
     </header>
 
     <section class="content-block">
       <h3>Objectifs</h3>
       <ul class="list">
-        <li>Comprendre la pile (stack) et les appels.</li>
-        <li>Utiliser les syscalls basiques.</li>
-        <li>Compiler sous Windows avec NASM + GCC (MinGW).</li>
+        <li>Comprendre la pile, CALL/RET et l'alignement.</li>
+        <li>Utiliser les syscalls Linux et leurs registres d'arguments.</li>
+        <li>Compiler sous Windows et reconnaitre les differences d'ABI.</li>
       </ul>
     </section>
 
     <section class="content-block">
-      <h3>1) Pile et conventions</h3>
-      <p>La pile est geree par RSP. Les instructions PUSH/POP stockent et restaurent des valeurs. RBP sert souvent de base pour les variables locales.</p>
+      <h3>1) Pile et appels (stack frame)</h3>
+      <p>La pile est geree par RSP. CALL empile l'adresse retour, RET la depile.</p>
       <ul class="list">
-        <li>PUSH X: RSP diminue, X est stocke.</li>
+        <li>PUSH X: RSP diminue (8 octets en x64), X est stocke.</li>
         <li>POP X: X est restaure, RSP augmente.</li>
+        <li>Frame classique: <code>push rbp</code>, <code>mov rbp, rsp</code>, <code>sub rsp, N</code>.</li>
       </ul>
+      <div class="callout"><strong>Memo technique:</strong> avant un CALL, la pile doit etre alignee a 16 octets (ABI).</div>
     </section>
 
     <section class="content-block">
-      <h3>2) Syscalls (mode Linux)</h3>
-      <p>Un syscall passe par RAX (numero) et des registres d'arguments (RDI, RSI, RDX...). Exemple de sortie:</p>
+      <h3>2) Syscalls Linux (x86_64)</h3>
+      <p>Un syscall utilise RAX pour le numero et des registres d'arguments.</p>
       <ul class="list">
-        <li>RAX = 60 (exit)</li>
-        <li>RDI = code retour</li>
-        <li>SYSCALL</li>
+        <li>RDI, RSI, RDX, R10, R8, R9 = arguments 1..6</li>
+        <li>RAX = numero du syscall</li>
+        <li>SYSCALL pour entrer noyau</li>
       </ul>
-      <div class="callout">En environnement Windows, on utilise les appels WinAPI et une autre convention.</div>
+      <div class="callout"><strong>Exemple exit:</strong> RAX=60, RDI=0, SYSCALL.</div>
     </section>
 
     <section class="content-block">
-      <h3>3) Compilation NASM sous Windows</h3>
+      <h3>3) Linux vs Windows (ABI)</h3>
+      <ul class="list">
+        <li>Linux (SysV): args dans RDI, RSI, RDX, RCX, R8, R9.</li>
+        <li>Windows (Win64): args dans RCX, RDX, R8, R9.</li>
+      </ul>
+      <div class="callout"><strong>Piege:</strong> une routine Linux ne fonctionne pas tel quel sous Windows.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>4) Compilation NASM sous Windows</h3>
       <ul class="list">
         <li>Assembler: <code>nasm -f win64 prog.asm -o prog.obj</code></li>
         <li>Lier: <code>gcc prog.obj -o prog.exe</code></li>
       </ul>
-      <p>En controle continu, on vous demande souvent les etapes et les outils.</p>
+      <p>Sur Linux: <code>nasm -f elf64</code> puis <code>ld</code> ou <code>gcc</code>.</p>
     </section>
 
     <section class="content-block">
-      <h3>4) Debug et erreurs frequentes</h3>
+      <h3>5) Debug et erreurs frequentes</h3>
       <ul class="list">
         <li>Oublier une virgule dans MOV.</li>
         <li>Confondre adresse et valeur (MOV vs LEA).</li>
         <li>Mauvais format NASM (win64 vs elf64).</li>
+        <li>Oublier l'alignement 16 octets avant CALL.</li>
       </ul>
+      <div class="callout"><strong>Memo technique:</strong> verify format, verify virgules, verify alignement.</div>
     </section>
 
     <section class="content-block">
@@ -90,6 +103,7 @@
           <ul class="list">
             <li>RSP = haut de pile</li>
             <li>PUSH / POP</li>
+            <li>Alignement 16</li>
           </ul>
         </div>
         <div class="cheat-card">
@@ -127,54 +141,15 @@
   <script src="../assets/js/main.js"></script>
   <script>
     const quizData = [
-      {
-        question: "RSP represente :",
-        options: ["Le pointeur d'instruction", "Le haut de pile", "Un registre SIMD", "Le compteur de cycles"],
-        answer: 1,
-        explanation: "RSP est le stack pointer."
-      },
-      {
-        question: "PUSH fait :",
-        options: ["Augmente RSP", "Diminue RSP et stocke", "Vide la pile", "Charge un immediate"],
-        answer: 1,
-        explanation: "PUSH reserve de la place et ecrit la valeur."
-      },
-      {
-        question: "En Linux, le numero de syscall est dans :",
-        options: ["RAX", "RDI", "RCX", "RSP"],
-        answer: 0,
-        explanation: "RAX contient le numero de syscall."
-      },
-      {
-        question: "Pour sortir avec code 0 :",
-        options: ["RAX=60, RDI=0, SYSCALL", "RAX=1, RDI=0, SYSCALL", "RAX=0, SYSCALL", "RAX=2, RDI=1"],
-        answer: 0,
-        explanation: "exit: RAX=60, RDI=code."
-      },
-      {
-        question: "Sous Windows, assembler en NASM :",
-        options: ["nasm -f elf64", "nasm -f win64", "nasm -f bin", "nasm -f macho"],
-        answer: 1,
-        explanation: "Windows 64 bits utilise win64."
-      },
-      {
-        question: "Erreur MOV rax 5 signifie :",
-        options: ["RAX trop petit", "Virgule manquante", "Mauvais registre", "Syntaxe AT&T"],
-        answer: 1,
-        explanation: "La virgule est obligatoire en NASM."
-      },
-      {
-        question: "LEA sert a :",
-        options: ["Charger une valeur", "Calculer une adresse", "Ecrire en memoire", "Changer RSP"],
-        answer: 1,
-        explanation: "LEA calcule une adresse."
-      },
-      {
-        question: "Un linkage Windows se fait avec :",
-        options: ["gcc prog.obj", "ld prog.obj", "avr-gcc", "javac"],
-        answer: 0,
-        explanation: "On peut lier avec gcc (MinGW)."
-      }
+      { question: "RSP represente :", options: ["Pointeur d'instruction", "Haut de pile", "Registre SIMD", "Compteur"], answer: 1, explanation: "RSP = stack pointer." },
+      { question: "CALL fait :", options: ["Change RIP et empile l'adresse retour", "Vide la pile", "Change la RAM", "Ecrit RAX"], answer: 0, explanation: "CALL pousse l'adresse retour." },
+      { question: "Avant un CALL, la pile doit etre alignee :", options: ["4 octets", "8 octets", "16 octets", "32 octets"], answer: 2, explanation: "ABI x64 = alignement 16." },
+      { question: "Numero de syscall Linux dans :", options: ["RAX", "RDI", "RCX", "RSP"], answer: 0, explanation: "RAX contient le numero." },
+      { question: "Arguments Linux 1..3 :", options: ["RCX/RDX/R8", "RDI/RSI/RDX", "RAX/RBX/RCX", "R8/R9/R10"], answer: 1, explanation: "RDI, RSI, RDX." },
+      { question: "Sous Windows, NASM utilise :", options: ["-f win64", "-f elf64", "-f macho", "-f bin"], answer: 0, explanation: "Format win64." },
+      { question: "Erreur MOV rax 5 :", options: ["Virgule manquante", "Mauvais registre", "Pas d'ALU", "Format ELF"], answer: 0, explanation: "Virgule obligatoire en NASM." },
+      { question: "LEA sert a :", options: ["Calculer une adresse", "Lire memoire", "Ecrire memoire", "Incrementer RSP"], answer: 0, explanation: "LEA calcule l'adresse." },
+      { question: "Linkage Windows se fait avec :", options: ["gcc prog.obj", "ld prog.obj", "avr-gcc", "javac"], answer: 0, explanation: "MinGW gcc peut lier." }
     ];
     renderQuiz("quiz-container", quizData);
   </script>

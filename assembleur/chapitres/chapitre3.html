@@ -32,52 +32,85 @@
     <header class="chapter-hero">
       <span class="hero-badge">Chapitre 3</span>
       <h1 class="chapter-title">Microcontroleurs AVR et ATmega328P</h1>
-      <p class="chapter-meta">Comprendre l'architecture interne avant de programmer en assembleur AVR.</p>
+      <p class="chapter-meta">Comprendre l'architecture interne, la memoire, les ports et les interruptions avant d'ecrire du code AVR.</p>
     </header>
 
     <section class="content-block">
       <h3>Objectifs</h3>
       <ul class="list">
-        <li>Definir microcontroleur vs microprocesseur.</li>
-        <li>Identifier les blocs internes de l'ATmega328P.</li>
-        <li>Comprendre ports E/S, horloge et interruptions.</li>
+        <li>Expliquer microcontroleur vs microprocesseur.</li>
+        <li>Connaitre Flash, SRAM, EEPROM et registres internes.</li>
+        <li>Manipuler DDR/PORT/PIN pour les E/S.</li>
+        <li>Comprendre horloge, timers et interruptions.</li>
       </ul>
     </section>
 
     <section class="content-block">
       <h3>1) Microcontroleur vs microprocesseur</h3>
-      <p>Un microcontroleur integre CPU + memoires + peripheriques (timers, ADC, UART). Un microprocesseur est un CPU qui s'appuie sur des composants externes.</p>
-      <div class="callout">AVR est populaire pour l'embarque grace a sa simplicite et sa consommation faible.</div>
+      <p>Un microcontroleur integre le CPU, les memoires et les peripheriques sur une seule puce. Un microprocesseur est surtout un CPU qui depend d'element externes.</p>
+      <ul class="list">
+        <li>Microcontroleur: CPU + Flash + SRAM + timers + UART + ADC.</li>
+        <li>Microprocesseur: CPU + composants externes (RAM, chipset).</li>
+      </ul>
+      <div class="callout"><strong>Memo technique:</strong> microcontroleur = tout-en-un, microprocesseur = CPU nu.</div>
     </section>
 
     <section class="content-block">
-      <h3>2) Architecture de l'ATmega328P</h3>
+      <h3>2) Architecture ATmega328P (interieur)</h3>
+      <p>L'AVR est de type Harvard: instructions en Flash, donnees en SRAM.</p>
       <ul class="list">
-        <li>Flash: memoire programme.</li>
-        <li>SRAM: variables et pile (stack).</li>
-        <li>EEPROM: stockage non volatil.</li>
-        <li>Registres: 32 registres generaux (R0-R31).</li>
+        <li><strong>Flash</strong>: memoire programme (code).</li>
+        <li><strong>SRAM</strong>: variables et pile.</li>
+        <li><strong>EEPROM</strong>: donnees persistantes.</li>
+        <li><strong>Registres</strong>: R0 a R31, directement branches sur l'ALU.</li>
       </ul>
-      <p>Le bus interne relie ALU, registres et memoire. Les ports E/S sont organises en registres (DDR, PORT, PIN).</p>
+      <p>Les registres E/S sont mappes en memoire. On pilote le materiel en ecrivant dans ces adresses.</p>
+      <div class="callout"><strong>Memo technique:</strong> Flash = code, SRAM = variables, EEPROM = persistant.</div>
     </section>
 
     <section class="content-block">
-      <h3>3) Horloge, reset et interruptions</h3>
+      <h3>3) Ports E/S (DDR, PORT, PIN)</h3>
+      <p>Chaque port (B, C, D) a trois registres:</p>
       <ul class="list">
-        <li>Horloge: cadence le CPU (MHz).</li>
-        <li>Reset: remet l'etat du microcontroleur a zero.</li>
-        <li>Interruptions: declencheurs externes ou internes.</li>
+        <li><strong>DDRx</strong>: direction (1 = sortie, 0 = entree).</li>
+        <li><strong>PORTx</strong>: ecriture (sortie) ou pull-up (entree).</li>
+        <li><strong>PINx</strong>: lecture de l'etat des broches.</li>
       </ul>
-      <p>Les timers comptent des cycles pour mesurer le temps et generer des interruptions periodiques.</p>
+      <div class="callout"><strong>Exemple:</strong> PB5 en sortie -> mettre le bit 5 de DDRB a 1, puis ecrire 1 dans PORTB5.</div>
+      <div class="callout"><strong>Piege:</strong> sur AVR, ecrire 1 dans PINx peut toggler la sortie.</div>
     </section>
 
     <section class="content-block">
-      <h3>4) Ports E/S</h3>
-      <p>Chaque port a un registre de direction (DDR), un registre de sortie (PORT) et un registre d'entree (PIN).</p>
+      <h3>4) Horloge, timers, PWM</h3>
       <ul class="list">
-        <li>DDR = 1 pour sortie, 0 pour entree.</li>
-        <li>PORT = valeur ecrite en sortie ou pull-up en entree.</li>
+        <li>Horloge: cadence le CPU (MHz), base de tous les timings.</li>
+        <li>Prescaler: divise la frequence pour ralentir un timer.</li>
+        <li>Timers: comptent les cycles, generent des interruptions.</li>
+        <li>PWM: sortie periodique pour controler une LED ou un moteur.</li>
       </ul>
+      <p>Un timer declenche une interruption quand il deborde ou atteint une valeur comparee.</p>
+      <div class="callout"><strong>Memo technique:</strong> timer = compteur + interruption + prescaler.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>5) Interruptions</h3>
+      <p>Une interruption est un evenement qui force le CPU a executer une routine (ISR).</p>
+      <ul class="list">
+        <li>Table des vecteurs: adresse de chaque ISR.</li>
+        <li>Activation globale via l'instruction SEI.</li>
+        <li>Retour via RETI.</li>
+      </ul>
+      <div class="callout"><strong>Memo technique:</strong> SEI = enable interrupts, RETI = retour ISR.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>6) Peripheriques courants</h3>
+      <ul class="list">
+        <li>UART: communication serie (debug, console).</li>
+        <li>SPI / I2C: bus serie pour capteurs et memoires.</li>
+        <li>ADC: convertir une tension en valeur numerique.</li>
+      </ul>
+      <p>Chaque peripherique se configure par registres, puis se pilote par des bits.</p>
     </section>
 
     <section class="content-block">
@@ -86,8 +119,8 @@
         <div class="cheat-card">
           <strong>Memoire:</strong>
           <ul class="list">
-            <li>Flash: programme</li>
-            <li>SRAM: variables</li>
+            <li>Flash: code</li>
+            <li>SRAM: variables/stack</li>
             <li>EEPROM: persistant</li>
           </ul>
         </div>
@@ -95,16 +128,16 @@
           <strong>Ports:</strong>
           <ul class="list">
             <li>DDR: direction</li>
-            <li>PORT: sortie / pull-up</li>
+            <li>PORT: sortie/pull-up</li>
             <li>PIN: lecture</li>
           </ul>
         </div>
         <div class="cheat-card">
           <strong>Interruptions:</strong>
           <ul class="list">
-            <li>Externes</li>
-            <li>Timers</li>
-            <li>Peripheriques</li>
+            <li>Vecteurs + ISR</li>
+            <li>SEI / RETI</li>
+            <li>Timers, UART, etc.</li>
           </ul>
         </div>
       </div>
@@ -128,54 +161,16 @@
   <script src="../assets/js/main.js"></script>
   <script>
     const quizData = [
-      {
-        question: "Un microcontroleur contient :",
-        options: ["CPU uniquement", "CPU + memoire + peripheriques", "Memoire uniquement", "GPU"],
-        answer: 1,
-        explanation: "Un microcontroleur integre CPU, memoire et peripheriques."
-      },
-      {
-        question: "La memoire programme AVR est :",
-        options: ["SRAM", "EEPROM", "Flash", "Cache"],
-        answer: 2,
-        explanation: "La Flash stocke le programme."
-      },
-      {
-        question: "Les registres generaux AVR sont au nombre de :",
-        options: ["8", "16", "32", "64"],
-        answer: 2,
-        explanation: "R0 a R31 = 32 registres."
-      },
-      {
-        question: "DDR configure :",
-        options: ["La vitesse", "La direction des broches", "La taille de Flash", "Les interruptions"],
-        answer: 1,
-        explanation: "DDR fixe entree/sortie."
-      },
-      {
-        question: "EEPROM sert a :",
-        options: ["Stocker le programme", "Stocker des donnees persistantes", "Executer des instructions", "Multiplier"],
-        answer: 1,
-        explanation: "EEPROM conserve les donnees apres extinction."
-      },
-      {
-        question: "Un timer peut :",
-        options: ["Creer une interruption periodique", "Changer l'architecture", "Effacer la Flash", "Modifier le bus"],
-        answer: 0,
-        explanation: "Les timers generent des interruptions."
-      },
-      {
-        question: "PORT en mode entree sert a :",
-        options: ["Forcer la direction", "Activer un pull-up", "Lancer un reset", "Modifier la Flash"],
-        answer: 1,
-        explanation: "PORT = 1 active un pull-up sur une entree."
-      },
-      {
-        question: "Le reset :",
-        options: ["Arrete definitivement le CPU", "Remet l'etat a zero", "Active un timer", "Augmente la frequence"],
-        answer: 1,
-        explanation: "Le reset remet le microcontroleur a l'etat initial."
-      }
+      { question: "Un microcontroleur integre :", options: ["CPU uniquement", "CPU + memoires + peripheriques", "GPU", "RAM seule"], answer: 1, explanation: "Tout est sur une puce." },
+      { question: "L'AVR utilise une architecture :", options: ["Von Neumann", "Harvard", "Stack", "Pipeline"], answer: 1, explanation: "Instructions et donnees separes." },
+      { question: "La Flash contient :", options: ["Le programme", "La pile", "Les flags", "Le cache"], answer: 0, explanation: "Flash = code." },
+      { question: "SRAM sert a :", options: ["Variables et stack", "Programme", "EEPROM", "Bootloader"], answer: 0, explanation: "SRAM = donnees volatiles." },
+      { question: "EEPROM est :", options: ["Volatile", "Persistante", "Cache", "Stack"], answer: 1, explanation: "EEPROM conserve les donnees." },
+      { question: "DDR configure :", options: ["Direction des broches", "Timer", "Reset", "Horloge"], answer: 0, explanation: "DDR=1 sortie, DDR=0 entree." },
+      { question: "PORT en mode entree permet :", options: ["Lecture directe", "Activer un pull-up", "Changer la Flash", "Reset"], answer: 1, explanation: "PORT=1 active un pull-up." },
+      { question: "Un timer sert a :", options: ["Compter le temps", "Changer l'ALU", "Effacer RAM", "Modifier le bus"], answer: 0, explanation: "Timer = compteur + interruptions." },
+      { question: "SEI sert a :", options: ["Desactiver IRQ", "Activer IRQ", "Reset", "NOP"], answer: 1, explanation: "SEI active les interruptions." },
+      { question: "Un perif courant pour analogique est :", options: ["ADC", "UART", "SPI", "PWM"], answer: 0, explanation: "ADC convertit analogique en numerique." }
     ];
     renderQuiz("quiz-container", quizData);
   </script>

@@ -32,44 +32,58 @@
     <header class="chapter-hero">
       <span class="hero-badge">Chapitre 3</span>
       <h1 class="chapter-title">Securite reseau et filtrage</h1>
-      <p class="chapter-meta">Comprendre comment on bloque et controle le trafic.</p>
+      <p class="chapter-meta">Comprendre pare-feu, filtrage, segmentation et protection applicative.</p>
     </header>
 
     <section class="content-block">
       <h3>Objectifs</h3>
       <ul class="list">
-        <li>Comprendre le role du pare-feu.</li>
-        <li>Connaitre les criteres de filtrage.</li>
-        <li>Differencier pare-feu classique et WAF.</li>
+        <li>Comprendre le role des pare-feu et leurs types.</li>
+        <li>Connaitre les criteres de filtrage et les regles.</li>
+        <li>Utiliser segmentation, DMZ, WAF.</li>
       </ul>
     </section>
 
     <section class="content-block">
-      <h3>1) Pare-feu</h3>
-      <p>Un pare-feu filtre le trafic entrant et sortant selon des regles. Il peut etre materiel, logiciel ou en appliance.</p>
+      <h3>1) Pare-feu (types)</h3>
+      <p>Un pare-feu filtre le trafic entrant et sortant selon des regles.</p>
       <ul class="list">
-        <li>Filtrage par IP, port, protocole.</li>
-        <li>Regles "allow/deny" (whitelist/blacklist).</li>
+        <li><strong>Stateless</strong>: filtre paquet par paquet.</li>
+        <li><strong>Stateful</strong>: suit l'etat des connexions.</li>
+        <li><strong>NGFW</strong>: ajoute inspection applicative.</li>
       </ul>
-      <div class="callout">Un pare-feu seul ne suffit pas, il doit etre combine a d'autres controles.</div>
+      <div class="callout"><strong>Memo technique:</strong> "deny by default" + ouvrir seulement le necessaire.</div>
     </section>
 
     <section class="content-block">
-      <h3>2) Filtrage et segmentation</h3>
+      <h3>2) Criteres de filtrage</h3>
       <ul class="list">
-        <li>Segmentation: separer les zones (LAN, DMZ, admin).</li>
-        <li>Limiter la propagation en cas d'incident.</li>
-        <li>Principe du moindre privilege.</li>
+        <li>IP source/destination</li>
+        <li>Port source/destination</li>
+        <li>Protocole (TCP/UDP/ICMP)</li>
+        <li>Etat de connexion (stateful)</li>
       </ul>
+      <div class="callout"><strong>Piege:</strong> une regle "any any allow" annule toute securite.</div>
     </section>
 
     <section class="content-block">
-      <h3>3) WAF (Web Application Firewall)</h3>
+      <h3>3) Segmentation et DMZ</h3>
+      <ul class="list">
+        <li>Segmentation: separer LAN, serveurs, admin.</li>
+        <li>DMZ: zone exposee pour les services publics.</li>
+        <li>Moindre privilege: acces minimal.</li>
+      </ul>
+      <div class="callout"><strong>Memo technique:</strong> segmentation limite la propagation d'un incident.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>4) WAF (Web Application Firewall)</h3>
       <p>Le WAF analyse le trafic HTTP/HTTPS pour bloquer des attaques web (SQLi, XSS).</p>
       <ul class="list">
-        <li>Controle applicatif (L7).</li>
+        <li>Controle applicatif (couche 7).</li>
         <li>Protection des API et sites web.</li>
       </ul>
+      <div class="callout"><strong>Piege:</strong> un WAF ne remplace pas les correctifs applicatifs.</div>
     </section>
 
     <section class="content-block">
@@ -78,8 +92,8 @@
         <div class="cheat-card">
           <strong>Pare-feu:</strong>
           <ul class="list">
+            <li>Stateless / stateful / NGFW</li>
             <li>IP / port / protocole</li>
-            <li>Entrant + sortant</li>
           </ul>
         </div>
         <div class="cheat-card">
@@ -118,13 +132,15 @@
   <script>
     const quizData = [
       { question: "Un pare-feu sert a :", options: ["Stocker des fichiers", "Filtrer le trafic", "Ecrire du code", "Augmenter la RAM"], answer: 1, explanation: "Le pare-feu filtre le trafic entrant/sortant." },
-      { question: "Un WAF protege :", options: ["Le BIOS", "Les applications web", "Le Wi-Fi", "Le disque"], answer: 1, explanation: "Le WAF cible les attaques web (SQLi, XSS)." },
-      { question: "Un critere de filtrage est :", options: ["Couleur du PC", "Adresse IP", "Marque clavier", "Nom utilisateur"], answer: 1, explanation: "Filtrage par IP/port/protocole." },
-      { question: "La segmentation sert a :", options: ["Accelerer le CPU", "Limiter la propagation", "Supprimer la DMZ", "Agrandir la RAM"], answer: 1, explanation: "On isole les zones pour limiter l'impact." },
-      { question: "Le moindre privilege signifie :", options: ["Tout autoriser", "Limiter les acces au strict necessaire", "Ouvrir tous les ports", "Desactiver le firewall"], answer: 1, explanation: "On n'autorise que ce qui est necessaire." },
-      { question: "Un pare-feu applicatif opere en :", options: ["Couche 1", "Couche 7", "Couche 2", "Couche 3"], answer: 1, explanation: "WAF = couche applicative (L7)." },
-      { question: "Un port represente :", options: ["Une adresse logique de service", "Une adresse IP", "Une cle USB", "Un protocole"], answer: 0, explanation: "Un port identifie un service." },
-      { question: "DMZ signifie :", options: ["Zone demilitarisee", "Zone des logs", "Zone memoire", "Zone DMA"], answer: 0, explanation: "DMZ = zone demilitarisee." }
+      { question: "Un firewall stateful :", options: ["Ignore l'etat", "Suit les connexions", "Chiffre", "Supprime les logs"], answer: 1, explanation: "Stateful suit l'etat des connexions." },
+      { question: "Un critere de filtrage est :", options: ["Adresse IP", "Couleur du PC", "Marque clavier", "Nom utilisateur"], answer: 0, explanation: "Filtrage par IP/port/protocole." },
+      { question: "Le principe " + '"' + "deny by default" + '"' + " signifie :", options: ["Tout autoriser", "Tout refuser sauf le necessaire", "Ouvrir tous les ports", "Desactiver le firewall"], answer: 1, explanation: "On autorise uniquement ce qui est necessaire." },
+      { question: "La segmentation sert a :", options: ["Limiter la propagation", "Accelerer le CPU", "Supprimer la DMZ", "Agrandir la RAM"], answer: 0, explanation: "On isole les zones pour limiter l'impact." },
+      { question: "DMZ signifie :", options: ["Zone demilitarisee", "Zone des logs", "Zone memoire", "Zone DMA"], answer: 0, explanation: "DMZ = zone exposee controlee." },
+      { question: "Un WAF protege :", options: ["Les applications web", "Le BIOS", "Le Wi-Fi", "Le disque"], answer: 0, explanation: "Le WAF cible les attaques web (SQLi, XSS)." },
+      { question: "Un pare-feu applicatif opere en :", options: ["Couche 7", "Couche 2", "Couche 3", "Couche 1"], answer: 0, explanation: "WAF = couche applicative (L7)." },
+      { question: "Un port represente :", options: ["Adresse logique de service", "Adresse IP", "Cle USB", "Protocole"], answer: 0, explanation: "Un port identifie un service." },
+      { question: "Une regle any-any allow est :", options: ["Risque majeur", "Bonne pratique", "Une mitigation", "Un IDS"], answer: 0, explanation: "Elle annule la securite du filtrage." }
     ];
     renderQuiz("quiz-container", quizData);
   </script>

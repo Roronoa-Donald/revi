@@ -9,6 +9,8 @@ const COURSE_DIRS = [
   'admin-vm',
   'droit',
   'RD-RO',
+  'assembleur',
+  'Cyber securite B2',
   'sql',
   'csharp',
   'ccna',

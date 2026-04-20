@@ -32,15 +32,15 @@
     <header class="chapter-hero">
       <span class="hero-badge">Chapitre 6</span>
       <h1 class="chapter-title">NASM x86_64: bases</h1>
-      <p class="chapter-meta">Sections, registres et adressage memoire en assembleur x64.</p>
+      <p class="chapter-meta">Sections, registres, tailles de donnees et adressage memoire en assembleur x64.</p>
     </header>
 
     <section class="content-block">
       <h3>Objectifs</h3>
       <ul class="list">
-        <li>Comprendre .data, .bss, .text.</li>
-        <li>Connaitre les registres 64 bits usuels.</li>
-        <li>Utiliser MOV et LEA correctement.</li>
+        <li>Comprendre .data, .bss, .text et les declarations db/dw/dd/dq.</li>
+        <li>Connaitre les registres et leurs sous-parties (RAX/EAX/AX/AL).</li>
+        <li>Maitriser MOV, LEA et l'adressage memoire.</li>
       </ul>
     </section>
 
@@ -51,36 +51,61 @@
         <li><strong>.bss</strong>: donnees non initialisees.</li>
         <li><strong>.text</strong>: code machine.</li>
       </ul>
-      <div class="callout">En examen, on verifie souvent la structure .data/.bss/.text.</div>
+      <div class="callout"><strong>Memo technique:</strong> data = valeurs, bss = reserve, text = code.</div>
     </section>
 
     <section class="content-block">
-      <h3>2) Registres x86_64</h3>
+      <h3>2) Declaration de donnees</h3>
+      <ul class="list">
+        <li><strong>db</strong>: 1 octet (byte)</li>
+        <li><strong>dw</strong>: 2 octets (word)</li>
+        <li><strong>dd</strong>: 4 octets (dword)</li>
+        <li><strong>dq</strong>: 8 octets (qword)</li>
+      </ul>
+      <div class="callout"><strong>Piege:</strong> en NASM, la taille ne se devine pas toujours. Utilisez byte/word/dword/qword si besoin.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>3) Registres x86_64</h3>
       <p>Les registres generaux: RAX, RBX, RCX, RDX, RSI, RDI, RBP, RSP, R8-R15.</p>
       <ul class="list">
         <li>RAX: accumulateur, souvent retour de fonctions.</li>
         <li>RSP/RBP: pile (stack).</li>
         <li>RIP: pointeur d'instruction.</li>
       </ul>
+      <p>Un meme registre a plusieurs tailles:</p>
+      <ul class="list">
+        <li>RAX (64 bits), EAX (32 bits), AX (16 bits), AL (8 bits)</li>
+      </ul>
+      <div class="callout"><strong>Memo technique:</strong> R = 64, E = 32, rien = 16, L/H = 8.</div>
     </section>
 
     <section class="content-block">
-      <h3>3) MOV vs LEA</h3>
+      <h3>4) MOV vs LEA</h3>
       <p><strong>MOV</strong> copie une valeur. <strong>LEA</strong> calcule une adresse sans dereferencer.</p>
       <ul class="list">
         <li>MOV RAX, [var] lit la valeur en memoire.</li>
         <li>LEA RAX, [var] place l'adresse de var.</li>
       </ul>
+      <div class="callout"><strong>Piege:</strong> MOV [var], RAX ecrit en memoire. LEA ne touche pas la memoire.</div>
     </section>
 
     <section class="content-block">
-      <h3>4) Adressage memoire</h3>
+      <h3>5) Adressage memoire</h3>
       <p>On peut utiliser une adresse simple ou une formule base + index * scale + offset.</p>
       <ul class="list">
         <li>[RBX]</li>
         <li>[RBX + 8]</li>
         <li>[RBX + RCX * 4]</li>
       </ul>
+      <p>Les crochets signifient dereferencement memoire. Sans crochets, c'est un registre.</p>
+      <div class="callout"><strong>Memo technique:</strong> [ ] = memoire, sans [ ] = registre/valeur.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>6) Endianness (petit rappel)</h3>
+      <p>x86_64 est little-endian: l'octet de poids faible est stocke en premier en memoire.</p>
+      <div class="callout"><strong>Exemple:</strong> 0x12345678 en memoire devient 78 56 34 12.</div>
     </section>
 
     <section class="content-block">
@@ -108,6 +133,7 @@
             <li>[base]</li>
             <li>[base+offset]</li>
             <li>[base+index*scale]</li>
+            <li>byte/word/dword/qword</li>
           </ul>
         </div>
       </div>
@@ -131,54 +157,15 @@
   <script src="../assets/js/main.js"></script>
   <script>
     const quizData = [
-      {
-        question: "La section .text contient :",
-        options: ["Les donnees", "Le code", "La pile", "Les variables non initialisees"],
-        answer: 1,
-        explanation: ".text contient le code machine."
-      },
-      {
-        question: "LEA sert a :",
-        options: ["Charger une valeur memoire", "Calculer une adresse", "Incrementer RSP", "Lire un flag"],
-        answer: 1,
-        explanation: "LEA calcule une adresse sans dereferencer."
-      },
-      {
-        question: "RIP est :",
-        options: ["La pile", "Le pointeur d'instruction", "Un registre de donnees", "Le compteur de temps"],
-        answer: 1,
-        explanation: "RIP pointe l'instruction en cours."
-      },
-      {
-        question: "RSP sert a :",
-        options: ["Stocker une constante", "Gerer la pile", "Compter les bits", "Gerer les ports"],
-        answer: 1,
-        explanation: "RSP = stack pointer."
-      },
-      {
-        question: "MOV RAX, [var] fait :",
-        options: ["Charge l'adresse", "Charge la valeur en memoire", "Ecrit en memoire", "Ignore var"],
-        answer: 1,
-        explanation: "MOV lit la valeur stockee a l'adresse."
-      },
-      {
-        question: "[RBX + RCX*4] est :",
-        options: ["Un adressage indexe", "Un immediate", "Une constante", "Un label"],
-        answer: 0,
-        explanation: "C'est un adressage base + index * scale."
-      },
-      {
-        question: "La section .bss sert a :",
-        options: ["Donnees initialisees", "Donnees non initialisees", "Instructions", "System calls"],
-        answer: 1,
-        explanation: ".bss reserve de la place pour des donnees non initialisees."
-      },
-      {
-        question: "Un registre 64 bits standard est :",
-        options: ["EAX", "RAX", "AX", "AL"],
-        answer: 1,
-        explanation: "RAX est la version 64 bits."
-      }
+      { question: "La section .text contient :", options: ["Le code", "La pile", "Les donnees", "La bss"], answer: 0, explanation: ".text contient le code." },
+      { question: "db correspond a :", options: ["1 octet", "2 octets", "4 octets", "8 octets"], answer: 0, explanation: "db = byte." },
+      { question: "dq correspond a :", options: ["1 octet", "2 octets", "4 octets", "8 octets"], answer: 3, explanation: "dq = qword 8 octets." },
+      { question: "EAX est :", options: ["64 bits", "32 bits", "16 bits", "8 bits"], answer: 1, explanation: "EAX est la partie 32 bits de RAX." },
+      { question: "RIP est :", options: ["Pointeur d'instruction", "Stack pointer", "Registre SIMD", "Flag"], answer: 0, explanation: "RIP pointe l'instruction." },
+      { question: "MOV RAX, [var] fait :", options: ["Charge l'adresse", "Charge la valeur", "Ecrit en memoire", "Ignore var"], answer: 1, explanation: "Crochets = dereferencement." },
+      { question: "LEA sert a :", options: ["Calculer une adresse", "Lire en memoire", "Ecrire", "Changer RSP"], answer: 0, explanation: "LEA calcule une adresse." },
+      { question: "[RBX + RCX*4] est :", options: ["Adressage indexe", "Immediate", "Constante", "Label"], answer: 0, explanation: "Base + index * scale." },
+      { question: "x86_64 est :", options: ["Big-endian", "Little-endian", "Non defini", "ASCII"], answer: 1, explanation: "Octet faible en premier." }
     ];
     renderQuiz("quiz-container", quizData);
   </script>

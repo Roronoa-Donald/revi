@@ -32,26 +32,37 @@
     <header class="chapter-hero">
       <span class="hero-badge">Chapitre 6</span>
       <h1 class="chapter-title">Reconnaissance reseau avec Nmap</h1>
-      <p class="chapter-meta">Cartographier un reseau et detecter les services exposes.</p>
+      <p class="chapter-meta">Cartographier un reseau, trouver les ports ouverts et comprendre les etats.</p>
     </header>
 
     <section class="content-block">
       <h3>Objectifs</h3>
       <ul class="list">
-        <li>Comprendre l'utilite de Nmap.</li>
+        <li>Comprendre les etapes d'un scan.</li>
         <li>Connaitre les options principales.</li>
-        <li>Lire un resultat de scan.</li>
+        <li>Interpreter les etats des ports.</li>
       </ul>
     </section>
 
     <section class="content-block">
       <h3>1) Nmap en bref</h3>
       <p>Nmap (Network Mapper) est un outil de scan reseau pour identifier les hotes, les ports ouverts et les services.</p>
-      <div class="callout">Toujours obtenir l'autorisation avant un scan sur un reseau qui ne vous appartient pas.</div>
+      <div class="callout"><strong>Regle d'or:</strong> obtenir une autorisation ecrite avant tout scan.</div>
     </section>
 
     <section class="content-block">
-      <h3>2) Types de scans utiles</h3>
+      <h3>2) Etapes d'un scan</h3>
+      <ul class="list">
+        <li>Decouverte d'hotes (ping / ARP).</li>
+        <li>Scan des ports (TCP/UDP).</li>
+        <li>Detection de service et version.</li>
+        <li>Optionnel: detection OS et scripts.</li>
+      </ul>
+      <div class="callout"><strong>Memo technique:</strong> hote -> ports -> services -> OS.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>3) Types de scans utiles</h3>
       <ul class="list">
         <li><strong>-sS</strong>: SYN scan (rapide et discret).</li>
         <li><strong>-sT</strong>: TCP connect (plus visible).</li>
@@ -61,7 +72,7 @@
     </section>
 
     <section class="content-block">
-      <h3>3) Options courantes</h3>
+      <h3>4) Options courantes</h3>
       <ul class="list">
         <li><strong>-p</strong>: selection des ports.</li>
         <li><strong>-O</strong>: detection OS (si autorise).</li>
@@ -71,7 +82,17 @@
     </section>
 
     <section class="content-block">
-      <h3>4) Exemple simple</h3>
+      <h3>5) Etats des ports</h3>
+      <ul class="list">
+        <li><strong>open</strong>: service accepte la connexion.</li>
+        <li><strong>closed</strong>: port ferme mais atteignable.</li>
+        <li><strong>filtered</strong>: pare-feu filtre les paquets.</li>
+      </ul>
+      <div class="callout"><strong>Piege:</strong> filtered ne veut pas dire open ou closed, le pare-feu masque la reponse.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>6) Exemple simple</h3>
       <ul class="list">
         <li><code>nmap -sS -sV -p 22,80,443 192.168.1.10</code></li>
         <li>Resultat: ports ouverts, services et versions detectes.</li>
@@ -129,9 +150,11 @@
       { question: "-sU sert a :", options: ["Scanner UDP", "Scanner HTTP", "Scanner SSL", "Scanner DNS"], answer: 0, explanation: "-sU = scan UDP." },
       { question: "-sV permet :", options: ["Version des services", "Changer l'OS", "Compresser", "Monitorer"], answer: 0, explanation: "-sV detecte les versions." },
       { question: "-p 22,80,443 indique :", options: ["Ports cibles", "Adresses IP", "Hash", "OS"], answer: 0, explanation: "-p permet de choisir les ports." },
+      { question: "Un port open signifie :", options: ["Service accessible", "Port ferme", "Filtre", "Pas de reseau"], answer: 0, explanation: "Open = service repond." },
+      { question: "Un port filtered signifie :", options: ["Pare-feu filtre", "Service ok", "DNS ok", "OS connu"], answer: 0, explanation: "Filtered = le pare-feu masque la reponse." },
       { question: "-A est :", options: ["Scan agressif", "Scan lent", "Scan local", "Scan RAM"], answer: 0, explanation: "-A active plusieurs tests." },
-      { question: "Avant un scan, il faut :", options: ["Autorisation", "Un antivirus", "Un VLAN", "Un routeur"], answer: 0, explanation: "Toujours obtenir l'autorisation." },
-      { question: "-Pn signifie :", options: ["Pas de ping", "Ping rapide", "Pas de ports", "Pas de reseau"], answer: 0, explanation: "-Pn desactive le ping initial." }
+      { question: "-Pn signifie :", options: ["Pas de ping", "Ping rapide", "Pas de ports", "Pas de reseau"], answer: 0, explanation: "-Pn desactive le ping initial." },
+      { question: "Avant un scan, il faut :", options: ["Autorisation", "Un antivirus", "Un VLAN", "Un routeur"], answer: 0, explanation: "Toujours obtenir l'autorisation." }
     ];
     renderQuiz("quiz-container", quizData);
   </script>

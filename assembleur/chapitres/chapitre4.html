@@ -32,47 +32,52 @@
     <header class="chapter-hero">
       <span class="hero-badge">Chapitre 4</span>
       <h1 class="chapter-title">Toolchain AVR et premier programme</h1>
-      <p class="chapter-meta">Mettre en place l'environnement et compiler un code embarque.</p>
+      <p class="chapter-meta">Comprendre tout le flux: du code source au microcontroleur, avec les fichiers et outils intermediaires.</p>
     </header>
 
     <section class="content-block">
       <h3>Objectifs</h3>
       <ul class="list">
-        <li>Connaitre AVR-GCC, AVR-ASM et AVRDude.</li>
-        <li>Comprendre la compilation croisee.</li>
-        <li>Produire un premier programme type LED blink.</li>
+        <li>Expliquer la compilation croisee et la chaine d'outils.</li>
+        <li>Identifier les fichiers .o, .elf, .hex.</li>
+        <li>Flasher un programme et verifier la cible.</li>
+        <li>Repeter un LED blink simple.</li>
       </ul>
     </section>
 
     <section class="content-block">
-      <h3>1) Compilation croisee</h3>
-      <p>Le code est compile sur un PC, mais execute sur un microcontroleur. On parle de compilation croisee.</p>
+      <h3>1) Compilation croisee (idee cle)</h3>
+      <p>On compile sur un PC pour executer sur une autre architecture (ATmega). C'est une compilation croisee.</p>
       <ul class="list">
-        <li>Code source (.c, .S, .asm)</li>
-        <li>Compilation: creation d'un .elf</li>
-        <li>Conversion: .hex pour le flash</li>
+        <li>Source (.c, .S, .asm)</li>
+        <li>Assemblage/Compilation -> .o</li>
+        <li>Linkage -> .elf</li>
+        <li>Conversion -> .hex</li>
       </ul>
+      <div class="callout"><strong>Memo technique:</strong> .o = objet, .elf = binaire lie, .hex = format pour flasher.</div>
     </section>
 
     <section class="content-block">
       <h3>2) Outils clefs</h3>
       <ul class="list">
-        <li>AVR-GCC: compilateur C/ASM pour AVR.</li>
-        <li>AVR-AS: assembleur (ou utiliser AVR-GCC pour assembler).</li>
-        <li>AVRDude: chargement du firmware sur la carte.</li>
+        <li><strong>avr-gcc</strong>: compilateur et driver principal.</li>
+        <li><strong>avr-as</strong>: assembleur (souvent pilote par avr-gcc).</li>
+        <li><strong>avr-objcopy</strong>: conversion ELF -> HEX.</li>
+        <li><strong>avrdude</strong>: flash du microcontroleur.</li>
       </ul>
-      <div class="callout">En pratique: compiler, produire le .hex, puis flasher avec AVRDude.</div>
+      <div class="callout"><strong>Memo technique:</strong> compiler -> objcopy -> avrdude.</div>
     </section>
 
     <section class="content-block">
-      <h3>3) Premier programme: LED blink (idee)</h3>
-      <p>Exemple conceptuel:</p>
+      <h3>3) Premier programme: LED blink (pas a pas)</h3>
+      <p>Objectif: faire clignoter une LED connectee sur une broche (ex: PB5).</p>
       <ul class="list">
-        <li>Configurer une broche en sortie (DDR).</li>
-        <li>Mettre la broche a 1 (PORT) pour allumer la LED.</li>
-        <li>Attendre un delai simple (boucle).</li>
-        <li>Mettre la broche a 0 pour eteindre.</li>
+        <li>Configurer DDRB5 = 1 (sortie).</li>
+        <li>Ecrire PORTB5 = 1 (allumer).</li>
+        <li>Attendre via une boucle de delai.</li>
+        <li>Ecrire PORTB5 = 0 (eteindre).</li>
       </ul>
+      <div class="callout"><strong>Piege:</strong> oublie de DDR -> la broche reste en entree, la LED ne s'allume pas.</div>
     </section>
 
     <section class="content-block">
@@ -80,9 +85,20 @@
       <ul class="list">
         <li>Assembler: <code>avr-gcc -mmcu=atmega328p -c main.S</code></li>
         <li>Lier: <code>avr-gcc -mmcu=atmega328p -o main.elf main.o</code></li>
-        <li>Hex: <code>avr-objcopy -O ihex main.elf main.hex</code></li>
+        <li>HEX: <code>avr-objcopy -O ihex main.elf main.hex</code></li>
         <li>Flash: <code>avrdude -p m328p -c arduino -P COMx -U flash:w:main.hex</code></li>
       </ul>
+      <div class="callout"><strong>Piege:</strong> mauvais modele MCU (-mmcu) ou mauvais port COM = flash impossible.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>5) Verification rapide</h3>
+      <ul class="list">
+        <li>Le bon MCU est selectionne (m328p).</li>
+        <li>Le programmateur est correct (arduino, usbasp...).</li>
+        <li>La frequence d'horloge correspond au materiel.</li>
+      </ul>
+      <div class="callout"><strong>Memo technique:</strong> MCU + programmeur + port = trio gagnant.</div>
     </section>
 
     <section class="content-block">
@@ -91,8 +107,9 @@
         <div class="cheat-card">
           <strong>Pipeline:</strong>
           <ul class="list">
-            <li>source -&gt; elf</li>
-            <li>elf -&gt; hex</li>
+            <li>source -&gt; .o</li>
+            <li>.o -&gt; .elf</li>
+            <li>.elf -&gt; .hex</li>
             <li>flash sur carte</li>
           </ul>
         </div>
@@ -133,54 +150,15 @@
   <script src="../assets/js/main.js"></script>
   <script>
     const quizData = [
-      {
-        question: "La compilation croisee signifie :",
-        options: ["Compiler et executer sur la meme machine", "Compiler sur PC pour executer sur microcontroleur", "Compiler sans outil", "Compiler en langage binaire"],
-        answer: 1,
-        explanation: "On compile sur PC pour un autre materiel."
-      },
-      {
-        question: "AVRDude sert a :",
-        options: ["Ecrire du code", "Flasher le microcontroleur", "Emuler une LED", "Editer un PDF"],
-        answer: 1,
-        explanation: "AVRDude envoie le firmware dans la Flash."
-      },
-      {
-        question: "Le fichier .hex est :",
-        options: ["Un rapport", "Un format pour programmer la Flash", "Un fichier audio", "Un cache"],
-        answer: 1,
-        explanation: ".hex est le format charge sur la carte."
-      },
-      {
-        question: "Quelle etape produit le .elf ?",
-        options: ["Assemblage et linkage", "Flash", "Execution", "Reset"],
-        answer: 0,
-        explanation: "Le .elf est produit apres compilation et linkage."
-      },
-      {
-        question: "Pour allumer une LED, on agit sur :",
-        options: ["SRAM", "PORT", "EEPROM", "Stack"],
-        answer: 1,
-        explanation: "PORT ecrit la valeur de sortie."
-      },
-      {
-        question: "Le registre DDR sert a :",
-        options: ["Definir entree/sortie", "Activer un timer", "Lancer un reset", "Changer la frequence"],
-        answer: 0,
-        explanation: "DDR definit la direction."
-      },
-      {
-        question: "avr-objcopy sert a :",
-        options: ["Compiler", "Convertir ELF en HEX", "Flasher", "Debugger"],
-        answer: 1,
-        explanation: "Il convertit le format ELF en HEX."
-      },
-      {
-        question: "Quelle action vient en dernier ?",
-        options: ["Compiler", "Creer le .hex", "Flasher", "Ecrire le code"],
-        answer: 2,
-        explanation: "Le flash est la derniere etape."
-      }
+      { question: "La compilation croisee signifie :", options: ["Compiler et executer sur la meme machine", "Compiler sur PC pour executer sur MCU", "Compiler sans outil", "Compiler en binaire"], answer: 1, explanation: "On cible un materiel different." },
+      { question: "Le fichier .o est :", options: ["Binaire final", "Objet intermediaire", "Image flashable", "Script"], answer: 1, explanation: ".o = objet intermediaire." },
+      { question: "Le fichier .elf est :", options: ["Un rapport", "Binaire lie", "Archive", "Code source"], answer: 1, explanation: ".elf est le binaire lie." },
+      { question: "Le fichier .hex sert a :", options: ["Programmer la Flash", "Stocker les logs", "Changer la RAM", "Deboguer"], answer: 0, explanation: "HEX est le format de flash." },
+      { question: "avr-objcopy sert a :", options: ["Compiler", "Convertir ELF en HEX", "Flasher", "Emuler"], answer: 1, explanation: "Conversion ELF -> HEX." },
+      { question: "avrdude sert a :", options: ["Ecrire du code", "Flasher le MCU", "Lier", "Assembler"], answer: 1, explanation: "avrdude envoie le firmware." },
+      { question: "Un LED blink nécessite :", options: ["DDR en sortie", "DDR en entree", "EEPROM", "Cache"], answer: 0, explanation: "La broche doit etre en sortie." },
+      { question: "L'ordre correct est :", options: ["HEX -> ELF -> O", "O -> ELF -> HEX -> Flash", "ELF -> O -> HEX", "Flash -> HEX"], answer: 1, explanation: "Objet puis ELF, puis HEX, puis flash." },
+      { question: "Un echec de flash vient souvent de :", options: ["Mauvais port/MCU", "RAM trop grande", "Cache vide", "RAX"], answer: 0, explanation: "MCU, programmeur et port doivent correspondre." }
     ];
     renderQuiz("quiz-container", quizData);
   </script>

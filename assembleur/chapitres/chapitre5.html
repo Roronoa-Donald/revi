@@ -32,53 +32,75 @@
     <header class="chapter-hero">
       <span class="hero-badge">Chapitre 5</span>
       <h1 class="chapter-title">Fondements de l'assembleur AVR</h1>
-      <p class="chapter-meta">Registres, structure de programme et instructions essentielles.</p>
+      <p class="chapter-meta">Structure d'un fichier ASM, registres, adressage et instructions indispensables.</p>
     </header>
 
     <section class="content-block">
       <h3>Objectifs</h3>
       <ul class="list">
-        <li>Identifier la structure d'un programme AVR.</li>
-        <li>Utiliser les registres R0-R31 et le status register.</li>
-        <li>Comprendre LDI, MOV, LDS, STS et les branches.</li>
+        <li>Connaitre les directives et la structure minimale d'un programme.</li>
+        <li>Maitriser registres, pointeurs X/Y/Z et SREG.</li>
+        <li>Comprendre LDI, MOV, IN/OUT, LDS/STS et les branches.</li>
+        <li>Ecrire une boucle simple avec masques de bits.</li>
       </ul>
     </section>
 
     <section class="content-block">
-      <h3>1) Structure minimale</h3>
-      <p>Un programme AVR contient des directives, un point d'entree et des labels.</p>
-      <div class="callout">Exemple: .include, .org, puis le label start: pour le code.</div>
+      <h3>1) Structure minimale d'un programme</h3>
+      <p>Un fichier ASM AVR contient des directives, des labels et un point d'entree.</p>
       <ul class="list">
-        <li>Initialiser la pile si besoin.</li>
-        <li>Configurer les ports E/S.</li>
-        <li>Boucle principale avec RJMP.</li>
+        <li><strong>.include</strong> pour charger les definitions de la puce.</li>
+        <li><strong>.org</strong> pour placer le code (vecteur reset).</li>
+        <li>Label <strong>start:</strong> pour la boucle principale.</li>
+      </ul>
+      <div class="callout"><strong>Memo technique:</strong> reset vector -> jump vers start.</div>
+      <p>Si vous utilisez CALL/RET ou des interruptions, initialisez le stack pointer.</p>
+    </section>
+
+    <section class="content-block">
+      <h3>2) Registres et pointeurs</h3>
+      <p>Les 32 registres generaux (R0-R31) alimentent l'ALU. Les pointeurs sont des paires de registres:</p>
+      <ul class="list">
+        <li><strong>X</strong> = R27:R26</li>
+        <li><strong>Y</strong> = R29:R28</li>
+        <li><strong>Z</strong> = R31:R30</li>
+      </ul>
+      <p>Le registre <strong>SREG</strong> stocke Z, C, N, V, etc. Les branches en dependent.</p>
+      <div class="callout"><strong>Memo technique:</strong> LDI fonctionne seulement sur R16-R31.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>3) Adressage et acces E/S</h3>
+      <p>Deux familles d'acces memoire:</p>
+      <ul class="list">
+        <li><strong>IN/OUT</strong>: registres E/S (rapide).</li>
+        <li><strong>LDS/STS</strong>: acces SRAM (adresse memoire).</li>
+      </ul>
+      <div class="callout"><strong>Piege:</strong> IN/OUT ne fonctionne que sur l'espace E/S, pas sur toute la SRAM.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>4) Instructions de base (indispensables)</h3>
+      <ul class="list">
+        <li><strong>LDI</strong>: charger une constante (R16-R31).</li>
+        <li><strong>MOV</strong>: copie registre vers registre.</li>
+        <li><strong>ADD/SUB/INC/DEC</strong>: arithmetique de base.</li>
+        <li><strong>AND/OR/EOR</strong>: masques.</li>
+        <li><strong>CP/CPI</strong>: comparaison (met a jour Z, C...).</li>
+        <li><strong>RJMP/BRNE/BREQ</strong>: branchements.</li>
       </ul>
     </section>
 
     <section class="content-block">
-      <h3>2) Registres et status register</h3>
-      <p>Les 32 registres generaux (R0-R31) sont utilises pour les calculs rapides. Le status register (SREG) contient les flags.</p>
-    </section>
-
-    <section class="content-block">
-      <h3>3) Instructions de base</h3>
+      <h3>5) Exemple commente (LED sur PB0)</h3>
       <ul class="list">
-        <li><strong>LDI</strong>: charger une constante dans un registre.</li>
-        <li><strong>MOV</strong>: copier un registre vers un autre.</li>
-        <li><strong>LDS/STS</strong>: lire/ ecrire en memoire.</li>
-        <li><strong>IN/OUT</strong>: acces aux registres E/S.</li>
-        <li><strong>RJMP/BRNE</strong>: branchements.</li>
-      </ul>
-    </section>
-
-    <section class="content-block">
-      <h3>Exemple commenté</h3>
-      <ul class="list">
-        <li>LDI R16, 0xFF</li>
-        <li>OUT DDRB, R16 (PORTB en sortie)</li>
         <li>LDI R16, 0x01</li>
-        <li>OUT PORTB, R16 (allumer LED PB0)</li>
+        <li>OUT DDRB, R16 (PB0 en sortie)</li>
+        <li>LDI R16, 0x01</li>
+        <li>OUT PORTB, R16 (allumer)</li>
+        <li>RJMP . (boucle infinie)</li>
       </ul>
+      <div class="callout"><strong>Piege:</strong> oublier d'initialiser DDRB = la LED ne reagit pas.</div>
     </section>
 
     <section class="content-block">
@@ -96,8 +118,9 @@
           <strong>Instructions:</strong>
           <ul class="list">
             <li>LDI / MOV</li>
-            <li>LDS / STS</li>
-            <li>RJMP / BRNE</li>
+            <li>ADD / SUB / CP</li>
+            <li>IN/OUT, LDS/STS</li>
+            <li>RJMP / BREQ / BRNE</li>
           </ul>
         </div>
         <div class="cheat-card">
@@ -129,54 +152,15 @@
   <script src="../assets/js/main.js"></script>
   <script>
     const quizData = [
-      {
-        question: "LDI sert a :",
-        options: ["Charger une constante", "Copier la memoire", "Sauter", "Appeler un syscall"],
-        answer: 0,
-        explanation: "LDI charge une valeur immediate."
-      },
-      {
-        question: "Combien de registres generaux AVR ?",
-        options: ["16", "32", "8", "64"],
-        answer: 1,
-        explanation: "R0 a R31 = 32 registres."
-      },
-      {
-        question: "IN/OUT sert a :",
-        options: ["Acceder aux registres E/S", "Ecrire en Flash", "Changer le stack", "Activer le reset"],
-        answer: 0,
-        explanation: "IN/OUT accede aux registres de ports."
-      },
-      {
-        question: "RJMP est :",
-        options: ["Un saut relatif", "Un saut absolu", "Une comparaison", "Un reset"],
-        answer: 0,
-        explanation: "RJMP = jump relatif."
-      },
-      {
-        question: "STS sert a :",
-        options: ["Lire en RAM", "Ecrire en RAM", "Ecrire en PORT", "Tester un flag"],
-        answer: 1,
-        explanation: "STS ecrit en memoire SRAM."
-      },
-      {
-        question: "LDS sert a :",
-        options: ["Lire en RAM", "Ecrire en RAM", "Ecrire en PORT", "Reset"],
-        answer: 0,
-        explanation: "LDS lit une adresse memoire."
-      },
-      {
-        question: "BRNE saute si :",
-        options: ["Zero flag = 1", "Zero flag = 0", "Carry = 1", "Sign = 1"],
-        answer: 1,
-        explanation: "BRNE = branch if not equal (Z=0)."
-      },
-      {
-        question: "SREG contient :",
-        options: ["Les flags", "Le programme", "La pile", "La Flash"],
-        answer: 0,
-        explanation: "SREG est le registre de statut (flags)."
-      }
+      { question: "LDI charge :", options: ["Une constante", "Une adresse memoire", "Un flag", "Un port"], answer: 0, explanation: "LDI charge une valeur immediate." },
+      { question: "LDI fonctionne sur :", options: ["R0-R15", "R16-R31", "Tous les registres", "R0 seulement"], answer: 1, explanation: "LDI cible R16-R31." },
+      { question: "X, Y, Z sont :", options: ["Des caches", "Des pointeurs", "Des flags", "Des ports"], answer: 1, explanation: "X/Y/Z sont des paires de registres." },
+      { question: "IN/OUT sert a :", options: ["Acceder aux registres E/S", "Lire la Flash", "Changer RSP", "Activer reset"], answer: 0, explanation: "IN/OUT = espace E/S." },
+      { question: "LDS/STS servent a :", options: ["Acceder a la SRAM", "Acceder aux ports", "Acceder a la Flash", "Changer le cache"], answer: 0, explanation: "LDS/STS lisent/ecrivent en SRAM." },
+      { question: "RJMP est :", options: ["Un saut relatif", "Un saut absolu", "Un reset", "Une comparaison"], answer: 0, explanation: "RJMP saute relativement." },
+      { question: "BREQ saute si :", options: ["Z=1", "Z=0", "C=1", "V=1"], answer: 0, explanation: "BREQ = branch if equal." },
+      { question: "SREG contient :", options: ["Les flags", "Le programme", "La pile", "La Flash"], answer: 0, explanation: "SREG est le registre de statut." },
+      { question: "Avant CALL/INT, on doit :", options: ["Init stack", "Effacer DDR", "Reset", "Changer la Flash"], answer: 0, explanation: "La pile doit etre initialisee." }
     ];
     renderQuiz("quiz-container", quizData);
   </script>
