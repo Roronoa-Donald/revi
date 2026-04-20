@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exercices et corrections - Assembleur</title>
+  <meta name="description" content="TD et exercices assembleur avec corrections detaillees." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    :root { --accent: #f97316; --accent-2: #fbbf24; --accent-3: #22c55e; }
+    .toc a { color: var(--accent-2); }
+    .toc li { margin-bottom: 0.35rem; }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-badge">ASM</span>
+        <span>Assembleur B2</span>
+      </a>
+      <div class="nav-links">
+        <a href="cheatsheet.html">Cheat Sheet</a>
+        <a href="exercices.html">Exercices</a>
+        <a href="examens.html">Examens</a>
+        <a href="../qcm-100.html">100 QCM</a>
+        <a href="chapitre1.html">Chapitres</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="chapter-hero">
+      <span class="hero-badge">Exercices + corrections</span>
+      <h1 class="chapter-title">Travaux diriges et pratique</h1>
+      <p class="chapter-meta">Tous les exercices du cours, avec corrections detaillees et explications pas a pas.</p>
+    </header>
+
+    <section class="content-block">
+      <h3>Sommaire</h3>
+      <ul class="list toc">
+        <li><a href="#td0-1">TD 1 - Adresses IP, MAC et couleurs RGB</a></li>
+        <li><a href="#td0-2">TD 2 - Capteurs IoT et donnees signees</a></li>
+        <li><a href="#td0-3">TD 3 - Logique booleenne et securite</a></li>
+        <li><a href="#td0-4">TD 4 - Registres et configuration materielle</a></li>
+        <li><a href="#td0-5">TD 5 - Machines a etats</a></li>
+        <li><a href="#td1-1">TD 1 - Choix du microcontroleur</a></li>
+        <li><a href="#td1-2">TD 2 - Architecture ATmega328P</a></li>
+        <li><a href="#td1-3">TD 3 - Peripheriques et interfaces</a></li>
+        <li><a href="#td1-4">TD 4 - Cycle d'execution</a></li>
+        <li><a href="#td1-5">TD 5 - Compilation croisee et Blink</a></li>
+        <li><a href="#quiz-ch1">Quiz chapitre 1</a></li>
+        <li><a href="#exo-guide">Exercice guide - Addition 200 + 100</a></li>
+        <li><a href="#td2-1">TD 1 - Translation et mnemoniques</a></li>
+        <li><a href="#td2-2">TD 2 - Structure d'un programme AVR</a></li>
+        <li><a href="#td2-3">TD 3 - Registres et SREG</a></li>
+        <li><a href="#td2-4">TD 4 - Transferts LDI/MOV/LDS/STS</a></li>
+        <li><a href="#td2-5">TD 5 - Analyse d'un programme AVR</a></li>
+        <li><a href="#quiz-ch2">Quiz chapitre 2</a></li>
+      </ul>
+    </section>
+
+    <section class="content-block" id="td0-1">
+      <h3>TD 1 - Le monde des adresses : IP, MAC et couleurs RGB</h3>
+      <p><strong>Contexte:</strong> analyse d'adresses reseau et de codes hexadecimaux en representation binaire.</p>
+
+      <h4>Situation 1 - Configuration reseau d'un serveur</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Convertissez chaque octet de l'adresse IP 192.168.10.254 en binaire (8 bits).</li>
+        <li><strong>b)</strong> Convertissez le masque 255.255.255.0 en binaire. Combien de bits sont a 1 ? Quelle notation CIDR ?</li>
+        <li><strong>c)</strong> L'adresse 192.168.10.100 appartient-elle au meme reseau ? (AND avec le masque)</li>
+        <li><strong>d)</strong> Quelle est l'adresse de broadcast du reseau ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 192 = 11000000, 168 = 10101000, 10 = 00001010, 254 = 11111110. Donc 11000000.10101000.00001010.11111110.</li>
+          <li><strong>b)</strong> 255.255.255.0 = 11111111.11111111.11111111.00000000, soit 24 bits a 1. CIDR = /24.</li>
+          <li><strong>c)</strong> 192.168.10.100 AND 255.255.255.0 = 192.168.10.0. Le serveur est aussi en 192.168.10.0, donc meme reseau.</li>
+          <li><strong>d)</strong> Broadcast = tous les bits hote a 1 : 192.168.10.255.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Analyse d'une adresse MAC</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Combien d'octets compose cette adresse ? Combien de bits au total ?</li>
+        <li><strong>b)</strong> Convertissez le premier octet (00) et le dernier (5E) en binaire.</li>
+        <li><strong>c)</strong> Cette adresse est-elle unicast ou multicast ?</li>
+        <li><strong>d)</strong> Cette adresse est-elle universelle ou locale ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Une MAC fait 6 octets, soit 48 bits.</li>
+          <li><strong>b)</strong> 00 = 00000000, 5E = 01011110.</li>
+          <li><strong>c)</strong> Le bit de poids faible du premier octet vaut 0, donc unicast.</li>
+          <li><strong>d)</strong> Le 2e bit de poids faible vaut 0, donc adresse universelle.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Design d'interface web</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Decomposez les codes hexa #1E90FF, #FF6B35, #F5F5F5 en R, G, B (decimal).</li>
+        <li><strong>b)</strong> #1E90FF a-t-elle plus de rouge, de vert ou de bleu ?</li>
+        <li><strong>c)</strong> Calculez la luminosite L = 0.3*R + 0.6*G + 0.1*B. Quelle couleur est la plus lumineuse ?</li>
+        <li><strong>d)</strong> Assombrir #1E90FF en divisant chaque composante par 2. Nouveau code hexa ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> #1E90FF = (30, 144, 255). #FF6B35 = (255, 107, 53). #F5F5F5 = (245, 245, 245).</li>
+          <li><strong>b)</strong> Le bleu est dominant (255).</li>
+          <li><strong>c)</strong> L(#1E90FF) = 0.3*30 + 0.6*144 + 0.1*255 = 120.9. L(#FF6B35) = 146.0. L(#F5F5F5) = 245.0. La plus lumineuse est #F5F5F5.</li>
+          <li><strong>d)</strong> (30,144,255) / 2 = (15,72,127) soit #0F487F.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td0-2">
+      <h3>TD 2 - Capteurs IoT et donnees signees</h3>
+      <p><strong>Contexte:</strong> capteurs en complement a deux et interpretation des valeurs.</p>
+
+      <h4>Situation 1 - Capteur de temperature DS18B20</h4>
+      <ol class="list">
+        <li><strong>a)</strong> 0x0191 : binaire, decimal, temperature (LSB = 0.0625C).</li>
+        <li><strong>b)</strong> 0xFF5E : valeur negative. Appliquer NOT + 1 sur 12 bits pour la valeur absolue. Temperature ?</li>
+        <li><strong>c)</strong> Plage de temperature mesurable avec 12 bits signes ?</li>
+        <li><strong>d)</strong> 0x0000 signifie-t-il que le capteur est casse ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 0x0191 = 0000 0001 1001 0001b = 401. Temperature = 401/16 = 25.0625C.</li>
+          <li><strong>b)</strong> 0xFF5E -> 12 bits = 0xF5E. Inversion (12 bits) = 0x0A1, +1 = 0x0A2 = 162. Temperature = -162/16 = -10.125C.</li>
+          <li><strong>c)</strong> 12 bits signes : -2048 a 2047. Temperature = -128.0C a 127.9375C.</li>
+          <li><strong>d)</strong> Non. 0x0000 correspond a 0C (valeur legitime).</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Accelerometre 3 axes</h4>
+      <ol class="list">
+        <li><strong>a)</strong> 0x0100 = 256. Quelle acceleration en g ?</li>
+        <li><strong>b)</strong> 0xFFE0 en signe. Quelle acceleration en g ?</li>
+        <li><strong>c)</strong> Representation C2 16 bits de -0.5g.</li>
+        <li><strong>d)</strong> Plage mesurable avec ce format.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 256 LSB / 256 = 1g. Oui, coherent pour un capteur a plat.</li>
+          <li><strong>b)</strong> 0xFFE0 -> negatif. Inversion 0x001F + 1 = 0x0020 = 32. Valeur = -32/256 = -0.125g.</li>
+          <li><strong>c)</strong> -0.5g = -128 LSB. C2 16 bits = 0xFF80.</li>
+          <li><strong>d)</strong> Plage theorique 16 bits : -32768..32767 soit -128..127.996g. En pratique, le capteur sature a +/-2g en mode 2g.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Compteur d'energie</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Valeur max en 32 bits non signes. Convertir en kWh puis en MWh.</li>
+        <li><strong>b)</strong> 10 kWh/jour : au bout de combien de jours debordement ?</li>
+        <li><strong>c)</strong> Si 64 bits, combien de temps avant debordement ?</li>
+        <li><strong>d)</strong> 0x000F4240 en decimal puis en kWh.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 2^32 - 1 = 4,294,967,295 Wh = 4,294,967.295 kWh = 4,294.967295 MWh.</li>
+          <li><strong>b)</strong> 10 kWh/jour = 10,000 Wh/jour. Jours = 4,294,967,295 / 10,000 = 429,496.7 jours (~1176.7 ans).</li>
+          <li><strong>c)</strong> 2^64 - 1 Wh / 10,000 = ~1.8446744e15 jours, soit ~5.05e12 ans (theorique).</li>
+          <li><strong>d)</strong> 0x000F4240 = 1,000,000 Wh = 1000 kWh = 1 MWh.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td0-3">
+      <h3>TD 3 - Logique booleenne pour la securite et le controle d'acces</h3>
+      <p><strong>Contexte:</strong> modeliser des regles d'acces et de filtrage avec des booleens.</p>
+
+      <h4>Situation 1 - Systeme d'alarme datacenter</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Expression booleenne de PORTE.</li>
+        <li><strong>b)</strong> Table de verite complete (16 lignes).</li>
+        <li><strong>c)</strong> Badge valide + code correct a 22h sans admin : la porte s'ouvre ?</li>
+        <li><strong>d)</strong> Mode admin actif mais code oublie : peut-il entrer ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> PORTE = B AND C AND (H OR A).</li>
+          <li><strong>b)</strong> Table de verite (B C H A | PORTE):
+            <pre><code>0 0 0 0 | 0
+0 0 0 1 | 0
+0 0 1 0 | 0
+0 0 1 1 | 0
+0 1 0 0 | 0
+0 1 0 1 | 0
+0 1 1 0 | 0
+0 1 1 1 | 0
+1 0 0 0 | 0
+1 0 0 1 | 0
+1 0 1 0 | 0
+1 0 1 1 | 0
+1 1 0 0 | 0
+1 1 0 1 | 1
+1 1 1 0 | 1
+1 1 1 1 | 1</code></pre>
+          </li>
+          <li><strong>c)</strong> B=1, C=1, H=0, A=0 -> (H OR A)=0, donc PORTE=0.</li>
+          <li><strong>d)</strong> B=1, C=0, A=1 -> PORTE=0. Le code est obligatoire.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Regles de pare-feu simplifiees</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Ecrire l'expression AUTORISER.</li>
+        <li><strong>b)</strong> Port 443 depuis IP externe non whitelist : autorise ?</li>
+        <li><strong>c)</strong> Simplifier si I implique W.</li>
+        <li><strong>d)</strong> Exprimer la condition de blocage (De Morgan).</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> AUTORISER = (P80 OR P443) AND (I OR W).</li>
+          <li><strong>b)</strong> P443=1, P80=0, I=0, W=0 -> AUTORISER=0, donc bloque.</li>
+          <li><strong>c)</strong> Si I => W, alors (I OR W) = W. Donc AUTORISER = (P80 OR P443) AND W.</li>
+          <li><strong>d)</strong> BLOQUER = NOT(AUTORISER) = (NOT P80 AND NOT P443) OR (NOT I AND NOT W).</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Detection d'intrusion</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Expression ALERTE.</li>
+        <li><strong>b)</strong> Table de verite (32 combinaisons) - format synthetique.</li>
+        <li><strong>c)</strong> 10 IP differentes : la premiere condition declenche-t-elle l'alerte ?</li>
+        <li><strong>d)</strong> Proposer une amelioration pour attaques distribuees.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> ALERTE = (F AND S) OR P OR (M AND R).</li>
+          <li><strong>b)</strong> Table synthetique : ALERTE=1 si P=1 (tous les autres indifferents), ou si P=0 et M=1 et R=1, ou si P=0 et M=0 et R=0 et F=1 et S=1. Sinon ALERTE=0.</li>
+          <li><strong>c)</strong> Non. La condition F AND S exige la meme IP (S=1). Avec plusieurs IP, S=0.</li>
+          <li><strong>d)</strong> Ajouter un indicateur d'attaque distribuee D (ex. nombre d'IP au-dessus d'un seuil). Exemple : ALERTE = P OR (F AND (S OR D)) OR (M AND R).</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td0-4">
+      <h3>TD 4 - Manipulation de registres et configuration materielle</h3>
+      <p><strong>Contexte:</strong> operations bit a bit sur les registres AVR.</p>
+
+      <h4>Situation 1 - Controle de LEDs sur PORTB</h4>
+      <ol class="list">
+        <li><strong>a)</strong> PORTB = 0b00110100. Quelles LEDs sont allumees ?</li>
+        <li><strong>b)</strong> Allumer LED 0 sans changer les autres. Resultat ?</li>
+        <li><strong>c)</strong> Eteindre LED 4 sans changer les autres. Resultat ?</li>
+        <li><strong>d)</strong> Inverser l'etat de LED 2. Resultat ?</li>
+        <li><strong>e)</strong> Allumer LEDs 0,1,6,7 et eteindre le reste. Valeur directe ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Bits a 1 : 2, 4, 5. Donc LEDs 2, 4, 5 allumees.</li>
+          <li><strong>b)</strong> OR avec 0b00000001 -> 0b00110101 (0x35).</li>
+          <li><strong>c)</strong> AND avec 0b11101111 -> 0b00100100 (0x24).</li>
+          <li><strong>d)</strong> XOR avec 0b00000100 -> 0b00110000 (0x30).</li>
+          <li><strong>e)</strong> 0b11000011 = 0xC3.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Lecture de capteurs sur PINC</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Quels capteurs de contact sont actifs ?</li>
+        <li><strong>b)</strong> Extraire la valeur luminosite (bits 4-5).</li>
+        <li><strong>c)</strong> Extraire la valeur temperature (bits 6-7).</li>
+        <li><strong>d)</strong> Expression pour tester si au moins un contact est actif.</li>
+        <li><strong>e)</strong> Quelle est la luminosite actuelle ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> PINC = 0b10110010, bits 0-3 = 0b0010. Seul le capteur 1 est actif.</li>
+          <li><strong>b)</strong> (PINC & 0b00110000) >> 4 = 0b11 = 3.</li>
+          <li><strong>c)</strong> (PINC & 0b11000000) >> 6 = 0b10 = 2.</li>
+          <li><strong>d)</strong> (PINC & 0x0F) != 0.</li>
+          <li><strong>e)</strong> Valeur 3 = jour.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Registre de configuration UART</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Activer recepteur et transmetteur (bits 4 et 3).</li>
+        <li><strong>b)</strong> Ajouter interruption reception (bit 7). Valeur finale ?</li>
+        <li><strong>c)</strong> Desactiver uniquement le transmetteur (bit 3).</li>
+        <li><strong>d)</strong> Tester si le transmetteur est actif.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> UCSRB |= (1 &lt;&lt; RXEN) | (1 &lt;&lt; TXEN). Valeur = 0b00011000 = 0x18.</li>
+          <li><strong>b)</strong> UCSRB |= (1 &lt;&lt; RXCIE). Valeur = 0b10011000 = 0x98.</li>
+          <li><strong>c)</strong> UCSRB &= ~(1 &lt;&lt; TXEN). Si on part de 0x98, on obtient 0x90.</li>
+          <li><strong>d)</strong> (UCSRB & (1 &lt;&lt; TXEN)) != 0.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td0-5">
+      <h3>TD 5 - Conception de machines a etats pour systemes embarques</h3>
+      <p><strong>Contexte:</strong> modeliser des FSM pour reseaux, protocoles et automates.</p>
+
+      <h4>Situation 1 - Connexion WiFi d'un objet connecte</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Dessiner le diagramme d'etats complet.</li>
+        <li><strong>b)</strong> Combien de bits pour coder 6 etats ?</li>
+        <li><strong>c)</strong> Proposer un codage binaire.</li>
+        <li><strong>d)</strong> Ajouter un etat RECONNECTING.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Diagramme : IDLE -> SCANNING -> CONNECTING -> AUTHENTICATING -> CONNECTED, plus transitions vers ERROR et retours selon les evenements donnes.</li>
+          <li><strong>b)</strong> 6 etats necessitent 3 bits (2^3 = 8).</li>
+          <li><strong>c)</strong> Exemple : IDLE=000, SCANNING=001, CONNECTING=010, AUTHENTICATING=011, CONNECTED=100, ERROR=101.</li>
+          <li><strong>d)</strong> Ajouter RECONNECTING=110. Transition CONNECTED -> RECONNECTING si deconnexion, RECONNECTING -> CONNECTED si succes, sinon ERROR ou IDLE.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Protocole de communication serie</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Etats necessaires pour parser la trame.</li>
+        <li><strong>b)</strong> Dessiner le diagramme avec transitions.</li>
+        <li><strong>c)</strong> Que faire si 0x55 arrive pendant DATA ?</li>
+        <li><strong>d)</strong> Ajouter un timeout de 100 ms.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> WAIT_START, READ_CMD, READ_DATA, READ_CHECKSUM, READ_END (optionnel: ERROR).</li>
+          <li><strong>b)</strong> WAIT_START --0xAA--> READ_CMD -> READ_DATA (N octets) -> READ_CHECKSUM -> READ_END --0x55--> WAIT_START. Sinon ERROR ou resync.</li>
+          <li><strong>c)</strong> Si 0x55 est recu pendant DATA, on traite comme donnee invalide et on repasse a WAIT_START (resynchronisation).</li>
+          <li><strong>d)</strong> Si aucun octet pendant 100 ms, reset vers WAIT_START.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Distributeur de cafe connecte</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Lister tous les etats (minimum 8).</li>
+        <li><strong>b)</strong> Dessiner le diagramme complet.</li>
+        <li><strong>c)</strong> Creer la table de transition (etat actuel, entree, etat suivant, sortie).</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Exemple : IDLE, CHECK_RESOURCES, WAIT_PAYMENT, WAIT_CUP, GRIND, HEAT, BREW, DISPENSE, CLEANUP, ERROR, CANCELLED.</li>
+          <li><strong>b)</strong> Diagramme : IDLE -> CHECK_RESOURCES -> WAIT_PAYMENT -> WAIT_CUP -> GRIND -> HEAT -> BREW -> DISPENSE -> CLEANUP -> IDLE. Transitions vers ERROR si manque eau/cafe, vers CANCELLED si annulation.</li>
+          <li><strong>c)</strong> Table simplifiee :
+            <pre><code>IDLE + choix boisson -> CHECK_RESOURCES | afficher selection
+CHECK_RESOURCES + ok -> WAIT_PAYMENT | allumer LED attente
+WAIT_PAYMENT + paiement ok -> WAIT_CUP | afficher "placer gobelet"
+WAIT_CUP + gobelet ok -> GRIND | activer moulin
+GRIND + fini -> HEAT | activer chauffe
+HEAT + ok -> BREW | activer pompe
+BREW + fini -> DISPENSE | ouvrir sortie
+DISPENSE + fini -> CLEANUP | message fin
+CANCELLED/ERROR -> IDLE | couper actionneurs</code></pre>
+          </li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td1-1">
+      <h3>TD 1 - Identification et choix d'un microcontroleur</h3>
+      <p><strong>Contexte:</strong> selection de microcontroleur selon les besoins d'un systeme.</p>
+
+      <h4>Situation 1 - Thermostat connecte</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Associer chaque fonctionnalite a un peripherique interne.</li>
+        <li><strong>b)</strong> ATtiny85 ou ATmega328P ? Justifier.</li>
+        <li><strong>c)</strong> Quelle memoire pour stocker la temperature de consigne ?</li>
+        <li><strong>d)</strong> Estimer le nombre minimal de broches d'E/S. DIP-28 suffisant ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> LM35 analogique -> ADC. LCD I2C -> TWI/I2C. ESP-01 -> UART. Relais -> GPIO sortie. Consigne persistante -> EEPROM. Basse conso -> modes sleep + watchdog/timer.</li>
+          <li><strong>b)</strong> ATmega328P est plus adapte : plus de broches, UART/I2C materiels, plus de Flash/SRAM. ATtiny85 est trop limite pour UART + I2C + ecran.</li>
+          <li><strong>c)</strong> EEPROM (non volatile, ecriture occasionnelle).</li>
+          <li><strong>d)</strong> Min ~6 broches (ADC, I2C x2, UART x2, relais). Le DIP-28 est suffisant.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Detecteur de mouvement miniature</h4>
+      <ol class="list">
+        <li><strong>a)</strong> ATmega328P ou ATtiny85 ?</li>
+        <li><strong>b)</strong> Nombre minimal de broches d'E/S ?</li>
+        <li><strong>c)</strong> Calculer la duree de vie de la pile (1 mA actif, 0.1 uA veille, 10 mouvements/jour).</li>
+        <li><strong>d)</strong> Quel peripherique pour mesurer 30 secondes ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> ATtiny85 suffit (1 entree PIR, 1 sortie LED, faible conso).</li>
+          <li><strong>b)</strong> 2 broches (PIR + LED).</li>
+          <li><strong>c)</strong> Temps actif = 10 * 30 s = 300 s = 0.0833 h. Conso active = 0.0833 mAh. Veille = 0.0001 mA * 23.9167 h = 0.0024 mAh. Total/jour ~ 0.0857 mAh. Batterie 225 mAh -> ~2626 jours (~7.2 ans) en theorie.</li>
+          <li><strong>d)</strong> Timer (Timer0/Timer1) ou watchdog pour delai.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Microprocesseur ou microcontroleur ?</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Projet A (serveur base de donnees) ?</li>
+        <li><strong>b)</strong> Projet B (arrosage automatique) ?</li>
+        <li><strong>c)</strong> Projet C (reconnaissance faciale temps reel) ?</li>
+        <li><strong>d)</strong> Schema bloc simplifie pour le projet B.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Microprocesseur (forte puissance, memoire, OS).</li>
+          <li><strong>b)</strong> Microcontroleur (capteur + heure + actionneur simple).</li>
+          <li><strong>c)</strong> Microprocesseur ou SoC (GPU/IA, gros traitement).</li>
+          <li><strong>d)</strong> Capteurs (humidite, horloge) -> MCU -> electrovanne/pompe. Alim + eventuel affichage.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td1-2">
+      <h3>TD 2 - Exploration de l'architecture interne de l'ATmega328P</h3>
+      <p><strong>Contexte:</strong> memoires, registres et architectures.</p>
+
+      <h4>Situation 1 - Carte d'identite de l'ATmega328P</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Completer le tableau Flash/SRAM/EEPROM (taille, volatile, contenu, analogie).</li>
+        <li><strong>b)</strong> Nombre d'instructions max dans 32 Ko de Flash.</li>
+        <li><strong>c)</strong> 1200 instructions : pourcentage de Flash.</li>
+        <li><strong>d)</strong> 50 uint8 + 20 uint16 : octets et pourcentage de SRAM.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Flash 32 Ko, non volatile, programme, analogie "livre". SRAM 2 Ko, volatile, variables, analogie "bloc-notes". EEPROM 1 Ko, non volatile, parametres, analogie "coffre".</li>
+          <li><strong>b)</strong> 32 Ko / 2 octets = 16 384 instructions.</li>
+          <li><strong>c)</strong> 1200 / 16384 = ~7.3%.</li>
+          <li><strong>d)</strong> 50*1 + 20*2 = 90 octets. 90/2048 = ~4.4%.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Les registres en pratique</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Pourquoi LDI R5, 42 est invalide ?</li>
+        <li><strong>b)</strong> R27=0x01, R26=0xF0 : adresse du pointeur X ?</li>
+        <li><strong>c)</strong> ADD R16=200, R17=100 : resultat et flags SREG ?</li>
+        <li><strong>d)</strong> SREG = 0b00000010 : quels drapeaux actifs ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> LDI est encodable uniquement pour R16-R31. R5 est hors plage.</li>
+          <li><strong>b)</strong> X = 0x01F0 (R27 = octet haut, R26 = octet bas).</li>
+          <li><strong>c)</strong> 200 + 100 = 300 -> 44 (0x2C) sur 8 bits. C=1, Z=0, N=0, V=0.</li>
+          <li><strong>d)</strong> Bit 1 = Z. Donc Z=1, resultat nul.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Harvard vs Von Neumann</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Differencier Harvard et Von Neumann.</li>
+        <li><strong>b)</strong> Pourquoi Harvard est plus rapide ?</li>
+        <li><strong>c)</strong> Avantage de Von Neumann.</li>
+        <li><strong>d)</strong> Pourquoi on dit Harvard "modifiee" sur AVR ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Harvard : memoire instructions et donnees separees (deux bus). Von Neumann : memoire unique (un bus).</li>
+          <li><strong>b)</strong> Fetch et acces donnees en parallele, pipeline plus efficace.</li>
+          <li><strong>c)</strong> Simplicite materielle, flexibilite (code et donnees dans le meme espace).</li>
+          <li><strong>d)</strong> AVR peut lire la Flash comme des donnees (LPM), donc separation pas totalement stricte.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td1-3">
+      <h3>TD 3 - Peripheriques et interfaces de l'ATmega328P</h3>
+      <p><strong>Contexte:</strong> ADC, timers et UART.</p>
+
+      <h4>Situation 1 - Conversion analogique-numerique (ADC)</h4>
+      <ol class="list">
+        <li><strong>a)</strong> ADC 10 bits : combien de valeurs ?</li>
+        <li><strong>b)</strong> Resolution en tension (0-5V).</li>
+        <li><strong>c)</strong> Tension 3.2V : valeur renvoyee ?</li>
+        <li><strong>d)</strong> Seuil alarme a 20% du max.</li>
+        <li><strong>e)</strong> Prescaler 128, 13 cycles : conversions par seconde ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 2^10 = 1024 valeurs (0 a 1023).</li>
+          <li><strong>b)</strong> 5V / 1023 ~= 4.88 mV par pas.</li>
+          <li><strong>c)</strong> 3.2/5 * 1023 ~= 655.</li>
+          <li><strong>d)</strong> 20% de 1023 ~= 205.</li>
+          <li><strong>e)</strong> Horloge ADC = 16 MHz / 128 = 125 kHz. 125000 / 13 ~= 9615 conv/s.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Timers et generation de signaux</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Timer0 8 bits sans prescaler : temps avant overflow ?</li>
+        <li><strong>b)</strong> Prescaler 1024 : temps avant overflow ?</li>
+        <li><strong>c)</strong> Duree 250 ms avec prescaler 1024 : combien d'overflows ?</li>
+        <li><strong>d)</strong> Timer1 16 bits max + temps overflow avec prescaler 256.</li>
+        <li><strong>e)</strong> Difference mode Normal vs CTC.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 256 cycles / 16 MHz = 16 us.</li>
+          <li><strong>b)</strong> Tick = 1024/16 MHz = 64 us. Overflow = 256 * 64 us = 16.384 ms.</li>
+          <li><strong>c)</strong> 250 ms / 16.384 ms ~= 15.26, donc 16 overflows (approx).</li>
+          <li><strong>d)</strong> Max 65535. Tick = 256/16 MHz = 16 us. Overflow = 65536 * 16 us = 1.048576 s.</li>
+          <li><strong>e)</strong> Normal : compte jusqu'au max puis overflow. CTC : reset a la valeur de comparaison, permet un delai precis.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Communication serie (UART)</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Duree d'un bit a 9600 bauds.</li>
+        <li><strong>b)</strong> Duree d'une trame 10 bits.</li>
+        <li><strong>c)</strong> Octets par seconde a 9600 bauds.</li>
+        <li><strong>d)</strong> Temps pour "Temp=25.3C" (10 caracteres).</li>
+        <li><strong>e)</strong> Pourquoi 115200 bauds ? Facteur d'acceleration ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 1/9600 = 104.17 us.</li>
+          <li><strong>b)</strong> 10 bits -> 1.0417 ms.</li>
+          <li><strong>c)</strong> 9600 / 10 = 960 octets/s.</li>
+          <li><strong>d)</strong> 10 / 960 = 0.0104 s (10.4 ms).</li>
+          <li><strong>e)</strong> 115200/9600 = 12, donc 12x plus rapide.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td1-4">
+      <h3>TD 4 - Cycle d'execution et calculs de performance</h3>
+      <p><strong>Contexte:</strong> cycles d'horloge, pipeline et comparaison d'architectures.</p>
+
+      <h4>Situation 1 - Timing des instructions</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Duree d'un cycle a 16 MHz (ns).</li>
+        <li><strong>b)</strong> Duree de LDI (1 cycle).</li>
+        <li><strong>c)</strong> Duree de RJMP (2 cycles).</li>
+        <li><strong>d)</strong> Temps total de la sequence (LDI, LDI, ADD, STS, RJMP).</li>
+        <li><strong>e)</strong> Nombre d'executions par seconde.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 1/16e6 = 62.5 ns.</li>
+          <li><strong>b)</strong> 62.5 ns.</li>
+          <li><strong>c)</strong> 125 ns.</li>
+          <li><strong>d)</strong> 1+1+1+2+2 = 7 cycles -> 7 * 62.5 ns = 437.5 ns.</li>
+          <li><strong>e)</strong> 16 MHz / 7 ~= 2.29 millions de boucles/s.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Cycle Fetch-Decode-Execute</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Decrire les 4 phases pour ADD R16, R17.</li>
+        <li><strong>b)</strong> Chronogramme 4 instructions avec et sans pipeline.</li>
+        <li><strong>c)</strong> Pourquoi les branchements prennent 2 cycles ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Fetch: instruction lue en Flash (PC). Decode: decodage + lecture des registres. Execute: ALU additionne. Write-back: resultat dans Rd, flags SREG mis a jour, PC avance.</li>
+          <li><strong>b)</strong> Sans pipeline: ~8 cycles pour 4 instructions (fetch + execute). Avec pipeline 2 etages: ~5 cycles. Gain ~3 cycles.</li>
+          <li><strong>c)</strong> Un branchement casse le pipeline (flush) et necessite un nouveau fetch, d'ou 2 cycles.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Comparaison avec d'autres architectures</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Cortex-M4 a 168 MHz : combien de fois plus rapide ?</li>
+        <li><strong>b)</strong> Pourquoi ATmega328P reste preferable pour un thermostat ?</li>
+        <li><strong>c)</strong> Comparer ATmega2560 et ATmega328P (Flash, SRAM).</li>
+        <li><strong>d)</strong> Nombre d'instructions max en Flash ATmega2560.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 168/16 = 10.5 fois plus rapide en cycles/s.</li>
+          <li><strong>b)</strong> ATmega328P est moins cher, plus simple, consomme moins, et suffit aux besoins.</li>
+          <li><strong>c)</strong> Flash 256K vs 32K (x8). SRAM 8K vs 2K (x4).</li>
+          <li><strong>d)</strong> 256 Ko / 2 octets = 128K instructions (131072).</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td1-5">
+      <h3>TD 5 - Compilation croisee et mise en pratique</h3>
+      <p><strong>Contexte:</strong> chaine de compilation AVR et analyse du Blink.</p>
+
+      <h4>Situation 1 - Comprendre la chaine de compilation</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Remettre l'ordre des etapes A a F.</li>
+        <li><strong>b)</strong> Formats de fichiers (entree/sortie).</li>
+        <li><strong>c)</strong> Pourquoi convertir .elf en .hex ?</li>
+        <li><strong>d)</strong> Commande unique en une ligne pour A a F.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> A (pretraitement) -> B (compilation) -> C (assemblage) -> F (link) -> D (objcopy) -> E (avrdude).</li>
+          <li><strong>b)</strong> .c -> .i -> .s -> .o -> .elf -> .hex.</li>
+          <li><strong>c)</strong> .elf contient sections et infos debug; le microcontroleur attend un flux Flash (.hex).</li>
+          <li><strong>d)</strong> Exemple une ligne :
+            <pre><code>avr-gcc -mmcu=atmega328p -DF_CPU=16000000UL -Os -o main.elf main.c && \
+avr-objcopy -O ihex -R .eeprom main.elf main.hex && \
+avrdude -c arduino -p atmega328p -P COM3 -b 115200 -D -U flash:w:main.hex:i</code></pre>
+          </li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Analyse des options de compilation</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Expliquer -mmcu, -DF_CPU, -Os, -o.</li>
+        <li><strong>b)</strong> Que se passe-t-il sans -mmcu ?</li>
+        <li><strong>c)</strong> Difference -Os vs -O2.</li>
+        <li><strong>d)</strong> Commande avr-objcopy pour thermostat.elf.</li>
+        <li><strong>e)</strong> Commande avrdude (COM3 ou /dev/ttyUSB0).</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> -mmcu choisit la cible AVR, -DF_CPU fixe la frequence, -Os optimise la taille, -o fixe le nom de sortie.</li>
+          <li><strong>b)</strong> Mauvaise cible, headers/ISA incorrects, code incompatible.</li>
+          <li><strong>c)</strong> -Os reduit la taille, -O2 optimise la vitesse (souvent code plus gros). -Os est prefere sur uC.</li>
+          <li><strong>d)</strong> <pre><code>avr-objcopy -O ihex -R .eeprom thermostat.elf thermostat.hex</code></pre></li>
+          <li><strong>e)</strong> <pre><code>avrdude -c arduino -p atmega328p -P COM3 -b 115200 -D -U flash:w:thermostat.hex:i
+avrdude -c arduino -p atmega328p -P /dev/ttyUSB0 -b 115200 -D -U flash:w:thermostat.hex:i</code></pre></li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Analyse du Blink</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Role de DDRB |= (1 &lt;&lt; PB5).</li>
+        <li><strong>b)</strong> Role de PORTB |= (1 &lt;&lt; PB5).</li>
+        <li><strong>c)</strong> Role de PORTB &= ~(1 &lt;&lt; PB5).</li>
+        <li><strong>d)</strong> Pourquoi pas digitalWrite() ?</li>
+        <li><strong>e)</strong> _delay_ms(100) : frequence de clignotement ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Configure PB5 en sortie (bit DDRB = 1) sans modifier les autres bits.</li>
+          <li><strong>b)</strong> Met PB5 a 1 (LED ON).</li>
+          <li><strong>c)</strong> Force PB5 a 0 via un masque inverse (LED OFF).</li>
+          <li><strong>d)</strong> Acces direct aux registres, plus rapide et bas niveau.</li>
+          <li><strong>e)</strong> 100 ms on + 100 ms off = periode 200 ms, frequence 5 Hz.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="quiz-ch1">
+      <h3>Quiz du chapitre 1 - Corrections</h3>
+      <ol class="list">
+        <li><strong>1)</strong> Difference microprocesseur / microcontroleur ?</li>
+        <li><strong>2)</strong> SRAM conserve-t-elle son contenu sans alimentation ?</li>
+        <li><strong>3)</strong> Duree d'un cycle a 16 MHz ?</li>
+        <li><strong>4)</strong> LDI R5, 100 est valide ?</li>
+        <li><strong>5)</strong> Outil ELF -> HEX ?</li>
+        <li><strong>6)</strong> Harvard utilise un seul bus ?</li>
+        <li><strong>7)</strong> Associer CPU/ALU/Flash/SRAM/EEPROM a leur fonction.</li>
+        <li><strong>8)</strong> Nombre de registres AVR ?</li>
+        <li><strong>9)</strong> Completer le cycle Fetch-Decode-Execute pour LDI.</li>
+        <li><strong>10)</strong> Defi compilation (3 commandes + bonus).</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>1)</strong> Reponse B : le uC integre CPU + memoire + E/S.</li>
+          <li><strong>2)</strong> Faux (SRAM volatile).</li>
+          <li><strong>3)</strong> 62.5 ns (reponse C).</li>
+          <li><strong>4)</strong> Faux (LDI reserve a R16-R31).</li>
+          <li><strong>5)</strong> avr-objcopy (reponse C).</li>
+          <li><strong>6)</strong> Faux (c'est Von Neumann).</li>
+          <li><strong>7)</strong> CPU=4, ALU=3, Flash=1, SRAM=2, EEPROM=5.</li>
+          <li><strong>8)</strong> 32 registres de 8 bits (reponse C).</li>
+          <li><strong>9)</strong> FETCH: lecture a l'adresse PC. DECODE: decodage + selection Rd/K. EXECUTE: chargement dans Rd. UPDATE PC: PC = PC + 1.</li>
+          <li><strong>10)</strong> avr-gcc (compiler), avr-objcopy (convertir), avrdude (televerser). Bonus: Arduino IDE fait tout.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="exo-guide">
+      <h3>Exercice guide - Modifier le programme (200 + 100)</h3>
+      <ol class="list">
+        <li><strong>1)</strong> Quelle valeur contient R17 apres l'addition ?</li>
+        <li><strong>2)</strong> Quel drapeau SREG est active ?</li>
+        <li><strong>3)</strong> Pourquoi le resultat n'est pas 300 ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>1)</strong> R17 = 44 (0x2C).</li>
+          <li><strong>2)</strong> Carry C = 1.</li>
+          <li><strong>3)</strong> Sur 8 bits, 300 deborde. 300 - 256 = 44, d'ou le carry.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td2-1">
+      <h3>TD 1 - Traduction et mnemoniques</h3>
+      <p><strong>Contexte:</strong> lien entre code assembleur et binaire.</p>
+
+      <h4>Situation 1 - Reconnaitre les mnemoniques</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Donner le sens de LDI R16, 42.</li>
+        <li><strong>b)</strong> Donner le sens de MOV R5, R16.</li>
+        <li><strong>c)</strong> Donner le sens de ADD R16, R17.</li>
+        <li><strong>d)</strong> Donner le sens de SUB R16, R17.</li>
+        <li><strong>e)</strong> Donner le sens de LDS R18, 0x0100.</li>
+        <li><strong>f)</strong> Donner le sens de STS 0x0100, R18.</li>
+        <li><strong>g)</strong> Donner le sens de RJMP main.</li>
+        <li><strong>h)</strong> Donner le sens de NOP.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> LDI R16, 42 : charge la constante 42 dans R16.</li>
+          <li><strong>b)</strong> MOV R5, R16 : copie R16 vers R5.</li>
+          <li><strong>c)</strong> ADD R16, R17 : R16 = R16 + R17.</li>
+          <li><strong>d)</strong> SUB R16, R17 : R16 = R16 - R17.</li>
+          <li><strong>e)</strong> LDS R18, 0x0100 : charge SRAM[0x0100] dans R18.</li>
+          <li><strong>f)</strong> STS 0x0100, R18 : stocke R18 dans SRAM[0x0100].</li>
+          <li><strong>g)</strong> RJMP main : saut relatif vers l'etiquette main.</li>
+          <li><strong>h)</strong> NOP : aucune operation, 1 cycle.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Decodage d'instructions binaires</h4>
+      <ol class="list">
+        <li><strong>1)</strong> 1110000000000101</li>
+        <li><strong>2)</strong> 1110111111111111</li>
+        <li><strong>3)</strong> 0000110000000001</li>
+        <li><strong>4)</strong> 1100111111111111</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>1)</strong> LDI R16, 0x05 (opcode 1110, Rd=0000 -> R16, K=0x05).</li>
+          <li><strong>2)</strong> LDI R31, 0xFF (Rd=1111 -> R31, K=0xFF).</li>
+          <li><strong>3)</strong> ADD R0, R1 (opcode 000011, Rd=0000, Rr=0001).</li>
+          <li><strong>4)</strong> RJMP -1 (offset 0xFFF, boucle sur lui-meme).</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Encodage d'une instruction LDI</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Encoder LDI R20, 100.</li>
+        <li><strong>b)</strong> Encoder LDI R31, 0xFF (hex).</li>
+        <li><strong>c)</strong> Pourquoi LDI R15, 42 est impossible ?</li>
+        <li><strong>d)</strong> Si Rd avait 3 bits, quels registres ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> R20 => dddd = 0100. K=100 = 0x64 = 0110 0100. Mot = 1110 0110 0100 0100 = 0xE644.</li>
+          <li><strong>b)</strong> R31 => dddd=1111, K=0xFF. Mot = 1110 1111 1111 1111 = 0xEFFF.</li>
+          <li><strong>c)</strong> LDI ne cible que R16 a R31 (encodage Rd sur 4 bits avec offset 16).</li>
+          <li><strong>d)</strong> 3 bits = 8 registres, typiquement R16 a R23.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td2-2">
+      <h3>TD 2 - Structure d'un programme assembleur AVR</h3>
+      <p><strong>Contexte:</strong> directives, etiquettes et structure reset.</p>
+
+      <h4>Situation 1 - Identifier les elements d'un programme</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Indiquer le type de chaque ligne (directive, etiquette, instruction).</li>
+        <li><strong>b)</strong> Ajouter un commentaire pertinent par ligne.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> .include = directive, .def = directive, .equ = directive, .org = directive, rjmp debut = instruction, debut: = etiquette, ldi = instruction, sts = instruction, boucle: = etiquette, nop = instruction, rjmp boucle = instruction.</li>
+          <li><strong>b)</strong> Exemple de commentaires :
+            <pre><code>.include "m328Pdef.inc" ; definitions MCU
+.def temp = r16 ; alias registre
+.equ SEUIL = 25 ; constante
+.org 0x0000 ; vecteur reset
+rjmp debut ; saut vers main
+... etc</code></pre>
+          </li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Corriger les erreurs de structure</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Identifier 5 erreurs.</li>
+        <li><strong>b)</strong> Proposer un programme corrige.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Erreurs typiques : absence de .include, registre r5 incompatible avec LDI, absence d'etiquette main, absence de rjmp main au reset, etiquette boucle sans ':' .</li>
+          <li><strong>b)</strong> Exemple corrige :
+            <pre><code>.include "m328Pdef.inc"
+.equ F_CPU = 16000000
+.def temperature = r16
+.org 0x0000
+rjmp main
+main:
+  ldi temperature, 20
+boucle:
+  rjmp boucle</code></pre>
+          </li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Ecrire un programme structure</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Ecrire le programme complet demande.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <pre><code>.include "m328Pdef.inc"
+.def compteur = r20
+.equ LIMITE = 10
+.org 0x0000
+rjmp main
+main:
+  ldi compteur, 0
+  ldi r21, LIMITE
+  sts 0x0100, r21
+fin:
+  rjmp fin</code></pre>
+      </details>
+    </section>
+
+    <section class="content-block" id="td2-3">
+      <h3>TD 3 - Registres et registre de statut SREG</h3>
+      <p><strong>Contexte:</strong> classification des registres et interpretation des drapeaux.</p>
+
+      <h4>Situation 1 - Classification des registres</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Classer R3, R16, R27, R0, R25, R30, R12, R31, R20, R8.</li>
+        <li><strong>b)</strong> Valider ou corriger les instructions.</li>
+        <li><strong>c)</strong> Placer 200 dans R0 en 2 instructions.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> Restreints: R0, R3, R8, R12. Complets: R16, R20, R25. Pointeurs: R27, R30, R31.</li>
+          <li><strong>b)</strong> LDI R16,100 OK. LDI R8,50 invalide (LDI reserve a R16+). LDI R17,256 invalide (imm > 255). MOV R0,R16 OK. LDI R31,0xFF OK. LDI R16,-1 OK (equiv 255).</li>
+          <li><strong>c)</strong> ldi r16, 200 ; mov r0, r16.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - Analyse du registre SREG</h4>
+      <ol class="list">
+        <li><strong>a)</strong> 5 + 3 : R16 et flags Z,C,N,V.</li>
+        <li><strong>b)</strong> 200 + 100 : R16 et flags Z,C,N,V.</li>
+        <li><strong>c)</strong> 5 - 5 : R16 et flags Z,C,N,V.</li>
+        <li><strong>d)</strong> 1 - 2 : R16 et flags Z,C,N,V.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> R16=8, Z=0, C=0, N=0, V=0.</li>
+          <li><strong>b)</strong> R16=44, C=1, Z=0, N=0, V=0.</li>
+          <li><strong>c)</strong> R16=0, Z=1, C=0, N=0, V=0.</li>
+          <li><strong>d)</strong> R16=0xFF (-1), Z=0, C=1 (emprunt), N=1, V=0.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Role du PC et du SP</h4>
+      <ol class="list">
+        <li><strong>a)</strong> PC=0x0003 avant LDI (1 mot). Valeur apres ?</li>
+        <li><strong>b)</strong> PC=0x0010 avant LDS (2 mots). Valeur apres ?</li>
+        <li><strong>c)</strong> Role du SP.</li>
+        <li><strong>d)</strong> SP=0x08FF, PUSH R16 : nouvelle valeur ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> PC = 0x0004.</li>
+          <li><strong>b)</strong> PC = 0x0012.</li>
+          <li><strong>c)</strong> SP pointe le sommet de pile (push/pop, call/ret, interruptions).</li>
+          <li><strong>d)</strong> PUSH decremente : SP = 0x08FE.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td2-4">
+      <h3>TD 4 - Instructions de transfert : LDI, MOV, LDS, STS</h3>
+      <p><strong>Contexte:</strong> transferts registres et SRAM.</p>
+
+      <h4>Situation 1 - Utilisation de LDI et MOV</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Tracer l'etat des registres apres chaque instruction.</li>
+        <li><strong>b)</strong> Charger 200 dans R5 (2 instructions).</li>
+        <li><strong>c)</strong> Difference LDI R16,0 vs MOV R16,R16.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> R16=100, R17=10, R18=100, R5=10, R19=0xF0, R20=0xF0.</li>
+          <li><strong>b)</strong> ldi r16, 200 ; mov r5, r16.</li>
+          <li><strong>c)</strong> LDI met R16 a 0. MOV R16,R16 ne change rien. Pour mettre a zero, utilisez LDI ou CLR.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 2 - LDS et STS (SRAM)</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Tracer R16/R17 et SRAM apres la sequence.</li>
+        <li><strong>b)</strong> Ecrire la sequence demandee.</li>
+        <li><strong>c)</strong> Pourquoi LDS/STS prennent 2 cycles ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> R16=42, R17=17, ADD -> R16=59, SRAM[0x0104]=59.</li>
+          <li><strong>b)</strong> <pre><code>lds r16, 0x0102
+lds r17, 0x0103
+add r16, r17
+sts 0x0105, r16</code></pre></li>
+          <li><strong>c)</strong> Acces memoire SRAM (adresse + data) plus lent qu'un transfert registre.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Comparaison AVR et x64</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Associer les instructions AVR a leur equivalent x64.</li>
+        <li><strong>b)</strong> Differences LDI R16,42 vs mov rax,42.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> LDI -> mov rax, 42. MOV -> mov rbx, rax. ADD -> add rax, rbx. LDS -> mov rax, [0x0100]. STS -> mov [0x0100], rax.</li>
+          <li><strong>b)</strong> AVR : immediat 8 bits et Rd limite a R16-R31, instruction 16 bits. x64 : immediat 64 bits, tout registre, instruction plus longue.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="td2-5">
+      <h3>TD 5 - Analyse complete d'un programme assembleur AVR</h3>
+      <p><strong>Contexte:</strong> analyser, commenter et etendre un programme.</p>
+
+      <h4>Situation 1 - Trace d'execution</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Completer le tableau ligne par ligne.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <pre><code>Ligne 9  ldi a, 12      a=12 b=?  res=?  r0=?  SREG --
+Ligne 10 ldi b, 8       a=12 b=8  res=?  r0=?  SREG --
+Ligne 11 mov res, a     a=12 b=8  res=12 r0=?  SREG --
+Ligne 12 add res, b     a=12 b=8  res=20 r0=?  Z=0 C=0
+Ligne 13 sts 0x0200     SRAM[0x0200]=20
+Ligne 14 sub res, b     res=12 Z=0 C=0
+Ligne 15 sts 0x0201     SRAM[0x0201]=12
+Ligne 16 mov r0, a      r0=12
+Ligne 17 add r0, a      r0=24 Z=0 C=0
+Ligne 18 sts 0x0202     SRAM[0x0202]=24</code></pre>
+      </details>
+
+      <h4>Situation 2 - Comprehension et commentaires</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Que contiennent 0x0200, 0x0201, 0x0202 ?</li>
+        <li><strong>b)</strong> Objectif du programme en une phrase.</li>
+        <li><strong>c)</strong> Ajouter des commentaires.</li>
+        <li><strong>d)</strong> Pourquoi mov r0, a est necessaire ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> 0x0200 = a+b = 20, 0x0201 = a+b-b = a = 12, 0x0202 = 2*a = 24.</li>
+          <li><strong>b)</strong> Il calcule la somme, retrouve a, puis calcule le double de a et stocke en SRAM.</li>
+          <li><strong>c)</strong> Ajouter des commentaires sur chaque instruction (initialisation, calcul, stockage).</li>
+          <li><strong>d)</strong> add modifie la destination. On preserve a en copiant dans r0 avant de doubler.</li>
+        </ol>
+      </details>
+
+      <h4>Situation 3 - Extension du programme</h4>
+      <ol class="list">
+        <li><strong>a)</strong> Calculer a-b et stocker a 0x0203.</li>
+        <li><strong>b)</strong> Charger 0x0200 et 0x0201, additionner, stocker a 0x0204.</li>
+        <li><strong>c)</strong> Comment verifier un depassement sur add res, b ?</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>a)</strong> <pre><code>mov res, a
+sub res, b
+sts 0x0203, res</code></pre></li>
+          <li><strong>b)</strong> <pre><code>lds r20, 0x0200
+lds r21, 0x0201
+add r20, r21
+sts 0x0204, r20</code></pre></li>
+          <li><strong>c)</strong> Surveiller le drapeau C (Carry) dans SREG, puis brancher avec BRCS/BRCC.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="quiz-ch2">
+      <h3>Quiz du chapitre 2 - Corrections</h3>
+      <ol class="list">
+        <li><strong>1)</strong> Difference mnemonique vs opcode ?</li>
+        <li><strong>2)</strong> MOV R17, R16 copie R17 dans R16 ?</li>
+        <li><strong>3)</strong> LDI R16,200; LDI R17,100; ADD R16,R17 : R16 ?</li>
+        <li><strong>4)</strong> Une directive occupe de la Flash ?</li>
+        <li><strong>5)</strong> Instruction pour lire en SRAM ?</li>
+        <li><strong>6)</strong> Z=1 quand resultat = 0 ?</li>
+        <li><strong>7)</strong> Corriger les lignes invalides.</li>
+        <li><strong>8)</strong> Pourquoi boucle infinie obligatoire ?</li>
+        <li><strong>9)</strong> Tracer l'etat des registres pour ldi/ldi/sub.</li>
+        <li><strong>10)</strong> Defi programme (somme + difference).</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><strong>1)</strong> Reponse B : mnemonique = texte lisible, opcode = binaire.</li>
+          <li><strong>2)</strong> Faux. MOV Rd,Rr copie Rr vers Rd (R16 -> R17).</li>
+          <li><strong>3)</strong> R16=44 et C=1 (reponse B).</li>
+          <li><strong>4)</strong> Faux. Les directives ne sont pas executees par le CPU.</li>
+          <li><strong>5)</strong> LDS (reponse C).</li>
+          <li><strong>6)</strong> Vrai.</li>
+          <li><strong>7)</strong> a) ldi r5,42 -> ldi r16,42; mov r5,r16. b) ldi r16,256 invalide -> 255 ou 16 bits. c) sts r16,0x0100 -> sts 0x0100,r16. d) .def compteur = r5 = r6 -> une seule affectation.</li>
+          <li><strong>8)</strong> Sans OS, le PC continuerait sur des donnees aleatoires. La boucle maintient l'execution.</li>
+          <li><strong>9)</strong> Apres ldi r16,10: R16=10, SREG inch. Apres ldi r17,10: R17=10, SREG inch. Apres sub r16,r17: R16=0, Z=1, C=0, N=0. Z=1 signifie resultat nul.</li>
+          <li><strong>10)</strong> Exemple :
+            <pre><code>.include "m328Pdef.inc"
+.def a = r16
+.def b = r17
+.def res = r18
+.org 0x0000
+rjmp main
+main:
+  ldi a, 15
+  lds b, 0x0100
+  mov res, a
+  add res, b
+  sts 0x0101, res
+  mov res, a
+  sub res, b
+  sts 0x0102, res
+fin:
+  rjmp fin</code></pre>
+          </li>
+        </ol>
+      </details>
+    </section>
+
+    <nav class="chapter-nav">
+      <a href="../index.html">Retour accueil</a>
+      <a href="examens.html">Aller aux examens -></a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container">Exercices - Assembleur B2</div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Examens et corriges - Assembleur</title>
+  <meta name="description" content="Sujets d'examens assembleur avec corriges detaillees." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    :root { --accent: #f97316; --accent-2: #fbbf24; --accent-3: #22c55e; }
+    .toc a { color: var(--accent-2); }
+    .toc li { margin-bottom: 0.35rem; }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-badge">ASM</span>
+        <span>Assembleur B2</span>
+      </a>
+      <div class="nav-links">
+        <a href="cheatsheet.html">Cheat Sheet</a>
+        <a href="exercices.html">Exercices</a>
+        <a href="examens.html">Examens</a>
+        <a href="../qcm-100.html">100 QCM</a>
+        <a href="chapitre1.html">Chapitres</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="chapter-hero">
+      <span class="hero-badge">Examens + corriges</span>
+      <h1 class="chapter-title">Controle continu et examen final</h1>
+      <p class="chapter-meta">Questions de comprehension + exercices pratiques avec corriges detaillees.</p>
+    </header>
+
+    <section class="content-block">
+      <h3>Sommaire</h3>
+      <ul class="list toc">
+        <li><a href="#cc-b2a">Controle continu B2A (2024-2025)</a></li>
+        <li><a href="#cc-b2b">Controle continu B2B (2024-2025)</a></li>
+        <li><a href="#ef">Examen final B2 (2024-2025)</a></li>
+      </ul>
+    </section>
+
+    <section class="content-block" id="cc-b2a">
+      <h3>Controle continu B2A - 2024-2025</h3>
+      <h4>Partie I - Questions de comprehension</h4>
+      <ol class="list">
+        <li>Definissez un microcontroleur et son role en embarque.</li>
+        <li>Presenter l'architecture generale d'un microcontroleur AVR.</li>
+        <li>Quelles memoires principales dans un AVR ?</li>
+        <li>Role de l'ALU.</li>
+        <li>Expliquer la compilation croisee pour AVR.</li>
+        <li>Qu'est-ce qu'un registre ? Donner deux registres 64 bits.</li>
+        <li>Difference entre RAX et EAX.</li>
+        <li>Difference entre mov et lea, exemple.</li>
+        <li>Deux outils pour programmer un AVR.</li>
+        <li>Comparer structure d'un programme x64 et AVR.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li>Un microcontroleur est un circuit integre qui regroupe CPU, memoires (Flash/SRAM/EEPROM) et peripheriques pour piloter des systemes embarques.</li>
+          <li>AVR : architecture Harvard modifiee, 32 registres, ALU + SREG + PC, memoires Flash/SRAM/EEPROM et peripheriques (UART, SPI, I2C, timers, ADC).</li>
+          <li>Flash (programme, non volatile), SRAM (variables, volatile), EEPROM (donnees persistantes), registres internes.</li>
+          <li>ALU = operations arithmetiques/logiques, tests et decalages, mise a jour des flags.</li>
+          <li>Compilation croisee : compiler sur PC pour une cible AVR (avr-gcc), puis televerser.</li>
+          <li>Registre = memoire interne ultra-rapide. Exemples x64 : RAX, RBX, RCX, RDX.</li>
+          <li>RAX = 64 bits, EAX = 32 bits bas. Utiliser EAX pour operations 32 bits, RAX pour 64 bits.</li>
+          <li>mov charge une valeur (ou contenu memoire), lea calcule une adresse. Exemple : lea rax, [rbx+4].</li>
+          <li>avr-gcc, avrdude, Arduino IDE, Microchip Studio, etc.</li>
+          <li>x64 : sections .data/.bss/.text, conventions d'appel, OS. AVR : .include, .org, rjmp main, boucle infinie, pas d'OS.</li>
+        </ol>
+      </details>
+
+      <h4>Partie II - Exercices pratiques</h4>
+      <ol class="list">
+        <li><strong>Exercice 1:</strong> Charger 5 dans RAX, 3 dans RBX, addition, resultat dans RCX.</li>
+        <li><strong>Exercice 2:</strong> Corriger un code NASM erronne (virgules et syntaxe).</li>
+        <li><strong>Exercice 3:</strong> Compilation NASM sous Windows (nasm + gcc).</li>
+        <li><strong>Exercice 4:</strong> Variable val=42, charger en RAX, incrementer.</li>
+        <li><strong>Exercice 5:</strong> Copier 100 dans RAX, stocker en memoire, relire dans RBX.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><pre><code>section .text
+global main
+main:
+  mov rax, 5
+  mov rbx, 3
+  add rax, rbx
+  mov rcx, rax
+  ret</code></pre></li>
+          <li><pre><code>section .text
+global main
+main:
+  mov rax, 5
+  mov rbx, 3
+  add rax, rbx
+  mov rcx, rax
+  ret</code></pre></li>
+          <li><pre><code>nasm -f win64 programme.asm -o programme.obj
+gcc programme.obj -o programme.exe</code></pre></li>
+          <li><pre><code>section .data
+val dq 42
+section .text
+global main
+main:
+  mov rax, [val]
+  inc rax
+  ret</code></pre></li>
+          <li><pre><code>section .data
+memoire dq 0
+section .text
+global main
+main:
+  mov rax, 100
+  mov [memoire], rax
+  mov rbx, [memoire]
+  ret</code></pre></li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="cc-b2b">
+      <h3>Controle continu B2B - 2024-2025</h3>
+      <h4>Partie I - Questions de comprehension</h4>
+      <ol class="list">
+        <li>Deux differences microprocesseur vs microcontroleur.</li>
+        <li>Qu'est-ce qu'un registre AVR ? Exemple.</li>
+        <li>Avantages d'un AVR en embarque.</li>
+        <li>Difference assembleur vs compilateur.</li>
+        <li>Difference Flash vs SRAM.</li>
+        <li>Role de mov rax, 2.</li>
+        <li>Role de RIP en x64.</li>
+        <li>Acces memoire direct vs indirect.</li>
+        <li>Section .text et autre section courante.</li>
+        <li>Role de ret.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li>Microprocesseur = CPU seul, microcontroleur = CPU + memoire + peripheriques, plus faible conso.</li>
+          <li>Registre = memoire interne rapide pour operandes. Exemple : R16.</li>
+          <li>Faible cout, faible conso, RISC simple, peripheriques integres, outils nombreux.</li>
+          <li>Assembleur traduit ASM en binaire. Compilateur traduit un langage haut niveau en binaire.</li>
+          <li>Flash non volatile pour programme; SRAM volatile pour variables.</li>
+          <li>Charge la constante 2 dans RAX.</li>
+          <li>RIP contient l'adresse de la prochaine instruction.</li>
+          <li>Direct : adresse explicite [0x4000]. Indirect : adresse dans un registre [rbx].</li>
+          <li>.text = code; autre section : .data (ou .bss).</li>
+          <li>ret retourne a l'appelant via l'adresse de retour sur la pile.</li>
+        </ol>
+      </details>
+
+      <h4>Partie II - Exercices pratiques</h4>
+      <ol class="list">
+        <li><strong>Exercice 1:</strong> 10 dans RAX, 4 dans RBX, RAX - RBX, resultat dans RCX.</li>
+        <li><strong>Exercice 2:</strong> Corriger un code NASM erronne.</li>
+        <li><strong>Exercice 3:</strong> Etapes de compilation NASM sous Windows.</li>
+        <li><strong>Exercice 4:</strong> valeur=50, charger, multiplier par 2, resultat dans RBX.</li>
+        <li><strong>Exercice 5:</strong> Charger 25 dans RAX, stocker en memo, relire dans RBX.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><pre><code>section .text
+global main
+main:
+  mov rax, 10
+  mov rbx, 4
+  sub rax, rbx
+  mov rcx, rax
+  ret</code></pre></li>
+          <li><pre><code>section .text
+global main
+main:
+  mov rax, 8
+  mov rbx, 2
+  sub rax, rbx
+  mov rcx, rax
+  ret</code></pre></li>
+          <li><pre><code>nasm -f win64 prog.asm -o prog.obj
+gcc prog.obj -o prog.exe</code></pre></li>
+          <li><pre><code>section .data
+valeur dq 50
+section .text
+global main
+main:
+  mov rax, [valeur]
+  shl rax, 1
+  mov rbx, rax
+  ret</code></pre></li>
+          <li><pre><code>section .data
+memo dq 0
+section .text
+global main
+main:
+  mov rax, 25
+  mov [memo], rax
+  mov rbx, [memo]
+  ret</code></pre></li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="content-block" id="ef">
+      <h3>Examen final B2 - 2024-2025</h3>
+      <h4>Partie I - Questions de comprehension</h4>
+      <ol class="list">
+        <li>Trois differences entre microprocesseur et microcontroleur + exemples.</li>
+        <li>Registres AVR : definition et exemples.</li>
+        <li>Utilite de la Flash vs SRAM et EEPROM.</li>
+        <li>Difference assembleur vs compilateur, cas d'usage.</li>
+        <li>Sections .data, .text, .bss et leur role.</li>
+        <li>mov rax, [rbx] : signification et adressage.</li>
+        <li>Role de RIP en x64.</li>
+        <li>Flags x86/x64 : definition + 2 exemples.</li>
+        <li>Etapes pour compiler NASM sous Windows + 2 commandes.</li>
+        <li>Adressage immediat, direct, indirect, indexe + exemples.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li>Microprocesseur = CPU seul, microcontroleur = CPU + memoires + peripheriques. Exemple uP: Core i7, uC: ATmega328.</li>
+          <li>Registres = memoire interne rapide (R0-R31, SREG, PC, SP).</li>
+          <li>Flash non volatile pour programme; SRAM volatile pour variables; EEPROM non volatile pour parametres.</li>
+          <li>Assembleur traduit ASM en binaire; compilateur traduit langage haut niveau (C/C++) en binaire.</li>
+          <li>.data = donnees initialisees, .bss = donnees non initialisees, .text = code executable.</li>
+          <li>Charge dans RAX la valeur situee a l'adresse contenue dans RBX (adressage indirect par registre).</li>
+          <li>RIP contient l'adresse de la prochaine instruction, essentiel pour les sauts/appels.</li>
+          <li>Flags = bits d'etat. Exemples : ZF (zero), CF (carry), SF (sign), OF (overflow).</li>
+          <li>Etapes : assembler (nasm) puis linker (gcc). Commandes : nasm -f win64 prog.asm -o prog.obj ; gcc prog.obj -o prog.exe.</li>
+          <li>Immediat: mov rax, 10. Direct: mov rax, [0x400000]. Indirect: mov rax, [rbx]. Indexe: mov rax, [rbx + rcx*4 + 8].</li>
+        </ol>
+      </details>
+
+      <h4>Partie II - Exercices pratiques</h4>
+      <ol class="list">
+        <li><strong>Exercice 1:</strong> Division entiere 15 / 5, resultat dans RCX.</li>
+        <li><strong>Exercice 2:</strong> valeur=30, multiplier par 3, stocker dans resultat.</li>
+        <li><strong>Exercice 3:</strong> Corriger un code NASM erronne.</li>
+        <li><strong>Exercice 4:</strong> Completer un transfert registre/memoire.</li>
+        <li><strong>Exercice 5:</strong> Appel systeme exit (Linux) avec code 0.</li>
+      </ol>
+      <details open class="solution">
+        <summary>Correction detaillee</summary>
+        <ol class="list">
+          <li><pre><code>section .text
+global main
+main:
+  mov rax, 15
+  mov rbx, 5
+  xor rdx, rdx
+  div rbx
+  mov rcx, rax
+  ret</code></pre></li>
+          <li><pre><code>section .data
+valeur dq 30
+resultat dq 0
+section .text
+global main
+main:
+  mov rax, [valeur]
+  imul rax, 3
+  mov [resultat], rax
+  ret</code></pre></li>
+          <li><pre><code>section .text
+global main
+main:
+  mov rax, 5
+  mov rbx, 3
+  add rax, rbx
+  ret</code></pre></li>
+          <li><pre><code>section .data
+memo dq 0
+section .text
+global main
+main:
+  mov rax, 100
+  mov [memo], rax
+  mov rbx, [memo]
+  ret</code></pre></li>
+          <li><pre><code>section .text
+global main
+main:
+  mov rax, 60
+  xor rdi, rdi
+  syscall</code></pre></li>
+        </ol>
+      </details>
+    </section>
+
+    <nav class="chapter-nav">
+      <a href="exercices.html">Retour exercices</a>
+      <a href="../index.html">Retour accueil -></a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container">Examens - Assembleur B2</div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
