@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapitre 7 - NASM avance</title>
+  <meta name="description" content="Pile, syscall, compilation Windows et debug." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    :root { --accent: #f97316; --accent-2: #fbbf24; --accent-3: #22c55e; }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="../index.html">
+        <span class="brand-badge">ASM</span>
+        <span>Assembleur B2</span>
+      </a>
+      <div class="nav-links">
+        <a href="cheatsheet.html">Cheat Sheet</a>
+        <a href="../qcm-100.html">100 QCM</a>
+        <a href="../index.html">Accueil</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="chapter-hero">
+      <span class="hero-badge">Chapitre 7</span>
+      <h1 class="chapter-title">NASM avance: pile, syscall et compilation</h1>
+      <p class="chapter-meta">Couvrir les points frequents des controles et de l'examen final.</p>
+    </header>
+
+    <section class="content-block">
+      <h3>Objectifs</h3>
+      <ul class="list">
+        <li>Comprendre la pile (stack) et les appels.</li>
+        <li>Utiliser les syscalls basiques.</li>
+        <li>Compiler sous Windows avec NASM + GCC (MinGW).</li>
+      </ul>
+    </section>
+
+    <section class="content-block">
+      <h3>1) Pile et conventions</h3>
+      <p>La pile est geree par RSP. Les instructions PUSH/POP stockent et restaurent des valeurs. RBP sert souvent de base pour les variables locales.</p>
+      <ul class="list">
+        <li>PUSH X: RSP diminue, X est stocke.</li>
+        <li>POP X: X est restaure, RSP augmente.</li>
+      </ul>
+    </section>
+
+    <section class="content-block">
+      <h3>2) Syscalls (mode Linux)</h3>
+      <p>Un syscall passe par RAX (numero) et des registres d'arguments (RDI, RSI, RDX...). Exemple de sortie:</p>
+      <ul class="list">
+        <li>RAX = 60 (exit)</li>
+        <li>RDI = code retour</li>
+        <li>SYSCALL</li>
+      </ul>
+      <div class="callout">En environnement Windows, on utilise les appels WinAPI et une autre convention.</div>
+    </section>
+
+    <section class="content-block">
+      <h3>3) Compilation NASM sous Windows</h3>
+      <ul class="list">
+        <li>Assembler: <code>nasm -f win64 prog.asm -o prog.obj</code></li>
+        <li>Lier: <code>gcc prog.obj -o prog.exe</code></li>
+      </ul>
+      <p>En controle continu, on vous demande souvent les etapes et les outils.</p>
+    </section>
+
+    <section class="content-block">
+      <h3>4) Debug et erreurs frequentes</h3>
+      <ul class="list">
+        <li>Oublier une virgule dans MOV.</li>
+        <li>Confondre adresse et valeur (MOV vs LEA).</li>
+        <li>Mauvais format NASM (win64 vs elf64).</li>
+      </ul>
+    </section>
+
+    <section class="content-block">
+      <h3>Recap / Cheat Sheet</h3>
+      <div class="cheat-grid">
+        <div class="cheat-card">
+          <strong>Pile:</strong>
+          <ul class="list">
+            <li>RSP = haut de pile</li>
+            <li>PUSH / POP</li>
+          </ul>
+        </div>
+        <div class="cheat-card">
+          <strong>Syscall (Linux):</strong>
+          <ul class="list">
+            <li>RAX = numero</li>
+            <li>RDI/RSI/RDX = args</li>
+          </ul>
+        </div>
+        <div class="cheat-card">
+          <strong>Build Windows:</strong>
+          <ul class="list">
+            <li>nasm -f win64</li>
+            <li>gcc prog.obj</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="quiz">
+      <h3>QCM - Chapitre 7</h3>
+      <div id="quiz-container"></div>
+    </section>
+
+    <nav class="chapter-nav">
+      <a href="chapitre6.html">← Chapitre 6</a>
+      <a href="../qcm-100.html">Aller aux 100 QCM →</a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container">Chapitre 7 - Assembleur B2</div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+  <script>
+    const quizData = [
+      {
+        question: "RSP represente :",
+        options: ["Le pointeur d'instruction", "Le haut de pile", "Un registre SIMD", "Le compteur de cycles"],
+        answer: 1,
+        explanation: "RSP est le stack pointer."
+      },
+      {
+        question: "PUSH fait :",
+        options: ["Augmente RSP", "Diminue RSP et stocke", "Vide la pile", "Charge un immediate"],
+        answer: 1,
+        explanation: "PUSH reserve de la place et ecrit la valeur."
+      },
+      {
+        question: "En Linux, le numero de syscall est dans :",
+        options: ["RAX", "RDI", "RCX", "RSP"],
+        answer: 0,
+        explanation: "RAX contient le numero de syscall."
+      },
+      {
+        question: "Pour sortir avec code 0 :",
+        options: ["RAX=60, RDI=0, SYSCALL", "RAX=1, RDI=0, SYSCALL", "RAX=0, SYSCALL", "RAX=2, RDI=1"],
+        answer: 0,
+        explanation: "exit: RAX=60, RDI=code."
+      },
+      {
+        question: "Sous Windows, assembler en NASM :",
+        options: ["nasm -f elf64", "nasm -f win64", "nasm -f bin", "nasm -f macho"],
+        answer: 1,
+        explanation: "Windows 64 bits utilise win64."
+      },
+      {
+        question: "Erreur MOV rax 5 signifie :",
+        options: ["RAX trop petit", "Virgule manquante", "Mauvais registre", "Syntaxe AT&T"],
+        answer: 1,
+        explanation: "La virgule est obligatoire en NASM."
+      },
+      {
+        question: "LEA sert a :",
+        options: ["Charger une valeur", "Calculer une adresse", "Ecrire en memoire", "Changer RSP"],
+        answer: 1,
+        explanation: "LEA calcule une adresse."
+      },
+      {
+        question: "Un linkage Windows se fait avec :",
+        options: ["gcc prog.obj", "ld prog.obj", "avr-gcc", "javac"],
+        answer: 0,
+        explanation: "On peut lier avec gcc (MinGW)."
+      }
+    ];
+    renderQuiz("quiz-container", quizData);
+  </script>
+</body>
+</html>

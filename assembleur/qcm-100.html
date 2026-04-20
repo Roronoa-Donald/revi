@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>100 QCM - Assembleur</title>
+  <meta name="description" content="100 QCM assembleur pour revision generale." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    :root { --accent: #f97316; --accent-2: #fbbf24; --accent-3: #22c55e; }
+    .qcm-container { max-width: 980px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+    .mode-row { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 1.5rem 0; }
+    .mode-btn {
+      padding: 0.55rem 1rem; border-radius: 999px; border: 1px solid var(--border);
+      background: rgba(249, 115, 22, 0.1); color: var(--text); cursor: pointer; font-weight: 600;
+    }
+    .mode-btn.active { border-color: rgba(249, 115, 22, 0.7); background: rgba(249, 115, 22, 0.2); }
+    .chapter-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1rem; }
+    .chapter-filter button {
+      padding: 0.35rem 0.7rem; border-radius: 8px; border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.6); color: var(--muted); cursor: pointer;
+    }
+    .chapter-filter button.active { color: var(--text); border-color: rgba(249, 115, 22, 0.6); }
+    .progress-bar { height: 6px; background: rgba(249, 115, 22, 0.2); border-radius: 999px; overflow: hidden; }
+    .progress-bar .fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.2s ease; }
+    .score-display { text-align: center; padding: 1.5rem 0; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="container nav-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-badge">ASM</span>
+        <span>Assembleur B2</span>
+      </a>
+      <div class="nav-links">
+        <a href="chapitres/cheatsheet.html">Cheat Sheet</a>
+        <a href="chapitres/chapitre1.html">Chapitres</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero container">
+    <span class="hero-badge">100 QCM</span>
+    <h1>Revision generale Assembleur</h1>
+    <p>Choisis un mode et entraine-toi sur les 7 chapitres.</p>
+  </header>
+
+  <main class="qcm-container">
+    <div class="content-block">
+      <div class="mode-row">
+        <button class="mode-btn active" onclick="setMode('chapter', this)">Par chapitre</button>
+        <button class="mode-btn" onclick="setMode('exam', this)">Examen (20 Q)</button>
+        <button class="mode-btn" onclick="setMode('random', this)">Aleatoire</button>
+        <button class="mode-btn" onclick="setMode('errors', this)">Revision erreurs</button>
+      </div>
+      <div class="chapter-filter" id="chapterFilter">
+        <button class="active" onclick="filterChapter(0, this)">Tous</button>
+        <button onclick="filterChapter(1, this)">Ch.1 Numeration</button>
+        <button onclick="filterChapter(2, this)">Ch.2 CPU</button>
+        <button onclick="filterChapter(3, this)">Ch.3 AVR</button>
+        <button onclick="filterChapter(4, this)">Ch.4 Toolchain</button>
+        <button onclick="filterChapter(5, this)">Ch.5 AVR ASM</button>
+        <button onclick="filterChapter(6, this)">Ch.6 NASM</button>
+        <button onclick="filterChapter(7, this)">Ch.7 Avance</button>
+      </div>
+      <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+      <div class="score-display" id="scoreDisplay">Score : 0 / 0</div>
+    </div>
+
+    <div id="qcmArea"></div>
+
+    <nav class="chapter-nav">
+      <a href="index.html">Accueil</a>
+      <a href="chapitres/chapitre1.html">Commencer le cours →</a>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <div class="container">100 QCM - Assembleur B2</div>
+  </footer>
+
+  <script src="qcm-100.js"></script>
+  <script>
+    const bank = ASM_QUESTIONS;
+    let mode = 'chapter';
+    let activeChapter = 0;
+    let current = [];
+    let score = 0;
+    let answered = 0;
+
+    const qcmArea = document.getElementById('qcmArea');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const progressFill = document.getElementById('progressFill');
+
+    function setMode(m, btn) {
+      mode = m;
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      buildList();
+    }
+
+    function filterChapter(ch, btn) {
+      activeChapter = ch;
+      document.querySelectorAll('#chapterFilter button').forEach(btn => btn.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      buildList();
+    }
+
+    function buildList() {
+      score = 0; answered = 0; updateScore();
+      if (mode === 'errors') {
+        const errIds = JSON.parse(localStorage.getItem('asm_qcm_errors') || '[]');
+        current = bank.filter(q => errIds.includes(q.id));
+      } else if (mode === 'exam') {
+        current = shuffle([...bank]).slice(0, 20);
+      } else if (mode === 'random') {
+        current = shuffle([...bank]).slice(0, 30);
+      } else {
+        current = activeChapter === 0 ? [...bank] : bank.filter(q => q.ch === activeChapter);
+      }
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      qcmArea.innerHTML = '';
+      if (current.length === 0) {
+        qcmArea.innerHTML = '<div class="content-block">Aucune question pour ce mode.</div>';
+        return;
+      }
+      current.forEach((q, qi) => {
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        card.dataset.qid = q.id;
+        card.innerHTML = `
+          <div class="quiz-question">${qi + 1}. ${q.q}</div>
+          <div class="quiz-options">
+            ${q.o.map((opt, oi) => `<button class="quiz-btn" data-qi="${qi}" data-oi="${oi}">${opt}</button>`).join('')}
+          </div>
+          <div class="quiz-explain" id="explain-${qi}">${q.e}</div>
+        `;
+        qcmArea.appendChild(card);
+      });
+    }
+
+    qcmArea.addEventListener('click', (event) => {
+      const btn = event.target.closest('.quiz-btn');
+      if (!btn) return;
+
+      const qi = Number(btn.dataset.qi);
+      const oi = Number(btn.dataset.oi);
+      const q = current[qi];
+      const card = btn.closest('.quiz-card');
+      if (!card || card.dataset.locked === 'true') return;
+
+      card.dataset.locked = 'true';
+      const buttons = card.querySelectorAll('.quiz-btn');
+      buttons.forEach((b, idx) => {
+        b.classList.add('disabled');
+        if (idx === q.a) b.classList.add('correct');
+      });
+      if (oi !== q.a) {
+        btn.classList.add('incorrect');
+        saveError(q.id);
+      } else {
+        score += 1;
+        clearError(q.id);
+      }
+      answered += 1;
+      const explain = card.querySelector(`#explain-${qi}`);
+      if (explain) explain.classList.add('show');
+      updateScore();
+    });
+
+    function updateScore() {
+      scoreDisplay.textContent = `Score : ${score} / ${current.length}`;
+      const pct = current.length ? Math.round((answered / current.length) * 100) : 0;
+      progressFill.style.width = pct + '%';
+    }
+
+    function saveError(id) {
+      const errIds = JSON.parse(localStorage.getItem('asm_qcm_errors') || '[]');
+      if (!errIds.includes(id)) errIds.push(id);
+      localStorage.setItem('asm_qcm_errors', JSON.stringify(errIds));
+    }
+
+    function clearError(id) {
+      const errIds = JSON.parse(localStorage.getItem('asm_qcm_errors') || '[]');
+      const next = errIds.filter(x => x !== id);
+      localStorage.setItem('asm_qcm_errors', JSON.stringify(next));
+    }
+
+    function shuffle(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
+
+    buildList();
+  </script>
+</body>
+</html>
