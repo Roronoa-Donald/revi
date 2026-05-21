@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapitre 2 - Docker, images et registres | Docker</title>
+  <meta name="description" content="Cours théorique B2 orienté examen: conteneurs, images, Dockerfile, réseau, volumes et Compose.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-course-theme-key="docker-theme">
+  <a href="#main-content" class="skip-link">Aller au contenu</a>
+  <div class="reading-progress" id="reading-progress"></div>
+  <nav class="glass-nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo"><span class="brand-badge">DCK</span><span>Docker</span></a>
+      <ul class="nav-links">
+        <li><a href="../chapitres/chapitre1.html">Ch.1</a></li>
+<li><a href="../chapitres/chapitre2.html" class="active">Ch.2</a></li>
+<li><a href="../chapitres/chapitre3.html">Ch.3</a></li>
+<li><a href="../chapitres/chapitre4.html">Ch.4</a></li>
+<li><a href="../chapitres/chapitre5.html">Ch.5</a></li>
+<li><a href="../chapitres/revision.html">Révision</a></li>
+<li><a href="../qcm-100.html">100QCM</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="primary-link" href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail</a>
+        <button id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>Docker</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+    <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil du cours</a>
+<a href="../chapitres/chapitre1.html"><i class="fa-solid fa-box-open"></i> 1. Pourquoi les conteneurs ?</a>
+<a href="../chapitres/chapitre2.html" class="active"><i class="fa-solid fa-dharmachakra"></i> 2. Docker, images et registres</a>
+<a href="../chapitres/chapitre3.html"><i class="fa-solid fa-file-code"></i> 3. Dockerfile et construction d&#x27;images</a>
+<a href="../chapitres/chapitre4.html"><i class="fa-solid fa-network-wired"></i> 4. Manipuler conteneurs, réseau et données</a>
+<a href="../chapitres/chapitre5.html"><i class="fa-solid fa-sitemap"></i> 5. Docker Compose et synthèse</a>
+<a href="../chapitres/revision.html"><i class="fa-solid fa-bolt"></i> Révision</a>
+<a href="../qcm-100.html"><i class="fa-solid fa-clipboard-check"></i> 100QCM</a>
+    <a href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail général</a>
+  </div>
+
+  <main id="main-content">
+    <header class="hero-section">
+      <div class="hero-badge"><i class="fa-solid fa-dharmachakra"></i> Chapitre 2</div>
+      <h1>Docker, images et registres</h1>
+      <p>Engine, client, Docker Hub, pull, run et layers</p>
+    </header>
+    <div class="content-wrapper">
+      <section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-server"></i> Architecture Docker</h2>
+<p>Docker fonctionne comme une application client-serveur. Le client en ligne de commande reçoit les ordres, puis le daemon du Docker Engine gère réellement les images, conteneurs, réseaux et volumes.</p>
+<table class="data-table"><thead><tr>
+<th>Élément</th>
+<th>Rôle</th>
+</tr></thead><tbody>
+<tr>
+<td>Client Docker</td>
+<td>Interface CLI: docker run, docker ps, docker build...</td>
+</tr>
+<tr>
+<td>Daemon</td>
+<td>Processus persistant qui gère les conteneurs.</td>
+</tr>
+<tr>
+<td>Docker Engine</td>
+<td>Environnement d&#x27;exécution et services Docker.</td>
+</tr>
+<tr>
+<td>Registre</td>
+<td>Serveur qui stocke les images.</td>
+</tr>
+</tbody></table>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-cloud-arrow-down"></i> Registres et Docker Hub</h2>
+<p>Un registre Docker permet de récupérer des images avec pull et d&#x27;en publier avec push. Docker Hub est le registre public le plus connu.</p>
+<ul class="key-list">
+<li>Image officielle: par exemple ubuntu, nginx ou redis.</li>
+<li>Image utilisateur: par exemple compte/image.</li>
+<li>Image privée ou self-hosted: registry.example.com:5000/projet/image.</li>
+<li>Un tag comme latest ou v1.0 sert de référence vers une image.</li>
+</ul>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-terminal"></i> Commandes de base</h2>
+<p>Les premières commandes à maîtriser sont docker pull et docker run.</p>
+<pre><code>$ docker pull redis
+$ docker run hello-world
+$ docker run -it ubuntu
+$ docker ps</code></pre>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-layer-group"></i> Images en couches</h2>
+<p>Une image Docker est composée de layers en lecture seule. Lorsqu&#x27;un conteneur s&#x27;exécute, Docker ajoute une couche writable propre au conteneur.</p>
+<p>Grâce au Copy-on-Write, les couches communes sont partagées et seules les modifications sont écrites dans la couche supérieure.</p>
+<ul class="key-list">
+<li>Les layers économisent de l&#x27;espace disque.</li>
+<li>Ils accélèrent les téléchargements si certaines couches existent déjà.</li>
+<li>Ils expliquent pourquoi un conteneur supprimé perd sa couche writable.</li>
+<li>Ils sont liés aux instructions du Dockerfile.</li>
+</ul>
+</section>
+      <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fa-solid fa-circle-question"></i> QCM du chapitre</h2>
+        <p>Réponds d'abord, puis la correction apparaît. C'est volontairement proche du style des contrôles.</p>
+        
+        <div class="quiz-card" data-answer="3">
+          <div class="quiz-question">Docker Engine : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Un format d&#x27;image PNG</button>
+<button class="quiz-option" data-index="1">Un outil de retouche</button>
+<button class="quiz-option" data-index="2">Un câble réseau</button>
+<button class="quiz-option" data-index="3">Le service qui exécute et gère les conteneurs</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Docker est présenté comme une application client-serveur.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="2">
+          <div class="quiz-question">Question probable - Docker Engine : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Il fonctionne uniquement dans le navigateur</button>
+<button class="quiz-option" data-index="1">Il ne manipule pas les conteneurs</button>
+<button class="quiz-option" data-index="2">Il repose sur un daemon et une interface cliente</button>
+<button class="quiz-option" data-index="3">Il n&#x27;a pas de serveur</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Docker est présenté comme une application client-serveur.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="1">
+          <div class="quiz-question">Client Docker : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Un fichier de texture</button>
+<button class="quiz-option" data-index="1">L&#x27;interface en ligne de commande utilisée par l&#x27;utilisateur</button>
+<button class="quiz-option" data-index="2">Le noyau Linux</button>
+<button class="quiz-option" data-index="3">Un registre public</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Le client envoie les ordres, le daemon fait le travail.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="0">
+          <div class="quiz-question">Question probable - Client Docker : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">La commande docker parle au daemon Docker</button>
+<button class="quiz-option" data-index="1">La commande docker remplace le daemon</button>
+<button class="quiz-option" data-index="2">La commande docker est un format PDF</button>
+<button class="quiz-option" data-index="3">La commande docker sert seulement au HTML</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Le client envoie les ordres, le daemon fait le travail.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="3">
+          <div class="quiz-question">Registre Docker : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Un conteneur interactif</button>
+<button class="quiz-option" data-index="1">Un volume tmpfs</button>
+<button class="quiz-option" data-index="2">Une instruction RUN</button>
+<button class="quiz-option" data-index="3">Un serveur qui stocke des images Docker</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Le registre permet pull et push.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="2">
+          <div class="quiz-question">Question probable - Registre Docker : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">On y lance forcément tous les conteneurs</button>
+<button class="quiz-option" data-index="1">On y configure les axes 3D</button>
+<button class="quiz-option" data-index="2">On peut y pousser ou y récupérer des images</button>
+<button class="quiz-option" data-index="3">On y crée des calques Photoshop</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Le registre permet pull et push.</div>
+        </div>
+      </section>
+      <nav class="chapter-nav">
+        <a class="primary-link" href="chapitre1.html"><i class="fa-solid fa-arrow-left"></i> Précédent</a>
+        <a class="primary-link" href="chapitre3.html">Suivant <i class="fa-solid fa-arrow-right"></i></a>
+      </nav>
+    </div>
+  </main>
+  <footer class="footer">Docker - Chapitre 2</footer>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
+

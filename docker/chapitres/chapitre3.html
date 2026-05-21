@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapitre 3 - Dockerfile et construction d&#x27;images | Docker</title>
+  <meta name="description" content="Cours théorique B2 orienté examen: conteneurs, images, Dockerfile, réseau, volumes et Compose.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-course-theme-key="docker-theme">
+  <a href="#main-content" class="skip-link">Aller au contenu</a>
+  <div class="reading-progress" id="reading-progress"></div>
+  <nav class="glass-nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo"><span class="brand-badge">DCK</span><span>Docker</span></a>
+      <ul class="nav-links">
+        <li><a href="../chapitres/chapitre1.html">Ch.1</a></li>
+<li><a href="../chapitres/chapitre2.html">Ch.2</a></li>
+<li><a href="../chapitres/chapitre3.html" class="active">Ch.3</a></li>
+<li><a href="../chapitres/chapitre4.html">Ch.4</a></li>
+<li><a href="../chapitres/chapitre5.html">Ch.5</a></li>
+<li><a href="../chapitres/revision.html">Révision</a></li>
+<li><a href="../qcm-100.html">100QCM</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="primary-link" href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail</a>
+        <button id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>Docker</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+    <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil du cours</a>
+<a href="../chapitres/chapitre1.html"><i class="fa-solid fa-box-open"></i> 1. Pourquoi les conteneurs ?</a>
+<a href="../chapitres/chapitre2.html"><i class="fa-solid fa-dharmachakra"></i> 2. Docker, images et registres</a>
+<a href="../chapitres/chapitre3.html" class="active"><i class="fa-solid fa-file-code"></i> 3. Dockerfile et construction d&#x27;images</a>
+<a href="../chapitres/chapitre4.html"><i class="fa-solid fa-network-wired"></i> 4. Manipuler conteneurs, réseau et données</a>
+<a href="../chapitres/chapitre5.html"><i class="fa-solid fa-sitemap"></i> 5. Docker Compose et synthèse</a>
+<a href="../chapitres/revision.html"><i class="fa-solid fa-bolt"></i> Révision</a>
+<a href="../qcm-100.html"><i class="fa-solid fa-clipboard-check"></i> 100QCM</a>
+    <a href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail général</a>
+  </div>
+
+  <main id="main-content">
+    <header class="hero-section">
+      <div class="hero-badge"><i class="fa-solid fa-file-code"></i> Chapitre 3</div>
+      <h1>Dockerfile et construction d&#x27;images</h1>
+      <p>FROM, RUN, COPY, CMD, ENTRYPOINT, cache et multi-stage</p>
+    </header>
+    <div class="content-wrapper">
+      <section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-scroll"></i> Dockerfile: la recette</h2>
+<p>Un Dockerfile est un fichier texte contenant une suite d&#x27;instructions pour construire une image. La commande docker build lit cette recette et crée l&#x27;image.</p>
+<pre><code>FROM ubuntu
+RUN apt-get update
+RUN apt-get -y install cowsay
+CMD [&quot;/usr/games/cowsay&quot;, &quot;bonjour&quot;]</code></pre>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-list-check"></i> Instructions essentielles</h2>
+<table class="data-table"><thead><tr>
+<th>Instruction</th>
+<th>Rôle examen</th>
+</tr></thead><tbody>
+<tr>
+<td>FROM</td>
+<td>Définit l&#x27;image de base.</td>
+</tr>
+<tr>
+<td>RUN</td>
+<td>Exécute une commande pendant le build.</td>
+</tr>
+<tr>
+<td>COPY</td>
+<td>Copie depuis le contexte vers l&#x27;image.</td>
+</tr>
+<tr>
+<td>EXPOSE</td>
+<td>Documente le port écouté par le conteneur.</td>
+</tr>
+<tr>
+<td>CMD</td>
+<td>Commande par défaut, remplaçable au docker run.</td>
+</tr>
+<tr>
+<td>ENTRYPOINT</td>
+<td>Commande principale du conteneur.</td>
+</tr>
+</tbody></table>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-code-compare"></i> CMD vs ENTRYPOINT</h2>
+<p>CMD donne une commande ou des paramètres par défaut. ENTRYPOINT fixe la commande principale. Ensemble, ENTRYPOINT peut définir le programme et CMD ses arguments par défaut.</p>
+<pre><code>ENTRYPOINT [&quot;/usr/games/cowsay&quot;]
+CMD [&quot;hello world&quot;]
+
+# docker run mycowsay salut
+# Ici, &quot;salut&quot; remplace la partie CMD.</code></pre>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-gauge-high"></i> Contexte, cache et bonnes pratiques</h2>
+<p>Le build context est le dossier envoyé au daemon Docker. Il faut éviter d&#x27;envoyer trop de fichiers inutiles.</p>
+<ul class="key-list">
+<li>Créer un dossier propre pour le Dockerfile.</li>
+<li>Utiliser .dockerignore pour exclure fichiers lourds ou secrets.</li>
+<li>Mettre les étapes coûteuses avant les fichiers qui changent souvent.</li>
+<li>Utiliser le multi-stage pour produire une image finale plus petite.</li>
+</ul>
+<div class="exam-focus"><strong>Focus examen :</strong> Question probable: pourquoi ne pas utiliser / comme contexte de build ? Parce que tout le contenu serait envoyé au daemon.</div>
+</section>
+      <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fa-solid fa-circle-question"></i> QCM du chapitre</h2>
+        <p>Réponds d'abord, puis la correction apparaît. C'est volontairement proche du style des contrôles.</p>
+        
+        <div class="quiz-card" data-answer="3">
+          <div class="quiz-question">Dockerfile : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Une image déjà publiée</button>
+<button class="quiz-option" data-index="1">Un conteneur en cours</button>
+<button class="quiz-option" data-index="2">Un registre distant</button>
+<button class="quiz-option" data-index="3">Une recette textuelle pour construire une image</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Définition très probable en examen.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="2">
+          <div class="quiz-question">Question probable - Dockerfile : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">docker build supprime les volumes</button>
+<button class="quiz-option" data-index="1">docker build est une commande Photoshop</button>
+<button class="quiz-option" data-index="2">docker build crée une image à partir d&#x27;un Dockerfile</button>
+<button class="quiz-option" data-index="3">docker build crée un Canvas</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Définition très probable en examen.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="1">
+          <div class="quiz-question">FROM : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Liste les conteneurs</button>
+<button class="quiz-option" data-index="1">Définit l&#x27;image de base</button>
+<button class="quiz-option" data-index="2">Copie un fichier</button>
+<button class="quiz-option" data-index="3">Expose un port</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> FROM est souvent la première instruction.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="0">
+          <div class="quiz-question">Question probable - FROM : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Toute image part d&#x27;une image de base, ou de scratch</button>
+<button class="quiz-option" data-index="1">FROM démarre Compose</button>
+<button class="quiz-option" data-index="2">FROM publie sur Docker Hub</button>
+<button class="quiz-option" data-index="3">FROM affiche les logs</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> FROM est souvent la première instruction.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="3">
+          <div class="quiz-question">RUN : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Définit le port hôte</button>
+<button class="quiz-option" data-index="1">Démarre le conteneur final seulement</button>
+<button class="quiz-option" data-index="2">Crée un réseau bridge</button>
+<button class="quiz-option" data-index="3">Exécute une commande pendant la construction de l&#x27;image</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> RUN sert aux installations et préparations.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="2">
+          <div class="quiz-question">Question probable - RUN : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">RUN est une instruction d&#x27;export PNG</button>
+<button class="quiz-option" data-index="1">RUN ne crée jamais de couche</button>
+<button class="quiz-option" data-index="2">RUN apt-get update se fait au build</button>
+<button class="quiz-option" data-index="3">RUN est exécuté uniquement quand on clique Play</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> RUN sert aux installations et préparations.</div>
+        </div>
+      </section>
+      <nav class="chapter-nav">
+        <a class="primary-link" href="chapitre2.html"><i class="fa-solid fa-arrow-left"></i> Précédent</a>
+        <a class="primary-link" href="chapitre4.html">Suivant <i class="fa-solid fa-arrow-right"></i></a>
+      </nav>
+    </div>
+  </main>
+  <footer class="footer">Docker - Chapitre 3</footer>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
+

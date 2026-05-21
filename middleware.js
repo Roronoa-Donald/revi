@@ -16,6 +16,8 @@ const COURSE_DIRS = [
   'ccna',
   'uml',
   'uiux',
+  'docker',
+  'infographie',
   'epreuves'
 ];
 

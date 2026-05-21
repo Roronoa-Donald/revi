@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapitre 4 - Manipuler conteneurs, réseau et données | Docker</title>
+  <meta name="description" content="Cours théorique B2 orienté examen: conteneurs, images, Dockerfile, réseau, volumes et Compose.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-course-theme-key="docker-theme">
+  <a href="#main-content" class="skip-link">Aller au contenu</a>
+  <div class="reading-progress" id="reading-progress"></div>
+  <nav class="glass-nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo"><span class="brand-badge">DCK</span><span>Docker</span></a>
+      <ul class="nav-links">
+        <li><a href="../chapitres/chapitre1.html">Ch.1</a></li>
+<li><a href="../chapitres/chapitre2.html">Ch.2</a></li>
+<li><a href="../chapitres/chapitre3.html">Ch.3</a></li>
+<li><a href="../chapitres/chapitre4.html" class="active">Ch.4</a></li>
+<li><a href="../chapitres/chapitre5.html">Ch.5</a></li>
+<li><a href="../chapitres/revision.html">Révision</a></li>
+<li><a href="../qcm-100.html">100QCM</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="primary-link" href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail</a>
+        <button id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>Docker</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+    <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil du cours</a>
+<a href="../chapitres/chapitre1.html"><i class="fa-solid fa-box-open"></i> 1. Pourquoi les conteneurs ?</a>
+<a href="../chapitres/chapitre2.html"><i class="fa-solid fa-dharmachakra"></i> 2. Docker, images et registres</a>
+<a href="../chapitres/chapitre3.html"><i class="fa-solid fa-file-code"></i> 3. Dockerfile et construction d&#x27;images</a>
+<a href="../chapitres/chapitre4.html" class="active"><i class="fa-solid fa-network-wired"></i> 4. Manipuler conteneurs, réseau et données</a>
+<a href="../chapitres/chapitre5.html"><i class="fa-solid fa-sitemap"></i> 5. Docker Compose et synthèse</a>
+<a href="../chapitres/revision.html"><i class="fa-solid fa-bolt"></i> Révision</a>
+<a href="../qcm-100.html"><i class="fa-solid fa-clipboard-check"></i> 100QCM</a>
+    <a href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail général</a>
+  </div>
+
+  <main id="main-content">
+    <header class="hero-section">
+      <div class="hero-badge"><i class="fa-solid fa-network-wired"></i> Chapitre 4</div>
+      <h1>Manipuler conteneurs, réseau et données</h1>
+      <p>exec, logs, ports, bridge, volumes et bind mounts</p>
+    </header>
+    <div class="content-wrapper">
+      <section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-gears"></i> Manipuler les conteneurs</h2>
+<p>Après docker run, il faut savoir observer, entrer, arrêter, supprimer et diagnostiquer un conteneur.</p>
+<table class="data-table"><thead><tr>
+<th>Commande</th>
+<th>Rôle</th>
+</tr></thead><tbody>
+<tr>
+<td>docker ps</td>
+<td>Liste les conteneurs en cours.</td>
+</tr>
+<tr>
+<td>docker exec -it ID bash</td>
+<td>Ouvre une commande dans un conteneur lancé.</td>
+</tr>
+<tr>
+<td>docker logs ID</td>
+<td>Affiche les logs.</td>
+</tr>
+<tr>
+<td>docker stop ID</td>
+<td>Arrête proprement.</td>
+</tr>
+<tr>
+<td>docker rm ID</td>
+<td>Supprime un conteneur arrêté.</td>
+</tr>
+<tr>
+<td>docker container prune</td>
+<td>Supprime les conteneurs arrêtés.</td>
+</tr>
+</tbody></table>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-sliders"></i> Options de lancement</h2>
+<table class="data-table"><thead><tr>
+<th>Option</th>
+<th>Sens</th>
+</tr></thead><tbody>
+<tr>
+<td>--name</td>
+<td>Donner un nom au conteneur.</td>
+</tr>
+<tr>
+<td>-it</td>
+<td>Mode interactif avec pseudo-terminal.</td>
+</tr>
+<tr>
+<td>-d</td>
+<td>Mode détaché, en arrière-plan.</td>
+</tr>
+<tr>
+<td>-p 8000:80</td>
+<td>Port 8000 hôte vers port 80 conteneur.</td>
+</tr>
+<tr>
+<td>-P</td>
+<td>Publie automatiquement les ports exposés.</td>
+</tr>
+</tbody></table>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-ethernet"></i> Réseau Docker</h2>
+<p>Chaque conteneur a son espace réseau. Docker fournit plusieurs drivers: bridge, host, overlay et none.</p>
+<ul class="key-list">
+<li>Bridge: driver par défaut, adapté à une seule machine.</li>
+<li>Bridge utilisateur: recommandé pour isoler les groupes de conteneurs et obtenir la résolution de noms.</li>
+<li>Host: utilise directement le réseau de l&#x27;hôte, moins isolé côté ports.</li>
+<li>Overlay: interconnecte des conteneurs sur plusieurs machines avec un orchestrateur.</li>
+</ul>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-database"></i> Stockage des données</h2>
+<p>La couche writable d&#x27;un conteneur disparaît à sa suppression. Les données importantes doivent être sorties du conteneur.</p>
+<table class="data-table"><thead><tr>
+<th>Solution</th>
+<th>Usage</th>
+</tr></thead><tbody>
+<tr>
+<td>Volume</td>
+<td>Stockage géré par Docker, pratique pour persistance et partage.</td>
+</tr>
+<tr>
+<td>Bind mount</td>
+<td>Chemin précis de l&#x27;hôte monté dans le conteneur.</td>
+</tr>
+<tr>
+<td>tmpfs</td>
+<td>Stockage en mémoire pour données non persistantes.</td>
+</tr>
+</tbody></table>
+<pre><code>$ docker volume create my-vol
+$ docker run -d --mount source=my-vol,target=/app debian
+$ docker run --mount type=bind,source=&quot;$(pwd)&quot;/code,target=/app debian</code></pre>
+</section>
+      <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fa-solid fa-circle-question"></i> QCM du chapitre</h2>
+        <p>Réponds d'abord, puis la correction apparaît. C'est volontairement proche du style des contrôles.</p>
+        
+        <div class="quiz-card" data-answer="3">
+          <div class="quiz-question">docker ps : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Construit une image</button>
+<button class="quiz-option" data-index="1">Télécharge une image</button>
+<button class="quiz-option" data-index="2">Crée un Dockerfile</button>
+<button class="quiz-option" data-index="3">Liste les conteneurs en cours d&#x27;exécution</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Commande d&#x27;observation de base.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="2">
+          <div class="quiz-question">Question probable - docker ps : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Il affiche uniquement les volumes</button>
+<button class="quiz-option" data-index="1">Il modifie le CMD</button>
+<button class="quiz-option" data-index="2">docker ps permet d&#x27;observer les conteneurs lancés</button>
+<button class="quiz-option" data-index="3">Il exporte en PNG</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Commande d&#x27;observation de base.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="1">
+          <div class="quiz-question">docker exec : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Supprime un volume</button>
+<button class="quiz-option" data-index="1">Exécute une commande dans un conteneur déjà lancé</button>
+<button class="quiz-option" data-index="2">Crée un registre</button>
+<button class="quiz-option" data-index="3">Tagge une image</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Le PDF montre docker exec -it ... bash.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="0">
+          <div class="quiz-question">Question probable - docker exec : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">docker exec -it peut ouvrir un shell dans le conteneur</button>
+<button class="quiz-option" data-index="1">exec reconstruit l&#x27;image</button>
+<button class="quiz-option" data-index="2">exec crée une VM complète</button>
+<button class="quiz-option" data-index="3">exec remplace Docker Hub</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Le PDF montre docker exec -it ... bash.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="3">
+          <div class="quiz-question">docker logs : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Publie une image</button>
+<button class="quiz-option" data-index="1">Crée un bridge</button>
+<button class="quiz-option" data-index="2">Convertit RGB en CMYK</button>
+<button class="quiz-option" data-index="3">Affiche les logs d&#x27;un conteneur</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Commande probable dans les QCM de manipulation.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="2">
+          <div class="quiz-question">Question probable - docker logs : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">logs supprime le conteneur</button>
+<button class="quiz-option" data-index="1">logs lance Compose</button>
+<button class="quiz-option" data-index="2">C&#x27;est utile pour observer ce qui se passe dans le conteneur</button>
+<button class="quiz-option" data-index="3">Les logs sont toujours impossibles</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Commande probable dans les QCM de manipulation.</div>
+        </div>
+      </section>
+      <nav class="chapter-nav">
+        <a class="primary-link" href="chapitre3.html"><i class="fa-solid fa-arrow-left"></i> Précédent</a>
+        <a class="primary-link" href="chapitre5.html">Suivant <i class="fa-solid fa-arrow-right"></i></a>
+      </nav>
+    </div>
+  </main>
+  <footer class="footer">Docker - Chapitre 4</footer>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
+

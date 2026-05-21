@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>100QCM | Docker</title>
+  <meta name="description" content="Cours théorique B2 orienté examen: conteneurs, images, Dockerfile, réseau, volumes et Compose.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-course-theme-key="docker-theme">
+  <a href="#main-content" class="skip-link">Aller au contenu</a>
+  <div class="reading-progress" id="reading-progress"></div>
+  <nav class="glass-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><span class="brand-badge">DCK</span><span>Docker</span></a>
+      <ul class="nav-links">
+        <li><a href="chapitres/chapitre1.html">Ch.1</a></li>
+<li><a href="chapitres/chapitre2.html">Ch.2</a></li>
+<li><a href="chapitres/chapitre3.html">Ch.3</a></li>
+<li><a href="chapitres/chapitre4.html">Ch.4</a></li>
+<li><a href="chapitres/chapitre5.html">Ch.5</a></li>
+<li><a href="chapitres/revision.html">Révision</a></li>
+<li><a href="qcm-100.html" class="active">100QCM</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="primary-link" href="../index.html"><i class="fa-solid fa-table-cells"></i> Portail</a>
+        <button id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>Docker</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+    <a href="index.html"><i class="fa-solid fa-house"></i> Accueil du cours</a>
+<a href="chapitres/chapitre1.html"><i class="fa-solid fa-box-open"></i> 1. Pourquoi les conteneurs ?</a>
+<a href="chapitres/chapitre2.html"><i class="fa-solid fa-dharmachakra"></i> 2. Docker, images et registres</a>
+<a href="chapitres/chapitre3.html"><i class="fa-solid fa-file-code"></i> 3. Dockerfile et construction d&#x27;images</a>
+<a href="chapitres/chapitre4.html"><i class="fa-solid fa-network-wired"></i> 4. Manipuler conteneurs, réseau et données</a>
+<a href="chapitres/chapitre5.html"><i class="fa-solid fa-sitemap"></i> 5. Docker Compose et synthèse</a>
+<a href="chapitres/revision.html"><i class="fa-solid fa-bolt"></i> Révision</a>
+<a href="qcm-100.html"><i class="fa-solid fa-clipboard-check"></i> 100QCM</a>
+    <a href="../index.html"><i class="fa-solid fa-table-cells"></i> Portail général</a>
+  </div>
+
+  <main id="main-content">
+    <header class="hero-section">
+      <div class="hero-badge"><i class="fa-solid fa-clipboard-check"></i> 100QCM</div>
+      <h1>100QCM <span class="highlight">Docker</span></h1>
+      <p>Entraînement obligatoire avec corrections cachées, mode examen et révision des erreurs.</p>
+    </header>
+    <div class="content-wrapper">
+      <section class="content-block">
+        <div class="mode-row">
+          <button class="mode-btn active" onclick="setMode('chapter', this)">Par chapitre</button>
+          <button class="mode-btn" onclick="setMode('exam', this)">Examen 20 Q</button>
+          <button class="mode-btn" onclick="setMode('random', this)">Aléatoire 30 Q</button>
+          <button class="mode-btn" onclick="setMode('errors', this)">Erreurs</button>
+        </div>
+        <div class="chapter-filter"><button class="filter-btn active" onclick="filterChapter(0, this)">Tous</button><button class="filter-btn" onclick="filterChapter(1, this)">Ch.1</button><button class="filter-btn" onclick="filterChapter(2, this)">Ch.2</button><button class="filter-btn" onclick="filterChapter(3, this)">Ch.3</button><button class="filter-btn" onclick="filterChapter(4, this)">Ch.4</button><button class="filter-btn" onclick="filterChapter(5, this)">Ch.5</button></div>
+        <div class="progress-shell"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="score-display" id="scoreDisplay">Score : 0 / 0</div>
+      </section>
+      <div id="qcmArea"></div>
+      <nav class="chapter-nav">
+        <a class="primary-link" href="chapitres/revision.html"><i class="fa-solid fa-arrow-left"></i> Révision</a>
+        <a class="primary-link" href="index.html">Accueil <i class="fa-solid fa-house"></i></a>
+      </nav>
+    </div>
+  </main>
+  <footer class="footer">Docker - 100QCM</footer>
+  <script src="assets/js/main.js"></script>
+  <script src="qcm-100.js"></script>
+  
+<script>
+const bank = window.COURSE_QCM || [];
+let mode = 'chapter';
+let activeChapter = 0;
+let current = [];
+let score = 0;
+let answered = 0;
+const area = document.getElementById('qcmArea');
+const scoreDisplay = document.getElementById('scoreDisplay');
+const fill = document.getElementById('progressFill');
+const storageKey = document.body.dataset.courseThemeKey + '-qcm-errors';
+
+function shuffle(items) {
+  return items.map(value => ({ value, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ value }) => value);
+}
+
+function setMode(nextMode, btn) {
+  mode = nextMode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  buildList();
+}
+
+function filterChapter(ch, btn) {
+  activeChapter = ch;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  buildList();
+}
+
+function buildList() {
+  score = 0;
+  answered = 0;
+  if (mode === 'errors') {
+    const ids = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    current = bank.filter(q => ids.includes(q.id));
+  } else if (mode === 'exam') {
+    current = shuffle([...bank]).slice(0, 20);
+  } else if (mode === 'random') {
+    current = shuffle([...bank]).slice(0, 30);
+  } else {
+    current = activeChapter === 0 ? [...bank] : bank.filter(q => q.ch === activeChapter);
+  }
+  updateScore();
+  renderQuestions();
+}
+
+function renderQuestions() {
+  area.innerHTML = '';
+  if (!current.length) {
+    area.innerHTML = '<div class="content-block">Aucune question pour ce mode.</div>';
+    return;
+  }
+  current.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card reveal-on-scroll is-visible';
+    card.dataset.answer = q.a;
+    card.dataset.qid = q.id;
+    card.innerHTML = `
+      <div class="quiz-question">${qi + 1}. ${q.q}</div>
+      <div class="quiz-options">
+        ${q.o.map((opt, oi) => `<button class="quiz-option" data-index="${oi}">${opt}</button>`).join('')}
+      </div>
+      <div class="quiz-explain"><strong>Correction :</strong> ${q.e}</div>
+    `;
+    area.appendChild(card);
+  });
+}
+
+function saveError(id) {
+  const ids = new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
+  ids.add(id);
+  localStorage.setItem(storageKey, JSON.stringify([...ids]));
+}
+
+function clearError(id) {
+  const ids = JSON.parse(localStorage.getItem(storageKey) || '[]').filter(x => x !== id);
+  localStorage.setItem(storageKey, JSON.stringify(ids));
+}
+
+function updateScore() {
+  scoreDisplay.textContent = `Score : ${score} / ${current.length}`;
+  const pct = current.length ? (answered / current.length) * 100 : 0;
+  fill.style.width = `${pct}%`;
+}
+
+area.addEventListener('click', (event) => {
+  const btn = event.target.closest('.quiz-option');
+  if (!btn) return;
+  const card = btn.closest('.quiz-card');
+  if (!card || card.dataset.locked === 'true') return;
+  const answer = Number(card.dataset.answer);
+  const picked = Number(btn.dataset.index);
+  const qid = Number(card.dataset.qid);
+  card.dataset.locked = 'true';
+  card.querySelectorAll('.quiz-option').forEach((option) => {
+    const idx = Number(option.dataset.index);
+    option.classList.add('disabled');
+    if (idx === answer) option.classList.add('correct');
+    if (idx === picked && picked !== answer) option.classList.add('incorrect');
+  });
+  if (picked === answer) {
+    score += 1;
+    clearError(qid);
+  } else {
+    saveError(qid);
+  }
+  answered += 1;
+  const explain = card.querySelector('.quiz-explain');
+  if (explain) explain.classList.add('show');
+  updateScore();
+});
+
+buildList();
+</script>
+
+</body>
+</html>
+

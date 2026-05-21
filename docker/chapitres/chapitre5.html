@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapitre 5 - Docker Compose et synthèse | Docker</title>
+  <meta name="description" content="Cours théorique B2 orienté examen: conteneurs, images, Dockerfile, réseau, volumes et Compose.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-course-theme-key="docker-theme">
+  <a href="#main-content" class="skip-link">Aller au contenu</a>
+  <div class="reading-progress" id="reading-progress"></div>
+  <nav class="glass-nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo"><span class="brand-badge">DCK</span><span>Docker</span></a>
+      <ul class="nav-links">
+        <li><a href="../chapitres/chapitre1.html">Ch.1</a></li>
+<li><a href="../chapitres/chapitre2.html">Ch.2</a></li>
+<li><a href="../chapitres/chapitre3.html">Ch.3</a></li>
+<li><a href="../chapitres/chapitre4.html">Ch.4</a></li>
+<li><a href="../chapitres/chapitre5.html" class="active">Ch.5</a></li>
+<li><a href="../chapitres/revision.html">Révision</a></li>
+<li><a href="../qcm-100.html">100QCM</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="primary-link" href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail</a>
+        <button id="theme-toggle" aria-label="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>Docker</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+    <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil du cours</a>
+<a href="../chapitres/chapitre1.html"><i class="fa-solid fa-box-open"></i> 1. Pourquoi les conteneurs ?</a>
+<a href="../chapitres/chapitre2.html"><i class="fa-solid fa-dharmachakra"></i> 2. Docker, images et registres</a>
+<a href="../chapitres/chapitre3.html"><i class="fa-solid fa-file-code"></i> 3. Dockerfile et construction d&#x27;images</a>
+<a href="../chapitres/chapitre4.html"><i class="fa-solid fa-network-wired"></i> 4. Manipuler conteneurs, réseau et données</a>
+<a href="../chapitres/chapitre5.html" class="active"><i class="fa-solid fa-sitemap"></i> 5. Docker Compose et synthèse</a>
+<a href="../chapitres/revision.html"><i class="fa-solid fa-bolt"></i> Révision</a>
+<a href="../qcm-100.html"><i class="fa-solid fa-clipboard-check"></i> 100QCM</a>
+    <a href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail général</a>
+  </div>
+
+  <main id="main-content">
+    <header class="hero-section">
+      <div class="hero-badge"><i class="fa-solid fa-sitemap"></i> Chapitre 5</div>
+      <h1>Docker Compose et synthèse</h1>
+      <p>YAML, services, dépendances, volumes et commandes</p>
+    </header>
+    <div class="content-wrapper">
+      <section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-layer-group"></i> Pourquoi Compose ?</h2>
+<p>Configurer une application multi-services avec plusieurs docker run devient vite complexe: ports, volumes, réseaux, dépendances et variables.</p>
+<p>Docker Compose décrit tout cela dans un fichier YAML. C&#x27;est de l&#x27;Infrastructure as Code.</p>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-file-lines"></i> Structure d&#x27;un compose</h2>
+<pre><code>services:
+  web:
+    build: .
+    ports:
+      - &quot;5000:5000&quot;
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
+  redis:
+    image: redis
+volumes:
+  appdata:</code></pre>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-magnifying-glass"></i> À comprendre sur l&#x27;exemple</h2>
+<ul class="key-list">
+<li>web et redis sont deux services.</li>
+<li>Compose crée un réseau bridge propre à la composition.</li>
+<li>web peut contacter redis avec le nom redis.</li>
+<li>depends_on donne un ordre de démarrage, pas une garantie que le service est prêt.</li>
+<li>build construit depuis un Dockerfile; image récupère ou utilise une image existante.</li>
+</ul>
+</section>
+<section class="chapter-section reveal-on-scroll"><h2><i class="fa-solid fa-terminal"></i> Commandes Compose</h2>
+<table class="data-table"><thead><tr>
+<th>Commande</th>
+<th>Rôle</th>
+</tr></thead><tbody>
+<tr>
+<td>docker compose up</td>
+<td>Démarre la composition.</td>
+</tr>
+<tr>
+<td>docker compose up -d</td>
+<td>Démarre en arrière-plan.</td>
+</tr>
+<tr>
+<td>docker compose ps</td>
+<td>Liste les services lancés.</td>
+</tr>
+<tr>
+<td>docker compose kill</td>
+<td>Arrête brutalement.</td>
+</tr>
+<tr>
+<td>docker compose rm</td>
+<td>Supprime les conteneurs arrêtés.</td>
+</tr>
+<tr>
+<td>docker compose down</td>
+<td>Arrête et supprime ce qui a été créé.</td>
+</tr>
+</tbody></table>
+</section>
+      <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fa-solid fa-circle-question"></i> QCM du chapitre</h2>
+        <p>Réponds d'abord, puis la correction apparaît. C'est volontairement proche du style des contrôles.</p>
+        
+        <div class="quiz-card" data-answer="3">
+          <div class="quiz-question">Docker Compose : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Un outil de retouche photo</button>
+<button class="quiz-option" data-index="1">Un driver de lumière</button>
+<button class="quiz-option" data-index="2">Un format JPEG</button>
+<button class="quiz-option" data-index="3">Outil pour décrire et démarrer une application multi-conteneurs</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Le PDF finit par Compose, donc c&#x27;est une zone d&#x27;examen forte.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="2">
+          <div class="quiz-question">Question probable - Docker Compose : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Il ne gère pas les réseaux</button>
+<button class="quiz-option" data-index="1">Il interdit les volumes</button>
+<button class="quiz-option" data-index="2">Il lit un fichier YAML et lance les services avec docker compose up</button>
+<button class="quiz-option" data-index="3">Il lit uniquement des PDF</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Le PDF finit par Compose, donc c&#x27;est une zone d&#x27;examen forte.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="1">
+          <div class="quiz-question">services : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Les erreurs de build</button>
+<button class="quiz-option" data-index="1">Les composants d&#x27;une application Compose</button>
+<button class="quiz-option" data-index="2">Les pixels d&#x27;une image</button>
+<button class="quiz-option" data-index="3">Les axes d&#x27;un repère</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Dans l&#x27;exemple: web et redis sont deux services.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="0">
+          <div class="quiz-question">Question probable - services : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Chaque service correspond généralement à un conteneur créé</button>
+<button class="quiz-option" data-index="1">Un service est toujours un volume</button>
+<button class="quiz-option" data-index="2">Un service est un tag Docker Hub</button>
+<button class="quiz-option" data-index="3">Un service ne peut pas avoir d&#x27;image</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Dans l&#x27;exemple: web et redis sont deux services.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="3">
+          <div class="quiz-question">depends_on : quelle définition est correcte ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">Expose un port</button>
+<button class="quiz-option" data-index="1">Copie un fichier</button>
+<button class="quiz-option" data-index="2">Crée une image de base</button>
+<button class="quiz-option" data-index="3">Déclare une dépendance de démarrage entre services</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Attention du PDF: démarré ne veut pas dire prêt.</div>
+        </div>
+
+        <div class="quiz-card" data-answer="2">
+          <div class="quiz-question">Question probable - depends_on : que faut-il retenir ?</div>
+          <div class="quiz-options"><button class="quiz-option" data-index="0">depends_on supprime les volumes</button>
+<button class="quiz-option" data-index="1">depends_on remplace image</button>
+<button class="quiz-option" data-index="2">Compose démarre dans l&#x27;ordre des dépendances, sans garantir que l&#x27;application soit prête</button>
+<button class="quiz-option" data-index="3">depends_on attend toujours que la base soit totalement prête</button></div>
+          <div class="quiz-explain"><strong>Correction :</strong> Attention du PDF: démarré ne veut pas dire prêt.</div>
+        </div>
+      </section>
+      <nav class="chapter-nav">
+        <a class="primary-link" href="chapitre4.html"><i class="fa-solid fa-arrow-left"></i> Précédent</a>
+        <a class="primary-link" href="revision.html">Suivant <i class="fa-solid fa-arrow-right"></i></a>
+      </nav>
+    </div>
+  </main>
+  <footer class="footer">Docker - Chapitre 5</footer>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
+

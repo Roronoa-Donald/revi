@@ -241,7 +241,7 @@ async function start() {
     await initDB();
 
     // Démarrer Fastify
-    await fastify.listen({ port: PORT, host: '0.0.0.0' });
+    await fastify.listen({ port: PORT, host: '127.0.0.1' });
     console.log(`\n🚀 Serveur démarré sur le port ${PORT}`);
     console.log(`📚 Site : http://localhost:${PORT}`);
     console.log(`🔑 Activation : http://localhost:${PORT}/_auth/activate.html`);
