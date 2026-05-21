@@ -1,3 +1,5 @@
+import { next } from '@vercel/functions';
+
 export const config = { runtime: 'edge' };
 
 const COURSE_DIRS = [
@@ -61,11 +63,11 @@ export default async function middleware(request) {
   const { pathname } = requestUrl;
 
   if (pathname.startsWith('/_auth/') || pathname.startsWith('/api/')) {
-    return fetch(request);
+    return next();
   }
 
   if (!isProtectedPath(pathname)) {
-    return fetch(request);
+    return next();
   }
 
   const course = getCourseFromPath(pathname);
@@ -92,5 +94,5 @@ export default async function middleware(request) {
     return buildRedirect(requestUrl, course, 'scope');
   }
 
-  return fetch(request);
+  return next();
 }
