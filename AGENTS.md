@@ -66,6 +66,14 @@ Never commit `.env` or secrets. `.env` is ignored and may exist locally.
 - Protected content rules currently make course indexes and chapter 1 public, protect later HTML/PDF content, and always protect QCM data.
 - If changing AI chat behavior, keep the API key server-side only and preserve request-size/rate-limit protections.
 
+## References
+
+- [context.md](context.md): workspace index, UI patterns, and authoring rules.
+- [ANALYSIS_4_PROJECTS.md](ANALYSIS_4_PROJECTS.md): cross-project analysis notes.
+- [B1_PROJECT_PLAN.md](B1_PROJECT_PLAN.md): B1 curriculum scope and chapter mapping.
+- [prompt_creation_cours_interactif.md](prompt_creation_cours_interactif.md): course generation prompt template.
+- [promptcomplet.md](promptcomplet.md): full prompt variant for course authoring.
+
 ## Git Hygiene
 
 - Existing untracked or modified user files should be preserved.

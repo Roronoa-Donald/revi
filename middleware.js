@@ -10,6 +10,11 @@ const COURSE_DIRS = [
   'rd_winserver',
   'admin-vm',
   'droit',
+  'react',
+  'api-rest-flask',
+  'erp-si',
+  'ingenierie-besoin',
+  'masterclass-apprendre',
   'RD-RO',
   'assembleur',
   'Cyber securite B2',
@@ -20,17 +25,23 @@ const COURSE_DIRS = [
   'uiux',
   'docker',
   'infographie',
+  'preparation-web',
   'epreuves'
 ];
 
 function isProtectedPath(pathname) {
   const parts = pathname.split('/').filter(Boolean);
-  if (parts.length < 2) return false;
+  if (parts.length < 1) return false;
 
   const courseName = parts[0];
   if (!COURSE_DIRS.includes(courseName)) return false;
+  if (parts.length < 2) return courseName === 'epreuves' || courseName === 'preparation-web';
 
   if (courseName === 'epreuves') return true;
+  if (courseName === 'preparation-web') {
+    if (parts[1] === 'assets') return false;
+    return true;
+  }
   const filename = parts[parts.length - 1] || '';
   const isQcmData = /qcm/i.test(filename) && (filename.endsWith('.js') || filename.endsWith('.json'));
   if (isQcmData) return true;
@@ -56,6 +67,10 @@ function buildRedirect(requestUrl, course, reason) {
   if (course) url += `&course=${encodeURIComponent(course)}`;
   if (reason === 'scope') url += '&error=scope';
   return Response.redirect(url, 307);
+}
+
+function buildPreparationRedirect(requestUrl) {
+  return Response.redirect(`${requestUrl.origin}/index.html?preparation=locked`, 307);
 }
 
 export default async function middleware(request) {
@@ -91,7 +106,28 @@ export default async function middleware(request) {
 
   const scope = data.scope || '';
   if (course && scope !== 'all' && !scope.split(',').includes(course)) {
-    return buildRedirect(requestUrl, course, 'scope');
+    if (course !== 'preparation-web') {
+      return buildRedirect(requestUrl, course, 'scope');
+    }
+  }
+
+  if (course === 'preparation-web') {
+    const prepUrl = new URL('/api/preparation/status', requestUrl.origin);
+    let prepData = null;
+    try {
+      const res = await fetch(prepUrl, {
+        headers: {
+          cookie: request.headers.get('cookie') || ''
+        }
+      });
+      prepData = await res.json();
+    } catch {
+      prepData = null;
+    }
+
+    if (!prepData || !prepData.enabled || !prepData.unlocked) {
+      return buildPreparationRedirect(requestUrl);
+    }
   }
 
   return next();

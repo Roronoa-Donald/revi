@@ -18,10 +18,10 @@ const DIST = path.join(ROOT, 'dist');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 
 // Dossiers de cours à copier
-const COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'admin-vm', 'droit', 'RD-RO', 'sql', 'csharp', 'uml', 'ccna', 'uiux', 'assembleur', 'Cyber securite B2', 'docker', 'infographie', 'roadmap'];
+const COURSE_DIRS = ['linux', 'php', 'probabilites', 'rd_java', 'rd_winserver', 'admin-vm', 'droit', 'react', 'api-rest-flask', 'erp-si', 'ingenierie-besoin', 'masterclass-apprendre', 'RD-RO', 'sql', 'csharp', 'uml', 'ccna', 'uiux', 'assembleur', 'Cyber securite B2', 'docker', 'infographie', 'preparation-web', 'roadmap'];
 
 // Fichiers/dossiers racine à copier (en plus des cours)
-const ROOT_FILES = ['index.html', 'robots.txt', 'sitemap.xml', '404.html', 'rd-ai-chat.js'];
+const ROOT_FILES = ['index.html', 'robots.txt', 'sitemap.xml', '404.html', 'rd-ai-chat.js', 'preparation-cheatsheet.html', 'preparation-progression.html', 'preparation-classement.html'];
 
 // Dossiers à ne jamais copier
 const SKIP_DIRS = ['node_modules', '.git', 'server', 'api', 'scripts', 'dist', 'public', 'cours windows', 'ref', 'cours', 'exos'];

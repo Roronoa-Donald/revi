@@ -12,6 +12,11 @@ const COURSES = {
   'rd_winserver': 'Windows Server',
   'admin-vm': 'Administration des Machines Virtuelles',
   'droit': 'Droit Informatique',
+  'react': 'React',
+  'api-rest-flask': 'API REST avec Flask',
+  'erp-si': 'ERP & SI',
+  'ingenierie-besoin': 'Ingenierie du besoin',
+  'masterclass-apprendre': 'Masterclass Apprendre a apprendre',
   'RD-RO': 'Recherche Opérationnelle',
   'assembleur': 'Assembleur',
   'Cyber securite B2': 'Cybersecurite B2',
@@ -22,6 +27,7 @@ const COURSES = {
   'uiux': 'UI/UX Design',
   'docker': 'Docker',
   'infographie': 'Infographie',
+  'preparation-web': 'Preparation Web',
   'epreuves': 'Épreuves Passées'
 };
 
@@ -33,6 +39,11 @@ const COURSE_ICONS = {
   'rd_winserver': '🖥️',
   'admin-vm': '🧩',
   'droit': '⚖️',
+  'react': 'RX',
+  'api-rest-flask': 'API',
+  'erp-si': 'ERP',
+  'ingenierie-besoin': 'REQ',
+  'masterclass-apprendre': 'MC',
   'RD-RO': '📊',
   'assembleur': '🧠',
   'Cyber securite B2': '🛡️',
@@ -42,7 +53,8 @@ const COURSE_ICONS = {
   'uml': '📐',
   'uiux': '🎨',
   'docker': '🐳',
-  'infographie': '🧊'
+  'infographie': '🧊',
+  'preparation-web': 'PW'
 };
 
 // Thème visuel de chaque cours (couleurs + mode)
@@ -54,6 +66,11 @@ const COURSE_THEMES = {
   'rd_winserver': { mode: 'light', accent: '#6366f1', accentLight: '#818cf8', accentDark: '#4f46e5', gradient: 'linear-gradient(135deg, #6366f1, #4f46e5)' },
   'admin-vm':     { mode: 'light', accent: '#0ea5e9', accentLight: '#38bdf8', accentDark: '#0284c7', gradient: 'linear-gradient(135deg, #0ea5e9, #0284c7)' },
   'droit':        { mode: 'light', accent: '#f59e0b', accentLight: '#fbbf24', accentDark: '#d97706', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
+  'react':        { mode: 'dark',  accent: '#61dafb', accentLight: '#a3e635', accentDark: '#0284c7', gradient: 'linear-gradient(135deg, #61dafb, #a3e635)' },
+  'api-rest-flask': { mode: 'dark', accent: '#34d399', accentLight: '#60a5fa', accentDark: '#047857', gradient: 'linear-gradient(135deg, #34d399, #60a5fa)' },
+  'erp-si':       { mode: 'dark',  accent: '#f59e0b', accentLight: '#22d3ee', accentDark: '#92400e', gradient: 'linear-gradient(135deg, #f59e0b, #22d3ee)' },
+  'ingenierie-besoin': { mode: 'dark', accent: '#a78bfa', accentLight: '#34d399', accentDark: '#6d28d9', gradient: 'linear-gradient(135deg, #a78bfa, #34d399)' },
+  'masterclass-apprendre': { mode: 'dark', accent: '#f472b6', accentLight: '#fbbf24', accentDark: '#be185d', gradient: 'linear-gradient(135deg, #f472b6, #fbbf24)' },
   'RD-RO':        { mode: 'dark',  accent: '#10b981', accentLight: '#34d399', accentDark: '#059669', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
   'assembleur':   { mode: 'dark',  accent: '#f97316', accentLight: '#fb923c', accentDark: '#ea580c', gradient: 'linear-gradient(135deg, #f97316, #ea580c)' },
   'Cyber securite B2': { mode: 'dark', accent: '#06b6d4', accentLight: '#22d3ee', accentDark: '#0891b2', gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)' },
@@ -63,7 +80,8 @@ const COURSE_THEMES = {
   'uml':    { mode: 'dark',  accent: '#E91E8C', accentLight: '#F472B6', accentDark: '#BE185D', gradient: 'linear-gradient(135deg, #E91E8C, #BE185D)' },
   'uiux':   { mode: 'dark',  accent: '#0891B2', accentLight: '#22d3ee', accentDark: '#0e7490', gradient: 'linear-gradient(135deg, #0891B2, #0e7490)' },
   'docker': { mode: 'dark',  accent: '#22d3ee', accentLight: '#67e8f9', accentDark: '#0891b2', gradient: 'linear-gradient(135deg, #22d3ee, #38bdf8)' },
-  'infographie': { mode: 'dark', accent: '#fb7185', accentLight: '#fbbf24', accentDark: '#be123c', gradient: 'linear-gradient(135deg, #fb7185, #fbbf24, #22d3ee)' }
+  'infographie': { mode: 'dark', accent: '#fb7185', accentLight: '#fbbf24', accentDark: '#be123c', gradient: 'linear-gradient(135deg, #fb7185, #fbbf24, #22d3ee)' },
+  'preparation-web': { mode: 'dark', accent: '#34d399', accentLight: '#a7f3d0', accentDark: '#047857', gradient: 'linear-gradient(135deg, #111827, #047857, #22d3ee)' }
 };
 
 const COURSE_DIRS = Object.keys(COURSES);
@@ -78,15 +96,25 @@ function isProtected(urlPath) {
   const parts = cleanUrl.split('/').filter(Boolean);
 
   // Pas assez de segments → fichier racine → libre
-  if (parts.length < 2) return false;
+  if (parts.length < 1) return false;
 
   const courseName = parts[0];
 
   // Pas un dossier de cours → libre
   if (!COURSE_DIRS.includes(courseName)) return false;
 
+  if (parts.length < 2) {
+    return courseName === 'epreuves' || courseName === 'preparation-web';
+  }
+
   // Épreuves passées → tout protégé (y compris index et PDF)
   if (courseName === 'epreuves') return true;
+
+  // Preparation Web: cle B2 + mot de passe de section. Les assets restent libres.
+  if (courseName === 'preparation-web') {
+    if (parts[1] === 'assets') return false;
+    return true;
+  }
 
   const filename = parts[parts.length - 1] || '';
   const isQcmData = /qcm/i.test(filename) && (filename.endsWith('.js') || filename.endsWith('.json'));

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapitre 6 - Mini API complete | API REST avec Flask</title>
+  <meta name="description" content="Students et classes comme dans le support.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-course-theme-key="api-rest-flask-theme" data-accent="api">
+  <a href="#main-content" class="skip-link">Aller au contenu</a>
+  <div class="reading-progress" id="reading-progress"></div>
+  <nav class="course-nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo"><span class="brand-badge">API</span><span>API REST</span></a>
+      <ul class="nav-links">
+<li><a href="../chapitres/chapitre1.html">Ch.1</a></li>
+<li><a href="../chapitres/chapitre2.html">Ch.2</a></li>
+<li><a href="../chapitres/chapitre3.html">Ch.3</a></li>
+<li><a href="../chapitres/chapitre4.html">Ch.4</a></li>
+<li><a href="../chapitres/chapitre5.html">Ch.5</a></li>
+<li><a href="../chapitres/chapitre6.html" class="active">Ch.6</a></li>
+<li><a href="../chapitres/exercices.html">Exercices</a></li>
+<li><a href="../chapitres/flashcards.html">Flashcards</a></li>
+<li><a href="../chapitres/fiche-memo.html">Fiche memo</a></li>
+<li><a href="../qcm-100.html">100 QCM</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="primary-link compact" href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail</a>
+        <button id="theme-toggle" aria-label="Changer le theme"><i class="fa-solid fa-moon"></i></button>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>API REST</span><button id="mobile-nav-close" class="mobile-nav-close" aria-label="Fermer le menu"><i class="fa-solid fa-xmark"></i></button></div>
+<a href="../index.html"><i class="fa-solid fa-house"></i> Accueil du cours</a>
+<a href="../chapitres/chapitre1.html"><i class="fa-solid fa-network-wired"></i> 1. API Web et HTTP</a>
+<a href="../chapitres/chapitre2.html"><i class="fa-solid fa-sitemap"></i> 2. REST et ressources</a>
+<a href="../chapitres/chapitre3.html"><i class="fa-brands fa-python"></i> 3. Flask minimal</a>
+<a href="../chapitres/chapitre4.html"><i class="fa-solid fa-signal"></i> 4. Status codes</a>
+<a href="../chapitres/chapitre5.html"><i class="fa-solid fa-vial"></i> 5. Tester une API</a>
+<a href="../chapitres/chapitre6.html" class="active"><i class="fa-solid fa-graduation-cap"></i> 6. Mini API complete</a>
+<a href="../chapitres/exercices.html"><i class="fa-solid fa-pen-to-square"></i> Exercices</a>
+<a href="../chapitres/flashcards.html"><i class="fa-solid fa-layer-group"></i> Flashcards</a>
+<a href="../chapitres/fiche-memo.html"><i class="fa-solid fa-bolt"></i> Fiche memo</a>
+<a href="../qcm-100.html"><i class="fa-solid fa-clipboard-check"></i> 100 QCM</a>
+<a href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail general</a>
+  </div>
+  <main id="main-content">
+<header class="hero-section">
+    <div class="hero-badge"><i class="fa-solid fa-graduation-cap"></i> Chapitre 6</div>
+    <h1>Mini API complete</h1>
+    <p>Students et classes comme dans le support.</p>
+  </header>
+  <div class="content-wrapper">
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fa-solid fa-database"></i> Modele de donnees</h2>
+<p>Le support donne deux ressources: students et classes.</p>
+<p>On peut commencer avec une liste Python en memoire avant de brancher une vraie base.</p>
+<pre><code>students = [
+  {&quot;id&quot;: &quot;1842421&quot;, &quot;firstName&quot;: &quot;Lisa&quot;, &quot;classes&quot;: [&quot;420-123-SH&quot;]}
+]
+classes = [
+  {&quot;id&quot;: &quot;420-123-SH&quot;, &quot;title&quot;: &quot;Creation de pages Web&quot;}
+]</code></pre>
+<div class="memo-box"><strong>Memo rapide :</strong> Avant la base de donnees, maitrise deja routes + JSON + codes.</div>
+</section>
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fa-solid fa-gears"></i> CRUD minimal</h2>
+<p>CRUD signifie Create, Read, Update, Delete.</p>
+<p>Dans une API REST, CRUD se traduit souvent par POST, GET, PUT, DELETE.</p>
+<table class="data-table"><thead><tr><th>CRUD</th><th>HTTP</th></tr></thead><tbody><tr><td>Create</td><td>POST /students</td></tr><tr><td>Read all</td><td>GET /students</td></tr><tr><td>Read one</td><td>GET /students/id</td></tr><tr><td>Update</td><td>PUT /students/id</td></tr><tr><td>Delete</td><td>DELETE /students/id</td></tr></tbody></table>
+</section>
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fa-solid fa-lock"></i> Securite de base</h2>
+<p>Une vraie API doit proteger certaines routes: authentification, permissions, validation, logs.</p>
+<p>Le cours API REST ici reste centre sur HTTP, JSON et Flask, mais le reflexe securite doit deja exister.</p>
+<div class="warning-box"><strong>Piege :</strong> Ne jamais exposer de secrets dans le code frontend. Une cle API reste cote serveur.</div>
+</section>
+
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fa-solid fa-circle-question"></i> Questions de fin de chapitre</h2>
+    <p>Reponds avant de lire la correction. Elle se debloque apres une bonne reponse, ou apres deux erreurs.</p>
+<div class="quiz-card" data-answer="2">
+      <div class="quiz-question">1. Dans API REST, quelle idee faut-il retenir sur CRUD ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">CRUD est un status code</button><button class="quiz-option" data-index="1">CRUD est une seule route</button><button class="quiz-option" data-index="2">CRUD correspond a Create, Read, Update, Delete.</button><button class="quiz-option" data-index="3">CRUD signifie CSS React UI Docker</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> CRUD correspond a Create, Read, Update, Delete.</div>
+    </div>
+<div class="quiz-card" data-answer="1">
+      <div class="quiz-question">2. Quelle affirmation est correcte concernant CRUD ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">CRUD est une seule route</button><button class="quiz-option" data-index="1">CRUD correspond a Create, Read, Update, Delete.</button><button class="quiz-option" data-index="2">CRUD signifie CSS React UI Docker</button><button class="quiz-option" data-index="3">CRUD est un status code</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> CRUD correspond a Create, Read, Update, Delete.</div>
+    </div>
+<div class="quiz-card" data-answer="0">
+      <div class="quiz-question">3. Si le professeur demande CRUD, quelle reponse est la plus juste ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">CRUD correspond a Create, Read, Update, Delete.</button><button class="quiz-option" data-index="1">CRUD signifie CSS React UI Docker</button><button class="quiz-option" data-index="2">CRUD est un status code</button><button class="quiz-option" data-index="3">CRUD est une seule route</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> CRUD correspond a Create, Read, Update, Delete.</div>
+    </div>
+<div class="quiz-card" data-answer="3">
+      <div class="quiz-question">4. Quel piege faut-il eviter avec CRUD ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">CRUD signifie CSS React UI Docker</button><button class="quiz-option" data-index="1">CRUD est un status code</button><button class="quiz-option" data-index="2">CRUD est une seule route</button><button class="quiz-option" data-index="3">CRUD correspond a Create, Read, Update, Delete.</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> CRUD correspond a Create, Read, Update, Delete.</div>
+    </div>
+<div class="quiz-card" data-answer="2">
+      <div class="quiz-question">5. Quelle formulation resume le mieux CRUD ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">CRUD est un status code</button><button class="quiz-option" data-index="1">CRUD est une seule route</button><button class="quiz-option" data-index="2">CRUD correspond a Create, Read, Update, Delete.</button><button class="quiz-option" data-index="3">CRUD signifie CSS React UI Docker</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> CRUD correspond a Create, Read, Update, Delete.</div>
+    </div>
+  </section>
+    <nav class="chapter-nav">
+      <a class="primary-link" href="chapitre5.html"><i class="fa-solid fa-arrow-left"></i> Precedent</a>
+      <a class="primary-link" href="exercices.html">Suivant <i class="fa-solid fa-arrow-right"></i></a>
+    </nav>
+  </div>
+  </main>
+  <footer class="footer">API REST avec Flask - B2 Semestre 2</footer>
+  <script src="../assets/js/main.js"></script>
+
+</body>
+</html>

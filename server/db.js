@@ -120,6 +120,42 @@ async function initDB() {
   `);
   await client.query(`CREATE INDEX IF NOT EXISTS idx_sessions_platform ON sessions(platform);`);
 
+  // Preparation Web: access profile, code saves, XP, quizzes and leaderboard.
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS preparation_profiles (
+      key_id INTEGER PRIMARY KEY REFERENCES activation_keys(id) ON DELETE CASCADE,
+      display_name VARCHAR(255) NOT NULL,
+      unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      total_xp INTEGER DEFAULT 0,
+      projects_completed INTEGER DEFAULT 0,
+      last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS preparation_progress (
+      key_id INTEGER REFERENCES activation_keys(id) ON DELETE CASCADE,
+      project_id INTEGER NOT NULL,
+      html_code TEXT DEFAULT '',
+      js_code TEXT DEFAULT '',
+      completed BOOLEAN DEFAULT FALSE,
+      project_xp INTEGER DEFAULT 0,
+      quiz_xp INTEGER DEFAULT 0,
+      quiz_score INTEGER DEFAULT 0,
+      quiz_completed BOOLEAN DEFAULT FALSE,
+      used_hint BOOLEAN DEFAULT FALSE,
+      used_solution BOOLEAN DEFAULT FALSE,
+      attempts INTEGER DEFAULT 0,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (key_id, project_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_preparation_profiles_rank
+      ON preparation_profiles(total_xp DESC, projects_completed DESC, last_activity ASC);
+    CREATE INDEX IF NOT EXISTS idx_preparation_progress_key
+      ON preparation_progress(key_id);
+    CREATE INDEX IF NOT EXISTS idx_preparation_progress_project
+      ON preparation_progress(project_id);
+  `);
+
   // Créer la fonction trigger pour logger automatiquement les changements de clés
   await client.query(`
     CREATE OR REPLACE FUNCTION log_key_changes() RETURNS TRIGGER AS $$
@@ -335,6 +371,195 @@ async function revokeSessionByJti(jti) {
 
 async function updateSessionVerified(jti) {
   await query('UPDATE sessions SET last_verified = CURRENT_TIMESTAMP WHERE jti = $1', [jti]);
+}
+
+// ========================
+// Preparation Web
+// ========================
+
+function preparationDisplayNameFromKey(keyRecord) {
+  const note = keyRecord && keyRecord.note ? String(keyRecord.note).trim() : '';
+  if (note) return note.slice(0, 80);
+  return `Apprenant #${keyRecord.id}`;
+}
+
+async function ensurePreparationProfile(keyId) {
+  const keyRecord = await getKeyById(keyId);
+  if (!keyRecord) return null;
+
+  const displayName = preparationDisplayNameFromKey(keyRecord);
+  const result = await query(`
+    INSERT INTO preparation_profiles (key_id, display_name, last_activity)
+    VALUES ($1, $2, CURRENT_TIMESTAMP)
+    ON CONFLICT (key_id) DO UPDATE SET
+      display_name = EXCLUDED.display_name
+    RETURNING *
+  `, [keyId, displayName]);
+
+  return result.rows[0];
+}
+
+async function getPreparationProfile(keyId) {
+  const result = await query(`
+    SELECT p.*, COALESCE(r.position, 0) AS rank
+    FROM preparation_profiles p
+    LEFT JOIN (
+      SELECT key_id, RANK() OVER (ORDER BY total_xp DESC, projects_completed DESC, last_activity ASC) AS position
+      FROM preparation_profiles
+    ) r ON r.key_id = p.key_id
+    WHERE p.key_id = $1
+  `, [keyId]);
+  return result.rows[0] || null;
+}
+
+async function getPreparationProgress(keyId) {
+  const result = await query(`
+    SELECT
+      project_id,
+      html_code,
+      js_code,
+      completed,
+      project_xp,
+      quiz_xp,
+      quiz_score,
+      quiz_completed,
+      used_hint,
+      used_solution,
+      attempts,
+      updated_at
+    FROM preparation_progress
+    WHERE key_id = $1
+    ORDER BY project_id ASC
+  `, [keyId]);
+  return result.rows;
+}
+
+async function refreshPreparationTotals(keyId) {
+  const result = await query(`
+    UPDATE preparation_profiles
+    SET
+      total_xp = (
+        SELECT COALESCE(SUM(project_xp + quiz_xp), 0)
+        FROM preparation_progress
+        WHERE key_id = $1
+      ),
+      projects_completed = (
+        SELECT COUNT(*)
+        FROM preparation_progress
+        WHERE key_id = $1 AND completed = TRUE
+      ),
+      last_activity = CURRENT_TIMESTAMP
+    WHERE key_id = $1
+    RETURNING *
+  `, [keyId]);
+  return result.rows[0] || null;
+}
+
+async function savePreparationProgress(keyId, data = {}) {
+  const projectId = Number(data.projectId);
+  if (!projectId) throw new Error('projectId requis');
+
+  const result = await query(`
+    INSERT INTO preparation_progress (
+      key_id, project_id, html_code, js_code, used_hint, used_solution, attempts, updated_at
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+    ON CONFLICT (key_id, project_id) DO UPDATE SET
+      html_code = EXCLUDED.html_code,
+      js_code = EXCLUDED.js_code,
+      used_hint = preparation_progress.used_hint OR EXCLUDED.used_hint,
+      used_solution = preparation_progress.used_solution OR EXCLUDED.used_solution,
+      attempts = GREATEST(preparation_progress.attempts, EXCLUDED.attempts),
+      updated_at = CURRENT_TIMESTAMP
+    RETURNING *
+  `, [
+    keyId,
+    projectId,
+    data.htmlCode || '',
+    data.jsCode || '',
+    Boolean(data.usedHint),
+    Boolean(data.usedSolution),
+    Number(data.attempts || 0)
+  ]);
+
+  await refreshPreparationTotals(keyId);
+  return result.rows[0];
+}
+
+async function completePreparationProject(keyId, data = {}) {
+  const projectId = Number(data.projectId);
+  if (!projectId) throw new Error('projectId requis');
+
+  const result = await query(`
+    INSERT INTO preparation_progress (
+      key_id, project_id, html_code, js_code, completed, project_xp,
+      used_hint, used_solution, attempts, updated_at
+    )
+    VALUES ($1, $2, $3, $4, TRUE, $5, $6, $7, $8, CURRENT_TIMESTAMP)
+    ON CONFLICT (key_id, project_id) DO UPDATE SET
+      html_code = EXCLUDED.html_code,
+      js_code = EXCLUDED.js_code,
+      completed = TRUE,
+      project_xp = GREATEST(preparation_progress.project_xp, EXCLUDED.project_xp),
+      used_hint = preparation_progress.used_hint OR EXCLUDED.used_hint,
+      used_solution = preparation_progress.used_solution OR EXCLUDED.used_solution,
+      attempts = GREATEST(preparation_progress.attempts, EXCLUDED.attempts),
+      updated_at = CURRENT_TIMESTAMP
+    RETURNING *
+  `, [
+    keyId,
+    projectId,
+    data.htmlCode || '',
+    data.jsCode || '',
+    Number(data.projectXp || 0),
+    Boolean(data.usedHint),
+    Boolean(data.usedSolution),
+    Number(data.attempts || 0)
+  ]);
+
+  await refreshPreparationTotals(keyId);
+  return result.rows[0];
+}
+
+async function recordPreparationQuiz(keyId, data = {}) {
+  const projectId = Number(data.projectId);
+  if (!projectId) throw new Error('projectId requis');
+
+  const result = await query(`
+    INSERT INTO preparation_progress (
+      key_id, project_id, quiz_completed, quiz_score, quiz_xp, updated_at
+    )
+    VALUES ($1, $2, TRUE, $3, $4, CURRENT_TIMESTAMP)
+    ON CONFLICT (key_id, project_id) DO UPDATE SET
+      quiz_completed = TRUE,
+      quiz_score = GREATEST(preparation_progress.quiz_score, EXCLUDED.quiz_score),
+      quiz_xp = GREATEST(preparation_progress.quiz_xp, EXCLUDED.quiz_xp),
+      updated_at = CURRENT_TIMESTAMP
+    RETURNING *
+  `, [
+    keyId,
+    projectId,
+    Number(data.quizScore || 0),
+    Number(data.quizXp || 0)
+  ]);
+
+  await refreshPreparationTotals(keyId);
+  return result.rows[0];
+}
+
+async function getPreparationLeaderboard(limit = 20) {
+  const result = await query(`
+    SELECT
+      display_name,
+      total_xp,
+      projects_completed,
+      last_activity,
+      RANK() OVER (ORDER BY total_xp DESC, projects_completed DESC, last_activity ASC) AS rank
+    FROM preparation_profiles
+    ORDER BY total_xp DESC, projects_completed DESC, last_activity ASC
+    LIMIT $1
+  `, [Math.min(Math.max(Number(limit) || 20, 1), 50)]);
+  return result.rows;
 }
 
 // ========================
@@ -571,6 +796,13 @@ module.exports = {
   revokeSession,
   revokeSessionByJti,
   updateSessionVerified,
+  ensurePreparationProfile,
+  getPreparationProfile,
+  getPreparationProgress,
+  savePreparationProgress,
+  completePreparationProject,
+  recordPreparationQuiz,
+  getPreparationLeaderboard,
   getStats,
   getStatsByCourse,
   logActivity,

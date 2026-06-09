@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapitre 6 - useEffect et appels API | React</title>
+  <meta name="description" content="Charger des donnees apres le rendu.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-course-theme-key="react-theme" data-accent="react">
+  <a href="#main-content" class="skip-link">Aller au contenu</a>
+  <div class="reading-progress" id="reading-progress"></div>
+  <nav class="course-nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo"><span class="brand-badge">RX</span><span>React</span></a>
+      <ul class="nav-links">
+<li><a href="../chapitres/chapitre1.html">Ch.1</a></li>
+<li><a href="../chapitres/chapitre2.html">Ch.2</a></li>
+<li><a href="../chapitres/chapitre3.html">Ch.3</a></li>
+<li><a href="../chapitres/chapitre4.html">Ch.4</a></li>
+<li><a href="../chapitres/chapitre5.html">Ch.5</a></li>
+<li><a href="../chapitres/chapitre6.html" class="active">Ch.6</a></li>
+<li><a href="../chapitres/chapitre7.html">Ch.7</a></li>
+<li><a href="../chapitres/chapitre8.html">Ch.8</a></li>
+<li><a href="../chapitres/exercices.html">Exercices</a></li>
+<li><a href="../chapitres/flashcards.html">Flashcards</a></li>
+<li><a href="../chapitres/fiche-memo.html">Fiche memo</a></li>
+<li><a href="../qcm-100.html">100 QCM</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="primary-link compact" href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail</a>
+        <button id="theme-toggle" aria-label="Changer le theme"><i class="fa-solid fa-moon"></i></button>
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>React</span><button id="mobile-nav-close" class="mobile-nav-close" aria-label="Fermer le menu"><i class="fa-solid fa-xmark"></i></button></div>
+<a href="../index.html"><i class="fa-solid fa-house"></i> Accueil du cours</a>
+<a href="../chapitres/chapitre1.html"><i class="fa-brands fa-react"></i> 1. Penser en composants</a>
+<a href="../chapitres/chapitre2.html"><i class="fa-solid fa-bolt"></i> 2. Vite et JSX</a>
+<a href="../chapitres/chapitre3.html"><i class="fa-solid fa-cubes"></i> 3. Composants et props</a>
+<a href="../chapitres/chapitre4.html"><i class="fa-solid fa-sliders"></i> 4. State, evenements et formulaires</a>
+<a href="../chapitres/chapitre5.html"><i class="fa-solid fa-list"></i> 5. Listes et donnees</a>
+<a href="../chapitres/chapitre6.html" class="active"><i class="fa-solid fa-cloud-arrow-down"></i> 6. useEffect et appels API</a>
+<a href="../chapitres/chapitre7.html"><i class="fa-solid fa-route"></i> 7. Routing</a>
+<a href="../chapitres/chapitre8.html"><i class="fa-solid fa-list-check"></i> 8. Projet Todo List</a>
+<a href="../chapitres/exercices.html"><i class="fa-solid fa-pen-to-square"></i> Exercices</a>
+<a href="../chapitres/flashcards.html"><i class="fa-solid fa-layer-group"></i> Flashcards</a>
+<a href="../chapitres/fiche-memo.html"><i class="fa-solid fa-bolt"></i> Fiche memo</a>
+<a href="../qcm-100.html"><i class="fa-solid fa-clipboard-check"></i> 100 QCM</a>
+<a href="../../index.html"><i class="fa-solid fa-table-cells"></i> Portail general</a>
+  </div>
+  <main id="main-content">
+<header class="hero-section">
+    <div class="hero-badge"><i class="fa-solid fa-cloud-arrow-down"></i> Chapitre 6</div>
+    <h1>useEffect et appels API</h1>
+    <p>Charger des donnees apres le rendu.</p>
+  </header>
+  <div class="content-wrapper">
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fa-solid fa-wave-square"></i> Effet de bord</h2>
+<p>useEffect execute du code apres le rendu: appel API, abonnement, timer, titre du document.</p>
+<p>Le tableau de dependances controle quand l effet se relance.</p>
+<table class="data-table"><thead><tr><th>Dependances</th><th>Effet</th></tr></thead><tbody><tr><td>[]</td><td>Une fois au montage</td></tr><tr><td>[id]</td><td>A chaque changement de id</td></tr><tr><td>Aucun tableau</td><td>Apres chaque rendu, risque de boucle</td></tr></tbody></table>
+<div class="memo-box"><strong>Memo rapide :</strong> useEffect = apres rendu + dependances.</div>
+</section>
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fa-solid fa-server"></i> Fetch</h2>
+<p>Un appel API a au moins trois etats utiles: chargement, donnees, erreur.</p>
+<p>Le support recommande de gerer explicitement loading et error pour eviter une page vide.</p>
+<pre><code>useEffect(() =&gt; {
+  fetch(&quot;https://jsonplaceholder.typicode.com/users&quot;)
+    .then((res) =&gt; res.json())
+    .then(setUsers)
+    .catch(setError);
+}, []);</code></pre>
+<div class="warning-box"><strong>Piege :</strong> Ne mets pas setState dans un effet qui depend de ce meme state sans condition. C est la boucle infinie classique.</div>
+</section>
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fa-solid fa-scissors"></i> AbortController</h2>
+<p>Si un composant disparait avant la fin d une requete, on peut annuler la requete.</p>
+<p>C est une bonne pratique pour les pages qui changent vite ou les recherches dynamiques.</p>
+<pre><code>const controller = new AbortController();
+fetch(url, { signal: controller.signal });
+return () =&gt; controller.abort();</code></pre>
+<div class="tip-box"><strong>Tip :</strong> Nettoyage = return dans useEffect.</div>
+</section>
+
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fa-solid fa-circle-question"></i> Questions de fin de chapitre</h2>
+    <p>Reponds avant de lire la correction. Elle se debloque apres une bonne reponse, ou apres deux erreurs.</p>
+<div class="quiz-card" data-answer="0">
+      <div class="quiz-question">1. Dans React, quelle idee faut-il retenir sur useEffect ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">useEffect sert aux effets apres rendu comme appels API.</button><button class="quiz-option" data-index="1">useEffect remplace tous les composants</button><button class="quiz-option" data-index="2">useEffect est obligatoire pour chaque variable</button><button class="quiz-option" data-index="3">useEffect sert uniquement a styliser</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> useEffect sert aux effets apres rendu comme appels API.</div>
+    </div>
+<div class="quiz-card" data-answer="3">
+      <div class="quiz-question">2. Quelle affirmation est correcte concernant useEffect ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">useEffect remplace tous les composants</button><button class="quiz-option" data-index="1">useEffect est obligatoire pour chaque variable</button><button class="quiz-option" data-index="2">useEffect sert uniquement a styliser</button><button class="quiz-option" data-index="3">useEffect sert aux effets apres rendu comme appels API.</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> useEffect sert aux effets apres rendu comme appels API.</div>
+    </div>
+<div class="quiz-card" data-answer="2">
+      <div class="quiz-question">3. Si le professeur demande useEffect, quelle reponse est la plus juste ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">useEffect est obligatoire pour chaque variable</button><button class="quiz-option" data-index="1">useEffect sert uniquement a styliser</button><button class="quiz-option" data-index="2">useEffect sert aux effets apres rendu comme appels API.</button><button class="quiz-option" data-index="3">useEffect remplace tous les composants</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> useEffect sert aux effets apres rendu comme appels API.</div>
+    </div>
+<div class="quiz-card" data-answer="1">
+      <div class="quiz-question">4. Quel piege faut-il eviter avec useEffect ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">useEffect sert uniquement a styliser</button><button class="quiz-option" data-index="1">useEffect sert aux effets apres rendu comme appels API.</button><button class="quiz-option" data-index="2">useEffect remplace tous les composants</button><button class="quiz-option" data-index="3">useEffect est obligatoire pour chaque variable</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> useEffect sert aux effets apres rendu comme appels API.</div>
+    </div>
+<div class="quiz-card" data-answer="0">
+      <div class="quiz-question">5. Quelle formulation resume le mieux useEffect ?</div>
+      <div class="quiz-options"><button class="quiz-option" data-index="0">useEffect sert aux effets apres rendu comme appels API.</button><button class="quiz-option" data-index="1">useEffect remplace tous les composants</button><button class="quiz-option" data-index="2">useEffect est obligatoire pour chaque variable</button><button class="quiz-option" data-index="3">useEffect sert uniquement a styliser</button></div>
+      <div class="quiz-status"></div>
+      <div class="quiz-explain"><strong>Correction :</strong> useEffect sert aux effets apres rendu comme appels API.</div>
+    </div>
+  </section>
+    <nav class="chapter-nav">
+      <a class="primary-link" href="chapitre5.html"><i class="fa-solid fa-arrow-left"></i> Precedent</a>
+      <a class="primary-link" href="chapitre7.html">Suivant <i class="fa-solid fa-arrow-right"></i></a>
+    </nav>
+  </div>
+  </main>
+  <footer class="footer">React - B2 Semestre 2</footer>
+  <script src="../assets/js/main.js"></script>
+
+</body>
+</html>

@@ -84,6 +84,25 @@ async function verifyUserAuth(request) {
   }
 }
 
+function verifyPreparationForPage(request, authResult) {
+  try {
+    if (!process.env.PREPARATION_PASSWORD) return false;
+    const token = request.cookies.preparation_token;
+    if (!token || !authResult || !authResult.keyId) return false;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const passwordVersion = require('crypto')
+      .createHash('sha256')
+      .update(String(process.env.PREPARATION_PASSWORD || ''))
+      .digest('hex')
+      .slice(0, 24);
+    return decoded.prepWeb === true &&
+      Number(decoded.keyId) === Number(authResult.keyId) &&
+      decoded.passwordVersion === passwordVersion;
+  } catch {
+    return false;
+  }
+}
+
 // ========================
 // Vérification admin pour servir les pages admin
 // ========================
@@ -191,9 +210,13 @@ fastify.get('/*', async (request, reply) => {
     if (authResult.scope !== 'all') {
       const allowedCourses = authResult.scope.split(',');
       const courseName = getCourseFromUrl(urlPath);
-      if (courseName && !allowedCourses.includes(courseName)) {
+      if (courseName && courseName !== 'preparation-web' && !allowedCourses.includes(courseName)) {
         return reply.redirect('/_auth/activate.html?redirect=' + encodeURIComponent(urlPath) + '&course=' + encodeURIComponent(courseName) + '&error=scope');
       }
+    }
+
+    if (urlPath.startsWith('/preparation-web/') && !verifyPreparationForPage(request, authResult)) {
+      return reply.redirect('/index.html?preparation=locked');
     }
   }
 

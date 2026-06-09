@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preparation Web - Classement</title>
+  <meta name="description" content="Classement B2 pour Preparation Web.">
+  <link rel="stylesheet" href="preparation-web/assets/css/style.css">
+</head>
+<body>
+  <main class="workspace" style="max-width: 980px; margin: 0 auto;">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Preparation Web</span>
+        <h1>Classement B2</h1>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-button" href="preparation-web/index.html">Retour atelier</a>
+        <a class="ghost-button" href="index.html">Portail</a>
+      </div>
+    </header>
+
+    <section class="leaderboard-section">
+      <div class="section-heading">
+        <span class="eyebrow">Classement</span>
+        <h2>Score des participants</h2>
+      </div>
+      <div id="leaderboard" class="leaderboard"></div>
+    </section>
+  </main>
+
+  <script>
+    (function() {
+      const leaderboard = document.getElementById('leaderboard');
+
+      async function loadLeaderboard() {
+        try {
+          const response = await fetch('/api/preparation/leaderboard', { credentials: 'include' });
+          const data = await response.json();
+          const rows = (data && data.leaderboard) || [];
+          if (!rows.length) {
+            leaderboard.innerHTML = '<p>Le classement apparaitra quand les participants auront valide des projets.</p>';
+            return;
+          }
+          leaderboard.innerHTML = rows.map((row) => `
+            <div class="leader-row">
+              <strong>#${row.rank}</strong>
+              <span>${row.name || 'Apprenant'}</span>
+              <span>${row.xp} XP</span>
+              <span>${row.projectsCompleted}/10 projets</span>
+            </div>
+          `).join('');
+        } catch (error) {
+          leaderboard.innerHTML = '<p>Classement indisponible pour le moment.</p>';
+        }
+      }
+
+      loadLeaderboard();
+    })();
+  </script>
+</body>
+</html>

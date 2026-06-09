@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preparation Web - Progression</title>
+  <meta name="description" content="Progression des projets Preparation Web.">
+  <link rel="stylesheet" href="preparation-web/assets/css/style.css">
+</head>
+<body>
+  <main class="workspace" style="max-width: 980px; margin: 0 auto;">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Preparation Web</span>
+        <h1>Progression detaillee</h1>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-button" href="preparation-web/index.html">Retour atelier</a>
+        <a class="ghost-button" href="index.html">Portail</a>
+      </div>
+    </header>
+
+    <section class="leaderboard-section">
+      <div class="section-heading">
+        <span class="eyebrow">Progression</span>
+        <h2>Etat des 10 projets</h2>
+      </div>
+      <div id="progressTimeline" class="progress-timeline"></div>
+      <div id="progressList" class="progress-list"></div>
+    </section>
+  </main>
+
+  <script src="preparation-web/assets/js/projects.js"></script>
+  <script>
+    (function() {
+      const timeline = document.getElementById('progressTimeline');
+      const list = document.getElementById('progressList');
+      const projects = window.PREPARATION_PROJECTS || [];
+
+      function loadLocalProgress() {
+        const keys = Object.keys(localStorage).filter((key) => key.startsWith('preparation-web-progress-v1'));
+        let best = null;
+        let bestTime = 0;
+        keys.forEach((key) => {
+          try {
+            const data = JSON.parse(localStorage.getItem(key));
+            const time = new Date(data.savedAt || 0).getTime();
+            if (time > bestTime) {
+              best = data;
+              bestTime = time;
+            }
+          } catch (e) {
+            // ignore
+          }
+        });
+        return (best && best.progress) || {};
+      }
+
+      async function loadProgress() {
+        let progress = {};
+        try {
+          const response = await fetch('/api/preparation/progress', { credentials: 'include' });
+          const data = await response.json();
+          if (data && data.progress) {
+            data.progress.forEach((row) => {
+              progress[row.projectId] = row;
+            });
+          }
+        } catch (e) {
+          progress = loadLocalProgress();
+        }
+
+        const nodes = projects.map((project) => {
+          const done = progress[project.id] && progress[project.id].completed;
+          return `<span class="progress-node ${done ? 'is-done' : ''}"></span>`;
+        }).join('');
+        timeline.innerHTML = nodes;
+
+        list.innerHTML = projects.map((project) => {
+          const entry = progress[project.id] || {};
+          const status = entry.completed ? 'valide' : 'en cours';
+          return `
+            <div class="progress-row">
+              <strong>${project.id}</strong>
+              <div>
+                <div>${project.title}</div>
+                <span>${project.track} · ${status}</span>
+              </div>
+              <div class="progress-status">${entry.completed ? 'OK' : '...'}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      loadProgress();
+    })();
+  </script>
+</body>
+</html>
