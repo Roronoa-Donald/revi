@@ -107,12 +107,23 @@ function copyFileIfExists(src, dest) {
   }
 }
 
+function validatePreparationAssets() {
+  const quizPath = path.join(ROOT, 'preparation-web', 'assets', 'data', 'preparation-quiz.json');
+  if (!fs.existsSync(quizPath)) return;
+  try {
+    JSON.parse(fs.readFileSync(quizPath, 'utf-8'));
+  } catch (error) {
+    throw new Error(`preparation-quiz.json invalide: ${error.message}`);
+  }
+}
+
 // ========================
 // Build
 // ========================
 
 console.log('🔨 Build démarré...\n');
 const startTime = Date.now();
+validatePreparationAssets();
 
 // 1. Nettoyer dist/ (sur Vercel le dossier est déjà vide, on le recrée simplement)
 try {

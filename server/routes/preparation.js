@@ -1,52 +1,16 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
+const {
+  PROJECT_COUNT,
+  VALIDATION_RULES,
+  BEHAVIOR_RULES,
+  SOLUTIONS
+} = require('../preparation-content');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const IS_PROD = process.env.NODE_ENV === 'production';
 const PREPARATION_COOKIE = 'preparation_token';
-const PROJECT_COUNT = 10;
-
-const VALIDATION_RULES = {
-  1: {
-    htmlTags: ['section', 'img', 'h1', 'p', 'ul', 'li', 'a'],
-    classes: ['profile-card', 'profile-avatar', 'profile-name', 'profile-role', 'profile-bio', 'profile-skills', 'profile-link']
-  },
-  2: {
-    htmlTags: ['article', 'img', 'h2', 'p', 'ul', 'li', 'button'],
-    classes: ['product-card', 'product-image', 'product-title', 'product-price', 'product-description', 'product-features', 'buy-button']
-  },
-  3: {
-    htmlTags: ['form', 'label', 'input', 'textarea', 'select', 'button'],
-    classes: ['contact-form', 'form-row', 'form-label', 'form-input', 'form-textarea', 'form-select', 'submit-button'],
-    inputTypes: ['text', 'email', 'password', 'checkbox', 'radio']
-  },
-  4: {
-    htmlTags: ['header', 'section', 'h1', 'h2', 'p', 'ul', 'li', 'a'],
-    classes: ['cv-card', 'cv-header', 'cv-name', 'cv-title', 'cv-section', 'skill-list', 'cv-contact']
-  },
-  5: {
-    htmlTags: ['main', 'section', 'h1', 'h2', 'article', 'p', 'ul', 'li', 'a'],
-    classes: ['portfolio-page', 'hero-section', 'portfolio-title', 'portfolio-tagline', 'portfolio-skills', 'skill-list', 'project-grid', 'project-card', 'contact-link']
-  },
-  6: {
-    jsNames: ['score', 'incrementer']
-  },
-  7: {
-    jsNames: ['score', 'checkAnswer']
-  },
-  8: {
-    jsNames: ['addTodo']
-  },
-  9: {
-    jsNames: ['calculate']
-  },
-  10: {
-    htmlTags: ['button'],
-    classes: ['game-board', 'choice-btn', 'score-board', 'result-message', 'reset-btn'],
-    jsNames: ['choices', 'playRound', 'resetGame']
-  }
-};
 
 function preparationEnabled() {
   return Boolean(process.env.PREPARATION_PASSWORD);
@@ -239,50 +203,34 @@ function hasDataAttr(html, attr) {
   return new RegExp(`data-${attr}\\s*=`, 'i').test(html);
 }
 
-const BEHAVIOR_RULES = {
-  6: {
-    htmlIds: ['countValue', 'incrementBtn'],
-    jsChecks: [
-      { pattern: /countValue/i, message: 'Le script doit lire ou mettre a jour #countValue.' },
-      { pattern: /incrementBtn/i, message: 'Le script doit ecouter le clic de #incrementBtn.' },
-      { pattern: /textContent|innerText/i, message: 'Le compteur doit mettre a jour le texte affiche.' }
-    ]
-  },
-  7: {
-    htmlClasses: ['answer'],
-    htmlIds: ['quizFeedback', 'quizScore'],
-    dataAttrs: ['correct'],
-    jsChecks: [
-      { pattern: /dataset|getAttribute\([^)]*data-correct/i, message: 'Le script doit lire data-correct.' },
-      { pattern: /quizScore|score/i, message: 'Le script doit mettre a jour le score.' }
-    ]
-  },
-  8: {
-    htmlIds: ['todoInput', 'addTodoBtn', 'todoList'],
-    jsChecks: [
-      { pattern: /createElement\(['"]li['"]\)/i, message: 'La todo doit creer un element li.' },
-      { pattern: /appendChild|append\(/i, message: 'La todo doit ajouter le li a la liste.' }
-    ]
-  },
-  9: {
-    htmlIds: ['numberA', 'numberB', 'calcResult'],
-    dataAttrs: ['op'],
-    jsChecks: [
-      { pattern: /Number\(|parseFloat\(/i, message: 'La calculatrice doit convertir les valeurs en nombres.' },
-      { pattern: /calcResult/i, message: 'Le script doit mettre a jour #calcResult.' }
-    ]
-  },
-  10: {
-    htmlClasses: ['choice-btn'],
-    htmlIds: ['playerScore', 'botScore', 'resultMessage', 'resetBtn'],
-    dataAttrs: ['choice'],
-    jsChecks: [
-      { pattern: /Math\.random/i, message: 'Le bot doit faire un choix aleatoire.' },
-      { pattern: /resultMessage/i, message: 'Le script doit afficher le message de resultat.' },
-      { pattern: /reset/i, message: 'Le script doit gerer le bouton reset.' }
-    ]
+function countExactClass(html, className) {
+  const classRegex = /class\s*=\s*["']([^"']+)["']/g;
+  let count = 0;
+  let match;
+  while ((match = classRegex.exec(html)) !== null) {
+    const classes = match[1].split(/\s+/).filter(Boolean);
+    if (classes.includes(className)) count += 1;
   }
-};
+  return count;
+}
+
+function countSelector(html, selector) {
+  const value = String(selector || '').trim();
+  if (!value) return 0;
+  if (value.startsWith('.')) return countExactClass(html, value.slice(1));
+  if (value.startsWith('#')) return hasId(html, value.slice(1)) ? 1 : 0;
+  if (/^[a-z][a-z0-9-]*$/i.test(value)) {
+    const matches = html.match(new RegExp(`<\\s*${value}(\\s|>|/)`, 'gi'));
+    return matches ? matches.length : 0;
+  }
+  return 0;
+}
+
+function testJsPattern(check, js) {
+  if (!check || !check.pattern) return true;
+  if (check.pattern instanceof RegExp) return check.pattern.test(js);
+  return new RegExp(check.pattern, check.flags || 'i').test(js);
+}
 
 function validateBehaviorStatic(projectId, html, js) {
   const rules = BEHAVIOR_RULES[projectId];
@@ -299,7 +247,7 @@ function validateBehaviorStatic(projectId, html, js) {
     if (!hasDataAttr(html, attr)) errors.push(`L attribut data-${attr} est attendu.`);
   }
   for (const check of rules.jsChecks || []) {
-    if (check.pattern && !check.pattern.test(js)) errors.push(check.message || 'Le comportement JS attendu est absent.');
+    if (!testJsPattern(check, js)) errors.push(check.message || 'Le comportement JS attendu est absent.');
   }
 
   return errors;
@@ -325,6 +273,17 @@ function validateSubmission(projectId, htmlCode = '', jsCode = '') {
 
   for (const inputType of rules.inputTypes || []) {
     if (!hasInputType(html, inputType)) errors.push(`Un input de type "${inputType}" est attendu.`);
+  }
+
+  for (const attr of rules.dataAttrs || []) {
+    if (!hasDataAttr(html, attr)) errors.push(`L attribut data-${attr} est attendu.`);
+  }
+
+  for (const rule of rules.minElements || []) {
+    const count = countSelector(html, rule.selector);
+    if (count < Number(rule.count || 0)) {
+      errors.push(rule.message || `Il manque des elements ${rule.selector}.`);
+    }
   }
 
   for (const name of rules.jsNames || []) {
@@ -528,6 +487,48 @@ module.exports = async function preparationRoutes(fastify) {
       progress: normalizeProgressRows([completed])[0],
       profile: normalizeProfile(profile),
       leaderboard: normalizeLeaderboard(leaderboard)
+    });
+  });
+
+  fastify.post('/solution', async (request, reply) => {
+    const auth = await getAuthContext(request, reply, true);
+    if (!auth) return;
+
+    const body = request.body || {};
+    const projectId = Number(body.projectId);
+    if (!projectId || projectId < 1 || projectId > PROJECT_COUNT) {
+      return reply.code(400).send({ success: false, message: 'Projet invalide.' });
+    }
+
+    const rows = await db.getPreparationProgress(auth.keyId);
+    if (!isProjectUnlocked(projectId, rows)) {
+      return reply.code(403).send({ success: false, message: 'Projet verrouille. Termine les etapes precedentes.' });
+    }
+
+    const current = rows.find((row) => Number(row.project_id) === projectId);
+    const attempts = Math.max(Number(body.attempts || 0), Number(current && current.attempts || 0));
+    if (attempts < 2) {
+      return reply.code(403).send({ success: false, message: 'La solution se debloque apres au moins deux echecs.' });
+    }
+
+    const solution = SOLUTIONS[projectId];
+    if (!solution) {
+      return reply.code(404).send({ success: false, message: 'Solution indisponible pour ce projet.' });
+    }
+
+    const saved = await db.savePreparationProgress(auth.keyId, {
+      projectId,
+      htmlCode: body.htmlCode || (current && current.html_code) || '',
+      jsCode: body.jsCode || (current && current.js_code) || '',
+      usedHint: Boolean(current && current.used_hint),
+      usedSolution: true,
+      attempts
+    });
+
+    return reply.send({
+      success: true,
+      solution,
+      progress: normalizeProgressRows([saved])[0]
     });
   });
 

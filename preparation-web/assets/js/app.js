@@ -2,6 +2,7 @@
   const projects = window.PREPARATION_PROJECTS || [];
   const LOCAL_KEY = 'preparation-web-progress-v1';
   const SAVE_DELAY = 650;
+  const PROJECT_COUNT = projects.length || 0;
 
   const $ = (selector) => document.querySelector(selector);
   const refs = {
@@ -73,7 +74,14 @@
     previewCssEnabled: true,
     focusMode: false,
     aiBusy: false,
-    railWasCollapsed: false
+    railWasCollapsed: false,
+    feedback: null,
+    autocomplete: {
+      items: [],
+      type: null,
+      editor: null,
+      index: 0
+    }
   };
 
   function escapeHtml(value) {
@@ -104,17 +112,20 @@
     if (!window.CodeMirror || !refs.htmlEditor || !refs.cssEditor || !refs.jsEditor) return;
     const baseOptions = {
       theme: 'proba-black',
-      lineNumbers: false,
+      lineNumbers: true,
       lineWrapping: true,
       indentUnit: 2,
       tabSize: 2,
       indentWithTabs: false,
-      autoCloseBrackets: true
+      autoCloseBrackets: true,
+      matchBrackets: true,
+      styleActiveLine: true
     };
     editorState.html = window.CodeMirror.fromTextArea(refs.htmlEditor, {
       ...baseOptions,
       mode: 'htmlmixed',
-      autoCloseTags: true
+      autoCloseTags: true,
+      matchTags: { bothTags: true }
     });
     editorState.css = window.CodeMirror.fromTextArea(refs.cssEditor, {
       ...baseOptions,
@@ -323,9 +334,9 @@
     refs.studentRank.textContent = rank;
     refs.studentXp.textContent = `${totalXp} XP`;
     refs.progressBar.style.width = `${Math.round((completed / projects.length) * 100)}%`;
-    refs.progressText.textContent = `${completed}/${projects.length} projets valides`;
+    refs.progressText.textContent = `${completed}/${PROJECT_COUNT} projets valides`;
     refs.statXp.textContent = totalXp;
-    if (refs.progressTrigger) refs.progressTrigger.textContent = `${completed}/${projects.length}`;
+    if (refs.progressTrigger) refs.progressTrigger.textContent = `${completed}/${PROJECT_COUNT}`;
     refs.statBadges.textContent = badges;
   }
 
@@ -334,8 +345,8 @@
     const badges = [];
     if (done >= 1) badges.push('Premier projet');
     if (state.progress[5] && state.progress[5].completed) badges.push('HTML valide');
-    if (state.progress[9] && state.progress[9].completed) badges.push('JS solide');
-    if (state.progress[10] && state.progress[10].completed) badges.push('Finaliste');
+    if (state.progress[11] && state.progress[11].completed) badges.push('JS solide');
+    if (state.progress[12] && state.progress[12].completed) badges.push('Finaliste');
     return badges;
   }
 
@@ -362,6 +373,7 @@
       return `<span class="progress-node ${progress.completed ? 'is-done' : ''}"></span>`;
     }).join('');
     refs.progressTimeline.innerHTML = nodes;
+    refs.progressTimeline.style.gridTemplateColumns = `repeat(${PROJECT_COUNT}, minmax(18px, 1fr))`;
   }
 
   function openProgressModal() {
@@ -375,6 +387,7 @@
 
   function setFocusMode(enabled) {
     state.focusMode = !!enabled;
+    clearWorkbenchGridStyle();
     refs.workspace.classList.toggle('focus-code', state.focusMode);
     if (refs.toggleFocus) refs.toggleFocus.textContent = state.focusMode ? 'Mode normal' : 'Focus code';
     if (state.focusMode) {
@@ -420,7 +433,7 @@
 
   function buildMiniCourse(project) {
     if (project.pedagogy) {
-      return project.pedagogy;
+      return `${project.pedagogy}${project.reactBridge ? buildBlock('Pont vers React', `<p>${escapeHtml(project.reactBridge)}</p>`, 'react-bridge') : ''}`;
     }
 
     const blocks = [];
@@ -431,6 +444,7 @@
     if (project.commonErrors && project.commonErrors.length) blocks.push(buildBlock('Erreurs frequentes', buildList(project.commonErrors)));
     if (project.tips && project.tips.length) blocks.push(buildBlock('Astuces', buildList(project.tips)));
     if (project.glossary && project.glossary.length) blocks.push(buildBlock('Glossaire', buildList(project.glossary)));
+    if (project.reactBridge) blocks.push(buildBlock('Pont vers React', `<p>${escapeHtml(project.reactBridge)}</p>`, 'react-bridge'));
 
     if (!blocks.length) {
       return `
@@ -523,6 +537,9 @@
     refs.lessonExercise.innerHTML = buildExercise(project, stepText);
     refs.stepIndicator.textContent = `Etape ${stepIndex + 1}/${steps.length}`;
     syncGuideBlocks(project, stepIndex);
+
+    highlightCodeBlocks(refs.lessonMiniCourse);
+    highlightCodeBlocks(refs.lessonExercise);
   }
 
   function currentProgress() {
@@ -560,7 +577,11 @@
     renderStats();
     renderEditorTab(state.activeTab);
     renderPreview();
-    renderFeedback(['Ecris le code demande puis clique sur Valider.'], 'neutral');
+    if (state.feedback && Number(state.feedback.projectId) === Number(project.id)) {
+      renderFeedback(state.feedback.messages, state.feedback.type, false);
+    } else {
+      renderFeedback(['Ecris le code demande puis clique sur Valider.'], 'neutral', false);
+    }
     renderQuiz(project);
   }
 
@@ -624,7 +645,14 @@ ${safeJs}
     refs.previewFrame.srcdoc = composePreview(project, currentProgress());
   }
 
-  function renderFeedback(messages, type) {
+  function renderFeedback(messages, type, persist = true) {
+    if (persist) {
+      state.feedback = {
+        projectId: state.currentId,
+        messages: messages || [],
+        type: type || 'neutral'
+      };
+    }
     refs.feedbackCard.classList.toggle('is-ok', type === 'ok');
     refs.feedbackCard.classList.toggle('is-error', type === 'error');
     if (!messages || messages.length === 0) {
@@ -771,6 +799,37 @@ ${safeJs}
 
       const doc = iframe.contentDocument;
       const errors = [];
+
+      if (behavior === 'message') {
+        const text = doc.getElementById('messageText');
+        const button = doc.getElementById('changeMessageBtn');
+        if (!text || !button) errors.push('Le projet doit garder #messageText et #changeMessageBtn.');
+        if (!errors.length) {
+          const before = text.textContent.trim();
+          button.click();
+          await wait(80);
+          if (!text.textContent.trim() || text.textContent.trim() === before) {
+            errors.push('Quand on clique, #messageText doit afficher un nouveau message.');
+          }
+        }
+      }
+
+      if (behavior === 'toggle') {
+        const badge = doc.getElementById('statusBadge');
+        const button = doc.getElementById('toggleStatusBtn');
+        if (!badge || !button) errors.push('Le projet doit garder #statusBadge et #toggleStatusBtn.');
+        if (!errors.length) {
+          const beforeText = badge.textContent.trim();
+          const beforeClass = badge.className;
+          button.click();
+          await wait(80);
+          const changedText = badge.textContent.trim() !== beforeText;
+          const changedClass = badge.className !== beforeClass;
+          if (!changedText || !changedClass) {
+            errors.push('Au clic, le badge doit changer de texte et de classe visuelle.');
+          }
+        }
+      }
 
       if (behavior === 'counter') {
         const button = doc.getElementById('incrementBtn');
@@ -1070,7 +1129,7 @@ ${safeJs}
         <strong>#${row.rank}</strong>
         <span>${escapeHtml(row.name)}</span>
         <span>${row.xp} XP</span>
-        <span>${row.projectsCompleted}/10 projets</span>
+        <span>${row.projectsCompleted}/${PROJECT_COUNT} projets</span>
       </div>
     `).join('');
   }
@@ -1122,21 +1181,31 @@ ${safeJs}
     showToast('Indice utilise. Tu peux continuer, avec un petit bonus XP en moins.');
   }
 
-  function showSolution() {
+  async function showSolution() {
     const project = projectById(state.currentId);
     const progress = currentProgress();
     if (progress.attempts < 2) {
       showToast('La solution se debloque apres au moins deux echecs.');
       return;
     }
-    progress.usedSolution = true;
-    progress.updatedAt = new Date().toISOString();
-    saveLocalState();
-    scheduleServerSave(project.id, true);
-    const htmlSolution = project.solutionHtml ? `HTML\n${project.solutionHtml}` : '';
-    const jsSolution = project.solutionJs ? `\n\nJavaScript\n${project.solutionJs}` : '';
-    refs.solutionContent.textContent = `${htmlSolution}${jsSolution}`.trim();
-    refs.solutionModal.classList.remove('is-hidden');
+    updateCurrentCodeFromEditors();
+    try {
+      const data = await api('/api/preparation/solution', {
+        method: 'POST',
+        body: JSON.stringify(progress)
+      });
+      progress.usedSolution = true;
+      progress.updatedAt = new Date().toISOString();
+      if (data.progress) state.progress[project.id] = { ...progress, ...data.progress };
+      saveLocalState();
+      const solution = data.solution || {};
+      const htmlSolution = solution.html ? `HTML\n${solution.html}` : '';
+      const jsSolution = solution.js ? `\n\nJavaScript\n${solution.js}` : '';
+      refs.solutionContent.textContent = `${htmlSolution}${jsSolution}`.trim();
+      refs.solutionModal.classList.remove('is-hidden');
+    } catch (error) {
+      showToast(error.message || 'Solution indisponible pour le moment.');
+    }
   }
 
   function appendAiMessage(text, isUser) {
@@ -1238,25 +1307,129 @@ Reponds uniquement avec des indices textuels, sans code.`;
 
   const AUTOCOMPLETE = {
     html: [
-      '<section class="">',
-      '<article class="">',
-      '<div class="">',
+      // ── Conteneurs sémantiques ──
+      '<section class="">\n  \n</section>',
+      '<article class="">\n  \n</article>',
+      '<main class="">\n  \n</main>',
+      '<header class="">\n  \n</header>',
+      '<footer class="">\n  \n</footer>',
+      '<nav class="">\n  \n</nav>',
+      '<div class="">\n  \n</div>',
+      '<div class="card">\n  <h2></h2>\n  <p></p>\n</div>',
+      // ── Texte et media ──
+      '<h1 class=""></h1>',
+      '<h2 class=""></h2>',
+      '<h3 class=""></h3>',
+      '<p class=""></p>',
+      '<span id="" class=""></span>',
       '<img class="" src="" alt="">',
-      '<h1></h1>',
-      '<p></p>',
-      '<ul>\n  <li></li>\n</ul>',
-      '<button></button>',
-      '<a href=""></a>'
+      // ── Listes ──
+      '<ul class="">\n  <li></li>\n  <li></li>\n  <li></li>\n</ul>',
+      '<ol>\n  <li></li>\n  <li></li>\n</ol>',
+      // ── Liens et boutons ──
+      '<a class="" href=""></a>',
+      '<a class="" href="mailto:"></a>',
+      '<button id="" type="button" class=""></button>',
+      '<button class="" data-choice="" type="button"></button>',
+      '<button class="" data-op="+" type="button">+</button>',
+      // ── Formulaires ──
+      '<form class="">\n  <label for=""></label>\n  <input id="" type="text" class="">\n  <button type="submit"></button>\n</form>',
+      '<label class="" for=""></label>',
+      '<input class="" id="" type="text" placeholder="">',
+      '<input class="" id="" type="email" required>',
+      '<input class="" id="" type="number" placeholder="0">',
+      '<input class="" id="" type="password">',
+      '<input class="" id="" type="checkbox">',
+      '<input class="" name="" type="radio">',
+      '<textarea class="" id=""></textarea>',
+      '<select class="" id="">\n  <option value=""></option>\n  <option value=""></option>\n</select>',
+      // ── IDs projets courants ──
+      '<p id="messageText"></p>',
+      '<button id="changeMessageBtn" type="button">Changer</button>',
+      '<p id="statusBadge" class="status-badge">En attente</p>',
+      '<button id="toggleStatusBtn" type="button">Basculer</button>',
+      '<input id="todoInput" type="text" placeholder="Nouvelle tache">',
+      '<button id="addTodoBtn" type="button">Ajouter</button>',
+      '<ul id="todoList"></ul>',
+      '<input id="numberA" type="number" placeholder="A">',
+      '<input id="numberB" type="number" placeholder="B">',
+      '<span id="calcResult">0</span>',
+      '<span id="playerScore">0</span>',
+      '<span id="botScore">0</span>',
+      '<p id="resultMessage" class="result-message"></p>',
+      '<button id="resetBtn" class="reset-btn">Reinitialiser</button>',
+      // ── Data attributes ──
+      '<button class="choice-btn" data-choice="pierre" type="button">Pierre</button>',
+      '<button class="choice-btn" data-choice="papier" type="button">Papier</button>',
+      '<button class="choice-btn" data-choice="ciseaux" type="button">Ciseaux</button>'
     ],
     js: [
-      'const ',
-      'let ',
-      'function name() {\n  \n}',
-      'document.getElementById(\'\')',
-      'document.querySelector(\'\')',
-      "addEventListener('click', () => {\n  \n});",
-      'textContent = ',
-      'Number()'
+      // ── Ciblage DOM ──
+      'const element = document.getElementById(\'id\');',
+      'const elements = document.querySelectorAll(\'.class\');',
+      'const btn = document.getElementById(\'btn\');',
+      'const input = document.getElementById(\'input\');',
+      'const list = document.getElementById(\'list\');',
+      // ── Lecture valeurs ──
+      'const value = input.value.trim();',
+      'const number = Number(input.value);',
+      'const text = element.textContent;',
+      'const choice = event.currentTarget.dataset.choice;',
+      'const op = event.currentTarget.dataset.op;',
+      // ── Variables d\'état ──
+      'let score = 0;',
+      'let isActive = false;',
+      'let count = 0;',
+      'let playerScore = 0;',
+      'let botScore = 0;',
+      // ── Fonctions handler ──
+      'function handleClick() {\n  \n}',
+      'function handleInput() {\n  const value = input.value.trim();\n  if (!value) return;\n  \n}',
+      'function toggleActive() {\n  isActive = !isActive;\n  element.classList.toggle(\'is-active\', isActive);\n}',
+      'function reset() {\n  score = 0;\n  element.textContent = \'0\';\n}',
+      // ── Mise à jour DOM ──
+      "element.textContent = 'Nouveau texte';",
+      'element.textContent = value;',
+      'element.textContent = score;',
+      "element.innerHTML = `<span>${value}</span>`;",
+      "element.classList.add('is-active');",
+      "element.classList.remove('is-active');",
+      "element.classList.toggle('is-active', isActive);",
+      // ── Création éléments ──
+      "const li = document.createElement('li');",
+      'li.textContent = value;',
+      'list.appendChild(li);',
+      'input.value = \'\';',
+      // ── Événements ──
+      "button.addEventListener('click', handleClick);",
+      "input.addEventListener('input', handleInput);",
+      "document.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleClick(); });",
+      "buttons.forEach((btn) => btn.addEventListener('click', (e) => { const op = e.currentTarget.dataset.op; }));",
+      // ── Conditions et logique ──
+      'if (!value) return;',
+      'if (condition) {\n  \n} else {\n  \n}',
+      'isActive = !isActive;',
+      'score += 1;',
+      'const isCorrect = choice === answer;',
+      // ── Arrays et aléatoire ──
+      "const choices = ['pierre', 'papier', 'ciseaux'];",
+      'const randomIndex = Math.floor(Math.random() * choices.length);',
+      'const botChoice = choices[Math.floor(Math.random() * choices.length)];',
+      'array.forEach((item) => {\n  \n});',
+      'const result = array.filter((item) => item.active);',
+      'const found = array.find((item) => item.id === id);',
+      // ── Nombres ──
+      'const a = Number(numberA.value);',
+      'const b = Number(numberB.value);',
+      'let result = 0;',
+      'if (operation === \'+\') result = a + b;',
+      'if (b === 0) { result = 0; } else { result = a / b; }',
+      // ── Commentaires pont React ──
+      '// React: getElementById -> useRef',
+      '// React: textContent -> {state}',
+      '// React: classList.toggle -> className conditionnel',
+      '// React: addEventListener -> onClick={handler}',
+      '// React: createElement + appendChild -> rendu JSX de liste'
     ]
   };
 
@@ -1264,6 +1437,10 @@ Reponds uniquement avec des indices textuels, sans code.`;
     if (!refs.autocompleteBox) return;
     refs.autocompleteBox.classList.add('is-hidden');
     refs.autocompleteBox.innerHTML = '';
+    state.autocomplete.items = [];
+    state.autocomplete.editor = null;
+    state.autocomplete.type = null;
+    state.autocomplete.index = 0;
   }
 
   function insertAtCursor(editor, text) {
@@ -1282,29 +1459,128 @@ Reponds uniquement avec des indices textuels, sans code.`;
     scheduleSave();
   }
 
-  function showAutocomplete(editor, type) {
+  function currentToken(editor, type) {
+    if (!editor) return '';
+    let text = '';
+    if (typeof editor.getCursor === 'function') {
+      const cursor = editor.getCursor();
+      text = editor.getLine(cursor.line).slice(0, cursor.ch);
+    } else {
+      text = String(editor.value || '').slice(0, editor.selectionStart || 0);
+    }
+    const pattern = type === 'html' ? /([a-zA-Z][\w.#>*-]*)$/ : /([a-zA-Z_$][\w$.-]*)$/;
+    const match = text.match(pattern);
+    return match ? match[1] : '';
+  }
+
+  function matchingCompletions(type, query, autoMode) {
+    const items = AUTOCOMPLETE[type] || [];
+    const normalized = String(query || '').toLowerCase();
+    if (autoMode && normalized.length < 1) return [];
+    if (!normalized) return items;
+    return items.filter((item) => item.toLowerCase().includes(normalized)).slice(0, 12);
+  }
+
+  function replaceTokenWithCompletion(editor, type, item) {
+    const token = currentToken(editor, type);
+    if (typeof editor.getCursor === 'function') {
+      const cursor = editor.getCursor();
+      const from = { line: cursor.line, ch: Math.max(0, cursor.ch - token.length) };
+      editor.replaceRange(item, from, cursor, 'completion');
+      editor.focus();
+      scheduleSave();
+      return;
+    }
+    const pos = editor.selectionStart || 0;
+    const start = Math.max(0, pos - token.length);
+    editor.value = editor.value.slice(0, start) + item + editor.value.slice(pos);
+    const nextPos = start + item.length;
+    editor.selectionStart = editor.selectionEnd = nextPos;
+    editor.focus();
+    scheduleSave();
+  }
+
+  function renderAutocompleteItems() {
+    refs.autocompleteBox.innerHTML = state.autocomplete.items.map((item, index) => (
+      `<button class="autocomplete-item ${index === state.autocomplete.index ? 'is-active' : ''}" type="button"><code>${escapeHtml(item)}</code></button>`
+    )).join('');
+    Array.from(refs.autocompleteBox.querySelectorAll('button')).forEach((button, index) => {
+      button.addEventListener('mousedown', (event) => event.preventDefault());
+      button.addEventListener('click', () => {
+        replaceTokenWithCompletion(state.autocomplete.editor, state.autocomplete.type, state.autocomplete.items[index]);
+        hideAutocomplete();
+      });
+    });
+  }
+
+  function pickAutocomplete(delta) {
+    if (!state.autocomplete.items.length) return;
+    const count = state.autocomplete.items.length;
+    state.autocomplete.index = (state.autocomplete.index + delta + count) % count;
+    renderAutocompleteItems();
+  }
+
+  function acceptAutocomplete() {
+    if (!state.autocomplete.items.length || !state.autocomplete.editor) return false;
+    replaceTokenWithCompletion(state.autocomplete.editor, state.autocomplete.type, state.autocomplete.items[state.autocomplete.index]);
+    hideAutocomplete();
+    return true;
+  }
+
+  function positionAutocompleteBox(editor) {
+    if (!refs.autocompleteBox) return;
+    try {
+      let coords = null;
+      if (editor && typeof editor.getCursor === 'function' && typeof editor.cursorCoords === 'function') {
+        coords = editor.cursorCoords(true, 'window');
+      } else if (editor && editor.getBoundingClientRect) {
+        const rect = editor.getBoundingClientRect();
+        coords = { left: rect.left + 8, bottom: rect.top + 24 };
+      }
+      if (!coords) return;
+      const box = refs.autocompleteBox;
+      const vpW = window.innerWidth;
+      const vpH = window.innerHeight;
+      const boxW = 340;
+      const boxH = 260;
+      let left = Math.round(coords.left);
+      let top = Math.round(coords.bottom + 4);
+      if (left + boxW > vpW - 8) left = Math.max(8, vpW - boxW - 8);
+      if (top + boxH > vpH - 8) {
+        const above = Math.round((coords.top || coords.bottom) - boxH - 4);
+        if (above > 8) top = above;
+      }
+      box.style.left = `${left}px`;
+      box.style.top = `${top}px`;
+      box.style.right = 'auto';
+    } catch {
+      // Si le positionnement échoue, on laisse la position CSS par défaut.
+    }
+  }
+
+  function showAutocomplete(editor, type, autoMode = false) {
     if (!refs.autocompleteBox || !editor) return;
     const isReadOnly = typeof editor.getOption === 'function'
       ? !!editor.getOption('readOnly')
       : !!editor.readOnly;
     if (isReadOnly) {
-      showToast('Autocompletion disponible uniquement sur un fichier editable.');
+      if (!autoMode) showToast('Autocompletion disponible uniquement sur un fichier editable.');
       return;
     }
-    const items = AUTOCOMPLETE[type] || [];
-    if (!items.length) return;
+    const query = currentToken(editor, type);
+    const items = matchingCompletions(type, query, autoMode);
+    if (!items.length) {
+      if (autoMode) hideAutocomplete();
+      return;
+    }
 
-    refs.autocompleteBox.innerHTML = items.map((item) => (
-      `<button class="autocomplete-item" type="button">${escapeHtml(item)}</button>`
-    )).join('');
-
+    state.autocomplete.items = items;
+    state.autocomplete.type = type;
+    state.autocomplete.editor = editor;
+    state.autocomplete.index = 0;
+    renderAutocompleteItems();
     refs.autocompleteBox.classList.remove('is-hidden');
-    Array.from(refs.autocompleteBox.querySelectorAll('button')).forEach((button, index) => {
-      button.addEventListener('click', () => {
-        insertAtCursor(editor, items[index]);
-        hideAutocomplete();
-      });
-    });
+    positionAutocompleteBox(editor);
   }
 
   const VOID_TAGS = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
@@ -1504,6 +1780,7 @@ Reponds uniquement avec des indices textuels, sans code.`;
     if (editorState.html || editorState.js) {
       if (editorState.html) {
         editorState.html.on('change', scheduleSave);
+        editorState.html.on('inputRead', (cm) => showAutocomplete(cm, 'html', true));
         editorState.html.on('copy', (cm, event) => {
           if (cm.getOption('readOnly')) {
             event.preventDefault();
@@ -1511,8 +1788,33 @@ Reponds uniquement avec des indices textuels, sans code.`;
           }
         });
         editorState.html.on('keydown', (cm, event) => {
+          if (!refs.autocompleteBox.classList.contains('is-hidden')) {
+            if (event.key === 'ArrowDown') {
+              event.preventDefault();
+              pickAutocomplete(1);
+              return;
+            }
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              pickAutocomplete(-1);
+              return;
+            }
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              acceptAutocomplete();
+              return;
+            }
+          }
+          if (event.key === ' ' && /[.#>*]/.test(currentToken(cm, 'html'))) {
+            if (tryEmmetExpand(cm, 'html')) {
+              event.preventDefault();
+              scheduleSave();
+              return;
+            }
+          }
           if (event.key === 'Tab') {
             event.preventDefault();
+            if (acceptAutocomplete()) return;
             if (!tryEmmetExpand(cm, 'html')) {
               cm.replaceSelection('  ', 'end');
             }
@@ -1520,13 +1822,14 @@ Reponds uniquement avec des indices textuels, sans code.`;
           }
           if ((event.ctrlKey || event.metaKey) && (event.code === 'Space' || event.key === ' ')) {
             event.preventDefault();
-            showAutocomplete(cm, 'html');
+            showAutocomplete(cm, 'html', false);
           }
           if (event.key === 'Escape') hideAutocomplete();
         });
       }
       if (editorState.js) {
         editorState.js.on('change', scheduleSave);
+        editorState.js.on('inputRead', (cm) => showAutocomplete(cm, 'js', true));
         editorState.js.on('copy', (cm, event) => {
           if (cm.getOption('readOnly')) {
             event.preventDefault();
@@ -1534,6 +1837,23 @@ Reponds uniquement avec des indices textuels, sans code.`;
           }
         });
         editorState.js.on('keydown', (cm, event) => {
+          if (!refs.autocompleteBox.classList.contains('is-hidden')) {
+            if (event.key === 'ArrowDown') {
+              event.preventDefault();
+              pickAutocomplete(1);
+              return;
+            }
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              pickAutocomplete(-1);
+              return;
+            }
+            if (event.key === 'Enter' || event.key === 'Tab') {
+              event.preventDefault();
+              acceptAutocomplete();
+              return;
+            }
+          }
           if (event.key === 'Tab') {
             event.preventDefault();
             cm.replaceSelection('  ', 'end');
@@ -1541,7 +1861,7 @@ Reponds uniquement avec des indices textuels, sans code.`;
           }
           if ((event.ctrlKey || event.metaKey) && (event.code === 'Space' || event.key === ' ')) {
             event.preventDefault();
-            showAutocomplete(cm, 'js');
+            showAutocomplete(cm, 'js', false);
           }
           if (event.key === 'Escape') hideAutocomplete();
         });
@@ -1556,7 +1876,10 @@ Reponds uniquement avec des indices textuels, sans code.`;
     }
 
     [refs.htmlEditor, refs.jsEditor].forEach((editor) => {
-      editor.addEventListener('input', scheduleSave);
+      editor.addEventListener('input', () => {
+        scheduleSave();
+        showAutocomplete(editor, editor === refs.htmlEditor ? 'html' : 'js', true);
+      });
       editor.addEventListener('copy', (event) => {
         if (editor.readOnly) {
           event.preventDefault();
@@ -1564,6 +1887,30 @@ Reponds uniquement avec des indices textuels, sans code.`;
         }
       });
       editor.addEventListener('keydown', (event) => {
+        if (!refs.autocompleteBox.classList.contains('is-hidden')) {
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            pickAutocomplete(1);
+            return;
+          }
+          if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            pickAutocomplete(-1);
+            return;
+          }
+          if (event.key === 'Enter' || event.key === 'Tab') {
+            event.preventDefault();
+            acceptAutocomplete();
+            return;
+          }
+        }
+        if (editor === refs.htmlEditor && event.key === ' ' && /[.#>*]/.test(currentToken(editor, 'html'))) {
+          if (tryEmmetExpandTextarea(editor)) {
+            event.preventDefault();
+            scheduleSave();
+            return;
+          }
+        }
         if (event.key === 'Tab') {
           event.preventDefault();
           if (editor === refs.htmlEditor && tryEmmetExpandTextarea(editor)) {
@@ -1578,7 +1925,7 @@ Reponds uniquement avec des indices textuels, sans code.`;
         }
         if (event.ctrlKey && event.code === 'Space') {
           event.preventDefault();
-          showAutocomplete(editor, editor === refs.htmlEditor ? 'html' : 'js');
+          showAutocomplete(editor, editor === refs.htmlEditor ? 'html' : 'js', false);
         }
         if (event.key === 'Escape') {
           hideAutocomplete();
@@ -1624,8 +1971,14 @@ Reponds uniquement avec des indices textuels, sans code.`;
     $('#closeSolution').addEventListener('click', () => refs.solutionModal.classList.add('is-hidden'));
     $('#resetBtn').addEventListener('click', resetCurrentProject);
     $('#toggleRail').addEventListener('click', () => refs.shell.classList.toggle('rail-collapsed'));
-    $('#toggleLesson').addEventListener('click', () => refs.workspace.classList.toggle('lesson-collapsed'));
-    $('#collapseLesson').addEventListener('click', () => refs.workspace.classList.add('lesson-collapsed'));
+    $('#toggleLesson').addEventListener('click', () => {
+      clearWorkbenchGridStyle();
+      refs.workspace.classList.toggle('lesson-collapsed');
+    });
+    $('#collapseLesson').addEventListener('click', () => {
+      clearWorkbenchGridStyle();
+      refs.workspace.classList.add('lesson-collapsed');
+    });
 
     if (refs.prevStep) refs.prevStep.addEventListener('click', () => changeLessonStep(-1));
     if (refs.nextStep) refs.nextStep.addEventListener('click', () => changeLessonStep(1));
@@ -1733,8 +2086,135 @@ Reponds uniquement avec des indices textuels, sans code.`;
     });
   }
 
+  function highlightCodeBlocks(container) {
+    if (!container) return;
+    const codeBlocks = container.querySelectorAll('pre code');
+    codeBlocks.forEach((block) => {
+      const text = block.textContent;
+      const isHtml = text.includes('<') || text.includes('<!--');
+      let html = '';
+      if (isHtml) {
+        const lines = text.split('\n');
+        const highlightedLines = lines.map(line => {
+          const commentMatch = line.match(/^(\s*)(<!--[\s\S]*?-->)(.*)$/);
+          if (commentMatch) {
+            const indent = commentMatch[1];
+            const comment = commentMatch[2];
+            const rest = commentMatch[3];
+            return indent + `<span class="code-comment">${escapeHtml(comment)}</span>` + escapeHtml(rest);
+          }
+          let escaped = escapeHtml(line);
+          escaped = escaped.replace(/(&quot;[\s\S]*?&quot;)/g, '<span class="code-string">$1</span>');
+          escaped = escaped.replace(/('[\s\S]*?')/g, '<span class="code-string">$1</span>');
+          escaped = escaped.replace(/(&lt;\/?)([a-zA-Z1-6-]+)/g, '$1<span class="code-tag">$2</span>');
+          escaped = escaped.replace(/(\/?&gt;)/g, '<span class="code-bracket">$1</span>');
+          escaped = escaped.replace(/\b(class|id|src|alt|href|type|required|placeholder|for)\b/g, '<span class="code-attr">$1</span>');
+          return escaped;
+        });
+        html = highlightedLines.join('\n');
+      } else {
+        const lines = text.split('\n');
+        const highlightedLines = lines.map(line => {
+          const commentMatch = line.match(/^(\s*)(\/\/.*|\/\*[\s\S]*?\*\/)(.*)$/);
+          if (commentMatch) {
+            const indent = commentMatch[1];
+            const comment = commentMatch[2];
+            const rest = commentMatch[3];
+            return indent + `<span class="code-comment">${escapeHtml(comment)}</span>` + escapeHtml(rest);
+          }
+          let escaped = escapeHtml(line);
+          escaped = escaped.replace(/(&quot;[\s\S]*?&quot;)/g, '<span class="code-string">$1</span>');
+          escaped = escaped.replace(/('[\s\S]*?')/g, '<span class="code-string">$1</span>');
+          escaped = escaped.replace(/\b(const|let|var|function|return|if|else|true|false)\b/g, '<span class="code-keyword">$1</span>');
+          escaped = escaped.replace(/\b([0-9]+)\b/g, '<span class="code-number">$1</span>');
+          return escaped;
+        });
+        html = highlightedLines.join('\n');
+      }
+      block.innerHTML = html;
+    });
+  }
+
+  function clearWorkbenchGridStyle() {
+    const workbench = document.querySelector('.workbench');
+    if (workbench) workbench.style.gridTemplateColumns = '';
+    if (editorState.html) editorState.html.refresh();
+    if (editorState.css) editorState.css.refresh();
+    if (editorState.js) editorState.js.refresh();
+  }
+
+  function initResizers() {
+    const workbench = document.querySelector('.workbench');
+    const resizerLeft = document.getElementById('resizerLeft');
+    const resizerRight = document.getElementById('resizerRight');
+    const lesson = document.getElementById('lessonPanel');
+    const editor = document.querySelector('.editor-pane');
+    const preview = document.querySelector('.preview-pane');
+
+    if (!workbench || !resizerLeft || !resizerRight || !lesson || !editor || !preview) return;
+
+    let isDraggingLeft = false;
+    let isDraggingRight = false;
+
+    resizerLeft.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      isDraggingLeft = true;
+      document.body.style.cursor = 'col-resize';
+      document.body.classList.add('is-resizing');
+    });
+
+    resizerRight.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      isDraggingLeft = false;
+      isDraggingRight = true;
+      document.body.style.cursor = 'col-resize';
+      document.body.classList.add('is-resizing');
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDraggingLeft && !isDraggingRight) return;
+
+      const workbenchRect = workbench.getBoundingClientRect();
+      const clientX = e.clientX;
+      const relativeX = clientX - workbenchRect.left;
+
+      if (isDraggingLeft) {
+        let newLessonWidth = Math.max(300, Math.min(relativeX, workbenchRect.width - 600));
+        const previewWidth = preview.getBoundingClientRect().width;
+        const remaining = workbenchRect.width - newLessonWidth - previewWidth - 16;
+
+        if (remaining >= 400) {
+          workbench.style.gridTemplateColumns = `${newLessonWidth}px 8px 1fr 8px ${previewWidth}px`;
+        }
+      } else if (isDraggingRight) {
+        const previewWidth = workbenchRect.right - clientX;
+        let newPreviewWidth = Math.max(250, Math.min(previewWidth, workbenchRect.width - 700));
+        const lessonWidth = lesson.getBoundingClientRect().width;
+        const remaining = workbenchRect.width - lessonWidth - newPreviewWidth - 16;
+
+        if (remaining >= 400) {
+          workbench.style.gridTemplateColumns = `${lessonWidth}px 8px 1fr 8px ${newPreviewWidth}px`;
+        }
+      }
+
+      if (editorState.html) editorState.html.refresh();
+      if (editorState.css) editorState.css.refresh();
+      if (editorState.js) editorState.js.refresh();
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isDraggingLeft || isDraggingRight) {
+        isDraggingLeft = false;
+        isDraggingRight = false;
+        document.body.style.cursor = '';
+        document.body.classList.remove('is-resizing');
+      }
+    });
+  }
+
   async function init() {
     initCodeMirror();
+    initResizers();
     wireEvents();
     if (window.innerWidth < 1180) refs.shell.classList.add('rail-collapsed');
 

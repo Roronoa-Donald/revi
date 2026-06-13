@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const PREPARATION_CURRICULUM_VERSION = 2;
 
 let pool;
 
@@ -144,6 +145,7 @@ async function initDB() {
       used_hint BOOLEAN DEFAULT FALSE,
       used_solution BOOLEAN DEFAULT FALSE,
       attempts INTEGER DEFAULT 0,
+      curriculum_version INTEGER DEFAULT ${PREPARATION_CURRICULUM_VERSION},
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (key_id, project_id)
     );
@@ -154,6 +156,11 @@ async function initDB() {
       ON preparation_progress(key_id);
     CREATE INDEX IF NOT EXISTS idx_preparation_progress_project
       ON preparation_progress(project_id);
+  `);
+
+  await client.query(`
+    ALTER TABLE preparation_progress
+    ADD COLUMN IF NOT EXISTS curriculum_version INTEGER DEFAULT 1;
   `);
 
   // Créer la fonction trigger pour logger automatiquement les changements de clés
@@ -428,9 +435,9 @@ async function getPreparationProgress(keyId) {
       attempts,
       updated_at
     FROM preparation_progress
-    WHERE key_id = $1
+    WHERE key_id = $1 AND curriculum_version = $2
     ORDER BY project_id ASC
-  `, [keyId]);
+  `, [keyId, PREPARATION_CURRICULUM_VERSION]);
   return result.rows;
 }
 
@@ -441,17 +448,17 @@ async function refreshPreparationTotals(keyId) {
       total_xp = (
         SELECT COALESCE(SUM(project_xp + quiz_xp), 0)
         FROM preparation_progress
-        WHERE key_id = $1
+        WHERE key_id = $1 AND curriculum_version = $2
       ),
       projects_completed = (
         SELECT COUNT(*)
         FROM preparation_progress
-        WHERE key_id = $1 AND completed = TRUE
+        WHERE key_id = $1 AND completed = TRUE AND curriculum_version = $2
       ),
       last_activity = CURRENT_TIMESTAMP
     WHERE key_id = $1
     RETURNING *
-  `, [keyId]);
+  `, [keyId, PREPARATION_CURRICULUM_VERSION]);
   return result.rows[0] || null;
 }
 
@@ -461,15 +468,16 @@ async function savePreparationProgress(keyId, data = {}) {
 
   const result = await query(`
     INSERT INTO preparation_progress (
-      key_id, project_id, html_code, js_code, used_hint, used_solution, attempts, updated_at
+      key_id, project_id, html_code, js_code, used_hint, used_solution, attempts, curriculum_version, updated_at
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP)
     ON CONFLICT (key_id, project_id) DO UPDATE SET
       html_code = EXCLUDED.html_code,
       js_code = EXCLUDED.js_code,
       used_hint = preparation_progress.used_hint OR EXCLUDED.used_hint,
       used_solution = preparation_progress.used_solution OR EXCLUDED.used_solution,
       attempts = GREATEST(preparation_progress.attempts, EXCLUDED.attempts),
+      curriculum_version = EXCLUDED.curriculum_version,
       updated_at = CURRENT_TIMESTAMP
     RETURNING *
   `, [
@@ -479,7 +487,8 @@ async function savePreparationProgress(keyId, data = {}) {
     data.jsCode || '',
     Boolean(data.usedHint),
     Boolean(data.usedSolution),
-    Number(data.attempts || 0)
+    Number(data.attempts || 0),
+    PREPARATION_CURRICULUM_VERSION
   ]);
 
   await refreshPreparationTotals(keyId);
@@ -493,9 +502,9 @@ async function completePreparationProject(keyId, data = {}) {
   const result = await query(`
     INSERT INTO preparation_progress (
       key_id, project_id, html_code, js_code, completed, project_xp,
-      used_hint, used_solution, attempts, updated_at
+      used_hint, used_solution, attempts, curriculum_version, updated_at
     )
-    VALUES ($1, $2, $3, $4, TRUE, $5, $6, $7, $8, CURRENT_TIMESTAMP)
+    VALUES ($1, $2, $3, $4, TRUE, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
     ON CONFLICT (key_id, project_id) DO UPDATE SET
       html_code = EXCLUDED.html_code,
       js_code = EXCLUDED.js_code,
@@ -504,6 +513,7 @@ async function completePreparationProject(keyId, data = {}) {
       used_hint = preparation_progress.used_hint OR EXCLUDED.used_hint,
       used_solution = preparation_progress.used_solution OR EXCLUDED.used_solution,
       attempts = GREATEST(preparation_progress.attempts, EXCLUDED.attempts),
+      curriculum_version = EXCLUDED.curriculum_version,
       updated_at = CURRENT_TIMESTAMP
     RETURNING *
   `, [
@@ -514,7 +524,8 @@ async function completePreparationProject(keyId, data = {}) {
     Number(data.projectXp || 0),
     Boolean(data.usedHint),
     Boolean(data.usedSolution),
-    Number(data.attempts || 0)
+    Number(data.attempts || 0),
+    PREPARATION_CURRICULUM_VERSION
   ]);
 
   await refreshPreparationTotals(keyId);
@@ -527,20 +538,22 @@ async function recordPreparationQuiz(keyId, data = {}) {
 
   const result = await query(`
     INSERT INTO preparation_progress (
-      key_id, project_id, quiz_completed, quiz_score, quiz_xp, updated_at
+      key_id, project_id, quiz_completed, quiz_score, quiz_xp, curriculum_version, updated_at
     )
-    VALUES ($1, $2, TRUE, $3, $4, CURRENT_TIMESTAMP)
+    VALUES ($1, $2, TRUE, $3, $4, $5, CURRENT_TIMESTAMP)
     ON CONFLICT (key_id, project_id) DO UPDATE SET
       quiz_completed = TRUE,
       quiz_score = GREATEST(preparation_progress.quiz_score, EXCLUDED.quiz_score),
       quiz_xp = GREATEST(preparation_progress.quiz_xp, EXCLUDED.quiz_xp),
+      curriculum_version = EXCLUDED.curriculum_version,
       updated_at = CURRENT_TIMESTAMP
     RETURNING *
   `, [
     keyId,
     projectId,
     Number(data.quizScore || 0),
-    Number(data.quizXp || 0)
+    Number(data.quizXp || 0),
+    PREPARATION_CURRICULUM_VERSION
   ]);
 
   await refreshPreparationTotals(keyId);
