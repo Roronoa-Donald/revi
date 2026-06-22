@@ -2,6 +2,11 @@
 const fs = require('fs');
 const path = require('path');
 
+const reactQuestions = require('./questions-react.js');
+const erpQuestions = require('./questions-erp.js');
+const requirementsQuestions = require('./questions-requirements.js');
+const masterclassQuestions = require('./questions-masterclass.js');
+
 const ROOT = path.resolve(__dirname, '..');
 
 function ensureDir(dir) {
@@ -841,7 +846,8 @@ const courses = [
       ['localStorage', 'localStorage stocke du texte localement dans le navigateur.', ['localStorage stocke des fonctions React', 'localStorage est cote serveur', 'localStorage accepte seulement des images'], 8],
       ['Correction state', 'On utilise le setter pour modifier le state.', ['On modifie directement la variable', 'On modifie document.body', 'On change le CSS uniquement'], 4],
       ['Rappel API', 'Loading, error et data rendent un appel API lisible pour l utilisateur.', ['On ignore toujours les erreurs', 'On affiche seulement null', 'On recharge la page a chaque clic'], 6]
-    ].map(([label, correct, wrongs, ch]) => ({ label, correct, wrongs, ch, explain: correct }))
+    ].map(([label, correct, wrongs, ch]) => ({ label, correct, wrongs, ch, explain: correct })),
+    questions: reactQuestions
   },
   {
     slug: 'api-rest-flask',
@@ -1767,7 +1773,8 @@ courses.push(
     ],
     flashcards: [['SI','Collecter, traiter, stocker et diffuser l information.'],['ERP','Plateforme integree pour processus et donnees communes.'],['Workflow','Automatisation d un flux de taches selon des regles.'],['RPA','Robots logiciels pour taches repetitives.'],['EAI','Integration d applications d entreprise.'],['ESB','Bus de services d entreprise.'],['iPaaS','Plateforme cloud d integration.'],['BPMN','Notation pour modeliser les processus.'],['KPI','Indicateur de performance.'],['Cloud ERP','ERP fourni comme service par abonnement.'],['ERP hybride','Partie cloud et partie sur site.'],['Defi ERP','Organisation, competences, budget, direction.']].map(([front, back]) => ({ front, back })),
     memoSections: [{ title: 'Definitions', items: ['SI: information utile au bon moment.', 'ERP: modules + base commune + processus.', 'Workflow: flux automatise.', 'RPA: imitation logicielle de taches humaines.'] }, { title: 'Integration', items: ['Point a point: simple puis fragile.', 'Hub: centre commun mais risque central.', 'ESB: standards et services.', 'iPaaS: integration cloud flexible.'] }, { title: 'Benefices et defis', items: ['Benefices: productivite, reporting, risques reduits, agilite.', 'Defis: resistance, competences, budget, direction.', 'ERP reussi = processus + donnees + conduite du changement.'] }],
-    qTopics: []
+    qTopics: [],
+    questions: erpQuestions
   },
   {
     slug: 'ingenierie-besoin',
@@ -1820,7 +1827,8 @@ courses.push(
     ],
     flashcards: [['Besoin','Attente generale, parfois floue.'],['Exigence','Condition precise, mesurable et documentee.'],['Fonctionnelle','Ce que le systeme fait.'],['Non fonctionnelle','Qualite ou contrainte du systeme.'],['Elicitation','Faire emerger les besoins caches.'],['Portee','Ce qui est inclus et exclu du projet.'],['SRS','Document officiel des exigences.'],['Validation','Construisons-nous le bon systeme ?'],['Verification','Construisons-nous correctement le produit ?'],['Tracabilite','Suivre origine, liens et changements.'],['Prototype','Simulation pour valider avant de construire.'],['Priorisation','Arbitrer valeur, risque, cout et delai.']].map(([front, back]) => ({ front, back })),
     memoSections: [{ title: 'Regles d or', items: ['Besoin vague -> exigence mesurable.', 'Une exigence = une idee.', 'Eviter rapide, simple, moderne sans critere.', 'Le QUOI avant le COMMENT.'] }, { title: 'Processus IE', items: ['Recueil/elicitation.', 'Analyse et negociation.', 'Documentation/SRS.', 'Validation.', 'Gestion des exigences.'] }, { title: 'Bonne exigence', items: ['Correcte.', 'Atomique.', 'Non ambigue.', 'Complete.', 'Coherente.', 'Priorisee.', 'Tracable.', 'Verifiable.'] }],
-    qTopics: []
+    qTopics: [],
+    questions: requirementsQuestions
   },
   {
     slug: 'masterclass-apprendre',
@@ -1862,7 +1870,8 @@ courses.push(
     ],
     flashcards: [['Attention','Le cerveau ne retient pas ce qu il ignore.'],['Comprehension','On retient mieux ce qu on comprend.'],['Encodage','Transformer l information en trace memoire.'],['Rappel actif','Se tester sans regarder.'],['Repetition espacee','Revoir avec intervalles progressifs.'],['Feynman','Expliquer simplement pour verifier la comprehension.'],['Mind map','Organiser visuellement les relations.'],['Palais mental','Associer des idees a un lieu familier.'],['Neuroplasticite','Le cerveau se modifie avec l entrainement.'],['Erreur','Relire passivement sans se tester.']].map(([front, back]) => ({ front, back })),
     memoSections: [{ title: '5 etapes memoire', items: ['Attention.', 'Comprehension.', 'Encodage.', 'Stockage.', 'Recuperation.'] }, { title: 'Techniques gagnantes', items: ['Rappel actif.', 'Repetition espacee.', 'Feynman.', 'Images mentales.', 'Mind mapping.'] }, { title: 'Routine', items: ['Avant: survol et inconnues.', 'Pendant: notes actives.', 'Apres 24h: resume + exercices + flashcards.', 'Sommeil et pauses comptent.'] }],
-    qTopics: []
+    qTopics: [],
+    questions: masterclassQuestions
   }
 );
 
