@@ -23,81 +23,93 @@ module.exports = [
     free: true,
 
     situation:
-      'Il était une fois un serveur physique très puissant, mais très paresseux. Il n’aimait faire qu’une ' +
-      'seule tâche à la fois : héberger un seul système d’exploitation et un seul service. Résultat : il ' +
-      'passait 80 % de son temps à ne rien faire — il s’ennuyait, dormait, et mangeait de l’électricité ' +
-      'pour rien. Ce chapitre prend le constat au sérieux : avant de parler technique, il faut savoir ' +
-      'mesurer un gaspillage.',
+      'Dans l’architecture informatique classique, la règle historique était stricte : « un serveur physique ' +
+      'dédié pour un seul service ». Cette approche a engendré un gaspillage économique et écologique massif : ' +
+      'des machines surpuissantes et coûteuses sous-utilisées à plus de 80 % de leur temps, condamnées à ' +
+      'consommer de l’électricité à vide. Ce syndrome du « serveur fainéant » est le point de départ de toute ' +
+      'la révolution de la virtualisation. Ce chapitre pose le constat chiffré indispensable à tout ingénieur ' +
+      'd’infrastructure : mesurer le temps perdu, identifier les serveurs mono-service et calculer la facture énergétique.',
 
     objectives: [
-      'raconter la situation de départ : un serveur, un service, 80 % d’inactivité ;',
-      'mesurer le temps perdu d’un parc serveur heure par heure ;',
-      'repérer les serveurs mono-service et chiffrer leur coût ;',
-      'relier l’inactivité à la facture d’électricité.'
+      'comprendre l’origine historique de la sous-utilisation : le dogme « un serveur, un service » ;',
+      'mesurer le taux d’inactivité d’un parc serveur (seuil critique des 80 % / 48 minutes par heure) ;',
+      'identifier les serveurs mono-service et chiffrer le coût financier du gaspillage matériel ;',
+      'calculer la consommation électrique réelle d’un serveur en fonctionnement (watts vers kWh).'
     ],
 
     sections: [
       {
-        title: 'L’histoire d’ouverture',
+        title: 'Le problème historique : le syndrome du serveur mono-service',
         html: [
-          '<p>Le support commence comme un conte : un serveur physique très puissant, mais <strong>très ' +
-          'paresseux</strong>. Il n’aimait faire qu’une seule tâche à la fois : héberger <strong>un seul ' +
-          'système d’exploitation</strong> et <strong>un seul service</strong>, comme un site web ou une ' +
-          'base de données.</p>',
-          '<p>Le problème : il passait <strong>80 % de son temps à ne rien faire</strong>. Il s’ennuyait, ' +
-          'dormait, et mangeait de l’électricité pour rien.</p>',
-          '<p>Un jour, un ingénieur IT eut une idée : « Et si on utilisait la <strong>virtualisation</strong> ? ' +
-          'On pourrait faire croire au serveur qu’il héberge plusieurs machines… alors qu’en réalité, ce sont ' +
-          'juste des machines virtuelles qui partagent ses ressources ! »</p>',
-          box('intuition', 'Pourquoi une histoire ?', 'compass',
-            '    <p>Parce qu’une idée technique se retient quand elle a un personnage. Le serveur fainéant, ' +
-            'c’est le parc informatique réel : des machines coûteuses, sous-utilisées, qui tournent à vide ' +
-            'parce qu’on a hérité de la règle « un service, un serveur ».</p>')
+          '<p>Avant l’avènement de la virtualisation moderne, les administrateurs systèmes appliquaient un principe ' +
+          'de précaution absolu : <strong>isoler physiquement chaque application sur sa propre machine</strong>. ' +
+          'Un serveur physique était acheté pour héberger un site web, un autre pour la base de données, un troisième ' +
+          'pour la messagerie. L’objectif était d’éviter qu’un plantage logiciel n’entraîne la chute des autres services.</p>',
+          '<p>La conséquence directe de cette architecture fut désastreuse : des serveurs professionnels puissants, ' +
+          'dotés de processeurs multicœurs et de dizaines de gigaoctets de mémoire vive, passaient en réalité ' +
+          '<strong>80 % de leur temps à ne rien faire</strong> (en attente de requêtes). Le support pédagogique ' +
+          'illustre cette réalité sous le nom parlant de <strong>serveur fainéant</strong> : une machine coûteuse qui ' +
+          'tourne à vide et consomme de l’électricité sans produire de valeur.</p>',
+          '<p>C’est pour briser cette impasse qu’un ingénieur IT a introduit la <strong>virtualisation</strong> : ' +
+          'plutôt que de multiplier les boîtiers physiques, on installe une couche logicielle (l’<strong>hyperviseur</strong>) ' +
+          'qui crée plusieurs <strong>machines virtuelles (VM)</strong> indépendantes et isolées se partageant la même machine physique.</p>',
+          box('situation', 'L’origine du terme « serveur fainéant »', 'compass',
+            '    <p>Le « serveur fainéant » n’est pas une machine défectueuse : c’est une machine victime d’une ' +
+            'mauvaise architecture. Tant qu’un serveur reste cantonné à un seul service, son taux d’utilisation ' +
+            'moyen plafonne entre 10 % et 20 %. La virtualisation résout ce problème en consolidant les charges.</p>')
         ].join('\n')
       },
       {
-        title: 'Mesurer le gaspillage',
+        title: 'Mesurer le gaspillage : le seuil des 80 %',
         html: [
-          '<p>Le « 80 % » de l’histoire n’est pas une plaisanterie : c’est une donnée qui se mesure. Sur une ' +
-          'heure de 60 minutes, 80 % d’inactivité = <strong>48 minutes à ne rien faire</strong>. Un serveur ' +
-          'dont une heure compte au moins 48 minutes creuses est une heure perdue.</p>',
-          '<p>Le constat se fait parc par parc : combien de serveurs hébergent <strong>moins de deux ' +
-          'services</strong> ? Chacun d’eux reproduit le profil du serveur fainéant — puissant, payé, ' +
-          'endormi. Le coût du gaspillage se chiffre : 80 % du coût mensuel de chaque serveur mono-service ' +
-          'part en fumée.</p>',
-          box('mnemo', 'Le calcul du fainéant', 'pin',
-            '    <p>80 % d’une heure = 48 minutes. Moins de 2 services = serveur fainéant. Gaspillage = ' +
-            '80 % de son coût. Trois nombres à retenir : <strong>48, 2, 80 %</strong> — le reste du cours ' +
-            'en découle.</p>')
+          '<p>En ingénierie d’infrastructure, le gaspillage ne se devine pas : il se quantifie. Sur une heure ' +
+          'standard de 60 minutes, un taux d’inactivité de 80 % correspond exactement à <strong>48 minutes ' +
+          'à ne rien faire</strong> :</p>',
+          '$$\\text{Temps perdu} = 60 \\text{ min} \\times 0{,}80 = 48 \\text{ min}$$',
+          '<p>Toute heure où l’inactivité cumulée atteint ou dépasse 48 minutes est formellement qualifiée d’<strong>heure ' +
+          'perdue</strong>. Pour auditer un parc informatique, l’administrateur recense systématiquement les machines hébergeant ' +
+          '<strong>moins de deux services</strong> (les serveurs mono-service). Chaque machine mono-service reproduit ce schéma ' +
+          'de sous-utilisation : <strong>80 % de son coût d’amortissement mensuel part en pure perte</strong>.</p>',
+          box('mnemo', 'Les trois repères du constat', 'pin',
+            '    <p>Retenir les trois chiffres cardinaux de l’audit : <strong>48 minutes</strong> d’inactivité par heure, ' +
+            'moins de <strong>2 services</strong> par machine physique = serveur fainéant, et <strong>80 %</strong> ' +
+            'du coût matériel gaspillé. C’est la base du dimensionnement vu au chapitre 4.</p>')
         ].join('\n')
       },
       {
-        title: 'La facture d’électricité',
+        title: 'La facture d’électricité : puissance et énergie',
         html: [
-          '<p>« Il mangeait de l’électricité pour rien » : l’énergie d’un serveur se calcule en deux ' +
-          'multiplications. Une machine qui consomme <strong>W watts</strong> pendant <strong>H heures</strong> ' +
-          'a consommé <code>W × H / 1000</code> kilowattheures. À 100 francs le kWh, la facture suit ' +
-          'immédiatement.</p>',
-          '<p>Exemple du cours : 500 W pendant 720 heures (un mois), cela fait 360 kWh — 36 000 FCFA pour ' +
-          'une machine qui dort les trois quarts du temps. Sur un parc de dix fainéants, la facture du vide ' +
-          'se compte en centaines de milliers.</p>',
-          box('pitfall', 'Piège — confondre puissance et énergie', 'warning',
-            '    <p>Le watt mesure la <strong>puissance</strong> à un instant donné ; le kilowattheure ' +
-            'mesure l’<strong>énergie</strong> consommée dans le temps. Un serveur de 500 W qui marche une ' +
-            'heure consomme 0,5 kWh — pas 500 « quelque chose ».</p>')
+          '<p>En plus de l’amortissement matériel, un serveur sous-utilisé engendre une facture énergétique ' +
+          'continue. En physique et en informatique industrielle, il est capital de ne pas confondre la ' +
+          '<strong>puissance instantanée</strong> (en watts, W) et l’<strong>énergie consommée dans la durée</strong> ' +
+          '(en kilowattheures, kWh) :</p>',
+          '$$\\text{Énergie (kWh)} = \\frac{\\text{Puissance (W)} \\times \\text{Temps (h)}}{1000}$$',
+          '<p><strong>Exemple chiffré :</strong> Un serveur consommant <strong>500 W</strong> en continu pendant un mois ' +
+          'de <strong>720 heures</strong> consomme :</p>',
+          '$$\\text{Consommation} = \\frac{500 \\times 720}{1000} = 360 \\text{ kWh}$$',
+          '<p>À 100 francs le kWh, cette seule machine génère <strong>36 000 FCFA</strong> d’électricité par mois — soit plus ' +
+          'de 430 000 FCFA par an pour un serveur qui ne travaille utilement que 20 % de son temps ! À l’échelle d’un centre ' +
+          'de données de dix ou vingt serveurs, le coût de l’inaction se chiffre en millions.</p>',
+          box('pitfall', 'Piège classique — Watts contre Kilowattheures', 'warning',
+            '    <p>Le <strong>watt (W)</strong> mesure la puissance appelée à un instant T (le débit d’eau du robinet). ' +
+            'Le <strong>kilowattheure (kWh)</strong> mesure le volume total consommé dans le temps (la quantité d’eau dans la baignoire). ' +
+            'On ne facture jamais des watts, mais des kilowattheures.</p>')
         ].join('\n')
       },
       {
-        title: 'Et maintenant ?',
+        title: 'Vers la consolidation et les machines virtuelles',
         html: [
-          '<p>L’histoire pose la bonne question au bon moment : « Et si on utilisait la virtualisation ? » ' +
-          'Avant de découvrir la réponse au chapitre suivant, le constat doit être inattaquable : heures ' +
-          'perdues, serveurs mono-service, facture du vide. C’est ce dossier chiffré qui convaincra le ' +
-          'responsable informatique au chapitre 6.</p>',
-          box('tech', 'Les exercices de ce chapitre', 'terminal',
-            '    <p>Trois scripts : classer les heures perdues au seuil des 48 minutes, repérer les ' +
-            'fainéants et chiffrer leur gaspillage, calculer la facture d’électricité du parc. La logique — ' +
-            'lire, décider, rapporter — se programme en Bash et s’exécute réellement dans la page.</p>')
+          '<p>Face à ce constat accablant — 80 % d’inactivité, serveurs mono-service pléthoriques, factures d’énergie ' +
+          'et de climatisation colossales —, la question de l’ingénieur s’impose d’elle-même : ' +
+          '<em>« Pourquoi payer dix machines physiques quand une seule suffirait amplement à héberger tous ces services ? »</em></p>',
+          '<p>La réponse technique réside dans la <strong>consolidation par virtualisation</strong>, abordée au chapitre suivant : ' +
+          'allouer à chaque service uniquement les ressources réelles dont il a besoin (vCPU, mémoire vive, stockage), ' +
+          'tout en maintenant une étanchéité logicielle totale.</p>',
+          box('tech', 'Les exercices pratiques de ce module', 'terminal',
+            '    <p>Pour valider ce premier chapitre, vous allez coder trois algorithmes d’audit : ' +
+            '1. Classer les heures d’un serveur (utile vs perdue) au seuil de 48 min ; ' +
+            '2. Identifier les serveurs mono-service et chiffrer la perte financière ; ' +
+            '3. Calculer la facture d’électricité globale d’un parc à partir de sa consommation en watts.</p>')
         ].join('\n')
       }
     ],

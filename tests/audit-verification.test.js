@@ -125,6 +125,22 @@ describe('Audit Remediation Verification Suite', () => {
     assert.match(content, /box--pitfall/, 'Une boîte box--pitfall doit être présente');
   });
 
+  test('DoD-3 bis : Ancrage pédagogique rigoureux dans b1-virtualisation Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'b1-virtualisation', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'b1-virtualisation/chapitres/chapitre1.html doit exister');
+
+    const content = fs.readFileSync(ch1Path, 'utf8');
+
+    // 1. Présence des concepts clés
+    assert.match(content, /machines virtuelles/i, 'La notion de machine virtuelle doit être présente');
+    assert.match(content, /hyperviseur/i, 'La notion d\'hyperviseur doit être introduite');
+    assert.match(content, /consolidation/i, 'La notion de consolidation doit être expliquée');
+    assert.match(content, /mono-service/i, 'Le modèle historique mono-service doit être posé');
+
+    // 2. Absence de ton infantile de conte de fées
+    assert.doesNotMatch(content, /Il était une fois/i, 'Le ton infantile de conte de fées doit être banni');
+  });
+
   test('DoD-4 : Rendu multiligne non aplati des blocs de code Docker', () => {
     const dockerCh3 = path.join(ROOT, 'docker', 'chapitres', 'chapitre3.html');
     assert.ok(fs.existsSync(dockerCh3), 'docker/chapitres/chapitre3.html doit exister');
