@@ -76,6 +76,14 @@ module.exports = {
         '  </tbody>',
         '</table>',
 
+        box('situation', 'Modèle mental intuitif — Le Post-it vs L’étiquette d’entrepôt', [
+          '<p>Pour ne plus jamais confondre <strong>Type Valeur</strong> et <strong>Type Référence</strong> :</p>',
+          '<ul>',
+          '  <li><strong>Type Valeur (sur la Pile) :</strong> comme un message écrit sur un <em>Post-it</em>. Quand vous passez la variable à une méthode ou une autre variable, vous photocopiez le Post-it. Le destinataire a son propre papier : s’il le rature, votre Post-it initial reste intact.</li>',
+          '  <li><strong>Type Référence (sur le Tas) :</strong> comme une étiquette portant l’adresse d’un meuble dans un entrepôt. L’objet volumineux vit sur le Tas. Quand vous passez la variable, vous ne déplacez pas les meubles : vous photocopiez seulement l’étiquette d’adresse. Si le destinataire va dans l’entrepôt et repeint le meuble en rouge, vous retrouvez également le meuble repeint.</li>',
+          '</ul>'
+        ].join('\n')),
+
         box('warning', 'Le piège de performance du Boxing / Unboxing', [
           '<p>Le <strong>boxing</strong> se produit lorsqu’un type valeur est converti implicitement ou explicitement en un type référence (notamment <code>object</code> ou une interface). ' +
           'La CLR doit allouer un nouvel objet sur le tas, copier la valeur de la pile vers cet objet et renvoyer une référence.<br>' +
@@ -126,7 +134,14 @@ module.exports = {
         '  <li>L’exhaustivité des cas vérifiée par le compilateur (avertissement si une branche est omise) ;</li>',
         '  <li>L’intégration de conditions booléennes arbitraires via la clause <code>when</code> ;</li>',
         '  <li>L’extraction automatique (déconstruction) des variables typées sans cast manuel intermédiaire.</li>',
-        '</ul>'
+        '</ul>',
+
+        box('tech', 'Atelier pratique &amp; Outillage professionnel .NET', [
+          '<p>Dans le monde professionnel, vos applications C# s’orchestrent avec le SDK .NET officiel : ' +
+          '<code>dotnet new console</code>, <code>dotnet build</code> et <code>dotnet run</code>.</p>' +
+          '<p>Sur cette plateforme d’apprentissage, les ateliers de code interactifs évaluent votre maîtrise conceptuelle et algorithmique ' +
+          '(simulation d’allocation mémoire, analyse des règles de typage et détection de boxing) afin de garantir une rétroaction instantanée dans votre navigateur sans dépendance lourde.</p>'
+        ].join('\n'))
       ].join('\n')
     }
   ],

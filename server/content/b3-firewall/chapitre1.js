@@ -86,6 +86,17 @@ module.exports = {
         '    <tr><td><code>Drapeaux TCP (Flags)</code></td><td>Couche 4 (Transport)</td><td>6 à 9 bits</td><td>SYN, ACK, FIN, RST, PSH, URG : indicateurs d’état du protocole TCP.</td></tr>',
         '  </tbody>',
         '</table>',
+
+        box('info', 'Rappel fondamental — La poignée de main TCP à 3 voies (3-Way Handshake)', [
+          '<p>Pour comprendre comment un pare-feu contrôle les sessions, rappelons le cycle d’ouverture d’une connexion TCP normale :</p>',
+          '<ol>',
+          '  <li><strong>Client &rarr; Serveur [SYN] :</strong> Le client demande l’ouverture d’une session avec un numéro de séquence initial aléatoire (ISN).</li>',
+          '  <li><strong>Serveur &rarr; Client [SYN, ACK] :</strong> Le serveur accepte, acquitte le SYN du client et envoie son propre ISN.</li>',
+          '  <li><strong>Client &rarr; Serveur [ACK] :</strong> Le client acquitte la réponse du serveur. La session passe à l’état <strong>ESTABLISHED</strong>.</li>',
+          '</ol>',
+          '<p>Dans un <strong>pare-feu stateful</strong>, la table d’état (<em>conntrack</em>) mémorise ce dialogue. Si un paquet arrive avec le drapeau ACK sans qu’un SYN préalable n’ait été validé, il est instantanément jeté (DROP). Dans un <strong>pare-feu stateless</strong>, il n’y a aucune mémoire : le pare-feu est incapable de savoir si l’ACK fait suite à une session existante ou s’il a été forgé de toutes pièces par un pirate !</p>'
+        ]),
+
         box('warning', 'La Vulnérabilité Critique du Filtrage Stateless aux Paquets ACK Forgés', [
           '<p>Pour permettre à un poste interne d’accéder au Web externe, un pare-feu stateless doit autoriser le trafic retour provenant des serveurs Internet. Comme il ne garde aucune mémoire de la session, la règle de retour autorise classiquement tout paquet externe ayant le port source 80 ou le drapeau ACK activé.</p>',
           '<p><strong>L’attaque :</strong> Un pirate distant forge des paquets TCP personnalisés avec le drapeau ACK activé (<code>nmap -sA</code> ou <code>scapy</code>) et cible directement des serveurs internes. Le pare-feu stateless constate que le drapeau ACK est présent, déduit à tort qu’il s’agit du retour légitime d’une requête interne, et laisse passer le paquet ! C’est cette faiblesse structurelle rédhibitoire qui a imposé l’avènement du filtrage stateful.</p>'

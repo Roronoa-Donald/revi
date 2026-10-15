@@ -78,6 +78,14 @@ module.exports = [
           '    <tr><td>Système opérant</td><td>réalise la production de biens et services</td><td>assemblage, fabrication, ventes</td></tr>\n' +
           '    <tr><td>Système d\'information</td><td>mémorise, traite, transmet les informations</td><td>commandes, stocks, factures</td></tr>\n' +
           '  </table>',
+          box('situation', 'Exemple concret — La pizzeria et ses trois sous-systèmes', 'compass',
+            '    <p>Pour visualiser ces trois systèmes en action, imaginez un restaurant / pizzeria :</p>\n' +
+            '    <ul>\n' +
+            '      <li><strong>Le système opérant :</strong> les cuisiniers préparent les pizzas au four et les serveurs livrent les plats aux tables. C’est la production physique.</li>\n' +
+            '      <li><strong>Le système de décision (pilotage) :</strong> le gérant qui fixe les tarifs de la carte, surveille la marge et décide d’embaucher un serveur supplémentaire le week-end.</li>\n' +
+            '      <li><strong>Le système d’information :</strong> l’écran tactile de caisse et les bons de commande. Dès qu’un client commande, le système enregistre la vente, transmet le bon en cuisine (pour le système opérant), décompte la mozzarella du stock et génère le rapport financier de la journée (pour le gérant).</li>\n' +
+            '    </ul>\n' +
+            '    <p>Sans système d’information, la cuisine ne sait pas quoi fabriquer et le patron ne sait pas ce qu’il a vendu. C’est exactement ce système d’information que la méthode MERISE apprend à modéliser.</p>'),
           '<p>Le système d\'information est le <strong>membrane</strong> entre les deux autres : il reçoit les ' +
           'événements du monde extérieur et de la production, les transforme en informations, et les met à ' +
           'disposition de la décision. C\'est lui que la méthode MERISE modélise.</p>',

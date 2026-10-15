@@ -87,6 +87,16 @@ module.exports = {
         '<p>Deux plans complètent la sauvegarde : le <strong>PCA</strong> (Plan de Continuité d’Activité) ' +
         'vise à ce que le service ne s’arrête jamais ; le <strong>PRA</strong> (Plan de Reprise ' +
         'd’Activité) prépare la remise en service la plus rapide possible après une interruption.</p>',
+        box('tech', 'Perspective moderne — Windows Server 2022/2025 &amp; Règle 3-2-1-1-0', 'terminal',
+          '    <p>Face aux cyberattaques modernes par rançongiciel (ransomware) qui tentent d’effacer ou de chiffrer les sauvegardes en premier lieu, la règle 3-2-1 a évolué vers la <strong>règle 3-2-1-1-0</strong> :</p>\n' +
+          '    <ul>\n' +
+          '      <li><strong>3</strong> copies des données critiques ;</li>\n' +
+          '      <li><strong>2</strong> supports de stockage physiques distincts (ex. NAS + disque local) ;</li>\n' +
+          '      <li><strong>1</strong> copie hors site (Cloud Azure / AWS ou centre distant) ;</li>\n' +
+          '      <li><strong>1</strong> copie <strong>immuable ou déconnectée (air-gap)</strong>, protégée en écriture seule (WORM) ;</li>\n' +
+          '      <li><strong>0</strong> erreur lors des vérifications automatisées de restauration.</li>\n' +
+          '    </ul>\n' +
+          '    <p>Sur Windows Server 2022 et 2025 comme sur 2012 R2, l’administration s’appuie sur l’outil natif <code>wbadmin.exe</code> et les cmdlets PowerShell dédiées (<code>Start-WBBackup</code>).</p>'),
         box('intuition', 'Tester vaut mieux que supposer', 'lightbulb',
           '    <p>Une simulation de restauration révèle les maillons faibles : média illisible, étape ' +
           'manquante, mot de passe perdu. Mieux vaut le découvrir un mardi calme que le jour du ' +

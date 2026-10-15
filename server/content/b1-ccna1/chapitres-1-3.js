@@ -62,6 +62,15 @@ module.exports = [
       {
         title: 'Paires torsadées : types et catégories',
         html: [
+          box('situation', 'Signal physique : pourquoi du cuivre et pourquoi torsader les fils ?', 'globe',
+            '    <p>Dans un câble réseau Ethernet, les bits (0 et 1) se déplacent sous forme de variations de tension électrique. ' +
+            'Or, tout fil de cuivre agit comme une antenne : il capte les parasites électromagnétiques environnants ' +
+            '(moteurs, néons, ascenseurs, câbles 230 V) et rayonne sur les fils voisins (phénomène de diaphonie ou <em>crosstalk</em>).</p>\n' +
+            '    <p>L’astuce des ingénieurs réseau : <strong>enrouler les fils deux par deux en spirale (torsade)</strong>. ' +
+            'Les perturbations extérieures frappent les deux fils de façon égale ; à l’arrivée, la carte réseau mesure ' +
+            'la <em>différence</em> de tension entre les deux conducteurs, ce qui annule automatiquement le bruit parasite. ' +
+            'Pour les très longues distances ou les débits extrêmes insensibles aux champs électromagnétiques, on remplace ' +
+            'les électrons par des photons lumineux : c’est la fibre optique.</p>'),
           '<p>La <strong>paire torsadée</strong> — deux conducteurs enroulés en hélice pour minimiser les ' +
           'interférences électromagnétiques — est le support le plus répandu. Cinq types : ' +
           '<strong>UTP</strong> (non blindée, téléphonie et réseaux domestiques), <strong>FTP</strong> ' +

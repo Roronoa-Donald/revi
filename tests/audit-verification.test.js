@@ -187,4 +187,83 @@ describe('Audit Remediation Verification Suite', () => {
     assert.doesNotMatch(html3, />undefined</);
   });
 
+  test('DoD-3 ter : Ancrage pédagogique dans b1-admin-windows Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'b1-admin-windows', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'b1-admin-windows/chapitres/chapitre1.html doit exister');
+    const content = fs.readFileSync(ch1Path, 'utf8');
+    assert.match(content, /administrateur local/i, 'Compte local doit être ancré');
+    assert.match(content, /Active Directory/i, 'Active Directory doit être introduit');
+    assert.match(content, /Windows Server 2022 et 2025/i, 'Continuité WS 2022/2025 doit être présente');
+  });
+
+  test('DoD-3 quater : Cadrage métier et architecture dans b1-projet Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'b1-projet', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'b1-projet/chapitres/chapitre1.html doit exister');
+    const content = fs.readFileSync(ch1Path, 'utf8');
+    assert.match(content, /gestion de stock/i, 'Le cas d\'usage gestion de stock doit être explicité');
+    assert.match(content, /architecture.*couches/i, 'L\'architecture en couches doit être justifiée');
+    assert.match(content, /Tkinter.*PostgreSQL/i, 'Le découplage IHM et persistance doit être clair');
+  });
+
+  test('DoD-3 quinquies : Modèle mental de l\'atelier dans b1-architecture Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'b1-architecture', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'b1-architecture/chapitres/chapitre1.html doit exister');
+    const content = fs.readFileSync(ch1Path, 'utf8');
+    assert.match(content, /artisan/i, 'L\'analogie de l\'artisan doit être présente');
+    assert.match(content, /établi/i, 'La RAM comme établi de travail immédiat');
+    assert.match(content, /armoire de rangement/i, 'Le disque/SSD comme armoire de stockage');
+  });
+
+  test('DoD-3 sexies : Modèle systémique et cas pizzeria dans b1-merise Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'b1-merise', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'b1-merise/chapitres/chapitre1.html doit exister');
+    const content = fs.readFileSync(ch1Path, 'utf8');
+    assert.match(content, /pizzeria|restaurant/i, 'L\'ancrage pizzeria/restaurant doit être présent');
+    assert.match(content, /système opérant/i, 'Le système opérant doit être illustré');
+    assert.match(content, /système de décision/i, 'Le système de décision doit être illustré');
+    assert.match(content, /système d['’]information/i, 'Le système d\'information doit être illustré');
+  });
+
+  test('DoD-3 septies : Ancrage physique du signal dans b1-ccna1 Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'b1-ccna1', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'b1-ccna1/chapitres/chapitre1.html doit exister');
+    const content = fs.readFileSync(ch1Path, 'utf8');
+    assert.match(content, /Signal physique/i, 'Le signal physique doit être introduit');
+    assert.match(content, /torsade/i, 'La raison d\'être de la torsade doit être expliquée');
+    assert.match(content, /parasite|diaphonie|crosstalk/i, 'L\'annulation des parasites doit être expliquée');
+  });
+
+  test('DoD-3 octies : Analogie de l\'odomètre dans assembleur Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'assembleur', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'assembleur/chapitres/chapitre1.html doit exister');
+    const content = fs.readFileSync(ch1Path, 'utf8');
+    assert.match(content, /compteur kilométrique/i, 'L\'analogie du compteur kilométrique doit être présente');
+    assert.match(content, /complément à 2/i, 'Le complément à 2 doit être démystifié');
+  });
+
+  test('DoD-3 nonies : Analogie Post-it vs étiquette d\'entrepôt dans csharp Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'csharp', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'csharp/chapitres/chapitre1.html doit exister');
+    const content = fs.readFileSync(ch1Path, 'utf8');
+    assert.match(content, /Post-it/i, 'L\'analogie du Post-it pour les types valeur doit être présente');
+    assert.match(content, /étiquette.*meuble.*entrepôt/i, 'L\'analogie de l\'étiquette d\'entrepôt pour les types référence');
+  });
+
+  test('DoD-3 decies : Règle 3-2-1-1-0 et continuité moderne dans rd_winserver Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'rd_winserver', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'rd_winserver/chapitres/chapitre1.html doit exister');
+    const content = fs.readFileSync(ch1Path, 'utf8');
+    assert.match(content, /3-2-1-1-0/i, 'La règle 3-2-1-1-0 anti-ransomware doit être présente');
+    assert.match(content, /Windows Server 2022 et 2025/i, 'La continuité moderne doit être posée');
+  });
+
+  test('DoD-3 undecies : Rappel 3-Way Handshake et faiblesse stateless dans b3-firewall Chapitre 1', () => {
+    const ch1Path = path.join(ROOT, 'b3-firewall', 'chapitres', 'chapitre1.html');
+    assert.ok(fs.existsSync(ch1Path), 'b3-firewall/chapitres/chapitre1.html doit exister');
+    const content = fs.readFileSync(ch1Path, 'utf8');
+    assert.match(content, /3-Way Handshake/i, 'Le rappel de la poignée de main TCP doit être présent');
+    assert.match(content, /ESTABLISHED/i, 'L\'état ESTABLISHED doit être nommé');
+    assert.match(content, /conntrack/i, 'La table d\'état conntrack doit être expliquée');
+  });
+
 });

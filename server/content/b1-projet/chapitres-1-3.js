@@ -27,34 +27,48 @@ module.exports = [
     free: true,
 
     situation:
-      'Le projet tutoré court : livrer une application complète de gestion de stock en Python, avec ' +
-      'interface graphique Tkinter et base PostgreSQL. Un projet qui se réussit à 80 % avant la première ' +
-      'ligne de code : objectifs clairs, environnement vérifié, structure de dossiers posée.',
+      'Tout projet informatique réussi commence bien avant d’écrire la première ligne de code : il naît d’un ' +
+      'besoin métier concret. Ici, un commerçant gère son inventaire sur des carnets papier ou des classeurs ' +
+      'Excel fragiles : les ruptures de stock sont fréquentes et les erreurs de saisie quotidiennes. Le projet tutoré ' +
+      'consiste à concevoir et livrer une application robuste de gestion de stock. Pour réussir, l’ingénieur doit cadrer ' +
+      'le besoin, choisir une architecture en couches claire (interface graphique, logique métier, persistance en base) ' +
+      'et préparer un environnement de développement reproductible.',
 
     objectives: [
-      'présenter le projet : application de gestion de stock Python, Tkinter, PostgreSQL ;',
-      'relier chaque objectif pédagogique à son concept Python (POO, Tkinter, CRUD, exceptions) ;',
-      'vérifier les prérequis : Python 3.7+, Tkinter, PostgreSQL ;',
-      'installer l\'environnement : python3-pip, postgresql, psycopg2-binary, python3-tk ;',
-      'poser la structure : main.py, database.py, requirements.txt, README.md.'
+      'cadrer le besoin fonctionnel d’une application de gestion de stock ;',
+      'comprendre l’architecture en couches : Interface (Tkinter) ↔ Logique (Python) ↔ Base de données (PostgreSQL) ;',
+      'relier chaque objectif pédagogique à son concept informatique (POO, CRUD, exceptions, persistance) ;',
+      'vérifier les prérequis et configurer un environnement reproductible (requirements.txt, README.md).'
     ],
 
     sections: [
       {
-        title: 'Présentation et objectifs',
+        title: 'Présentation, besoin métier et objectifs',
         html: [
-          '<p>Le tutoriel guide la création d\'une application complète de gestion de stock en Python : ' +
-          'la <strong>programmation orientée objet</strong> structure le code (classes Database et ' +
-          'ApplicationGestionStock), <strong>Tkinter</strong> fournit l\'interface graphique, ' +
-          '<strong>PostgreSQL</strong> conserve les données, et les opérations <strong>CRUD</strong> — ' +
-          'Create, Read, Update, Delete — les font vivre.</p>',
-          '<p>Cinq objectifs pédagogiques : créer une interface intuitive, connecter l\'application à ' +
-          'la base, implémenter les opérations de base, <strong>gérer les erreurs et les exceptions</strong>, ' +
-          'organiser le code en <strong>modules réutilisables</strong>. Prérequis : bases de Python, notions ' +
-          'de POO, compréhension des bases de données relationnelles, Python 3.7 ou supérieur.</p>',
-          box('mnemo', 'Mnémotechnique — « une classe pour la base, une classe pour l\'écran »', 'pin',
-            '    <p>Deux classes, deux mondes : Database parle SQL, ApplicationGestionStock parle à ' +
-            'l\'utilisateur. main.py les fait se rencontrer.</p>')
+          '<p>Le projet tutoré met en pratique l’ensemble des compétences acquises en première année à travers ' +
+          'un cas d’entreprise réaliste : automatiser la gestion d’un stock de produits. Pour y parvenir, ' +
+          'l’application s’articule autour d’une architecture découplée en trois responsabilités fondamentales :</p>',
+          '<ul>\n' +
+          '    <li><strong>L’interface graphique (IHM) :</strong> réalisée avec la bibliothèque native <strong>Tkinter</strong>, ' +
+          'elle offre des formulaires de saisie et des tableaux visuels conviviaux pour l’utilisateur final ;</li>\n' +
+          '    <li><strong>La logique métier orientée objet :</strong> codée en <strong>Python</strong> (classes <code>Database</code> ' +
+          'et <code>ApplicationGestionStock</code>), elle valide les règles de gestion (prix positifs, quantités entières) ;</li>\n' +
+          '    <li><strong>La persistance fiable des données :</strong> déléguée au SGBD relationnel <strong>PostgreSQL</strong>, ' +
+          'pour garantir que les données restent intactes même après extinction de l’ordinateur.</li>\n' +
+          '  </ul>',
+          '<p>Les opérations fondamentales à implémenter constituent le cycle <strong>CRUD</strong> universel : ' +
+          '<strong>C</strong>reate (ajouter un produit), <strong>R</strong>ead (consulter la liste), ' +
+          '<strong>U</strong>pdate (modifier un prix ou une quantité), <strong>D</strong>elete (retirer une référence). ' +
+          'Le cours met un accent particulier sur la <strong>gestion robuste des exceptions</strong> (erreurs de connexion SQL, ' +
+          'saisie de texte à la place d’un nombre) et la modularité du code.</p>',
+          box('situation', 'Pourquoi cette architecture en couches ?', 'compass',
+            '    <p>Séparer l’affichage (Tkinter) de la base de données (PostgreSQL) permet une maintenance aisée : ' +
+            'si demain l’entreprise décide de remplacer la fenêtre de bureau par une application Web ou mobile, ' +
+            'toute la logique de base de données et les règles de stock restent 100 % réutilisables sans modification.</p>'),
+          box('mnemo', 'Mnémotechnique — « Une classe pour l’écran, une classe pour la base »', 'pin',
+            '    <p>Deux classes, deux mondes : <code>Database</code> parle SQL via le pilote psycopg2 ; ' +
+            '<code>ApplicationGestionStock</code> parle à l’utilisateur via Tkinter. Le fichier <code>main.py</code> ' +
+            'les initialise et orchestre leur rencontre.</p>')
         ].join('\n')
       },
       {

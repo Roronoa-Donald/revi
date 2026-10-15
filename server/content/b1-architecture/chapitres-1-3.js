@@ -75,6 +75,14 @@ module.exports = [
           '<strong>mono-utilisateur multi-tâche</strong> (un utilisateur, plusieurs programmes, ex. Windows ' +
           'bureau), <strong>multi-utilisateurs</strong> (plusieurs comptes simultanés, ex. Linux serveur, ' +
           'UNIX). S\'y ajoutent les OS temps réel (systèmes embarqués) et les OS de réseau.</p>',
+          box('situation', 'Modèle mental intuitif — L’atelier de travail de l’ordinateur', 'cpu',
+            '    <p>Pour ne jamais confondre processeur, mémoire vive et disque dur, imaginez un artisan dans son atelier :</p>\n' +
+            '    <ul>\n' +
+            '      <li><strong>Le processeur (CPU) :</strong> l’artisan qui manipule les outils, calcule et exécute les ordres.</li>\n' +
+            '      <li><strong>La mémoire vive (RAM) :</strong> son établi de travail immédiat. Ultra-rapide d’accès pour les pièces en cours d’assemblage, mais entièrement vidé dès qu’on éteint la lumière (mémoire volatile).</li>\n' +
+            '      <li><strong>Le stockage de masse (SSD / Disque) :</strong> l’armoire de rangement au fond de l’atelier. Immense et permanente (non volatile), mais il faut quelques fractions de seconde à l’artisan pour aller y chercher un dossier et le poser sur l’établi.</li>\n' +
+            '      <li><strong>La carte mère et les bus :</strong> les couloirs et tapis roulants qui font circuler les pièces entre l’armoire, l’établi et l’artisan.</li>\n' +
+            '    </ul>'),
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
             '      <li>Word, Linux ou un navigateur sont du <strong>software</strong> ; clavier, RAM ou écran du hardware.</li>\n' +

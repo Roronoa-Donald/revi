@@ -55,6 +55,15 @@ module.exports = {
         '<p>Pour que l’Unité Arithmétique et Logique (ALU) puisse utiliser <strong>le même circuit électronique d’addition</strong> ' +
         'pour additionner ou soustraire des nombres, les ordinateurs modernes utilisent quasi universellement le <strong>complément à 2</strong>.</p>',
 
+        box('situation', 'L’analogie du compteur kilométrique de voiture', [
+          '<p>Pour comprendre intuitivement pourquoi le complément à 2 fonctionne sans magie noire, imaginez le compteur kilométrique d’une voiture affichant 6 chiffres : de <code>000 000</code> à <code>999 999</code>.</p>',
+          '<ul>',
+          '  <li>Si la voiture est neuve à <code>000 000</code> km et que vous la faites reculer d’un kilomètre ($-1$), le rouleau mécanique recule et affiche <code>999 999</code>.</li>',
+          '  <li>Sur ce compteur à 6 chiffres, reculer de 1 équivaut exactement à avancer de $10^6 - 1 = 999 999$.</li>',
+          '</ul>',
+          '<p>Dans un registre processeur sur 8 bits (valeurs de <code>0000 0000b</code> à <code>1111 1111b</code>, soit 0 à 255), si vous partez de 0 et reculez de 1 ($-1$), le registre bascule à <code>1111 1111b</code> (qui vaut 255 en non signé, mais <strong>-1 en signé</strong>). Le complément à 2 exploite simplement cette arithmétique modulaire circulaire !</p>'
+        ].join('\n')),
+
         box('standard', 'Algorithme du Complément à 2 sur n bits', [
           '<ol>',
           '  <li>Écrire la valeur absolue du nombre en binaire sur $n$ bits.</li>',

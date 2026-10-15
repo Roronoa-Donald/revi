@@ -23,34 +23,37 @@ module.exports = [
     free: true,
 
     situation:
-      'Dans une entreprise, tout le monde travaille sur des machines qu’un seul personnage doit garder ' +
-      'fonctionnelles : l’administrateur système. Quand un compte ne marche plus, quand un logiciel doit ' +
-      'être installé sur trente postes, quand une panne survient, c’est lui qu’on appelle — et c’est lui ' +
-      'qu’on incrimine quand rien ne va plus. Ce premier chapitre pose le métier à plat : que fait-il, ' +
-      'avec quelles qualités, quels types d’administration, quels outils Windows.',
+      'Chaque jour, des millions d’utilisateurs allument leur ordinateur professionnel sans se poser de question : ' +
+      'leur mot de passe est reconnu, leurs dossiers partagés sont accessibles et leur imprimante est configurée. ' +
+      'Mais en coulisses, qui garantit que ces 50 ou 500 machines fonctionnent sans faille, sans virus et avec les ' +
+      'bons droits ? C’est le rôle de l’administrateur système. Sur ton ordinateur personnel, tu es ton propre ' +
+      'administrateur. En entreprise, cette gestion est professionnalisée et centralisée. Ce premier chapitre pose ' +
+      'les fondations du métier : missions réelles, qualités exigées, types d’administration et panorama des outils Windows.',
 
     objectives: [
-      'définir l’administration système et le rôle de l’administrateur ;',
-      'citer les familles de tâches : comptes, assistance, logiciels, matériel, sécurité ;',
-      'reconnaître les trois qualités et les trois types d’administration ;',
-      'nommer les outils d’administration offerts par Windows.'
+      'distinguer l’administration d’un PC individuel et l’administration d’un parc d’entreprise ;',
+      'citer les familles de tâches fondamentales : comptes, assistance, logiciels, matériel, sécurité ;',
+      'reconnaître les trois qualités professionnelles et les trois types d’administration ;',
+      'identifier les consoles graphiques et outils en ligne de commande fondamentaux sous Windows.'
     ],
 
     sections: [
       {
         title: 'Qu’est-ce que l’administration système ?',
         html: [
-          '<p><strong>Définition.</strong> L’<strong>administration système</strong> est la gestion de ' +
-          'l’ensemble des programmes informatiques permettant d’accéder à une machine et d’utiliser ses ' +
-          'périphériques dans un parc informatique.</p>',
-          '<p>Cette mission est confiée à une personne : l’<strong>administrateur système</strong>, qui ' +
-          'veille à ce que tout le système informatique de l’entreprise fonctionne convenablement. Il peut ' +
-          'porter une double casquette — administrateur <strong>réseau</strong> en plus — et on parle alors ' +
-          'd’administrateur système et réseau.</p>',
-          box('intuition', 'L’administrateur en première ligne', 'compass',
-            '    <p>L’administrateur gère quotidiennement de multiples tâches, petites ou grosses. Il est ' +
-            'en première ligne lorsqu’un problème surgit : c’est naturellement lui qu’on incrimine quand ' +
-            'quelque chose ne fonctionne pas. D’où l’importance des bonnes pratiques vues dans tout ce cours.</p>')
+          '<p><strong>Définition.</strong> L’<strong>administration système</strong> est l’ensemble des pratiques, ' +
+          'outils et procédures permettant de configurer, sécuriser et maintenir opérationnel le parc informatique ' +
+          'd’une organisation (serveurs, postes de travail, périphériques et droits d’accès).</p>',
+          '<p>Cette mission est assurée par l’<strong>administrateur système</strong>. Alors qu’un utilisateur ' +
+          'ordinaire se contente de consommer des applications (navigateur, tableur, messagerie), l’administrateur ' +
+          'veille à ce que le socle matériel et logiciel soit disponible, rapide et protégé contre les pannes. ' +
+          'Lorsqu’il gère également les commutateurs, routeurs et liaisons télécoms, on parle d’<strong>administrateur ' +
+          'système et réseau</strong>.</p>',
+          box('situation', 'Du PC personnel au réseau d’entreprise', 'compass',
+            '    <p>Sur ton ordinateur personnel à la maison, tu installes ce que tu veux : tu es administrateur local. ' +
+            'Dans une banque ou un hôpital de 300 personnes, si chaque employé installait n’importe quel logiciel, le parc ' +
+            'serait piraté en quelques heures. L’administration système consiste à instaurer des règles claires et ' +
+            'automatisées pour protéger les données collectives.</p>')
         ].join('\n')
       },
       {
@@ -102,22 +105,23 @@ module.exports = [
       {
         title: 'Les outils d’administration Windows',
         html: [
-          '<p>Windows offre un environnement d’administration complet qui comprend notamment :</p>',
+          '<p>L’écosystème Windows intègre des consoles graphiques (MMC) et des outils en ligne de commande ' +
+          'utilisés au quotidien :</p>',
           '<ul>\n' +
-          '    <li>le <strong>Gestionnaire des tâches</strong> : voir ce qui tourne, tuer un processus bloqué ;</li>\n' +
-          '    <li>le <strong>Gestionnaire de l’ordinateur</strong>, qui regroupe la gestion des ' +
-          'utilisateurs et groupes locaux, l’Observateur d’événements, le Gestionnaire de services et la ' +
-          'gestion du stockage (disques) ;</li>\n' +
-          '    <li>l’<strong>Analyseur de performances</strong> : mesurer la charge réelle de la machine ;</li>\n' +
-          '    <li>le <strong>Gestionnaire de sécurité</strong> : comptes, droits, stratégies.</li>\n' +
+          '    <li>le <strong>Gestionnaire des tâches</strong> (<code>taskmgr</code>) : superviser l’activité CPU/RAM et arrêter un processus bloqué ;</li>\n' +
+          '    <li>le <strong>Gestionnaire de l’ordinateur</strong> (<code>compmgmt.msc</code>) : regroupe la gestion des ' +
+          'utilisateurs et groupes locaux, l’Observateur d’événements, le Gestionnaire de services et le partitionnement des disques ;</li>\n' +
+          '    <li>l’<strong>Analyseur de performances</strong> (<code>perfmon</code>) : mesurer la charge réelle et anticiper la saturation ;</li>\n' +
+          '    <li>l’<strong>Observateur d’événements</strong> (<code>eventvwr.msc</code>) : journaliser les alertes, erreurs et audits de sécurité ;</li>\n' +
+          '    <li><strong>PowerShell</strong> : l’environnement d’automatisation en ligne de commande standard de Microsoft.</li>\n' +
           '  </ul>',
-          '<p>Ces outils se retrouvent dans toutes les versions de Windows ; les chapitres suivants les ' +
-          'manipulent sur <strong>Windows Server 2012 R2</strong>, le système utilisé en travaux pratiques.</p>',
-          box('tech', 'Vue d’ensemble du module', 'terminal',
-            '    <p>Chapitre 2 : le système lui-même (éditions, installation). Chapitre 3 : la configuration ' +
-            'initiale (pare-feu, nom, IP, activation, accès à distance). Chapitres 4 à 6 : Active Directory ' +
-            '— notions, installation d’un contrôleur de domaine, gestion des objets. Chaque chapitre se ' +
-            'termine par trois exercices de code qui rejouent les règles du support en Bash.</p>')
+          '<p>Ces consoles sont universelles à travers toutes les versions de Windows. Les travaux pratiques du support ' +
+          'utilisent <strong>Windows Server 2012 R2</strong> comme support pédagogique de base.</p>',
+          box('tech', 'Perspective technologique — Versions et continuité', 'terminal',
+            '    <p>Windows Server 2012 R2 a atteint sa fin de support officiel en octobre 2023. Cependant, ses fondations ' +
+            'architecturales — Active Directory, base SAM, services DNS/DHCP, gestion des disques et GPO — sont ' +
+            'strictement identiques sur les versions contemporaines (<strong>Windows Server 2022 et 2025</strong>). ' +
+            'Ce que vous apprenez ici est directement transférable sur les infrastructures en production.</p>')
         ].join('\n')
       }
     ],
