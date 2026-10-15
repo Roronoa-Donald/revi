@@ -79,23 +79,37 @@
 
 <h2>1. Présentation et objectifs</h2>
 
-<p>Le tutoriel guide la création d'une application complète de gestion de stock en Python : la <strong>programmation orientée objet</strong> structure le code (classes Database et ApplicationGestionStock), <strong>Tkinter</strong> fournit l'interface graphique, <strong>PostgreSQL</strong> conserve les données, et les opérations <strong>CRUD</strong> — Create, Read, Update, Delete — les font vivre.</p>\n<p>Cinq objectifs pédagogiques : créer une interface intuitive, connecter l'application à la base, implémenter les opérations de base, <strong>gérer les erreurs et les exceptions</strong>, organiser le code en <strong>modules réutilisables</strong>. Prérequis : bases de Python, notions de POO, compréhension des bases de données relationnelles, Python 3.7 ou supérieur.</p>\n  <div class="box box--mnemo">
+<p>Le tutoriel guide la création d'une application complète de gestion de stock en Python : la <strong>programmation orientée objet</strong> structure le code (classes Database et ApplicationGestionStock), <strong>Tkinter</strong> fournit l'interface graphique, <strong>PostgreSQL</strong> conserve les données, et les opérations <strong>CRUD</strong> — Create, Read, Update, Delete — les font vivre.</p>
+<p>Cinq objectifs pédagogiques : créer une interface intuitive, connecter l'application à la base, implémenter les opérations de base, <strong>gérer les erreurs et les exceptions</strong>, organiser le code en <strong>modules réutilisables</strong>. Prérequis : bases de Python, notions de POO, compréhension des bases de données relationnelles, Python 3.7 ou supérieur.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « une classe pour la base, une classe pour l'écran »</div>
     <p>Deux classes, deux mondes : Database parle SQL, ApplicationGestionStock parle à l'utilisateur. main.py les fait se rencontrer.</p>
   </div>
 
 <h2>2. Installer l'environnement</h2>
 
-<p>Vérifier Python : <code>python3 --version</code> — sinon <code>sudo apt install python3 python3-pip</code>. PostgreSQL : <code>sudo apt install postgresql postgresql-contrib</code> puis <code>sudo service postgresql start</code>. Tkinter : <code>sudo apt install python3-tk</code> — vérifiable avec <code>python3 -m tkinter</code>. Configuration de la base : <code>sudo -u postgres psql</code>, <code>ALTER USER postgres WITH PASSWORD 'postgres'</code>, puis <code>CREATE DATABASE gestion_stock</code>.</p>\n<p>La dépendance Python tient en une ligne dans <code>requirements.txt</code> : <code>psycopg2-binary==2.9.9</code>, installée par <code>pip install -r requirements.txt</code>. Un requirements.txt versionné, c'est un projet que n'importe qui peut installer.</p>\n  <div class="box box--pitfall">
+<p>Vérifier Python : <code>python3 --version</code> — sinon <code>sudo apt install python3 python3-pip</code>. PostgreSQL : <code>sudo apt install postgresql postgresql-contrib</code> puis <code>sudo service postgresql start</code>. Tkinter : <code>sudo apt install python3-tk</code> — vérifiable avec <code>python3 -m tkinter</code>. Configuration de la base : <code>sudo -u postgres psql</code>, <code>ALTER USER postgres WITH PASSWORD 'postgres'</code>, puis <code>CREATE DATABASE gestion_stock</code>.</p>
+<p>La dépendance Python tient en une ligne dans <code>requirements.txt</code> : <code>psycopg2-binary==2.9.9</code>, installée par <code>pip install -r requirements.txt</code>. Un requirements.txt versionné, c'est un projet que n'importe qui peut installer.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
-    <ul>\n      <li>psycopg2 est le PONT Python-PostgreSQL ; Tkinter ne parle pas SQL.</li>\n      <li>La version minimale est 3.7 : 3.6 refuse, 3.10 passe.</li>\n      <li>La base se nomme gestion_stock : créer la base AVANT de lancer l'application.</li>\n      <li>Le README fait partie du livrable : un projet sans documentation est incomplet.</li>\n    </ul>
+    <ul>
+      <li>psycopg2 est le PONT Python-PostgreSQL ; Tkinter ne parle pas SQL.</li>
+      <li>La version minimale est 3.7 : 3.6 refuse, 3.10 passe.</li>
+      <li>La base se nomme gestion_stock : créer la base AVANT de lancer l'application.</li>
+      <li>Le README fait partie du livrable : un projet sans documentation est incomplet.</li>
+    </ul>
   </div>
 
 <h2>3. La structure du projet</h2>
 
-<p>Quatre fichiers, quatre rôles : <code>main.py</code> — l'interface principale (fenêtre, formulaire, tableau) ; <code>database.py</code> — la classe Database qui encapsule toute la gestion PostgreSQL ; <code>requirements.txt</code> — les dépendances ; <code>README.md</code> — la documentation. Cette séparation n'est pas décorative : on peut changer d'interface sans toucher à la base, et tester la base sans ouvrir la fenêtre.</p>\n  <div class="box box--tech">
+<p>Quatre fichiers, quatre rôles : <code>main.py</code> — l'interface principale (fenêtre, formulaire, tableau) ; <code>database.py</code> — la classe Database qui encapsule toute la gestion PostgreSQL ; <code>requirements.txt</code> — les dépendances ; <code>README.md</code> — la documentation. Cette séparation n'est pas décorative : on peut changer d'interface sans toucher à la base, et tester la base sans ouvrir la fenêtre.</p>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
-    <ul>\n      <li>Le classeur des compétences : interface → tkinter, connexion → postgres, operations → crud, classes → poo.</li>\n      <li>Le testeur de prérequis : version -ge 37, tkinter et psql = oui — trois conditions en ET.</li>\n      <li>La structure : main → interface, database → database, requirements → deps, readme → doc.</li>\n    </ul>
+    <ul>
+      <li>Le classeur des compétences : interface → tkinter, connexion → postgres, operations → crud, classes → poo.</li>
+      <li>Le testeur de prérequis : version -ge 37, tkinter et psql = oui — trois conditions en ET.</li>
+      <li>La structure : main → interface, database → database, requirements → deps, readme → doc.</li>
+    </ul>
   </div>
 
 <!-- code-labs:start -->
@@ -241,7 +255,7 @@ corrects : 3/3</pre></div>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La base de données utilisée par le projet :</p>
       <div class="opts">
         <button class="opt" data-correct="1">PostgreSQL</button>
         <button class="opt">MySQL</button>
@@ -250,7 +264,7 @@ corrects : 3/3</pre></div>
       <div class="q__exp">Le tutoriel installe postgresql et psycopg2.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La bibliothèque graphique du projet :</p>
       <div class="opts">
         <button class="opt" data-correct="1">Tkinter</button>
         <button class="opt">Flask</button>
@@ -259,7 +273,7 @@ corrects : 3/3</pre></div>
       <div class="q__exp">Interface native Python, installée par python3-tk.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La version minimale de Python :</p>
       <div class="opts">
         <button class="opt" data-correct="1">3.7</button>
         <button class="opt">2.7</button>
@@ -268,7 +282,7 @@ corrects : 3/3</pre></div>
       <div class="q__exp">Python 3.7 ou supérieur.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le fichier qui liste les dépendances :</p>
       <div class="opts">
         <button class="opt" data-correct="1">requirements.txt</button>
         <button class="opt">main.py</button>
@@ -277,7 +291,7 @@ corrects : 3/3</pre></div>
       <div class="q__exp">psycopg2-binary==2.9.9, installé par pip.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le fichier qui encapsule la gestion PostgreSQL :</p>
       <div class="opts">
         <button class="opt" data-correct="1">database.py</button>
         <button class="opt">main.py</button>
@@ -286,7 +300,7 @@ corrects : 3/3</pre></div>
       <div class="q__exp">La classe Database y vit.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">main.py contient…</p>
       <div class="opts">
         <button class="opt" data-correct="1">l'interface principale</button>
         <button class="opt">les requêtes SQL</button>
@@ -295,7 +309,7 @@ corrects : 3/3</pre></div>
       <div class="q__exp">Fenêtre, formulaire, tableau : le monde de l'écran.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le pont Python vers PostgreSQL :</p>
       <div class="opts">
         <button class="opt" data-correct="1">psycopg2</button>
         <button class="opt">tkinter</button>
@@ -304,7 +318,7 @@ corrects : 3/3</pre></div>
       <div class="q__exp">psycopg2-binary dans requirements.txt.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Les quatre opérations CRUD :</p>
       <div class="opts">
         <button class="opt" data-correct="1">Create, Read, Update, Delete</button>
         <button class="opt">Compile, Run, Upload, Debug</button>

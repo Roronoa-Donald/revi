@@ -41,7 +41,7 @@ function index(course, chapterList) {
     '  <p class="lead">' + course.lead + '</p>',
     box('objectifs', 'Ce que tu sauras faire à la fin du cours', 'target', [
       '    <ul>',
-      '      <li>classer un réseau : LAN contre WAN, workgroup contre client-serveur, PAN à WAN ;</li>',
+      '      <li>classer un réseau : LAN contre WAN, poste-à-poste contre client-serveur, PAN à WAN ;</li>',
       '      <li>prévoir la panne : bus fragile, anneau à jeton et double anneau, étoile qui isole ;</li>',
       '      <li>dépanner par couches : les sept couches OSI, câble en 1, commutateur en 2, routeur en 3 ;</li>',
       '      <li>ouvrir une connexion TCP : SYN, SYN-ACK, ACK — et choisir TCP ou UDP selon l\'exigence ;</li>',
@@ -284,8 +284,8 @@ function formules(course) {
     bloc('Classer un réseau', [
       '<pre><code>portee : PAN (une personne) / LAN (immeuble, campus) /\n',
       '         WLAN (LAN sans fil, 802.11) / MAN (ville) / WAN (pays)\n',
-      'gestion: workgroup = chaque poste client ET serveur (max 10 postes)\n',
-      '         client-serveur = comptes centralises, cout du serveur\n',
+      'gestion: poste-a-poste = chaque machine partage ses ressources (petit groupe)\n',
+      '         client-serveur = serveur centralise comptes et services (organisation)\n',
       '\n',
       'specialises : CAN (campus) / SAN (stockage en mode bloc)</code></pre>',
       '<p>Si le réseau tient dans des murs, c\'est un LAN ; s\'il emprunte des liaisons louées, c\'est un WAN.</p>'
@@ -397,8 +397,8 @@ function examens(course) {
         {
           num: 'Exercice 1',
           badge: '/5 — Classer les réseaux',
-          text: 'Classer : le réseau d\'une salle de TP ; l\'interconnexion des agences d\'une banque entre deux pays ; le Wi-Fi du campus ; l\'iPhone synchronisé au Mac d\'un étudiant. Puis : une PME de 40 postes doit-elle rester en workgroup ? Justifier.',
-          sol: '<strong>Salle de TP : LAN</strong> (immeuble). <strong>Agences entre pays : WAN</strong> (plus de 100 km, liaisons d\'opérateur). <strong>Wi-Fi du campus : WLAN</strong> — réseau local sans fil, pas un WAN. <strong>iPhone + Mac : PAN</strong>. La PME de 40 postes : <strong>non</strong> — en workgroup, chaque poste doit connaître tous les comptes ; dès une dizaine de postes la gestion devient périlleuse : passer en client-serveur (coût du serveur, mais comptes centralisés).'
+          text: 'Classer : le réseau d\'une salle de TP ; l\'interconnexion des agences d\'une banque entre deux pays ; le Wi-Fi du campus ; l\'iPhone synchronisé au Mac d\'un étudiant. Puis : une entreprise de 40 postes peut-elle fonctionner efficacement en réseau poste-à-poste sans serveur dédié ? Justifier en comparant la gestion des comptes.',
+          sol: '<strong>Salle de TP : LAN</strong> (immeuble). <strong>Agences entre pays : WAN</strong> (plus de 100 km, liaisons d\'opérateur). <strong>Wi-Fi du campus : WLAN</strong> — réseau local sans fil, pas un WAN. <strong>iPhone + Mac : PAN</strong>. L\'entreprise de 40 postes : <strong>non</strong> — en poste-à-poste (ou workgroup), chaque machine doit gérer ses propres comptes et partages ; dès une dizaine de postes la gestion décentralisée devient chaotique et non sécurisée : il faut passer en architecture <strong>client-serveur</strong> où un serveur centralise l\'authentification et les partages.'
         },
         {
           num: 'Exercice 2',

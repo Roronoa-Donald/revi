@@ -53,7 +53,7 @@ module.exports = [
             '      <li>Serveur web multi-utilisateurs : permissions distinctes développeurs, testeurs, administrateurs.</li>\n' +
             '      <li>Cloud : politiques d\'accès granulaires (AWS IAM) plutôt que comptes partagés.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Modèles de contrôle d\'accès',
@@ -72,7 +72,7 @@ module.exports = [
             'impose ; RBAC = le <strong>rôle</strong> porte les droits ; ABAC = l\'<strong>attribut</strong> ' +
             '(heure, lieu) tranche ; ACL = la <strong>liste</strong> explicite d\'entrées. Cinq mots-clés, ' +
             'cinq modèles, aucune confusion possible.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'La gestion des correctifs',
@@ -91,7 +91,7 @@ module.exports = [
             '    <p>WannaCry a frappé en mai 2017 un correctif publié en mars : 60 jours de retard ont ' +
             'suffi. Le correctif de sécurité ne suit pas le calendrier de maintenance, il le devance — ' +
             'et la conformité RGPD/PCI DSS exige des systèmes tenus à jour.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Développement sécurisé et bases de données',
@@ -116,7 +116,7 @@ module.exports = [
             '(longueur, format, caractères interdits) et on <strong>échappe</strong> ce qui <em>sort</em> ' +
             'vers une page (les chevrons deviennent &amp;lt;). Une seule des deux portes oubliée suffit ' +
             'à l\'attaque.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -217,7 +217,7 @@ module.exports = [
             '    <p>Une ligne dit « échec ». Cent lignes de la même IP en dix minutes disent « attaque ». ' +
             'C\'est toute la valeur du SIEM : transformer des milliers de lignes isolées en quelques ' +
             'scénarios nommés.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'L\'analyse des logs',
@@ -238,7 +238,7 @@ module.exports = [
             '    <p>La rafale d\'échecs n\'est pas l\'incident ; le succès qui suit l\'est peut-être. ' +
             'L\'alerte se règle typiquement à 3 échecs ou plus pour une même IP : à ce seuil, on vérifie, ' +
             'on prévient le propriétaire du compte, on bloque si besoin.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Les étapes de la réponse à incident',
@@ -260,7 +260,7 @@ module.exports = [
             '<strong>R</strong>établir — dans cet ordre, toujours. Contenir avant d\'éradiquer : on coupe ' +
             'la route avant de retirer l\'obstacle. Eradiquer avant de rétablir : on ne remet pas un ' +
             'système encore infecté en production.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'PCA, PRA, RTO, RPO',
@@ -281,7 +281,7 @@ module.exports = [
             '    <p>RTO = <strong>temps</strong> (durée d\'interruption maximale) ; RPO = ' +
             '<strong>données</strong> (perte maximale admissible). Sauvegardes toutes les heures et RPO ' +
             'd\'une journée : incohérence. Le PRA aligne toujours les deux.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -381,7 +381,7 @@ module.exports = [
           box('tech', 'Le plafond en une ligne', 'scale',
             '    <p>Amende plafond = max(20 M€ ; 4 % du CA mondial). Pour une entreprise à 1 milliard de ' +
             'CA, 4 % vaut 40 M€ : le plafond réel est 40 M€. Toujours comparer les deux chiffres.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'NIS2 et normes sectorielles',
@@ -401,7 +401,7 @@ module.exports = [
             'essentielles</strong> (UE) ; PCI DSS = <strong>cartes bancaires</strong> ; HIPAA = ' +
             '<strong>santé</strong> (US) ; ISO 27001 = <strong>certification du SMSI</strong> ; NIST CSF = ' +
             '<strong>cadre de gestion des risques</strong>. À chaque secteur son référentiel.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Sensibilisation et politiques',
@@ -420,7 +420,7 @@ module.exports = [
             '    <p>Une seule session longue par an est indigeste et oubliée. Le format qui ancre : ' +
             'modules courts répétés + simulations + signalement valorisé. Le maillon faible se renforce ' +
             'par l\'habitude, pas par l\'examen.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Mots de passe et sauvegarde 3-2-1',
@@ -442,7 +442,7 @@ module.exports = [
             '    <p><strong>3</strong> copies, <strong>2</strong> supports, <strong>1</strong> hors site, ' +
             '(<strong>1</strong> immuable, <strong>0</strong> erreur vérifiée). Le ransomware chiffre ce ' +
             'qu\'il atteint : la copie immuable hors ligne est la seule qu\'il ne touche pas.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

@@ -61,7 +61,7 @@ module.exports = [
             '    <p>Tout ce qui est sécurité informatique est cybersécurité ; la réciproque est fausse. ' +
             'Quand un sujet de question parle d\'utilisateurs, de règles ou de sanctions : cybersécurité. ' +
             'Quand il parle de ports, de fichiers ou de correctifs : sécurité informatique.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Menace, vulnérabilité, risque',
@@ -82,7 +82,7 @@ module.exports = [
             '      <li><strong>Humaines</strong> : intentionnelles (piratage, sabotage) ou accidentelles (perte d\'un appareil, erreur de manipulation).</li>\n' +
             '      <li><strong>Technologiques</strong> : panne matérielle, bug logiciel, défaillance réseau.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'La triade CIA',
@@ -101,7 +101,7 @@ module.exports = [
             '    <p>Un chiffrement protège la confidentialité, pas la disponibilité ; une sauvegarde ' +
             'protège la disponibilité, pas la confidentialité. Toujours demander : quelle composante ' +
             'est violee, et quelle mesure la restaure ?</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'L\'histoire apprend',
@@ -121,7 +121,7 @@ module.exports = [
             'protège), <strong>menace</strong> (qui/quoi attaque), <strong>vulnérabilité</strong> (par où), ' +
             '<strong>mesure</strong> (quelle défense). Une phrase de risque qui ne contient pas les quatre ' +
             'est incomplète.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -224,7 +224,7 @@ module.exports = [
             '    <p>Le <strong>virus</strong> attend qu\'un humain exécute le fichier infecté ; le ' +
             '<strong>ver</strong> (worm) voyage tout seul de machine en machine. Le ransomware chiffre, ' +
             'le spyware espionne — et la parade suit la famille, pas l\'instinct.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Ingénierie sociale et phishing',
@@ -247,7 +247,7 @@ module.exports = [
             'd\'empêcher de vérifier. La parade est un réflexe, pas une intuition : vérifier l\'URL, ' +
             'joindre le service par un canal connu, signaler. La simulation de phishing régulière ' +
             'transforme les utilisateurs en capteurs de menaces.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Attaques actives, passives, internes, externes',
@@ -270,7 +270,7 @@ module.exports = [
             '      <li><strong>États-nations</strong> : espionnage, sabotage d\'infrastructures.</li>\n' +
             '      <li><strong>Menaces internes</strong> : employés malveillants ou simplement négligents.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Les attaques réseau sans fil',
@@ -293,7 +293,7 @@ module.exports = [
             '    <p>Le rogue AP <strong>s\'installe</strong> dans le réseau de confiance ; le MAC spoofing ' +
             '<strong>imite</strong> l\'identité d\'une machine ; le MITM <strong>s\'intercale</strong> entre ' +
             'deux victimes. Chacun viole une composante : contrôle d\'accès, authentification, confidentialité.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -401,7 +401,7 @@ module.exports = [
             '    <p>Connaissance = <strong>savoir</strong>, possession = <strong>avoir</strong>, ' +
             'inhérence = <strong>être</strong>. La 2FA exige deux catégories différentes : mot de passe ' +
             '(savoir) + application TOTP ou clé (avoir).</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'IAM : identités et accès',
@@ -418,7 +418,7 @@ module.exports = [
             '    <p>L\'authentification vérifie l\'identité (le badge scanne) ; l\'autorisation décide de ' +
             'l\'accès (la porte s\'ouvre ou non). On s\'authentifie toujours AVANT d\'être autorisé, jamais ' +
             'l\'inverse.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Cryptographie : symétrique, asymétrique, hachage',
@@ -441,7 +441,7 @@ module.exports = [
             '    <p>Le chiffrement est réversible avec la clé ; le hachage ne l\'est jamais. Une question ' +
             'qui parle de « vérifier qu\'un fichier n\'a pas changé » parle de hachage ; une question qui ' +
             'parle de « garder le secret » parle de chiffrement.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Pare-feu, VPN, protocoles sécurisés',
@@ -457,7 +457,7 @@ module.exports = [
             '    <p>Pare-feu = <strong>frontière</strong> (filtre les flux) ; VPN = <strong>tunnel</strong> ' +
             '(protège le trajet entre deux sites) ; HTTPS/SSH = <strong>dialogue</strong> (chiffre la ' +
             'session de bout en bout).</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

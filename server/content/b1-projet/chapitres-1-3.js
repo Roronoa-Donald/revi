@@ -55,7 +55,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « une classe pour la base, une classe pour l\'écran »', 'pin',
             '    <p>Deux classes, deux mondes : Database parle SQL, ApplicationGestionStock parle à ' +
             'l\'utilisateur. main.py les fait se rencontrer.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Installer l\'environnement',
@@ -70,13 +70,13 @@ module.exports = [
           '<code>psycopg2-binary==2.9.9</code>, installée par <code>pip install -r requirements.txt</code>. ' +
           'Un requirements.txt versionné, c\'est un projet que n\'importe qui peut installer.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>psycopg2 est le PONT Python-PostgreSQL ; Tkinter ne parle pas SQL.</li>\\n' +
-            '      <li>La version minimale est 3.7 : 3.6 refuse, 3.10 passe.</li>\\n' +
-            '      <li>La base se nomme gestion_stock : créer la base AVANT de lancer l\'application.</li>\\n' +
-            '      <li>Le README fait partie du livrable : un projet sans documentation est incomplet.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>psycopg2 est le PONT Python-PostgreSQL ; Tkinter ne parle pas SQL.</li>\n' +
+            '      <li>La version minimale est 3.7 : 3.6 refuse, 3.10 passe.</li>\n' +
+            '      <li>La base se nomme gestion_stock : créer la base AVANT de lancer l\'application.</li>\n' +
+            '      <li>Le README fait partie du livrable : un projet sans documentation est incomplet.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'La structure du projet',
@@ -87,12 +87,12 @@ module.exports = [
           'la documentation. Cette séparation n\'est pas décorative : on peut changer d\'interface sans ' +
           'toucher à la base, et tester la base sans ouvrir la fenêtre.</p>',
           box('tech', 'Vérifier en Bash', 'terminal',
-            '    <ul>\\n' +
-            '      <li>Le classeur des compétences : interface → tkinter, connexion → postgres, operations → crud, classes → poo.</li>\\n' +
-            '      <li>Le testeur de prérequis : version -ge 37, tkinter et psql = oui — trois conditions en ET.</li>\\n' +
-            '      <li>La structure : main → interface, database → database, requirements → deps, readme → doc.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Le classeur des compétences : interface → tkinter, connexion → postgres, operations → crud, classes → poo.</li>\n' +
+            '      <li>Le testeur de prérequis : version -ge 37, tkinter et psql = oui — trois conditions en ET.</li>\n' +
+            '      <li>La structure : main → interface, database → database, requirements → deps, readme → doc.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -196,7 +196,7 @@ module.exports = [
           '— 2500.50 reste 2500.50, sans arrondi binaire. La précision monétaire n\'est pas négociable.</p>',
           box('mnemo', 'Mnémotechnique — « SERIAL compte, VARCHAR écrit, INTEGER compte en stock, DECIMAL coûte »', 'pin',
             '    <p>Cinq colonnes, cinq types : la grille attendue à l\'examen.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Connexion et gestion des erreurs',
@@ -209,13 +209,13 @@ module.exports = [
           '<code>self.connection.commit()</code> : sans commit, PostgreSQL annule la modification à la ' +
           'déconnexion. La <code>deconnecter()</code> ferme le cursor puis la connexion — dans cet ordre.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>SELECT lit : fetchall ; INSERT/UPDATE/DELETE écrivent : commit.</li>\\n' +
-            '      <li>Sans commit, la modification est perdue à la fermeture : piège classique.</li>\\n' +
-            '      <li>Le try/except renvoie False : l\'application continue, elle ne s\'arrête pas.</li>\\n' +
-            '      <li>CREATE TABLE IF NOT EXISTS : le second lancement ne duplique rien.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>SELECT lit : fetchall ; INSERT/UPDATE/DELETE écrivent : commit.</li>\n' +
+            '      <li>Sans commit, la modification est perdue à la fermeture : piège classique.</li>\n' +
+            '      <li>Le try/except renvoie False : l\'application continue, elle ne s\'arrête pas.</li>\n' +
+            '      <li>CREATE TABLE IF NOT EXISTS : le second lancement ne duplique rien.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Les quatre requêtes CRUD',
@@ -229,12 +229,12 @@ module.exports = [
           'valeurs. Concaténer du SQL à la main ouvre la porte à l\'injection — le paramétrage n\'est pas ' +
           'une option, c\'est la seule façon.</p>',
           box('tech', 'Vérifier en Bash', 'terminal',
-            '    <ul>\\n' +
-            '      <li>Le schéma : id → serial, nom/categorie → varchar, quantite → integer, prix → decimal.</li>\\n' +
-            '      <li>La connexion : serveur/mdp/base dans l\'ordre, sortie au premier ko.</li>\\n' +
-            '      <li>Le cycle CRUD : create→insert, read→select, update→update, delete→delete.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Le schéma : id → serial, nom/categorie → varchar, quantite → integer, prix → decimal.</li>\n' +
+            '      <li>La connexion : serveur/mdp/base dans l\'ordre, sortie au premier ko.</li>\n' +
+            '      <li>Le cycle CRUD : create→insert, read→select, update→update, delete→delete.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -342,7 +342,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « d\'abord la porte, ensuite la salle »', 'pin',
             '    <p>Écran 1 : se connecter. Écran 2 : travailler. La fenêtre ne détruit jamais l\'écran ' +
             'actif avant d\'avoir bâti le suivant.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Widgets, layout et tableau',
@@ -360,13 +360,13 @@ module.exports = [
           'le recharge depuis <code>obtenir_tous_produits()</code> : la base reste la source unique de ' +
           'vérité.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>pack empile, grid place en grille : les deux ne se mélangent pas dans un même conteneur.</li>\\n' +
-            '      <li>command= appelle la méthode du bouton : pas de parenthèses, la référence suffit.</li>\\n' +
-            '      <li>Le Treeview n\'est pas la base : il se recharge depuis fetchall à chaque changement.</li>\\n' +
-            '      <li>bind relie un événement souris à une méthode : c\'est le clic qui remplit le formulaire.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>pack empile, grid place en grille : les deux ne se mélangent pas dans un même conteneur.</li>\n' +
+            '      <li>command= appelle la méthode du bouton : pas de parenthèses, la référence suffit.</li>\n' +
+            '      <li>Le Treeview n\'est pas la base : il se recharge depuis fetchall à chaque changement.</li>\n' +
+            '      <li>bind relie un événement souris à une méthode : c\'est le clic qui remplit le formulaire.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Validation et boîtes de dialogue',
@@ -382,12 +382,12 @@ module.exports = [
           'confirmation avant suppression (« Voulez-vous vraiment supprimer… ? »), la suppression n\'a lieu ' +
           'que si l\'utilisateur répond oui.</p>',
           box('tech', 'Vérifier en Bash', 'terminal',
-            '    <ul>\\n' +
-            '      <li>Les familles : entry/label/button/treeview → widget, pack/grid → layout, messagebox → boite.</li>\\n' +
-            '      <li>La validation : nom refuse le vide, quantite et prix testent nombre positif.</li>\\n' +
-            '      <li>Les dialogues : succès → showinfo, attention → showwarning, échec → showerror, suppression → askyesno.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Les familles : entry/label/button/treeview → widget, pack/grid → layout, messagebox → boite.</li>\n' +
+            '      <li>La validation : nom refuse le vide, quantite et prix testent nombre positif.</li>\n' +
+            '      <li>Les dialogues : succès → showinfo, attention → showwarning, échec → showerror, suppression → askyesno.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

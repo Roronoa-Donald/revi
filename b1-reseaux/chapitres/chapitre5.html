@@ -78,16 +78,27 @@
 
 <h2>1. MAC, IP, ARP</h2>
 
-<p>L'<strong>adresse MAC</strong> (Media Access Control) opère en couche 2 : elle identifie  unique la carte réseau (NIC). Format : <strong>48 bits</strong>, soit 12 chiffres hexadécimaux (00:1A:2B:3C:4D:5E). Les 6 premiers chiffres (24 bits) forment l'<strong>OUI</strong> (Organizationally Unique Identifier) du fabricant ; les 6 derniers sont le numéro de série du fabricant. Portée : le segment local uniquement — <strong>une MAC n'est jamais routée au-delà d'un routeur</strong>.</p>\n<p>L'<strong>adresse IP</strong> opère en couche 3 : identité logique et routable. <strong>IPv4</strong> : 32 bits en quatre octets décimaux (192.168.1.10), composée d'une partie <strong>réseau</strong> et d'une partie <strong>hôte</strong>, séparées par le masque ; dynamique (DHCP) ou statique. <strong>IPv6</strong> : 128 bits en huit groupes hexadécimaux, créée contre la pénurie d'IPv4.</p>\n<p>La coopération : sur le <strong>même réseau</strong>, A résout l'IP de B en MAC via <strong>ARP</strong> (Address Resolution Protocol) et envoie directement. À <strong>distance</strong>, A encapsule le paquet avec la MAC du routeur local ; le routeur désencapsule, lit l'IP de C, consulte sa table de routage, et réencapsule vers la MAC du routeur suivant — et ainsi de suite.</p>\n  <div class="box box--mnemo">
+<p>L'<strong>adresse MAC</strong> (Media Access Control) opère en couche 2 : elle identifie  unique la carte réseau (NIC). Format : <strong>48 bits</strong>, soit 12 chiffres hexadécimaux (00:1A:2B:3C:4D:5E). Les 6 premiers chiffres (24 bits) forment l'<strong>OUI</strong> (Organizationally Unique Identifier) du fabricant ; les 6 derniers sont le numéro de série du fabricant. Portée : le segment local uniquement — <strong>une MAC n'est jamais routée au-delà d'un routeur</strong>.</p>
+<p>L'<strong>adresse IP</strong> opère en couche 3 : identité logique et routable. <strong>IPv4</strong> : 32 bits en quatre octets décimaux (192.168.1.10), composée d'une partie <strong>réseau</strong> et d'une partie <strong>hôte</strong>, séparées par le masque ; dynamique (DHCP) ou statique. <strong>IPv6</strong> : 128 bits en huit groupes hexadécimaux, créée contre la pénurie d'IPv4.</p>
+<p>La coopération : sur le <strong>même réseau</strong>, A résout l'IP de B en MAC via <strong>ARP</strong> (Address Resolution Protocol) et envoie directement. À <strong>distance</strong>, A encapsule le paquet avec la MAC du routeur local ; le routeur désencapsule, lit l'IP de C, consulte sa table de routage, et réencapsule vers la MAC du routeur suivant — et ainsi de suite.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « IP navigue, MAC rame »</div>
     <p>IP traverse les réseaux de routeur en routeur ; MAC ne rame que sur son segment local. ARP est le traducteur entre les deux.</p>
   </div>
 
 <h2>2. Masque et classes</h2>
 
-<p>Le <strong>masque de sous-réseau</strong> répond à la question « où finit le réseau, où commence l'hôte ? ». 32 bits comme l'adresse : les bits à 1 marquent la partie réseau, les bits à 0 la partie hôte. Exemple : 255.255.255.0 — les 24 premiers bits (trois octets) sont réseau, le dernier octet identifie les machines.</p>\n<p>Les <strong>classes</strong> historiques, déterminées par les premiers bits du premier octet : <strong>A</strong> (1er bit 0, adresses 1 à 126, masque 255.0.0.0, ~16 millions d'hôtes) ; <strong>B</strong> (10, 128 à 191, 255.255.0.0, ~65 000 hôtes) ; <strong>C</strong> (110, 192 à 223, 255.255.255.0, 254 hôtes). Les classes <strong>D</strong> (224-239) servent au multicast, <strong>E</strong> (240-254) est expérimentale. 127 est la <strong>boucle locale</strong>.</p>\n<p>Ce système, remplacé par le <strong>CIDR</strong>, reste « essentiel à comprendre » selon le support — et c'est lui qui rend le sous-réseautage lisible au chapitre suivant.</p>\n  <div class="box box--pitfall">
+<p>Le <strong>masque de sous-réseau</strong> répond à la question « où finit le réseau, où commence l'hôte ? ». 32 bits comme l'adresse : les bits à 1 marquent la partie réseau, les bits à 0 la partie hôte. Exemple : 255.255.255.0 — les 24 premiers bits (trois octets) sont réseau, le dernier octet identifie les machines.</p>
+<p>Les <strong>classes</strong> historiques, déterminées par les premiers bits du premier octet : <strong>A</strong> (1er bit 0, adresses 1 à 126, masque 255.0.0.0, ~16 millions d'hôtes) ; <strong>B</strong> (10, 128 à 191, 255.255.0.0, ~65 000 hôtes) ; <strong>C</strong> (110, 192 à 223, 255.255.255.0, 254 hôtes). Les classes <strong>D</strong> (224-239) servent au multicast, <strong>E</strong> (240-254) est expérimentale. 127 est la <strong>boucle locale</strong>.</p>
+<p>Ce système, remplacé par le <strong>CIDR</strong>, reste « essentiel à comprendre » selon le support — et c'est lui qui rend le sous-réseautage lisible au chapitre suivant.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
-    <ul>\n      <li>Une MAC n'est jamais routée : elle ne sort pas du LAN, contrairement à l'IP.</li>\n      <li>Classe B : 128 à 191 — pas 127 (boucle locale) ni 192 (classe C).</li>\n      <li>Bits du masque : 1 = réseau, 0 = hôte — jamais l'inverse.</li>\n      <li>ARP traduit IP en MAC sur le segment local ; à distance, c'est la table de routage qui parle.</li>\n    </ul>
+    <ul>
+      <li>Une MAC n'est jamais routée : elle ne sort pas du LAN, contrairement à l'IP.</li>
+      <li>Classe B : 128 à 191 — pas 127 (boucle locale) ni 192 (classe C).</li>
+      <li>Bits du masque : 1 = réseau, 0 = hôte — jamais l'inverse.</li>
+      <li>ARP traduit IP en MAC sur le segment local ; à distance, c'est la table de routage qui parle.</li>
+    </ul>
   </div>
 
 <!-- code-labs:start -->
@@ -239,7 +250,7 @@ speciales : 0/4</pre></div>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Une adresse MAC compte…</p>
       <div class="opts">
         <button class="opt">32 bits</button>
         <button class="opt" data-correct="1">48 bits (12 hexadécimaux)</button>
@@ -248,7 +259,7 @@ speciales : 0/4</pre></div>
       <div class="q__exp">12 chiffres hexadécimaux : 6 OUI + 6 série.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">L'OUI d'une MAC identifie…</p>
       <div class="opts">
         <button class="opt">le réseau</button>
         <button class="opt" data-correct="1">le fabricant de la carte</button>
@@ -257,7 +268,7 @@ speciales : 0/4</pre></div>
       <div class="q__exp">Organizationally Unique Identifier : 24 premiers bits.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Une MAC est routée…</p>
       <div class="opts">
         <button class="opt">sur Internet</button>
         <button class="opt" data-correct="1">jamais au-delà d'un routeur</button>
@@ -266,7 +277,7 @@ speciales : 0/4</pre></div>
       <div class="q__exp">Portée : le segment local uniquement.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">IPv4 fait 32 bits, IPv6 fait…</p>
       <div class="opts">
         <button class="opt">48 bits</button>
         <button class="opt">64 bits</button>
@@ -275,7 +286,7 @@ speciales : 0/4</pre></div>
       <div class="q__exp">Huit groupes hexadécimaux, contre la pénurie IPv4.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">ARP sert à…</p>
       <div class="opts">
         <button class="opt">router les paquets</button>
         <button class="opt" data-correct="1">traduire une IP en MAC locale</button>
@@ -284,7 +295,7 @@ speciales : 0/4</pre></div>
       <div class="q__exp">Address Resolution Protocol, sur le même réseau.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Dans 255.255.255.0, les bits à 0 marquent…</p>
       <div class="opts">
         <button class="opt">le réseau</button>
         <button class="opt" data-correct="1">l'hôte</button>
@@ -293,7 +304,7 @@ speciales : 0/4</pre></div>
       <div class="q__exp">1 = réseau, 0 = hôte : ici le dernier octet.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">L'adresse 172.16.0.1 est de classe…</p>
       <div class="opts">
         <button class="opt">A</button>
         <button class="opt" data-correct="1">B</button>
@@ -302,7 +313,7 @@ speciales : 0/4</pre></div>
       <div class="q__exp">Premier octet 172 : classe B (128-191).</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La classe C offre environ…</p>
       <div class="opts">
         <button class="opt" data-correct="1">254 hôtes</button>
         <button class="opt">65 000 hôtes</button>

@@ -56,7 +56,7 @@ module.exports = [
             '    <p>Une jointure sans <strong>ON</strong> n’existe pas : la condition est le pont. Si le ' +
             'résultat paraît démultiplié (des centaines de lignes pour deux petites tables), la condition ' +
             'est absente ou fausse — le SGBD a alors apparié toutes les lignes avec toutes.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Jointure sans JOIN, puis INNER JOIN',
@@ -84,7 +84,7 @@ module.exports = [
             '    <p>Si une marque n’a aucune voiture, aucune ligne de Voiture ne correspond : la ligne ' +
             'conjuguée n’existe pas, la marque disparaît. Ce n’est pas un bug — c’est la définition. Pour ' +
             'garder les marques sans voiture, il faut la jointure externe de la section suivante.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'LEFT JOIN : garder la table de gauche',
@@ -106,7 +106,7 @@ module.exports = [
           '    <tr><td>LEFT JOIN</td><td>toutes les lignes de gauche, NULL à droite si absence</td></tr>\n' +
           '    <tr><td>RIGHT JOIN</td><td>symétrique : toutes les lignes de droite</td></tr>\n' +
           '  </table>'
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Les alias de tables',
@@ -125,7 +125,7 @@ module.exports = [
             '    <p>Quand deux tables jointes portent une colonne de même nom (ici <code>codemarque</code> ' +
             'dans Marque et dans Voiture normalisée), écrire la colonne sans préfixe est une erreur : ' +
             '« ambiguous column ». <strong>Toujours préfixer par l’alias</strong> : M.codemarque, V.codemarque.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -230,7 +230,7 @@ module.exports = [
             '<code>COUNT(colonne)</code> saute celles où la colonne vaut NULL. Sur le support : « 25 voitures ' +
             'immatriculées sur 34 » — les 9 sans immatriculation existent dans COUNT(*) et disparaissent de ' +
             'COUNT(immat). Choisir l’un ou l’autre, c’est répondre à deux questions différentes.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'GROUP BY : calculer par groupe',
@@ -255,7 +255,7 @@ module.exports = [
             '    <p>Chaque groupe devient <strong>une ligne du résultat</strong>. Si le résultat paraît ' +
             'étrange (trop de lignes, valeurs incohérentes), vérifier deux choses : la colonne de ' +
             'regroupement est-elle la bonne ? Chaque colonne affichée est-elle regroupée ou agrégée ?</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'HAVING : filtrer les groupes',
@@ -282,7 +282,7 @@ module.exports = [
             '    <p>« Seulement les diesels » parle des <strong>lignes</strong> : WHERE. « Seulement les ' +
             'marques avec au moins 3 voitures » parle des <strong>groupes</strong> : HAVING. Une condition ' +
             'qui contient un agrégat (COUNT, AVG…) ne peut jamais vivre dans WHERE.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'L’ordre complet, une dernière fois',
@@ -309,7 +309,7 @@ module.exports = [
             'simulateur SQL</a> : le jeu de données parc_auto y est chargé, et le résultat s’affiche en ' +
             'tableau. Déformer volontairement une clause (WHERE après GROUP BY, colonne hors GROUP BY) pour ' +
             'lire le message d’erreur est un excellent exercice.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -413,7 +413,7 @@ module.exports = [
             '<strong>toutes</strong> les lignes : 23 voitures passées au diesel en une requête. Toute ' +
             'modification sérieuse se teste d’abord par le SELECT équivalent — si le SELECT ramène les ' +
             'bonnes lignes, l’UPDATE avec le même WHERE les modifiera.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'DELETE et ALTER',
@@ -430,7 +430,7 @@ module.exports = [
           '<p>Ajouter, supprimer, changer un type : ALTER est la commande d’évolution du schéma — elle ' +
           's’accompagne d’une réflexion sur les données existantes, qui doivent rester cohérentes avec ' +
           'la nouvelle structure.</p>'
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Utilisateurs : CREATE USER et l’hôte',
@@ -457,7 +457,7 @@ module.exports = [
             '    <p>Le login dit <strong>qui</strong> entre, l’hôte dit <strong>d’où</strong>. Le même login ' +
             'peut exister en plusieurs exemplaires aux privilèges différents selon l’hôte — deux clés ' +
             'distinctes pour deux portes distinctes.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Privilèges : GRANT et REVOKE',
@@ -492,7 +492,7 @@ module.exports = [
             '    <p><code>GRANT ALL, GRANT OPTION ON …</code> est refusé : ALL s’emploie seul. Pour donner ' +
             'tout <strong>et</strong> le droit de transmettre, la forme est <code>GRANT ALL PRIVILEGES ON … ' +
             'TO … WITH GRANT OPTION</code>. La distinction est tombée en QCM du support.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

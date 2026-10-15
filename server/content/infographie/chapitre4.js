@@ -61,12 +61,12 @@ module.exports = {
           'tip',
           'Calcul de la Normale de Face par Produit Vectoriel',
           '<p>Soit un triangle défini par les sommets <code>A</code>, <code>B</code> et <code>C</code> ordonnés en sens CCW :</p>' +
-          '<pre><code>u = B - A    (vecteur directeur 1)\\n' +
-          'v = C - A    (vecteur directeur 2)\\n' +
-          'n = u × v    (produit vectoriel orthogonal)\\n' +
-          'nx = u.y * v.z - u.z * v.y\\n' +
-          'ny = u.z * v.x - u.x * v.z\\n' +
-          'nz = u.x * v.y - u.y * v.x\\n' +
+          '<pre><code>u = B - A    (vecteur directeur 1)\n' +
+          'v = C - A    (vecteur directeur 2)\n' +
+          'n = u × v    (produit vectoriel orthogonal)\n' +
+          'nx = u.y * v.z - u.z * v.y\n' +
+          'ny = u.z * v.x - u.x * v.z\n' +
+          'nz = u.x * v.y - u.y * v.x\n' +
           'N = n / ||n|| (normale unitaire de longueur 1.0)</code></pre>'
         )
       ].join('\n')

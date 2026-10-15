@@ -102,9 +102,9 @@ function formules(course) {
     ].join('\n')),
 
     bloc('Lire l’entrée en CLI', [
-      '<pre><code>$ligne   = trim(fgets(STDIN));      // une valeur par ligne, débarrassée du \\n\n',
+      '<pre><code>$ligne   = trim(fgets(STDIN));      // une valeur par ligne, débarrassée du \n\n',
       '$nombre  = (int) $ligne;            // cast explicite\n',
-      'echo "resultat : " . $nombre . "\\n";</code></pre>',
+      'echo "resultat : " . $nombre . "\n";</code></pre>',
       '<p>Toujours <code>trim()</code> une entrée : elle conserve sinon le saut de ligne final.</p>'
     ].join('\n')),
 

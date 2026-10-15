@@ -78,40 +78,51 @@
 
 <h2>1. L’afficheur 7 segments comme table</h2>
 
-<p>Sept segments nommés de <code>a</code> à <code>g</code>. Chaque chiffre allume un sous-ensemble : le 0 allume tout sauf g, le 1 seulement b et c, le 8 tout. La correspondance est une <strong>donnée</strong>, pas un calcul : un dictionnaire la pose une fois pour toutes.</p>\n<pre><code>segments = {
+<p>Sept segments nommés de <code>a</code> à <code>g</code>. Chaque chiffre allume un sous-ensemble : le 0 allume tout sauf g, le 1 seulement b et c, le 8 tout. La correspondance est une <strong>donnée</strong>, pas un calcul : un dictionnaire la pose une fois pour toutes.</p>
+<pre><code>segments = {
     0: "a b c d e f",
     1: "b c",
     2: "a b d e g",
     ...
     8: "a b c d e f g"
 }
-print(segments[chiffre])</code></pre>\n<p>Le programme principal se réduit alors à une lecture et un affichage : toute la complexité est dans la table, lisible et vérifiable chiffre par chiffre. C’est le même réflexe qu’en électronique, où la table de vérité précède le câblage.</p>\n  <div class="box box--mnemo">
+print(segments[chiffre])</code></pre>
+<p>Le programme principal se réduit alors à une lecture et un affichage : toute la complexité est dans la table, lisible et vérifiable chiffre par chiffre. C’est le même réflexe qu’en électronique, où la table de vérité précède le câblage.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Le dictionnaire est un câblage »</div>
     <p>Écrire <code>7: "a b c"</code> dans un dictionnaire, c’est brancher les segments a, b, c du chiffre 7. <strong>Une table de correspondance est plus sûre qu’un calcul</strong> : elle ne peut pas se tromper de formule, seulement d’entrée — et ça se voit d’un coup d’œil.</p>
   </div>
 
 <h2>2. Trois états, deux seuils</h2>
 
-<p>La station météo du TP classe chaque relevé : alerte chaleur au-dessus de 30, alerte froid en dessous de 15, normal entre les deux. Trois états, deux seuils, une chaîne if / elif / else.</p>\n<pre><code>if t &gt; 30:      "ALERTE CHALEUR"
+<p>La station météo du TP classe chaque relevé : alerte chaleur au-dessus de 30, alerte froid en dessous de 15, normal entre les deux. Trois états, deux seuils, une chaîne if / elif / else.</p>
+<pre><code>if t &gt; 30:      "ALERTE CHALEUR"
 elif t &lt; 15:    "ALERTE FROID"
-else:           "normale"</code></pre>\n<p>Les seuils sont <strong>stricts</strong> : 30 exactement est normal, 15 exactement est normal. Les tests vérifient toujours la frontière — le relevé égal au seuil est le cas qui trahit un <code>&gt;=</code> écrit par distraction.</p>\n  <div class="box box--pitfall">
+else:           "normale"</code></pre>
+<p>Les seuils sont <strong>stricts</strong> : 30 exactement est normal, 15 exactement est normal. Les tests vérifient toujours la frontière — le relevé égal au seuil est le cas qui trahit un <code>&gt;=</code> écrit par distraction.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le relevé à la frontière</div>
     <p>Un <code>&gt;=</code> au lieu de <code>&gt;</code> déplace tout le compte d’alertes : 30.0 basculerait en alerte. <strong>L’énoncé fixe la frontière ; le code la respecte au caractère près.</strong> Si l’énoncé dit « strictement supérieur », le test est &gt;.</p>
   </div>
 
 <h2>3. Afficher sans zéros inutiles</h2>
 
-<p>Un relevé de 30.0 doit s’afficher « 30 », un relevé de 12.5 garde sa décimale. Le format <code>:g</code> fait exactement cela : il supprime les zéros de fin.</p>\n<pre><code>f"{t:g} C : normale"      →   "30 C : normale"
+<p>Un relevé de 30.0 doit s’afficher « 30 », un relevé de 12.5 garde sa décimale. Le format <code>:g</code> fait exactement cela : il supprime les zéros de fin.</p>
+<pre><code>f"{t:g} C : normale"      →   "30 C : normale"
 f"{t:g} C : normale"      →   "12.5 C : normale"
-f"{t:.2f} C : normale"    →   "30.00 C : normale"   (à éviter ici)</code></pre>\n<p>Les trois formats à connaître : <code>:g</code> nettoie, <code>:.2f</code> arrondit à deux décimales, <code>:&lt;12</code> aligne à gauche. Choisir le mauvais n’est pas une erreur de style : c’est une sortie différente, et les tests la refusent.</p>
+f"{t:.2f} C : normale"    →   "30.00 C : normale"   (à éviter ici)</code></pre>
+<p>Les trois formats à connaître : <code>:g</code> nettoie, <code>:.2f</code> arrondit à deux décimales, <code>:&lt;12</code> aligne à gauche. Choisir le mauvais n’est pas une erreur de style : c’est une sortie différente, et les tests la refusent.</p>
 
 <h2>4. Le bilan : minimum et moyenne entière</h2>
 
-<p>Après le classement, le régulateur résume la série : le relevé le plus petit (le plus urgent) et la moyenne.</p>\n<pre><code>minimum = min(distances)
+<p>Après le classement, le régulateur résume la série : le relevé le plus petit (le plus urgent) et la moyenne.</p>
+<pre><code>minimum = min(distances)
 moyenne = sum(distances) // n        # division entière
 
 print(f"minimum : {minimum}")
-print(f"moyenne : {moyenne}")</code></pre>\n<p>La <strong>division entière</strong> <code>//</code> est imposée par l’énoncé : 135 / 6 vaut 22,5 mais <code>135 // 6</code> vaut 22. Le <code>min()</code> d’une liste non vide ne plante jamais ; c’est une liste vide qui le ferait — et l’énoncé garantit n ≥ 1.</p>\n  <div class="box box--intuition">
+print(f"moyenne : {moyenne}")</code></pre>
+<p>La <strong>division entière</strong> <code>//</code> est imposée par l’énoncé : 135 / 6 vaut 22,5 mais <code>135 // 6</code> vaut 22. Le <code>min()</code> d’une liste non vide ne plante jamais ; c’est une liste vide qui le ferait — et l’énoncé garantit n ≥ 1.</p>
+  <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Suivre le minimum dans la boucle</div>
     <p>Deux écoles : <code>min()</code> après coup, ou une variable suivie dans la boucle (« si d est plus petit, il devient le nouveau minimum »). Les deux sont justes ; la seconde est ce qu’on écrit sur une carte qui traite les relevés au fil de l’eau, sans les retenir tous.</p>
   </div>

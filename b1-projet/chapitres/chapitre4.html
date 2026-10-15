@@ -78,23 +78,35 @@
 
 <h2>1. Ajouter et modifier</h2>
 
-<p><strong>Ajouter</strong> : lire les quatre champs, valider (obligatoires non vides, quantite entière et prix numérique), puis <code>db.ajouter_produit(nom, categorie, quantite, prix)</code>. Succès → showinfo, <code>effacer_champs()</code>, <code>actualiser_tableau()</code>. Échec → showerror. <strong>Modifier</strong> : exiger une sélection dans le Treeview (sinon showwarning), remplir le formulaire au clic, puis <code>db.modifier_produit(id, …)</code> qui exécute <code>UPDATE … WHERE id=%s</code>.</p>\n  <div class="box box--mnemo">
+<p><strong>Ajouter</strong> : lire les quatre champs, valider (obligatoires non vides, quantite entière et prix numérique), puis <code>db.ajouter_produit(nom, categorie, quantite, prix)</code>. Succès → showinfo, <code>effacer_champs()</code>, <code>actualiser_tableau()</code>. Échec → showerror. <strong>Modifier</strong> : exiger une sélection dans le Treeview (sinon showwarning), remplir le formulaire au clic, puis <code>db.modifier_produit(id, …)</code> qui exécute <code>UPDATE … WHERE id=%s</code>.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « valider, appeler, rafraîchir »</div>
     <p>Trois verbes, les trois mêmes à chaque action : c'est le squelette de toutes les méthodes d'action du tutoriel.</p>
   </div>
 
 <h2>2. Supprimer avec confirmation</h2>
 
-<p><strong>Supprimer</strong> : sélection obligatoire, puis <code>messagebox.askyesno("Confirmation", "Voulez-vous vraiment supprimer '…' ?")</code>. Oui → <code>db.supprimer_produit(id)</code> (DELETE WHERE id), showinfo, rafraîchir. Non → rien. Cette double garde — sélection puis confirmation — sépare la suppression réfléchie du clic malheureux. Si le produit n'existe plus en base (supprimé par ailleurs), l'opération se rapporte : introuvable n'est pas supprimé.</p>\n  <div class="box box--pitfall">
+<p><strong>Supprimer</strong> : sélection obligatoire, puis <code>messagebox.askyesno("Confirmation", "Voulez-vous vraiment supprimer '…' ?")</code>. Oui → <code>db.supprimer_produit(id)</code> (DELETE WHERE id), showinfo, rafraîchir. Non → rien. Cette double garde — sélection puis confirmation — sépare la suppression réfléchie du clic malheureux. Si le produit n'existe plus en base (supprimé par ailleurs), l'opération se rapporte : introuvable n'est pas supprimé.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
-    <ul>\n      <li>Modifier et supprimer exigent une sélection : sinon showwarning, pas d'appel SQL.</li>\n      <li>askyesno renvoie True/False : la suppression vit dans le if.</li>\n      <li>Après chaque action : effacer_champs puis actualiser_tableau.</li>\n      <li>DELETE sans WHERE vide la table entière : le WHERE id=%s est vital.</li>\n    </ul>
+    <ul>
+      <li>Modifier et supprimer exigent une sélection : sinon showwarning, pas d'appel SQL.</li>
+      <li>askyesno renvoie True/False : la suppression vit dans le if.</li>
+      <li>Après chaque action : effacer_champs puis actualiser_tableau.</li>
+      <li>DELETE sans WHERE vide la table entière : le WHERE id=%s est vital.</li>
+    </ul>
   </div>
 
 <h2>3. Mouvements de stock</h2>
 
-<p>Un <strong>mouvement</strong> est une entrée (+) ou une sortie (−) sur un produit. La règle métier : une sortie supérieure au stock disponible est refusée — le stock ne devient jamais négatif. En SQL, le mouvement se traduit par <code>UPDATE produits SET quantite = quantite + X WHERE id = %s</code> (ou − X après vérification). L'atelier rejoue ces mouvements : entrées cumulées, sorties contrôlées, refus explicites « stock insuffisant ».</p>\n  <div class="box box--tech">
+<p>Un <strong>mouvement</strong> est une entrée (+) ou une sortie (−) sur un produit. La règle métier : une sortie supérieure au stock disponible est refusée — le stock ne devient jamais négatif. En SQL, le mouvement se traduit par <code>UPDATE produits SET quantite = quantite + X WHERE id = %s</code> (ou − X après vérification). L'atelier rejoue ces mouvements : entrées cumulées, sorties contrôlées, refus explicites « stock insuffisant ».</p>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
-    <ul>\n      <li>L'ajout : quantité vide ou non positive → refuse, compteur d'ajouts à la fin.</li>\n      <li>Le mouvement : un tableau associatif par produit, sortie refusée si stock < quantité.</li>\n      <li>La suppression : trois motifs (confirme/annule/absent), deux compteurs de bilan.</li>\n    </ul>
+    <ul>
+      <li>L'ajout : quantité vide ou non positive → refuse, compteur d'ajouts à la fin.</li>
+      <li>Le mouvement : un tableau associatif par produit, sortie refusée si stock < quantité.</li>
+      <li>La suppression : trois motifs (confirme/annule/absent), deux compteurs de bilan.</li>
+    </ul>
   </div>
 
 <!-- code-labs:start -->
@@ -244,7 +256,7 @@ introuvables : 1</pre></div>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Modifier un produit exige…</p>
       <div class="opts">
         <button class="opt" data-correct="1">une sélection dans le tableau</button>
         <button class="opt">un nouveau formulaire</button>
@@ -253,7 +265,7 @@ introuvables : 1</pre></div>
       <div class="q__exp">Sans sélection : showwarning, pas d'UPDATE.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La suppression réelle ne suit que si…</p>
       <div class="opts">
         <button class="opt" data-correct="1">askyesno renvoie oui</button>
         <button class="opt">le champ est vide</button>
@@ -262,7 +274,7 @@ introuvables : 1</pre></div>
       <div class="q__exp">Confirmation obligatoire avant DELETE.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La requête de modification :</p>
       <div class="opts">
         <button class="opt" data-correct="1">UPDATE … WHERE id=%s</button>
         <button class="opt">UPDATE tout</button>
@@ -271,7 +283,7 @@ introuvables : 1</pre></div>
       <div class="q__exp">Le WHERE id cible une seule ligne.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Une sortie de stock supérieure au disponible :</p>
       <div class="opts">
         <button class="opt" data-correct="1">refusée</button>
         <button class="opt">acceptée en négatif</button>
@@ -280,7 +292,7 @@ introuvables : 1</pre></div>
       <div class="q__exp">Le stock ne devient jamais négatif : refus motivé.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Après un ajout réussi, l'application…</p>
       <div class="opts">
         <button class="opt" data-correct="1">efface les champs et actualise le tableau</button>
         <button class="opt">ferme la fenêtre</button>
@@ -289,7 +301,7 @@ introuvables : 1</pre></div>
       <div class="q__exp">effacer_champs() + actualiser_tableau().</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Un produit déjà parti de la table :</p>
       <div class="opts">
         <button class="opt" data-correct="1">introuvable</button>
         <button class="opt">supprimé</button>
@@ -298,7 +310,7 @@ introuvables : 1</pre></div>
       <div class="q__exp">Le refus est rapporté, pas compté en suppression.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La mise à jour d'un stock de +X s'écrit…</p>
       <div class="opts">
         <button class="opt" data-correct="1">SET quantite = quantite + X WHERE id</button>
         <button class="opt">SET quantite = X sans WHERE</button>
@@ -307,7 +319,7 @@ introuvables : 1</pre></div>
       <div class="q__exp">Incrément relatif, ciblé par id.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le squelette de chaque action :</p>
       <div class="opts">
         <button class="opt" data-correct="1">valider, appeler, rafraîchir</button>
         <button class="opt">connecter, créer, fermer</button>

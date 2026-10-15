@@ -78,16 +78,25 @@
 
 <h2>1. Emprunter des bits</h2>
 
-<p>Créer des sous-réseaux, c'est <strong>emprunter des bits à la partie hôte</strong> en les mettant à 1 dans le masque. Les <strong>bits empruntés</strong> déterminent le nombre de sous-réseaux : 2^emprunt (3 bits = 8 sous-réseaux). Les <strong>bits restants</strong> déterminent les hôtes valides de chaque sous-réseau : 2^(bits restants) - 2 (5 bits restants = 30 hôtes valides — l'adresse réseau et l'adresse de diffusion sont retirées).</p>\n<p>Le <strong>nouveau masque</strong> se lit sur le dernier octet : 3 bits empruntés donnent 11100000, soit 128 + 64 + 32 = <strong>224</strong> — masque 255.255.255.224, ou <strong>/27</strong> en notation CIDR. Deux bits donnent 192 (/26), un bit 128 (/25), quatre bits 240 (/28).</p>\n  <div class="box box--mnemo">
+<p>Créer des sous-réseaux, c'est <strong>emprunter des bits à la partie hôte</strong> en les mettant à 1 dans le masque. Les <strong>bits empruntés</strong> déterminent le nombre de sous-réseaux : 2^emprunt (3 bits = 8 sous-réseaux). Les <strong>bits restants</strong> déterminent les hôtes valides de chaque sous-réseau : 2^(bits restants) - 2 (5 bits restants = 30 hôtes valides — l'adresse réseau et l'adresse de diffusion sont retirées).</p>
+<p>Le <strong>nouveau masque</strong> se lit sur le dernier octet : 3 bits empruntés donnent 11100000, soit 128 + 64 + 32 = <strong>224</strong> — masque 255.255.255.224, ou <strong>/27</strong> en notation CIDR. Deux bits donnent 192 (/26), un bit 128 (/25), quatre bits 240 (/28).</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « chaque bit emprunté double les réseaux et divise les hôtes »</div>
     <p>+1 bit emprunté : sous-réseaux x 2, hôtes valides environ / 2 (moins 2). Le masque monte en face : 128, 192, 224, 240, 248, 252.</p>
   </div>
 
 <h2>2. VLSM et CIDR</h2>
 
-<p>Avec le découpage classique, tous les sous-réseaux d'un réseau portaient le même masque : inefficace quand un bureau n'a besoin que de 5 hôtes et un autre de 50. Le <strong>VLSM</strong> (Variable Length Subnet Masking) permet <strong>différents masques au sein du même réseau principal</strong> : /30 pour les liaisons point-à-point (2 hôtes), /26 pour les gros bureaux — efficacité maximale. Le routeur doit comprendre le masque de chaque sous-réseau.</p>\n<p>Le <strong>CIDR</strong> (Classless Inter-Domain Routing), adopté au début des années 90, rend obsolète le système de classes et standardise le VLSM. La <strong>notation CIDR</strong> écrit le nombre de bits réseau après un slash : 192.168.1.0/27 — ancienne classe C sous-réseautée ; 10.0.0.0/30 — liaison point-à-point. Le choix de la taille exacte optimise l'espace d'adressage global.</p>\n  <div class="box box--pitfall">
+<p>Avec le découpage classique, tous les sous-réseaux d'un réseau portaient le même masque : inefficace quand un bureau n'a besoin que de 5 hôtes et un autre de 50. Le <strong>VLSM</strong> (Variable Length Subnet Masking) permet <strong>différents masques au sein du même réseau principal</strong> : /30 pour les liaisons point-à-point (2 hôtes), /26 pour les gros bureaux — efficacité maximale. Le routeur doit comprendre le masque de chaque sous-réseau.</p>
+<p>Le <strong>CIDR</strong> (Classless Inter-Domain Routing), adopté au début des années 90, rend obsolète le système de classes et standardise le VLSM. La <strong>notation CIDR</strong> écrit le nombre de bits réseau après un slash : 192.168.1.0/27 — ancienne classe C sous-réseautée ; 10.0.0.0/30 — liaison point-à-point. Le choix de la taille exacte optimise l'espace d'adressage global.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
-    <ul>\n      <li>Les hôtes valides retirent deux adresses : réseau et diffusion — 2^k - 2, jamais 2^k.</li>\n      <li>3 bits empruntés sur /24 donnent /27, pas /3 : on additionne au préfixe de départ.</li>\n      <li>/30 = 2 hôtes valides : c'est le bloc des liaisons point-à-point.</li>\n      <li>Le VLSM exige que le routeur connaisse chaque masque : « diviser pour régner » se route.</li>\n    </ul>
+    <ul>
+      <li>Les hôtes valides retirent deux adresses : réseau et diffusion — 2^k - 2, jamais 2^k.</li>
+      <li>3 bits empruntés sur /24 donnent /27, pas /3 : on additionne au préfixe de départ.</li>
+      <li>/30 = 2 hôtes valides : c'est le bloc des liaisons point-à-point.</li>
+      <li>Le VLSM exige que le routeur connaisse chaque masque : « diviser pour régner » se route.</li>
+    </ul>
   </div>
 
 <!-- code-labs:start -->
@@ -232,7 +241,7 @@ liaisons : 1/4</pre></div>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Emprunter 3 bits à un /24 crée…</p>
       <div class="opts">
         <button class="opt">3 sous-réseaux</button>
         <button class="opt" data-correct="1">8 sous-réseaux</button>
@@ -241,7 +250,7 @@ liaisons : 1/4</pre></div>
       <div class="q__exp">2^3 = 8 sous-réseaux possibles.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Avec 5 bits d'hôte restants, un sous-réseau offre…</p>
       <div class="opts">
         <button class="opt">32 hôtes</button>
         <button class="opt" data-correct="1">30 hôtes</button>
@@ -250,7 +259,7 @@ liaisons : 1/4</pre></div>
       <div class="q__exp">2^5 - 2 : réseau et diffusion retirés.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le masque 255.255.255.224 correspond à…</p>
       <div class="opts">
         <button class="opt">/26</button>
         <button class="opt" data-correct="1">/27</button>
@@ -259,7 +268,7 @@ liaisons : 1/4</pre></div>
       <div class="q__exp">11100000 = 224 : 3 bits empruntés, /27.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Emprunter 2 bits donne un dernier octet de…</p>
       <div class="opts">
         <button class="opt" data-correct="1">192</button>
         <button class="opt">224</button>
@@ -268,7 +277,7 @@ liaisons : 1/4</pre></div>
       <div class="q__exp">11000000 = 128 + 64 = 192.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le VLSM permet…</p>
       <div class="opts">
         <button class="opt">un masque unique par réseau</button>
         <button class="opt" data-correct="1">des masques différents dans un même réseau</button>
@@ -277,7 +286,7 @@ liaisons : 1/4</pre></div>
       <div class="q__exp">Tailles variées : /30 pour les liaisons, /26 pour les bureaux.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le CIDR a remplacé…</p>
       <div class="opts">
         <button class="opt">le VLSM</button>
         <button class="opt" data-correct="1">le système de classes</button>
@@ -286,7 +295,7 @@ liaisons : 1/4</pre></div>
       <div class="q__exp">Routage sans classe : notation /n, fin des classes A-B-C.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Une liaison point-à-point se dimensionne en…</p>
       <div class="opts">
         <button class="opt">/24</button>
         <button class="opt">/28</button>
@@ -295,7 +304,7 @@ liaisons : 1/4</pre></div>
       <div class="q__exp">2 hôtes valides : exactement deux routeurs.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">192.168.1.0/27 offre par sous-réseau…</p>
       <div class="opts">
         <button class="opt" data-correct="1">30 hôtes</button>
         <button class="opt">62 hôtes</button>

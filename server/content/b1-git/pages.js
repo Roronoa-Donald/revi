@@ -168,7 +168,7 @@ function atelier(course) {
       '  read -r operation message',
       '  if [ "$operation" = "commit" ]; then',
       '    numero=$((numero + 1))',
-      '    printf "[main %04d] %s\\n" "$numero" "$message"',
+      '    printf "[main %04d] %s\n" "$numero" "$message"',
       '  elif [ "$operation" = "revert" ]; then',
       '    echo "Revert: $message"',
       '  fi',

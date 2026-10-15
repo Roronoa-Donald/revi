@@ -353,7 +353,7 @@ function formules(course) {
       '    <li>Un seul chevron &gt; qui écrase un fichier de configuration.</li>',
       '    <li>Additionner les classes au lieu de convertir triplet par triplet (750, pas 12).</li>',
       '    <li>Confondre chown (propriétaire) et chgrp (groupe).</li>',
-      '    <li>Lire le seuil après n, ou oublier le \\n final sur l’entrée du dernier read.</li>',
+      '    <li>Lire le seuil après n, ou oublier le \n final sur l’entrée du dernier read.</li>',
       '  </ul>'
     ].join('\n')),
 
@@ -401,7 +401,7 @@ function examens(course) {
           num: 'Exercice 4',
           badge: '/5 — Script',
           text: 'Écrire le script qui lit n puis n lignes « type nom », compte fichiers et répertoires, et affiche les deux comptes. Que se passe-t-il si l’entrée ne finit pas par un retour à la ligne ?',
-          sol: 'Boucle <code>for ((i=0; i&lt;n; i++))</code> avec <code>read -r type nom</code>, compteurs initialisés avant, bilan affiché après. Sans <code>\\n</code> final, le <strong>dernier read touche l’EOF et échoue</strong> : la dernière ligne peut être perdue — toujours finir l’entrée par un retour à la ligne.'
+          sol: 'Boucle <code>for ((i=0; i&lt;n; i++))</code> avec <code>read -r type nom</code>, compteurs initialisés avant, bilan affiché après. Sans <code>\n</code> final, le <strong>dernier read touche l’EOF et échoue</strong> : la dernière ligne peut être perdue — toujours finir l’entrée par un retour à la ligne.'
         }
       ]
     },
@@ -455,7 +455,7 @@ function examens(course) {
     { stem: 'Que fait chown -R tpsysteme dossier ?', opts: ['Change le propriétaire du dossier seul', 'Change le propriétaire du dossier et de tout son contenu', 'Crée tpsysteme'], correct: 1, exp: '-R rend le changement récursif : dossier, sous-dossiers, fichiers.' },
     { stem: 'groupdel échoue quand…', opts: ['le groupe a des fichiers', 'le groupe est le groupe principal d’un utilisateur', 'le groupe est vide'], correct: 1, exp: 'Impossible de supprimer un groupe qui sert de groupe principal.' },
     { stem: 'Première ligne d’un script Bash ?', opts: ['# commentaire', '#!/bin/bash', 'read'], correct: 1, exp: 'Le shebang désigne l’interpréteur.' },
-    { stem: 'Sans \\n final sur l’entrée, que devient le dernier read ?', opts: ['Il lit une ligne vide', 'Il touche l’EOF et échoue', 'Il attend à l’infini'], correct: 1, exp: 'read échoue à l’EOF : la dernière ligne doit finir par un retour à la ligne.' }
+    { stem: 'Sans \n final sur l’entrée, que devient le dernier read ?', opts: ['Il lit une ligne vide', 'Il touche l’EOF et échoue', 'Il attend à l’infini'], correct: 1, exp: 'read échoue à l’EOF : la dernière ligne doit finir par un retour à la ligne.' }
   ];
 
   const body = [

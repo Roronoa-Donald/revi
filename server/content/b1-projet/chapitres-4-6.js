@@ -52,7 +52,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « valider, appeler, rafraîchir »', 'pin',
             '    <p>Trois verbes, les trois mêmes à chaque action : c\'est le squelette de toutes les ' +
             'méthodes d\'action du tutoriel.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Supprimer avec confirmation',
@@ -64,13 +64,13 @@ module.exports = [
           'malheureux. Si le produit n\'existe plus en base (supprimé par ailleurs), l\'opération se ' +
           'rapporte : introuvable n\'est pas supprimé.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Modifier et supprimer exigent une sélection : sinon showwarning, pas d\'appel SQL.</li>\\n' +
-            '      <li>askyesno renvoie True/False : la suppression vit dans le if.</li>\\n' +
-            '      <li>Après chaque action : effacer_champs puis actualiser_tableau.</li>\\n' +
-            '      <li>DELETE sans WHERE vide la table entière : le WHERE id=%s est vital.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Modifier et supprimer exigent une sélection : sinon showwarning, pas d\'appel SQL.</li>\n' +
+            '      <li>askyesno renvoie True/False : la suppression vit dans le if.</li>\n' +
+            '      <li>Après chaque action : effacer_champs puis actualiser_tableau.</li>\n' +
+            '      <li>DELETE sans WHERE vide la table entière : le WHERE id=%s est vital.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Mouvements de stock',
@@ -81,12 +81,12 @@ module.exports = [
           'WHERE id = %s</code> (ou − X après vérification). L\'atelier rejoue ces mouvements : entrées ' +
           'cumulées, sorties contrôlées, refus explicites « stock insuffisant ».</p>',
           box('tech', 'Vérifier en Bash', 'terminal',
-            '    <ul>\\n' +
-            '      <li>L\'ajout : quantité vide ou non positive → refuse, compteur d\'ajouts à la fin.</li>\\n' +
-            '      <li>Le mouvement : un tableau associatif par produit, sortie refusée si stock < quantité.</li>\\n' +
-            '      <li>La suppression : trois motifs (confirme/annule/absent), deux compteurs de bilan.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>L\'ajout : quantité vide ou non positive → refuse, compteur d\'ajouts à la fin.</li>\n' +
+            '      <li>Le mouvement : un tableau associatif par produit, sortie refusée si stock < quantité.</li>\n' +
+            '      <li>La suppression : trois motifs (confirme/annule/absent), deux compteurs de bilan.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -187,7 +187,7 @@ module.exports = [
           'ruptures et alertes séparément : deux lignes qui pilotent les commandes.</p>',
           box('mnemo', 'Mnémotechnique — « zéro c\'est rompu, sous le seuil c\'est l\'alerte »', 'pin',
             '    <p>Rupture = 0 ; alerte = 0 < stock < seuil ; ok = stock ≥ seuil. La cascade if / elif / else.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Valeur du stock',
@@ -198,13 +198,13 @@ module.exports = [
           'compteurs des chapitres précédents. Attention au piège : afficher le total dans la boucle ' +
           'donne n sous-totaux, pas un total.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Stock égal au seuil : ok, pas alerte (le test est strictement inférieur).</li>\\n' +
-            '      <li>Le total s\'affiche après la boucle : jamais dans la boucle.</li>\\n' +
-            '      <li>Valeur de ligne = quantite × prix : ne pas additionner les prix seuls.</li>\\n' +
-            '      <li>Deux compteurs (ruptures, alertes) : deux bilans distincts.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Stock égal au seuil : ok, pas alerte (le test est strictement inférieur).</li>\n' +
+            '      <li>Le total s\'affiche après la boucle : jamais dans la boucle.</li>\n' +
+            '      <li>Valeur de ligne = quantite × prix : ne pas additionner les prix seuls.</li>\n' +
+            '      <li>Deux compteurs (ruptures, alertes) : deux bilans distincts.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Recherche et maximum',
@@ -216,12 +216,12 @@ module.exports = [
           'deux. À prix égal, le premier rencontré gagne : c\'est le sens du test strict. Si rien n\'est ' +
           'trouvé, le bilan le dit : trouves : 0, meilleur resté « - ».</p>',
           box('tech', 'Vérifier en Bash', 'terminal',
-            '    <ul>\\n' +
-            '      <li>La cascade : -eq 0 → rupture, -lt seuil → alerte, sinon ok.</li>\\n' +
-            '      <li>La valeur : ligne = quantite * prix, total accumulé, affiché après.</li>\\n' +
-            '      <li>Le filtre : comparer la catégorie à la cible, compteur trouves.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>La cascade : -eq 0 → rupture, -lt seuil → alerte, sinon ok.</li>\n' +
+            '      <li>La valeur : ligne = quantite * prix, total accumulé, affiché après.</li>\n' +
+            '      <li>Le filtre : comparer la catégorie à la cible, compteur trouves.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -324,7 +324,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « service, module, module, encodage »', 'pin',
             '    <p>Les quatre pannes couvrent les quatre couches : serveur, dépendance Python, ' +
             'bibliothèque graphique, fichier source.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Exporter et améliorer',
@@ -339,13 +339,13 @@ module.exports = [
           'clôturent : champ date d\'ajout, recherche par nom, bouton export, validation avant insertion, ' +
           'fenêtre de statistiques — autant de pistes à citer dans le rapport.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>psycopg2 manquant se règle par pip ; tkinter par apt : les deux remèdes ne s\'échangent pas.</li>\\n' +
-            '      <li>L\'en-tête CSV sort avant la boucle : même pour 0 ligne.</li>\\n' +
-            '      <li>Le bilan « lignes exportees » compte les produits, pas l\'en-tête.</li>\\n' +
-            '      <li>La vitrine se choisit sur la valeur de ligne, pas sur le prix unitaire.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>psycopg2 manquant se règle par pip ; tkinter par apt : les deux remèdes ne s\'échangent pas.</li>\n' +
+            '      <li>L\'en-tête CSV sort avant la boucle : même pour 0 ligne.</li>\n' +
+            '      <li>Le bilan « lignes exportees » compte les produits, pas l\'en-tête.</li>\n' +
+            '      <li>La vitrine se choisit sur la valeur de ligne, pas sur le prix unitaire.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Le tableau de bord de soutenance',
@@ -356,12 +356,12 @@ module.exports = [
           'elle vaut quelque chose (total), elle réclame des commandes (alertes), et elle a une vitrine ' +
           '(maximum). C\'est exactement le récit d\'une soutenance.</p>',
           box('tech', 'Vérifier en Bash', 'terminal',
-            '    <ul>\\n' +
-            '      <li>Le diagnostic : connexion → service, psycopg2 → pip, tkinter → apt, ascii → utf8.</li>\\n' +
-            '      <li>Le CSV : en-tête avant la boucle, une ligne par produit, bilan après.</li>\\n' +
-            '      <li>Le tableau de bord : total + alertes + maximum, trois accumulateurs hors boucle.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Le diagnostic : connexion → service, psycopg2 → pip, tkinter → apt, ascii → utf8.</li>\n' +
+            '      <li>Le CSV : en-tête avant la boucle, une ligne par produit, bilan après.</li>\n' +
+            '      <li>Le tableau de bord : total + alertes + maximum, trois accumulateurs hors boucle.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

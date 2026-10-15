@@ -35,12 +35,12 @@ function examens(course) {
       '</ol>',
       '<h4>Partie 3 : Rédaction et Optimisation de Dockerfile (8 points)</h4>',
       '<p>Soit le Dockerfile suivant pour une application Node.js :</p>',
-      '<pre><code>FROM ubuntu:22.04\\n' +
-      'RUN apt-get update\\n' +
-      'RUN apt-get install -y nodejs npm\\n' +
-      'COPY . /app\\n' +
-      'WORKDIR /app\\n' +
-      'RUN npm install\\n' +
+      '<pre><code>FROM ubuntu:22.04\n' +
+      'RUN apt-get update\n' +
+      'RUN apt-get install -y nodejs npm\n' +
+      'COPY . /app\n' +
+      'WORKDIR /app\n' +
+      'RUN npm install\n' +
       'CMD node server.js</code></pre>',
       '<ol>',
       '  <li>Identifiez au moins 4 anti-patterns critiques dans ce Dockerfile (taille d’image, invalidation de cache, sécurité, signaux UNIX). (4 pts)</li>',
@@ -68,13 +68,13 @@ function examens(course) {
       '    4. Exécution par défaut en utilisateur superadministrateur <code>root</code>.<br>',
       '    5. <code>CMD node server.js</code> en forme shell qui lance un sous-shell <code>/bin/sh -c</code> bloquant la réception des signaux SIGTERM.</li>',
       '  <li><strong>Dockerfile corrigé (4 pts) :</strong><br>',
-      '    <code>FROM node:18-alpine\\n' +
-      '    WORKDIR /app\\n' +
-      '    COPY package*.json ./\\n' +
-      '    RUN npm ci --only=production\\n' +
-      '    COPY . .\\n' +
-      '    USER node\\n' +
-      '    EXPOSE 3000\\n' +
+      '    <code>FROM node:18-alpine\n' +
+      '    WORKDIR /app\n' +
+      '    COPY package*.json ./\n' +
+      '    RUN npm ci --only=production\n' +
+      '    COPY . .\n' +
+      '    USER node\n' +
+      '    EXPOSE 3000\n' +
       '    CMD ["node", "server.js"]</code></li>',
       '</ul>'
     ].join('\n')),
@@ -118,43 +118,43 @@ function examens(course) {
       '<h4>Corrigé Partie 3 (6 points)</h4>',
       '<ul>',
       '  <li><strong>Fichier docker-compose.yml (4 pts) :</strong><br>',
-      '    <pre><code>services:\\n' +
-      '  web:\\n' +
-      '    image: nginx:alpine\\n' +
-      '    ports:\\n' +
-      '      - "80:80"\\n' +
-      '    depends_on:\\n' +
-      '      - api\\n' +
-      '    networks:\\n' +
-      '      - app-net\\n' +
-      '\\n' +
-      '  api:\\n' +
-      '    build: ./api\\n' +
-      '    environment:\\n' +
-      '      - DB_HOST=db\\n' +
-      '    depends_on:\\n' +
-      '      db:\\n' +
-      '        condition: service_healthy\\n' +
-      '    networks:\\n' +
-      '      - app-net\\n' +
-      '\\n' +
-      '  db:\\n' +
-      '    image: postgres:15-alpine\\n' +
-      '    environment:\\n' +
-      '      POSTGRES_PASSWORD: secret\\n' +
-      '    volumes:\\n' +
-      '      - pgdata:/var/lib/postgresql/data\\n' +
-      '    healthcheck:\\n' +
-      '      test: ["CMD-SHELL", "pg_isready -U postgres"]\\n' +
-      '      interval: 5s\\n' +
-      '      retries: 5\\n' +
-      '    networks:\\n' +
-      '      - app-net\\n' +
-      '\\n' +
-      'volumes:\\n' +
-      '  pgdata:\\n' +
-      '\\n' +
-      'networks:\\n' +
+      '    <pre><code>services:\n' +
+      '  web:\n' +
+      '    image: nginx:alpine\n' +
+      '    ports:\n' +
+      '      - "80:80"\n' +
+      '    depends_on:\n' +
+      '      - api\n' +
+      '    networks:\n' +
+      '      - app-net\n' +
+      '\n' +
+      '  api:\n' +
+      '    build: ./api\n' +
+      '    environment:\n' +
+      '      - DB_HOST=db\n' +
+      '    depends_on:\n' +
+      '      db:\n' +
+      '        condition: service_healthy\n' +
+      '    networks:\n' +
+      '      - app-net\n' +
+      '\n' +
+      '  db:\n' +
+      '    image: postgres:15-alpine\n' +
+      '    environment:\n' +
+      '      POSTGRES_PASSWORD: secret\n' +
+      '    volumes:\n' +
+      '      - pgdata:/var/lib/postgresql/data\n' +
+      '    healthcheck:\n' +
+      '      test: ["CMD-SHELL", "pg_isready -U postgres"]\n' +
+      '      interval: 5s\n' +
+      '      retries: 5\n' +
+      '    networks:\n' +
+      '      - app-net\n' +
+      '\n' +
+      'volumes:\n' +
+      '  pgdata:\n' +
+      '\n' +
+      'networks:\n' +
       '  app-net:</code></pre></li>',
       '  <li><strong>Sécurisation de depends_on (2 pts) :</strong> <code>depends_on</code> garantit uniquement que le conteneur cible est démarré au sens du système, pas que le démon de base de données PostgreSQL a terminé son initialisation et accepte les connexions TCP. La solution consiste à associer une directive <code>healthcheck</code> sur PostgreSQL et utiliser <code>condition: service_healthy</code> dans l’API.</li>',
       '</ul>',

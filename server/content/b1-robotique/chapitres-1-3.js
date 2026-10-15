@@ -48,19 +48,19 @@ module.exports = [
             '    <p>Tout exercice de ce cours se pose dans cet ordre : <strong>quelles entrées</strong> lis-je, ' +
             '<strong>quelle décision</strong> prends-je, <strong>quelle sortie</strong> produis-je. Un programme ' +
             'qui affiche avant de lire ne peut pas marcher, quel que soit le reste du code.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'La structure d’un programme',
         html: [
           '<p>Un programme s’exécute <strong>ligne par ligne, de haut en bas</strong>. Chaque ligne est une ' +
           'instruction achevée : une lecture, un calcul, un affichage.</p>',
-          '<table>\\n' +
-          '    <tr><th>Instruction</th><th>Effet</th></tr>\\n' +
-          '    <tr><td><code>x = input()</code></td><td>lit une ligne (du texte) et la range dans x</td></tr>\\n' +
-          '    <tr><td><code>n = int(input())</code></td><td>lit une ligne et la convertit en entier</td></tr>\\n' +
-          '    <tr><td><code>print("LED ON")</code></td><td>affiche le texte puis passe à la ligne</td></tr>\\n' +
-          '    <tr><td><code>print(f"{nom}")</code></td><td>affiche le texte en insérant la valeur d’une variable</td></tr>\\n' +
+          '<table>\n' +
+          '    <tr><th>Instruction</th><th>Effet</th></tr>\n' +
+          '    <tr><td><code>x = input()</code></td><td>lit une ligne (du texte) et la range dans x</td></tr>\n' +
+          '    <tr><td><code>n = int(input())</code></td><td>lit une ligne et la convertit en entier</td></tr>\n' +
+          '    <tr><td><code>print("LED ON")</code></td><td>affiche le texte puis passe à la ligne</td></tr>\n' +
+          '    <tr><td><code>print(f"{nom}")</code></td><td>affiche le texte en insérant la valeur d’une variable</td></tr>\n' +
           '  </table>',
           '<p>Le f-string <code>f"...{expression}..."</code> est le couteau suisse de l’affichage : tout ce ' +
           'qui figure entre accolades est évalué puis inséré dans le texte. C’est lui qui donne les messages ' +
@@ -69,7 +69,7 @@ module.exports = [
             '    <p>Les instructions s’exécutent <strong>dans l’ordre écrit</strong>. Si l’énoncé attend ' +
             '« nom puis âge », lire l’âge d’abord produit un programme faux, même si chaque ligne est juste. ' +
             'Relire l’ordre des entrées avant d’écrire la première ligne est un réflexe de roboticien.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Calculs de bord',
@@ -93,10 +93,10 @@ module.exports = [
             '    <pre><code>a, b = (int(x) for x in input().split())\n' +
             '\n' +
             'print(f"somme : {a + b}")\n' +
-            'print(f"reste : {a % b}")</code></pre>\\n' +
+            'print(f"reste : {a % b}")</code></pre>\n' +
             '    <p>La première ligne lit <strong>une seule ligne</strong> contenant « 10 5 » et la découpe : ' +
             '<code>split()</code> coupe aux espaces, la boucle convertit chaque morceau en entier.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Mettre en forme un rapport',
@@ -110,7 +110,7 @@ module.exports = [
           '<p>Le repère <code>:&lt;12</code> signifie « aligner à gauche en complétant avec des espaces ' +
           'jusqu’à 12 caractères ». Les libellés de même largeur forment une colonne : l’œil compare ' +
           'immédiatement, ce qui est le but d’un journal de séance.</p>'
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -212,7 +212,7 @@ module.exports = [
             '    <p><code>for _ in range(k)</code> : la variable de boucle existe mais on ne l’utilise pas — ' +
             'le trait bas la nomme « sans importance ». Dès que tu comptes quelque chose ou que le numéro du ' +
             'passage sert, donne-lui un vrai nom : <code>for tour in range(k)</code>.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Réagir à une série et compter',
@@ -235,7 +235,7 @@ module.exports = [
             '    <p>Un compteur de boucle vit en trois temps : <strong>avant</strong> (initialisation), ' +
             '<strong>dans</strong> (mise à jour), <strong>après</strong> (exploitation). Vérifier ces trois ' +
             'emplacements élimine la moitié des bugs de boucle.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Cadencer une séquence',
@@ -255,7 +255,7 @@ module.exports = [
             '    <p><code>range(0)</code> ne produit rien : la boucle ne s’exécute pas, et le programme saute ' +
             'directement au bilan. C’est le comportement correct — « terminé après 0 cycle » — et il tombe ' +
             'gratis si le bilan est écrit après la boucle, jamais dedans.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Accorder le pluriel du bilan',
@@ -269,7 +269,7 @@ module.exports = [
           '<p>L’expression conditionnelle <code>A if condition else B</code> choisit le texte sans écrire de ' +
           'bloc if complet. C’est le détail qui distingue un rapport soigné d’un rapport approximatif — et ' +
           'les tests le vérifient au caractère près.</p>'
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -372,7 +372,7 @@ module.exports = [
             'peut ni compter avec, ni la recombiner. <strong>Une fonction calcule et renvoie ; l’affichage ' +
             'appartient au programme principal.</strong> Cette séparation est ce qui permet de tester une ' +
             'fonction toute seule.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Compter les deux branches',
@@ -391,7 +391,7 @@ module.exports = [
             '    <p>Dans un <code>if / else</code>, exactement une branche s’exécute par passage. Si un ' +
             'compteur double ou saute, c’est que le test n’est pas exclusif : relire l’opérateur de ' +
             'comparaison avant de soupçonner la boucle.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Tester la primalité',
@@ -414,7 +414,7 @@ module.exports = [
             '    <p>0, 1 et les nombres négatifs tombent dans le premier test <code>x &lt; 2</code>. Sans lui, ' +
             'la boucle while ne tournerait pas mais renverrait True pour 1 — un résultat faux. <strong>Les ' +
             'cas de bord se traitent d’abord, explicitement.</strong></p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Classer des relevés par seuil',
@@ -432,10 +432,10 @@ module.exports = [
             'elif t &lt; 15:\n' +
             '    etat = "ALERTE FROID"\n' +
             'else:\n' +
-            '    etat = "normale"</code></pre>\\n' +
+            '    etat = "normale"</code></pre>\n' +
             '    <p>Les trois branches sont mutuellement exclusives : le premier test vrai gagne, les autres ' +
             'ne sont même pas évalués. L’ordre des tests fait partie de la logique.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

@@ -78,21 +78,25 @@
 
 <h2>1. Les cinq fonctions d’agrégation</h2>
 
-<p>Une fonction d’agrégation agit sur une colonne et renvoie <strong>une seule valeur</strong> pour toutes les lignes sélectionnées :</p>\n<table>
+<p>Une fonction d’agrégation agit sur une colonne et renvoie <strong>une seule valeur</strong> pour toutes les lignes sélectionnées :</p>
+<table>
     <tr><th>Fonction</th><th>Résultat</th><th>Exemple sur le parc</th></tr>
     <tr><td>COUNT(*)</td><td>nombre de lignes</td><td>23 voitures</td></tr>
     <tr><td>COUNT(colonne)</td><td>lignes où la colonne n’est pas NULL</td><td>immatriculées : 23</td></tr>
     <tr><td>MIN / MAX</td><td>plus petite / plus grande valeur</td><td>prix de 6 M à 50 M</td></tr>
     <tr><td>SUM</td><td>somme des valeurs</td><td>budget total : 613,8 M</td></tr>
     <tr><td>AVG</td><td>moyenne des valeurs</td><td>kilométrage moyen : 1 840,65</td></tr>
-  </table>\n<p><code>MIN</code> et <code>MAX</code> ne sont pas réservés aux nombres : sur des chaînes ils renvoient la première et la dernière dans l’ordre alphabétique, sur des dates la plus ancienne et la plus récente — <code>MIN(immat), MAX(datecirc)</code> sont des requêtes légales.</p>\n  <div class="box box--pitfall">
+  </table>
+<p><code>MIN</code> et <code>MAX</code> ne sont pas réservés aux nombres : sur des chaînes ils renvoient la première et la dernière dans l’ordre alphabétique, sur des dates la plus ancienne et la plus récente — <code>MIN(immat), MAX(datecirc)</code> sont des requêtes légales.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — COUNT(*) vs COUNT(colonne)</div>
     <p><code>COUNT(*)</code> compte <strong>toutes</strong> les lignes ; <code>COUNT(colonne)</code> saute celles où la colonne vaut NULL. Sur le support : « 25 voitures immatriculées sur 34 » — les 9 sans immatriculation existent dans COUNT(*) et disparaissent de COUNT(immat). Choisir l’un ou l’autre, c’est répondre à deux questions différentes.</p>
   </div>
 
 <h2>2. GROUP BY : calculer par groupe</h2>
 
-<p>Pour savoir combien de Toyota, de BMW, de Kia en une seule requête, on regroupe les lignes par marque : <code>GROUP BY</code> réaménage le résultat en groupes où la colonne de regroupement a la même valeur, et l’agrégat se calcule <strong>pour chaque groupe</strong>.</p>\n<pre><code>SELECT marque, COUNT(*) AS nb
+<p>Pour savoir combien de Toyota, de BMW, de Kia en une seule requête, on regroupe les lignes par marque : <code>GROUP BY</code> réaménage le résultat en groupes où la colonne de regroupement a la même valeur, et l’agrégat se calcule <strong>pour chaque groupe</strong>.</p>
+<pre><code>SELECT marque, COUNT(*) AS nb
 FROM Voiture
 GROUP BY marque;
 
@@ -100,14 +104,17 @@ GROUP BY marque;
 SELECT moteur, COUNT(*), AVG(pxachat)
 FROM Voiture
 WHERE marque = 'TOYOTA'
-GROUP BY moteur;</code></pre>\n<p>Lecture du premier exemple : une ligne par marque présente dans le parc, avec son effectif — et rien d’autre. C’est la règle qui surprend : <strong>toute colonne du SELECT doit être dans le GROUP BY ou dans un agrégat</strong>. <code>SELECT marque, immat … GROUP BY marque</code> est rejeté : quelle immatriculation choisir pour le groupe ?</p>\n  <div class="box box--mnemo">
+GROUP BY moteur;</code></pre>
+<p>Lecture du premier exemple : une ligne par marque présente dans le parc, avec son effectif — et rien d’autre. C’est la règle qui surprend : <strong>toute colonne du SELECT doit être dans le GROUP BY ou dans un agrégat</strong>. <code>SELECT marque, immat … GROUP BY marque</code> est rejeté : quelle immatriculation choisir pour le groupe ?</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « GROUP BY découpe, l’agrégat résume »</div>
     <p>Chaque groupe devient <strong>une ligne du résultat</strong>. Si le résultat paraît étrange (trop de lignes, valeurs incohérentes), vérifier deux choses : la colonne de regroupement est-elle la bonne ? Chaque colonne affichée est-elle regroupée ou agrégée ?</p>
   </div>
 
 <h2>3. HAVING : filtrer les groupes</h2>
 
-<p>« Quelles marques ont plus de deux voitures ? » : la condition porte sur le <strong>résultat du regroupement</strong>, pas sur les lignes. C’est le rôle de <code>HAVING</code> — l’équivalent de WHERE appliqué aux groupes :</p>\n<pre><code>SELECT marque, COUNT(*) AS nb
+<p>« Quelles marques ont plus de deux voitures ? » : la condition porte sur le <strong>résultat du regroupement</strong>, pas sur les lignes. C’est le rôle de <code>HAVING</code> — l’équivalent de WHERE appliqué aux groupes :</p>
+<pre><code>SELECT marque, COUNT(*) AS nb
 FROM Voiture
 GROUP BY marque
 HAVING COUNT(*) &gt; 2;
@@ -118,25 +125,31 @@ SELECT moteur, COUNT(*)
 FROM Voiture
 WHERE marque = 'TOYOTA'
 GROUP BY moteur
-HAVING COUNT(*) &gt;= 1;</code></pre>\n<p>HAVING ne peut exister qu’après un GROUP BY, et son critère porte sur une fonction d’agrégation. La séquence d’exécution du SGBD l’explique : lignes filtrées (WHERE), puis regroupées (GROUP BY), puis groupes filtrés (HAVING), puis tri (ORDER BY).</p>\n  <div class="box box--intuition">
+HAVING COUNT(*) &gt;= 1;</code></pre>
+<p>HAVING ne peut exister qu’après un GROUP BY, et son critère porte sur une fonction d’agrégation. La séquence d’exécution du SGBD l’explique : lignes filtrées (WHERE), puis regroupées (GROUP BY), puis groupes filtrés (HAVING), puis tri (ORDER BY).</p>
+  <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> WHERE ou HAVING : la question à se poser</div>
     <p>« Seulement les diesels » parle des <strong>lignes</strong> : WHERE. « Seulement les marques avec au moins 3 voitures » parle des <strong>groupes</strong> : HAVING. Une condition qui contient un agrégat (COUNT, AVG…) ne peut jamais vivre dans WHERE.</p>
   </div>
 
 <h2>4. L’ordre complet, une dernière fois</h2>
 
-<p>Toutes les clauses du cours se combinent dans cet ordre — qui est aussi l’ordre d’exécution du SGBD :</p>\n<pre><code>SELECT   colonnes, agrégats
+<p>Toutes les clauses du cours se combinent dans cet ordre — qui est aussi l’ordre d’exécution du SGBD :</p>
+<pre><code>SELECT   colonnes, agrégats
 FROM     tables (jointures éventuelles)
 WHERE    filtre les LIGNES
 GROUP BY découpe en GROUPES
 HAVING   filtre les GROUPES
 ORDER BY trie le résultat
-LIMIT    borne le nombre de lignes</code></pre>\n<p>Exemple récapitulatif du parc : « les deux moteurs les plus répandus parmi les voitures de moins de 30 millions, avec leur prix moyen » :</p>\n<pre><code>SELECT moteur, COUNT(*) AS nb, AVG(pxachat) AS prix_moyen
+LIMIT    borne le nombre de lignes</code></pre>
+<p>Exemple récapitulatif du parc : « les deux moteurs les plus répandus parmi les voitures de moins de 30 millions, avec leur prix moyen » :</p>
+<pre><code>SELECT moteur, COUNT(*) AS nb, AVG(pxachat) AS prix_moyen
 FROM Voiture
 WHERE pxachat &lt; 30000000
 GROUP BY moteur
 ORDER BY nb DESC
-LIMIT 2;</code></pre>\n  <div class="box box--tech">
+LIMIT 2;</code></pre>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier dans le simulateur</div>
     <p>Chaque requête de ce chapitre s’exécute dans la page <a href="../atelier.html">atelier — simulateur SQL</a> : le jeu de données parc_auto y est chargé, et le résultat s’affiche en tableau. Déformer volontairement une clause (WHERE après GROUP BY, colonne hors GROUP BY) pour lire le message d’erreur est un excellent exercice.</p>
   </div>

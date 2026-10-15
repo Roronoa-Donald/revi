@@ -51,7 +51,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « Accès, Internet, Transport, Application : AITA »', 'pin',
             '    <p>Les trois couches hautes d\'OSI fusionnent en une seule « application » ; les deux basses ' +
             'fusionnent en « accès réseau ». Le transport reste seul : c\'est lui qui choisit TCP ou UDP.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Le three-way handshake et TCP contre UDP',
@@ -68,13 +68,13 @@ module.exports = [
           'professionnel choisit selon l\'exigence : un mot manquant dans un contrat est grave, une micro-' +
           'coupure dans un appel ne l\'est pas.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Le SYN-ACK porte deux numéros : l\'acquittement (A + 1) et une nouvelle séquence (B).</li>\\n' +
-            '      <li>Sans les trois étapes, pas de connexion TCP : SYN, SYN-ACK, ACK dans l\'ordre.</li>\\n' +
-            '      <li>UDP n\'est pas « pire » que TCP : il est adapté aux flux temps réel.</li>\\n' +
-            '      <li>CSMA/CD (Ethernet filaire, 802.3) et CSMA/CA (Wi-Fi, 802.11) ne sont pas interchangeables.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Le SYN-ACK porte deux numéros : l\'acquittement (A + 1) et une nouvelle séquence (B).</li>\n' +
+            '      <li>Sans les trois étapes, pas de connexion TCP : SYN, SYN-ACK, ACK dans l\'ordre.</li>\n' +
+            '      <li>UDP n\'est pas « pire » que TCP : il est adapté aux flux temps réel.</li>\n' +
+            '      <li>CSMA/CD (Ethernet filaire, 802.3) et CSMA/CA (Wi-Fi, 802.11) ne sont pas interchangeables.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -185,7 +185,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « IP navigue, MAC rame »', 'pin',
             '    <p>IP traverse les réseaux de routeur en routeur ; MAC ne rame que sur son segment local. ' +
             'ARP est le traducteur entre les deux.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Masque et classes',
@@ -202,13 +202,13 @@ module.exports = [
           '<p>Ce système, remplacé par le <strong>CIDR</strong>, reste « essentiel à comprendre » selon le ' +
           'support — et c\'est lui qui rend le sous-réseautage lisible au chapitre suivant.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Une MAC n\'est jamais routée : elle ne sort pas du LAN, contrairement à l\'IP.</li>\\n' +
-            '      <li>Classe B : 128 à 191 — pas 127 (boucle locale) ni 192 (classe C).</li>\\n' +
-            '      <li>Bits du masque : 1 = réseau, 0 = hôte — jamais l\'inverse.</li>\\n' +
-            '      <li>ARP traduit IP en MAC sur le segment local ; à distance, c\'est la table de routage qui parle.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Une MAC n\'est jamais routée : elle ne sort pas du LAN, contrairement à l\'IP.</li>\n' +
+            '      <li>Classe B : 128 à 191 — pas 127 (boucle locale) ni 192 (classe C).</li>\n' +
+            '      <li>Bits du masque : 1 = réseau, 0 = hôte — jamais l\'inverse.</li>\n' +
+            '      <li>ARP traduit IP en MAC sur le segment local ; à distance, c\'est la table de routage qui parle.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -313,7 +313,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « chaque bit emprunté double les réseaux et divise les hôtes »', 'pin',
             '    <p>+1 bit emprunté : sous-réseaux x 2, hôtes valides environ / 2 (moins 2). Le masque monte ' +
             'en face : 128, 192, 224, 240, 248, 252.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'VLSM et CIDR',
@@ -328,13 +328,13 @@ module.exports = [
           'nombre de bits réseau après un slash : 192.168.1.0/27 — ancienne classe C sous-réseautée ; 10.0.0.0/30 ' +
           '— liaison point-à-point. Le choix de la taille exacte optimise l\'espace d\'adressage global.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Les hôtes valides retirent deux adresses : réseau et diffusion — 2^k - 2, jamais 2^k.</li>\\n' +
-            '      <li>3 bits empruntés sur /24 donnent /27, pas /3 : on additionne au préfixe de départ.</li>\\n' +
-            '      <li>/30 = 2 hôtes valides : c\'est le bloc des liaisons point-à-point.</li>\\n' +
-            '      <li>Le VLSM exige que le routeur connaisse chaque masque : « diviser pour régner » se route.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Les hôtes valides retirent deux adresses : réseau et diffusion — 2^k - 2, jamais 2^k.</li>\n' +
+            '      <li>3 bits empruntés sur /24 donnent /27, pas /3 : on additionne au préfixe de départ.</li>\n' +
+            '      <li>/30 = 2 hôtes valides : c\'est le bloc des liaisons point-à-point.</li>\n' +
+            '      <li>Le VLSM exige que le routeur connaisse chaque masque : « diviser pour régner » se route.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

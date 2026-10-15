@@ -78,43 +78,54 @@
 
 <h2>1. Les types numériques</h2>
 
-<p>Pour les entiers, MySQL propose une gamme de tailles croissantes :</p>\n<table>
+<p>Pour les entiers, MySQL propose une gamme de tailles croissantes :</p>
+<table>
     <tr><th>Type</th><th>Plage (signé)</th><th>Usage typique</th></tr>
     <tr><td>TINYINT</td><td>−128 à 127</td><td>un âge, un petit compteur</td></tr>
     <tr><td>SMALLINT</td><td>≈ −32 700 à 32 700</td><td>une année, une quantité</td></tr>
     <tr><td>MEDIUMINT</td><td>≈ −8,4 M à 8,4 M</td><td>un identifiant interne</td></tr>
     <tr><td>INT</td><td>≈ −2,1 Md à 2,1 Md</td><td>un prix en francs, un kilométrage</td></tr>
     <tr><td>BIGINT</td><td>≈ ±9,2 × 10¹⁸</td><td>des identifiants mondiaux, des horodatages</td></tr>
-  </table>\n<p>Deux précisions du support : la notation <code>INT(x)</code> ne change <strong>pas</strong> la capacité de stockage, seulement l’affichage (avec <code>ZEROFILL</code>, elle complète de zéros). Pour les décimaux, on utilise <code>DECIMAL(p, s)</code> — précision p, s décimales — pour l’argent, et <code>FLOAT</code>/<code>DOUBLE</code> pour les mesures scientifiques.</p>\n  <div class="box box--pitfall">
+  </table>
+<p>Deux précisions du support : la notation <code>INT(x)</code> ne change <strong>pas</strong> la capacité de stockage, seulement l’affichage (avec <code>ZEROFILL</code>, elle complète de zéros). Pour les décimaux, on utilise <code>DECIMAL(p, s)</code> — précision p, s décimales — pour l’argent, et <code>FLOAT</code>/<code>DOUBLE</code> pour les mesures scientifiques.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l’argent en FLOAT</div>
     <p><code>FLOAT</code> et <code>DOUBLE</code> arrondissent par nature : une somme de prix peut y perdre un franc. Pour toute valeur monétaire, le type exact est <strong>DECIMAL</strong> — c’est le seul qui calcule en décimal exact, comme un humain pose l’addition.</p>
   </div>
 
 <h2>2. CHAR et VARCHAR</h2>
 
-<p>Les chaînes de longueur fixe ou variable s’écrivent avec un paramètre de taille :</p>\n<table>
+<p>Les chaînes de longueur fixe ou variable s’écrivent avec un paramètre de taille :</p>
+<table>
     <tr><th>Stocké</th><th>CHAR(5)</th><th>VARCHAR(5)</th></tr>
     <tr><td>« OK »</td><td>« OK&nbsp;&nbsp;&nbsp; » (complété d’espaces)</td><td>« OK » (tel quel)</td></tr>
     <tr><td>Mémoire</td><td>toujours 5 caractères</td><td>le contenu + 1 octet de longueur</td></tr>
-  </table>\n<p><strong>CHAR(x)</strong> réserve toujours x caractères et complète les plus courts d’espaces : il convient quand la longueur est constante — un code de marque sur trois lettres, un code postal. <strong>VARCHAR(x)</strong> stocke jusqu’à x caractères, sans remplissage : c’est le choix par défaut pour un nom, une adresse, un immatriculé.</p>\n<p>Le support cite aussi les grands textes (<code>TEXT</code>) et les binaires (<code>BLOB</code>) pour les contenus longs — un commentaire, une image stockée en base.</p>\n  <div class="box box--mnemo">
+  </table>
+<p><strong>CHAR(x)</strong> réserve toujours x caractères et complète les plus courts d’espaces : il convient quand la longueur est constante — un code de marque sur trois lettres, un code postal. <strong>VARCHAR(x)</strong> stocke jusqu’à x caractères, sans remplissage : c’est le choix par défaut pour un nom, une adresse, un immatriculé.</p>
+<p>Le support cite aussi les grands textes (<code>TEXT</code>) et les binaires (<code>BLOB</code>) pour les contenus longs — un commentaire, une image stockée en base.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Fixe = CHAR, variable = VARCHAR »</div>
     <p>Un code de pays à trois lettres naît et meurt à trois lettres : <strong>CHAR(3)</strong>. Un nom de famille va de une lettre à vingt : <strong>VARCHAR(20)</strong>. Se tromper ne casse rien, mais gaspille — et un CHAR qui complète d’espaces surprend les comparaisons.</p>
   </div>
 
 <h2>3. Les types temporels</h2>
 
-<p>Cinq types pour le temps en MySQL :</p>\n<table>
+<p>Cinq types pour le temps en MySQL :</p>
+<table>
     <tr><th>Type</th><th>Contenu</th><th>Format littéral</th></tr>
     <tr><td>DATE</td><td>une date</td><td>'AAAA-MM-JJ'</td></tr>
     <tr><td>TIME</td><td>une heure</td><td>'HH:MM:SS'</td></tr>
     <tr><td>DATETIME</td><td>date et heure</td><td>'AAAA-MM-JJ HH:MM:SS'</td></tr>
     <tr><td>TIMESTAMP</td><td>date et heure (fuseau géré)</td><td>idem DATETIME</td></tr>
     <tr><td>YEAR</td><td>une année</td><td>'AAAA' ou AAAA</td></tr>
-  </table>\n<p>Le format littéral n’est pas décoratif : <code>'2014-11-21'</code> est compris partout, mais <code>'21/11/2014'</code> est rejeté ou mal interprété selon le SGBD. On écrit toujours les dates en SQL <strong>année, mois, jour</strong>.</p>\n<p>Le parc auto du support utilise <code>DATETIME</code> pour la mise en circulation — d’où des valeurs comme <code>'2000-01-21 08:00:00'</code> — et des comparaisons directes sont possibles : <code>WHERE datecirc &lt; '2015-01-01'</code>.</p>
+  </table>
+<p>Le format littéral n’est pas décoratif : <code>'2014-11-21'</code> est compris partout, mais <code>'21/11/2014'</code> est rejeté ou mal interprété selon le SGBD. On écrit toujours les dates en SQL <strong>année, mois, jour</strong>.</p>
+<p>Le parc auto du support utilise <code>DATETIME</code> pour la mise en circulation — d’où des valeurs comme <code>'2000-01-21 08:00:00'</code> — et des comparaisons directes sont possibles : <code>WHERE datecirc &lt; '2015-01-01'</code>.</p>
 
 <h2>4. CREATE TABLE et INSERT</h2>
 
-<p>La description d’une table passe par <code>CREATE TABLE</code> : chaque colonne reçoit un nom, un type, et des contraintes optionnelles (<code>NOT NULL</code>, <code>PRIMARY KEY</code>).</p>\n<pre><code>CREATE TABLE IF NOT EXISTS Voiture (
+<p>La description d’une table passe par <code>CREATE TABLE</code> : chaque colonne reçoit un nom, un type, et des contraintes optionnelles (<code>NOT NULL</code>, <code>PRIMARY KEY</code>).</p>
+<pre><code>CREATE TABLE IF NOT EXISTS Voiture (
     immat     VARCHAR(10) PRIMARY KEY,
     marque    VARCHAR(20) NOT NULL,
     moteur    VARCHAR(10) NOT NULL,
@@ -122,13 +133,16 @@
     km        INT DEFAULT 0,
     pxachat   INT NOT NULL,
     nbreplace TINYINT NOT NULL
-);</code></pre>\n<p>Les lignes arrivent ensuite par <code>INSERT INTO</code>, en nommant les colonnes renseignées — celles qui manquent reçoivent NULL ou leur valeur par défaut :</p>\n<pre><code>INSERT INTO Voiture (immat, marque, moteur, datecirc, km, pxachat, nbreplace)
+);</code></pre>
+<p>Les lignes arrivent ensuite par <code>INSERT INTO</code>, en nommant les colonnes renseignées — celles qui manquent reçoivent NULL ou leur valeur par défaut :</p>
+<pre><code>INSERT INTO Voiture (immat, marque, moteur, datecirc, km, pxachat, nbreplace)
 VALUES ('TG-3733-AC', 'TOYOTA', 'HYBRIDE', '2010-01-21 18:00:00', 0, 20000000, 7);
 
 -- plusieurs lignes d’un coup :
 INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES
 ('TOY', 'TOYOTA', 'JAPON'),
-('BMW', 'BMW', 'ALLEMAGNE');</code></pre>\n  <div class="box box--tech">
+('BMW', 'BMW', 'ALLEMAGNE');</code></pre>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le simulateur du cours</div>
     <p>La page <a href="../atelier.html">atelier — simulateur SQL</a> contient ce schéma et ces données déjà chargés : chaque requête des chapitres suivants s’y exécute en réel. Le moteur est SQLite, qui accepte les mêmes requêtes SELECT que MySQL pour tout ce cours.</p>
   </div>

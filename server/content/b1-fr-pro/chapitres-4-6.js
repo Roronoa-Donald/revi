@@ -58,7 +58,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « un mot de trop, toujours identifiable »', 'pin',
             '    <p>Cherchez l\'information déjà portée par un mot : « d\'avenir » dans projets, « lumière » ' +
             'dans allumer, « extérieure » dans apparence. Le pléonasme se coupe, il ne se reformule pas.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Le barbarisme : le mot déformé',
@@ -76,7 +76,7 @@ module.exports = [
           '<strong>recouvert la liberté → recouvré</strong> (recouvrer la vue, la santé, la liberté), ' +
           '<strong>rénuméré → rémunéré</strong>, <strong>je vous saurai gré → je vous serai gré</strong> ' +
           '(savoir gré), <strong>indemmes → indemnes</strong>, <strong>en dilettant → en dilettante</strong>.</p>'
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Le solécisme : la construction qui dérape',
@@ -97,13 +97,13 @@ module.exports = [
           'conditionnel — « si je <strong>pouvais</strong>, j\'enverrais ». L\'astuce du support : « les si ' +
           'n\'aiment pas les rais » (poissons-scies et raies).</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Pléonasme ≠ barbarisme : l\'un est un excès de mots, l\'autre un mot faux.</li>\\n' +
-            '      <li>Se rappeler prend un complément direct — exception : se rappeler de toi, d\'elle, d\'avoir fait.</li>\\n' +
-            '      <li>Après que + indicatif (le fait s\'est produit) ; avant que + subjonctif (il ne s\'est pas encore produit).</li>\\n' +
-            '      <li>Un si d\'hypothèse interdit le conditionnel : « si je pouvais », jamais « si je pourrais ».</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Pléonasme ≠ barbarisme : l\'un est un excès de mots, l\'autre un mot faux.</li>\n' +
+            '      <li>Se rappeler prend un complément direct — exception : se rappeler de toi, d\'elle, d\'avoir fait.</li>\n' +
+            '      <li>Après que + indicatif (le fait s\'est produit) ; avant que + subjonctif (il ne s\'est pas encore produit).</li>\n' +
+            '      <li>Un si d\'hypothèse interdit le conditionnel : « si je pouvais », jamais « si je pourrais ».</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -210,7 +210,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « 1-2-3 qui écrivent, 4-5 qui ouvrent, 6-7-8-9 qui concluent »', 'pin',
             '    <p>Trois blocs d\'en-tête (coordonnées, destinataire, date), deux blocs d\'ouverture (objet, ' +
             'appel), quatre blocs de clôture (corps, rendez-vous, politesse, signature).</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Appel, politesse, corps',
@@ -226,7 +226,7 @@ module.exports = [
           'l\'intérêt pour l\'entreprise ; paragraphe 2, les compétences professionnelles ; paragraphe 3, les ' +
           'motivations plus personnelles. La lettre finit sur une demande de rendez-vous : le candidat se ' +
           'tient à disposition.</p>'
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Les stratégies lexicales',
@@ -243,7 +243,7 @@ module.exports = [
           'l\'écoute) ; <strong>avoir le sens de</strong> + nom (l\'organisation, le contact, l\'écoute) ; ' +
           '<strong>avoir l\'esprit de</strong> + nom sans article (synthèse, groupe) ; avoir la capacité à + ' +
           'infinitif ; la maîtrise de + nom ; de bonnes compétences en + nom sans article (en informatique).</p>'
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -353,7 +353,7 @@ module.exports = [
             '    <p>Aller, venir, partir, arriver, entrer, sortir, monter, descendre, naître, mourir, rester, ' +
             'tomber, retourner, passer, demeurer : la maison d\'être — tout ce qui se déplace ou change ' +
             'd\'état habite chez être ; ce qui s\'achète ou se dit reste chez avoir.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Participes et accords',
@@ -370,13 +370,13 @@ module.exports = [
           'féminin : « Vous êtes sorties » ; politesse envers un homme : « Vous êtes sorti » ; politesse ' +
           'envers une femme : « Vous êtes sortie ». Identifier l\'antécédent avant d\'accorder.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>« Elle a parti » : fautif — partir prend être : « Elle est partie ».</li>\\n' +
-            '      <li>« Ils se sont divorcés » : fautif — divorcer n\'est pas pronominal : « Ils ont divorcé ».</li>\\n' +
-            '      <li>« Vous êtes sorties » adressé à un homme : fautif — identifier l\'antécédent réel.</li>\\n' +
-            '      <li>« J\'ai monté au premier étage » sans COD : fautif — « Je suis monté » (intransitif).</li>\\n' +
+            '    <ul>\n' +
+            '      <li>« Elle a parti » : fautif — partir prend être : « Elle est partie ».</li>\n' +
+            '      <li>« Ils se sont divorcés » : fautif — divorcer n\'est pas pronominal : « Ils ont divorcé ».</li>\n' +
+            '      <li>« Vous êtes sorties » adressé à un homme : fautif — identifier l\'antécédent réel.</li>\n' +
+            '      <li>« J\'ai monté au premier étage » sans COD : fautif — « Je suis monté » (intransitif).</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

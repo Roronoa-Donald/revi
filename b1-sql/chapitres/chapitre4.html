@@ -78,7 +78,8 @@
 
 <h2>1. Le principe : une table virtuelle</h2>
 
-<p>Joindre deux tables, c’est construire une <strong>table virtuelle et temporaire</strong> qui reprend les lignes des deux, appariées par la condition de jointure. Le SGBD combine chaque ligne de la première avec chaque ligne de la seconde, puis ne garde que les combinaisons qui satisfont la condition.</p>\n<pre><code>Marque (un extrait)          Voiture (un extrait)
+<p>Joindre deux tables, c’est construire une <strong>table virtuelle et temporaire</strong> qui reprend les lignes des deux, appariées par la condition de jointure. Le SGBD combine chaque ligne de la première avec chaque ligne de la seconde, puis ne garde que les combinaisons qui satisfont la condition.</p>
+<pre><code>Marque (un extrait)          Voiture (un extrait)
 code   nommarque             immat       marque
 TOY    TOYOTA                TG-3733-AC  TOYOTA
 BMW    BMW                   TG-5420-AL  BMW
@@ -87,16 +88,21 @@ REN    RENAULT               TG-2222-BC  RENAULT
 jointure sur  nommarque = marque
 → TG-3733-AC  TOYOTA   TOYOTA   JAPON
 → TG-5420-AL  BMW      BMW      ALLEMAGNE
-→ TG-2222-BC  RENAULT  RENAULT  FRANCE</code></pre>\n<p>La condition de jointure se repère dans le schéma : quelle colonne d’une table désigne la même réalité qu’une colonne de l’autre ? Ici <code>Marque.nommarque = Voiture.marque</code> — après normalisation, le support remplacerait ce doublon par la clé <code>codemarque</code>.</p>\n  <div class="box box--mnemo">
+→ TG-2222-BC  RENAULT  RENAULT  FRANCE</code></pre>
+<p>La condition de jointure se repère dans le schéma : quelle colonne d’une table désigne la même réalité qu’une colonne de l’autre ? Ici <code>Marque.nommarque = Voiture.marque</code> — après normalisation, le support remplacerait ce doublon par la clé <code>codemarque</code>.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Le pont a deux rives »</div>
     <p>Une jointure sans <strong>ON</strong> n’existe pas : la condition est le pont. Si le résultat paraît démultiplié (des centaines de lignes pour deux petites tables), la condition est absente ou fausse — le SGBD a alors apparié toutes les lignes avec toutes.</p>
   </div>
 
 <h2>2. Jointure sans JOIN, puis INNER JOIN</h2>
 
-<p>La forme historique liste les tables séparées par des virgules et met la condition dans le <code>WHERE</code> :</p>\n<pre><code>SELECT V.immat, M.nommarque, M.paysmarque
+<p>La forme historique liste les tables séparées par des virgules et met la condition dans le <code>WHERE</code> :</p>
+<pre><code>SELECT V.immat, M.nommarque, M.paysmarque
 FROM Voiture V, Marque M
-WHERE V.marque = M.nommarque;</code></pre>\n<p>La forme moderne — celle du support et des normes — passe par <code>JOIN…ON</code> :</p>\n<pre><code>SELECT V.immat, M.nommarque, M.paysmarque
+WHERE V.marque = M.nommarque;</code></pre>
+<p>La forme moderne — celle du support et des normes — passe par <code>JOIN…ON</code> :</p>
+<pre><code>SELECT V.immat, M.nommarque, M.paysmarque
 FROM Voiture V
 INNER JOIN Marque M ON V.marque = M.nommarque;
 
@@ -105,18 +111,23 @@ SELECT V.immat, V.marque
 FROM Voiture V
 INNER JOIN Marque M ON V.marque = M.nommarque
 WHERE M.paysmarque = 'JAPON'
-ORDER BY V.immat;</code></pre>\n<p><code>INNER</code> est facultatif — <code>JOIN</code> seul signifie déjà jointure interne. La jointure interne ne retient que les lignes ayant <strong>une correspondance des deux côtés</strong> : une marque sans voiture du parc disparaît du résultat.</p>\n  <div class="box box--intuition">
+ORDER BY V.immat;</code></pre>
+<p><code>INNER</code> est facultatif — <code>JOIN</code> seul signifie déjà jointure interne. La jointure interne ne retient que les lignes ayant <strong>une correspondance des deux côtés</strong> : une marque sans voiture du parc disparaît du résultat.</p>
+  <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Pourquoi la jointure interne « perd » des lignes</div>
     <p>Si une marque n’a aucune voiture, aucune ligne de Voiture ne correspond : la ligne conjuguée n’existe pas, la marque disparaît. Ce n’est pas un bug — c’est la définition. Pour garder les marques sans voiture, il faut la jointure externe de la section suivante.</p>
   </div>
 
 <h2>3. LEFT JOIN : garder la table de gauche</h2>
 
-<p>« Combien de voitures par marque ? » avec un INNER JOIN omettrait les marques sans voiture. La <strong>jointure externe gauche</strong> garde toutes les lignes de la table de gauche, complétées de <code>NULL</code> quand la droite manque :</p>\n<pre><code>SELECT M.nommarque, COUNT(V.immat) AS nb
+<p>« Combien de voitures par marque ? » avec un INNER JOIN omettrait les marques sans voiture. La <strong>jointure externe gauche</strong> garde toutes les lignes de la table de gauche, complétées de <code>NULL</code> quand la droite manque :</p>
+<pre><code>SELECT M.nommarque, COUNT(V.immat) AS nb
 FROM Marque M
 LEFT JOIN Voiture V ON V.marque = M.nommarque
 GROUP BY M.nommarque
-ORDER BY nb DESC, M.nommarque;</code></pre>\n<p>Le détail qui compte : compter <code>V.immat</code> et non <code>*</code>. Pour une marque sans voiture, <code>V.immat</code> vaut NULL et n’est pas compté — le total est juste (0), là où <code>COUNT(*)</code> compterait 1 (la ligne conjuguée à NULL existe dans la jointure).</p>\n<table>
+ORDER BY nb DESC, M.nommarque;</code></pre>
+<p>Le détail qui compte : compter <code>V.immat</code> et non <code>*</code>. Pour une marque sans voiture, <code>V.immat</code> vaut NULL et n’est pas compté — le total est juste (0), là où <code>COUNT(*)</code> compterait 1 (la ligne conjuguée à NULL existe dans la jointure).</p>
+<table>
     <tr><th>Type</th><th>Lignes retenues</th></tr>
     <tr><td>INNER JOIN</td><td>uniquement les correspondances des deux côtés</td></tr>
     <tr><td>LEFT JOIN</td><td>toutes les lignes de gauche, NULL à droite si absence</td></tr>
@@ -125,10 +136,13 @@ ORDER BY nb DESC, M.nommarque;</code></pre>\n<p>Le détail qui compte : compter 
 
 <h2>4. Les alias de tables</h2>
 
-<p>Écrire <code>Marque.nommarque</code> à chaque colonne fatigue vite. L’alias renomme la table <strong>le temps de la requête</strong> :</p>\n<pre><code>SELECT M.codemarque, M.nommarque, V.immat
+<p>Écrire <code>Marque.nommarque</code> à chaque colonne fatigue vite. L’alias renomme la table <strong>le temps de la requête</strong> :</p>
+<pre><code>SELECT M.codemarque, M.nommarque, V.immat
 FROM Marque M
 INNER JOIN Voiture V ON M.codemarque = V.codemarque
-WHERE V.immat LIKE '%AK';</code></pre>\n<p>Trois règles : l’alias se déclare dans le FROM (M, V), il remplace le nom de table partout dans la requête, et une fois aliasée la table ne peut plus être désignée par son nom complet. Le support l’écrit : les alias « permettent notamment de renommer les tables, et ainsi d’écrire moins de code ».</p>\n  <div class="box box--pitfall">
+WHERE V.immat LIKE '%AK';</code></pre>
+<p>Trois règles : l’alias se déclare dans le FROM (M, V), il remplace le nom de table partout dans la requête, et une fois aliasée la table ne peut plus être désignée par son nom complet. Le support l’écrit : les alias « permettent notamment de renommer les tables, et ainsi d’écrire moins de code ».</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — les colonnes ambiguës</div>
     <p>Quand deux tables jointes portent une colonne de même nom (ici <code>codemarque</code> dans Marque et dans Voiture normalisée), écrire la colonne sans préfixe est une erreur : « ambiguous column ». <strong>Toujours préfixer par l’alias</strong> : M.codemarque, V.codemarque.</p>
   </div>

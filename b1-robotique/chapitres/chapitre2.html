@@ -78,45 +78,56 @@
 
 <h2>1. Répéter exactement k fois</h2>
 
-<p>La boucle <code>for</code> exécute un bloc un nombre connu de fois. <code>range(k)</code> produit les entiers de 0 à k − 1 : exactement k passages.</p>\n<pre><code>for _ in range(5):
+<p>La boucle <code>for</code> exécute un bloc un nombre connu de fois. <code>range(k)</code> produit les entiers de 0 à k − 1 : exactement k passages.</p>
+<pre><code>for _ in range(5):
     print("LED ON")
     print("LED OFF")
-print("Fin.")</code></pre>\n<p>L’<strong>indentation</strong> dessine le bloc : les deux print font partie de la boucle, le <code>print("Fin.")</code> — aligné au même niveau que le <code>for</code> — s’exécute une seule fois, après la boucle. C’est la première cause de bug du débutant : une ligne mal alignée sort de la boucle ou y entre par erreur.</p>\n  <div class="box box--pitfall">
+print("Fin.")</code></pre>
+<p>L’<strong>indentation</strong> dessine le bloc : les deux print font partie de la boucle, le <code>print("Fin.")</code> — aligné au même niveau que le <code>for</code> — s’exécute une seule fois, après la boucle. C’est la première cause de bug du débutant : une ligne mal alignée sort de la boucle ou y entre par erreur.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le trait de soulignement</div>
     <p><code>for _ in range(k)</code> : la variable de boucle existe mais on ne l’utilise pas — le trait bas la nomme « sans importance ». Dès que tu comptes quelque chose ou que le numéro du passage sert, donne-lui un vrai nom : <code>for tour in range(k)</code>.</p>
   </div>
 
 <h2>2. Réagir à une série et compter</h2>
 
-<p>La carte ne répète pas aveuglément : elle réagit à ce qu’elle lit. La boucle parcours alors <strong>une série de valeurs</strong>, et une décision s’invite dans chaque passage.</p>\n<pre><code>allumages = 0
+<p>La carte ne répète pas aveuglément : elle réagit à ce qu’elle lit. La boucle parcours alors <strong>une série de valeurs</strong>, et une décision s’invite dans chaque passage.</p>
+<pre><code>allumages = 0
 for etat in etats:
     if etat == 1:
         print("LED ON")
         allumages += 1
     else:
         print("LED OFF")
-print(f"allumee : {allumages}")</code></pre>\n<p>Trois règles de position : le compteur s’<strong>initialise avant</strong> la boucle, il s’<strong>incrémente dans</strong> le test qui compte, le <strong>bilan s’affiche après</strong> la boucle. Un compteur initialisé dans la boucle repart à zéro à chaque passage — il ne compte jamais rien.</p>\n  <div class="box box--mnemo">
+print(f"allumee : {allumages}")</code></pre>
+<p>Trois règles de position : le compteur s’<strong>initialise avant</strong> la boucle, il s’<strong>incrémente dans</strong> le test qui compte, le <strong>bilan s’affiche après</strong> la boucle. Un compteur initialisé dans la boucle repart à zéro à chaque passage — il ne compte jamais rien.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Avant, dans, après »</div>
     <p>Un compteur de boucle vit en trois temps : <strong>avant</strong> (initialisation), <strong>dans</strong> (mise à jour), <strong>après</strong> (exploitation). Vérifier ces trois emplacements élimine la moitié des bugs de boucle.</p>
   </div>
 
 <h2>3. Cadencer une séquence</h2>
 
-<p>Le feu tricolore ne fait pas cinq fois la même chose : il enchaîne rouge 3 s, orange 1 s, verte 3 s, orange 1 s. La <strong>séquence</strong> tient dans le corps de la boucle ; la boucle ne fait que la rejouer.</p>\n<pre><code>for _ in range(cycles):
+<p>Le feu tricolore ne fait pas cinq fois la même chose : il enchaîne rouge 3 s, orange 1 s, verte 3 s, orange 1 s. La <strong>séquence</strong> tient dans le corps de la boucle ; la boucle ne fait que la rejouer.</p>
+<pre><code>for _ in range(cycles):
     print("rouge (3 s)")
     print("orange (1 s)")
     print("verte (3 s)")
-    print("orange (1 s)")</code></pre>\n<p>Une seule LED à la fois : la séquence le garantit par construction, puisqu’aucune instruction n’allume deux états. C’est exactement le raisonnement qu’on tient sur la carte, où un état bas doit être écrit explicitement pour éteindre la LED précédente.</p>\n  <div class="box box--intuition">
+    print("orange (1 s)")</code></pre>
+<p>Une seule LED à la fois : la séquence le garantit par construction, puisqu’aucune instruction n’allume deux états. C’est exactement le raisonnement qu’on tient sur la carte, où un état bas doit être écrit explicitement pour éteindre la LED précédente.</p>
+  <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Attention au cas zéro</div>
     <p><code>range(0)</code> ne produit rien : la boucle ne s’exécute pas, et le programme saute directement au bilan. C’est le comportement correct — « terminé après 0 cycle » — et il tombe gratis si le bilan est écrit après la boucle, jamais dedans.</p>
   </div>
 
 <h2>4. Accorder le pluriel du bilan</h2>
 
-<p>Le bilan « terminé après X cycle(s) » demande un détail : le <strong>s</strong> n’apparaît que si X dépasse 1. La f-string le décide à la volée.</p>\n<pre><code>print(f"termine apres {c} cycle{'s' if c &gt; 1 else ''}")
+<p>Le bilan « terminé après X cycle(s) » demande un détail : le <strong>s</strong> n’apparaît que si X dépasse 1. La f-string le décide à la volée.</p>
+<pre><code>print(f"termine apres {c} cycle{'s' if c &gt; 1 else ''}")
 
 c = 1  →  termine apres 1 cycle
-c = 3  →  termine apres 3 cycles</code></pre>\n<p>L’expression conditionnelle <code>A if condition else B</code> choisit le texte sans écrire de bloc if complet. C’est le détail qui distingue un rapport soigné d’un rapport approximatif — et les tests le vérifient au caractère près.</p>
+c = 3  →  termine apres 3 cycles</code></pre>
+<p>L’expression conditionnelle <code>A if condition else B</code> choisit le texte sans écrire de bloc if complet. C’est le détail qui distingue un rapport soigné d’un rapport approximatif — et les tests le vérifient au caractère près.</p>
 
 <!-- code-labs:start -->
   <h2>5. Exercices de code</h2>

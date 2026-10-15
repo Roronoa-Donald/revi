@@ -47,9 +47,9 @@ module.exports = {
         '<div class="grid grid-2">',
         '  <div class="card">',
         '    <h4>Anti-pattern : Exécution Root</h4>',
-        '    <pre><code>FROM node:18-alpine\\n' +
-        'WORKDIR /app\\n' +
-        'COPY . .\\n' +
+        '    <pre><code>FROM node:18-alpine\n' +
+        'WORKDIR /app\n' +
+        'COPY . .\n' +
         'CMD ["node", "server.js"]  # S\'execute en UID 0 (root) !</code></pre>',
         '    <p>Si l’application présente une faille de téléversement de fichier ou d’injection de commande, ' +
         '    le pirate peut modifier les fichiers système du conteneur, manipuler les interfaces réseau ' +
@@ -57,11 +57,11 @@ module.exports = {
         '  </div>',
         '  <div class="card">',
         '    <h4>Bonne Pratique : Utilisateur Dédié Non-Root</h4>',
-        '    <pre><code>FROM node:18-alpine\\n' +
-        'RUN addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup\\n' +
-        'WORKDIR /app\\n' +
-        'COPY --chown=appuser:appgroup . .\\n' +
-        'USER appuser  # Bascule en utilisateur sans privileges\\n' +
+        '    <pre><code>FROM node:18-alpine\n' +
+        'RUN addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup\n' +
+        'WORKDIR /app\n' +
+        'COPY --chown=appuser:appgroup . .\n' +
+        'USER appuser  # Bascule en utilisateur sans privileges\n' +
         'CMD ["node", "server.js"]</code></pre>',
         '    <p>Même en cas de compromission totale de l’application, le pirate est confiné dans un compte ' +
         '    sans aucun droit d’administration, bloquant net la quasi-totalité des attaques d’évasion.</p>',
@@ -141,12 +141,12 @@ module.exports = {
         '    <h4>Rotation des Logs (Logging Drivers)</h4>',
         '    <p>Par défaut, Docker stocke les journaux dans des fichiers JSON non limités qui peuvent saturer le disque en quelques semaines. ' +
         '    Configurez une rotation dans <code>/etc/docker/daemon.json</code> :</p>',
-        '    <pre><code>{\\n' +
-        '  "log-driver": "json-file",\\n' +
-        '  "log-opts": {\\n' +
-        '    "max-size": "10m",\\n' +
-        '    "max-file": "3"\\n' +
-        '  }\\n' +
+        '    <pre><code>{\n' +
+        '  "log-driver": "json-file",\n' +
+        '  "log-opts": {\n' +
+        '    "max-size": "10m",\n' +
+        '    "max-file": "3"\n' +
+        '  }\n' +
         '}</code></pre>',
         '    <p>Les journaux sont ainsi bornés à 3 fichiers de 10 Mo maximum par conteneur.</p>',
         '  </div>',

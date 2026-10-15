@@ -78,43 +78,61 @@
 
 <h2>1. Le tri à bulles, pas à pas</h2>
 
-<p>Le principe : parcourir le tableau en comparant chaque couple de voisins, et échanger quand ils sont mal ordonnés. À chaque passage complet, la plus grande valeur restante « bulle » jusqu’à sa place définitive, en fin de tableau.</p>\n<pre><code>for i in range(n - 1):
+<p>Le principe : parcourir le tableau en comparant chaque couple de voisins, et échanger quand ils sont mal ordonnés. À chaque passage complet, la plus grande valeur restante « bulle » jusqu’à sa place définitive, en fin de tableau.</p>
+<pre><code>for i in range(n - 1):
     for j in range(n - 1 - i):
         if valeurs[j] &gt; valeurs[j + 1]:
-            valeurs[j], valeurs[j + 1] = valeurs[j + 1], valeurs[j]</code></pre>\n<p>La borne intérieure <code>n - 1 - i</code> est le cœur de l’algorithme : après i passages, les i dernières places sont déjà remplies, inutile de les re-tester. L’échange Python <code>a, b = b, a</code> évite la variable temporaire que le C du TP oblige à écrire.</p>\n  <div class="box box--mnemo">
+            valeurs[j], valeurs[j + 1] = valeurs[j + 1], valeurs[j]</code></pre>
+<p>La borne intérieure <code>n - 1 - i</code> est le cœur de l’algorithme : après i passages, les i dernières places sont déjà remplies, inutile de les re-tester. L’échange Python <code>a, b = b, a</code> évite la variable temporaire que le C du TP oblige à écrire.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « i mûrit, j compare »</div>
     <p><code>i</code> compte les <strong>passages</strong> (ce qui est déjà trié en fin de tableau), <code>j</code> <strong>compare les voisins</strong>. Confondre les deux bornes est la faute classique qui laisse un tableau à moitié trié.</p>
   </div>
 
 <h2>2. Compter les comparaisons</h2>
 
-<p>Une <strong>comparaison</strong> = chaque exécution du test entre deux voisins, échange ou non. Le compteur s’incrémente donc <strong>juste avant</strong> le if, pas dedans.</p>\n<pre><code>comparaisons = 0
+<p>Une <strong>comparaison</strong> = chaque exécution du test entre deux voisins, échange ou non. Le compteur s’incrémente donc <strong>juste avant</strong> le if, pas dedans.</p>
+<pre><code>comparaisons = 0
 for i in range(n - 1):
     for j in range(n - 1 - i):
         comparaisons += 1
         if valeurs[j] &gt; valeurs[j + 1]:
-            ...</code></pre>\n<table>\n    <tr><th>Taille n</th><th>Comparaisons (double parcours complet)</th></tr>\n    <tr><td>2</td><td>1</td></tr>\n    <tr><td>3</td><td>3</td></tr>\n    <tr><td>4</td><td>6</td></tr>\n    <tr><td>5</td><td>10</td></tr>\n  </table>\n<p>C’est la somme 1 + 2 + … + (n − 1) = n(n − 1)/2 : doubler la taille multiplie le travail par environ quatre. Une série déjà triée paie le même prix — c’est la faiblesse du tri à bulles simple, et c’est ce que le compteur rend visible.</p>
+            ...</code></pre>
+<table>
+    <tr><th>Taille n</th><th>Comparaisons (double parcours complet)</th></tr>
+    <tr><td>2</td><td>1</td></tr>
+    <tr><td>3</td><td>3</td></tr>
+    <tr><td>4</td><td>6</td></tr>
+    <tr><td>5</td><td>10</td></tr>
+  </table>
+<p>C’est la somme 1 + 2 + … + (n − 1) = n(n − 1)/2 : doubler la taille multiplie le travail par environ quatre. Une série déjà triée paie le même prix — c’est la faiblesse du tri à bulles simple, et c’est ce que le compteur rend visible.</p>
 
 <h2>3. Structurer avec des dictionnaires</h2>
 
-<p>Un membre a un nom et un âge : deux données de types différents qui voyagent ensemble. La liste de dictionnaires est le format naturel — le <code>vector</code> de structures du TP en C++.</p>\n<pre><code>registre = []
+<p>Un membre a un nom et un âge : deux données de types différents qui voyagent ensemble. La liste de dictionnaires est le format naturel — le <code>vector</code> de structures du TP en C++.</p>
+<pre><code>registre = []
 for _ in range(n):
     parties = input().split()
     registre.append({"nom": parties[0], "age": int(parties[1])})
 
-jeune = min(registre, key=lambda m: m["age"])</code></pre>\n<p>Les fonctions <code>min</code> et <code>max</code> acceptent un paramètre <code>key=</code> : une fonction appliquée à chaque élément avant comparaison. Ici, on compare les dictionnaires par leur seul champ <code>age</code> — et min renvoie l’élément entier, pas juste l’âge.</p>\n  <div class="box box--pitfall">
+jeune = min(registre, key=lambda m: m["age"])</code></pre>
+<p>Les fonctions <code>min</code> et <code>max</code> acceptent un paramètre <code>key=</code> : une fonction appliquée à chaque élément avant comparaison. Ici, on compare les dictionnaires par leur seul champ <code>age</code> — et min renvoie l’élément entier, pas juste l’âge.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — lire l’entrée et convertir</div>
     <p>Une ligne « Alice 20 » arrive comme <strong>une seule chaîne</strong>. <code>split()</code> la découpe en deux morceaux de texte ; c’est <code>int()</code> qui rend l’âge calculable. Oublier la conversion compile très bien — et plante à la première moyenne.</p>
   </div>
 
 <h2>4. Chercher par dichotomie</h2>
 
-<p>Dans un tableau <strong>trié</strong>, chaque comparaison élimine la moitié des candidats restants. On compare au milieu : trop petit, on repart à droite ; trop grand, à gauche ; égal, trouvé.</p>\n<pre><code>bas, haut = 0, n - 1
+<p>Dans un tableau <strong>trié</strong>, chaque comparaison élimine la moitié des candidats restants. On compare au milieu : trop petit, on repart à droite ; trop grand, à gauche ; égal, trouvé.</p>
+<pre><code>bas, haut = 0, n - 1
 while bas &lt;= haut:
     milieu = (bas + haut) // 2
     if serie[milieu] == v:   trouvé
     elif serie[milieu] &lt; v:  bas = milieu + 1
-    else:                    haut = milieu - 1</code></pre>\n<p>Pour n = 1000, la dichotomie conclut en dix comparaisons environ là où un parcours linéaire en demanderait jusqu’à mille. Condition d’entrée <code>bas &lt;= haut</code> : quand les bornes se croisent, la valeur n’est pas là — on renvoie <code>-1</code>, convention du « introuvable ».</p>\n  <div class="box box--intuition">
+    else:                    haut = milieu - 1</code></pre>
+<p>Pour n = 1000, la dichotomie conclut en dix comparaisons environ là où un parcours linéaire en demanderait jusqu’à mille. Condition d’entrée <code>bas &lt;= haut</code> : quand les bornes se croisent, la valeur n’est pas là — on renvoie <code>-1</code>, convention du « introuvable ».</p>
+  <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Pourquoi −1 et pas 0</div>
     <p>Les indices valides commencent à 0 : renvoyer 0 pour « introuvable » serait ambigu. <strong>−1 est hors de l’intervalle des indices</strong>, donc sans ambiguïté. C’est la même convention que <code>indexOf</code> en JavaScript ou <code>find</code> en C++.</p>
   </div>

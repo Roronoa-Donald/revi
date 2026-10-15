@@ -184,7 +184,7 @@ module.exports = {
       exp: '0x1003 = 4099. Le multiple de 4 supérieur le plus proche est 4100 = 0x1004 (padding de 1 octet).'
     },
     {
-      stem: 'Dans quelle section mémoire résident les chaînes de caractères littérales passées à printf("Hello\\n") ?',
+      stem: 'Dans quelle section mémoire résident les chaînes de caractères littérales passées à printf("Hello\n") ?',
       opts: [
         '.rodata (données en lecture seule)',
         '.bss',

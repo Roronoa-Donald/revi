@@ -48,7 +48,7 @@ module.exports = [
             '    <p><code>i</code> compte les <strong>passages</strong> (ce qui est déjà trié en fin de ' +
             'tableau), <code>j</code> <strong>compare les voisins</strong>. Confondre les deux bornes est la ' +
             'faute classique qui laisse un tableau à moitié trié.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Compter les comparaisons',
@@ -61,17 +61,17 @@ module.exports = [
           '        comparaisons += 1\n' +
           '        if valeurs[j] &gt; valeurs[j + 1]:\n' +
           '            ...</code></pre>',
-          '<table>\\n' +
-          '    <tr><th>Taille n</th><th>Comparaisons (double parcours complet)</th></tr>\\n' +
-          '    <tr><td>2</td><td>1</td></tr>\\n' +
-          '    <tr><td>3</td><td>3</td></tr>\\n' +
-          '    <tr><td>4</td><td>6</td></tr>\\n' +
-          '    <tr><td>5</td><td>10</td></tr>\\n' +
+          '<table>\n' +
+          '    <tr><th>Taille n</th><th>Comparaisons (double parcours complet)</th></tr>\n' +
+          '    <tr><td>2</td><td>1</td></tr>\n' +
+          '    <tr><td>3</td><td>3</td></tr>\n' +
+          '    <tr><td>4</td><td>6</td></tr>\n' +
+          '    <tr><td>5</td><td>10</td></tr>\n' +
           '  </table>',
           '<p>C’est la somme 1 + 2 + … + (n − 1) = n(n − 1)/2 : doubler la taille multiplie le travail par ' +
           'environ quatre. Une série déjà triée paie le même prix — c’est la faiblesse du tri à bulles ' +
           'simple, et c’est ce que le compteur rend visible.</p>'
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Structurer avec des dictionnaires',
@@ -91,7 +91,7 @@ module.exports = [
             '    <p>Une ligne « Alice 20 » arrive comme <strong>une seule chaîne</strong>. ' +
             '<code>split()</code> la découpe en deux morceaux de texte ; c’est <code>int()</code> qui rend ' +
             'l’âge calculable. Oublier la conversion compile très bien — et plante à la première moyenne.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Chercher par dichotomie',
@@ -112,7 +112,7 @@ module.exports = [
             '    <p>Les indices valides commencent à 0 : renvoyer 0 pour « introuvable » serait ambigu. ' +
             '<strong>−1 est hors de l’intervalle des indices</strong>, donc sans ambiguïté. C’est la même ' +
             'convention que <code>indexOf</code> en JavaScript ou <code>find</code> en C++.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -202,12 +202,12 @@ module.exports = [
         html: [
           '<p>Cinq portes fondamentales, quatre fonctions : ET, OU, NON — et XOR qui vaut 1 exactement ' +
           'quand les bits diffèrent. NAND et NOR se déduisent des deux premières.</p>',
-          '<table>\\n' +
-          '    <tr><th>a</th><th>b</th><th>AND</th><th>OR</th><th>NAND</th><th>NOR</th><th>XOR</th></tr>\\n' +
-          '    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>\\n' +
-          '    <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>\\n' +
-          '    <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>\\n' +
-          '    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>\\n' +
+          '<table>\n' +
+          '    <tr><th>a</th><th>b</th><th>AND</th><th>OR</th><th>NAND</th><th>NOR</th><th>XOR</th></tr>\n' +
+          '    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>\n' +
+          '    <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>\n' +
+          '    <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>\n' +
+          '    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>\n' +
           '  </table>',
           '<p>En Python : <code>a and b</code>, <code>a or b</code>, <code>not a</code>, et le XOR se ' +
           'réduit à <code>a != b</code>. Comme le résultat doit s’afficher en 0/1, on emballe le booléen ' +
@@ -216,7 +216,7 @@ module.exports = [
             '    <p>La porte <strong>NAND</strong> est universelle : en la combinant avec elle-même, on ' +
             'reconstruit ET, OU, NON — donc tout circuit. C’est pourquoi les mémoires et processeurs ' +
             'historiques n’implantaient qu’elle.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'L’additionneur complet',
@@ -237,7 +237,7 @@ module.exports = [
             '    <p>En Python, la puissance se note <code>**</code> ; l’accent circonflexe <code>^</code> est ' +
             'le <strong>XOR</strong> bit à bit. Écrire <code>2 ^ 3</code> donne 1 (10 XOR 11 = 01), pas 8. ' +
             'Sur des bits isolés la confusion passe inaperçue ; sur des nombres, elle corrompt tout.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Le chiffre de César',
@@ -264,7 +264,7 @@ module.exports = [
             '    <p>k = 25 revient à reculer d’une lettre : A donne Z. Le modulo gère les deux sens sans ' +
             'aucun cas spécial — c’est aussi pourquoi une attaque par force brute n’a que 25 clés à ' +
             'essayer, le 26e décalage étant le message lui-même.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -370,7 +370,7 @@ module.exports = [
             '    <p>Écrire <code>7: "a b c"</code> dans un dictionnaire, c’est brancher les segments a, b, c ' +
             'du chiffre 7. <strong>Une table de correspondance est plus sûre qu’un calcul</strong> : elle ne ' +
             'peut pas se tromper de formule, seulement d’entrée — et ça se voit d’un coup d’œil.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Trois états, deux seuils',
@@ -387,7 +387,7 @@ module.exports = [
             '    <p>Un <code>&gt;=</code> au lieu de <code>&gt;</code> déplace tout le compte d’alertes : ' +
             '30.0 basculerait en alerte. <strong>L’énoncé fixe la frontière ; le code la respecte au ' +
             'caractère près.</strong> Si l’énoncé dit « strictement supérieur », le test est &gt;.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Afficher sans zéros inutiles',
@@ -400,7 +400,7 @@ module.exports = [
           '<p>Les trois formats à connaître : <code>:g</code> nettoie, <code>:.2f</code> arrondit à deux ' +
           'décimales, <code>:&lt;12</code> aligne à gauche. Choisir le mauvais n’est pas une erreur de style : ' +
           'c’est une sortie différente, et les tests la refusent.</p>'
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Le bilan : minimum et moyenne entière',
@@ -419,7 +419,7 @@ module.exports = [
             '    <p>Deux écoles : <code>min()</code> après coup, ou une variable suivie dans la boucle ' +
             '(« si d est plus petit, il devient le nouveau minimum »). Les deux sont justes ; la seconde est ' +
             'ce qu’on écrit sur une carte qui traite les relevés au fil de l’eau, sans les retenir tous.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

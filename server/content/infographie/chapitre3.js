@@ -74,9 +74,9 @@ module.exports = {
         'Pour maximiser les performances, on regroupe des dizaines d’éléments dans un <strong>atlas de textures</strong> unique :</p>',
 
         '<p>Pour une grille de <code>nb_cols</code> colonnes et <code>nb_rows</code> lignes, les coordonnées UV de la tuile située à la colonne <code>c</code> et à la ligne <code>r</code> se calculent selon :</p>',
-        '<pre><code>u_min = (c * tuile_w) / atlas_W\\n' +
-        'u_max = ((c + 1) * tuile_w) / atlas_W\\n' +
-        'v_min = 1.0 - ((r + 1) * tuile_h) / atlas_H\\n' +
+        '<pre><code>u_min = (c * tuile_w) / atlas_W\n' +
+        'u_max = ((c + 1) * tuile_w) / atlas_W\n' +
+        'v_min = 1.0 - ((r + 1) * tuile_h) / atlas_H\n' +
         'v_max = 1.0 - (r * tuile_h) / atlas_H</code></pre>',
 
         box(
@@ -105,9 +105,9 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Décodage Shader de l’Espace Tangent</h4>',
         '    <p>Les canaux couleur [0, 255] sont ré-étirés vers l’intervalle vectoriel [-1.0, 1.0] :</p>',
-        '    <pre><code>Nx = (R / 255.0) * 2.0 - 1.0\\n' +
-        'Ny = (G / 255.0) * 2.0 - 1.0\\n' +
-        'Nz = (B / 255.0) * 2.0 - 1.0\\n' +
+        '    <pre><code>Nx = (R / 255.0) * 2.0 - 1.0\n' +
+        'Ny = (G / 255.0) * 2.0 - 1.0\n' +
+        'Nz = (B / 255.0) * 2.0 - 1.0\n' +
         'N = normalize(vec3(Nx, Ny, Nz))</code></pre>',
         '  </div>',
         '</div>',

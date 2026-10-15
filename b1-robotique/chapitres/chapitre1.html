@@ -78,44 +78,63 @@
 
 <h2>1. La boucle qui anime tout robot</h2>
 
-<p>Un robot, une machine à laver, un drone : sous les différences, le même squelette de programme, répété sans fin.</p>\n<pre><code>capter    lire les entrées (capteur, bouton, horloge)
+<p>Un robot, une machine à laver, un drone : sous les différences, le même squelette de programme, répété sans fin.</p>
+<pre><code>capter    lire les entrées (capteur, bouton, horloge)
 décider   comparer ces lectures à des seuils ou des règles
-agir      commander les sorties (moteur, LED, buzzer)</code></pre>\n<p>Sur une carte Arduino, cette boucle tourne dans une fonction <code>loop()</code> réécrite sans arrêt. En simulation Python, on l’écrit explicitement : le programme lit, décide, agit — puis le programme s’arrête, parce qu’un affichage texte a une fin. La logique, elle, est la même.</p>\n  <div class="box box--mnemo">
+agir      commander les sorties (moteur, LED, buzzer)</code></pre>
+<p>Sur une carte Arduino, cette boucle tourne dans une fonction <code>loop()</code> réécrite sans arrêt. En simulation Python, on l’écrit explicitement : le programme lit, décide, agit — puis le programme s’arrête, parce qu’un affichage texte a une fin. La logique, elle, est la même.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Entrées, décisions, sorties »</div>
     <p>Tout exercice de ce cours se pose dans cet ordre : <strong>quelles entrées</strong> lis-je, <strong>quelle décision</strong> prends-je, <strong>quelle sortie</strong> produis-je. Un programme qui affiche avant de lire ne peut pas marcher, quel que soit le reste du code.</p>
   </div>
 
 <h2>2. La structure d’un programme</h2>
 
-<p>Un programme s’exécute <strong>ligne par ligne, de haut en bas</strong>. Chaque ligne est une instruction achevée : une lecture, un calcul, un affichage.</p>\n<table>\n    <tr><th>Instruction</th><th>Effet</th></tr>\n    <tr><td><code>x = input()</code></td><td>lit une ligne (du texte) et la range dans x</td></tr>\n    <tr><td><code>n = int(input())</code></td><td>lit une ligne et la convertit en entier</td></tr>\n    <tr><td><code>print("LED ON")</code></td><td>affiche le texte puis passe à la ligne</td></tr>\n    <tr><td><code>print(f"{nom}")</code></td><td>affiche le texte en insérant la valeur d’une variable</td></tr>\n  </table>\n<p>Le f-string <code>f"...{expression}..."</code> est le couteau suisse de l’affichage : tout ce qui figure entre accolades est évalué puis inséré dans le texte. C’est lui qui donne les messages précis qu’un moniteur série afficherait.</p>\n  <div class="box box--pitfall">
+<p>Un programme s’exécute <strong>ligne par ligne, de haut en bas</strong>. Chaque ligne est une instruction achevée : une lecture, un calcul, un affichage.</p>
+<table>
+    <tr><th>Instruction</th><th>Effet</th></tr>
+    <tr><td><code>x = input()</code></td><td>lit une ligne (du texte) et la range dans x</td></tr>
+    <tr><td><code>n = int(input())</code></td><td>lit une ligne et la convertit en entier</td></tr>
+    <tr><td><code>print("LED ON")</code></td><td>affiche le texte puis passe à la ligne</td></tr>
+    <tr><td><code>print(f"{nom}")</code></td><td>affiche le texte en insérant la valeur d’une variable</td></tr>
+  </table>
+<p>Le f-string <code>f"...{expression}..."</code> est le couteau suisse de l’affichage : tout ce qui figure entre accolades est évalué puis inséré dans le texte. C’est lui qui donne les messages précis qu’un moniteur série afficherait.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l’ordre d’exécution</div>
     <p>Les instructions s’exécutent <strong>dans l’ordre écrit</strong>. Si l’énoncé attend « nom puis âge », lire l’âge d’abord produit un programme faux, même si chaque ligne est juste. Relire l’ordre des entrées avant d’écrire la première ligne est un réflexe de roboticien.</p>
   </div>
 
 <h2>3. Calculs de bord</h2>
 
-<p>Une carte calcule tout : une distance parcourue, un temps d’attente, un partage de pièces. Les opérateurs entiers répondent aux deux questions « combien de fois » et « combien il reste ».</p>\n<pre><code>opération         opérateur    exemple
+<p>Une carte calcule tout : une distance parcourue, un temps d’attente, un partage de pièces. Les opérateurs entiers répondent aux deux questions « combien de fois » et « combien il reste ».</p>
+<pre><code>opération         opérateur    exemple
 somme             a + b        10 + 5 = 15
 différence        a - b        10 - 5 = 5
 produit           a * b        10 * 5 = 50
 quotient entier   a // b       10 // 3 = 3   (combien de fois)
-reste             a % b        10 % 3 = 1    (combien il reste)</code></pre>\n<p>Le <strong>modulo</strong> <code>%</code> est l’opérateur fétiche du roboticien : il dit si un compteur est pair (<code>n % 2</code>), si une lettre revient au début de l’alphabet (<code>(i + k) % 26</code>), si un moteur a fini son tour.</p>\n  <div class="box box--pitfall">
+reste             a % b        10 % 3 = 1    (combien il reste)</code></pre>
+<p>Le <strong>modulo</strong> <code>%</code> est l’opérateur fétiche du roboticien : il dit si un compteur est pair (<code>n % 2</code>), si une lettre revient au début de l’alphabet (<code>(i + k) % 26</code>), si un moteur a fini son tour.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la division par zéro</div>
     <p><code>a // 0</code> arrête le programme avec une erreur. Sur une carte réelle, la conséquence est pire : le robot fige. Toute division dont le dénominateur vient d’une entrée doit être précédée d’un test <code>if b == 0</code>. L’énoncé du TP le demandait déjà en bonus.</p>
-  </div>\n  <div class="box box--tech">
+  </div>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> En Python</div>
     <pre><code>a, b = (int(x) for x in input().split())
 
 print(f"somme : {a + b}")
-print(f"reste : {a % b}")</code></pre>\n    <p>La première ligne lit <strong>une seule ligne</strong> contenant « 10 5 » et la découpe : <code>split()</code> coupe aux espaces, la boucle convertit chaque morceau en entier.</p>
+print(f"reste : {a % b}")</code></pre>
+    <p>La première ligne lit <strong>une seule ligne</strong> contenant « 10 5 » et la découpe : <code>split()</code> coupe aux espaces, la boucle convertit chaque morceau en entier.</p>
   </div>
 
 <h2>4. Mettre en forme un rapport</h2>
 
-<p>Un moniteur série défile vite : le rapport lisible est aligné. Les f-strings alignent tout seules avec une largeur après les deux-points.</p>\n<pre><code>f&quot;{&#39;Membre&#39;:&lt;12}: {membre}&quot;   →   "Membre      : Alice"
+<p>Un moniteur série défile vite : le rapport lisible est aligné. Les f-strings alignent tout seules avec une largeur après les deux-points.</p>
+<pre><code>f&quot;{&#39;Membre&#39;:&lt;12}: {membre}&quot;   →   "Membre      : Alice"
 f"{duree} min"              →   "90 min"
 f"{moyenne:.2f}"            →   "13.67"   (deux décimales)
-f"{t:g}"                    →   "30"      (sans zéros inutiles)</code></pre>\n<p>Le repère <code>:&lt;12</code> signifie « aligner à gauche en complétant avec des espaces jusqu’à 12 caractères ». Les libellés de même largeur forment une colonne : l’œil compare immédiatement, ce qui est le but d’un journal de séance.</p>
+f"{t:g}"                    →   "30"      (sans zéros inutiles)</code></pre>
+<p>Le repère <code>:&lt;12</code> signifie « aligner à gauche en complétant avec des espaces jusqu’à 12 caractères ». Les libellés de même largeur forment une colonne : l’œil compare immédiatement, ce qui est le but d’un journal de séance.</p>
 
 <!-- code-labs:start -->
   <h2>5. Exercices de code</h2>

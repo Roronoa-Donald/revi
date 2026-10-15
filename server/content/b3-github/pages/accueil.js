@@ -157,7 +157,7 @@ function atelier(course) {
     '       data-language="python"',
     '       data-height="420"',
     '       data-stdin="GIT_BLOB\nBonjour Git B3!">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez les calculs internes Git (SHA-1 header + payload) et l’inspection d’arbres\nimport hashlib\nimport sys\n\ndef git_hash_object(content, obj_type="blob"):\n    raw = content.encode("utf-8")\n    header = f"{obj_type} {len(raw)}\\0".encode("utf-8")\n    store = header + raw\n    sha1 = hashlib.sha1(store).hexdigest()\n    return sha1\n\nif __name__ == "__main__":\n    lines = sys.stdin.read().splitlines()\n    data = "\\n".join(lines[1:]) if len(lines) > 1 else "Hello Git!"\n    print(f"Type: blob")\n    print(f"Content: {data}")\n    print(f"SHA-1: {git_hash_object(data)}")\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : simulez les calculs internes Git (SHA-1 header + payload) et l’inspection d’arbres\nimport hashlib\nimport sys\n\ndef git_hash_object(content, obj_type="blob"):\n    raw = content.encode("utf-8")\n    header = f"{obj_type} {len(raw)}\\0".encode("utf-8")\n    store = header + raw\n    sha1 = hashlib.sha1(store).hexdigest()\n    return sha1\n\nif __name__ == "__main__":\n    lines = sys.stdin.read().splitlines()\n    data = "\n".join(lines[1:]) if len(lines) > 1 else "Hello Git!"\n    print(f"Type: blob")\n    print(f"Content: {data}")\n    print(f"SHA-1: {git_hash_object(data)}")\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',

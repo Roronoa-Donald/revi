@@ -137,7 +137,7 @@ function atelier(course) {
       '     data-languages="1"',
       '     data-stdin="React 19;Equipe Peda">',
       '  <script type="text/plain" data-lab-starter>const fs = require(\'fs\');',
-      'const lignes = fs.readFileSync(0, \'utf8\').trim().split(\'\\n\');',
+      'const lignes = fs.readFileSync(0, \'utf8\').trim().split(\'\n\');',
       '',
       '// Zone libre : simulez, cassez, recommencez.',
       '// Rien de ce que vous écrirez ici n’est noté.',

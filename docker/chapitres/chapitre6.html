@@ -84,12 +84,20 @@
 <div class="grid grid-2">
   <div class="card">
     <h4>Anti-pattern : Exécution Root</h4>
-    <pre><code>FROM node:18-alpine\nWORKDIR /app\nCOPY . .\nCMD ["node", "server.js"]  # S'execute en UID 0 (root) !</code></pre>
+    <pre><code>FROM node:18-alpine
+WORKDIR /app
+COPY . .
+CMD ["node", "server.js"]  # S'execute en UID 0 (root) !</code></pre>
     <p>Si l’application présente une faille de téléversement de fichier ou d’injection de commande,     le pirate peut modifier les fichiers système du conteneur, manipuler les interfaces réseau     et chercher une faille de noyau pour s’évader sur l’hôte.</p>
   </div>
   <div class="card">
     <h4>Bonne Pratique : Utilisateur Dédié Non-Root</h4>
-    <pre><code>FROM node:18-alpine\nRUN addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup\nWORKDIR /app\nCOPY --chown=appuser:appgroup . .\nUSER appuser  # Bascule en utilisateur sans privileges\nCMD ["node", "server.js"]</code></pre>
+    <pre><code>FROM node:18-alpine
+RUN addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup
+WORKDIR /app
+COPY --chown=appuser:appgroup . .
+USER appuser  # Bascule en utilisateur sans privileges
+CMD ["node", "server.js"]</code></pre>
     <p>Même en cas de compromission totale de l’application, le pirate est confiné dans un compte     sans aucun droit d’administration, bloquant net la quasi-totalité des attaques d’évasion.</p>
   </div>
 </div>
@@ -152,7 +160,13 @@
   <div class="card">
     <h4>Rotation des Logs (Logging Drivers)</h4>
     <p>Par défaut, Docker stocke les journaux dans des fichiers JSON non limités qui peuvent saturer le disque en quelques semaines.     Configurez une rotation dans <code>/etc/docker/daemon.json</code> :</p>
-    <pre><code>{\n  "log-driver": "json-file",\n  "log-opts": {\n    "max-size": "10m",\n    "max-file": "3"\n  }\n}</code></pre>
+    <pre><code>{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}</code></pre>
     <p>Les journaux sont ainsi bornés à 3 fichiers de 10 Mo maximum par conteneur.</p>
   </div>
 </div>

@@ -134,12 +134,20 @@
 <div class="grid grid-2">
   <div class="card">
     <h4>Anti-pattern : Invalidation Permanente du Cache</h4>
-    <pre><code>FROM node:18-alpine\nWORKDIR /app\nCOPY . .  # &lt;-- Erreur ! Modifie a chaque commit\nRUN npm install # Se relance a chaque modification du code !</code></pre>
+    <pre><code>FROM node:18-alpine
+WORKDIR /app
+COPY . .  # &lt;-- Erreur ! Modifie a chaque commit
+RUN npm install # Se relance a chaque modification du code !</code></pre>
     <p>Le développeur modifie une ligne de commentaire dans son code source : <code>COPY . .</code> change,     le cache est brisé, et <code>npm install</code> doit retélécharger 800 Mo de dépendances à chaque fois.</p>
   </div>
   <div class="card">
     <h4>Pattern Optimal : Isolation des Dépendances</h4>
-    <pre><code>FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production  # En cache si package.json inchange\nCOPY . .\nCMD ["node", "server.js"]</code></pre>
+    <pre><code>FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production  # En cache si package.json inchange
+COPY . .
+CMD ["node", "server.js"]</code></pre>
     <p><code>npm ci</code> reste parfaitement en cache tant que les dépendances n’ont pas été modifiées.     Le build ne prend alors que 2 secondes !</p>
   </div>
 </div>
@@ -176,12 +184,34 @@
   </tbody>
 </table>
 <p><strong>Combinaison ENTRYPOINT + CMD :</strong></p>
-<pre><code># ENTRYPOINT fixe le binaire de base inaltérable :\nENTRYPOINT ["python", "main.py"]\n# CMD fournit les arguments par défaut substituables :\nCMD ["--port", "8080"]\n\n# Un "docker run monapp" executera : python main.py --port 8080\n# Un "docker run monapp --debug" executera : python main.py --debug</code></pre>
+<pre><code># ENTRYPOINT fixe le binaire de base inaltérable :
+ENTRYPOINT ["python", "main.py"]
+# CMD fournit les arguments par défaut substituables :
+CMD ["--port", "8080"]
+
+# Un "docker run monapp" executera : python main.py --port 8080
+# Un "docker run monapp --debug" executera : python main.py --debug</code></pre>
 
 <h2>4. Le Pattern Révolutionnaire du Multi-Stage Build</h2>
 
 <p>Introduit dans Docker 17.05, le <strong>Multi-Stage Build</strong> permet d’utiliser plusieurs instructions <code>FROM</code> dans un même Dockerfile afin d’isoler hermétiquement l’environnement de compilation de l’image finale de production :</p>
-<pre><code># --- Étape 1 : Environnement de compilation lourd (Build Stage) ---\nFROM golang:1.21-alpine AS builder\nWORKDIR /src\nCOPY go.mod go.sum ./\nRUN go mod download\nCOPY . .\nRUN CGO_ENABLED=0 GOOS=linux go build -o /bin/monapp .\n\n# --- Étape 2 : Image minimale de production (Final Stage) ---\nFROM alpine:3.18\nRUN adduser -D -u 10001 appuser\nWORKDIR /app\n# On copie UNIQUEMENT le binaire final depuis l'étape builder :\nCOPY --from=builder /bin/monapp /app/monapp\nUSER appuser\nEXPOSE 8080\nCMD ["/app/monapp"]</code></pre>
+<pre><code># --- Étape 1 : Environnement de compilation lourd (Build Stage) ---
+FROM golang:1.21-alpine AS builder
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/monapp .
+
+# --- Étape 2 : Image minimale de production (Final Stage) ---
+FROM alpine:3.18
+RUN adduser -D -u 10001 appuser
+WORKDIR /app
+# On copie UNIQUEMENT le binaire final depuis l'étape builder :
+COPY --from=builder /bin/monapp /app/monapp
+USER appuser
+EXPOSE 8080
+CMD ["/app/monapp"]</code></pre>
   <div class="box box--important">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Bénéfice Stratégique du Multi-Stage</div>
 <p>Le compilateur Go, le code source brut, les outils git et les fichiers intermédiaires sont tous abandonnés dans l’étape 1. L’image finale ne contient que le binaire statique de 15 Mo sur une base Alpine de 7 Mo, soit <strong>22 Mo au lieu de 900 Mo</strong>. Les pirates ne trouvent ni compilateur ni outils de débogage dans le conteneur en cas d’intrusion.</p>

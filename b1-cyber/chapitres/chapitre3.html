@@ -78,35 +78,46 @@
 
 <h2>1. Mots de passe forts et 2FA</h2>
 
-<p>Le mot de passe est la première ligne de défense ; sa faiblesse expose à la force brute (essais systématiques), au dictionnaire (mots courants) et au credential stuffing (réutilisation des fuites). Les recommandations actuelles (ANSSI, NIST) : privilégier la <strong>longueur</strong> (12 à 15 caractères minimum), une <strong>phrase de passe</strong> mémorisable, l'unicité par service — et ne renouveler le mot de passe que sur suspicion de compromission, car l'expiration forcée produit des suites prévisibles (Ete2024!, Automne2024!).</p>\n<p>La <strong>2FA</strong> ajoute une seconde preuve d'identité issue d'une catégorie <em>différente</em> de la première :</p>\n<table>
+<p>Le mot de passe est la première ligne de défense ; sa faiblesse expose à la force brute (essais systématiques), au dictionnaire (mots courants) et au credential stuffing (réutilisation des fuites). Les recommandations actuelles (ANSSI, NIST) : privilégier la <strong>longueur</strong> (12 à 15 caractères minimum), une <strong>phrase de passe</strong> mémorisable, l'unicité par service — et ne renouveler le mot de passe que sur suspicion de compromission, car l'expiration forcée produit des suites prévisibles (Ete2024!, Automne2024!).</p>
+<p>La <strong>2FA</strong> ajoute une seconde preuve d'identité issue d'une catégorie <em>différente</em> de la première :</p>
+<table>
     <tr><th>Facteur</th><th>Ce que l'on a</th><th>Exemples</th></tr>
     <tr><td>Connaissance</td><td>ce que l'on sait</td><td>mot de passe, code PIN</td></tr>
     <tr><td>Possession</td><td>ce que l'on possède</td><td>smartphone, clé YubiKey, carte à puce</td></tr>
     <tr><td>Inhérence</td><td>ce que l'on est</td><td>empreinte, visage, iris</td></tr>
-  </table>\n<p>Deux facteurs de la même catégorie (code PIN + mot de passe) ne font pas de la 2FA. Le code TOTP des applications d'authentification change toutes les 30 secondes ; le SMS reste plus fragile car interceptable.</p>\n  <div class="box box--mnemo">
+  </table>
+<p>Deux facteurs de la même catégorie (code PIN + mot de passe) ne font pas de la 2FA. Le code TOTP des applications d'authentification change toutes les 30 secondes ; le SMS reste plus fragile car interceptable.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « savoir, avoir, être »</div>
     <p>Connaissance = <strong>savoir</strong>, possession = <strong>avoir</strong>, inhérence = <strong>être</strong>. La 2FA exige deux catégories différentes : mot de passe (savoir) + application TOTP ou clé (avoir).</p>
   </div>
 
 <h2>2. IAM : identités et accès</h2>
 
-<p>L'<strong>IAM</strong> (Identity and Access Management) gouverne le cycle de vie des identités : <strong>authentification</strong> (qui es-tu ?) puis <strong>autorisation</strong> (qu'as-tu le droit de faire ?). Les solutions citées en cours : AWS IAM pour le cloud Amazon, Azure Active Directory dans les environnements Microsoft, Okta pour le SaaS, Keycloak en open source.</p>\n<p>Le principe directeur est le <strong>moindre privilège</strong> (PoLP) : chaque utilisateur ne reçoit que les accès strictement nécessaires à sa mission. Il limite l'impact de la compromission d'un compte — l'attaquant entre dans une pièce, pas dans le bâtiment.</p>\n  <div class="box box--tech">
+<p>L'<strong>IAM</strong> (Identity and Access Management) gouverne le cycle de vie des identités : <strong>authentification</strong> (qui es-tu ?) puis <strong>autorisation</strong> (qu'as-tu le droit de faire ?). Les solutions citées en cours : AWS IAM pour le cloud Amazon, Azure Active Directory dans les environnements Microsoft, Okta pour le SaaS, Keycloak en open source.</p>
+<p>Le principe directeur est le <strong>moindre privilège</strong> (PoLP) : chaque utilisateur ne reçoit que les accès strictement nécessaires à sa mission. Il limite l'impact de la compromission d'un compte — l'attaquant entre dans une pièce, pas dans le bâtiment.</p>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-key"></use></svg> Authentification et autorisation : le duo à ne pas inverser</div>
     <p>L'authentification vérifie l'identité (le badge scanne) ; l'autorisation décide de l'accès (la porte s'ouvre ou non). On s'authentifie toujours AVANT d'être autorisé, jamais l'inverse.</p>
   </div>
 
 <h2>3. Cryptographie : symétrique, asymétrique, hachage</h2>
 
-<p>Le <strong>chiffrement symétrique</strong> (AES) utilise la même clé pour chiffrer et déchiffrer : rapide, mais chaque paire de machines doit partager un secret. Pour k machines, il faut k(k-1)/2 clés — 6 clés pour 4 machines, plus de 350 pour 27. Le chiffrement <strong>asymétrique</strong> (RSA, ECC) remplace ce problème par une paire clé publique/clé privée : chacun publie sa clé publique, tout le monde chiffre, seul le propriétaire déchiffre. Plus lent, mais il passe à l'échelle — et sert aussi à signer.</p>\n<p>Le <strong>hachage</strong> (SHA-256…) transforme une donnée en empreinte de taille fixe, sans clé et irréversible : il prouve l'<strong>intégrité</strong> (le fichier a-t-il changé ?) et garde les mots de passe en base (on compare des empreintes, jamais les mots de passe en clair). La <strong>PKI</strong> relie une clé publique à une identité par un <strong>certificat numérique</strong> signé par une autorité de certification — c'est le cadenas du navigateur.</p>\n<pre><code>symétrique  : k(k-1)/2 clés secrètes          → 4 machines = 6 clés
+<p>Le <strong>chiffrement symétrique</strong> (AES) utilise la même clé pour chiffrer et déchiffrer : rapide, mais chaque paire de machines doit partager un secret. Pour k machines, il faut k(k-1)/2 clés — 6 clés pour 4 machines, plus de 350 pour 27. Le chiffrement <strong>asymétrique</strong> (RSA, ECC) remplace ce problème par une paire clé publique/clé privée : chacun publie sa clé publique, tout le monde chiffre, seul le propriétaire déchiffre. Plus lent, mais il passe à l'échelle — et sert aussi à signer.</p>
+<p>Le <strong>hachage</strong> (SHA-256…) transforme une donnée en empreinte de taille fixe, sans clé et irréversible : il prouve l'<strong>intégrité</strong> (le fichier a-t-il changé ?) et garde les mots de passe en base (on compare des empreintes, jamais les mots de passe en clair). La <strong>PKI</strong> relie une clé publique à une identité par un <strong>certificat numérique</strong> signé par une autorité de certification — c'est le cadenas du navigateur.</p>
+<pre><code>symétrique  : k(k-1)/2 clés secrètes          → 4 machines = 6 clés
 asymétrique : k paires publiques/privées      → 4 machines = 4 paires
-hachage     : empreinte fixe, sans clé        → contrôle d'intégrité</code></pre>\n  <div class="box box--pitfall">
+hachage     : empreinte fixe, sans clé        → contrôle d'intégrité</code></pre>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — hacher n'est pas chiffrer</div>
     <p>Le chiffrement est réversible avec la clé ; le hachage ne l'est jamais. Une question qui parle de « vérifier qu'un fichier n'a pas changé » parle de hachage ; une question qui parle de « garder le secret » parle de chiffrement.</p>
   </div>
 
 <h2>4. Pare-feu, VPN, protocoles sécurisés</h2>
 
-<p>Le <strong>pare-feu</strong> filtre le trafic réseau selon des règles (adresses, ports, protocoles) : il est la frontière entre zones de confiance. Le <strong>VPN</strong> crée un tunnel chiffré sur un réseau non sûr — obligatoire sur le Wi-Fi public selon la politique de mobilité. Les <strong>protocoles sécurisés</strong> chiffrent le dialogue applicatif : HTTPS pour le Web (TLS sous HTTP), SSH pour l'administration distante, contre FTP et Telnet en clair.</p>\n<p>Les trois se complètent : le pare-feu contrôle <em>ce qui passe</em>, le VPN protège <em>le trajet</em>, HTTPS/SSH protègent <em>la conversation</em>.</p>\n  <div class="box box--mnemo">
+<p>Le <strong>pare-feu</strong> filtre le trafic réseau selon des règles (adresses, ports, protocoles) : il est la frontière entre zones de confiance. Le <strong>VPN</strong> crée un tunnel chiffré sur un réseau non sûr — obligatoire sur le Wi-Fi public selon la politique de mobilité. Les <strong>protocoles sécurisés</strong> chiffrent le dialogue applicatif : HTTPS pour le Web (TLS sous HTTP), SSH pour l'administration distante, contre FTP et Telnet en clair.</p>
+<p>Les trois se complètent : le pare-feu contrôle <em>ce qui passe</em>, le VPN protège <em>le trajet</em>, HTTPS/SSH protègent <em>la conversation</em>.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « frontière, tunnel, dialogue »</div>
     <p>Pare-feu = <strong>frontière</strong> (filtre les flux) ; VPN = <strong>tunnel</strong> (protège le trajet entre deux sites) ; HTTPS/SSH = <strong>dialogue</strong> (chiffre la session de bout en bout).</p>
   </div>

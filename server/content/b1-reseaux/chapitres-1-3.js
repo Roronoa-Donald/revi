@@ -26,139 +26,170 @@ module.exports = [
     free: true,
 
     situation:
-      'Trois questions fondaient les réseaux d\'entreprise : comment communiquer efficacement, comment éviter ' +
-      'la duplication des équipements et des ressources, comment mettre en place et gérer l\'ensemble ? Le ' +
-      'support répond par un vocabulaire précis — LAN, WAN, workgroup, client-serveur — que le chapitre rend ' +
-      'immédiatement opératoire.',
+      'Trois questions fondent les réseaux : comment faire communiquer deux machines efficacement ? ' +
+      'Comment partager les équipements et les fichiers sans duplication coûteuse ? Comment administrer et ' +
+      'sécuriser l\'ensemble ? Le cours y répond par une progression logique : du simple partage poste-à-poste ' +
+      'jusqu\'à l\'architecture client-serveur et la portée géographique des réseaux (PAN, LAN, WLAN, MAN, WAN).',
 
     objectives: [
-      'expliquer les trois besoins à l\'origine des réseaux d\'entreprise ;',
-      'distinguer LAN (immeuble, campus) et WAN (villes, pays) ;',
-      'opposer groupe de travail (poste à poste) et architecture client-serveur ;',
-      'ranger un réseau dans les cinq familles : PAN, LAN, WLAN, MAN, WAN.'
+      'expliquer les trois besoins fondamentaux à l\'origine des réseaux informatiques ;',
+      'distinguer le modèle d\'égal à égal (poste-à-poste) et l\'architecture centralisée (client-serveur) ;',
+      'distinguer un réseau local (LAN) et un réseau étendu longue distance (WAN) ;',
+      'classer un réseau selon sa portée géographique : PAN, LAN, WLAN, MAN, WAN.'
     ],
 
     sections: [
       {
         title: 'Pourquoi des réseaux ?',
         html: [
-          '<p>Les entreprises cherchaient une solution à trois questions : <strong>comment communiquer ' +
-          'efficacement ?</strong>, <strong>comment éviter la duplication des équipements et des ' +
-          'ressources ?</strong>, <strong>comment mettre en place et gérer un réseau ?</strong>. La réponse ' +
-          'structure tout le cours : partager, centraliser, administrer.</p>',
-          '<p>La plupart des réseaux de données se classent en <strong>réseaux locaux LAN</strong> — situés ' +
-          'à l\'intérieur d\'un immeuble (salle, classe) ou d\'un complexe (campus, PMI) — et en <strong>' +
-          'réseaux WAN</strong> — de vastes superficies (plus de 100 km) reliant des villes et des pays.</p>',
-          box('mnemo', 'Mnémotechnique — « local = murs, étendu = autoroutes »', 'pin',
-            '    <p>Si le réseau tient dans des murs, c\'est un LAN ; s\'il emprunte des liaisons louées à un ' +
-            'opérateur pour relier des sites lointains, c\'est un WAN.</p>')
-        ].join('\\n')
+          '<p>À l\'origine de l\'informatique, chaque ordinateur fonctionnait de manière isolée. Pour transmettre ' +
+          'un fichier à un collègue, il fallait le copier sur un support amovible (disquette, puis clé USB) et ' +
+          'se déplacer physiquement jusqu\'à son bureau. Ce transfert manuel met en évidence les trois limites ' +
+          'fondamentales que les réseaux ont résolues : <strong>comment communiquer rapidement ?</strong>, ' +
+          '<strong>comment partager des ressources coûteuses</strong> (imprimantes, espace de stockage, connexion ' +
+          'Internet) sans devoir les acheter en double pour chaque machine ?, et <strong>comment administrer et ' +
+          'sécuriser les données</strong> de manière centralisée ?</p>',
+          '<p>Un <strong>réseau informatique</strong> est l\'interconnexion de plusieurs équipements ' +
+          '(ordinateurs, serveurs, téléphones, imprimantes) au moyen de câbles physiques ou d\'ondes radio, ' +
+          'capables d\'échanger des informations selon des règles de communication standardisées (les protocoles).</p>',
+          box('mnemo', 'Mnémotechnique — « Échanger, Partager, Administrer »', 'pin',
+            '    <p>Un réseau remplace le déplacement physique par un signal électrique ou radio : il permet ' +
+            'd\'échanger des messages, de partager des ressources et d\'administrer les accès en toute sécurité.</p>')
+        ].join('\n')
       },
       {
-        title: 'Workgroup contre client-serveur',
+        title: 'Poste-à-poste contre client-serveur',
         html: [
-          '<p>Dans l\'architecture en <strong>groupe de travail</strong> (workgroup), les machines sont a ' +
-          'priori toutes identiques en puissance et en accès réseau ; chaque poste fait office de serveur et ' +
-          'est à la fois <strong>client et serveur</strong>. Les données ne sont pas centralisées : si 4 ' +
-          'postes servent 10 utilisateurs, chaque poste doit contenir les 10 mots de passe — et avec 60 ' +
-          'postes et 300 utilisateurs, la gestion devient périlleuse. Avantage : le faible coût en matériel. ' +
-          'Limite : impossible à gérer au-delà d\'une dizaine de postes.</p>',
-          '<p>Dans l\'architecture <strong>client-serveur</strong>, des machines clientes contactent un ' +
-          'serveur — une machine puissante, dédiée à des tâches précises, qui fournit des services : l\'heure, ' +
-          'des fichiers, une connexion, l\'accès à une base de données. Le serveur <strong>centralise</strong> ' +
-          'les données du réseau : les mots de passe ne se trouvent plus qu\'à un seul endroit, faciles à ' +
-          'modifier pour l\'administrateur. Avantage : la gestion de nombreux postes. Inconvénient : le coût ' +
-          'du serveur et de sa carte réseau de qualité.</p>'
-        ].join('\\n')
+          '<p>Pour organiser le dialogue et le partage entre ordinateurs, deux grands modèles d\'architecture ' +
+          's\'opposent :</p>',
+          '<p>Dans l\'architecture <strong>poste-à-poste</strong> (en anglais <em>peer-to-peer</em> ou P2P, ' +
+          'historiquement appelée <em>groupe de travail / workgroup</em> sous Windows), tous les ordinateurs ' +
+          'connectés sont sur un pied d\'égalité. Aucun poste ne domine les autres : chaque machine est autonome, ' +
+          'fournit ses propres ressources et peut à la fois demander un fichier et en partager un. C\'est le mode ' +
+          'de fonctionnement spontané d\'un petit groupe d\'étudiants partageant des documents dans une même pièce, ' +
+          'ou d\'une maison avec deux ordinateurs. <strong>Avantage</strong> : coût matériel nul, aucune machine ' +
+          'dédiée à financer. <strong>Limite</strong> : la dispersion des données et des comptes. Si 10 utilisateurs ' +
+          'travaillent sur 4 postes, chaque poste doit contenir localement les 10 comptes et mots de passe. ' +
+          'Au-delà d\'une dizaine de postes, la gestion devient chaotique, chronophage et impossible à sécuriser.</p>',
+          '<p>Dans l\'architecture <strong>client-serveur</strong>, les rôles sont clairement distincts et ' +
+          'spécialisés :</p>',
+          '<ul>',
+          '  <li>Les <strong>clients</strong> sont les postes de travail des utilisateurs (ordinateurs portables, ' +
+          'smartphones, tablettes) qui émettent des requêtes pour demander un service (consulter une page web, ' +
+          'ouvrir un document partagé, envoyer un courriel).</li>',
+          '  <li>Le <strong>serveur</strong> est une machine plus puissante, fiable et allumée en permanence, ' +
+          'qui fournit des services partagés : stockage centralisé de fichiers, annuaire de comptes, base de ' +
+          'données, serveur web.</li>',
+          '</ul>',
+          '<p>Le serveur <strong>centralise</strong> les données et les identités : l\'administrateur crée ' +
+          'le compte d\'un employé une seule fois sur le serveur, et cet employé peut se connecter en toute ' +
+          'sécurité depuis n\'importe quel poste client du réseau. <strong>Avantage</strong> : gestion simplifiée ' +
+          'de centaines ou de milliers d\'utilisateurs, sauvegardes fiables et centralisées. <strong>Inconvénient</strong> : ' +
+          'coût d\'achat du serveur et de ses composants réseau, et dépendance (si le serveur tombe en panne, le ' +
+          'service s\'arrête pour tout le monde).</p>'
+        ].join('\n')
       },
       {
-        title: 'Les cinq types de réseaux',
+        title: 'Les cinq familles de réseaux par portée géographique',
         html: [
-          '<p>Le support liste cinq familles : le <strong>PAN</strong> (Personal Area Network) dessert une ' +
-          'personne — un iPhone et un Mac synchronisés forment un PAN ; le <strong>LAN</strong> relie des ' +
-          'périphériques via un routeur ou une box, accessibles depuis tout le réseau ; le <strong>WLAN</strong> ' +
-          'est le LAN sans fil, sur ondes radio haute fréquence, dont le Wi-Fi (norme IEEE 802.11) est la ' +
-          'marque la plus connue ; le <strong>MAN</strong> (Metropolitan Area Network) est un LAN étendu à ' +
-          'quelques kilomètres — une ville, un grand campus — qui interconnecte plusieurs LAN sur une dorsale ' +
-          'fibre ; le <strong>WAN</strong> couvre une région, un pays, un continent, sur des liaisons que ' +
-          'l\'utilisateur ne possède pas : un fournisseur de télécommunications les exploite.</p>',
-          '<p>Le support cite aussi deux réseaux spécialisés : le <strong>CAN</strong> (Campus Area Network, ' +
-          'plus grand qu\'un LAN, plus petit qu\'un WAN) et le <strong>SAN</strong> (Storage Area Network, ' +
-          'accès au stockage de niveau bloc qui se comporte comme un disque local).</p>',
-          box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>WLAN ≠ WAN : le WLAN reste un réseau local, simplement sans fil.</li>\\n' +
-            '      <li>MAN ≠ WAN : le MAN tient dans une ville ; le WAN traverse les régions et les pays.</li>\\n' +
-            '      <li>En workgroup chaque poste est client ET serveur ; en client-serveur, seul le serveur détient les comptes.</li>\\n' +
-            '      <li>Le SAN n\'est pas un réseau d\'utilisateurs : il transporte du stockage en mode bloc.</li>\\n' +
-            '    </ul>')
-        ].join('\\n')
+          '<p>On classe les réseaux selon leur échelle physique et leur distance de couverture :</p>',
+          '<ul>',
+          '  <li><strong>PAN (Personal Area Network)</strong> : réseau personnel à l\'échelle d\'une personne ' +
+          '(portée inférieure à 10 mètres). Exemple : un smartphone synchronisé en Bluetooth avec une montre ' +
+          'connectée ou des écouteurs sans fil.</li>',
+          '  <li><strong>LAN (Local Area Network)</strong> : réseau local à l\'intérieur d\'un bâtiment ou d\'un ' +
+          'campus (salle de classe, maison, immeuble d\'entreprise). Les équipements sont reliés à une box ou un ' +
+          'commutateur et appartiennent à la même organisation.</li>',
+          '  <li><strong>WLAN (Wireless Local Area Network)</strong> : la déclinaison sans fil du LAN, reposant ' +
+          'sur les ondes radio haute fréquence de la norme IEEE 802.11, dont le <strong>Wi-Fi</strong> est la ' +
+          'technologie universelle. Le WLAN reste un réseau local, simplement sans câble physique.</li>',
+          '  <li><strong>MAN (Metropolitan Area Network)</strong> : réseau métropolitain étendu à l\'échelle ' +
+          'd\'une ville ou d\'une agglomération (quelques dizaines de kilomètres), reliant plusieurs sites sur une ' +
+          'dorsale fibre optique (ex. interconnexion des campus universitaires ou des hôpitaux d\'une métropole).</li>',
+          '  <li><strong>WAN (Wide Area Network)</strong> : réseau étendu couvrant des régions, des pays ou des ' +
+          'continents (plus de 100 km). L\'entreprise ne possède pas les lignes : elle loue des liaisons à un ' +
+          'opérateur télécom. <strong>Internet</strong> est le plus grand WAN mondial.</li>',
+          '</ul>',
+          '<p>Le support distingue également deux réseaux spécialisés : le <strong>CAN</strong> (Campus Area ' +
+          'Network, reliant les facultés d\'un campus étendu) et le <strong>SAN</strong> (Storage Area Network, ' +
+          'réseau à très haut débit dédié au transfert de données en mode bloc entre serveurs et baies de disques dur).</p>',
+          box('pitfall', 'Confusions d\'examen à éviter', 'warning', [
+            '    <ul>',
+            '      <li><strong>WLAN ≠ WAN</strong> : Le WLAN reste un réseau local (Wi-Fi, portée de dizaines de mètres). Le WAN traverse les pays et les continents.</li>',
+            '      <li><strong>MAN ≠ WAN</strong> : Le MAN tient dans le périmètre d\'une agglomération ; le WAN relie des villes distantes de centaines de kilomètres.</li>',
+            '      <li><strong>Poste-à-poste vs Client-serveur</strong> : En poste-à-poste, chaque machine gère ses propres accès. En client-serveur, seul le serveur centralise les comptes.</li>',
+            '      <li><strong>Le SAN n\'est pas un réseau d\'utilisateurs</strong> : C\'est une autoroute privée réservée aux disques de stockage de données.</li>',
+            '    </ul>'
+          ].join('\n'))
+        ].join('\n')
       }
     ],
 
     questions: [
-      { q: 'Un réseau limité à un immeuble est…', opts: ['un WAN', 'un LAN', 'un MAN'], correct: 1, exp: 'LAN : salle, classe, campus, PMI — à l\'intérieur des murs.' },
-      { q: 'Les WAN couvrent…', opts: ['une salle', 'une ville', 'plus de 100 km, villes et pays'], correct: 2, exp: 'Vastes superficies, liaisons d\'opérateur.' },
-      { q: 'Dans un workgroup, chaque poste est…', opts: ['client seulement', 'serveur seulement', 'client et serveur'], correct: 2, exp: 'Les postes partagent leurs ressources ; données non centralisées.' },
-      { q: 'L\'avantage du client-serveur est…', opts: ['le coût du matériel', 'la gestion de nombreux postes', 'l\'absence d\'administration'], correct: 1, exp: 'Le serveur centralise les comptes ; l\'inconvénient est le coût.' },
-      { q: 'Un iPhone et un Mac synchronisés forment…', opts: ['un PAN', 'un MAN', 'un SAN'], correct: 0, exp: 'Le PAN dessert une personne.' },
-      { q: 'Le Wi-Fi est la marque la plus connue…', opts: ['du WAN', 'du WLAN', 'du CAN'], correct: 1, exp: 'WLAN : ondes radio, normes IEEE 802.11.' },
-      { q: 'Un grand campus interconnecté en fibre est…', opts: ['un MAN', 'un PAN', 'un workgroup'], correct: 0, exp: 'MAN : LAN étendu à quelques kilomètres, dorsale fibre.' },
-      { q: 'Le stockage en mode bloc se transporte sur…', opts: ['un SAN', 'un LAN', 'un VPN'], correct: 0, exp: 'SAN : réseau spécialisé, disque « localement connecté ».' }
+      { q: 'Un réseau informatique limité à l\'intérieur d\'un immeuble est…', opts: ['un WAN', 'un LAN', 'un MAN'], correct: 1, exp: 'LAN (Local Area Network) : salle, classe, immeuble, campus privé.' },
+      { q: 'Les réseaux WAN couvrent typiquement…', opts: ['une salle de réunion', 'une seule pièce', 'des pays ou continents (plus de 100 km)'], correct: 2, exp: 'WAN (Wide Area Network) : liaisons d\'opérateurs sur de très longues distances.' },
+      { q: 'Dans un réseau d\'égal à égal (poste-à-poste), chaque ordinateur…', opts: ['ne peut que recevoir des données', 'est obligatoirement un serveur dédié', 'peut agir à la fois comme client et fournisseur de ressources'], correct: 2, exp: 'Postes égaux : ressources partagées sans serveur centralisé.' },
+      { q: 'Le rôle principal du serveur dans l\'architecture client-serveur est de…', opts: ['remplacer tous les ordinateurs des utilisateurs', 'centraliser les comptes, les services et les données', 'supprimer le besoin d\'un mot de passe'], correct: 1, exp: 'Le serveur centralise les identités et fournit les ressources partagées.' },
+      { q: 'Un smartphone synchronisé en Bluetooth avec des écouteurs forme…', opts: ['un PAN', 'un MAN', 'un SAN'], correct: 0, exp: 'PAN : Personal Area Network (réseau personnel de proximité immédiate).' },
+      { q: 'Le Wi-Fi est la technologie la plus répandue pour…', opts: ['les liaisons intercontinentales WAN', 'les réseaux locaux sans fil (WLAN)', 'les réseaux de stockage de masse SAN'], correct: 1, exp: 'WLAN : Wireless Local Area Network, normes IEEE 802.11.' },
+      { q: 'L\'interconnexion des hôpitaux d\'une même ville sur une dorsale fibre est…', opts: ['un MAN', 'un PAN', 'un SAN'], correct: 0, exp: 'MAN : Metropolitan Area Network (échelle d\'une agglomération).' },
+      { q: 'Un SAN (Storage Area Network) a pour rôle principal de…', opts: ['relier des baies de stockage de données en mode bloc', 'permettre la navigation web grand public', 'synchroniser un smartphone avec une imprimante'], correct: 0, exp: 'SAN : réseau spécialisé pour le stockage de niveau bloc.' }
     ],
 
     pitfalls: [
-      'Appeler WAN un Wi-Fi de campus : le WLAN reste un réseau local.',
-      'Imaginer un workgroup de 300 utilisateurs : au-delà de dix postes, l\'administration explose.',
-      'Oublier que le client-serveur coûte cher : serveur puissant et carte réseau de qualité.',
-      'Confondre CAN (campus) et SAN (stockage en mode bloc).'
+      'Appeler WAN un Wi-Fi de campus : le WLAN reste un réseau local sans fil.',
+      'Imaginer un réseau poste-à-poste de 300 utilisateurs : au-delà d\'une dizaine de postes, la gestion décentralisée explose.',
+      'Oublier que le client-serveur nécessite un investissement : serveur robuste et carte réseau fiable.',
+      'Confondre CAN (campus étendu) et SAN (réseau dédié au stockage en mode bloc).'
     ],
 
     methodTitle: 'Méthode — classer un réseau en trois gestes',
     method: [
-      'Mesurer la portée : une personne (PAN), des murs (LAN), une ville (MAN), un pays (WAN).',
-      'Vérifier le média : filaire (LAN) ou radio (WLAN).',
-      'Observer la gestion : postes égaux (workgroup) ou serveur centralisateur (client-serveur).'
+      'Mesurer la portée géographique : une personne (PAN), des murs (LAN), une ville (MAN), un pays ou la planète (WAN).',
+      'Vérifier le support physique : câble cuivre/fibre (LAN filaire) ou ondes radio (WLAN sans fil).',
+      'Observer l\'organisation : postes autonomes égaux (poste-à-poste) ou serveur centralisateur (client-serveur).'
     ],
 
     summary: [
-      'Trois besoins fondateurs : communiquer, ne pas dupliquer, administrer.',
-      'LAN : immeuble ou campus ; WAN : plus de 100 km, liaisons d\'opérateur.',
-      'Workgroup : chacun client et serveur, gratuit mais ingérable ; client-serveur : centralisation, coût.',
-      'Cinq familles : PAN, LAN, WLAN, MAN, WAN — plus CAN (campus) et SAN (stockage).'
+      'Trois besoins fondateurs : échanger des données, partager des ressources matérielles et administrer les accès.',
+      'LAN : réseau local à l\'intérieur d\'un bâtiment ; WAN : réseau longue distance (plus de 100 km) via des liaisons d\'opérateur.',
+      'Poste-à-poste (P2P) : machines égales sans serveur dédié, gratuit mais ingérable à grande échelle.',
+      'Client-serveur : serveur centralisant les comptes et services pour de multiples clients, robuste et évolutif.',
+      'Cinq familles par portée : PAN (personne), LAN (bâtiment), WLAN (sans fil), MAN (ville), WAN (pays/monde), plus SAN (stockage).'
     ],
 
     checklist: [
-      'Je sais énoncer les trois questions à l\'origine des réseaux.',
-      'Je sais trancher entre LAN et WAN sur un cas concret.',
-      'Je sais comparer workgroup et client-serveur (coût, gestion, comptes).',
-      'Je sais placer cinq réseaux dans les cinq familles.'
+      'Je sais énoncer les trois besoins fondateurs à l\'origine des réseaux.',
+      'Je sais distinguer un LAN d\'un WAN sur un cas d\'usage concret.',
+      'Je sais comparer le modèle poste-à-poste et l\'architecture client-serveur (avantages, limites, gestion des comptes).',
+      'Je sais classer un réseau dans les cinq familles (PAN, LAN, WLAN, MAN, WAN).'
     ],
 
     notions: [
-      '<strong>LAN</strong> : Local Area Network — immeuble, campus.',
-      '<strong>WAN</strong> : Wide Area Network — villes et pays, plus de 100 km.',
-      '<strong>Workgroup</strong> : chaque poste client et serveur, données dispersées.',
-      '<strong>Client-serveur</strong> : serveur centralisateur de comptes et de services.',
-      '<strong>PAN</strong> : réseau personnel (iPhone + Mac).',
-      '<strong>WLAN</strong> : LAN sans fil, normes IEEE 802.11 (Wi-Fi).',
-      '<strong>MAN</strong> : réseau métropolitain, dorsale fibre.',
-      '<strong>SAN</strong> : stockage de niveau bloc en réseau.'
+      '<strong>LAN</strong> : Local Area Network — réseau local (salle, bâtiment, campus).',
+      '<strong>WAN</strong> : Wide Area Network — réseau étendu à l\'échelle de pays ou du monde (plus de 100 km).',
+      '<strong>Poste-à-poste (P2P)</strong> : machines égales, chaque poste partage ses ressources, gestion décentralisée.',
+      '<strong>Client-serveur</strong> : architecture où un serveur centralise les identités, fichiers et services pour des postes clients.',
+      '<strong>PAN</strong> : Personal Area Network — réseau personnel à courte portée (Bluetooth, smartphone).',
+      '<strong>WLAN</strong> : Wireless Local Area Network — réseau local sans fil par ondes radio (Wi-Fi, IEEE 802.11).',
+      '<strong>MAN</strong> : Metropolitan Area Network — réseau reliant plusieurs sites à l\'échelle d\'une agglomération.',
+      '<strong>SAN</strong> : Storage Area Network — réseau spécialisé à très haut débit pour le stockage de données en mode bloc.'
     ],
 
     mastery: [
-      { cls: 'low', text: '&lt; 50 % — reprends les définitions LAN/WAN et les deux architectures.' },
-      { cls: 'mid', text: '50–69 % — refais le classement des cinq familles du support.' },
-      { cls: 'good', text: '70–89 % — bon niveau, cible les cas limites (campus, mairie).' },
-      { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
+      { cls: 'low', text: '&lt; 50 % — reprends les définitions LAN/WAN et la distinction poste-à-poste / client-serveur.' },
+      { cls: 'mid', text: '50–69 % — refais le classement des cinq familles par échelle géographique.' },
+      { cls: 'good', text: '70–89 % — bon niveau de maîtrise, révise les cas spécialisés (MAN, SAN).' },
+      { cls: 'top', text: '≥ 95 % — niveau de maîtrise d\'examen atteint.' }
     ],
 
     flashcards: [
-      { q: 'Les trois questions fondatrices ?', a: 'Comment communiquer efficacement ? Éviter la duplication des équipements ? Mettre en place et gérer le réseau ?' },
-      { q: 'LAN contre WAN ?', a: 'LAN : à l\'intérieur d\'un immeuble ou d\'un campus. WAN : plus de 100 km, villes et pays, liaisons d\'opérateur.' },
-      { q: 'Workgroup : la limite ?', a: 'Chaque poste doit connaître tous les mots de passe : au-delà d\'une dizaine de postes, la gestion devient périlleuse.' },
-      { q: 'Les cinq types de réseaux ?', a: 'PAN (une personne), LAN (local), WLAN (local sans fil), MAN (ville), WAN (pays, continent).' },
-      { q: 'À quoi sert un SAN ?', a: 'Fournir un accès au stockage de niveau bloc qui ressemble à un disque localement connecté.' }
+      { q: 'Les trois questions fondatrices des réseaux ?', a: 'Comment communiquer efficacement ? Comment éviter la duplication des équipements ? Comment administrer et sécuriser l\'ensemble ?' },
+      { q: 'LAN contre WAN ?', a: 'LAN : à l\'intérieur d\'un bâtiment ou campus (privé). WAN : plus de 100 km, villes, pays et continents (liaisons d\'opérateur).' },
+      { q: 'La limite du réseau poste-à-poste ?', a: 'Chaque poste doit gérer localement tous les comptes : au-delà d\'une dizaine d\'utilisateurs, la gestion devient ingérable.' },
+      { q: 'L\'avantage majeur du modèle client-serveur ?', a: 'La centralisation : les comptes et les données sont administrés en un seul endroit sécurisé.' },
+      { q: 'Les cinq familles de réseaux par portée ?', a: 'PAN (personne), LAN (local), WLAN (sans fil), MAN (ville), WAN (pays/monde).' },
+      { q: 'À quoi sert un SAN ?', a: 'Fournir aux serveurs un accès ultra-rapide à des baies de stockage de disques en mode bloc.' }
     ]
   },
 
@@ -202,7 +233,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « bus fragile, anneau débrouillard, étoile solide mais câblée »', 'pin',
             '    <p>Le bus casse tout, l\'anneau rebondit, l\'étoile isole. Retenez le comportement en panne : ' +
             'c\'est lui que l\'examen teste.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Les supports de transmission',
@@ -220,13 +251,13 @@ module.exports = [
           'lignes électriques, réservé au domestique. Quoi qu\'il en soit, le principe reste le même : les ' +
           'données partent en série, bit après bit, encapsulées comme une lettre dans une enveloppe timbrée.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Le bus ne survit pas à une coupure : tout le réseau est affecté.</li>\\n' +
-            '      <li>Le jeton évite les collisions — c\'est sa raison d\'être, pas un détail historique.</li>\\n' +
-            '      <li>UTP : 100 m maximum par segment, catégorie 5e pour le gigabit.</li>\\n' +
-            '      <li>L\'étoile consomme beaucoup de câble : c\'est son seul défaut majeur.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Le bus ne survit pas à une coupure : tout le réseau est affecté.</li>\n' +
+            '      <li>Le jeton évite les collisions — c\'est sa raison d\'être, pas un détail historique.</li>\n' +
+            '      <li>UTP : 100 m maximum par segment, catégorie 5e pour le gigabit.</li>\n' +
+            '      <li>L\'étoile consomme beaucoup de câble : c\'est son seul défaut majeur.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -334,7 +365,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « Physique-Liaison-Réseau-Transport-Session-Présentation-Application »', 'pin',
             '    <p>De la prise électrique au clic de souris : 1 câble, 2 trame, 3 route, 4 port, 5 dialogue, ' +
             '6 format, 7 logiciel. En cas de panne, on remonte dans cet ordre.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Les équipements et le dépannage',
@@ -347,13 +378,13 @@ module.exports = [
           'souvent par vérifier la couche physique » — câbles branchés, alimentation branchée — avant de ' +
           'soupçonner la carte réseau (2), le routage (3) ou l\'application (7).</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Le commutateur est de couche 2, le routeur de couche 3 : l\'inverse est le piège classique.</li>\\n' +
-            '      <li>Les adresses IP vivent en couche 3, les ports TCP/UDP en couche 4.</li>\\n' +
-            '      <li>Le chiffrement est de la couche 6 (présentation), pas de la couche 7.</li>\\n' +
-            '      <li>La couche session synchronise le dialogue : ouverture, coordination, terminaison.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Le commutateur est de couche 2, le routeur de couche 3 : l\'inverse est le piège classique.</li>\n' +
+            '      <li>Les adresses IP vivent en couche 3, les ports TCP/UDP en couche 4.</li>\n' +
+            '      <li>Le chiffrement est de la couche 6 (présentation), pas de la couche 7.</li>\n' +
+            '      <li>La couche session synchronise le dialogue : ouverture, coordination, terminaison.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

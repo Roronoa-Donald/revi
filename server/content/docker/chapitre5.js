@@ -44,21 +44,21 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Approche Impérative (Scripts Shell)</h4>',
         '    <p>Le développeur écrit un script <code>start.sh</code> rempli de commandes :</p>',
-        '    <pre><code>docker network create mynet\\n' +
-        'docker volume create dbdata\\n' +
-        'docker run -d --net mynet -v dbdata:/var/lib/postgresql/data postgres\\n' +
+        '    <pre><code>docker network create mynet\n' +
+        'docker volume create dbdata\n' +
+        'docker run -d --net mynet -v dbdata:/var/lib/postgresql/data postgres\n' +
         'docker run -d --net mynet -p 8080:8080 myapi</code></pre>',
         '    <p>Aucune gestion de l’état désiré, pas de mécanisme de nettoyage automatique, et code difficile à maintenir.</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Approche Déclarative (Docker Compose)</h4>',
         '    <p>L’architecture complète est déclarée dans un fichier <code>docker-compose.yml</code> :</p>',
-        '    <pre><code>services:\\n' +
-        '  db:\\n' +
-        '    image: postgres:15-alpine\\n' +
-        '    volumes: [pgdata:/var/lib/postgresql/data]\\n' +
-        '  api:\\n' +
-        '    build: ./api\\n' +
+        '    <pre><code>services:\n' +
+        '  db:\n' +
+        '    image: postgres:15-alpine\n' +
+        '    volumes: [pgdata:/var/lib/postgresql/data]\n' +
+        '  api:\n' +
+        '    build: ./api\n' +
         '    ports: ["8080:8080"]</code></pre>',
         '    <p>Une seule commande <code>docker compose up -d</code> crée les réseaux, volumes et conteneurs nécessaires.</p>',
         '  </div>',
@@ -125,18 +125,18 @@ module.exports = {
         '  <div class="card">',
         '    <h4>La Solution Professionnelle : Healthcheck</h4>',
         '    <p>On définit une sonde de santé sur la base de données et on attend qu’elle soit saine :</p>',
-        '    <pre><code>services:\\n' +
-        '  db:\\n' +
-        '    image: postgres:15-alpine\\n' +
-        '    healthcheck:\\n' +
-        '      test: ["CMD-SHELL", "pg_isready -U postgres"]\\n' +
-        '      interval: 5s\\n' +
-        '      timeout: 3s\\n' +
-        '      retries: 5\\n' +
-        '  api:\\n' +
-        '    build: .\\n' +
-        '    depends_on:\\n' +
-        '      db:\\n' +
+        '    <pre><code>services:\n' +
+        '  db:\n' +
+        '    image: postgres:15-alpine\n' +
+        '    healthcheck:\n' +
+        '      test: ["CMD-SHELL", "pg_isready -U postgres"]\n' +
+        '      interval: 5s\n' +
+        '      timeout: 3s\n' +
+        '      retries: 5\n' +
+        '  api:\n' +
+        '    build: .\n' +
+        '    depends_on:\n' +
+        '      db:\n' +
         '        condition: service_healthy</code></pre>',
         '  </div>',
         '</div>'

@@ -79,23 +79,38 @@
 
 <h2>1. La table produits</h2>
 
-<p>Cinq colonnes : <strong>id</strong> — identifiant unique, clé primaire auto-incrémentée (<code>SERIAL PRIMARY KEY</code>) ; <strong>nom</strong> — VARCHAR(100) NOT NULL ; <strong>categorie</strong> — VARCHAR(50) ; <strong>quantite</strong> — INTEGER NOT NULL ; <strong>prix</strong> — DECIMAL(10,2) NOT NULL. Le <code>CREATE TABLE IF NOT EXISTS</code> rend le premier lancement idempotent : la table ne se recrée pas à chaque démarrage.</p>\n<p>Pourquoi DECIMAL et non FLOAT pour le prix : DECIMAL(10,2) stocke exactement deux décimales — 2500.50 reste 2500.50, sans arrondi binaire. La précision monétaire n'est pas négociable.</p>\n  <div class="box box--mnemo">
+<p>Cinq colonnes : <strong>id</strong> — identifiant unique, clé primaire auto-incrémentée (<code>SERIAL PRIMARY KEY</code>) ; <strong>nom</strong> — VARCHAR(100) NOT NULL ; <strong>categorie</strong> — VARCHAR(50) ; <strong>quantite</strong> — INTEGER NOT NULL ; <strong>prix</strong> — DECIMAL(10,2) NOT NULL. Le <code>CREATE TABLE IF NOT EXISTS</code> rend le premier lancement idempotent : la table ne se recrée pas à chaque démarrage.</p>
+<p>Pourquoi DECIMAL et non FLOAT pour le prix : DECIMAL(10,2) stocke exactement deux décimales — 2500.50 reste 2500.50, sans arrondi binaire. La précision monétaire n'est pas négociable.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « SERIAL compte, VARCHAR écrit, INTEGER compte en stock, DECIMAL coûte »</div>
     <p>Cinq colonnes, cinq types : la grille attendue à l'examen.</p>
   </div>
 
 <h2>2. Connexion et gestion des erreurs</h2>
 
-<p>La méthode <code>connecter()</code> appelle <code>psycopg2.connect(host, database, user, password)</code>, récupère un <strong>cursor</strong>, affiche le succès et renvoie True ; en cas d'<code>Error</code>, elle affiche le problème et renvoie False. Ce pattern try/except recommence dans chaque méthode : le programme ne plante jamais, il rapporte.</p>\n<p>Après toute écriture (INSERT, UPDATE, DELETE), la méthode appelle <code>self.connection.commit()</code> : sans commit, PostgreSQL annule la modification à la déconnexion. La <code>deconnecter()</code> ferme le cursor puis la connexion — dans cet ordre.</p>\n  <div class="box box--pitfall">
+<p>La méthode <code>connecter()</code> appelle <code>psycopg2.connect(host, database, user, password)</code>, récupère un <strong>cursor</strong>, affiche le succès et renvoie True ; en cas d'<code>Error</code>, elle affiche le problème et renvoie False. Ce pattern try/except recommence dans chaque méthode : le programme ne plante jamais, il rapporte.</p>
+<p>Après toute écriture (INSERT, UPDATE, DELETE), la méthode appelle <code>self.connection.commit()</code> : sans commit, PostgreSQL annule la modification à la déconnexion. La <code>deconnecter()</code> ferme le cursor puis la connexion — dans cet ordre.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
-    <ul>\n      <li>SELECT lit : fetchall ; INSERT/UPDATE/DELETE écrivent : commit.</li>\n      <li>Sans commit, la modification est perdue à la fermeture : piège classique.</li>\n      <li>Le try/except renvoie False : l'application continue, elle ne s'arrête pas.</li>\n      <li>CREATE TABLE IF NOT EXISTS : le second lancement ne duplique rien.</li>\n    </ul>
+    <ul>
+      <li>SELECT lit : fetchall ; INSERT/UPDATE/DELETE écrivent : commit.</li>
+      <li>Sans commit, la modification est perdue à la fermeture : piège classique.</li>
+      <li>Le try/except renvoie False : l'application continue, elle ne s'arrête pas.</li>
+      <li>CREATE TABLE IF NOT EXISTS : le second lancement ne duplique rien.</li>
+    </ul>
   </div>
 
 <h2>3. Les quatre requêtes CRUD</h2>
 
-<p><strong>Create</strong> — <code>INSERT INTO produits (nom, categorie, quantite, prix) VALUES (%s, %s, %s, %s)</code> avec les valeurs passées en paramètre ; <strong>Read</strong> — <code>SELECT * FROM produits ORDER BY id</code> puis <code>fetchall()</code> ; <strong>Update</strong> — <code>UPDATE produits SET nom=%s, categorie=%s, quantite=%s, prix=%s WHERE id=%s</code> ; <strong>Delete</strong> — <code>DELETE FROM produits WHERE id=%s</code>.</p>\n<p>Les <code>%s</code> sont des <strong>requêtes paramétrées</strong> : psycopg2 échappe les valeurs. Concaténer du SQL à la main ouvre la porte à l'injection — le paramétrage n'est pas une option, c'est la seule façon.</p>\n  <div class="box box--tech">
+<p><strong>Create</strong> — <code>INSERT INTO produits (nom, categorie, quantite, prix) VALUES (%s, %s, %s, %s)</code> avec les valeurs passées en paramètre ; <strong>Read</strong> — <code>SELECT * FROM produits ORDER BY id</code> puis <code>fetchall()</code> ; <strong>Update</strong> — <code>UPDATE produits SET nom=%s, categorie=%s, quantite=%s, prix=%s WHERE id=%s</code> ; <strong>Delete</strong> — <code>DELETE FROM produits WHERE id=%s</code>.</p>
+<p>Les <code>%s</code> sont des <strong>requêtes paramétrées</strong> : psycopg2 échappe les valeurs. Concaténer du SQL à la main ouvre la porte à l'injection — le paramétrage n'est pas une option, c'est la seule façon.</p>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
-    <ul>\n      <li>Le schéma : id → serial, nom/categorie → varchar, quantite → integer, prix → decimal.</li>\n      <li>La connexion : serveur/mdp/base dans l'ordre, sortie au premier ko.</li>\n      <li>Le cycle CRUD : create→insert, read→select, update→update, delete→delete.</li>\n    </ul>
+    <ul>
+      <li>Le schéma : id → serial, nom/categorie → varchar, quantite → integer, prix → decimal.</li>
+      <li>La connexion : serveur/mdp/base dans l'ordre, sortie au premier ko.</li>
+      <li>Le cycle CRUD : create→insert, read→select, update→update, delete→delete.</li>
+    </ul>
   </div>
 
 <!-- code-labs:start -->
@@ -234,7 +249,7 @@ etapes correctes : 4/4</pre></div>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le type de id dans la table produits :</p>
       <div class="opts">
         <button class="opt" data-correct="1">SERIAL PRIMARY KEY</button>
         <button class="opt">VARCHAR(100)</button>
@@ -243,7 +258,7 @@ etapes correctes : 4/4</pre></div>
       <div class="q__exp">Auto-incrémenté et clé primaire.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le type du champ prix :</p>
       <div class="opts">
         <button class="opt" data-correct="1">DECIMAL(10,2)</button>
         <button class="opt">FLOAT</button>
@@ -252,7 +267,7 @@ etapes correctes : 4/4</pre></div>
       <div class="q__exp">Deux décimales exactes : la précision monétaire.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La méthode qui renvoie toutes les lignes :</p>
       <div class="opts">
         <button class="opt" data-correct="1">fetchall()</button>
         <button class="opt">commit()</button>
@@ -261,7 +276,7 @@ etapes correctes : 4/4</pre></div>
       <div class="q__exp">Après SELECT, le cursor livre fetchall().</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La méthode qui valide une écriture :</p>
       <div class="opts">
         <button class="opt" data-correct="1">commit()</button>
         <button class="opt">fetchall()</button>
@@ -270,7 +285,7 @@ etapes correctes : 4/4</pre></div>
       <div class="q__exp">Sans commit, PostgreSQL annule à la déconnexion.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La requête de suppression :</p>
       <div class="opts">
         <button class="opt" data-correct="1">DELETE FROM produits WHERE id=%s</button>
         <button class="opt">DROP produits</button>
@@ -279,7 +294,7 @@ etapes correctes : 4/4</pre></div>
       <div class="q__exp">Toujours avec WHERE : sinon tout disparaît.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Les %s dans les requêtes servent à…</p>
       <div class="opts">
         <button class="opt" data-correct="1">paramétrer et échapper les valeurs</button>
         <button class="opt">commenter le SQL</button>
@@ -288,7 +303,7 @@ etapes correctes : 4/4</pre></div>
       <div class="q__exp">Requêtes paramétrées : protection contre l'injection SQL.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">CREATE TABLE IF NOT EXISTS garantit…</p>
       <div class="opts">
         <button class="opt" data-correct="1">la création seulement si la table manque</button>
         <button class="opt">de vider la table</button>
@@ -297,7 +312,7 @@ etapes correctes : 4/4</pre></div>
       <div class="q__exp">Le premier lancement crée, les suivants passent.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Ordre de fermeture :</p>
       <div class="opts">
         <button class="opt" data-correct="1">cursor puis connection</button>
         <button class="opt">connection puis cursor</button>

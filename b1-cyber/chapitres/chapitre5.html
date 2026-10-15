@@ -78,37 +78,51 @@
 
 <h2>1. Le SIEM : centraliser et corréler</h2>
 
-<p>Un <strong>SIEM</strong> (Security Information and Event Management) combine deux fonctions : la gestion des informations de sécurité (collecte, stockage, analyse des logs) et la gestion des événements (surveillance en temps réel, alertes). Il agrège les sources — pare-feu, routeurs, serveurs, annuaires (LDAP, Active Directory), antivirus, IDS/IPS, EDR — les normalise, puis <strong>corréle</strong> : des échecs de connexion suivis d'une élévation de privilèges, c'est une force brute ; un trafic sortant anormal depuis une IP interne, un mouvement latéral.</p>\n<p>Exemples de solutions citées en cours : Splunk Enterprise Security, IBM QRadar, ArcSight, Elastic SIEM (ELK), Microsoft Sentinel. Limites à connaître : coût, complexité de réglage, et le piège des faux positifs qui noient l'analyste.</p>\n  <div class="box box--tech">
+<p>Un <strong>SIEM</strong> (Security Information and Event Management) combine deux fonctions : la gestion des informations de sécurité (collecte, stockage, analyse des logs) et la gestion des événements (surveillance en temps réel, alertes). Il agrège les sources — pare-feu, routeurs, serveurs, annuaires (LDAP, Active Directory), antivirus, IDS/IPS, EDR — les normalise, puis <strong>corréle</strong> : des échecs de connexion suivis d'une élévation de privilèges, c'est une force brute ; un trafic sortant anormal depuis une IP interne, un mouvement latéral.</p>
+<p>Exemples de solutions citées en cours : Splunk Enterprise Security, IBM QRadar, ArcSight, Elastic SIEM (ELK), Microsoft Sentinel. Limites à connaître : coût, complexité de réglage, et le piège des faux positifs qui noient l'analyste.</p>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Ce que la corrélation voit, la ligne de log seule ne montre pas</div>
     <p>Une ligne dit « échec ». Cent lignes de la même IP en dix minutes disent « attaque ». C'est toute la valeur du SIEM : transformer des milliers de lignes isolées en quelques scénarios nommés.</p>
   </div>
 
 <h2>2. L'analyse des logs</h2>
 
-<p>Le <strong>log</strong> est l'enregistrement automatique d'un événement. Les journaux clés : <code>/var/log/auth.log</code> sous Linux (connexions, élévation), l'Observateur d'événements Windows, les logs de pare-feu (connexions bloquées), les logs web Apache/Nginx (requêtes), les journaux d'authentification (tentatives, changements de mots de passe).</p>\n<p>L'analyse manuelle ou outillée (ELK, Graylog, OSSEC, Wireshark pour le réseau) sert à quatre choses : détecter les intrusions (scans de ports, échecs en rafale), surveiller les comptes (connexions depuis des lieux inattendus), investiguer après incident (retracer la chronologie), et prouver la conformité (RGPD, PCI DSS exigent la rétention des journaux).</p>\n<pre><code>ECHEC  03:02:11  45.61.10.9
+<p>Le <strong>log</strong> est l'enregistrement automatique d'un événement. Les journaux clés : <code>/var/log/auth.log</code> sous Linux (connexions, élévation), l'Observateur d'événements Windows, les logs de pare-feu (connexions bloquées), les logs web Apache/Nginx (requêtes), les journaux d'authentification (tentatives, changements de mots de passe).</p>
+<p>L'analyse manuelle ou outillée (ELK, Graylog, OSSEC, Wireshark pour le réseau) sert à quatre choses : détecter les intrusions (scans de ports, échecs en rafale), surveiller les comptes (connexions depuis des lieux inattendus), investiguer après incident (retracer la chronologie), et prouver la conformité (RGPD, PCI DSS exigent la rétention des journaux).</p>
+<pre><code>ECHEC  03:02:11  45.61.10.9
 ECHEC  03:02:15  45.61.10.9
 ECHEC  03:02:20  45.61.10.9
-SUCCES 03:03:00  45.61.10.9     ← la force brute a abouti</code></pre>\n  <div class="box box--pitfall">
+SUCCES 03:03:00  45.61.10.9     ← la force brute a abouti</code></pre>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — un succès après des échecs</div>
     <p>La rafale d'échecs n'est pas l'incident ; le succès qui suit l'est peut-être. L'alerte se règle typiquement à 3 échecs ou plus pour une même IP : à ce seuil, on vérifie, on prévient le propriétaire du compte, on bloque si besoin.</p>
   </div>
 
 <h2>3. Les étapes de la réponse à incident</h2>
 
-<p>La réponse suit un ordre qui ne se discute pas :</p>\n<table>
+<p>La réponse suit un ordre qui ne se discute pas :</p>
+<table>
     <tr><th>Étape</th><th>Action</th><th>Exemple</th></tr>
     <tr><td>1. <strong>Identifier</strong></td><td>confirmer l'incident, son étendue et sa chronologie</td><td>corrélé dans le SIEM, compte compromis confirmé</td></tr>
     <tr><td>2. <strong>Contenir</strong></td><td>stopper la propagation sans détruire les preuves</td><td>isoler la machine du réseau (pas l'éteindre)</td></tr>
     <tr><td>3. <strong>Éradiquer</strong></td><td>supprimer la cause : malware, portes dérobées, comptes pirates</td><td>re-imageage du poste, réinitialisation des identifiants</td></tr>
     <tr><td>4. <strong>Rétablir</strong></td><td>remettre en service et surveiller de près</td><td>restauration depuis sauvegarde saine, surveillance renforcée</td></tr>
-  </table>\n<p>Suivent l'<strong>analyse post-incident</strong> (retour d'expérience) et la <strong>forensique</strong> : préserver les preuves (images disque, journaux horodatés, chaîne de conservation) pour comprendre et, le cas échéant, pour la justice. C'est pourquoi on isole la machine au lieu de l'éteindre : la mémoire vive disparaît à la coupure.</p>\n  <div class="box box--mnemo">
+  </table>
+<p>Suivent l'<strong>analyse post-incident</strong> (retour d'expérience) et la <strong>forensique</strong> : préserver les preuves (images disque, journaux horodatés, chaîne de conservation) pour comprendre et, le cas échéant, pour la justice. C'est pourquoi on isole la machine au lieu de l'éteindre : la mémoire vive disparaît à la coupure.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « ICER » : identifier, contenir, éradiquer, rétablir</div>
     <p><strong>I</strong>dentifier, <strong>C</strong>ontenir, <strong>E</strong>radiquer, <strong>R</strong>établir — dans cet ordre, toujours. Contenir avant d'éradiquer : on coupe la route avant de retirer l'obstacle. Eradiquer avant de rétablir : on ne remet pas un système encore infecté en production.</p>
   </div>
 
 <h2>4. PCA, PRA, RTO, RPO</h2>
 
-<p>Le <strong>PCA</strong> (plan de continuité d'activité) décrit comment l'activité essentielle continue pendant la crise ; le <strong>PRA</strong> (plan de reprise) comment les systèmes reviennent à la normale. Deux objectifs chiffrés les gouvernent :</p>\n<ul>\n  <li><strong>RTO</strong> (Recovery Time Objective) : combien de temps l'entreprise peut rester à l'arrêt avant que la situation ne devienne critique ;</li>\n  <li><strong>RPO</strong> (Recovery Point Objective) : quelle quantité de données on peut se permettre de perdre (une heure de saisie ? un jour ?).</li>\n</ul>\n<p>Le RPO fixe la fréquence des sauvegardes ; le RTO fixe l'architecture de reprise. Un PRA non documenté et non testé vaut zéro : en crise, le stress empêche l'improvisation, la procédure doit être actionnable par un tiers.</p>\n  <div class="box box--tech">
+<p>Le <strong>PCA</strong> (plan de continuité d'activité) décrit comment l'activité essentielle continue pendant la crise ; le <strong>PRA</strong> (plan de reprise) comment les systèmes reviennent à la normale. Deux objectifs chiffrés les gouvernent :</p>
+<ul>
+  <li><strong>RTO</strong> (Recovery Time Objective) : combien de temps l'entreprise peut rester à l'arrêt avant que la situation ne devienne critique ;</li>
+  <li><strong>RPO</strong> (Recovery Point Objective) : quelle quantité de données on peut se permettre de perdre (une heure de saisie ? un jour ?).</li>
+</ul>
+<p>Le RPO fixe la fréquence des sauvegardes ; le RTO fixe l'architecture de reprise. Un PRA non documenté et non testé vaut zéro : en crise, le stress empêche l'improvisation, la procédure doit être actionnable par un tiers.</p>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> Le binôme à retenir</div>
     <p>RTO = <strong>temps</strong> (durée d'interruption maximale) ; RPO = <strong>données</strong> (perte maximale admissible). Sauvegardes toutes les heures et RPO d'une journée : incohérence. Le PRA aligne toujours les deux.</p>
   </div>

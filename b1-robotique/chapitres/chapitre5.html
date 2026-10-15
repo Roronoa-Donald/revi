@@ -78,33 +78,52 @@
 
 <h2>1. Les cinq portes en Python</h2>
 
-<p>Cinq portes fondamentales, quatre fonctions : ET, OU, NON — et XOR qui vaut 1 exactement quand les bits diffèrent. NAND et NOR se déduisent des deux premières.</p>\n<table>\n    <tr><th>a</th><th>b</th><th>AND</th><th>OR</th><th>NAND</th><th>NOR</th><th>XOR</th></tr>\n    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>\n    <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>\n    <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>\n    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>\n  </table>\n<p>En Python : <code>a and b</code>, <code>a or b</code>, <code>not a</code>, et le XOR se réduit à <code>a != b</code>. Comme le résultat doit s’afficher en 0/1, on emballe le booléen dans <code>int(...)</code> — True devient 1, False devient 0.</p>\n  <div class="box box--mnemo">
+<p>Cinq portes fondamentales, quatre fonctions : ET, OU, NON — et XOR qui vaut 1 exactement quand les bits diffèrent. NAND et NOR se déduisent des deux premières.</p>
+<table>
+    <tr><th>a</th><th>b</th><th>AND</th><th>OR</th><th>NAND</th><th>NOR</th><th>XOR</th></tr>
+    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+    <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+    <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+  </table>
+<p>En Python : <code>a and b</code>, <code>a or b</code>, <code>not a</code>, et le XOR se réduit à <code>a != b</code>. Comme le résultat doit s’afficher en 0/1, on emballe le booléen dans <code>int(...)</code> — True devient 1, False devient 0.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « NAND universelle »</div>
     <p>La porte <strong>NAND</strong> est universelle : en la combinant avec elle-même, on reconstruit ET, OU, NON — donc tout circuit. C’est pourquoi les mémoires et processeurs historiques n’implantaient qu’elle.</p>
   </div>
 
 <h2>2. L’additionneur complet</h2>
 
-<p>Un bit, ça s’additionne : l’additionneur complet reçoit trois bits (a, b, retenue entrante cin) et rend la somme S et la retenue sortante Cout.</p>\n<pre><code>S    = a XOR b XOR cin
-Cout = (a AND b) OR (cin AND (a XOR b))</code></pre>\n<p>En Python, les opérateurs bit à bit tombent bien : <code>^</code> est le XOR, <code>&amp;</code> le ET, <code>|</code> le OU. Sur des bits (0 ou 1), ils coïncident exactement avec les portes.</p>\n<pre><code>x = a ^ b
+<p>Un bit, ça s’additionne : l’additionneur complet reçoit trois bits (a, b, retenue entrante cin) et rend la somme S et la retenue sortante Cout.</p>
+<pre><code>S    = a XOR b XOR cin
+Cout = (a AND b) OR (cin AND (a XOR b))</code></pre>
+<p>En Python, les opérateurs bit à bit tombent bien : <code>^</code> est le XOR, <code>&amp;</code> le ET, <code>|</code> le OU. Sur des bits (0 ou 1), ils coïncident exactement avec les portes.</p>
+<pre><code>x = a ^ b
 somme = x ^ cin
-cout = (a &amp; b) | (cin &amp; x)</code></pre>\n<p>Vérification du cas 1 + 1 + 1 : x = 0, S = 1, cout = 1 — soit « 11 » en binaire, trois. La retenue sortante alimente l’étage supérieur : c’est exactement ainsi qu’on câble quatre additionneurs pour additionner deux octets.</p>\n  <div class="box box--pitfall">
+cout = (a &amp; b) | (cin &amp; x)</code></pre>
+<p>Vérification du cas 1 + 1 + 1 : x = 0, S = 1, cout = 1 — soit « 11 » en binaire, trois. La retenue sortante alimente l’étage supérieur : c’est exactement ainsi qu’on câble quatre additionneurs pour additionner deux octets.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — ^ n’est pas « puissance »</div>
     <p>En Python, la puissance se note <code>**</code> ; l’accent circonflexe <code>^</code> est le <strong>XOR</strong> bit à bit. Écrire <code>2 ^ 3</code> donne 1 (10 XOR 11 = 01), pas 8. Sur des bits isolés la confusion passe inaperçue ; sur des nombres, elle corrompt tout.</p>
   </div>
 
 <h2>3. Le chiffre de César</h2>
 
-<p>Décaler chaque lettre de k positions dans l’alphabet, avec <strong>retour circulaire</strong> : après z revient a. L’exemple du support : HELLO avec k = 3 donne KHOOR.</p>\n<pre><code>position      = ord(c) - ord("a")     # 0 à 25
+<p>Décaler chaque lettre de k positions dans l’alphabet, avec <strong>retour circulaire</strong> : après z revient a. L’exemple du support : HELLO avec k = 3 donne KHOOR.</p>
+<pre><code>position      = ord(c) - ord("a")     # 0 à 25
 decalée       = (position + k) % 26
-lettre        = chr(decalée + ord("a"))</code></pre>\n<p><code>ord</code> convertit une lettre en code, <code>chr</code> fait le retour. Le modulo 26 est le rebond : pour z (position 25) et k = 1, (25 + 1) % 26 = 0 — on retombe sur a.</p>\n<pre><code>chiffre = ""
+lettre        = chr(decalée + ord("a"))</code></pre>
+<p><code>ord</code> convertit une lettre en code, <code>chr</code> fait le retour. Le modulo 26 est le rebond : pour z (position 25) et k = 1, (25 + 1) % 26 = 0 — on retombe sur a.</p>
+<pre><code>chiffre = ""
 for c in message:
     if "a" &lt;= c &lt;= "z":
         chiffre += chr((ord(c) - ord("a") + k) % 26 + ord("a"))
     elif "A" &lt;= c &lt;= "Z":
         chiffre += chr((ord(c) - ord("A") + k) % 26 + ord("A"))
     else:
-        chiffre += c</code></pre>\n<p>Les deux cas — minuscules et majuscules — utilisent chacun leur base (<code>ord("a")</code> ou <code>ord("A")</code>) : c’est ce qui <strong>conserve la casse</strong>. Le else laisse intacts chiffres, espaces et ponctuation : ils ne sont pas des lettres, ils ne bougent pas.</p>\n  <div class="box box--intuition">
+        chiffre += c</code></pre>
+<p>Les deux cas — minuscules et majuscules — utilisent chacun leur base (<code>ord("a")</code> ou <code>ord("A")</code>) : c’est ce qui <strong>conserve la casse</strong>. Le else laisse intacts chiffres, espaces et ponctuation : ils ne sont pas des lettres, ils ne bougent pas.</p>
+  <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Décaler de 25, c’est reculer de 1</div>
     <p>k = 25 revient à reculer d’une lettre : A donne Z. Le modulo gère les deux sens sans aucun cas spécial — c’est aussi pourquoi une attaque par force brute n’a que 25 clés à essayer, le 26e décalage étant le message lui-même.</p>
   </div>

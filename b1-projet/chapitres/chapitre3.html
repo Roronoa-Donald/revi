@@ -79,23 +79,38 @@
 
 <h2>1. Deux écrans, une fenêtre</h2>
 
-<p>L'application <code>ApplicationGestionStock</code> s'ouvre sur l'<strong>interface de connexion</strong> : champs host, database, user, password préremplis, bouton « Se connecter ». Si <code>db.connecter()</code> réussit, la méthode crée la table, <strong>détruit</strong> le frame de connexion (<code>destroy()</code>) et affiche l'<strong>interface principale</strong> : formulaire d'ajout/modification, boutons Ajouter / Modifier / Supprimer, tableau des produits. En cas d'échec : <code>messagebox.showerror</code> et on reste sur l'écran de connexion.</p>\n<p>La fenêtre se termine proprement : <code>root.protocol("WM_DELETE_WINDOW", fermer_application)</code> appelle <code>db.deconnecter()</code> avant <code>root.destroy()</code> — la base est fermée avant l'écran.</p>\n  <div class="box box--mnemo">
+<p>L'application <code>ApplicationGestionStock</code> s'ouvre sur l'<strong>interface de connexion</strong> : champs host, database, user, password préremplis, bouton « Se connecter ». Si <code>db.connecter()</code> réussit, la méthode crée la table, <strong>détruit</strong> le frame de connexion (<code>destroy()</code>) et affiche l'<strong>interface principale</strong> : formulaire d'ajout/modification, boutons Ajouter / Modifier / Supprimer, tableau des produits. En cas d'échec : <code>messagebox.showerror</code> et on reste sur l'écran de connexion.</p>
+<p>La fenêtre se termine proprement : <code>root.protocol("WM_DELETE_WINDOW", fermer_application)</code> appelle <code>db.deconnecter()</code> avant <code>root.destroy()</code> — la base est fermée avant l'écran.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « d'abord la porte, ensuite la salle »</div>
     <p>Écran 1 : se connecter. Écran 2 : travailler. La fenêtre ne détruit jamais l'écran actif avant d'avoir bâti le suivant.</p>
   </div>
 
 <h2>2. Widgets, layout et tableau</h2>
 
-<p>Les <strong>widgets</strong> : <code>Label</code> (texte), <code>Entry</code> (saisie), <code>Button</code> (action avec <code>command=</code>), <code>Frame</code> et <code>LabelFrame</code> (cadres titrés), <code>ttk.Treeview</code> (tableau multi-colonnes), <code>Scrollbar</code> (ascenseur relié par <code>yscrollcommand</code>). Le <strong>layout</strong> : <code>pack</code> empile, <code>grid</code> place en lignes/colonnes avec <code>sticky</code> et <code>padx/pady</code>.</p>\n<p>Le <strong>Treeview</strong> définit ses colonnes (« ID », « Nom », « Catégorie », « Quantité », « Prix »), leurs en-têtes (<code>heading</code>) et largeurs ; le clic sur une ligne déclenche <code>selectionner_produit</code> via <code>bind("&lt;ButtonRelease-1&gt;", …)</code>, qui remplit le formulaire. <code>actualiser_tableau()</code> efface le tableau puis le recharge depuis <code>obtenir_tous_produits()</code> : la base reste la source unique de vérité.</p>\n  <div class="box box--pitfall">
+<p>Les <strong>widgets</strong> : <code>Label</code> (texte), <code>Entry</code> (saisie), <code>Button</code> (action avec <code>command=</code>), <code>Frame</code> et <code>LabelFrame</code> (cadres titrés), <code>ttk.Treeview</code> (tableau multi-colonnes), <code>Scrollbar</code> (ascenseur relié par <code>yscrollcommand</code>). Le <strong>layout</strong> : <code>pack</code> empile, <code>grid</code> place en lignes/colonnes avec <code>sticky</code> et <code>padx/pady</code>.</p>
+<p>Le <strong>Treeview</strong> définit ses colonnes (« ID », « Nom », « Catégorie », « Quantité », « Prix »), leurs en-têtes (<code>heading</code>) et largeurs ; le clic sur une ligne déclenche <code>selectionner_produit</code> via <code>bind("&lt;ButtonRelease-1&gt;", …)</code>, qui remplit le formulaire. <code>actualiser_tableau()</code> efface le tableau puis le recharge depuis <code>obtenir_tous_produits()</code> : la base reste la source unique de vérité.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
-    <ul>\n      <li>pack empile, grid place en grille : les deux ne se mélangent pas dans un même conteneur.</li>\n      <li>command= appelle la méthode du bouton : pas de parenthèses, la référence suffit.</li>\n      <li>Le Treeview n'est pas la base : il se recharge depuis fetchall à chaque changement.</li>\n      <li>bind relie un événement souris à une méthode : c'est le clic qui remplit le formulaire.</li>\n    </ul>
+    <ul>
+      <li>pack empile, grid place en grille : les deux ne se mélangent pas dans un même conteneur.</li>
+      <li>command= appelle la méthode du bouton : pas de parenthèses, la référence suffit.</li>
+      <li>Le Treeview n'est pas la base : il se recharge depuis fetchall à chaque changement.</li>
+      <li>bind relie un événement souris à une méthode : c'est le clic qui remplit le formulaire.</li>
+    </ul>
   </div>
 
 <h2>3. Validation et boîtes de dialogue</h2>
 
-<p>Avant tout appel à la base, <code>ajouter_produit()</code> vérifie : <strong>champs obligatoires non vides</strong> (nom, quantite, prix) sinon <code>showwarning</code> ; puis <code>int(quantite)</code> et <code>float(prix)</code> dans un try — une <code>ValueError</code> provoque <code>showerror</code> « Quantité et prix doivent être des nombres ». La validation vivant dans l'interface, la base ne reçoit jamais de donnée absurde.</p>\n<p>Les quatre <strong>boîtes de dialogue</strong> : <code>showinfo</code> — succès (« Produit ajouté avec succès ») ; <code>showwarning</code> — champs manquants ou sélection absente ; <code>showerror</code> — échec de connexion, conversion impossible ; <code>askyesno</code> — confirmation avant suppression (« Voulez-vous vraiment supprimer… ? »), la suppression n'a lieu que si l'utilisateur répond oui.</p>\n  <div class="box box--tech">
+<p>Avant tout appel à la base, <code>ajouter_produit()</code> vérifie : <strong>champs obligatoires non vides</strong> (nom, quantite, prix) sinon <code>showwarning</code> ; puis <code>int(quantite)</code> et <code>float(prix)</code> dans un try — une <code>ValueError</code> provoque <code>showerror</code> « Quantité et prix doivent être des nombres ». La validation vivant dans l'interface, la base ne reçoit jamais de donnée absurde.</p>
+<p>Les quatre <strong>boîtes de dialogue</strong> : <code>showinfo</code> — succès (« Produit ajouté avec succès ») ; <code>showwarning</code> — champs manquants ou sélection absente ; <code>showerror</code> — échec de connexion, conversion impossible ; <code>askyesno</code> — confirmation avant suppression (« Voulez-vous vraiment supprimer… ? »), la suppression n'a lieu que si l'utilisateur répond oui.</p>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
-    <ul>\n      <li>Les familles : entry/label/button/treeview → widget, pack/grid → layout, messagebox → boite.</li>\n      <li>La validation : nom refuse le vide, quantite et prix testent nombre positif.</li>\n      <li>Les dialogues : succès → showinfo, attention → showwarning, échec → showerror, suppression → askyesno.</li>\n    </ul>
+    <ul>
+      <li>Les familles : entry/label/button/treeview → widget, pack/grid → layout, messagebox → boite.</li>
+      <li>La validation : nom refuse le vide, quantite et prix testent nombre positif.</li>
+      <li>Les dialogues : succès → showinfo, attention → showwarning, échec → showerror, suppression → askyesno.</li>
+    </ul>
   </div>
 
 <!-- code-labs:start -->
@@ -241,7 +256,7 @@ avis : 3/3</pre></div>
 
   <div class="qcm">
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le premier écran de l'application :</p>
       <div class="opts">
         <button class="opt" data-correct="1">la connexion PostgreSQL</button>
         <button class="opt">le tableau des produits</button>
@@ -250,7 +265,7 @@ avis : 3/3</pre></div>
       <div class="q__exp">Interface de connexion d'abord, principale ensuite.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le widget de saisie d'une ligne :</p>
       <div class="opts">
         <button class="opt" data-correct="1">Entry</button>
         <button class="opt">Label</button>
@@ -259,7 +274,7 @@ avis : 3/3</pre></div>
       <div class="q__exp">Entry pour les champs host, nom, quantite…</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le widget tableau multi-colonnes :</p>
       <div class="opts">
         <button class="opt" data-correct="1">ttk.Treeview</button>
         <button class="opt">Entry</button>
@@ -268,7 +283,7 @@ avis : 3/3</pre></div>
       <div class="q__exp">Colonnes, en-têtes, sélection au clic.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Le clic sur une ligne du Treeview déclenche…</p>
       <div class="opts">
         <button class="opt" data-correct="1">le bind de sélection</button>
         <button class="opt">la fermeture</button>
@@ -277,7 +292,7 @@ avis : 3/3</pre></div>
       <div class="q__exp"><ButtonRelease-1> remplit le formulaire.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Champs obligatoires non remplis :</p>
       <div class="opts">
         <button class="opt" data-correct="1">showwarning</button>
         <button class="opt">showinfo</button>
@@ -286,7 +301,7 @@ avis : 3/3</pre></div>
       <div class="q__exp">Avertissement : on reste sur le formulaire.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">Confirmation avant suppression :</p>
       <div class="opts">
         <button class="opt" data-correct="1">askyesno</button>
         <button class="opt">showerror</button>
@@ -295,7 +310,7 @@ avis : 3/3</pre></div>
       <div class="q__exp">La suppression n'a lieu que si l'utilisateur confirme.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">La conversion int(quantite) se fait…</p>
       <div class="opts">
         <button class="opt" data-correct="1">dans un try pour attraper ValueError</button>
         <button class="opt">dans la base</button>
@@ -304,7 +319,7 @@ avis : 3/3</pre></div>
       <div class="q__exp">ValueError → showerror : la base ne voit jamais de texte.</div>
     </div>
     <div class="q">
-      <p class="q__stem">undefined</p>
+      <p class="q__stem">À la fermeture de la fenêtre :</p>
       <div class="opts">
         <button class="opt" data-correct="1">deconnecter() puis destroy()</button>
         <button class="opt">destroy() direct</button>

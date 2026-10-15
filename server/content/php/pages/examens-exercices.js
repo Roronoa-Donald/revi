@@ -160,12 +160,12 @@ function exercices(course) {
       'Lire un entier et dire s’il est pair (« pair : oui/non »).'
     ], [
       '$nom = trim(fgets(STDIN));',
-      'echo "Bonjour $nom\\n";',
+      'echo "Bonjour $nom\n";',
       '',
       '$a = (int) trim(fgets(STDIN));',
       '$b = (int) trim(fgets(STDIN));',
-      'echo "somme : " . ($a + $b) . "\\n";',
-      'echo "produit : " . ($a * $b) . "\\n";',
+      'echo "somme : " . ($a + $b) . "\n";',
+      'echo "produit : " . ($a * $b) . "\n";',
       '',
       'class Voiture {',
       '    private $marque;',
@@ -173,10 +173,10 @@ function exercices(course) {
       '    public function marque(): string { return $this->marque; }',
       '}',
       '$m = trim(fgets(STDIN));',
-      'echo (new Voiture($m))->marque() . "\\n";',
+      'echo (new Voiture($m))->marque() . "\n";',
       '',
       '$n = (int) trim(fgets(STDIN));',
-      'echo "pair : " . ($n % 2 === 0 ? "oui" : "non") . "\\n";'
+      'echo "pair : " . ($n % 2 === 0 ? "oui" : "non") . "\n";'
     ].join('\n')),
 
     '  <h2>Application</h2>',
@@ -240,7 +240,7 @@ function exercices(course) {
       '} catch (InvalidArgumentException $e) {',
       '    $erreurs++;',
       '}',
-      'echo "erreurs : $erreurs\\n";',
+      'echo "erreurs : $erreurs\n";',
       '',
       'class Depot {',
       '    private $valeurs = [];',
@@ -300,12 +300,12 @@ function exercices(course) {
     '}',
     '$urgents = 0;',
     'foreach ($todo->lister() as $i => $tache) {',
-    '    echo ($i + 1) . ". " . $tache . "\\n";',
+    '    echo ($i + 1) . ". " . $tache . "\n";',
     '    if (str_contains($tache, "urgent")) {',
     '        $urgents++;',
     '    }',
     '}',
-    'echo "urgents : $urgents\\n";'
+    'echo "urgents : $urgents\n";'
     ].join('\n') + '</code></pre>',
     '      Cette solution combine lecture ordonnée, encapsulation dans une classe, numérotation et comptage — ' +
     'l’essentiel des six modules en un seul programme.',

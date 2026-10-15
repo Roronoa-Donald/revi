@@ -115,12 +115,12 @@ module.exports = {
         '<p>Les images sont hébergées sur des registres distants (Docker Hub, GitHub Container Registry ghcr.io, Quay.io, ou registries privées auto-hébergées comme Harbor). ' +
         'Une référence d’image complète répond à la nomenclature formelle suivante :</p>',
 
-        '<pre><code>[REGISTRE/][NAMESPACE/]REPOSITORY[:TAG][@sha256:DIGEST]\\n' +
-        '\\n' +
-        'Exemples :\\n' +
-        '- nginx                                 -&gt; docker.io/library/nginx:latest\\n' +
-        '- monorg/backend:v1.2.0                  -&gt; docker.io/monorg/backend:v1.2.0\\n' +
-        '- ghcr.io/equipe/service:2.1.0           -&gt; ghcr.io/equipe/service:2.1.0\\n' +
+        '<pre><code>[REGISTRE/][NAMESPACE/]REPOSITORY[:TAG][@sha256:DIGEST]\n' +
+        '\n' +
+        'Exemples :\n' +
+        '- nginx                                 -&gt; docker.io/library/nginx:latest\n' +
+        '- monorg/backend:v1.2.0                  -&gt; docker.io/monorg/backend:v1.2.0\n' +
+        '- ghcr.io/equipe/service:2.1.0           -&gt; ghcr.io/equipe/service:2.1.0\n' +
         '- redis@sha256:4b912a...                -&gt; Version cryptographiquement immuable</code></pre>',
 
         box(

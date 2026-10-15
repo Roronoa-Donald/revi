@@ -78,24 +78,32 @@
 
 <h2>1. SELECT : afficher et sélectionner</h2>
 
-<p><code>SELECT</code> est la commande qui sélectionne — et aussi qui <strong>affiche</strong>. Elle fonctionne sans table :</p>\n<pre><code>SELECT 'Nous sommes au COLLEGE DE PARIS SUPERIEUR';
-SELECT 45 + 40 AS Effectif;</code></pre>\n<p>Mais son usage réel passe par <code>FROM</code> :</p>\n<pre><code>SELECT nommarque, paysmarque   -- les colonnes voulues, dans l’ordre voulu
+<p><code>SELECT</code> est la commande qui sélectionne — et aussi qui <strong>affiche</strong>. Elle fonctionne sans table :</p>
+<pre><code>SELECT 'Nous sommes au COLLEGE DE PARIS SUPERIEUR';
+SELECT 45 + 40 AS Effectif;</code></pre>
+<p>Mais son usage réel passe par <code>FROM</code> :</p>
+<pre><code>SELECT nommarque, paysmarque   -- les colonnes voulues, dans l’ordre voulu
 FROM Marque;
 
 SELECT *                       -- toutes les colonnes
-FROM Voiture;</code></pre>\n<p>Le mot-clé <code>AS</code> <strong>renomme une colonne du résultat</strong> — pas la table : <code>SELECT pxachat AS prix</code> affiche « prix » en tête de colonne. Un alias de lisibilité, sans effet sur les données.</p>\n  <div class="box box--tech">
+FROM Voiture;</code></pre>
+<p>Le mot-clé <code>AS</code> <strong>renomme une colonne du résultat</strong> — pas la table : <code>SELECT pxachat AS prix</code> affiche « prix » en tête de colonne. Un alias de lisibilité, sans effet sur les données.</p>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Les commentaires en SQL</div>
     <pre><code>-- ce commentaire tient sur une ligne
 /* celui-ci
-   en tient plusieurs */</code></pre>\n    <p>Les doubles tirets commentent jusqu’à la fin de ligne ; le support les utilise pour expliquer chaque requête — un réflexe à garder.</p>
+   en tient plusieurs */</code></pre>
+    <p>Les doubles tirets commentent jusqu’à la fin de ligne ; le support les utilise pour expliquer chaque requête — un réflexe à garder.</p>
   </div>
 
 <h2>2. Filtrer avec WHERE</h2>
 
-<p>La clause <code>WHERE</code> restreint les lignes du résultat selon une condition :</p>\n<pre><code>SELECT * FROM Voiture WHERE moteur = 'DIESEL';
+<p>La clause <code>WHERE</code> restreint les lignes du résultat selon une condition :</p>
+<pre><code>SELECT * FROM Voiture WHERE moteur = 'DIESEL';
 SELECT * FROM Voiture WHERE pxachat &gt;= 20000000;
 SELECT * FROM Voiture WHERE marque = 'TOYOTA' AND moteur = 'DIESEL';
-SELECT * FROM Voiture WHERE moteur = 'DIESEL' OR moteur = 'HYBRIDE';</code></pre>\n<table>
+SELECT * FROM Voiture WHERE moteur = 'DIESEL' OR moteur = 'HYBRIDE';</code></pre>
+<table>
     <tr><th>Opérateur</th><th>Sens</th></tr>
     <tr><td>=  &lt;&gt; (ou !=)</td><td>égal, différent</td></tr>
     <tr><td>&lt;  &lt;=  &gt;  &gt;=</td><td>comparaisons (numériques ou alphabétiques)</td></tr>
@@ -103,31 +111,42 @@ SELECT * FROM Voiture WHERE moteur = 'DIESEL' OR moteur = 'HYBRIDE';</code></pre
     <tr><td>IN (…)</td><td>appartient à une liste</td></tr>
     <tr><td>LIKE</td><td>motif : % = n’importe quoi, _ = un caractère</td></tr>
     <tr><td>IS NULL / IS NOT NULL</td><td>absence d’information</td></tr>
-  </table>\n<p>Deux pièges de la clause : les chaînes se quotent avec des <strong>apostrophes simples</strong> (<code>'DIESEL'</code>, jamais "DIESEL" en MySQL strict), et la comparaison avec NULL se fait uniquement par <code>IS NULL</code> — <code>= NULL</code> ne renvoie jamais vrai.</p>\n  <div class="box box--pitfall">
+  </table>
+<p>Deux pièges de la clause : les chaînes se quotent avec des <strong>apostrophes simples</strong> (<code>'DIESEL'</code>, jamais "DIESEL" en MySQL strict), et la comparaison avec NULL se fait uniquement par <code>IS NULL</code> — <code>= NULL</code> ne renvoie jamais vrai.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — les immatriculations en AK</div>
     <p>« Toutes les voitures immatriculées en AK » s’écrit <code>WHERE immat LIKE '%AK'</code> : le <code>%</code> remplace n’importe quel préfixe. Écrire <code>= '%AK'</code> chercherait une immatriculation qui s’appellerait littéralement « %AK » — et ne trouverait rien.</p>
   </div>
 
 <h2>3. Doublons et tris</h2>
 
-<p>« Quelles marques possédons-nous ? » : <code>SELECT marque FROM Voiture</code> renvoie autant de lignes TOYOTA que de Toyota dans le parc. Le mot-clé <code>DISTINCT</code>, placé juste après SELECT, élimine les doublons :</p>\n<pre><code>SELECT DISTINCT marque FROM Voiture;      -- 12 lignes, une par marque
-SELECT COUNT(DISTINCT marque) FROM Voiture;   -- directement le nombre</code></pre>\n<p>Un doublon disparaît seulement si <strong>toute la ligne sélectionnée</strong> est identique à une autre : avec deux colonnes, DISTINCT agit sur le couple, pas colonne par colonne.</p>\n<p>Le tri passe par <code>ORDER BY</code>, placé après FROM/WHERE :</p>\n<pre><code>SELECT immat, marque, datecirc FROM Voiture ORDER BY datecirc;
+<p>« Quelles marques possédons-nous ? » : <code>SELECT marque FROM Voiture</code> renvoie autant de lignes TOYOTA que de Toyota dans le parc. Le mot-clé <code>DISTINCT</code>, placé juste après SELECT, élimine les doublons :</p>
+<pre><code>SELECT DISTINCT marque FROM Voiture;      -- 12 lignes, une par marque
+SELECT COUNT(DISTINCT marque) FROM Voiture;   -- directement le nombre</code></pre>
+<p>Un doublon disparaît seulement si <strong>toute la ligne sélectionnée</strong> est identique à une autre : avec deux colonnes, DISTINCT agit sur le couple, pas colonne par colonne.</p>
+<p>Le tri passe par <code>ORDER BY</code>, placé après FROM/WHERE :</p>
+<pre><code>SELECT immat, marque, datecirc FROM Voiture ORDER BY datecirc;
 SELECT immat FROM Voiture ORDER BY immat DESC;      -- décroissant
-SELECT * FROM Voiture ORDER BY marque, datecirc;    -- tri à deux niveaux</code></pre>\n<p>Le second exemple trie par marque puis, <strong>à l’intérieur de chaque marque</strong>, par date : c’est la lecture des tris multi-colonnes. Sans précision, l’ordre est croissant (ASC).</p>
+SELECT * FROM Voiture ORDER BY marque, datecirc;    -- tri à deux niveaux</code></pre>
+<p>Le second exemple trie par marque puis, <strong>à l’intérieur de chaque marque</strong>, par date : c’est la lecture des tris multi-colonnes. Sans précision, l’ordre est croissant (ASC).</p>
 
 <h2>4. LIMIT : restreindre le nombre de lignes</h2>
 
-<p>Une requête peut ramener des milliers de lignes quand on n’en veut que cinq. La clause <code>LIMIT</code> borne le résultat :</p>\n<pre><code>SELECT immat, pxachat FROM Voiture
+<p>Une requête peut ramener des milliers de lignes quand on n’en veut que cinq. La clause <code>LIMIT</code> borne le résultat :</p>
+<pre><code>SELECT immat, pxachat FROM Voiture
 ORDER BY pxachat DESC
 LIMIT 3;                    -- les 3 voitures les plus chères
 
-SELECT * FROM Voiture LIMIT 5 OFFSET 10;   -- 5 lignes à partir de la 11e</code></pre>\n<p>L’ordre complet d’une requête de lecture se mémorise une fois pour toutes :</p>\n<pre><code>SELECT   colonnes
+SELECT * FROM Voiture LIMIT 5 OFFSET 10;   -- 5 lignes à partir de la 11e</code></pre>
+<p>L’ordre complet d’une requête de lecture se mémorise une fois pour toutes :</p>
+<pre><code>SELECT   colonnes
 FROM     tables
 WHERE    condition sur les lignes
 GROUP BY regroupement        (chapitre 5)
 HAVING   condition sur les groupes  (chapitre 5)
 ORDER BY tri
-LIMIT    nombre de lignes</code></pre>\n  <div class="box box--mnemo">
+LIMIT    nombre de lignes</code></pre>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « SFWGHOL »</div>
     <p>La séquence <strong>S</strong>elect <strong>F</strong>rom <strong>W</strong>here <strong>G</strong>roup <strong>H</strong>aving <strong>O</strong>rder <strong>L</strong>imit se lit comme un mot. Les clauses sont optionnelles, leur <strong>ordre ne l’est jamais</strong> : un ORDER BY avant le WHERE est une erreur de syntaxe.</p>
   </div>

@@ -81,12 +81,12 @@ module.exports = {
         '<p>Le ratio de contraste entre la couleur du texte et la couleur de son arrière-plan ' +
         'repose sur la <strong>luminance relative sRGB</strong> normalisée selon la formule :</p>',
 
-        '<pre><code>Pour chaque canal c in {R, G, B} normalise sur [0, 1] :\\n' +
-        '  si c &lt;= 0.04045 alors v = c / 12.92\\n' +
-        '  sinon v = ((c + 0.055) / 1.055) ** 2.4\\n' +
-        '\\n' +
-        'Luminance L = 0.2126 * R_lin + 0.7152 * G_lin + 0.0722 * B_lin\\n' +
-        '\\n' +
+        '<pre><code>Pour chaque canal c in {R, G, B} normalise sur [0, 1] :\n' +
+        '  si c &lt;= 0.04045 alors v = c / 12.92\n' +
+        '  sinon v = ((c + 0.055) / 1.055) ** 2.4\n' +
+        '\n' +
+        'Luminance L = 0.2126 * R_lin + 0.7152 * G_lin + 0.0722 * B_lin\n' +
+        '\n' +
         'Ratio = (L_max + 0.05) / (L_min + 0.05)</code></pre>',
 
         '<table class="table">',
@@ -145,12 +145,12 @@ module.exports = {
         '    <h4>Boutons et Liens sans Texte Visible</h4>',
         '    <p>Les boutons contenant uniquement une icône graphique (ex: icône de loupe ou de croix) ' +
         '    sont complètement silencieux pour les technologies d’assistance à moins de leur associer un nom accessible :</p>',
-        '    <pre><code>&lt;!-- Anti-pattern muet --&gt;\\n' +
-        '&lt;button class="icon"&gt;&lt;svg&gt;...&lt;/svg&gt;&lt;/button&gt;\\n' +
-        '\\n' +
-        '&lt;!-- Conforme et accessible --&gt;\\n' +
-        '&lt;button aria-label="Rechercher sur le site"&gt;\\n' +
-        '  &lt;svg aria-hidden="true"&gt;...&lt;/svg&gt;\\n' +
+        '    <pre><code>&lt;!-- Anti-pattern muet --&gt;\n' +
+        '&lt;button class="icon"&gt;&lt;svg&gt;...&lt;/svg&gt;&lt;/button&gt;\n' +
+        '\n' +
+        '&lt;!-- Conforme et accessible --&gt;\n' +
+        '&lt;button aria-label="Rechercher sur le site"&gt;\n' +
+        '  &lt;svg aria-hidden="true"&gt;...&lt;/svg&gt;\n' +
         '&lt;/button&gt;</code></pre>',
         '  </div>',
         '</div>'

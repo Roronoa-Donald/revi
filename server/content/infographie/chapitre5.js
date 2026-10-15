@@ -93,7 +93,7 @@ module.exports = {
         '  <div class="card">',
         '    <h4>1. Conservation de l’Énergie</h4>',
         '    <p>Une surface ne peut jamais réémettre plus de lumière qu’elle n’en reçoit. L’énergie lumineuse incidente se divise en deux flux exclusifs :</p>' +
-        '    <pre><code>kd * Diffuse + ks * Speculaire <= Lumiere_Incidente\\n' +
+        '    <pre><code>kd * Diffuse + ks * Speculaire <= Lumiere_Incidente\n' +
         'kd + ks <= 1.0</code></pre>' +
         '    <p>Un métal parfait (Metallic = 1.0) n’a aucune réfraction interne : <code>kd = 0</code>, toute la couleur provient du reflet spéculaire.</p>',
         '  </div>',

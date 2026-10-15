@@ -56,7 +56,7 @@ module.exports = [
             'un fichier. Pour mériter le terme, l’ensemble doit être <strong>interrogeable par le ' +
             'contenu</strong> et sa <strong>structure consultable</strong> (savoir qu’un produit possède un ' +
             'nom, un prix, une quantité). Un tableur partagé n’en est pas un.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Fonctions et types de bases de données',
@@ -84,7 +84,7 @@ module.exports = [
             '<strong>I</strong>mportant (volumes), <strong>Q</strong>uick (rapide), <strong>S</strong>ûr ' +
             '(sécurité), <strong>C</strong>ohérent (qualité), <strong>P</strong>artagé. Une base qui échoue ' +
             'sur une de ces six promesses n’est pas une base.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Le SGBD',
@@ -113,7 +113,7 @@ module.exports = [
             'est le gardien (il range, contrôle, arbitre), <strong>SQL</strong> est la langue qu’on lui parle ' +
             'pour demander quelque chose. Confondre les trois est la faute de vocabulaire la plus pénalisée ' +
             'à l’examen.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Le modèle relationnel',
@@ -141,7 +141,7 @@ module.exports = [
             'l’absence d’information est une information. Ne la remplace jamais par un zéro, une chaîne vide ' +
             'ou un tiret : ces trois-là sont des <em>valeurs</em>, et elles polluent les calculs — un prix ' +
             'moyen qui compte des zéros inventés est faux.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -245,7 +245,7 @@ module.exports = [
             '    <p><code>FLOAT</code> et <code>DOUBLE</code> arrondissent par nature : une somme de prix peut ' +
             'y perdre un franc. Pour toute valeur monétaire, le type exact est <strong>DECIMAL</strong> — ' +
             'c’est le seul qui calcule en décimal exact, comme un humain pose l’addition.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'CHAR et VARCHAR',
@@ -266,7 +266,7 @@ module.exports = [
             '    <p>Un code de pays à trois lettres naît et meurt à trois lettres : <strong>CHAR(3)</strong>. ' +
             'Un nom de famille va de une lettre à vingt : <strong>VARCHAR(20)</strong>. Se tromper ne casse ' +
             'rien, mais gaspille — et un CHAR qui complète d’espaces surprend les comparaisons.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Les types temporels',
@@ -286,7 +286,7 @@ module.exports = [
           '<p>Le parc auto du support utilise <code>DATETIME</code> pour la mise en circulation — d’où des ' +
           'valeurs comme <code>\'2000-01-21 08:00:00\'</code> — et des comparaisons directes sont possibles : ' +
           '<code>WHERE datecirc &lt; \'2015-01-01\'</code>.</p>'
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'CREATE TABLE et INSERT',
@@ -315,7 +315,7 @@ module.exports = [
             '    <p>La page <a href="../atelier.html">atelier — simulateur SQL</a> contient ce schéma et ces ' +
             'données déjà chargés : chaque requête des chapitres suivants s’y exécute en réel. Le moteur est ' +
             'SQLite, qui accepte les mêmes requêtes SELECT que MySQL pour tout ce cours.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -418,10 +418,10 @@ module.exports = [
           box('tech', 'Les commentaires en SQL', 'terminal',
             '    <pre><code>-- ce commentaire tient sur une ligne\n' +
             '/* celui-ci\n' +
-            '   en tient plusieurs */</code></pre>\\n' +
+            '   en tient plusieurs */</code></pre>\n' +
             '    <p>Les doubles tirets commentent jusqu’à la fin de ligne ; le support les utilise pour ' +
             'expliquer chaque requête — un réflexe à garder.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Filtrer avec WHERE',
@@ -447,7 +447,7 @@ module.exports = [
             '    <p>« Toutes les voitures immatriculées en AK » s’écrit <code>WHERE immat LIKE \'%AK\'</code> : ' +
             'le <code>%</code> remplace n’importe quel préfixe. Écrire <code>= \'%AK\'</code> chercherait une ' +
             'immatriculation qui s’appellerait littéralement « %AK » — et ne trouverait rien.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Doublons et tris',
@@ -465,7 +465,7 @@ module.exports = [
           'SELECT * FROM Voiture ORDER BY marque, datecirc;    -- tri à deux niveaux</code></pre>',
           '<p>Le second exemple trie par marque puis, <strong>à l’intérieur de chaque marque</strong>, par ' +
           'date : c’est la lecture des tris multi-colonnes. Sans précision, l’ordre est croissant (ASC).</p>'
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'LIMIT : restreindre le nombre de lignes',
@@ -490,7 +490,7 @@ module.exports = [
             '<strong>G</strong>roup <strong>H</strong>aving <strong>O</strong>rder <strong>L</strong>imit se ' +
             'lit comme un mot. Les clauses sont optionnelles, leur <strong>ordre ne l’est jamais</strong> : ' +
             'un ORDER BY avant le WHERE est une erreur de syntaxe.</p>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

@@ -78,43 +78,57 @@
 
 <h2>1. UPDATE : modifier sous condition</h2>
 
-<p>La syntaxe porte trois informations : quelle table, quelles colonnes changent, quelles lignes :</p>\n<pre><code>UPDATE nom_table
+<p>La syntaxe porte trois informations : quelle table, quelles colonnes changent, quelles lignes :</p>
+<pre><code>UPDATE nom_table
 SET colonne1 = valeur1, colonne2 = valeur2
 WHERE condition;
 
 -- le support normalise les codes de marque :
 UPDATE Voiture SET codemarque = 'TOY' WHERE marque = 'TOYOTA';
-UPDATE Voiture SET codemarque = 'BMW' WHERE marque = 'BMW';</code></pre>\n<p>Le <code>WHERE</code> n’est pas décoratif : c’est lui qui limite la modification aux lignes visées. Le support le rappelle en marge de ses exemples — et le SGBD se protège un peu : en mode par défaut prudent, un UPDATE sans WHERE est rejeté ou demande confirmation.</p>\n  <div class="box box--pitfall">
+UPDATE Voiture SET codemarque = 'BMW' WHERE marque = 'BMW';</code></pre>
+<p>Le <code>WHERE</code> n’est pas décoratif : c’est lui qui limite la modification aux lignes visées. Le support le rappelle en marge de ses exemples — et le SGBD se protège un peu : en mode par défaut prudent, un UPDATE sans WHERE est rejeté ou demande confirmation.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le UPDATE sans WHERE</div>
     <p><code>UPDATE Voiture SET moteur = 'DIESEL';</code> sans WHERE s’applique à <strong>toutes</strong> les lignes : 23 voitures passées au diesel en une requête. Toute modification sérieuse se teste d’abord par le SELECT équivalent — si le SELECT ramène les bonnes lignes, l’UPDATE avec le même WHERE les modifiera.</p>
   </div>
 
 <h2>2. DELETE et ALTER</h2>
 
-<p>La suppression suit le même principe : une table, une condition.</p>\n<pre><code>DELETE FROM Voiture WHERE immat = 'TG-7854-Z';
-DELETE FROM Voiture;        -- VIDE TOUTE LA TABLE, ligne par ligne</code></pre>\n<p>Le DELETE sans WHERE ne supprime pas la table : il la <strong>vide</strong>. La structure reste ; seule la commande <code>DROP TABLE</code> fait disparaître la table elle-même.</p>\n<p>La structure évolue par <code>ALTER TABLE</code> :</p>\n<pre><code>ALTER TABLE Voiture ADD COLUMN comment VARCHAR(100);
+<p>La suppression suit le même principe : une table, une condition.</p>
+<pre><code>DELETE FROM Voiture WHERE immat = 'TG-7854-Z';
+DELETE FROM Voiture;        -- VIDE TOUTE LA TABLE, ligne par ligne</code></pre>
+<p>Le DELETE sans WHERE ne supprime pas la table : il la <strong>vide</strong>. La structure reste ; seule la commande <code>DROP TABLE</code> fait disparaître la table elle-même.</p>
+<p>La structure évolue par <code>ALTER TABLE</code> :</p>
+<pre><code>ALTER TABLE Voiture ADD COLUMN comment VARCHAR(100);
 ALTER TABLE Marque DROP COLUMN paysmarque;   -- l’opération du support avant normalisation
-ALTER TABLE Voiture MODIFY COLUMN km BIGINT;</code></pre>\n<p>Ajouter, supprimer, changer un type : ALTER est la commande d’évolution du schéma — elle s’accompagne d’une réflexion sur les données existantes, qui doivent rester cohérentes avec la nouvelle structure.</p>
+ALTER TABLE Voiture MODIFY COLUMN km BIGINT;</code></pre>
+<p>Ajouter, supprimer, changer un type : ALTER est la commande d’évolution du schéma — elle s’accompagne d’une réflexion sur les données existantes, qui doivent rester cohérentes avec la nouvelle structure.</p>
 
 <h2>3. Utilisateurs : CREATE USER et l’hôte</h2>
 
-<p>On ne se connecte pas « à MySQL » en général : on s’y connecte <strong>en tant qu’un utilisateur</strong>, défini par un <strong>login</strong> et un <strong>hôte</strong> — l’adresse depuis laquelle la connexion est autorisée :</p>\n<pre><code>CREATE USER 'login'@'hote' [IDENTIFIED BY 'mot_de_passe'];
+<p>On ne se connecte pas « à MySQL » en général : on s’y connecte <strong>en tant qu’un utilisateur</strong>, défini par un <strong>login</strong> et un <strong>hôte</strong> — l’adresse depuis laquelle la connexion est autorisée :</p>
+<pre><code>CREATE USER 'login'@'hote' [IDENTIFIED BY 'mot_de_passe'];
 DROP   USER 'login'@'hote';
 
 CREATE USER 'delegueITB1'@'localhost' IDENTIFIED BY 'wincrafts@Big';
-CREATE USER 'profside'@'192.168.66.9' IDENTIFIED BY 'vivinve3';</code></pre>\n<p>Le joker <code>%</code> élargit l’hôte :</p>\n<table>
+CREATE USER 'profside'@'192.168.66.9' IDENTIFIED BY 'vivinve3';</code></pre>
+<p>Le joker <code>%</code> élargit l’hôte :</p>
+<table>
     <tr><th>Utilisateur déclaré</th><th>Connexion autorisée depuis</th></tr>
     <tr><td>'leader'@'192.168.66.%'</td><td>toute IP commençant par 192.168.66.</td></tr>
     <tr><td>'youssoufa'@'%.camer.net'</td><td>n’importe quel hôte du domaine camer.net</td></tr>
     <tr><td>'yeslows'@'%'</td><td>n’importe quel hôte (équivalent à 'yeslows')</td></tr>
-  </table>\n<p>Les guillemets entourent indépendamment login et hôte — jamais l’ensemble <code>'login@hote'</code>. Sans précision d’hôte, c’est l’équivalent de <code>%</code> : tous les hôtes.</p>\n  <div class="box box--mnemo">
+  </table>
+<p>Les guillemets entourent indépendamment login et hôte — jamais l’ensemble <code>'login@hote'</code>. Sans précision d’hôte, c’est l’équivalent de <code>%</code> : tous les hôtes.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « login@hôte : deux clés, une porte »</div>
     <p>Le login dit <strong>qui</strong> entre, l’hôte dit <strong>d’où</strong>. Le même login peut exister en plusieurs exemplaires aux privilèges différents selon l’hôte — deux clés distinctes pour deux portes distinctes.</p>
   </div>
 
 <h2>4. Privilèges : GRANT et REVOKE</h2>
 
-<p>Un utilisateur créé n’a <strong>aucun privilège</strong> : il peut à peine se connecter. Un privilège est l’autorisation d’effectuer une action sur un objet, accordée par <code>GRANT</code> et retirée par <code>REVOKE</code> :</p>\n<pre><code>-- tous les droits sur une base :
+<p>Un utilisateur créé n’a <strong>aucun privilège</strong> : il peut à peine se connecter. Un privilège est l’autorisation d’effectuer une action sur un objet, accordée par <code>GRANT</code> et retirée par <code>REVOKE</code> :</p>
+<pre><code>-- tous les droits sur une base :
 GRANT ALL PRIVILEGES ON parc_auto.* TO 'IT_B1'@'localhost';
 
 -- consultation seule :
@@ -124,9 +138,13 @@ GRANT SELECT ON parc_auto.* TO 'delegueITB1'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON parc_auto.Voiture TO 'gestionnaire'@'localhost';
 
 -- retirer :
-REVOKE UPDATE ON parc_auto.Voiture FROM 'gestionnaire'@'localhost';</code></pre>\n<p>Les privilèges s’appliquent à plusieurs <strong>niveaux</strong> : global (<code>*.*</code>), base (<code>parc_auto.*</code>), table (<code>parc_auto.Voiture</code>), voire colonne. Parmi les privilèges particuliers : <code>ALL</code> (tous, s’emploie seul), <code>USAGE</code> (aucun droit, toujours global) et <code>GRANT OPTION</code>.</p>\n<pre><code>GRANT SELECT, UPDATE ON parc_auto.*
+REVOKE UPDATE ON parc_auto.Voiture FROM 'gestionnaire'@'localhost';</code></pre>
+<p>Les privilèges s’appliquent à plusieurs <strong>niveaux</strong> : global (<code>*.*</code>), base (<code>parc_auto.*</code>), table (<code>parc_auto.Voiture</code>), voire colonne. Parmi les privilèges particuliers : <code>ALL</code> (tous, s’emploie seul), <code>USAGE</code> (aucun droit, toujours global) et <code>GRANT OPTION</code>.</p>
+<pre><code>GRANT SELECT, UPDATE ON parc_auto.*
 TO 'admincdp'@'localhost'
-WITH GRANT OPTION;</code></pre>\n<p><code>GRANT OPTION</code> autorise son détenteur à <strong>transmettre</strong> les privilèges qu’il possède à d’autres utilisateurs — il n’est pas compris dans ALL, et un utilisateur ne peut jamais accorder plus qu’il ne possède. C’est la règle de sécurité du support : la délégation se contrôle, sinon chaque utilisateur pourrait créer sa hiérarchie de droits.</p>\n  <div class="box box--pitfall">
+WITH GRANT OPTION;</code></pre>
+<p><code>GRANT OPTION</code> autorise son détenteur à <strong>transmettre</strong> les privilèges qu’il possède à d’autres utilisateurs — il n’est pas compris dans ALL, et un utilisateur ne peut jamais accorder plus qu’il ne possède. C’est la règle de sécurité du support : la délégation se contrôle, sinon chaque utilisateur pourrait créer sa hiérarchie de droits.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — ALL et GRANT OPTION ensemble</div>
     <p><code>GRANT ALL, GRANT OPTION ON …</code> est refusé : ALL s’emploie seul. Pour donner tout <strong>et</strong> le droit de transmettre, la forme est <code>GRANT ALL PRIVILEGES ON … TO … WITH GRANT OPTION</code>. La distinction est tombée en QCM du support.</p>
   </div>

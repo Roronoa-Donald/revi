@@ -78,30 +78,37 @@
 
 <h2>1. Une fonction qui répond vrai ou faux</h2>
 
-<p>Une <strong>fonction de test</strong> a un contrat précis : recevoir une valeur, renvoyer un booléen, <strong>ne rien afficher</strong>. C’est le programme qui décide quoi faire de la réponse.</p>\n<pre><code>def est_pair(x):
+<p>Une <strong>fonction de test</strong> a un contrat précis : recevoir une valeur, renvoyer un booléen, <strong>ne rien afficher</strong>. C’est le programme qui décide quoi faire de la réponse.</p>
+<pre><code>def est_pair(x):
     return x % 2 == 0
 
 est_pair(4)   → True
-est_pair(7)   → False</code></pre>\n<p>La comparaison <code>x % 2 == 0</code> <em>est déjà</em> un booléen : pas besoin d’écrire <code>if ... : return True else: return False</code>. Un return direct est plus court et dit la même chose.</p>\n  <div class="box box--pitfall">
+est_pair(7)   → False</code></pre>
+<p>La comparaison <code>x % 2 == 0</code> <em>est déjà</em> un booléen : pas besoin d’écrire <code>if ... : return True else: return False</code>. Un return direct est plus court et dit la même chose.</p>
+  <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la fonction qui bavarde</div>
     <p>Une fonction de test qui <code>print</code> son verdict est à moitié inutilisable : on ne peut ni compter avec, ni la recombiner. <strong>Une fonction calcule et renvoie ; l’affichage appartient au programme principal.</strong> Cette séparation est ce qui permet de tester une fonction toute seule.</p>
   </div>
 
 <h2>2. Compter les deux branches</h2>
 
-<p>Sur une série, la condition s’applique valeur par valeur, et les deux issues se comptent.</p>\n<pre><code>pairs = impairs = 0
+<p>Sur une série, la condition s’applique valeur par valeur, et les deux issues se comptent.</p>
+<pre><code>pairs = impairs = 0
 for x in valeurs:
     if est_pair(x):
         pairs += 1
     else:
-        impairs += 1</code></pre>\n<p>Chaque passage incrémente <strong>un seul</strong> compteur : la somme des deux vaut forcément n à la sortie. C’est un contrôle gratuit — si pairs + impairs ne vaut pas n, le programme a un bug ailleurs.</p>\n  <div class="box box--mnemo">
+        impairs += 1</code></pre>
+<p>Chaque passage incrémente <strong>un seul</strong> compteur : la somme des deux vaut forcément n à la sortie. C’est un contrôle gratuit — si pairs + impairs ne vaut pas n, le programme a un bug ailleurs.</p>
+  <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Un test, deux destins »</div>
     <p>Dans un <code>if / else</code>, exactement une branche s’exécute par passage. Si un compteur double ou saute, c’est que le test n’est pas exclusif : relire l’opérateur de comparaison avant de soupçonner la boucle.</p>
   </div>
 
 <h2>3. Tester la primalité</h2>
 
-<p>Un nombre <strong>premier</strong> possède exactement deux diviseurs : 1 et lui-même. 0 et 1 ne sont donc pas premiers. Tester tous les diviseurs jusqu’à x serait du gaspillage : il suffit d’aller jusqu’à <strong>la racine carrée</strong> de x.</p>\n<pre><code>def est_premier(x):
+<p>Un nombre <strong>premier</strong> possède exactement deux diviseurs : 1 et lui-même. 0 et 1 ne sont donc pas premiers. Tester tous les diviseurs jusqu’à x serait du gaspillage : il suffit d’aller jusqu’à <strong>la racine carrée</strong> de x.</p>
+<pre><code>def est_premier(x):
     if x &lt; 2:
         return False
     d = 2
@@ -109,22 +116,28 @@ for x in valeurs:
         if x % d == 0:
             return False
         d += 1
-    return True</code></pre>\n<p>Pourquoi s’arrêter à la racine ? Si x = a × b avec a ≤ b, alors a ≤ √x. Un diviseur au-delà de la racine en entraîne donc un plus petit déjà testé. Pour 97, on essaie 2 à 9 au lieu de 2 à 96.</p>\n  <div class="box box--intuition">
+    return True</code></pre>
+<p>Pourquoi s’arrêter à la racine ? Si x = a × b avec a ≤ b, alors a ≤ √x. Un diviseur au-delà de la racine en entraîne donc un plus petit déjà testé. Pour 97, on essaie 2 à 9 au lieu de 2 à 96.</p>
+  <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Attention aux cas de bord</div>
     <p>0, 1 et les nombres négatifs tombent dans le premier test <code>x &lt; 2</code>. Sans lui, la boucle while ne tournerait pas mais renverrait True pour 1 — un résultat faux. <strong>Les cas de bord se traitent d’abord, explicitement.</strong></p>
   </div>
 
 <h2>4. Classer des relevés par seuil</h2>
 
-<p>Le capteur de distance du TP déclenche une alerte sous 10 cm. Le classement par seuil est la décision la plus fréquente en robotique.</p>\n<pre><code>if d &lt; seuil:      alerte
-else:              tout va bien</code></pre>\n<p><strong>Strictement inférieur</strong> se traduit par <code>&lt;</code> : une distance égale au seuil n’alerte pas. Avec un <code>&lt;=</code>, la frontière changerait de camp — et les tests le remarquent, car ils incluent toujours le cas de la valeur exactement au seuil.</p>\n  <div class="box box--tech">
+<p>Le capteur de distance du TP déclenche une alerte sous 10 cm. Le classement par seuil est la décision la plus fréquente en robotique.</p>
+<pre><code>if d &lt; seuil:      alerte
+else:              tout va bien</code></pre>
+<p><strong>Strictement inférieur</strong> se traduit par <code>&lt;</code> : une distance égale au seuil n’alerte pas. Avec un <code>&lt;=</code>, la frontière changerait de camp — et les tests le remarquent, car ils incluent toujours le cas de la valeur exactement au seuil.</p>
+  <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Trois états avec elif</div>
     <pre><code>if t &gt; 30:
     etat = "ALERTE CHALEUR"
 elif t &lt; 15:
     etat = "ALERTE FROID"
 else:
-    etat = "normale"</code></pre>\n    <p>Les trois branches sont mutuellement exclusives : le premier test vrai gagne, les autres ne sont même pas évalués. L’ordre des tests fait partie de la logique.</p>
+    etat = "normale"</code></pre>
+    <p>Les trois branches sont mutuellement exclusives : le premier test vrai gagne, les autres ne sont même pas évalués. L’ordre des tests fait partie de la logique.</p>
   </div>
 
 <!-- code-labs:start -->

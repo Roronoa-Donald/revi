@@ -56,7 +56,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « intra, inter, groupe, public : la phrase grandit »', 'pin',
             '    <p>De soi (intra) à deux (inter), à quelques-uns (groupe), à tous (public) : chaque champ a ' +
             'ses règles, ses risques, ses formats — du for intérieur au discours face à la salle.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Mehrabian, Aristote et les fonctions du langage',
@@ -75,13 +75,13 @@ module.exports = [
           'poétique (plaire, le bien dire), phatique (établir et maintenir le contact), métalinguistique ' +
           '(parler de la langue avec la langue).</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Le para-verbal n\'est pas le non-verbal : la voix (intonation, volume) para-verbe ; la posture, le regard non-verbe.</li>\\n' +
-            '      <li>Logos n\'est pas éthos : la démonstration raisonne ; la crédibilité se gagne avant de parler.</li>\\n' +
-            '      <li>La fonction phatique ne transmet rien : elle maintient le canal (« allô ? », « vous me suivez ? »).</li>\\n' +
-            '      <li>L\'implicite n\'est pas un sous-texte secret : « Il fait chaud ici » demande d\'ouvrir la fenêtre.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Le para-verbal n\'est pas le non-verbal : la voix (intonation, volume) para-verbe ; la posture, le regard non-verbe.</li>\n' +
+            '      <li>Logos n\'est pas éthos : la démonstration raisonne ; la crédibilité se gagne avant de parler.</li>\n' +
+            '      <li>La fonction phatique ne transmet rien : elle maintient le canal (« allô ? », « vous me suivez ? »).</li>\n' +
+            '      <li>L\'implicite n\'est pas un sous-texte secret : « Il fait chaud ici » demande d\'ouvrir la fenêtre.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Explicite et implicite',
@@ -93,7 +93,7 @@ module.exports = [
           '<p>Décoder l\'implicite est une compétence professionnelle : un client qui « signale un petit ' +
           'problème » annonce souvent une réclamation ; un manager qui « serait curieux de voir le dossier » ' +
           'en demande la lecture. Entendre le dit, répondre au voulu.</p>'
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -206,7 +206,7 @@ module.exports = [
             '    <p>Familier = imagé et sonore (casser la croûte) ; courant = neutre et partagé (manger) ; ' +
             'soutenu = précis et rare (se restaurer). Si un mot fait rire, il est familier ; s\'il fait ' +
             'hésiter, il est soutenu.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Traquer les mots passe-partout',
@@ -228,13 +228,13 @@ module.exports = [
           '<strong>ressentir</strong> de la sympathie, <strong>subir</strong> une opération, ' +
           '<strong>compter</strong> mille habitants.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>Le familier n\'est pas interdit : il est « à sa place » — entre amis, jamais en clientèle.</li>\\n' +
-            '      <li>Le soutenu n\'est pas littéraire : un rapport peut dire « se sustenter » comme « demeurer ».</li>\\n' +
-            '      <li>Le « ne » supprimé (« je sais pas ») marque le familier autant que le lexique.</li>\\n' +
-            '      <li>Faire preuve de courage, pas « avoir du courage » : le passe-partout s\'entend immédiatement.</li>\\n' +
+            '    <ul>\n' +
+            '      <li>Le familier n\'est pas interdit : il est « à sa place » — entre amis, jamais en clientèle.</li>\n' +
+            '      <li>Le soutenu n\'est pas littéraire : un rapport peut dire « se sustenter » comme « demeurer ».</li>\n' +
+            '      <li>Le « ne » supprimé (« je sais pas ») marque le familier autant que le lexique.</li>\n' +
+            '      <li>Faire preuve de courage, pas « avoir du courage » : le passe-partout s\'entend immédiatement.</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 
@@ -338,7 +338,7 @@ module.exports = [
           box('mnemo', 'Mnémotechnique — « juillet est un prénom commun »', 'pin',
             '    <p>Jours et mois = noms communs : minuscule et pluriel possible. Etc. garde son point comme ' +
             'M. garde le sien : une abréviation, un point.</p>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Ci-joint, veuillez, de toute façon',
@@ -356,13 +356,13 @@ module.exports = [
           '<strong>étant donné</strong>, l\'accord est facultatif (étant donnée la rareté…) ; avec « étant ' +
           'donné que », pas d\'accord.</p>',
           box('pitfall', 'Confusions d\'examen', 'warning',
-            '    <ul>\\n' +
-            '      <li>« Ci-jointes les pièces » : fautif en tête de phrase — invariable.</li>\\n' +
-            '      <li>« Veillez croire » : fautif — veuillez (vouloir), pas veillez (veiller).</li>\\n' +
-            '      <li>« De toutes les façons » au sens de « quoi qu\'il arrive » : fautif — singulier.</li>\\n' +
-            '      <li>« Suppléer au responsable » quand on le remplace : fautif — suppléer quelqu\'un (COD).</li>\\n' +
+            '    <ul>\n' +
+            '      <li>« Ci-jointes les pièces » : fautif en tête de phrase — invariable.</li>\n' +
+            '      <li>« Veillez croire » : fautif — veuillez (vouloir), pas veillez (veiller).</li>\n' +
+            '      <li>« De toutes les façons » au sens de « quoi qu\'il arrive » : fautif — singulier.</li>\n' +
+            '      <li>« Suppléer au responsable » quand on le remplace : fautif — suppléer quelqu\'un (COD).</li>\n' +
             '    </ul>')
-        ].join('\\n')
+        ].join('\n')
       },
       {
         title: 'Profession sans article, titres abrégés',
@@ -378,7 +378,7 @@ module.exports = [
           'l\'opinion de — pas « j\'aborde ») ; <strong>bel et bien</strong> (réellement — locution figée, ' +
           'pas « belle et bien ») ; <strong>les validations sont du ressort du chef de projet</strong> (pas ' +
           '« ressortent au »).</p>'
-        ].join('\\n')
+        ].join('\n')
       }
     ],
 

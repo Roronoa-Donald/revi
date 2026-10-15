@@ -98,20 +98,20 @@ module.exports = {
         '<div class="grid grid-2">',
         '  <div class="card">',
         '    <h4>Anti-pattern : Invalidation Permanente du Cache</h4>',
-        '    <pre><code>FROM node:18-alpine\\n' +
-        'WORKDIR /app\\n' +
-        'COPY . .  # &lt;-- Erreur ! Modifie a chaque commit\\n' +
+        '    <pre><code>FROM node:18-alpine\n' +
+        'WORKDIR /app\n' +
+        'COPY . .  # &lt;-- Erreur ! Modifie a chaque commit\n' +
         'RUN npm install # Se relance a chaque modification du code !</code></pre>',
         '    <p>Le développeur modifie une ligne de commentaire dans son code source : <code>COPY . .</code> change, ' +
         '    le cache est brisé, et <code>npm install</code> doit retélécharger 800 Mo de dépendances à chaque fois.</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Pattern Optimal : Isolation des Dépendances</h4>',
-        '    <pre><code>FROM node:18-alpine\\n' +
-        'WORKDIR /app\\n' +
-        'COPY package*.json ./\\n' +
-        'RUN npm ci --only=production  # En cache si package.json inchange\\n' +
-        'COPY . .\\n' +
+        '    <pre><code>FROM node:18-alpine\n' +
+        'WORKDIR /app\n' +
+        'COPY package*.json ./\n' +
+        'RUN npm ci --only=production  # En cache si package.json inchange\n' +
+        'COPY . .\n' +
         'CMD ["node", "server.js"]</code></pre>',
         '    <p><code>npm ci</code> reste parfaitement en cache tant que les dépendances n’ont pas été modifiées. ' +
         '    Le build ne prend alors que 2 secondes !</p>',
@@ -160,12 +160,12 @@ module.exports = {
         '</table>',
 
         '<p><strong>Combinaison ENTRYPOINT + CMD :</strong></p>',
-        '<pre><code># ENTRYPOINT fixe le binaire de base inaltérable :\\n' +
-        'ENTRYPOINT ["python", "main.py"]\\n' +
-        '# CMD fournit les arguments par défaut substituables :\\n' +
-        'CMD ["--port", "8080"]\\n' +
-        '\\n' +
-        '# Un "docker run monapp" executera : python main.py --port 8080\\n' +
+        '<pre><code># ENTRYPOINT fixe le binaire de base inaltérable :\n' +
+        'ENTRYPOINT ["python", "main.py"]\n' +
+        '# CMD fournit les arguments par défaut substituables :\n' +
+        'CMD ["--port", "8080"]\n' +
+        '\n' +
+        '# Un "docker run monapp" executera : python main.py --port 8080\n' +
         '# Un "docker run monapp --debug" executera : python main.py --debug</code></pre>'
       ].join('\n')
     },
@@ -176,22 +176,22 @@ module.exports = {
         '<code>FROM</code> dans un même Dockerfile afin d’isoler hermétiquement l’environnement de compilation ' +
         'de l’image finale de production :</p>',
 
-        '<pre><code># --- Étape 1 : Environnement de compilation lourd (Build Stage) ---\\n' +
-        'FROM golang:1.21-alpine AS builder\\n' +
-        'WORKDIR /src\\n' +
-        'COPY go.mod go.sum ./\\n' +
-        'RUN go mod download\\n' +
-        'COPY . .\\n' +
-        'RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/monapp .\\n' +
-        '\\n' +
-        '# --- Étape 2 : Image minimale de production (Final Stage) ---\\n' +
-        'FROM alpine:3.18\\n' +
-        'RUN adduser -D -u 10001 appuser\\n' +
-        'WORKDIR /app\\n' +
-        '# On copie UNIQUEMENT le binaire final depuis l\'étape builder :\\n' +
-        'COPY --from=builder /bin/monapp /app/monapp\\n' +
-        'USER appuser\\n' +
-        'EXPOSE 8080\\n' +
+        '<pre><code># --- Étape 1 : Environnement de compilation lourd (Build Stage) ---\n' +
+        'FROM golang:1.21-alpine AS builder\n' +
+        'WORKDIR /src\n' +
+        'COPY go.mod go.sum ./\n' +
+        'RUN go mod download\n' +
+        'COPY . .\n' +
+        'RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/monapp .\n' +
+        '\n' +
+        '# --- Étape 2 : Image minimale de production (Final Stage) ---\n' +
+        'FROM alpine:3.18\n' +
+        'RUN adduser -D -u 10001 appuser\n' +
+        'WORKDIR /app\n' +
+        '# On copie UNIQUEMENT le binaire final depuis l\'étape builder :\n' +
+        'COPY --from=builder /bin/monapp /app/monapp\n' +
+        'USER appuser\n' +
+        'EXPOSE 8080\n' +
         'CMD ["/app/monapp"]</code></pre>',
 
         box(

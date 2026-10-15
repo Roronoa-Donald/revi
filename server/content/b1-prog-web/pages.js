@@ -167,7 +167,7 @@ function atelier(course) {
       '// Le script lit n, puis n lignes « nom note ».',
       '',
       'const fs = require("fs");',
-      'const lignes = fs.readFileSync(0, "utf8").trim().split("\\n");',
+      'const lignes = fs.readFileSync(0, "utf8").trim().split("\n");',
       '',
       'const n = Number(lignes[0]);',
       'const eleves = lignes.slice(1, 1 + n).map(ligne => {',
@@ -419,7 +419,7 @@ function formules(course) {
 
     bloc('JavaScript et DOM', [
       '<pre><code>const fs = require("fs");                              // hors navigateur',
-      'const lignes = fs.readFileSync(0, "utf8").trim().split("\\n");\n',
+      'const lignes = fs.readFileSync(0, "utf8").trim().split("\n");\n',
       '\n',
       'const eleves = lignes.map(l => l.trim().split(" "));',
       'const admis = eleves',
@@ -728,7 +728,7 @@ function exercices(course) {
       '//    affichée telle quelle : les chevrons restent visibles, rien n’est exécuté.',
       '',
       'const fs = require("fs");',
-      'const lignes = fs.readFileSync(0, "utf8").trim().split("\\n");',
+      'const lignes = fs.readFileSync(0, "utf8").trim().split("\n");',
       'const n = Number(lignes[0]);',
       'const eleves = lignes.slice(1, 1 + n).map(ligne => {',
       '  const parties = ligne.trim().split(" ");',

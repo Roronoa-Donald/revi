@@ -75,7 +75,13 @@
 </ol>
 <h4>Partie 3 : Rédaction et Optimisation de Dockerfile (8 points)</h4>
 <p>Soit le Dockerfile suivant pour une application Node.js :</p>
-<pre><code>FROM ubuntu:22.04\nRUN apt-get update\nRUN apt-get install -y nodejs npm\nCOPY . /app\nWORKDIR /app\nRUN npm install\nCMD node server.js</code></pre>
+<pre><code>FROM ubuntu:22.04
+RUN apt-get update
+RUN apt-get install -y nodejs npm
+COPY . /app
+WORKDIR /app
+RUN npm install
+CMD node server.js</code></pre>
 <ol>
   <li>Identifiez au moins 4 anti-patterns critiques dans ce Dockerfile (taille d’image, invalidation de cache, sécurité, signaux UNIX). (4 pts)</li>
   <li>Rédigez le Dockerfile corrigé et optimisé respectant les meilleures pratiques de production (image de base légère, ordre des couches de cache, utilisateur non-root, forme exec de CMD). (4 pts)</li>
@@ -105,7 +111,14 @@
     4. Exécution par défaut en utilisateur superadministrateur <code>root</code>.<br>
     5. <code>CMD node server.js</code> en forme shell qui lance un sous-shell <code>/bin/sh -c</code> bloquant la réception des signaux SIGTERM.</li>
   <li><strong>Dockerfile corrigé (4 pts) :</strong><br>
-    <code>FROM node:18-alpine\n    WORKDIR /app\n    COPY package*.json ./\n    RUN npm ci --only=production\n    COPY . .\n    USER node\n    EXPOSE 3000\n    CMD ["node", "server.js"]</code></li>
+    <code>FROM node:18-alpine
+    WORKDIR /app
+    COPY package*.json ./
+    RUN npm ci --only=production
+    COPY . .
+    USER node
+    EXPOSE 3000
+    CMD ["node", "server.js"]</code></li>
 </ul>
   </div>
 
@@ -155,7 +168,44 @@
 <h4>Corrigé Partie 3 (6 points)</h4>
 <ul>
   <li><strong>Fichier docker-compose.yml (4 pts) :</strong><br>
-    <pre><code>services:\n  web:\n    image: nginx:alpine\n    ports:\n      - "80:80"\n    depends_on:\n      - api\n    networks:\n      - app-net\n\n  api:\n    build: ./api\n    environment:\n      - DB_HOST=db\n    depends_on:\n      db:\n        condition: service_healthy\n    networks:\n      - app-net\n\n  db:\n    image: postgres:15-alpine\n    environment:\n      POSTGRES_PASSWORD: secret\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n    healthcheck:\n      test: ["CMD-SHELL", "pg_isready -U postgres"]\n      interval: 5s\n      retries: 5\n    networks:\n      - app-net\n\nvolumes:\n  pgdata:\n\nnetworks:\n  app-net:</code></pre></li>
+    <pre><code>services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - app-net
+
+  api:
+    build: ./api
+    environment:
+      - DB_HOST=db
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-net
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+    networks:
+      - app-net
+
+volumes:
+  pgdata:
+
+networks:
+  app-net:</code></pre></li>
   <li><strong>Sécurisation de depends_on (2 pts) :</strong> <code>depends_on</code> garantit uniquement que le conteneur cible est démarré au sens du système, pas que le démon de base de données PostgreSQL a terminé son initialisation et accepte les connexions TCP. La solution consiste à associer une directive <code>healthcheck</code> sur PostgreSQL et utiliser <code>condition: service_healthy</code> dans l’API.</li>
 </ul>
 <h4>Corrigé Partie 4 (4 points)</h4>

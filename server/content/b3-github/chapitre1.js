@@ -89,11 +89,11 @@ module.exports = {
         box('standard', 'Calcul Exact de l’Empreinte SHA-1 d’un Objet Git', [
           '<p>Le hash affiché par Git n’est pas le simple hash du fichier : Git injecte un en-tête canonique avant le calcul cryptographique :</p>',
           '<pre><code>format_brut = f"{type_objet} {taille_en_octets}\\0{contenu_du_fichier}"\nsha1 = hashlib.sha1(format_brut).hexdigest()</code></pre>',
-          '<p>Par exemple, pour un fichier contenant le mot <code>test\\n</code> (5 octets) :</p>',
+          '<p>Par exemple, pour un fichier contenant le mot <code>test\n</code> (5 octets) :</p>',
           '<ul>',
           '  <li>En-tête : <code>blob 5\\0</code></li>',
-          '  <li>Charge utile : <code>test\\n</code></li>',
-          '  <li>Total à hacher : <code>blob 5\\0test\\n</code> (12 octets au total)</li>',
+          '  <li>Charge utile : <code>test\n</code></li>',
+          '  <li>Total à hacher : <code>blob 5\\0test\n</code> (12 octets au total)</li>',
           '  <li>Empreinte SHA-1 résultante : <code>9daeafb9864cf43055ae93beb0afd6c7d144bfa4</code></li>',
           '</ul>'
         ]),
@@ -197,7 +197,7 @@ module.exports = {
         'sha1("blob 10:" + contenu)',
         'sha1("blob 10\\0" + contenu)',
         'sha1(contenu + "\\0blob 10")',
-        'sha1("file 10\\n" + contenu)'
+        'sha1("file 10\n" + contenu)'
       ],
       correct: 1,
       exp: 'Le standard Git injecte toujours le préambule : type + espace + taille_en_octets + octet_nul (\\0) suivi du contenu brut avant d’appliquer la fonction de hachage cryptographique.'

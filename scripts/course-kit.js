@@ -186,17 +186,19 @@ function box(kind, title, iconName, inner) {
 
 /** QCM interactif (corrigé par `assets/js/cours.js`). */
 function qcm(questions, opts) {
+  if (!Array.isArray(questions)) return '';
   const rows = questions.map(q => {
-    const options = q.opts.map((label, index) =>
+    const rawOpts = q.opts || q.choices || q.options || [];
+    const options = rawOpts.map((label, index) =>
       '        <button class="opt"' + (index === q.correct ? ' data-correct="1"' : '') + '>' + label + '</button>'
     ).join('\n');
     return [
       '    <div class="q">',
-      '      <p class="q__stem">' + q.stem + '</p>',
+      '      <p class="q__stem">' + (q.stem || q.q || '') + '</p>',
       '      <div class="opts">',
       options,
       '      </div>',
-      '      <div class="q__exp">' + q.exp + '</div>',
+      '      <div class="q__exp">' + (q.exp || q.explanation || '') + '</div>',
       '    </div>'
     ].join('\n');
   }).join('\n');

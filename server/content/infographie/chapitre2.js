@@ -76,8 +76,8 @@ module.exports = {
         '  <div class="card">',
         '    <h4>Étalonnage par les Niveaux (Levels)</h4>',
         '    <p>La transformation ré-étire l’intervalle utile <code>[in_black, in_white]</code> vers la plage complète <code>[0, 255]</code> :</p>',
-        '    <pre><code>val_norm = (pixel - in_black) / (in_white - in_black)\\n' +
-        'val_gamma = val_norm ** (1.0 / gamma)\\n' +
+        '    <pre><code>val_norm = (pixel - in_black) / (in_white - in_black)\n' +
+        'val_gamma = val_norm ** (1.0 / gamma)\n' +
         'pixel_final = clamp(round(val_gamma * 255), 0, 255)</code></pre>',
         '  </div>',
         '</div>'
