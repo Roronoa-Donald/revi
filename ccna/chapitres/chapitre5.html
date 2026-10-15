@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Routage IPv4, Tables de Routage &amp;amp; Routes Statiques | CCNA Réseau B2</title>
+<meta name="description" content="Chapitre 5 du cours CCNA Réseau B2 : Fonctionnement du routage de niveau 3, lecture de la table de routage (show ip route), algorithme Longest Prefix Match (LPM), Distance Administrative (AD) et métrique, routes directement connectées, routes statiques, route par défaut (0.0.0.0/0), routes flottantes de secours et supernetting. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/ccna/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Routage IPv4, Tables de Routage &amp;amp; Routes Statiques | CCNA Réseau B2">
+<meta property="og:description" content="Chapitre 5 du cours CCNA Réseau B2 : Fonctionnement du routage de niveau 3, lecture de la table de routage (show ip route), algorithme Longest Prefix Match (LPM), Distance Administrative (AD) et métrique, routes directement connectées, routes statiques, route par défaut (0.0.0.0/0), routes flottantes de secours et supernetting. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ccnanav"><div class="ccnanav__in">
+  <a class="ccnanav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ccnanav__sep" aria-hidden="true">/</span>
+  <a class="ccnanav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> CCNA Réseau B2</a>
+  <div class="ccnanav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ccnanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ccnawrap">
+<p class="crumb"><a href="../index.html">CCNA Réseau B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Routage IPv4, Tables de Routage &amp; Routes Statiques</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un fournisseur de services héberge plusieurs filiales interconnectées par des liaisons télécoms louées et un accès Internet fibre. Lors d’un incident de coupure de fibre optique principale, le trafic vers le siège ne bascule pas sur le lien 4G de secours, et certains paquets destinés à des serveurs internes empruntent par erreur la passerelle Internet publique avant d’être détruits. Les ingénieurs réseau doivent décortiquer l’algorithme décisionnel de la table de routage Cisco, comprendre la suprématie absolue du Longest Prefix Match (LPM) sur la Distance Administrative, configurer des routes statiques précises, des routes de dernier recours (0.0.0.0/0) et déployer des routes statiques flottantes pour garantir la résilience des liens. Ce cinquième module aborde le cœur névralgique de l’acheminement des paquets IP.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le rôle fondamental d’un routeur L3 et le cycle de vie d’un paquet IP traversant plusieurs sous-réseaux ;</li>
+      <li>interpréter avec précision la table de routage Cisco IOS issue de la commande « show ip route » (codes C, L, S, O, D) ;</li>
+      <li>maîtriser l’algorithme Longest Prefix Match (LPM) pour prédire quelle route sera choisie face à des préfixes concurrents ;</li>
+      <li>différencier la Distance Administrative (fiabilité de la source) de la métrique (coût du chemin) ;</li>
+      <li>configurer des routes statiques complètes (via adresse de prochain saut ou interface de sortie) et des routes par défaut (0.0.0.0/0) ;</li>
+      <li>concevoir une route statique flottante (Floating Static Route) avec Distance Administrative élevée pour le secours automatique ;</li>
+      <li>agréger plusieurs sous-réseaux contigus en un unique préfixe résumé (Supernetting / Route Summarization).</li>
+    </ol>
+  </div>
+
+<h2>1. Principes du Routage L3 &amp; Lecture de « show ip route »</h2>
+
+<p>Un <strong>routeur</strong> est un équipement de niveau 3 (Réseau) dont la mission est d’acheminer les paquets IP entre des réseaux logiques distincts. Pour chaque paquet reçu, il consulte sa <strong>table de routage (RIB / FIB)</strong> afin de déterminer l’interface de sortie et l’adresse du prochain saut (Next-Hop).</p>
+<p>La commande <code>show ip route</code> affiche les routes apprises, précédées d’un code identifiant leur origine :</p>
+<table class="table">
+  <thead>
+    <tr><th>Code</th><th>Origine</th><th>Distance Administrative</th><th>Exemple de Ligne Cisco IOS</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>C</code></td><td>Directement connectée</td><td>0</td><td><code>C 192.168.1.0/24 is directly connected, GigabitEthernet0/0</code></td></tr>
+    <tr><td><code>L</code></td><td>Hôte local (Local host)</td><td>0</td><td><code>L 192.168.1.254/32 is directly connected, GigabitEthernet0/0</code></td></tr>
+    <tr><td><code>S</code></td><td>Statique manuelle</td><td>1 (défaut)</td><td><code>S 10.0.0.0/8 [1/0] via 192.168.1.1</code></td></tr>
+    <tr><td><code>S*</code></td><td>Route par défaut / Candidat</td><td>1</td><td><code>S* 0.0.0.0/0 [1/0] via 198.51.100.254</code></td></tr>
+    <tr><td><code>O</code></td><td>OSPF dynamique</td><td>110</td><td><code>O 172.16.0.0/16 [110/20] via 10.1.1.2</code></td></tr>
+    <tr><td><code>D</code></td><td>EIGRP dynamique</td><td>90</td><td><code>D 10.20.0.0/16 [90/30720] via 10.1.1.2</code></td></tr>
+    <tr><td><code>B</code></td><td>BGP externe (eBGP)</td><td>20</td><td><code>B 203.0.113.0/24 [20/0] via 198.51.100.1</code></td></tr>
+  </tbody>
+</table>
+<p><strong>Structure de l’entrée <code>[AD/Métrique]</code> :</strong> Le premier nombre entre crochets représente la <strong>Distance Administrative</strong> (plus elle est petite, plus la source est jugée fiable). Le second nombre est la <strong>Métrique</strong> (coût calculé par le protocole pour atteindre la cible).</p>
+
+<h2>2. L’Algorithme Décisionnel : Longest Prefix Match (LPM)</h2>
+
+<p>L’une des règles les plus importantes de la certification CCNA est l’ordre de priorité appliqué par le routeur lors du routage :</p>
+<ol>
+  <li><strong>Règle n°1 — Longest Prefix Match (LPM) :</strong><br>
+    Le routeur recherche toutes les routes dont le réseau englobe l’adresse IP destination du paquet.     Parmi les routes candidates, <strong>la route ayant le préfixe le plus long (le masque le plus spécifique) est OBLIGATOIREMENT choisie</strong>.     Cette règle l’emporte toujours, indépendamment de la Distance Administrative ou de la métrique !</li>
+  <li><strong>Règle n°2 — Distance Administrative (AD) :</strong><br>
+    Si deux routes candidates ont <strong>exactement la même longueur de préfixe</strong> (ex: deux routes vers <code>10.0.0.0/24</code>),     le routeur installe dans sa table de routage celle qui possède la plus petite Distance Administrative.</li>
+  <li><strong>Règle n°3 — Métrique la plus faible :</strong><br>
+    Si les deux routes proviennent du même protocole (même préfixe et même AD), la route ayant la plus petite métrique est préférée.</li>
+</ol>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Exemple Piège Classique de Concours &amp; Certification</div>
+<p>Soit la table suivante :<br>
+1. <code>S 10.0.0.0/16 [1/0] via 192.168.1.1</code> (Route statique, AD=1)<br>
+2. <code>O 10.0.1.0/24 [110/20] via 192.168.2.1</code> (Route OSPF, AD=110)</p>
+<p>Un paquet arrive pour <strong>10.0.1.50</strong>. Quelle route est empruntée ?<br>
+Réponse : La route <strong>OSPF (/24)</strong> ! Même si son AD est de 110 contre 1 pour la statique, son masque de 24 bits est plus long que le masque de 16 bits. Le Longest Prefix Match a toujours la priorité absolue.</p>
+  </div>
+
+<h2>3. Configuration des Routes Statiques &amp; Route par Défaut</h2>
+
+<p>Une route statique est configurée manuellement par l’administrateur avec la syntaxe globale :<br>
+<code>Router(config)# ip route &lt;reseau_destination&gt; &lt;masque&gt; &lt;next_hop_ip | interface_sortie&gt;</code></p>
+<ul>
+  <li><strong>Route vers prochain saut (Next-Hop IP) :</strong><br>
+    <code>R1(config)# ip route 192.168.20.0 255.255.255.0 10.0.0.2</code><br>
+    Recommandé sur les interfaces multi-accès Ethernet (évite les résolutions ARP abusives).</li>
+  <li><strong>Route directement connectée (Interface de sortie) :</strong><br>
+    <code>R1(config)# ip route 192.168.20.0 255.255.255.0 Serial0/0/0</code><br>
+    Adapté aux liaisons point-à-point série.</li>
+  <li><strong>Route entièrement spécifiée (Fully Specified Route) :</strong><br>
+    <code>R1(config)# ip route 192.168.20.0 255.255.255.0 GigabitEthernet0/1 10.0.0.2</code></li>
+  <li><strong>Route par défaut (Passerelle de dernier recours) :</strong><br>
+    <code>R1(config)# ip route 0.0.0.0 0.0.0.0 198.51.100.254</code><br>
+    Représentée par <code>0.0.0.0/0</code>, elle matche tous les paquets qui n’ont aucune route spécifique dans la table. C’est la passerelle vers Internet.</li>
+</ul>
+
+<h2>4. Routes Statiques Flottantes &amp; Supernetting</h2>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Routes Statiques Flottantes (Secours)</h4>
+    <p>Une <strong>route statique flottante</strong> est configurée avec une Distance Administrative manuellement rehaussée pour être supérieure à celle de la liaison principale :</p>
+    <pre><code>! Lien principal fibre (AD 1 par defaut)
+ip route 10.0.0.0 255.0.0.0 172.16.1.1
+! Lien 4G secours (AD forcee a 10)
+ip route 10.0.0.0 255.0.0.0 172.16.2.1 10</code></pre>
+    <p>La route AD 10 reste dormante hors de la table de routage tant que le lien primaire fonctionne. En cas de coupure du lien primaire, elle s’injecte instantanément dans la table.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Supernetting (Résumé de Routes)</h4>
+    <p>Le <strong>supernetting</strong> permet d’agréger plusieurs sous-réseaux contigus en un unique préfixe résumé CIDR pour alléger la table :</p>
+    <p>Exemple : 4 réseaux /24 contigus :<br>
+    <code>192.168.0.0/24</code>, <code>192.168.1.0/24</code>, <code>192.168.2.0/24</code>, <code>192.168.3.0/24</code><br>
+    Tous partagent les 22 premiers bits binaires identiques.<br>
+    Leur résumé optimal est : <code>192.168.0.0/22</code> (masque 255.255.252.0).</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="na2-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="C 192.168.1.0/24 is directly connected, GigabitEthernet0/0&#10;S 10.0.0.0/8 [1/0] via 192.168.1.254">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : parser les lignes show ip route
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur de table de routage Cisco (show ip route)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les entrées d'une table de routage Cisco IOS pour identifier la source (code), le préfixe, la distance administrative et le next-hop.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des lignes typiques de <code>show ip route</code> :<br>
+- <code>C 192.168.1.0/24 is directly connected, GigabitEthernet0/0</code><br>
+- <code>L 192.168.1.1/32 is directly connected, GigabitEthernet0/0</code><br>
+- <code>S 10.0.0.0/8 [1/0] via 192.168.1.254</code><br>
+- <code>O 172.16.0.0/16 [110/20] via 10.1.1.2, GigabitEthernet0/1</code><br>
+- <code>S* 0.0.0.0/0 [1/0] via 192.168.1.254</code><br>
+Pour chaque route, il affiche :<br>
+<code>[&lt;PROTO&gt;] &lt;RESEAU&gt; | AD=&lt;AD&gt; | Metrique=&lt;MET&gt; | Sortie=&lt;VIA_OU_INTERFACE&gt;</code><br>
+avec les correspondances de protocoles :<br>
+<code>C</code> -&gt; Directement Connecte (AD=0, Metrique=0)<br>
+<code>L</code> -&gt; Hote Local (AD=0, Metrique=0)<br>
+<code>S</code> ou <code>S*</code> -&gt; Statique (AD et métrique extraits de <code>[AD/Metrique]</code>, par défaut AD=1, Met=0 si non précisé)<br>
+<code>O</code> -&gt; OSPF (AD=110)<br>
+<code>D</code> -&gt; EIGRP (AD=90)<br>
+<code>B</code> -&gt; BGP (AD=20 si eBGP, 200 si iBGP)</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>C 192.168.1.0/24 is directly connected, GigabitEthernet0/0
+S 10.0.0.0/8 [1/0] via 192.168.1.254</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[Directement Connecte] 192.168.1.0/24 | AD=0 | Metrique=0 | Sortie=GigabitEthernet0/0
+[Statique] 10.0.0.0/8 | AD=1 | Metrique=0 | Sortie=via 192.168.1.254</pre></div>
+    </div>
+    <p class="lab__note">Extraction de route connectée et route statique standard.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le premier token indique le code protocole (C, L, S, S*, O, D, B).</li>
+        <li>Le bloc entre crochets [AD/Metrique] fournit la Distance Administrative et le coût.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="PAQUET: 192.168.1.135&#10;ROUTE 192.168.0.0/16 10.1.1.1 1&#10;ROUTE 192.168.1.0/24 10.2.2.1 110&#10;ROUTE 192.168.1.128/28 10.3.3.1 110&#10;ROUTE 0.0.0.0/0 10.0.0.254 1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : implémenter le mécanisme Longest Prefix Match
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur de décision Longest Prefix Match (LPM)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer la route exacte empruntée par un paquet IP en appliquant la règle CCNA du préfixe le plus spécifique.</p>
+    <div class="lab__brief"><p>Le script lit sur la première ligne l'adresse IP de destination à router (ex: <code>PAQUET: 192.168.1.135</code>).<br>
+Les lignes suivantes décrivent les routes candidates dans la table de routage au format :<br>
+<code>ROUTE &lt;PREFIXE/CIDR&gt; &lt;NEXT_HOP&gt; &lt;AD&gt;</code> (ex: <code>ROUTE 192.168.1.128/28 10.0.0.1 110</code>).<br>
+Règles d'arbitrage Cisco :<br>
+1. Filtrer les routes qui englobent l'IP de destination (l'IP doit appartenir au sous-réseau).<br>
+2. Choisir la route ayant le <strong>masque le plus long (CIDR le plus élevé)</strong> : Longest Prefix Match.<br>
+3. En cas d'égalité parfaite de longueur de préfixe, départager par la <strong>plus petite Distance Administrative (AD)</strong>.<br>
+Afficher :<br>
+<code>ROUTE RETENUE: &lt;PREFIXE/CIDR&gt; via &lt;NEXT_HOP&gt; (Masque /&lt;n&gt;, AD=&lt;ad&gt;)</code><br>
+Si aucune route ne correspond, afficher <code>PAQUET REJETE: Pas de route par defaut</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PAQUET: 192.168.1.135
+ROUTE 192.168.0.0/16 10.1.1.1 1
+ROUTE 192.168.1.0/24 10.2.2.1 110
+ROUTE 192.168.1.128/28 10.3.3.1 110
+ROUTE 0.0.0.0/0 10.0.0.254 1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ROUTE RETENUE: 192.168.1.128/28 via 10.3.3.1 (Masque /28, AD=110)</pre></div>
+    </div>
+    <p class="lab__note">Le préfixe /28 est le plus spécifique bien que son AD (110) soit plus forte que /16 (AD 1).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier l'appartenance à un sous-réseau : (ip &amp; mask) == network.</li>
+        <li>Le tri principal est sur le CIDR décroissant, le tri secondaire sur l'AD croissante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="192.168.0.0/24&#10;192.168.1.0/24&#10;192.168.2.0/24&#10;192.168.3.0/24">
+  <script type="text/plain" data-lab-starter>import sys
+
+reseaux = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : calculer l'adresse résumée supernetting
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Calculateur de résumé de routes (Supernetting CIDR)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Agréger un ensemble de sous-réseaux IPv4 contigus en un unique préfixe résumé optimal pour optimiser la table de routage.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une liste de sous-réseaux IPv4 avec leur préfixe (ex: <code>192.168.0.0/24</code>, <code>192.168.1.0/24</code>, <code>192.168.2.0/24</code>, <code>192.168.3.0/24</code>).<br>
+L'objectif est de déterminer le <strong>plus petit préfixe englobant</strong> (Supernet) qui couvre l'ensemble des réseaux donnés :<br>
+1. Convertir chaque réseau en binaire 32 bits.<br>
+2. Trouver le nombre de bits communs de poids fort partagés par TOUS les réseaux.<br>
+3. Calculer l'adresse réseau résultante avec ce nouveau CIDR.<br>
+Afficher :<br>
+<code>RESUME OPTIMAL: &lt;RESEAU_RESUME&gt;/&lt;CIDR_COMMUN&gt;</code><br>
+<code>Masque: &lt;MASQUE_DECIMAL&gt;</code><br>
+<code>Sous-reseaux englobes: &lt;N&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>192.168.0.0/24
+192.168.1.0/24
+192.168.2.0/24
+192.168.3.0/24</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RESUME OPTIMAL: 192.168.0.0/22
+Masque: 255.255.252.0
+Sous-reseaux englobes: 4</pre></div>
+    </div>
+    <p class="lab__note">4 blocs /24 contigus résumés en 1 bloc /22.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparer les représentations binaires des adresses réseau minimale et maximale du lot.</li>
+        <li>Le premier bit divergent détermine la fin du préfixe commun.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans la sortie de « show ip route », que représente le premier chiffre entre crochets dans l’expression « [110/35] » ?</p>
+      <div class="opts">
+        <button class="opt">Le nombre de sauts jusqu’au réseau cible</button>
+        <button class="opt" data-correct="1">La Distance Administrative (AD) mesurant la fiabilité du protocole</button>
+        <button class="opt">La bande passante disponible en mégabits par seconde</button>
+        <button class="opt">Le temps de convergence en millisecondes</button>
+      </div>
+      <div class="q__exp">Dans l’affichage [110/35], 110 est la Distance Administrative (ici OSPF) et 35 est la métrique (coût du lien).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Soit deux routes dans la table : 192.168.1.0/24 via 10.0.0.1 (AD 1) et 192.168.1.128/25 via 10.0.0.2 (AD 110). Vers quelle adresse IP un paquet destiné à 192.168.1.150 est-il acheminé ?</p>
+      <div class="opts">
+        <button class="opt">Vers 10.0.0.1 car la Distance Administrative 1 est meilleure que 110</button>
+        <button class="opt" data-correct="1">Vers 10.0.0.2 car le préfixe /25 est plus spécifique (Longest Prefix Match)</button>
+        <button class="opt">Le paquet est équilibré 50/50 entre les deux prochains sauts</button>
+        <button class="opt">Le paquet est rejeté pour ambiguïté de routage</button>
+      </div>
+      <div class="q__exp">L’algorithme Longest Prefix Match s’applique en premier : /25 est plus long que /24. La Distance Administrative ne sert qu’à départager des routes de même longueur de masque.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la syntaxe correcte pour configurer une route par défaut vers la passerelle 203.0.113.1 sous Cisco IOS ?</p>
+      <div class="opts">
+        <button class="opt">ip route default 203.0.113.1</button>
+        <button class="opt" data-correct="1">ip route 0.0.0.0 0.0.0.0 203.0.113.1</button>
+        <button class="opt">ip default-gateway 203.0.113.1</button>
+        <button class="opt">ip route *.*.*.* 203.0.113.1</button>
+      </div>
+      <div class="q__exp">La route par défaut sous Cisco IOS est définie par le préfixe 0.0.0.0 avec le masque 0.0.0.0, soit la commande « ip route 0.0.0.0 0.0.0.0 203.0.113.1 ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la valeur de la Distance Administrative par défaut attribuée à une route directement connectée (C) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0</button>
+        <button class="opt">1</button>
+        <button class="opt">90</button>
+        <button class="opt">110</button>
+      </div>
+      <div class="q__exp">Une route directement connectée a une Distance Administrative de 0, ce qui en fait la source d’information la plus fiable possible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment qualifie-t-on une route statique configurée avec une Distance Administrative de 150 pour servir de secours à une route OSPF (AD 110) ?</p>
+      <div class="opts">
+        <button class="opt">Une route par défaut</button>
+        <button class="opt" data-correct="1">Une route statique flottante</button>
+        <button class="opt">Une route récursive</button>
+        <button class="opt">Une route Anycast</button>
+      </div>
+      <div class="q__exp">C’est une route statique flottante (Floating Static Route). Son AD supérieure à 110 la maintient inactive tant qu’OSPF fonctionne, et lui permet de s’injecter en cas de panne d’OSPF.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel préfixe CIDR agrégé (Supernetting) résume au plus juste les deux sous-réseaux contigus 172.16.10.0/24 et 172.16.11.0/24 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">172.16.10.0/23</button>
+        <button class="opt">172.16.0.0/16</button>
+        <button class="opt">172.16.10.0/22</button>
+        <button class="opt">172.16.8.0/21</button>
+      </div>
+      <div class="q__exp">En binaire, 10 vaut 00001010 et 11 vaut 00001011. Les 7 premiers bits du troisième octet sont identiques, ce qui donne 16 + 7 = 23 bits communs. Le résumé optimal est donc 172.16.10.0/23.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un routeur reçoit un paquet destiné à une adresse IP pour laquelle aucune route spécifique n’existe et qu’aucune route par défaut n’est configurée ?</p>
+      <div class="opts">
+        <button class="opt">Le routeur diffuse le paquet sur tous ses ports</button>
+        <button class="opt" data-correct="1">Le routeur détruit le paquet et renvoie un message ICMP Destination Unreachable à l’émetteur</button>
+        <button class="opt">Le routeur met le paquet en attente pendant 30 secondes</button>
+        <button class="opt">Le routeur renvoie le paquet à l’émetteur sans modification</button>
+      </div>
+      <div class="q__exp">Sans route correspondante ni route par défaut (0.0.0.0/0), le paquet est silencieusement détruit et le routeur émet un message ICMP type 3 code 0 (Network Unreachable) vers l’adresse IP source.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle Distance Administrative possède une route apprise via le protocole EIGRP interne ?</p>
+      <div class="opts">
+        <button class="opt">20</button>
+        <button class="opt" data-correct="1">90</button>
+        <button class="opt">110</button>
+        <button class="opt">120</button>
+      </div>
+      <div class="q__exp">EIGRP interne possède une Distance Administrative par défaut de 90. (OSPF est à 110, RIP à 120 et eBGP à 20).</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Penser que la Distance Administrative a la priorité sur la longueur du préfixe : le Longest Prefix Match l’emporte toujours.</li>
+      <li>Oublier que le routage est bidirectionnel : envoyer un paquet avec succès ne sert à rien si le routeur de destination ne sait pas répondre.</li>
+      <li>Utiliser uniquement l’interface de sortie sur un lien Ethernet multi-accès (provoque une tempête de requêtes ARP proxy).</li>
+      <li>Configurer une route flottante avec une AD inférieure ou égale à la route principale, écrasant ainsi la route normale.</li>
+      <li>Résumer des sous-réseaux non contigus ou inclure des réseaux tiers par erreur dans un calcul de supernetting.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie d’Ingénierie &amp; Troubleshooting du Routage IP</div>
+    <ol>
+      <li>Étape 1 — Inspection de la table : Lancer « show ip route » et vérifier la présence des réseaux directement connectés (C/L) et statiques (S).</li>
+      <li>Étape 2 — Test LPM : Identifier le préfixe englobant le plus long pour l’adresse IP ciblée afin de connaître le prochain saut retenu.</li>
+      <li>Étape 3 — Vérification du prochain saut : S’assurer que l’adresse IP du next-hop est bien joignable sur le lien local (vérifier « show ip arp »).</li>
+      <li>Étape 4 — Contrôle de la route retour : S’assurer que le routeur distant dispose lui aussi d’une route valide pour retourner les paquets (routage bidirectionnel).</li>
+      <li>Étape 5 — Validation de secours : Débrancher temporairement le lien primaire pour attester que la route statique flottante prend bien le relais.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le routeur L3 achemine les paquets IP en consultant sa table de routage (RIB/FIB).</li>
+      <li>Chaque entrée de table comprend un code source (C, L, S, O, D), un préfixe et le couple [Distance Administrative / Métrique].</li>
+      <li>L’algorithme Longest Prefix Match (LPM) donne la priorité absolue à la route ayant le masque le plus long (le plus spécifique).</li>
+      <li>La Distance Administrative mesure la fiabilité de la source (Directe 0, Statique 1, EIGRP 90, OSPF 110, RIP 120).</li>
+      <li>La route par défaut 0.0.0.0 0.0.0.0 permet d’acheminer tous les paquets vers Internet en l’absence de route plus spécifique.</li>
+      <li>Une route statique flottante possède une AD supérieure à la route normale pour s’activer uniquement en cas de panne.</li>
+      <li>Le supernetting agrège plusieurs sous-réseaux contigus en un préfixe résumé optimal pour réduire la taille des tables de routage.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais lire et expliquer chaque champ d’une sortie « show ip route » sous Cisco IOS.</li>
+      <li>J’applique sans hésitation l’algorithme Longest Prefix Match pour déterminer la route gagnante.</li>
+      <li>Je connais par cœur les distances administratives des principales sources de routage (0, 1, 90, 110, 120).</li>
+      <li>Je sais rédiger la commande exacte d’une route statique, d’une route par défaut et d’une route flottante.</li>
+      <li>Je sais calculer le masque agrégé d’un ensemble de sous-réseaux contigus (Supernetting).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Routage de niveau 3 et table de routage</li><li>Commande « show ip route » et codes C, L, S, O</li><li>Distance Administrative (AD) et métrique</li><li>Algorithme Longest Prefix Match (LPM)</li><li>Route statique (ip route) et next-hop</li><li>Route par défaut (0.0.0.0/0)</li><li>Route statique flottante (Floating Static Route)</li><li>Résumé de routes et Supernetting CIDR</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la différence entre Longest Prefix Match et Distance Administrative, ainsi que la syntaxe de ip route.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes bases. Entraînez-vous à l’arbitrage de routes concurrentes et au calcul de supernetting.</div>
+      <div class="bandrow bandrow--good">7/8 : Très solide compréhension du routage IP, de la FIB et de la configuration des routes flottantes.</div>
+      <div class="bandrow bandrow--top">8/8 : Expert en routage IPv4 ! Vous êtes paré pour le dernier module : les VLANs et le Router-on-a-Stick.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — VLANs, Trunking 802.1Q &amp; Routage Inter-VLAN (ROAS) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les guides officiels Cisco Press CCNA 200-301 (Wendell Odom), les RFC de l’IETF (RFC 791, RFC 1918, RFC 3021) et les standards IEEE 802.1D, 802.1w et 802.1Q.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

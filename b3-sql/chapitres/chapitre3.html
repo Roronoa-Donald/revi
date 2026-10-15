@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Analyse des Plans d’Exécution EXPLAIN (ANALYZE, BUFFERS) &amp;amp; Optimiseur CBO | SQL Avancé B3</title>
+<meta name="description" content="Chapitre 3 du cours SQL Avancé B3 : Moteur d’optimisation par les coûts (Cost-Based Optimizer - CBO), commande EXPLAIN (ANALYZE, BUFFERS), nœuds d’accès physiques (Seq Scan, Index Scan, Bitmap Heap Scan), algorithmes de jointure (Nested Loop, Hash Join, Merge Join), statistiques pg_statistic et dérives de cardinalité. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-sql/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Analyse des Plans d’Exécution EXPLAIN (ANALYZE, BUFFERS) &amp;amp; Optimiseur CBO | SQL Avancé B3">
+<meta property="og:description" content="Chapitre 3 du cours SQL Avancé B3 : Moteur d’optimisation par les coûts (Cost-Based Optimizer - CBO), commande EXPLAIN (ANALYZE, BUFFERS), nœuds d’accès physiques (Seq Scan, Index Scan, Bitmap Heap Scan), algorithmes de jointure (Nested Loop, Hash Join, Merge Join), statistiques pg_statistic et dérives de cardinalité. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-sqlnav"><div class="b3-sqlnav__in">
+  <a class="b3-sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-sqlnav__sep" aria-hidden="true">/</span>
+  <a class="b3-sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL Avancé B3</a>
+  <div class="b3-sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-sqlwrap">
+<p class="crumb"><a href="../index.html">SQL Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Analyse des Plans d’Exécution EXPLAIN (ANALYZE, BUFFERS) &amp; Optimiseur CBO</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lorsqu’une requête SQL met 12 secondes à s’exécuter en production au lieu des 50 millisecondes attendues, tenter de deviner intuitivement ce qui se passe conduit souvent à de fausses pistes ou à l’ajout hasardeux d’index inutiles. Dans un SGBDR comme PostgreSQL, l’optimiseur de requêtes (Cost-Based Optimizer - CBO) compile chaque requête déclarative en un plan d’exécution physique composé d’un arbre d’opérateurs. L’ingénieur de données de niveau Bachelor 3 doit savoir lire, disséquer et interpréter un rapport d’exécution généré par la commande EXPLAIN (ANALYZE, BUFFERS). Il doit comprendre les métriques de coût abstrait (startup cost, total cost), distinguer les comportements I/O en cache mémoire et sur disque, maîtriser la sélection des algorithmes de jointure (Nested Loop vs Hash Join vs Merge Join) et détecter les dérives catastrophiques d’estimation de cardinalité causées par des statistiques obsolètes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le fonctionnement interne de l’optimiseur par les coûts (CBO) et son modèle de pondération matérielle ;</li>
+      <li>analyser la structure arborescente d’un rapport EXPLAIN (ANALYZE, BUFFERS, TIMING) ;</li>
+      <li>différencier les nœuds d’accès aux relations : Seq Scan, Index Scan, Index Only Scan et Bitmap Index Scan ;</li>
+      <li>comparer en profondeur les trois algorithmes de jointure : Nested Loop, Hash Join et Merge Join ;</li>
+      <li>auditer la mémoire de travail (work_mem) et identifier les écritures temporaires sur disque (Hash Batches / Sort Spill) ;</li>
+      <li>développer en Python 3 des parseurs de plans EXPLAIN, des simulateurs d’algorithmes de jointure et des détecteurs d’écarts de cardinalité.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Moteur d’Optimisation CBO & La Commande EXPLAIN (ANALYZE, BUFFERS)</h2>
+
+<p>Le SQL étant un langage déclaratif, l’utilisateur exprime <em>ce qu’il veut obtenir</em> et non <em>la méthode pour y parvenir</em>. L’optimiseur Cost-Based Optimizer (CBO) génère des centaines de plans d’exécution alternatifs et sélectionne celui dont le coût total estimé est le plus faible :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Options Cruciales de la Commande EXPLAIN</h4>
+    <ul>
+      <li><code>EXPLAIN &lt;sql&gt;</code> : Affiche uniquement les estimations théoriques calculées par le planificateur, sans exécuter la requête.</li>
+      <li><code>EXPLAIN (ANALYZE)</code> : <strong>Exécute réellement la requête</strong> et mesure les temps réels d’exécution (actual time en ms) et le nombre de lignes produites (actual rows).</li>
+      <li><code>EXPLAIN (ANALYZE, BUFFERS)</code> : Affiche en plus les blocs mémoire manipulés dans le buffer pool (<code>shared hit</code> = blocs en RAM, <code>read</code> = blocs lus sur disque, <code>dirtied</code> = blocs modifiés).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Compréhension des Métriques de Coût PostgreSQL</h4>
+    <p>Chaque nœud de plan est annoté de la métrique officielle :</p>
+    <pre><code>(cost=startup_cost..total_cost rows=N width=W)</code></pre>
+    <ul>
+      <li><strong>startup_cost :</strong> Coût estimé avant que le premier tuple ne soit renvoyé (ex: 0.00 pour un Seq Scan, ou le temps de tri pour un Sort).</li>
+      <li><strong>total_cost :</strong> Coût cumulé pour traiter l’ensemble des lignes de ce nœud.</li>
+      <li><strong>rows :</strong> Nombre estimé de lignes produites à ce stade.</li>
+      <li><strong>width :</strong> Largeur moyenne en octets de chaque tuple retourné.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Nœuds d’Accès aux Tables & Algorithmes de Jointure CBO</h2>
+
+<p>L’arbre du plan d’exécution se lit de l’intérieur vers l’extérieur (du nœud le plus indenté vers la racine). Le moteur choisit parmi quatre modes d’accès aux relations :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Les Quatre Nœuds d’Accès Physiques</h4>
+    <ul>
+      <li><strong>Seq Scan (Sequential Scan) :</strong> Balaye séquentiellement chaque bloc de la table. Privilégié si la table est petite ou si la requête sélectionne plus de 15 à 20 % des enregistrements.</li>
+      <li><strong>Index Scan :</strong> Parcourt l’arbre B-Tree puis lit directement le bloc de données correspondant sur la table. Optimal pour une sélectivité très forte (quelques lignes).</li>
+      <li><strong>Bitmap Heap Scan :</strong> Construit un vecteur de bits des blocs contenant les résultats (Bitmap Index Scan) puis les lit dans l’ordre physique séquentiel du disque.</li>
+      <li><strong>Index Only Scan :</strong> Toutes les colonnes nécessaires sont stockées dans l’index couvrant : la table n’est jamais lue.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Les Trois Algorithmes de Jointure CBO</h4>
+    <ul>
+      <li><strong>Nested Loop Join :</strong> Pour chaque ligne de la table externe, le moteur consulte la table interne. Formidablement rapide si la table externe est petite et que la table interne est indexée.</li>
+      <li><strong>Hash Join :</strong> Construit une table de hachage en mémoire avec la plus petite relation (build table), puis scanne la grande table (probe table). Exige une égalité (<code>=</code>).</li>
+      <li><strong>Merge Join :</strong> Parcourt en parallèle deux relations déjà triées sur la clé de jointure en $O(N + M)$. Idéal pour joindre deux volumes massifs indexés.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Impact de la Mémoire work_mem sur les Hash Joins et Tris</div>
+<p>Le paramètre <code>work_mem</code> alloue la quantité de mémoire RAM disponible par opération de tri ou de hachage. Si une table de hachage ou un tri dépasse <code>work_mem</code>, le moteur est contraint d’écrire des partitions temporaires sur disque (<strong>spill to disk / external sort</strong>), ce qui dégrade les temps d’exécution d’un facteur 10 à 50.</p>
+  </div>
+
+<h2>3. Statistiques du Catalogue pg_statistic & Dérives de Cardinalité</h2>
+
+<p>L’optimiseur calcule ses coûts en s’appuyant sur les métadonnées collectées par le démon <strong>Autovacuum / ANALYZE</strong> et stockées dans la vue système <code>pg_stats</code> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Contenu des Statistiques Collectées</h4>
+    <ul>
+      <li><strong>n_distinct :</strong> Nombre estimé de valeurs distinctes dans la colonne (ou ratio négatif si proportionnel au nombre de lignes).</li>
+      <li><strong>most_common_vals (MCV) :</strong> Liste des valeurs les plus fréquemment observées.</li>
+      <li><strong>most_common_freqs (MCF) :</strong> Fréquences statistiques respectives des valeurs MCV.</li>
+      <li><strong>histogram_bounds :</strong> Bornes de l’histogramme d’équirépartition des autres valeurs.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Le Piège Mortel de la Dérive de Cardinalité</h4>
+    <p>Si une table subit des insertions massives sans qu’un <code>ANALYZE</code> ne soit exécuté, les statistiques restent obsolètes :</p>
+    <ul>
+      <li>Le CBO estime <code>rows=1</code> au lieu de <code>rows=500000</code>.</li>
+      <li>Pensant qu’il n’y a qu’une seule ligne, il sélectionne un <strong>Nested Loop Join catastrophique</strong> qui va boucler 500 000 fois au lieu d’exécuter un Hash Join.</li>
+      <li><strong>Remède immédiat :</strong> Exécuter <code>ANALYZE nom_de_table;</code> ou ajuster <code>default_statistics_target</code> de 100 à 500 pour affiner la précision.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="sql3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="-&gt; Seq Scan on utilisateurs (cost=0.00..450.50 rows=12000 width=36)&#10;-&gt; Index Scan using idx_commandes on commandes (cost=0.42..8.44 rows=10 width=48)">
+  <script type="text/plain" data-lab-starter>import sys
+import re
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : parser les métriques de coût cost=.. rows=.. width=.. dans chaque nœud
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur et estimateur de coût de plan d’exécution EXPLAIN</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les lignes d’un plan d’exécution PostgreSQL pour extraire les nœuds d’accès et les métriques de coût.</p>
+    <div class="lab__brief">Dans PostgreSQL, la commande `EXPLAIN` renvoie l’arbre des opérations planifiées par le Cost-Based Optimizer (CBO).
+Chaque nœud de plan indique son algorithme et ses métriques standard :
+`-> Node_Type on Target_Relation (cost=startup..total rows=N width=W)`
+- `startup` : coût estimé pour produire la toute première ligne de résultat.
+- `total` : coût total estimé pour consommer l’ensemble des lignes du nœud.
+- `rows` : estimation du nombre de lignes produites.
+- `width` : taille moyenne en octets de chaque tuple produit.
+
+Entrée :
+Des lignes de plan au format standard PostgreSQL (Seq Scan, Index Scan, Bitmap Heap Scan, etc.).
+
+Sortie :
+- Pour chaque nœud analysé :
+  `NODE type=<NODE_TYPE> target=<TARGET> startup=<STARTUP> total=<TOTAL> rows=<ROWS> width=<WIDTH>`
+- En fin de traitement : `SUMMARY nodes_count=<N> max_total_cost=<MAX_TOTAL>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>-&gt; Seq Scan on utilisateurs (cost=0.00..450.50 rows=12000 width=36)
+-&gt; Index Scan using idx_commandes on commandes (cost=0.42..8.44 rows=10 width=48)</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>NODE type=Seq Scan target=utilisateurs startup=0.00 total=450.50 rows=12000 width=36
+NODE type=Index Scan target=commandes startup=0.42 total=8.44 rows=10 width=48
+SUMMARY nodes_count=2 max_total_cost=450.50</pre></div>
+    </div>
+    <p class="lab__note">Deux nœuds parsés avec calcul du coût maximal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser une expression régulière pour capturer le type de nœud, la relation cible, ainsi que les champs cost, rows et width.</li>
+        <li>Pattern type : r"(?:-&gt;\s+)?([A-Za-z\s]+?)(?:\s+on\s+([A-Za-z0-9_]+))?\s+\(cost=([0-9.]+)\.\.([0-9.]+)\s+rows=([0-9]+)\s+width=([0-9]+)\)"</li>
+        <li>Normaliser les espaces du type de nœud et convertir les coûts en flottants.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="JOIN t1=clients r1=50 indexed1=true sorted1=false t2=commandes r2=100000 indexed2=true sorted2=false op=eq">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la logique de décision de l'optimiseur de jointure
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur de sélection d’algorithme de jointure (Nested Loop vs Hash vs Merge)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le choix de l’optimiseur de requêtes pour sélectionner le meilleur algorithme de jointure.</p>
+    <div class="lab__brief">Dans les SGBDR modernes, l’optimiseur CBO choisit entre trois algorithmes fondamentaux pour joindre deux relations $R$ (externe) et $S$ (interne) :
+- `NESTED_LOOP` : optimal si l’une des tables est très petite ($N \le 100$) et que la table interne dispose d’un index sur la clé de jointure, ou pour les jointures sans condition d’égalité.
+- `MERGE_JOIN` : optimal si les deux relations sont déjà triées sur la condition de jointure (ou alimentées par un Index Scan B-Tree pré-trié) ; complexité $O(N + M)$.
+- `HASH_JOIN` : optimal pour les tables moyennes à grandes non triées sur une condition d’égalité (`join_op=eq`), où la plus petite table tient dans la mémoire de travail `work_mem`.
+
+Entrée :
+`JOIN t1=<name> r1=<rows> indexed1=<true|false> sorted1=<true|false> t2=<name> r2=<rows> indexed2=<true|false> sorted2=<true|false> op=<eq|other>`
+
+Sortie :
+`JOIN_DECISION algo=<NESTED_LOOP|MERGE_JOIN|HASH_JOIN> outer_table=<t> inner_table=<t> complexity=<O(N*M)|O(N+M)|O(N*logM)> reason=<REASON>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>JOIN t1=clients r1=50 indexed1=true sorted1=false t2=commandes r2=100000 indexed2=true sorted2=false op=eq</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>JOIN_DECISION algo=NESTED_LOOP outer_table=clients inner_table=commandes complexity=O(N*logM) reason=SMALL_OUTER_WITH_INNER_INDEX</pre></div>
+    </div>
+    <p class="lab__note">Petite table clients (50 lignes) bouclant sur l’index de commandes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Si op != eq : Hash Join et Merge Join sont impossibles -&gt; forcer NESTED_LOOP.</li>
+        <li>Si sorted1 == true et sorted2 == true et op == eq : recommander MERGE_JOIN.</li>
+        <li>Si min(r1, r2) &lt;= 100 et l’autre table a un index : recommander NESTED_LOOP.</li>
+        <li>Sinon sur égalité op == eq : recommander HASH_JOIN (la plus petite table devient la build table inner).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="STAT_CHECK node=seq_scan table=commandes est_rows=10 act_rows=8500">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer le ratio d'écart de cardinalité et préconiser les actions de maintenance
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur d’écart de cardinalité (Estimation vs Actual Rows)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter les dérives majeures entre lignes estimées et lignes réelles dans un plan EXPLAIN ANALYZE et recommander les actions correctives.</p>
+    <div class="lab__brief">L’optimiseur de requêtes se base sur les statistiques stockées dans `pg_statistic` (fréquences des valeurs les plus courantes MCV, histogrammes de distribution) pour choisir les plans d’exécution.
+Si ces statistiques sont obsolètes, un écart colossal apparaît entre le nombre de lignes estimé (`est_rows`) et le nombre réel de lignes parcourues (`act_rows`).
+Critères d’évaluation du ratio $R = \max(\text{est}, \text{act}) / \min(\text{est}, \text{act})$ (avec $\min \ge 1$) :
+- Si $R < 2.0$ : `ACCURATE` (statistiques fidèles).
+- Si $2.0 \le R < 10.0$ : `MODERATE_DRIFT` (écart tolérable, surveillance).
+- Si $R \ge 10.0$ : `SEVERE_DRIFT` (alerte critique : l’optimiseur a pu choisir un Nested Loop désastreux au lieu d’un Hash Join).
+
+Entrée :
+`STAT_CHECK node=<name> table=<table> est_rows=<E> act_rows=<A>`
+
+Sortie :
+`DRIFT_ANALYSIS node=<name> table=<table> est=<E> act=<A> ratio=<R.2f> status=<ACCURATE|MODERATE_DRIFT|SEVERE_DRIFT> action=<NONE|MONITOR|RUN_ANALYZE_TABLE>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STAT_CHECK node=seq_scan table=commandes est_rows=10 act_rows=8500</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DRIFT_ANALYSIS node=seq_scan table=commandes est=10 act=8500 ratio=850.00 status=SEVERE_DRIFT action=RUN_ANALYZE_TABLE</pre></div>
+    </div>
+    <p class="lab__note">Ratio de 850 : statistiques totalement erronées nécessitant un ANALYZE.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer ratio = max(est, act) / max(1, min(est, act)).</li>
+        <li>Classifier selon les seuils 2.0 et 10.0.</li>
+        <li>Si SEVERE_DRIFT : action=RUN_ANALYZE_TABLE.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle option de la commande EXPLAIN permet d’afficher les blocs de mémoire tampon (Buffer Pool) consultés et lus sur disque ?</p>
+      <div class="opts">
+        <button class="opt">EXPLAIN (VERBOSE)</button>
+        <button class="opt" data-correct="1">EXPLAIN (BUFFERS)</button>
+        <button class="opt">EXPLAIN (TIMING)</button>
+        <button class="opt">EXPLAIN (MEMORY)</button>
+      </div>
+      <div class="q__exp">L’option BUFFERS (utilisée conjointement avec ANALYZE) détaille les blocs partagés trouvés en cache (shared hit) ou lus sur disque (read).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la sortie « (cost=0.42..8.44 rows=10 width=48) », que représente la valeur 0.42 ?</p>
+      <div class="opts">
+        <button class="opt">Le temps d’exécution en millisecondes</button>
+        <button class="opt" data-correct="1">Le coût estimé de démarrage (startup cost) avant de produire la première ligne</button>
+        <button class="opt">Le nombre d’index utilisés</button>
+        <button class="opt">Le pourcentage d’utilisation du processeur</button>
+      </div>
+      <div class="q__exp">La première valeur du couple de coûts correspond au coût de démarrage (startup cost), c’est-à-dire le travail préalable requis pour renvoyer le premier tuple.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel scénario l’optimiseur privilégie-t-il un algorithme de jointure Nested Loop Join ?</p>
+      <div class="opts">
+        <button class="opt">Lorsque les deux tables contiennent plus de 10 millions de lignes sans aucun index</button>
+        <button class="opt" data-correct="1">Lorsque la table externe est très petite et que la table interne dispose d’un index performant sur la clé de jointure</button>
+        <button class="opt">Uniquement sur les requêtes avec la clause GROUP BY</button>
+        <button class="opt">Lorsque la mémoire work_mem est totalement saturée</button>
+      </div>
+      <div class="q__exp">Nested Loop est optimal pour une petite relation externe bouclant sur un index sélectif de la table interne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel algorithme de jointure construit une table de hachage en mémoire à partir de la plus petite relation avant de scanner la seconde ?</p>
+      <div class="opts">
+        <button class="opt">Merge Join</button>
+        <button class="opt" data-correct="1">Hash Join</button>
+        <button class="opt">Nested Loop Join</button>
+        <button class="opt">Cross Join</button>
+      </div>
+      <div class="q__exp">Le Hash Join charge la relation la plus compacte (build table) dans une table de hachage en mémoire work_mem, puis scanne l’autre relation (probe table).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie la mention « Sort Method: external merge Disk: 1840kB » dans un rapport EXPLAIN ANALYZE ?</p>
+      <div class="opts">
+        <button class="opt">Le tri a été accéléré par le contrôleur RAID</button>
+        <button class="opt" data-correct="1">Le tri n’a pas pu tenir dans la mémoire work_mem et a dû déborder temporairement sur le disque</button>
+        <button class="opt">Le disque dur est défectueux</button>
+        <button class="opt">L’index est corrompu</button>
+      </div>
+      <div class="q__exp">La mention external merge Disk indique un manque de work_mem : le moteur a écrit des fichiers temporaires sur disque pour trier les données.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel nœud d’accès combine les résultats d’un ou plusieurs index sous la forme d’un vecteur de bits avant de lire la table physique ?</p>
+      <div class="opts">
+        <button class="opt">Seq Scan</button>
+        <button class="opt" data-correct="1">Bitmap Heap Scan (alimenté par Bitmap Index Scan)</button>
+        <button class="opt">Index Only Scan</button>
+        <button class="opt">TID Scan</button>
+      </div>
+      <div class="q__exp">Le Bitmap Heap Scan utilise un masque de bits produit par un Bitmap Index Scan pour lire les blocs physiques de table dans l’ordre séquentiel du disque.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande PostgreSQL permet de recalculer les statistiques de distribution des tables sans reconstruire les données ?</p>
+      <div class="opts">
+        <button class="opt">REINDEX DATABASE</button>
+        <button class="opt">VACUUM FULL</button>
+        <button class="opt" data-correct="1">ANALYZE</button>
+        <button class="opt">CHECKPOINT</button>
+      </div>
+      <div class="q__exp">La commande ANALYZE échantillonne les lignes des tables et met à jour les métadonnées de distribution stockées dans pg_statistic pour le CBO.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un plan indique « rows=1 » alors que l’exécution réelle affiche « actual rows=500000 », quelle est la conséquence probable sur le choix de jointure ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le CBO choisira à tort un Nested Loop inadapté au lieu d’un Hash Join ou Merge Join performant</button>
+        <button class="opt">La requête sera automatiquement annulée</button>
+        <button class="opt">Le serveur redémarrera</button>
+        <button class="opt">Aucune conséquence, l’optimiseur s’adapte automatiquement au runtime</button>
+      </div>
+      <div class="q__exp">Une sous-estimation massive de cardinalité conduit l’optimiseur à choisir un Nested Loop désastreux qui va boucler des centaines de milliers de fois.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Exécuter un EXPLAIN ANALYZE sur un INSERT, UPDATE ou DELETE en production sans BEGIN ... ROLLBACK, modifiant réellement les données.</li>
+      <li>Ajouter aveuglément un index sans analyser le plan d’exécution, alors que le problème provenait d’une estimation de cardinalité erronée.</li>
+      <li>Augmenter globalement work_mem à des valeurs excessives (ex: 2 Go par connexion), risquant de saturer la RAM du serveur sous forte concurrence.</li>
+      <li>Confondre le coût abstrait de l’optimiseur (en unités arbitraires) avec un temps d’exécution en millisecondes.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Préfixer la requête problématique par EXPLAIN (ANALYZE, BUFFERS) dans un environnement de test ou hors pointe.</li>
+      <li>Étape 2 : Repérer le nœud le plus consommateur en comparant le coût total et le temps d’exécution réel (actual time).</li>
+      <li>Étape 3 : Inspecter les compteurs de blocs disques : un volume élevé de shared read trahit un manque d’index ou un buffer pool sous-dimensionné.</li>
+      <li>Étape 4 : Comparer les lignes estimées (rows) et les lignes réelles (actual rows) : un écart supérieur à un facteur 10 signale des statistiques obsolètes.</li>
+      <li>Étape 5 : Vérifier si des opérations de tri ou de Hash Join écrivent sur le disque (Sort Method: external merge disk) et ajuster work_mem si nécessaire.</li>
+      <li>Étape 6 : Réactualiser les statistiques via ANALYZE et revérifier que le plan d’exécution bascule vers un algorithme optimal.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L’optimiseur CBO génère et évalue plusieurs plans d’exécution pour choisir celui ayant le coût total estimé minimal.</li>
+      <li>La commande EXPLAIN (ANALYZE, BUFFERS) fournit les temps réels d’exécution et les lectures de blocs disques en mémoire.</li>
+      <li>Un Bitmap Heap Scan réorganise les accès aléatoires de l’index en un parcours séquentiel des blocs de la table.</li>
+      <li>Nested Loop excelle avec une petite table externe et un index ; Hash Join et Merge Join traitent efficacement les grands volumes sur égalité.</li>
+      <li>Un dépassement du paramètre work_mem provoque des écritures temporaires sur disque (spill to disk) qui effondrent les performances.</li>
+      <li>Une dérive majeure entre lignes estimées et lignes réelles justifie une réactualisation immédiate des statistiques via ANALYZE.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends la différence fondamentale entre EXPLAIN simple et EXPLAIN ANALYZE.</li>
+      <li>Je sais décoder les métriques (cost=startup..total rows=N width=W) d’un nœud de plan.</li>
+      <li>Je connais les cas d’usage respectifs de Seq Scan, Index Scan, Bitmap Heap Scan et Index Only Scan.</li>
+      <li>Je maîtrise le principe de fonctionnement de Nested Loop, Hash Join et Merge Join.</li>
+      <li>Je sais identifier un tri sur disque (external merge disk) trahissant une insuffisance de work_mem.</li>
+      <li>Je sais comment interpréter et corriger un écart de cardinalité critique via la commande ANALYZE.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Cost-Based Optimizer (CBO)</li><li>Commande EXPLAIN (ANALYZE, BUFFERS)</li><li>Coût de Démarrage & Coût Total (Startup vs Total Cost)</li><li>Nœuds d’Accès (Seq Scan, Index Scan, Bitmap Scan)</li><li>Algorithmes de Jointure (Nested Loop, Hash Join, Merge Join)</li><li>Mémoire work_mem & Spill to Disk</li><li>Statistiques du Catalogue pg_statistic & MCV</li><li>Dérives de Cardinalité & Commande ANALYZE</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à lire un plan EXPLAIN ou confusion entre les métriques estimées et réelles.</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension des coûts de plans, identification des types de scans et choix d’algorithmes de jointure.</div>
+      <div class="bandrow bandrow--high">Diagnostic expert de plans d’exécution complexes, optimisation fine de work_mem, élimination des dérives de cardinalité et tuning CBO avancé.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Fonctions de Fenêtrage (Window Functions) &amp; Requêtes Hiérarchiques (CTEs Récursives) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

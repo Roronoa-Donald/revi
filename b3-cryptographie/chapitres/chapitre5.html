@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5 — Signatures Numériques, PKI &amp; Gestion des Certificats X.509 | Cryptographie &amp; PKI B3</title>
+<meta name="description" content="Module 5 du cours Cryptographie &amp; PKI B3 : Mécanisme formel de la signature numérique (RSA Sign &amp; Verify, RSA-PSS, ECDSA, Ed25519), non-répudiation et authenticité d'origine, architecture d'une Infrastructure à Clés Publiques (PKI / IGC), hiérarchie de confiance (Root CA, Sub-CA intermédiaire), norme de certificats X.509 v3 (RFC 5280), extensions critiques (SAN, Key Usage, Basic Constraints), cycle de vie d'un certificat (CSR), validation de chaîne de certification et mécanismes de révocation (CRL, OCSP et OCSP Stapling). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cryptographie/chapitres/chapitre5.html">
+<meta property="og:title" content="Module 5 — Signatures Numériques, PKI &amp; Gestion des Certificats X.509 | Cryptographie &amp; PKI B3">
+<meta property="og:description" content="Module 5 du cours Cryptographie &amp; PKI B3 : Mécanisme formel de la signature numérique (RSA Sign &amp; Verify, RSA-PSS, ECDSA, Ed25519), non-répudiation et authenticité d'origine, architecture d'une Infrastructure à Clés Publiques (PKI / IGC), hiérarchie de confiance (Root CA, Sub-CA intermédiaire), norme de certificats X.509 v3 (RFC 5280), extensions critiques (SAN, Key Usage, Basic Constraints), cycle de vie d'un certificat (CSR), validation de chaîne de certification et mécanismes de révocation (CRL, OCSP et OCSP Stapling). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cryptographienav"><div class="b3-cryptographienav__in">
+  <a class="b3-cryptographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cryptographienav__sep" aria-hidden="true">/</span>
+  <a class="b3-cryptographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lock"></use></svg> Cryptographie &amp; PKI B3</a>
+  <div class="b3-cryptographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cryptographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cryptographiewrap">
+<p class="crumb"><a href="../index.html">Cryptographie & PKI B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Signatures Numériques, PKI & Gestion des Certificats X.509</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un écosystème d'entreprise interconnecté où les services web, les API bancaires, les signatures de code et les accès VPN reposent tous sur des certificats électroniques, une mauvaise gestion de la PKI conduit inévitablement à des pannes massives (certificats expirés coupant la production) ou à des failles de sécurité critiques (usurpation d'identité, acceptation de certificats frauduleux ou révoqués). En tant qu'ingénieur sécurité des systèmes d'information B3, vous devez être capable de déployer et d'auditer une hiérarchie PKI à plusieurs niveaux, de valider la conformité des certificats X.509 face aux exigences des navigateurs et des autorités de régulation, d'implémenter des mécanismes de signature numérique intègres et de configurer des contrôles de révocation stricts via CRL et OCSP.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser le fonctionnement mathématique et technique des signatures numériques (RSA, ECDSA, Ed25519) ;</li>
+      <li>comprendre l'architecture et les rôles fondamentaux d'une PKI : Root CA, Sub-CA intermédiaire, Autorité d'Enregistrement (RA) et magasins de confiance ;</li>
+      <li>analyser la structure d'un certificat X.509 v3 (RFC 5280) et ses extensions clés : SAN, Basic Constraints, Key Usage ;</li>
+      <li>implémenter l'algorithme de validation de chaîne de certification de l'entité finale jusqu'à l'ancre de confiance racine ;</li>
+      <li>évaluer et configurer les mécanismes de révocation de certificats : Listes de Révocation (CRL), requêtes OCSP et agrafage OCSP Stapling ;</li>
+      <li>développer en Python 3 des vérificateurs de signatures RSA, des valideurs de certificats X.509 et des contrôleurs de chaînes PKI avec support CRL.</li>
+    </ol>
+  </div>
+
+<h2>1. Signatures Numériques : RSA Sign &amp; Verify, ECDSA et Ed25519</h2>
+
+<p>La signature numérique est l'équivalent électronique certifié d'une signature manuscrite notariée. Contrairement au chiffrement (qui assure la confidentialité), la signature apporte trois garanties indispensables : l'<strong>authenticité de l'émetteur</strong>, l'<strong>intégrité du document</strong> et la <strong>non-répudiation</strong>.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Mécanisme de Signature RSA</h4>
+    <p>Signer un document volumineux directement par exponentiation modulaire serait trop lent. On signe donc le condensé de hachage $H(M)$ :</p>
+    <ol>
+      <li><strong>Hachage :</strong> calcul de l'empreinte $h = H(M)$ (ex: SHA-256).</li>
+      <li><strong>Signature (clé privée de l'émetteur) :</strong><br><code>sig = (h^d) mod n</code></li>
+      <li><strong>Vérification (clé publique de l'émetteur) :</strong><br>Le destinataire calcule $h' = (sig^e) \pmod n$ et vérifie si $h' == H(M)$.</li>
+      <li>Si l'égalité est vérifiée, seul le détenteur de la clé privée $d$ a pu créer cette signature et le message n'a pas été altéré.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Signatures Modernes : ECDSA vs EdDSA (Ed25519)</h4>
+    <ul>
+      <li><strong>ECDSA (Elliptic Curve DSA) :</strong> standard ANSI X9.62 utilisé dans Bitcoin et TLS. Vulnérabilité majeure : si le nombre aléatoire $k$ (nonce) est réutilisé ou biaisé, la clé privée est instantanément divulguée (faille de la PlayStation 3 en 2010).</li>
+      <li><strong>EdDSA / Ed25519 (RFC 8032) :</strong> signature déterministe basée sur la courbe d'Edwards Twisted Curve25519. Aucun aléa requis lors de la signature ($k = H(sk \parallel M)$), immunité totale contre les attaques par canal auxiliaire et performances exceptionnelles. Standard recommandé par l'ANSSI et OpenSSH.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Schéma de Bourrage RSA-PSS (RFC 8017)</div>
+<p>Tout comme le chiffrement RSA exige le bourrage OAEP, la signature RSA en production doit utiliser <strong>RSA-PSS (Probabilistic Signature Scheme)</strong>. RSA-PSS ajoute un sel aléatoire lors de la signature, offrant une preuve de sécurité formelle dans le modèle du standard aléatoire.</p>
+  </div>
+
+<h2>2. Infrastructure à Clés Publiques (PKI / IGC) &amp; Hiérarchie de Confiance</h2>
+
+<p>Une signature numérique ou une clé publique ne prouve pas en elle-même à qui elle appartient : Alice pourrait publier une clé publique prétendant être celle de Bob. L'<strong>Infrastructure à Clés Publiques (PKI ou IGC)</strong> résout ce dilemme en introduisant des tiers de confiance accrédités :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Acteurs d'une Architecture PKI</h4>
+    <ul>
+      <li><strong>Autorité de Certification Racine (Root CA) :</strong> sommet de la hiérarchie. Possède un certificat auto-signé hautement sécurisé, conservé hors-ligne (<em>offline Root CA</em>) dans un coffre-fort physique.</li>
+      <li><strong>Autorité de Certification Intermédiaire (Sub-CA / Issuing CA) :</strong> signée par la Root CA, elle prend en charge l'émission quotidienne des certificats finaux des serveurs et utilisateurs.</li>
+      <li><strong>Autorité d'Enregistrement (RA) :</strong> valide l'identité physique ou administrative des demandeurs avant d'autoriser l'émission.</li>
+      <li><strong>Magasin de Confiance (Trust Store) :</strong> répertoire de certificats racines préinstallé dans l'OS ou le navigateur (Mozilla, Windows, Android, Apple).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Pourquoi une Hiérarchie à Plusieurs Niveaux ?</h4>
+    <p>Isoler la Root CA est une exigence de sécurité critique : si la clé privée de signature d'une Sub-CA est compromise par un piratage, seule cette Sub-CA est révoquée. La Root CA reste intacte et émet une nouvelle Sub-CA sans obliger les millions de clients mondiaux à mettre à jour leur magasin de confiance racine.</p>
+  </div>
+</div>
+
+<h2>3. Format X.509 v3, Encodage ASN.1 &amp; Extensions Critiques</h2>
+
+<p>Le format X.509 v3 (défini par la RFC 5280) spécifie la structure standard d'un certificat électronique. Il est encodé en binaire selon la syntaxe ASN.1 / DER (Distinguished Encoding Rules), couramment converti en texte ASCII Base64 encadré de balises <code>-----BEGIN CERTIFICATE-----</code> (format PEM) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Champs Fondamentaux X.509</h4>
+    <ul>
+      <li><strong>Version :</strong> v3 (valeur binaire 2).</li>
+      <li><strong>Serial Number :</strong> identifiant entier unique attribué par la CA.</li>
+      <li><strong>Signature Algorithm :</strong> algorithme utilisé par la CA (ex: <code>sha256WithRSAEncryption</code>).</li>
+      <li><strong>Issuer :</strong> nom distingué (DN) de l'autorité émettrice.</li>
+      <li><strong>Validity :</strong> période délimitée par <code>notBefore</code> et <code>notAfter</code>.</li>
+      <li><strong>Subject :</strong> nom distingué (DN) du propriétaire de la clé.</li>
+      <li><strong>Subject Public Key Info :</strong> clé publique et algorithme.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Extensions Standard RFC 5280</h4>
+    <ul>
+      <li><strong>Subject Alternative Name (SAN) :</strong> obligatoire pour TLS ! Liste les FQDN couverts (ex: <code>api.cloud.corp</code>, wildcards <code>*.cloud.corp</code>). Le champ historique CN (Common Name) est déprécié par les navigateurs modernes.</li>
+      <li><strong>Basic Constraints :</strong> <code>CA:TRUE</code> ou <code>CA:FALSE</code>, avec contrainte optionnelle <code>pathlen</code> limitant la profondeur de sous-CA autorisées.</li>
+      <li><strong>Key Usage :</strong> restreint l'usage légitime de la clé (ex: <code>digitalSignature</code>, <code>keyEncipherment</code>, <code>keyCertSign</code>).</li>
+      <li><strong>Extended Key Usage (EKU) :</strong> <code>serverAuth</code> (serveur Web TLS), <code>clientAuth</code> (mTLS), <code>codeSigning</code>.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Règles de Correspondance des Noms d'Hôtes et Wildcards</div>
+<p>Un certificat wildcard <code>*.domaine.corp</code> ne couvre qu'un seul niveau de sous-domaine : il valide <code>web.domaine.corp</code> ou <code>api.domaine.corp</code>, mais <strong>ne valide jamais</strong> <code>app.preprod.domaine.corp</code> ni le domaine apex <code>domaine.corp</code>.</p>
+  </div>
+
+<h2>4. Cycle de Vie, Algorithme de Validation &amp; Révocation (CRL / OCSP)</h2>
+
+<p>Le cycle de vie d'un certificat comprend sa création (génération d'une clé privée et d'un CSR - <em>Certificate Signing Request</em> selon PKCS#10), sa signature par la CA, sa surveillance et sa révocation en cas de compromission :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Algorithme de Validation de Chaîne (RFC 5280)</h4>
+    <p>Pour qu'un certificat feuille soit déclaré valide par un client :</p>
+    <ol>
+      <li>La date courante doit être comprise entre <code>notBefore</code> et <code>notAfter</code>.</li>
+      <li>Le FQDN contacté doit correspondre au SAN du certificat.</li>
+      <li>La signature de chaque certificat $i$ doit être validée avec la clé publique du certificat émetteur $i+1$.</li>
+      <li>Le certificat émetteur doit posséder <code>Basic Constraints: CA:TRUE</code>.</li>
+      <li>La chaîne doit remonter jusqu'à un certificat racine présent dans le magasin de confiance local (Trust Anchor).</li>
+      <li>Aucun certificat de la chaîne ne doit figurer comme révoqué.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Mécanismes de Révocation : CRL vs OCSP</h4>
+    <ul>
+      <li><strong>CRL (Certificate Revocation List) :</strong> fichier signé par la CA listant les numéros de série révoqués avec la date de révocation. Inconvénients : taille volumineuse, latence de téléchargement et risque de contournement en cas de panne réseau (échec silencieux <em>soft-fail</em>).</li>
+      <li><strong>OCSP (Online Certificate Status Protocol, RFC 6960) :</strong> requête HTTP interrogeant en temps réel le répondeur de la CA pour un numéro de série précis. Réponse immédiate : <code>good</code>, <code>revoked</code> ou <code>unknown</code>.</li>
+      <li><strong>OCSP Stapling (RFC 6066) :</strong> le serveur web interroge périodiquement le répondeur OCSP, met en cache la réponse signée par la CA et l'« agrafe » directement dans le handshake TLS. Élimine la fuite de métadonnées de navigation vers la CA et accélère la connexion.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="cr3-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="SIGN n=3233 d=2753 text=CONTRAT_OFFICIEL">
+  <script type="text/plain" data-lab-starter>import sys
+import hashlib
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la signature numérique et sa vérification RSA
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de Signature Numérique et Vérification (RSA Sign &amp; Verify)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter la signature numérique RSA d'un message haché et sa vérification avec la clé publique.</p>
+    <div class="lab__brief"><p>Une signature numérique lie cryptographiquement l'empreinte d'un message à la clé privée de l'émetteur :<br>
+- Empreinte : <code>h = int(sha256(M), 16) mod n</code>.<br>
+- Signature : <code>sig = pow(h, d, n)</code>.<br>
+- Vérification : <code>h_recupere = pow(sig, e, n)</code>.<br>
+- Si <code>h == h_recupere</code>, la signature est valide.<br><br>
+Commandes lues sur STDIN :<br>
+1. <code>SIGN n=&lt;n&gt; d=&lt;d&gt; text=&lt;texte&gt;</code> : produit <code>SIGN: n=&lt;n&gt; digest_mod=&lt;h&gt; sig=&lt;sig&gt;</code>.<br>
+2. <code>VERIFY n=&lt;n&gt; e=&lt;e&gt; sig=&lt;sig&gt; text=&lt;texte&gt;</code> :<br>
+   - Si valide : <code>VERIFY: status=VALID_SIGNATURE (authentic & untampered)</code><br>
+   - Si invalide : <code>VERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SIGN n=3233 d=2753 text=CONTRAT_OFFICIEL</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SIGN: n=3233 digest_mod=566 sig=1706</pre></div>
+    </div>
+    <p class="lab__note">Signature calculée avec la clé privée (d=2753) sur le condensé modulo 3233.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculez h = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % n.</li>
+        <li>Pour vérifier, calculez pow(sig, e, n) et comparez directement avec h.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la validation temporelle et d'identité X.509
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validateur de Structure et de Validité Temporelle de Certificat X.509</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider la conformité temporelle et l'admissibilité du nom de domaine (Common Name et SAN avec wildcards) d'un certificat X.509.</p>
+    <div class="lab__brief"><p>Un certificat X.509 lie une identité à une clé publique.<br>
+Critères de validation :<br>
+1. Validité temporelle :<br>
+   - Si <code>date &lt; not_before</code> : <code>STATUS=INVALID reason=NOT_YET_VALID</code><br>
+   - Si <code>date &gt; not_after</code> : <code>STATUS=INVALID reason=CERTIFICATE_EXPIRED</code><br>
+2. Correspondance du nom d'hôte :<br>
+   - Le FQDN doit correspondre à <code>cn</code> ou à un nom dans <code>san</code>.<br>
+   - Un wildcard <code>*.domaine.corp</code> couvre tout sous-domaine de niveau 1 (ex: <code>web.domaine.corp</code>).<br>
+   - Si aucune correspondance : <code>STATUS=INVALID reason=HOSTNAME_MISMATCH</code>.<br>
+3. Si conforme : <code>STATUS=VALID fqdn=&lt;fqdn&gt; valid_until=&lt;not_after&gt; ca=&lt;is_ca&gt;</code>.<br><br>
+Commande STDIN : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;cn&gt; san=&lt;san&gt; not_before=&lt;date&gt; not_after=&lt;date&gt; is_ca=&lt;bool&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STATUS=VALID fqdn=api.cloud.corp valid_until=2027-01-01 ca=false</pre></div>
+    </div>
+    <p class="lab__note">Certificat en cours de validité avec correspondance exacte FQDN.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparez lexicographiquement les dates au format ISO YYYY-MM-DD.</li>
+        <li>Pour les wildcards, vérifiez si le motif commence par "*." et découpez le nom pour tester qu il s agit d un sous-domaine direct sans point supplémentaire.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999&#10;CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false&#10;CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true&#10;CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la validation de chaîne PKI et contrôle de révocation
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Contrôleur de Chaîne de Certification PKI et Révocation (CRL/OCSP)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité d'une chaîne de confiance PKI complète et contrôler l'absence de certificats révoqués dans la liste CRL.</p>
+    <div class="lab__brief"><p>Contrôle de conformité d'une chaîne PKI :<br>
+- Ligne d'en-tête : <code>PKI_CHAIN trust_root=&lt;root&gt; crl_revoked=&lt;s1,s2,...&gt;</code>.<br>
+- Certificats (de la feuille à la racine) : <code>CERT subject=&lt;s&gt; issuer=&lt;i&gt; serial=&lt;ser&gt; is_ca=&lt;bool&gt;</code>.<br><br>
+Règles :<br>
+1. Révocation : si un serial est dans <code>crl_revoked</code> : <code>CHAIN: INVALID reason=REVOKED_CERTIFICATE serial=&lt;ser&gt; subject=&lt;s&gt;</code>.<br>
+2. Liaison : pour tout certificat i &lt; N-1, <code>cert[i].issuer == cert[i+1].subject</code>. Sinon <code>CHAIN: INVALID reason=BROKEN_ISSUER_CHAIN at_cert=&lt;cert[i].subject&gt;</code>.<br>
+3. Émetteur : <code>cert[i+1].is_ca == True</code>. Sinon <code>CHAIN: INVALID reason=INTERMEDIATE_NOT_CA subject=&lt;cert[i+1].subject&gt;</code>.<br>
+4. Racine : le dernier certificat doit être auto-signé (<code>issuer == subject</code>) et égal à <code>trust_root</code>. Sinon <code>CHAIN: INVALID reason=UNTRUSTED_ROOT root=&lt;root&gt;</code>.<br>
+5. Succès : <code>CHAIN: VALID depth=&lt;N&gt; root=&lt;root&gt; leaf=&lt;leaf&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999
+CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false
+CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true
+CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CHAIN: VALID depth=3 root=DigiTrust_Root_CA leaf=api.bank.com</pre></div>
+    </div>
+    <p class="lab__note">Chaîne PKI 3 niveaux intacte liée à la racine de confiance.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Contrôlez en premier la révocation en testant si serial in revoked.</li>
+        <li>Parcourez ensuite de i=0 à len(certs)-2 pour valider cert[i].issuer == cert[i+1].subject.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans une signature numérique RSA, quelle clé est utilisée pour créer la signature et quelle clé est utilisée pour la vérifier ?</p>
+      <div class="opts">
+        <button class="opt">Création avec la clé publique, vérification avec la clé privée</button>
+        <button class="opt" data-correct="1">Création avec la clé privée de l'émetteur, vérification avec la clé publique de l'émetteur</button>
+        <button class="opt">Création avec la clé symétrique AES, vérification avec le mot de passe</button>
+        <button class="opt">Création avec la clé privée du destinataire, vérification avec sa clé publique</button>
+      </div>
+      <div class="q__exp">L'émetteur signe le condensé du message avec sa propre clé privée (que lui seul possède), et tout destinataire peut vérifier la signature en utilisant la clé publique correspondante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel champ d'extension X.509 v3 est aujourd'hui obligatoire pour valider la correspondance d'un nom d'hôte dans les navigateurs web ?</p>
+      <div class="opts">
+        <button class="opt">Common Name (CN)</button>
+        <button class="opt" data-correct="1">Subject Alternative Name (SAN)</button>
+        <button class="opt">Organizational Unit (OU)</button>
+        <button class="opt">Locality Name (L)</button>
+      </div>
+      <div class="q__exp">Le RFC 6125 et les exigences des navigateurs (Chrome, Firefox, Safari) imposent la présence du nom d'hôte dans l'extension Subject Alternative Name (SAN), le champ CN n'étant plus pris en compte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie l'extension « Basic Constraints: CA:FALSE » dans un certificat X.509 ?</p>
+      <div class="opts">
+        <button class="opt">Le certificat est révoqué immédiatement</button>
+        <button class="opt" data-correct="1">Le certificat appartient à une entité finale et ne peut en aucun cas signer d'autres certificats</button>
+        <button class="opt">Le certificat est exempté de date d'expiration</button>
+        <button class="opt">Le certificat ne fonctionne que sur le protocole HTTP</button>
+      </div>
+      <div class="q__exp">La contrainte CA:FALSE garantit que le certificat est un certificat feuille (serveur web ou utilisateur) et interdit strictement son utilisation pour émettre ou signer d'autres certificats.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l'avantage majeur de l'agrafage OCSP (OCSP Stapling) par rapport à une requête OCSP classique ?</p>
+      <div class="opts">
+        <button class="opt">Il rend les certificats gratuits</button>
+        <button class="opt" data-correct="1">Il évite au client de contacter la CA, préservant la vie privée et réduisant la latence de connexion</button>
+        <button class="opt">Il remplace le chiffrement AES par RSA</button>
+        <button class="opt">Il supprime le besoin d'une autorité racine</button>
+      </div>
+      <div class="q__exp">Avec l'OCSP Stapling, le serveur web envoie lui-même la réponse OCSP signée et en cache lors du handshake TLS, ce qui évite au client d'interroger la CA (zéro fuite d'historique de navigation et connexion plus rapide).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour un certificat portant le SAN « *.domaine.fr », lequel de ces noms de domaine sera considéré comme INVALIDE ?</p>
+      <div class="opts">
+        <button class="opt">www.domaine.fr</button>
+        <button class="opt">api.domaine.fr</button>
+        <button class="opt">mail.domaine.fr</button>
+        <button class="opt" data-correct="1">espace.client.domaine.fr</button>
+      </div>
+      <div class="q__exp">Le caractère générique wildcard « * » ne remplace qu'un seul sous-niveau DNS. Il ne couvre pas « espace.client.domaine.fr » (qui comporte deux sous-niveaux) ni le domaine racine « domaine.fr ».</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>N'inscrire le nom de domaine que dans le champ historique Common Name (CN) sans renseigner l'extension SAN : les navigateurs modernes rejettent le certificat.</li>
+      <li>Omettre le paramètre Basic Constraints CA:TRUE sur une autorité intermédiaire : les clients rejetteront tous les certificats émis par cette autorité.</li>
+      <li>Utiliser des wildcards à plusieurs niveaux (ex: *.corp.com pour héberger api.prod.corp.com) : les règles RFC 6125 limitent le joker à un seul label DNS.</li>
+      <li>Négliger la révocation en supposant qu'un certificat reste sûr jusqu'à sa date d'expiration : en cas de fuite de clé privée, l'attaquant peut usurper l'identité sans être inquiété si aucune CRL/OCSP n'est consultée.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Conception et sécurisation de la hiérarchie PKI : déployer une autorité racine (Root CA) hors-ligne et déléguer l'émission à des autorités intermédiaires (Sub-CA) avec contraintes de chemin pathlen adaptées.</li>
+      <li>Génération de requêtes CSR et émission conforme X.509 v3 : configurer rigoureusement les extensions Subject Alternative Name (SAN), Key Usage et Extended Key Usage sans s'appuyer sur le champ déprécié Common Name.</li>
+      <li>Validation algorithmique de la chaîne de certification : vérifier séquentiellement les périodes de validité, la correspondance du nom d'hôte FQDN, les signatures croisées et l'ancre de confiance racine du magasin local.</li>
+      <li>Gestion proactive du cycle de vie et de la révocation : auditer les expirations de certificats, surveiller les numéros de série révoqués via CRL/OCSP et activer systématiquement l'agrafage OCSP Stapling sur les serveurs web.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La signature numérique certifie l'authenticité, l'intégrité et la non-répudiation en chiffrant l'empreinte du message avec la clé privée de l'émetteur.</li>
+      <li>Une PKI résout le problème de distribution des clés publiques grâce à une hiérarchie de confiance (Root CA, Sub-CA, certificats finaux).</li>
+      <li>La norme X.509 v3 (RFC 5280) structure les certificats et impose l'extension SAN (Subject Alternative Name) pour la validation des noms de domaine.</li>
+      <li>Un certificat intermédiaire doit obligatoirement porter la contrainte Basic Constraints CA:TRUE pour signer d'autres certificats.</li>
+      <li>La révocation de clés compromises s'effectue via les listes CRL ou en temps réel via OCSP, optimisé par l'agrafage OCSP Stapling dans TLS.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous expliquer le fonctionnement d'une signature RSA (hachage puis exponentiation avec clé privée) et sa vérification avec la clé publique ?</li>
+      <li>Comprenez-vous pourquoi la Root CA doit être conservée hors-ligne dans une architecture PKI d'entreprise ?</li>
+      <li>Pouvez-vous citer les extensions critiques indispensables d'un certificat X.509 TLS (SAN, Basic Constraints, Key Usage) ?</li>
+      <li>Savez-vous dérouler les étapes de validation d'une chaîne de confiance PKI de la feuille jusqu'à la racine ?</li>
+      <li>Connaissez-vous les différences et les avantages comparés entre CRL, requête OCSP directe et agrafage OCSP Stapling ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Signature Numérique :</strong> Mécanisme cryptographique assurant l'intégrité, l'authenticité et la non-répudiation d'un document en associant son empreinte à la clé privée du signataire.</li><li><strong>Infrastructure à Clés Publiques (PKI) :</strong> Ensemble de matériels, logiciels, politiques et procédures nécessaires pour créer, gérer, distribuer et révoquer des certificats numériques.</li><li><strong>Certificat X.509 :</strong> Document numérique standardisé liant l'identité d'une entité à sa clé publique, signé par une autorité de certification reconnue.</li><li><strong>Subject Alternative Name (SAN) :</strong> Extension X.509 spécifiant l'ensemble des noms de domaine, adresses IP ou URI légitimes couverts par le certificat.</li><li><strong>OCSP Stapling :</strong> Technique TLS où le serveur web fournit lui-même au client une preuve signée et horodatée de non-révocation émise par la CA.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Implémentation de signatures numériques conformes :</strong> Développer des mécanismes de signature et de vérification d'empreintes en Python 3 avec gestion d'erreurs rigoureuse.</div>
+      <div class="bandrow"><strong>Déploiement et audit d'architectures PKI multi-niveaux :</strong> Configurer des autorités racines hors-ligne, des sous-CA d'émission et des magasins de confiance d'entreprise.</div>
+      <div class="bandrow"><strong>Validation automatisée de certificats X.509 v3 :</strong> Programmer des valideurs complets contrôlant dates d'expiration, correspondances SAN, wildcards et contraintes Basic Constraints.</div>
+      <div class="bandrow"><strong>Vérification de chaîne de certification de bout en bout :</strong> Implémenter l'algorithme RFC 5280 de validation séquentielle des émetteurs jusqu'à l'ancre de confiance racine.</div>
+      <div class="bandrow"><strong>Supervision de la révocation et configuration OCSP Stapling :</strong> Mettre en place la surveillance des listes CRL et activer l'agrafage OCSP sur les serveurs de production.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Protocoles Cryptographiques Sécurisés (TLS, SSH, IPsec) & Post-Quantique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), Standards RFC 5280 (X.509), RFC 8446 (TLS 1.3), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

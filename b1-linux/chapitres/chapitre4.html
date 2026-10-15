@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Installer Debian 12 | Linux B1</title>
+<meta name="description" content="Chapitre 4 du cours de Linux B1 : Choisir une image et un support d’installation, partitionner le disque, configurer les dépôts et le réseau. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-linux/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Installer Debian 12 | Linux B1">
+<meta property="og:description" content="Chapitre 4 du cours de Linux B1 : Choisir une image et un support d’installation, partitionner le disque, configurer les dépôts et le réseau. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="lxnav"><div class="lxnav__in">
+  <a class="lxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="lxnav__sep" aria-hidden="true">/</span>
+  <a class="lxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux B1</a>
+  <div class="lxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="lxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="lxwrap">
+<p class="crumb"><a href="../index.html">Linux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Installer Debian 12</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>La théorie est posée : un arbre, des partitions, des montages. Place à la pratique du TP — installer une vraie distribution, Debian 12, sur une machine ou une machine virtuelle. C’est au cours de cette installation que le chapitre 2 devient concret : les partitions que l’on définit deviennent les points de montage de l’arborescence.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>préparer le support d’installation : image ISO, clé USB amorçable, machine virtuelle ;</li>
+      <li>dérouler l’installateur Debian : langue, réseau, comptes, partitionnement ;</li>
+      <li>justifier un schéma de partitionnement avec ses points de montage ;</li>
+      <li>configurer les dépôts via /etc/apt/sources.list et mettre le système à jour.</li>
+    </ol>
+  </div>
+
+<h2>1. Préparer le support d’installation</h2>
+
+<p>Debian 12 (nom de code <em>Bookworm</em>) se distribue sous forme d’<strong>image ISO</strong> à télécharger depuis le site officiel. Trois terrains de jeu possibles :</p>
+<table>
+    <tr><th>Support</th><th>Quand le choisir</th></tr>
+    <tr><td>clé USB amorçable</td><td>installation réelle sur un ordinateur dédié</td></tr>
+    <tr><td>machine virtuelle</td><td>TP en salle : sans risque pour la machine hôte</td></tr>
+    <tr><td>graveur de DVD</td><td>matériel ancien sans amorçage USB</td></tr>
+  </table>
+<p>L’image <em>netinst</em> est la plus légère : elle installe un système de base puis va chercher les paquets restants sur les <strong>dépôts</strong> en ligne. Une clé USB s’amorce après copie de l’ISO avec un outil dédié ; en VM, il suffit de monter l’ISO dans le lecteur virtuel et de démarrer.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « netinst = système minimum + réseau »</div>
+    <p>netinst installe le <strong>net</strong> minimum et tire le reste du <strong>réseau</strong>. D’où l’importance de la configuration réseau pendant l’installation : sans elle, pas de paquets.</p>
+  </div>
+
+<h2>2. Dérouler l’installateur</h2>
+
+<p>L’installateur Debian pose les mêmes questions, dans le même ordre :</p>
+<pre><code>1. langue, pays, clavier
+2. nom de machine (hostname) et domaine
+3. comptes : mot de passe root, puis un utilisateur ordinaire
+4. horloge et fuseau horaire
+5. partitionnement du disque
+6. sélection des logiciels (tasksel) et environnement de bureau
+7. installateur d’amorçage GRUB
+8. redémarrage sur le nouveau système</code></pre>
+<p>Deux comptes se créent à cette étape et ils n’ont pas le même rôle : <strong>root</strong>, le super-utilisateur qui a tous les droits (sa maison est <code>/root</code>), et un <strong>utilisateur ordinaire</strong> pour le travail quotidien (sa maison est <code>/home/login</code>). Travailler en root en permanence est une faute d’administration : chaque faute de frappe devient une faute système.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — mot de passe root et utilisateur</div>
+    <p>Retenir lequel des deux mots de passe sert à <code>su</code> (devenir root) et lequel sert à la connexion graphique. Les confondre est la première panne de TP ; l’exercice « audit des comptes » de l’atelier reproduit exactement ce genre de diagnostic.</p>
+  </div>
+
+<h2>3. Partitionner pour Debian</h2>
+
+<p>Le partitionnement est l’étape où le chapitre 2 s’applique. L’installateur propose : disque entier, disque entier avec LVM, ou manuel. Un schéma pédagogique courant pour un TP :</p>
+<pre><code>partition   taille        point de montage
+/dev/sda1   ~30 Go        /          (racine, ext4)
+/dev/sda2   ~2× la RAM    swap       (échange mémoire)
+/dev/sda3   le reste      /home      (données personnelles)</code></pre>
+<p>Chaque partition reçoit un <strong>système de fichiers</strong> (ext4 en pratique : journalisé et optimisé) et un <strong>point de montage</strong>. Séparer <code>/home</code> permet de réinstaller le système sans perdre les données personnelles ; le <strong>swap</strong> (échange) est l’espace disque où le noyau déborde quand la mémoire vive sature.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Après l’installation : vérifier le montage</div>
+    <p><code>df -h</code> liste les partitions montées et leur occupation ; <code>lsblk</code> montre l’arbre des disques et partitions. Si une partition attendue n’y figure pas, c’est qu’elle n’est pas montée — revérifier <code>/etc/fstab</code>.</p>
+  </div>
+
+<h2>4. Dépôts, sources.list et mise à jour</h2>
+
+<p>Les paquets viennent de <strong>dépôts</strong> (repositories) décrits dans <code>/etc/apt/sources.list</code> — encore lui, le répertoire de configuration. Une ligne de sources liste une adresse de dépôt, la version (bookworm) et les composantes (main, contrib, non-free) ; il peut être utile de la modifier pour qu’elle pointe vers le dépôt backports ou un miroir proche.</p>
+<pre><code>apt update      rafraîchit la liste des paquets disponibles
+apt upgrade     installe les mises à jour des paquets installés
+apt install X   installe le paquet X et ses dépendances</code></pre>
+<p>Après installation, le rituel est immuable : <code>apt update</code> puis <code>apt upgrade</code>. C’est aussi le moment d’installer les outils du cours (vim, git, curl…). La gestion des <strong>utilisateurs et des groupes</strong> — le sujet du chapitre suivant — se fait alors sur un système à jour, en root ou avec <code>sudo</code>.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx-c4-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;644 notes.txt&#10;755 run.sh&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r octal nom
+  # À compléter : convertir chaque chiffre en triplet rwx.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — chmod octal → symbolique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Traduire les trois chiffres octaux de chmod en droits symboliques type ls -l.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>OCTAL NOM</code> (ex. <code>644 notes.txt</code>). Pour chacune il affiche la chaîne de droits complète type ls -l : le caractère de type <code>-</code> (fichiers uniquement ici), puis les neuf caractères. <code>644</code> donne <code>rw-r--r--</code>. La sortie est <code>NOM : -DROITS</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+644 notes.txt
+755 run.sh
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>notes.txt : -rw-r--r--
+run.sh : -rwxr-xr-x</pre></div>
+    </div>
+    <p class="lab__note">6 = rw-, 4 = r--, 5 = r-x.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour un chiffre : le 4 vaut r, le 2 vaut w, le 1 vaut x — construire le triplet caractère par caractère.</li>
+        <li>Isoler chaque chiffre avec ${octal:0:1}, ${octal:1:1}, ${octal:2:1} et une petite fonction ou trois tests.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c4-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;rw-r--r-- o-r&#10;rwxr-xr-x go+w&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r droits modif
+  # À compléter : appliquer l'action aux classes visées.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — chmod symbolique simple</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer une modification symbolique (u/g/o suivi de + ou - et de rwx) à des droits existants.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>DROITS MODIF</code> où DROITS est une chaîne de neuf caractères (sans le type) et MODIF s'écrit <code>classe action lettres</code> — classe vaut <code>u</code>, <code>g</code>, <code>o</code> ou <code>a</code> (toutes), action vaut <code>+</code> ou <code>-</code>, lettres valent une à trois lettres parmi r, w, x (ex. <code>o-r</code>, <code>ug+x</code>). Il applique la modification et affiche les neuf nouveaux caractères.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+rw-r--r-- o-r
+rwxr-xr-x go+w
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>rw-r-----
+rwxrwxrwx</pre></div>
+    </div>
+    <p class="lab__note">o-r retire la lecture des autres ; go+w ajoute écriture au groupe et aux autres.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Positions des classes : u = 0-2, g = 3-5, o = 6-8. Construire un masque des positions touchées.</li>
+        <li>Pour + : poser la lettre si la position correspond ; pour - : la remplacer par -. Parcourir les lettres demandées une à une.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c4-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="rw-r-x---&#10;4&#10;u w&#10;g x&#10;o r&#10;g w&#10;">
+  <script type="text/plain" data-lab-starter>read -r droits
+read -r m
+for ((i=0; i<m; i++)); do
+  read -r classe lettre
+  # À compléter : décider selon la position de la lettre dans le triplet.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Droits et accès : qui peut quoi</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décider, pour chaque demande d'accès (r, w ou x) par un propriétaire, un groupe ou un autre, si elle est accordée.</p>
+    <div class="lab__brief"><p>Le script lit d'abord <strong>une ligne de droits</strong> (neuf caractères, ex. <code>rw-r-x---</code>), puis <strong>m demandes</strong> : <code>classe lettre</code> (classe = u, g ou o ; lettre = r, w ou x). Pour chaque demande il affiche <code>accordé</code> ou <code>refusé</code>. Rappel : pour la classe u ce sont les caractères 0-2, g les 3-5, o les 6-8 ; <code>r</code> en première position du triplet, <code>w</code> en deuxième, <code>x</code> en troisième.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>rw-r-x---
+4
+u w
+g x
+o r
+g w
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>accordé
+accordé
+refusé
+refusé</pre></div>
+    </div>
+    <p class="lab__note">Le groupe a r-x : exécution accordée, écriture refusée ; les autres n'ont rien.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Décaler la base selon la classe : u → 0, g → 3, o → 6 ; puis r → +0, w → +1, x → +2 dans le triplet.</li>
+        <li>Un seul test suffit : le caractère à la position calculée vaut-il la lettre demandée ?</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Qu’est-ce que l’image netinst ?</p>
+      <div class="opts">
+        <button class="opt">Une image complète hors ligne</button>
+        <button class="opt" data-correct="1">Une image légère qui complète l’installation depuis les dépôts réseau</button>
+        <button class="opt">Un outil de gravure</button>
+      </div>
+      <div class="q__exp">netinst installe un système de base puis télécharge le reste depuis les dépôts.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel répertoire décrit les dépôts de paquets ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">/etc/apt/sources.list</button>
+        <button class="opt">/var/apt</button>
+        <button class="opt">/home/sources</button>
+      </div>
+      <div class="q__exp">/etc/apt/sources.list liste les dépôts : adresse, version, composantes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quels comptes crée l’installateur ?</p>
+      <div class="opts">
+        <button class="opt">Root seulement</button>
+        <button class="opt">Un utilisateur ordinaire seulement</button>
+        <button class="opt" data-correct="1">Root et un utilisateur ordinaire</button>
+      </div>
+      <div class="q__exp">Root pour l’administration (maison /root) et un utilisateur ordinaire pour le quotidien (/home/login).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où place-t-on traditionnellement la partition /home ?</p>
+      <div class="opts">
+        <button class="opt">Sur la même partition que /</button>
+        <button class="opt" data-correct="1">Sur une partition séparée pour survivre à une réinstallation</button>
+        <button class="opt">Dans /tmp</button>
+      </div>
+      <div class="q__exp">Séparer /home permet de réinstaller le système sans toucher aux données personnelles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert le swap ?</p>
+      <div class="opts">
+        <button class="opt">À stocker les journaux</button>
+        <button class="opt" data-correct="1">D’espace d’échange disque quand la RAM sature</button>
+        <button class="opt">À accélérer le réseau</button>
+      </div>
+      <div class="q__exp">Le swap (typiquement deux fois la RAM) est l’espace où le noyau déborde de la mémoire vive.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait apt update ?</p>
+      <div class="opts">
+        <button class="opt">Il installe les mises à jour</button>
+        <button class="opt" data-correct="1">Il rafraîchit la liste des paquets disponibles</button>
+        <button class="opt">Il nettoie le cache</button>
+      </div>
+      <div class="q__exp">update actualise la liste ; upgrade applique les mises à jour des paquets installés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie le nom de code Bookworm ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La version stable de Debian 12</button>
+        <button class="opt">Un outil de partitionnement</button>
+        <button class="opt">Le noyau Linux de Debian</button>
+      </div>
+      <div class="q__exp">Chaque version stable de Debian porte un nom de code ; Debian 12 est Bookworm.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi ne faut-il pas travailler en root en permanence ?</p>
+      <div class="opts">
+        <button class="opt">C’est plus lent</button>
+        <button class="opt" data-correct="1">Chaque erreur de frappe devient une faute système aux droits complets</button>
+        <button class="opt">Le réseau est désactivé</button>
+      </div>
+      <div class="q__exp">Root a tous les droits : la moindre commande mal ciblée est irréversible ; on travaille en utilisateur ordinaire et on passe root ponctuellement.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Choisir un ISO complet hors ligne sans le comprendre</strong> : netinst tire du réseau — sans réseau, pas de paquets.</li>
+      <li><strong>Confondre les deux mots de passe</strong> : celui de root sert à su, celui de l’utilisateur à la connexion.</li>
+      <li><strong>Swap oublié</strong> : sans espace d’échange, la saturation mémoire gèle la machine.</li>
+      <li><strong>Points de montage non vérifiés</strong> : df -h après installation est un réflexe, pas une option.</li>
+      <li><strong>apt upgrade sans apt update</strong> : la liste des paquets périmée, les mises à jour passent à côté.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Installer Debian sans mauvaise surprise</div>
+    <ol>
+      <li><strong>Préparer</strong> : ISO vérifiée, support amorçable ou VM configurée, sauvegarde faite.</li>
+      <li><strong>Lire chaque écran</strong> avant de valider — surtout le partitionnement.</li>
+      <li><strong>Noter hostname, mot de passe root et utilisateur</strong> au fil de l’eau.</li>
+      <li><strong>Justifier le schéma de partitions</strong> : /, swap, /home avec les tailles.</li>
+      <li><strong>Terminer par le rituel</strong> : apt update, apt upgrade, vérification df -h.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Debian 12 « Bookworm » s’installe depuis une ISO netinst, sur clé USB ou en machine virtuelle.</li>
+      <li>L’installateur crée root (maison /root) et un utilisateur ordinaire (maison /home/login).</li>
+      <li>Le partitionnement associe à chaque partition un FS (ext4) et un point de montage : /, swap, /home.</li>
+      <li>Séparer /home survit à une réinstallation ; le swap est l’échange mémoire-disque.</li>
+      <li>Les dépôts se déclarent dans /etc/apt/sources.list ; le rituel est apt update puis apt upgrade.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je déroule l’installateur en citant chaque étape dans l’ordre.</li>
+      <li>Je justifie un schéma de partitionnement complet avec tailles et points de montage.</li>
+      <li>Je distingue les comptes root et utilisateur ordinaire et leurs maisons.</li>
+      <li>J’explique sources.list et le couple apt update / apt upgrade.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>ISO</li><li>netinst</li><li>machine virtuelle</li><li>hostname</li><li>root</li><li>swap</li><li>point de montage</li><li>dépôt</li><li>sources.list</li><li>apt</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Redéroule l’installation en machine virtuelle en prenant des notes.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais le schéma de partitionnement avec les tailles justifiées.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : explique sources.list ligne par ligne et le couple update/upgrade.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 5, les utilisateurs et les groupes.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Utilisateurs, groupes et fichiers de comptes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Système Linux B1 ITA &amp; ITB » du Dr Abasse KPEGOUNI (système, fichiers, Debian 12, commandes de base, utilisateurs et groupes, TP droits d’accès).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

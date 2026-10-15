@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz · Gestion de Projet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #06080d;
+            --surface: #0d1220;
+            --surface2: #111827;
+            --border: rgba(255,255,255,0.06);
+            --border-glow: rgba(99,202,183,0.4);
+            --accent: #63cab7;
+            --accent2: #f5c842;
+            --accent3: #e86c4e;
+            --text: #e8eaf0;
+            --text-muted: #6b7280;
+            --correct: #4ade80;
+            --incorrect: #f87171;
+            --gold: #f5c842;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            font-family: 'Syne', sans-serif;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fond atmosphérique */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 10%, rgba(99,202,183,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 80% 90%, rgba(245,200,66,0.05) 0%, transparent 55%),
+                radial-gradient(ellipse 40% 60% at 70% 20%, rgba(232,108,78,0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Grille de fond subtile */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 80px 80px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 780px;
+        }
+
+        /* Header avec numéro géant en arrière-plan */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+        }
+
+        .header-left h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .header-left p {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .score-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(245,200,66,0.08);
+            border: 1px solid rgba(245,200,66,0.25);
+            border-radius: 100px;
+            padding: 0.5rem 1.2rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gold);
+        }
+
+        .restart-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        .restart-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Carte principale de la question */
+        .question-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        /* Barre de progression en haut */
+        .progress-track {
+            height: 3px;
+            background: rgba(255,255,255,0.04);
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            border-radius: 0 2px 2px 0;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Numéro géant décoratif */
+        .question-num-bg {
+            position: absolute;
+            top: -0.5rem;
+            right: 1.5rem;
+            font-family: 'Instrument Serif', serif;
+            font-size: 9rem;
+            font-style: italic;
+            color: rgba(255,255,255,0.025);
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .question-body {
+            padding: 2rem 2rem 1.5rem;
+            position: relative;
+        }
+
+        /* Numéro de question + badge thème */
+        .question-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .q-number {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.04);
+            padding: 0.25rem 0.7rem;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+        }
+
+        /* Texte de la question */
+        .question-text {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.65rem;
+            line-height: 1.45;
+            color: #f0f4ff;
+            font-style: italic;
+            margin-bottom: 0;
+        }
+
+        /* Options */
+        .options-area {
+            padding: 0 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+            border-radius: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .option:hover:not(.locked)::before { opacity: 0.04; }
+
+        .option:hover:not(.locked) {
+            border-color: rgba(99,202,183,0.3);
+            transform: translateX(4px);
+        }
+
+        .opt-letter {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .opt-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.7);
+            flex: 1;
+            line-height: 1.4;
+            transition: color 0.2s;
+        }
+
+        .opt-icon {
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        /* États correct / incorrect */
+        .option.correct {
+            background: rgba(74,222,128,0.08);
+            border-color: rgba(74,222,128,0.4);
+        }
+        .option.correct .opt-letter {
+            background: var(--correct);
+            border-color: var(--correct);
+            color: #0a1f0e;
+        }
+        .option.correct .opt-text { color: var(--correct); }
+        .option.correct .opt-icon { opacity: 1; color: var(--correct); }
+
+        .option.incorrect {
+            background: rgba(248,113,113,0.07);
+            border-color: rgba(248,113,113,0.4);
+        }
+        .option.incorrect .opt-letter {
+            background: var(--incorrect);
+            border-color: var(--incorrect);
+            color: #2a0a0a;
+        }
+        .option.incorrect .opt-text { color: var(--incorrect); }
+        .option.incorrect .opt-icon { opacity: 1; color: var(--incorrect); }
+
+        .option.dimmed {
+            opacity: 0.35;
+        }
+
+        /* Feedback */
+        .feedback {
+            margin: 0 1rem 1.5rem;
+            padding: 0.9rem 1.3rem;
+            border-radius: 0.9rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            animation: slideUp 0.25s ease;
+            border: 1px solid;
+        }
+
+        .feedback.ok {
+            background: rgba(74,222,128,0.07);
+            border-color: rgba(74,222,128,0.25);
+            color: #86efac;
+        }
+
+        .feedback.ko {
+            background: rgba(248,113,113,0.07);
+            border-color: rgba(248,113,113,0.25);
+            color: #fca5a5;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Navigation */
+        .nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .nav-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.7rem 1.4rem;
+            border-radius: 0.7rem;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.18s;
+            letter-spacing: 0.03em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(99,202,183,0.1);
+            border-color: rgba(99,202,183,0.4);
+            color: var(--accent);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+
+        /* Pastilles de progression */
+        .dot-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 400px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .dot.answered-ok { background: rgba(74,222,128,0.6); }
+        .dot.answered-ko { background: rgba(248,113,113,0.6); }
+        .dot.current { background: var(--accent); box-shadow: 0 0 6px var(--accent); width: 18px; border-radius: 4px; }
+
+        /* Score final */
+        .result-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            animation: slideUp 0.4s ease;
+        }
+
+        .result-score {
+            font-family: 'Instrument Serif', serif;
+            font-size: 5rem;
+            font-style: italic;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-label {
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .result-msg {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 2rem;
+        }
+
+        .restart-big {
+            background: linear-gradient(135deg, var(--accent), #4ab8a6);
+            border: none;
+            color: #06150f;
+            padding: 1rem 2.5rem;
+            border-radius: 0.8rem;
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        .restart-big:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,202,183,0.3); }
+    </style>
+</head>
+<body>
+<canvas id="particleCanvas"></canvas>
+<div class="wrapper">
+    <div class="header">
+        <div class="header-left">
+            <h1>Gestion de Projet</h1>
+            <p>Méthodes Agiles & Traditionnelles · 35 questions</p>
+        </div>
+        <div class="header-right">
+            <div class="score-pill" id="scoreDisplay">★ 0 / 35</div>
+            <button class="restart-btn" id="restartBtn">↺ Recommencer</button>
+        </div>
+    </div>
+
+    <div id="quizContent"></div>
+</div>
+
+<script>
+(function () {
+    const originalQuestions = [
+        { q: "Selon l'analogie du cours, quelles sont les cinq étapes fondamentales d'un projet ?", opts: ["Idée, Préparation, Partage, Action, Résultat", "Analyse, Design, Code, Test, Livraison", "Initiation, Planif, Exécution, Clôture, Bilan", "Étincelle, Stratégie, Organisation, Mouvement, Clôture"], correct: 0 },
+        { q: "Quelle caractéristique d'un projet est définie comme l'équilibre entre périmètre, coûts et délais/qualité ?", opts: ["Contrainte", "Ressources", "Jalons", "Unicité"], correct: 0 },
+        { q: "Que représentent les jalons dans un projet ?", opts: ["Les ressources financières", "Les points de contrôle clés", "Les livrables finaux", "Les acteurs principaux"], correct: 1 },
+        { q: "Parmi ces éléments, lequel n'est PAS une caractéristique fondamentale d'un projet ?", opts: ["Unicité", "Durée limitée", "Répétitivité", "Incertitude"], correct: 2 },
+        { q: "Quelle méthode traditionnelle suit une progression linéaire stricte (une phase après l'autre) ?", opts: ["Cycle en V", "Waterfall (cascade)", "Scrum", "Kanban"], correct: 1 },
+        { q: "Dans le cycle en V, à quoi sont reliées les phases de conception ?", opts: ["Aux phases de recette", "Aux phases de test/validation", "Aux spécifications techniques", "Aux livrables finaux"], correct: 1 },
+        { q: "Quel est le livrable principal de l'étape d'Initiation (cadrage) ?", opts: ["Charte projet", "Plan de projet", "Documentation technique", "Bilan de satisfaction"], correct: 0 },
+        { q: "Lors de la planification, quel livrable décrit le budget, le planning et le plan de risques ?", opts: ["Charte projet", "Plan de projet", "Rapport d'avancement", "Documentation technique"], correct: 1 },
+        { q: "Le manifeste Agile priorise :", opts: ["Processus et outils", "Documentation exhaustive", "Individus et interactions", "Négociation contractuelle"], correct: 2 },
+        { q: "Laquelle n'est PAS une valeur du manifeste Agile ?", opts: ["Individus et interactions", "Logiciel fonctionnel", "Collaboration avec le client", "Suivi strict d'un plan"], correct: 3 },
+        { q: "Quels sont les trois bénéfices majeurs de l'Agile pour le client ?", opts: ["Flexibilité, livraison précoce, amélioration continue", "Documentation, prévisibilité, faible coût", "Jalons stricts, reporting, contrat", "Sécurité, normes, traçabilité"], correct: 0 },
+        { q: "Dans quelle approche la documentation est-elle très détaillée dès le départ ?", opts: ["Agile", "Traditionnelle (prédictive)", "Hybride", "Scrum"], correct: 1 },
+        { q: "Quel principe agile consiste à optimiser les processus après chaque cycle de 2 à 4 semaines ?", opts: ["Livraison rapide", "Flexibilité", "Amélioration continue", "Collaboration"], correct: 2 },
+        { q: "Quelle méthode est idéale pour un projet aux exigences fixes comme la construction d'une autoroute ?", opts: ["Agile (Scrum)", "Traditionnelle (Waterfall)", "Kanban", "Hybride"], correct: 1 },
+        { q: "Pour un site e-commerce avec des fonctionnalités évolutives, quelle approche est recommandée ?", opts: ["Traditionnelle", "Cycle en V", "Agile (Kanban/Scrum)", "PERT"], correct: 2 },
+        { q: "Qu'est-ce qu'un 'sprint' dans Scrum ?", opts: ["Une réunion quotidienne", "Une itération de 2 à 4 semaines", "Un outil de diagramme", "Une phase de documentation"], correct: 1 },
+        { q: "Quel outil est utilisé pour la gestion visuelle des flux de tâches en Agile ?", opts: ["Diagramme de Gantt", "PERT", "Trello / Kanban", "MS Project"], correct: 2 },
+        { q: "Le diagramme de Gantt sert principalement à :", opts: ["Visualiser les dépendances et le planning", "Gérer les backlogs", "Animer les rétrospectives", "Estimer les risques"], correct: 0 },
+        { q: "La méthode PERT permet d'identifier :", opts: ["Le chemin critique", "Le budget optimal", "Les parties prenantes", "La charte projet"], correct: 0 },
+        { q: "Quelles sont les quatre étapes du cycle de vie standard d'un projet en approche traditionnelle ?", opts: ["Idée, Préparation, Action, Résultat", "Initiation, Planification, Exécution, Clôture", "Conception, Développement, Test, Livraison", "Analyse, Design, Code, Test"], correct: 1 },
+        { q: "Selon la synthèse, quel outil collaboratif est cité pour le brainstorming et la conception collaborative ?", opts: ["Trello", "Miro", "Asana", "MS Project"], correct: 1 },
+        { q: "Dans le tableau comparatif, quelle est la principale différence concernant la flexibilité entre traditionnel et agile ?", opts: ["Traditionnel est flexible, Agile est rigide", "Traditionnel est rigide, Agile est flexible", "Les deux sont flexibles", "Les deux sont rigides"], correct: 1 },
+        { q: "Quelle approche combine planification globale rigoureuse et souplesse itérative ?", opts: ["Cycle en V", "Waterfall", "Hybride", "Radicale"], correct: 2 },
+        { q: "Quel est le rôle principal du sponsor dans un projet ?", opts: ["Développer les fonctionnalités", "Financer et décider", "Tester l'application", "Animer les rétrospectives"], correct: 1 },
+        { q: "Qu'est-ce qu'un jalon (milestone) ?", opts: ["Une tâche quotidienne", "Un point de contrôle clé", "Un outil de collaboration", "Une réunion d'équipe"], correct: 1 },
+        { q: "Selon le cours, qu'est-ce qui distingue un projet des opérations courantes ?", opts: ["Son budget", "Son unicité et sa durée limitée", "Son équipe", "Sa complexité"], correct: 1 },
+        { q: "Dans l'approche traditionnelle, quand les risques sont-ils généralement détectés ?", opts: ["Dès l'initiation", "Pendant la planification", "Tardivement (phase de test)", "À chaque itération"], correct: 2 },
+        { q: "Dans l'approche Agile, comment les risques sont-ils gérés ?", opts: ["Ils sont ignorés", "Détectés tôt à chaque itération", "Reportés à la fin", "Traités dans le plan qualité"], correct: 1 },
+        { q: "Quel livrable clôture le projet en traditionnel ?", opts: ["Charte projet", "Documentation technique", "Acceptation client signée & bilan", "Plan de risques"], correct: 2 },
+        { q: "Quelle méthode est particulièrement adaptée aux systèmes embarqués avec validation obligatoire ?", opts: ["Waterfall", "Cycle en V", "Scrum", "Kanban"], correct: 1 },
+        { q: "Kanban se caractérise par :", opts: ["Itérations fixes", "Sprints de 2 semaines", "Flux continu et priorités flexibles", "Rôles définis (Scrum Master)"], correct: 2 },
+        { q: "Dans le manifeste Agile, que signifie « Logiciel fonctionnel » ?", opts: ["Documentation complète", "Prioriser le fonctionnement plutôt que la doc exhaustive", "Logiciel sans bug", "Version finale uniquement"], correct: 1 },
+        { q: "Quel type de relation client est privilégié en Agile ?", opts: ["Contractuelle et limitée", "Collaboration continue", "Aucun échange", "Reporting annuel"], correct: 1 },
+        { q: "Pour quel type de projet la méthode traditionnelle est-elle impérative ?", opts: ["Projets innovants", "Projets à contraintes réglementaires fortes", "Startups en évolution", "Applications mobiles"], correct: 1 },
+        { q: "Dans l'exemple du mariage hybride, quelle partie suit une logique Waterfall ?", opts: ["La playlist musicale", "Le menu du repas", "La logistique globale (lieu, date)", "Les discours"], correct: 2 }
+    ];
+
+    const LETTERS = ['A', 'B', 'C', 'D'];
+
+    let questions = [], answers = [], currentIndex = 0;
+    const content = document.getElementById('quizContent');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function init() {
+        questions = shuffle(originalQuestions);
+        answers = new Array(questions.length).fill(null);
+        currentIndex = 0;
+        render();
+    }
+
+    function score() {
+        return answers.reduce((s, a, i) => s + (a === questions[i].correct ? 1 : 0), 0);
+    }
+
+    function updateScore() {
+        scoreDisplay.textContent = `★ ${score()} / ${questions.length}`;
+    }
+
+    function goTo(i) {
+        currentIndex = i;
+        render();
+    }
+
+    function render() {
+        if (currentIndex >= questions.length) { renderResult(); return; }
+
+        const q = questions[currentIndex];
+        const sel = answers[currentIndex];
+        const answered = sel !== null;
+        const pct = ((currentIndex + 1) / questions.length * 100).toFixed(1);
+
+        let dotsHTML = questions.map((_, i) => {
+            let cls = 'dot';
+            if (i === currentIndex) cls += ' current';
+            else if (answers[i] !== null) cls += answers[i] === questions[i].correct ? ' answered-ok' : ' answered-ko';
+            return `<div class="${cls}" data-i="${i}"></div>`;
+        }).join('');
+
+        let optsHTML = q.opts.map((opt, idx) => {
+            let cls = 'option';
+            let icon = '';
+            if (answered) {
+                cls += ' locked';
+                if (idx === q.correct) { cls += ' correct'; icon = ''; }
+                else if (idx === sel && idx !== q.correct) { cls += ' incorrect'; icon = ''; }
+                else cls += ' dimmed';
+            }
+            return `
+                <div class="${cls}" data-idx="${idx}">
+                    <div class="opt-letter">${LETTERS[idx]}</div>
+                    <div class="opt-text">${opt}</div>
+                    <div class="opt-icon">${icon}</div>
+                </div>`;
+        }).join('');
+
+        let feedbackHTML = '';
+        if (answered) {
+            const ok = sel === q.correct;
+            feedbackHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
+                ${ok ? ' Bonne réponse !' : ' La bonne réponse est mise en évidence en vert.'}
+            </div>`;
+        }
+
+        content.innerHTML = `
+            <div class="question-card">
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:${pct}%"></div>
+                </div>
+                <div class="question-body">
+                    <div class="question-num-bg">${currentIndex + 1}</div>
+                    <div class="question-meta">
+                        <span class="q-number">Q ${currentIndex + 1} / ${questions.length}</span>
+                    </div>
+                    <div class="question-text">${q.q}</div>
+                </div>
+                <div class="options-area">${optsHTML}</div>
+                ${feedbackHTML}
+            </div>
+            <div class="nav-bar">
+                <div class="nav-buttons">
+                    <button class="nav-btn" id="prevBtn" ${currentIndex === 0 ? 'disabled' : ''}>← Préc.</button>
+                    <button class="nav-btn" id="nextBtn" ${currentIndex === questions.length - 1 ? 'disabled' : ''}>Suiv. →</button>
+                </div>
+                <div class="dot-nav">${dotsHTML}</div>
+            </div>
+        `;
+
+        // Events options
+        document.querySelectorAll('.option:not(.locked)').forEach(el => {
+            el.addEventListener('click', () => {
+                if (answers[currentIndex] !== null) return;
+                answers[currentIndex] = +el.dataset.idx;
+                updateScore();
+                render();
+            });
+        });
+
+        document.getElementById('prevBtn')?.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; render(); } });
+        document.getElementById('nextBtn')?.addEventListener('click', () => { if (currentIndex < questions.length - 1) { currentIndex++; render(); } });
+
+        document.querySelectorAll('.dot').forEach(d => {
+            d.addEventListener('click', () => goTo(+d.dataset.i));
+        });
+    }
+
+    function renderResult() {
+        const s = score();
+        const pct = Math.round(s / questions.length * 100);
+        let msg = pct >= 80 ? "Excellente maîtrise du sujet !" : pct >= 60 ? "Bonne progression, continuez !" : "À revoir — réessayez !";
+        content.innerHTML = `
+            <div class="result-card">
+                <div class="result-score">${s}<span style="font-size:2.5rem;color:#6b7280"> / ${questions.length}</span></div>
+                <div class="result-label">Score final · ${pct}%</div>
+                <div class="result-msg">${msg}</div>
+                <button class="restart-big" id="restartBig">↺ Recommencer</button>
+            </div>`;
+        document.getElementById('restartBig')?.addEventListener('click', init);
+    }
+
+    document.getElementById('restartBtn').addEventListener('click', init);
+
+    init();
+    updateScore();
+})();
+
+// ── Particules ──────────────────────────────────────────────
+(function () {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+
+    function makeParticles() {
+        particles = [];
+        const count = Math.floor((W * H) / 18000);
+        for (let i = 0; i < count; i++) {
+            const hue = Math.random() < 0.6 ? '163, 202, 183' : Math.random() < 0.5 ? '245, 200, 66' : '232, 108, 78';
+            particles.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                r: Math.random() * 2 + 1,
+                vx: (Math.random() - 0.5) * 0.35,
+                vy: (Math.random() - 0.5) * 0.2,
+                color: hue,
+                alpha: Math.random() * 0.25 + 0.08
+            });
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Lignes entre particules proches
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d < 140) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(99,202,183,${0.12 * (1 - d / 140)})`;
+                    ctx.lineWidth = 0.7;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Points
+        particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
+            ctx.shadowColor = `rgba(${p.color},0.6)`;
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0 || p.x > W) p.vx *= -1;
+            if (p.y < 0 || p.y > H) p.vy *= -1;
+        });
+
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', () => { resize(); makeParticles(); });
+    resize();
+    makeParticles();
+    draw();
+})();
+</script>
+</body>
+</html>

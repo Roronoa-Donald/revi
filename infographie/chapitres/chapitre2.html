@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Traitement d’Image, Calques &amp;amp; Tracés Vectoriels | Infographie B2</title>
+<meta name="description" content="Chapitre 2 du cours Infographie B2 : Algorithmique de manipulation d’image 2D, modes de fusion de calques (Multiply, Screen, Overlay), histogrammes et correction de niveaux (Levels), courbes de Bézier cubiques et polynômes de Bernstein, masquage et anti-aliasing. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/infographie/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Traitement d’Image, Calques &amp;amp; Tracés Vectoriels | Infographie B2">
+<meta property="og:description" content="Chapitre 2 du cours Infographie B2 : Algorithmique de manipulation d’image 2D, modes de fusion de calques (Multiply, Screen, Overlay), histogrammes et correction de niveaux (Levels), courbes de Bézier cubiques et polynômes de Bernstein, masquage et anti-aliasing. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="infographienav"><div class="infographienav__in">
+  <a class="infographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="infographienav__sep" aria-hidden="true">/</span>
+  <a class="infographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-image"></use></svg> Infographie B2</a>
+  <div class="infographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="infographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="infographiewrap">
+<p class="crumb"><a href="../index.html">Infographie B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Traitement d’Image, Calques &amp; Tracés Vectoriels</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Que ce soit dans les logiciels de création graphique professionnels (Photoshop, Illustrator, GIMP, Figma) ou dans les moteurs de rendu 2D/3D, le traitement d’image et le dessin vectoriel reposent sur des modèles mathématiques stricts. Les modes de fusion de calques ne sont pas des filtres magiques : ils combinent les canaux de couleur via des équations arithmétiques précises (multiplication normalisée, produit inverse, incrustation). De même, les courbes douces et les typographies vectorielles sont régies par les courbes paramétriques de Bézier. Ce deuxième module vous plonge au cœur des algorithmes fondamentaux de la 2D numérique : comprendre et programmer les modes de fusion, analyser et réétalonner les histogrammes de tonalité, et évaluer rigoureusement les trajectoires et tangentes de courbes de Bézier cubiques.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser les équations mathématiques des modes de fusion clés : Multiply (assombrissement), Screen (éclaircissement) et Overlay (contraste) ;</li>
+      <li>analyser un histogramme de luminosité et comprendre le réglage des points noir, blanc et gamma (Levels) ;</li>
+      <li>comprendre la formulation des courbes de Bézier polynomiales de Bernstein de degré 2 (quadratique) et degré 3 (cubique) ;</li>
+      <li>calculer la position d’un point B(t) et les vecteurs tangents le long d’une courbe de Bézier ;</li>
+      <li>distinguer les ordres de continuité géométrique G0/G1/G2 et paramétrique C0/C1/C2 à la jonction de courbes ;</li>
+      <li>simuler des algorithmes de filtrage spatial, de masquage de calques et d’anti-aliasing.</li>
+    </ol>
+  </div>
+
+<h2>1. Algorithmique des Modes de Fusion de Calques</h2>
+
+<p>La superposition de calques graphiques consiste à calculer la couleur finale résultante à partir de la couleur de base <code>A</code> (calque inférieur) et de la couleur du calque supérieur <code>B</code>. Dans un espace 8 bits normalisé dans [0.0, 1.0] (ou [0, 255]), les trois modes cardinaux sont :</p>
+<table class="table">
+  <thead>
+    <tr><th>Mode de fusion</th><th>Effet visuel</th><th>Formule sur [0, 255]</th><th>Élément neutre</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Multiply (Produit)</strong></td><td>Assombrit l’image en simulant deux diapositives superposées.</td><td><code>R = (A × B) / 255.0</code></td><td>Blanc (255) n’a aucun effet.</td></tr>
+    <tr><td><strong>Screen (Superposition)</strong></td><td>Éclaircit l’image en simulant la projection de deux faisceaux.</td><td><code>R = 255.0 - ((255 - A) × (255 - B)) / 255.0</code></td><td>Noir (0) n’a aucun effet.</td></tr>
+    <tr><td><strong>Overlay (Incrustation)</strong></td><td>Accentue le contraste : assombrit les tons sombres et éclaircit les tons clairs.</td><td>Si <code>A &lt; 128</code> : <code>(2·A·B)/255</code><br>Sinon : <code>255 - 2·(255-A)·(255-B)/255</code></td><td>Gris moyen (128) neutre.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Pourquoi Multiply et Screen sont-ils duaux ?</div>
+<p>Le mode <strong>Screen</strong> est exactement l’inverse symétrique du mode Multiply : on inverse les couleurs (1 - x), on applique un Multiply, puis on réinverse le résultat. C’est pour cette raison que Multiply retient le noir tandis que Screen retient le blanc.</p>
+  </div>
+
+<h2>2. Histogrammes de Luminance &amp; Correction de Niveaux (Levels)</h2>
+
+<p>L’histogramme d’une image représente la distribution statistique des pixels en fonction de leur luminosité (de 0 pour le noir absolu à 255 pour le blanc pur) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Diagnostic de l’Histogramme</h4>
+    <ul>
+      <li><strong>Sous-exposition :</strong> Accumulation massive des pixels sur la gauche (près de 0), absence de tons clairs.</li>
+      <li><strong>Surexposition :</strong> Pics saturés sur la droite (près de 255), détails brûlés et irrécupérables.</li>
+      <li><strong>Faible contraste :</strong> Valeurs concentrées dans une bande étroite centrale, sans noirs francs ni blancs éclatants.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Étalonnage par les Niveaux (Levels)</h4>
+    <p>La transformation ré-étire l’intervalle utile <code>[in_black, in_white]</code> vers la plage complète <code>[0, 255]</code> :</p>
+    <pre><code>val_norm = (pixel - in_black) / (in_white - in_black)\nval_gamma = val_norm ** (1.0 / gamma)\npixel_final = clamp(round(val_gamma * 255), 0, 255)</code></pre>
+  </div>
+</div>
+
+<h2>3. Courbes de Bézier Cubiques &amp; Tracés Vectoriels</h2>
+
+<p>Développées par Pierre Bézier pour la conception de carrosseries chez Renault, les courbes de Bézier permettent de tracer des contours parfaits à l’aide de quelques points de contrôle :</p>
+<p>Une courbe cubique utilise 4 points : le point de départ <code>P0</code>, deux poignées de contrôle <code>P1</code> et <code>P2</code> régissant les tangentes, et le point d’arrivée <code>P3</code> :</p>
+<pre><code>B(t) = (1 - t)³ · P0 + 3(1 - t)²t · P1 + 3(1 - t)t² · P2 + t³ · P3    pour t ∈ [0, 1]</code></pre>
+<table class="table">
+  <thead>
+    <tr><th>Type de Continuité</th><th>Définition géométrique</th><th>Contrainte sur les poignées</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>C0 / G0</strong></td><td>Continuité de position : les courbes se touchent.</td><td><code>P3_segmentA = P0_segmentB</code>.</td></tr>
+    <tr><td><strong>G1</strong></td><td>Continuité géométrique de tangente : jonction fluide sans angle vif.</td><td>Les points <code>P2_A</code>, le point de jonction et <code>P1_B</code> sont alignés.</td></tr>
+    <tr><td><strong>C1</strong></td><td>Continuité paramétrique : tangentes colinéaires et de même longueur.</td><td>Les vecteurs de poignées ont la même direction et la même amplitude.</td></tr>
+    <tr><td><strong>C2 / G2</strong></td><td>Continuité de courbure : accélération fluide sans à-coup visuel.</td><td>Dérivées secondes continues (utilisé en modélisation automobile et design de polices).</td></tr>
+  </tbody>
+</table>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ig2-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="MODE=MULTIPLY BASE=200 CALQUE=150&#10;MODE=SCREEN BASE=200 CALQUE=150&#10;MODE=OVERLAY BASE=100 CALQUE=200&#10;MODE=OVERLAY BASE=180 CALQUE=200">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler les modes de fusion Multiply, Screen et Overlay
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de modes de fusion de calques (Multiply, Screen, Overlay)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la valeur de pixel résultante de trois modes de fusion fondamentaux de Photoshop / GIMP.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format <code>MODE=&lt;MULTIPLY|SCREEN|OVERLAY&gt; BASE=&lt;A&gt; CALQUE=&lt;B&gt;</code>.<br>
+Les valeurs A (calque inférieur) et B (calque supérieur) sont des entiers entre 0 et 255.<br>
+Formules mathématiques de fusion :<br>
+- <code>MULTIPLY (Produit - assombrit)</code> :<br>
+  <code>R = (A * B) / 255.0</code><br>
+- <code>SCREEN (Superposition - éclaircit)</code> :<br>
+  <code>R = 255.0 - ((255.0 - A) * (255.0 - B)) / 255.0</code><br>
+- <code>OVERLAY (Incrustation - contraste)</code> :<br>
+  * Si <code>A &lt; 128</code> : <code>R = (2.0 * A * B) / 255.0</code><br>
+  * Sinon : <code>R = 255.0 - (2.0 * (255.0 - A) * (255.0 - B)) / 255.0</code><br>
+Afficher la valeur arrondie à l'entier le plus proche :<br>
+<code>FUSION: &lt;MODE&gt; (A=&lt;A&gt;, B=&lt;B&gt;) -&gt; VALEUR: &lt;round(R)&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MODE=MULTIPLY BASE=200 CALQUE=150
+MODE=SCREEN BASE=200 CALQUE=150
+MODE=OVERLAY BASE=100 CALQUE=200
+MODE=OVERLAY BASE=180 CALQUE=200</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>FUSION: MULTIPLY (A=200, B=150) -&gt; VALEUR: 118
+FUSION: SCREEN (A=200, B=150) -&gt; VALEUR: 232
+FUSION: OVERLAY (A=100, B=200) -&gt; VALEUR: 157
+FUSION: OVERLAY (A=180, B=200) -&gt; VALEUR: 223</pre></div>
+    </div>
+    <p class="lab__note">Multiply assombrit toujours, Screen éclaircit toujours, Overlay accentue le contraste.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Normaliser ou appliquer directement les formules sur l’intervalle [0, 255].</li>
+        <li>Arrondir avec int(round(R)).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="P0=(0,0) P1=(0,100) P2=(100,100) P3=(100,0) t=0.5&#10;P0=(10,20) P1=(30,40) P2=(50,60) P3=(70,80) t=0.0&#10;P0=(10,20) P1=(30,40) P2=(50,60) P3=(70,80) t=1.0">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer le point de la courbe de Bézier cubique
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Évaluateur de courbe de Bézier cubique 2D</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la position exacte d’un point le long d’une courbe vectorielle de Bézier cubique définie par quatre points de contrôle.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>P0=(x0,y0) P1=(x1,y1) P2=(x2,y2) P3=(x3,y3) t=&lt;valeur&gt;</code>.<br>
+Formule des polynômes de Bernstein pour une courbe cubique avec paramètre <code>t</code> dans [0, 1] :<br>
+<code>B(t) = (1-t)^3 * P0 + 3 * (1-t)^2 * t * P1 + 3 * (1-t) * t^2 * P2 + t^3 * P3</code>.<br>
+Calculer les coordonnées <code>X(t)</code> et <code>Y(t)</code> et afficher :<br>
+<code>BEZIER: t=&lt;t:.2f&gt; -&gt; POINT: (&lt;X:.2f&gt;, &lt;Y:.2f&gt;)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>P0=(0,0) P1=(0,100) P2=(100,100) P3=(100,0) t=0.5
+P0=(10,20) P1=(30,40) P2=(50,60) P3=(70,80) t=0.0
+P0=(10,20) P1=(30,40) P2=(50,60) P3=(70,80) t=1.0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BEZIER: t=0.50 -&gt; POINT: (50.00, 75.00)
+BEZIER: t=0.00 -&gt; POINT: (10.00, 20.00)
+BEZIER: t=1.00 -&gt; POINT: (70.00, 80.00)</pre></div>
+    </div>
+    <p class="lab__note">À t=0 on est en P0, à t=1 on est en P3, et à t=0.5 on évalue la combinaison des tangentes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extraire les coordonnées x et y de chaque point P0, P1, P2, P3.</li>
+        <li>Appliquer les coefficients (1-t)**3, 3*(1-t)**2*t, 3*(1-t)*t**2, et t**3.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="IMAGE=PhotoNuit NOIRS=500 TONS_SOMBRES=200 TONS_MOYENS=150 TONS_CLAIRS=100 BLANCS=50&#10;IMAGE=PhotoPlage NOIRS=20 TONS_SOMBRES=80 TONS_MOYENS=200 TONS_CLAIRS=300 BLANCS=400&#10;IMAGE=PortraitStudio NOIRS=100 TONS_SOMBRES=200 TONS_MOYENS=400 TONS_CLAIRS=200 BLANCS=100">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser l'histogramme tonal et diagnostiquer l'image
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyseur d’histogramme et correction de tonalité (Levels)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Diagnostiquer la distribution tonale d’une image (sous-exposition, surexposition, contraste équilibré).</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations de répartition de pixels par quintile au format :<br>
+<code>IMAGE=&lt;Nom&gt; NOIRS=&lt;n1&gt; TONS_SOMBRES=&lt;n2&gt; TONS_MOYENS=&lt;n3&gt; TONS_CLAIRS=&lt;n4&gt; BLANCS=&lt;n5&gt;</code>.<br>
+Calculs :<br>
+1. <code>Total = n1 + n2 + n3 + n4 + n5</code>.<br>
+2. Pourcentage dans les noirs bouchés : <code>PctNoirs = (n1 / Total) * 100</code>.<br>
+3. Pourcentage dans les blancs cramés : <code>PctBlancs = (n5 / Total) * 100</code>.<br>
+Règles de diagnostic :<br>
+- Si <code>PctNoirs &gt;= 40.0%</code> :<br>
+  <code>DIAGNOSTIC: SOUS_EXPOSE (Ombres bouchees - remonter le point noir)</code><br>
+- Si <code>PctBlancs &gt;= 40.0%</code> :<br>
+  <code>DIAGNOSTIC: SUR_EXPOSE (Hautes lumieres cramees - descendre le point blanc)</code><br>
+- Sinon :<br>
+  <code>DIAGNOSTIC: EQUILIBRE (Dynamique tonale bien repartie)</code><br>
+Afficher :<br>
+<code>&lt;Nom&gt; [Noirs: &lt;PctNoirs:.1f&gt;% | Blancs: &lt;PctBlancs:.1f&gt;%] -&gt; &lt;DIAGNOSTIC&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>IMAGE=PhotoNuit NOIRS=500 TONS_SOMBRES=200 TONS_MOYENS=150 TONS_CLAIRS=100 BLANCS=50
+IMAGE=PhotoPlage NOIRS=20 TONS_SOMBRES=80 TONS_MOYENS=200 TONS_CLAIRS=300 BLANCS=400
+IMAGE=PortraitStudio NOIRS=100 TONS_SOMBRES=200 TONS_MOYENS=400 TONS_CLAIRS=200 BLANCS=100</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PhotoNuit [Noirs: 50.0% | Blancs: 5.0%] -&gt; DIAGNOSTIC: SOUS_EXPOSE (Ombres bouchees - remonter le point noir)
+PhotoPlage [Noirs: 2.0% | Blancs: 40.0%] -&gt; DIAGNOSTIC: SUR_EXPOSE (Hautes lumieres cramees - descendre le point blanc)
+PortraitStudio [Noirs: 10.0% | Blancs: 10.0%] -&gt; DIAGNOSTIC: EQUILIBRE (Dynamique tonale bien repartie)</pre></div>
+    </div>
+    <p class="lab__note">Diagnostic photographique standard basé sur l’étalement des niveaux.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer la somme des cinq catégories de pixels pour obtenir le total.</li>
+        <li>Comparer les pourcentages au seuil de 40.0%.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle formule définit le mode de fusion Multiply (Produit) pour deux pixels A et B dont les valeurs sont dans l’intervalle [0, 255] ?</p>
+      <div class="opts">
+        <button class="opt">R = A + B</button>
+        <button class="opt" data-correct="1">R = (A * B) / 255.0</button>
+        <button class="opt">R = max(A, B)</button>
+        <button class="opt">R = sqrt(A * B)</button>
+      </div>
+      <div class="q__exp">Multiply normalise les valeurs sur [0, 1], les multiplie, puis remet à l’échelle [0, 255], ce qui équivaut à (A * B) / 255.0.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’élément neutre du mode de fusion Screen (Superposition) ?</p>
+      <div class="opts">
+        <button class="opt">Le blanc pur (255)</button>
+        <button class="opt" data-correct="1">Le noir pur (0)</button>
+        <button class="opt">Le gris moyen (128)</button>
+        <button class="opt">Le rouge pur (255, 0, 0)</button>
+      </div>
+      <div class="q__exp">Dans le mode Screen, superposer du noir pur (valeur 0) ne modifie pas le calque inférieur (255 - ((255 - A) * 255) / 255 = A).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment réagit le mode de fusion Overlay (Incrustation) face à une valeur de calque de base égale à 128 (gris moyen) ?</p>
+      <div class="opts">
+        <button class="opt">Il rend l’image entièrement transparente</button>
+        <button class="opt" data-correct="1">Il laisse le calque supérieur inchangé ou agit comme pivot neutre de contraste</button>
+        <button class="opt">Il inverse toutes les couleurs du calque</button>
+        <button class="opt">Il supprime tous les pixels impairs</button>
+      </div>
+      <div class="q__exp">Le gris moyen 128 est le point de bascule neutre d’Overlay : les pixels plus sombres sont assombris, les plus clairs sont éclaircis.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de points de contrôle au total définissent une courbe de Bézier cubique 2D standard ?</p>
+      <div class="opts">
+        <button class="opt">2 points</button>
+        <button class="opt">3 points</button>
+        <button class="opt" data-correct="1">4 points (2 extrémités et 2 poignées de contrôle)</button>
+        <button class="opt">6 points</button>
+      </div>
+      <div class="q__exp">Une courbe de Bézier cubique est régie par un polynôme de degré 3 comportant 4 coefficients : P0 (départ), P1 (tangente départ), P2 (tangente fin), et P3 (arrivée).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quelle valeur paramétrique t se situe le point médian d’une courbe de Bézier définie sur [0, 1] ?</p>
+      <div class="opts">
+        <button class="opt">t = 0.0</button>
+        <button class="opt" data-correct="1">t = 0.5</button>
+        <button class="opt">t = 1.0</button>
+        <button class="opt">t = 2.0</button>
+      </div>
+      <div class="q__exp">Le paramètre t varie de façon continue de 0.0 (origine P0) à 1.0 (destination P3) ; le milieu paramétrique correspond exactement à t = 0.5.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle condition garantit une continuité de tangente fluide de type G1 à la jonction de deux segments de courbe de Bézier ?</p>
+      <div class="opts">
+        <button class="opt">Les deux segments doivent être de même couleur</button>
+        <button class="opt" data-correct="1">La dernière poignée du premier segment, le point d’ancrage commun et la première poignée du second segment doivent être colinéaires (alignés sur la même droite)</button>
+        <button class="opt">Les deux segments doivent avoir exactement la même longueur</button>
+        <button class="opt">Le paramètre t doit être égal à 0</button>
+      </div>
+      <div class="q__exp">Pour que la transition soit lisse sans angle aigu (continuité G1), les tangentes entrante et sortante doivent partager la même direction.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie un histogramme dont toutes les barres sont concentrées dans le quart gauche (valeurs 0 à 60) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’image est fortement sous-exposée et manque de tons clairs</button>
+        <button class="opt">L’image est en très haute résolution 4K</button>
+        <button class="opt">L’image est surexposée avec des zones brûlées</button>
+        <button class="opt">L’image ne contient aucun pixel valide</button>
+      </div>
+      <div class="q__exp">La concentration à gauche indique que l’immense majorité des pixels a une luminance très basse, typique d’une image sombre ou sous-exposée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le rôle d’un masque de fusion (Layer Mask) en infographie matricielle ?</p>
+      <div class="opts">
+        <button class="opt">Supprimer définitivement les pixels indésirables du disque dur</button>
+        <button class="opt" data-correct="1">Définir l’opacité locale du calque de manière non-destructive grâce à une carte en niveaux de gris (le blanc révèle, le noir masque)</button>
+        <button class="opt">Accélérer la fréquence de rafraîchissement de l’écran</button>
+        <button class="opt">Changer la résolution DPI du document</button>
+      </div>
+      <div class="q__exp">Le masque de fusion permet d’occulter des portions de calque sans détruire les données d’origine, préservant la possibilité de retouches ultérieures.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Diviser par 255 avant d’arrondir ou oublier la normalisation sur [0.0, 1.0] lors du calcul manuel des modes de fusion.</li>
+      <li>Croire que déplacer une poignée de contrôle de Bézier déplace directement la courbe : elle attire la courbe sans que celle-ci ne passe nécessairement par la poignée.</li>
+      <li>Confondre un masque de fusion (niveaux de gris modifiant l’opacité) et un masque d’écrêtage (découpage vectoriel ou basé sur la forme du calque inférieur).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Traitement d’Image et d’Évaluation Vectorielle de Bézier</div>
+    <ol>
+      <li>Étape 1 — Définir le mode de fusion : Choisir Multiply pour incruster des ombres, Screen pour des lumières et reflets, ou Overlay pour dynamiser le contraste.</li>
+      <li>Étape 2 — Appliquer la formule de fusion : Normaliser les composantes RVB sur [0.0, 1.0], exécuter l’opération arithmétique et ré-échantillonner sur [0, 255].</li>
+      <li>Étape 3 — Inspecter l’histogramme de tonalité : Localiser les pics de distribution et ajuster les bornes noires, blanches et la médiane gamma (Levels).</li>
+      <li>Étape 4 — Positionner les points de contrôle de Bézier : Fixer les ancres P0 et P3, puis orienter les tangentes de courbure via les poignées P1 et P2.</li>
+      <li>Étape 5 — Évaluer la courbe polynomiale : Appliquer la formule de Bernstein pour le paramètre t souhaité (notamment t=0.5 pour le point médian).</li>
+      <li>Étape 6 — Vérifier la continuité géométrique : Garantir l’alignement des poignées pour obtenir une jonction fluide de classe G1 entre segments.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le mode Multiply multiplie les valeurs normalisées des pixels et produit toujours une couleur égale ou plus sombre.</li>
+      <li>Le mode Screen éclaircit l’image et préserve les hautes lumières sans saturer excessivement les tons moyens.</li>
+      <li>Le mode Overlay accentue le contraste en appliquant Multiply aux ombres (A < 128) et Screen aux lumières (A >= 128).</li>
+      <li>Un histogramme équilibré exploite toute l’étendue dynamique de 0 à 255 sans écrêtage massif aux extrêmes.</li>
+      <li>Les courbes de Bézier cubiques combinent les points de contrôle via les polynômes de Bernstein de degré 3.</li>
+      <li>L’alignement des poignées de contrôle de part et d’autre d’un nœud garantit au moins une continuité de tangente G1.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais par cœur les formules arithmétiques de Multiply, Screen et Overlay.</li>
+      <li>Je sais identifier un calque sous-exposé ou manquant de contraste à partir de son histogramme.</li>
+      <li>Je sais appliquer la formule de Bézier cubique pour calculer les coordonnées d’un point à t=0.5.</li>
+      <li>Je comprends la différence fondamentale entre continuité géométrique G1 et continuité paramétrique C1.</li>
+      <li>Je comprends le rôle des masques d’écrêtage et des canaux alpha dans la composition 2D.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Modes de fusion arithmétiques (Multiply, Screen, Overlay)</li><li>Éléments neutres de fusion (Noir, Blanc, Gris 128)</li><li>Histogramme de luminance et quantification</li><li>Correction de niveaux (Points noir/blanc et gamma)</li><li>Polynômes de Bernstein et courbes de Bézier</li><li>Points de contrôle et vecteurs tangents</li><li>Continuités géométriques G0, G1, G2 et paramétriques C0, C1</li><li>Filtrage spatial et anti-aliasing</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez les équations de Multiply, Screen et la géométrie des courbes de Bézier.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bon niveau d’ensemble. Approfondissez les conditions de continuité C1/G1 et l’interprétation fine des histogrammes.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise des mathématiques de la 2D et du traitement d’image.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous maîtrisez les algorithmes de fusion et les courbes paramétriques au niveau expert.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Texturing, Espace UV &amp; Cartographie de Relief (Normal Mapping) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les spécifications Khronos Group (OpenGL, Vulkan), les documentations officielles Blender, Unity et Unreal Engine, et les traités de référence Real-Time Rendering.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercices &amp;amp; projet intégrateur — Virtualisation B1</title>
+<meta name="description" content="Exercices supplémentaires et projet intégrateur du cours B1 : scripts Bash gradués et réveil d’un parc entier.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-virtualisation/exercices/exercices.html">
+<meta property="og:title" content="Exercices &amp;amp; projet intégrateur — Virtualisation B1">
+<meta property="og:description" content="Exercices supplémentaires et projet intégrateur du cours B1 : scripts Bash gradués et réveil d’un parc entier.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="vtnav"><div class="vtnav__in">
+  <a class="vtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="vtnav__sep" aria-hidden="true">/</span>
+  <a class="vtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg> Virtualisation B1</a>
+  <div class="vtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html" class="is-active">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="vtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="vtwrap">
+<p class="crumb"><a href="../index.html">Virtualisation B1</a> › <a href="../sommaire.html">Sommaire</a> › Exercices</p>
+
+  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>
+
+  <p class="lead">De la pratique graduée pour consolider chaque chapitre, puis un projet final : le réveil d’un parc entier. Les scripts sont en Bash, comme à l’atelier.</p>
+
+  <h2>Entraînement rapide (acquisition)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Échauffement</span></div>
+    <ol>
+      <li>Lit n lignes « heure inactif » et classe les heures perdues au seuil 48, puis le bilan d’inactivité.</li>
+      <li>Lit n lignes « ressource partage » et valide les ressources partagées de l’histoire, puis le compteur.</li>
+      <li>Lit n lignes « service categorie » et valide les quatre services de l’histoire, puis le compteur.</li>
+      <li>Lit n lignes « concept role » (partage/avantage/risque) et valide chaque question technique, puis le compteur.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+perdues=0
+total=0
+for ((k=0; k&lt;n; k++)); do
+  read -r heure inactif
+  total=$((total + inactif))
+  if [ "$inactif" -ge 48 ]; then
+    echo "$heure : perdue"
+    perdues=$((perdues + 1))
+  else
+    echo "$heure : utile"
+  fi
+done
+echo "heures perdues : $perdues/$n"
+echo "inactivite : $total min"
+
+read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r ressource partage
+  case "$ressource" in
+    memoire) attendu="vive" ;;
+    processeur) attendu="calcul" ;;
+    disque) attendu="stockage" ;;
+    reseau-dediee) attendu="pas-partage" ;;
+  esac
+  if [ "$partage" = "$attendu" ]; then
+    echo "$ressource : OK"
+    ok=$((ok + 1))
+  else
+    echo "$ressource : ERREUR"
+  fi
+done
+echo "correctes : $ok/$n"
+
+read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r service categorie
+  case "$service" in
+    base) attendu="donnees" ;;
+    site) attendu="publication" ;;
+    pare-feu) attendu="protection" ;;
+    test) attendu="recette" ;;
+  esac
+  if [ "$categorie" = "$attendu" ]; then
+    echo "$service : OK"
+    ok=$((ok + 1))
+  else
+    echo "$service : ERREUR"
+  fi
+done
+echo "correctes : $ok/$n"
+
+read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r concept role
+  case "$concept" in
+    mutualisation) attendu="partage" ;;
+    rentabilisation) attendu="avantage" ;;
+    surcharge) attendu="risque" ;;
+  esac
+  if [ "$role" = "$attendu" ]; then
+    echo "$concept : OK"
+    ok=$((ok + 1))
+  else
+    echo "$concept : ERREUR"
+  fi
+done
+echo "correctes : $ok/$n"</code></pre></div></details>
+  </div>
+
+  <h2>Application</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Application</span></div>
+    <ol>
+      <li>Lit n lignes « serveur services cout » et classe fainéants/équilibrés/saturés avec le gaspillage.</li>
+      <li>Lit la capacité puis n demandes « vm ram disque » et alloue sans dépasser, avec les restes.</li>
+      <li>Lit n lignes « vm service » et produit l’inventaire par service dans l’ordre d’apparition.</li>
+      <li>Lit n lignes « serveur avant apres » et compte les réveillés (avant &lt; 30, apres ≥ 80).</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+f=0
+gaspillage=0
+for ((k=0; k&lt;n; k++)); do
+  read -r serveur services cout
+  if [ "$services" -lt 2 ]; then
+    echo "$serveur : faineant"
+    f=$((f + 1))
+    gaspillage=$((gaspillage + cout * 80 / 100))
+  elif [ "$services" -gt 4 ]; then
+    echo "$serveur : sature"
+  else
+    echo "$serveur : equilibre"
+  fi
+done
+echo "faineants : $f"
+echo "gaspillage : $gaspillage FCFA"
+
+read -r n
+read -r ram disque
+reste_r=$ram
+reste_d=$disque
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r vm r d
+  if [ "$r" -le "$reste_r" ] &amp;&amp; [ "$d" -le "$reste_d" ]; then
+    echo "$vm : allouee"
+    reste_r=$((reste_r - r))
+    reste_d=$((reste_d - d))
+    ok=$((ok + 1))
+  else
+    echo "$vm : refusee"
+  fi
+done
+echo "allouees : $ok/$n"
+echo "reste : $reste_r ram $reste_d disque"
+
+read -r n
+declare -A compte
+declare -A ordre
+g=0
+for ((k=0; k&lt;n; k++)); do
+  read -r vm service
+  echo "$vm : $service"
+  if [ -z "\${compte[$service]+x}" ]; then
+    ordre[$g]=$service
+    g=$((g + 1))
+  fi
+  compte[$service]=$((\${compte[$service]:-0} + 1))
+done
+for ((k=0; k&lt;g; k++)); do
+  service=\${ordre[$k]}
+  echo "$service : \${compte[$service]} vm"
+done
+echo "services : $g"
+
+read -r n
+reveilles=0
+for ((k=0; k&lt;n; k++)); do
+  read -r serveur avant apres
+  if [ "$avant" -lt 30 ] &amp;&amp; [ "$apres" -ge 80 ]; then
+    echo "$serveur : reveille"
+    reveilles=$((reveilles + 1))
+  elif [ "$apres" -gt "$avant" ]; then
+    echo "$serveur : en progres"
+  else
+    echo "$serveur : insuffisant"
+  fi
+done
+echo "reveilles : $reveilles/$n"</code></pre></div></details>
+  </div>
+
+  <h2>Raisonnement</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Raisonnement</span></div>
+    <ol>
+      <li>Lit la capacité puis n charges « vm charge » et refuse tout dépassement, avec le verdict de saturation exacte.</li>
+      <li>Lit n lignes « serveur cpu ram reponses » et détecte les symptômes 90/90/500 avec l’action de déplacement.</li>
+      <li>Lit le parc puis le coût d’une VM et calcule la consolidation au plafond avec l’économie.</li>
+      <li>Lit m hôtes puis n VM « vm besoin » et place chaque VM au premier hôte suffisant, avec les restes.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r capacite
+[ "$capacite" = "-" ] &amp;&amp; capacite=100
+read -r n
+ok=0
+total=0
+for ((k=0; k&lt;n; k++)); do
+  read -r vm charge
+  if [ $((total + charge)) -le "$capacite" ]; then
+    echo "$vm : hebergee"
+    total=$((total + charge))
+    ok=$((ok + 1))
+  else
+    echo "$vm : refusee (saturation)"
+  fi
+done
+echo "charge : $total/$capacite"
+echo "hebergees : $ok/$n"
+[ "$total" -eq "$capacite" ] &amp;&amp; echo "serveur plein"
+
+read -r n
+x=0
+for ((k=0; k&lt;n; k++)); do
+  read -r serveur cpu ram reponses
+  c=0
+  symptome=""
+  if [ "$cpu" -gt 90 ]; then c=$((c + 1)) ; symptome="cpu" ; fi
+  if [ "$ram" -gt 90 ]; then c=$((c + 1)) ; symptome="ram" ; fi
+  if [ "$reponses" -gt 500 ]; then c=$((c + 1)) ; symptome="reponses" ; fi
+  if [ "$c" -eq 0 ]; then
+    echo "$serveur : sain"
+  else
+    [ "$c" -ge 2 ] &amp;&amp; symptome="multiple"
+    echo "$serveur : surcharge ($symptome)"
+    echo "$serveur : action = deplacer une VM"
+    x=$((x + 1))
+  fi
+done
+echo "surcharges : $x/$n"
+echo "deplacements : $x"
+
+read -r n
+total=0
+for ((k=0; k&lt;n; k++)); do
+  read -r serveur cout
+  total=$((total + cout))
+done
+read -r cout_vm
+vm=$((total / cout_vm))
+[ $((total % cout_vm)) -ne 0 ] &amp;&amp; vm=$((vm + 1))
+apres=$((vm * cout_vm))
+eco=$((total - apres))
+pct=$((eco * 100 / total))
+echo "parc actuel : $n serveurs — $total FCFA"
+echo "parc virtualise : $vm vm — $apres FCFA"
+echo "economie : $eco FCFA ($pct%)"
+
+read -r m
+declare -A capacite
+declare -A ordre
+for ((k=0; k&lt;m; k++)); do
+  read -r hote c
+  capacite[$hote]=$c
+  ordre[$k]=$hote
+done
+read -r n
+non=0
+for ((k=0; k&lt;n; k++)); do
+  read -r vm besoin
+  place=0
+  for ((j=0; j&lt;m; j++)); do
+    hote=\${ordre[$j]}
+    if [ "$place" = "0" ] &amp;&amp; [ "\${capacite[$hote]}" -ge "$besoin" ]; then
+      echo "$vm : $hote"
+      capacite[$hote]=$((\${capacite[$hote]} - besoin))
+      place=1
+    fi
+  done
+  if [ "$place" = "0" ]; then
+    echo "$vm : sans-place"
+    non=$((non + 1))
+  fi
+done
+for ((j=0; j&lt;m; j++)); do
+  hote=\${ordre[$j]}
+  echo "$hote : \${capacite[$hote]}"
+done
+echo "non-placees : $non/$n"</code></pre></div></details>
+  </div>
+
+  <h2>Projet intégrateur — « le réveil d’un parc entier »</h2>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges</div>
+    <p>Le script reçoit le dossier de réveil d’un parc. D’abord <code>n</code> lignes <code>serveur config</code> où config est une suite de lettres sans espace — <code>f</code> = fainéant confirmé (moins de 30 % d’utilisation), <code>c</code> = compatible virtualisation, <code>s</code> = sauvegardes existantes, le tiret <code>-</code> = aucune information. Puis <code>m</code> lignes <code>vm charge</code> de la charge des VM prévues. Il affiche pour chaque serveur <code>serveur : a virtualiser</code> si les trois lettres sont présentes, sinon <code>serveur : a etudier (manque X)</code> avec la première lettre manquante dans l’ordre f, c, s ; pour chaque VM <code>vm : charge=X</code> ; enfin le verdict : <code>parc reveille</code> si tous les serveurs sont virtualisables ET que la charge totale des VM est de 300 au plus, <code>parc a ajuster</code> si les serveurs sont prêts sans ce volume, <code>parc bloque</code> sinon.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Fonctionnalités attendues</div>
+    <ol>
+      <li><strong>Lire</strong> les deux blocs sans mélanger serveurs et VM.</li>
+      <li><strong>Auditer</strong> chaque serveur : première lettre manquante dans l’ordre f, c, s.</li>
+      <li><strong>Chiffrer</strong> la charge totale des VM prévues.</li>
+      <li><strong>Verdict</strong> final au format exact du cahier des charges.</li>
+    </ol>
+    <p>Contraintes : parsing lettre à lettre, premier manque dans l’ordre, bilan après lecture complète.</p>
+  </div>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Grille d’auto-évaluation du projet (sur 100)</div>
+    <div class="bands">
+      <div class="bandrow">Lecture des deux blocs et parsing correct <strong>20</strong></div>
+      <div class="bandrow">Audit des serveurs (premier manque) <strong>20</strong></div>
+      <div class="bandrow">Charge totale des VM <strong>20</strong></div>
+      <div class="bandrow">Verdict global conforme <strong>20</strong></div>
+      <div class="bandrow">Rapport lisible et formats exacts <strong>20</strong></div>
+    </div>
+    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>
+  </div>
+
+  <details>
+
+    <summary>Voir une solution de référence (après avoir essayé !)</summary>
+
+    <div class="sol">
+
+      <pre><code>read -r n
+tous_ok=1
+for ((k=0; k&lt;n; k++)); do
+  read -r serveur config
+  f=0 ; c=0 ; s=0
+  if [ "$config" != "-" ]; then
+    for ((j=0; j&lt;${#config}; j++)); do
+      lettre=${config:$j:1}
+      case "$lettre" in
+        f) f=1 ;;
+        c) c=1 ;;
+        s) s=1 ;;
+      esac
+    done
+  fi
+  if [ "$f" = "1" ] &amp;&amp; [ "$c" = "1" ] &amp;&amp; [ "$s" = "1" ]; then
+    echo "$serveur : a virtualiser"
+  elif [ "$f" = "0" ]; then
+    echo "$serveur : a etudier (manque f)" ; tous_ok=0
+  elif [ "$c" = "0" ]; then
+    echo "$serveur : a etudier (manque c)" ; tous_ok=0
+  else
+    echo "$serveur : a etudier (manque s)" ; tous_ok=0
+  fi
+done
+read -r m
+total=0
+for ((k=0; k&lt;m; k++)); do
+  read -r vm charge
+  total=$((total + charge))
+  echo "$vm : charge=$charge"
+done
+if [ "$tous_ok" = "1" ] &amp;&amp; [ "$total" -le 300 ]; then
+  echo "verdict : parc reveille"
+elif [ "$tous_ok" = "1" ]; then
+  echo "verdict : parc a ajuster"
+else
+  echo "verdict : parc bloque"
+fi</code></pre>
+
+      Cette solution combine parsing lettre à lettre, premier manque dans l’ordre, chiffrage de la charge et verdict global — les chapitres 1, 5 et 6 en un seul script.
+
+    </div>
+
+  </details>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../chapitres/simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Exercices construits d’après le support « Le serveur fainéant et les machines ambitieuses — histoire » et ses questions de compréhension, d’analyse et de réflexion. Sources : le support B1 « Le serveur fainéant et les machines ambitieuses — histoire » (dossier « cours B1 IT / Virtualisation des serveurs ») : texte narratif et questions de compréhension, d’analyse technique et de réflexion.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

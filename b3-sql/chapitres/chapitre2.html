@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Indexation B-Tree, Hash, GIN &amp;amp; Optimisation Physique du Stockage | SQL Avancé B3</title>
+<meta name="description" content="Chapitre 2 du cours SQL Avancé B3 : Structures physiques de stockage, pages mémoire de 8 Ko, architecture interne des arbres B-Tree, index Hash, GiST et GIN, dimensionnement et Fill Factor, index couvrants (Covering Indexes) et maintenance REINDEX. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-sql/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Indexation B-Tree, Hash, GIN &amp;amp; Optimisation Physique du Stockage | SQL Avancé B3">
+<meta property="og:description" content="Chapitre 2 du cours SQL Avancé B3 : Structures physiques de stockage, pages mémoire de 8 Ko, architecture interne des arbres B-Tree, index Hash, GiST et GIN, dimensionnement et Fill Factor, index couvrants (Covering Indexes) et maintenance REINDEX. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-sqlnav"><div class="b3-sqlnav__in">
+  <a class="b3-sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-sqlnav__sep" aria-hidden="true">/</span>
+  <a class="b3-sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL Avancé B3</a>
+  <div class="b3-sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-sqlwrap">
+<p class="crumb"><a href="../index.html">SQL Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Indexation B-Tree, Hash, GIN &amp; Optimisation Physique du Stockage</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Sur une base de données de production atteignant des centaines de gigaoctets ou des téraoctets, exécuter un balayage séquentiel complet (Sequential Scan) pour retrouver quelques enregistrements parmi 50 millions de lignes immobilise le disque, sature le buffer pool et génère des temps de réponse inacceptables de plusieurs secondes. Pour garantir des temps d’accès sub-millisecondes, les moteurs relationnels s’appuient sur des structures d’indexation physique sophistiquées. L’ingénieur de données de niveau Bachelor 3 doit comprendre l’anatomie des blocs disques de 8 Ko, la traversée logarithmique des arbres équilibrés B-Tree, maîtriser les index spécialisés pour le JSONB et le texte intégral (GIN), dimensionner le facteur de remplissage (Fill Factor) pour prévenir la fragmentation et concevoir des index couvrants (Index-Only Scan) éliminant tout accès superflu à la table.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l’organisation physique des pages de 8 Ko dans PostgreSQL (PageHeader, ItemId, Tuples) ;</li>
+      <li>analyser l’architecture interne des index B-Tree (nœuds racine, internes et feuilles, fan-out) ;</li>
+      <li>dimensionner précisément l’empreinte disque et mémoire d’un index en fonction du Fill Factor ;</li>
+      <li>comparer les familles d’index : B-Tree, Hash, GiST (géospatial) et GIN (JSONB, tableaux) ;</li>
+      <li>concevoir des index partiels (Partial Indexes) et des index couvrants (Covering Indexes avec INCLUDE) ;</li>
+      <li>développer en Python 3 des simulateurs de traversée B-Tree, des calculateurs d’empreinte mémoire et des conseillers d’indexation (Index Advisor).</li>
+    </ol>
+  </div>
+
+<h2>1. Organisation Physique des Pages Disques & Anatomie du B-Tree</h2>
+
+<p>Dans PostgreSQL, la mémoire et le stockage persistant sont segmentés en blocs de taille fixe appelés <strong>pages</strong> (par défaut 8 192 octets soit 8 Ko). Une page de données ou d’index comporte une structure millimétrée :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Structure Interne d’une Page PostgreSQL (8 Ko)</h4>
+    <ul>
+      <li><strong>PageHeaderData (24 octets) :</strong> Méta-données fixes contenant le LSN du dernier WAL, les drapeaux et les pointeurs de décalage vers le début et la fin de l’espace libre.</li>
+      <li><strong>Tableaux des ItemId (4 octets par pointeur) :</strong> Liste croissant vers le bas des pointeurs physiques orientés vers les tuples réels.</li>
+      <li><strong>Espace Libre (Free Space) :</strong> Zone tampon centrale se réduisant à chaque insertion.</li>
+      <li><strong>Tuples / Entrées d’Index :</strong> Écrits depuis le bas de la page (offset 8192) en remontant vers le haut.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>L’Arbre Équilibré B-Tree (Bayer-McCreight)</h4>
+    <p>Le B-Tree est un arbre n-aire auto-équilibré où toutes les feuilles sont rigoureusement à la même profondeur :</p>
+    <ul>
+      <li><strong>Facteur de Branchement (Fan-Out) :</strong> Chaque page peut héberger 200 à 500 clés triées selon la taille des données.</li>
+      <li><strong>Traversée Logarithmique :</strong> Atteindre un enregistrement parmi 100 millions de lignes ne requiert que 3 ou 4 I/O de blocs ($O(\log_B N)$).</li>
+      <li><strong>Feuilles Chaînées :</strong> Les pages feuilles sont reliées entre elles par des pointeurs doublement chaînés (Next/Prev), autorisant les balayages par plage ultra-rapides (<code>BETWEEN</code>, <code>&gt;=</code>).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Typologie des Index : B-Tree, Hash, GIN &amp; GiST</h2>
+
+<p>Bien que le B-Tree couvre 90 % des besoins relationnels, des types d’index spécialisés sont indispensables selon la nature des colonnes et des opérateurs :</p>
+<table class="table">
+  <thead><tr><th>Type d'Index</th><th>Cas d'Usage &amp; Opérateurs Supportés</th><th>Structure Physique</th><th>Avantages &amp; Limites</th></tr></thead>
+  <tbody>
+    <tr><td><strong>B-Tree</strong></td><td>Égalités et intervalles (<code>=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>BETWEEN</code>, <code>ORDER BY</code>)</td><td>Arbre n-aire équilibré trié</td><td>Standard universel, supporte les index composites et couvrants.</td></tr>
+    <tr><td><strong>HASH</strong></td><td>Égalité stricte uniquement (<code>=</code>)</td><td>Table de hachage sur disque</td><td>Recherche $O(1)$ très compacte ; ne supporte aucun tri ni recherche d'intervalle.</td></tr>
+    <tr><td><strong>GIN (Generalized Inverted Index)</strong></td><td>Documents JSONB (<code>?</code>, <code>@&gt;</code>), tableaux (<code>&&</code>), recherche plein texte</td><td>Index inversé associant chaque élément interne aux TIDs des lignes</td><td>Recherches multi-clés fulgurantes dans les données semi-structurées ; coût d'écriture élevé.</td></tr>
+    <tr><td><strong>GiST (Generalized Search Tree)</strong></td><td>Données géospatiales PostGIS, plages de valeurs (<code>daterange</code>), géométrie</td><td>Arbre R-Tree hiérarchique englobant (Bounding Boxes)</td><td>Permet l'indexation d'objets multi-dimensionnels et les contraintes d'exclusion sans chevauchement.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Index Couvrants (Covering Indexes) &amp; Index Only Scan</div>
+<p>Dans un <code>Index Scan</code> classique, le moteur parcourt l’arbre d’index pour récupérer le tuple ID (TID), puis doit lire le bloc de la table pour extraire les colonnes non indexées. Grâce à la clause <code>INCLUDE</code> (introduite dans PostgreSQL 11), on peut stocker des colonnes supplémentaires dans les feuilles de l’index sans les inclure dans l’arbre de tri :</p>,<pre><code>CREATE INDEX idx_cmd_client_date ON commandes (client_id) INCLUDE (total_ttc, date_cmd);</code></pre>,<p>Une requête interrogeant <code>client_id</code>, <code>total_ttc</code> et <code>date_cmd</code> réalise alors un <strong>Index Only Scan</strong> : elle lit 100 % des données dans l’index sans jamais toucher la table physique, divisant les I/O disque par dix.</p>
+  </div>
+
+<h2>3. Fill Factor, Fragmentation & Maintenance Physique (REINDEX)</h2>
+
+<p>L’activité transactionnelle intensive (insertions, mises à jour et suppressions) altère l’organisation physique des index :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Paramètre Fill Factor &amp; Divisions de Pages (Page Splits)</h4>
+    <p>Lorsqu’une page feuille d’un index B-Tree est pleine à 100 % et qu’une nouvelle clé doit y être insérée :</p>
+    <ul>
+      <li>Le moteur déclenche un <strong>Page Split</strong> : allocation d’une nouvelle page de 8 Ko et copie de 50 % des clés vers celle-ci.</li>
+      <li>Cette opération engendre des écritures disque bloquantes et fragmente l’index (pages à moitié vides).</li>
+      <li><strong>Remède :</strong> Définir un <code>fillfactor = 80</code> ou <code>85</code> pour préserver de l’espace libre destiné aux insertions futures.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Reconstruction Concurrente via REINDEX CONCURRENTLY</h4>
+    <p>Au fil du temps, un index fragmenté (index bloat) consomme une mémoire RAM démesurée et ralentit les lectures :</p>
+    <ul>
+      <li>Un <code>REINDEX</code> standard pose un verrou exclusif <code>AccessExclusiveLock</code> qui bloque toutes les lectures et écritures sur la table.</li>
+      <li>La commande <code>REINDEX TABLE CONCURRENTLY &lt;nom&gt;;</code> reconstruit le nouvel index en tâche de fond en plusieurs passes sans interrompre la production.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="sql3-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="NODE id=root type=INTERNAL keys=20,50 children=N1,N2,N3&#10;NODE id=N1 type=LEAF keys=5,10,15&#10;NODE id=N2 type=LEAF keys=25,35,42&#10;NODE id=N3 type=LEAF keys=55,60,70&#10;SEARCH key=35">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : parser l'arbre B-Tree et simuler la traversée de la racine aux feuilles
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de recherche et traversée dans un arbre B-Tree indexé</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parcourir les nœuds d’un index B-Tree hiérarchique depuis la racine jusqu’à la page feuille pour localiser une clé.</p>
+    <div class="lab__brief">L’index B-Tree est la structure par défaut dans les SGBD relationnels (PostgreSQL, MySQL InnoDB, Oracle).
+Chaque nœud interne contient $K$ clés triées séparant $K+1$ pointeurs vers des nœuds enfants :
+- Si `clé_cherchée < clé[0]`, on emprunte `enfant[0]`.
+- Si `clé[i] <= clé_cherchée < clé[i+1]`, on emprunte `enfant[i+1]`.
+- Si `clé_cherchée >= clé[K-1]`, on emprunte le dernier enfant `enfant[K]`.
+Lorsque l’on atteint une feuille (`type=LEAF`), on vérifie si la clé y est présente.
+
+Entrée :
+- Des lignes décrivant les nœuds de l’arbre :
+  `NODE id=<node_id> type=<INTERNAL|LEAF> keys=<k1,k2,...> children=<c0,c1,...>` (les feuilles n’ont pas de children)
+- Une ligne de recherche : `SEARCH key=<int_key>`
+
+Sortie :
+- `TRAVERSAL path=<node1->node2->...->leaf> depth=<N>`
+- `RESULT key=<K> found=<TRUE|FALSE> leaf=<leaf_id>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NODE id=root type=INTERNAL keys=20,50 children=N1,N2,N3
+NODE id=N1 type=LEAF keys=5,10,15
+NODE id=N2 type=LEAF keys=25,35,42
+NODE id=N3 type=LEAF keys=55,60,70
+SEARCH key=35</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TRAVERSAL path=root-&gt;N2 depth=2
+RESULT key=35 found=TRUE leaf=N2</pre></div>
+    </div>
+    <p class="lab__note">35 est compris entre 20 et 50, on descend dans N2 où 35 est présent.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker chaque nœud dans un dictionnaire avec ses clés triées d’entiers et sa liste d’enfants.</li>
+        <li>Le premier nœud de type INTERNAL déclaré ou nommé root est la racine.</li>
+        <li>À chaque étape, comparer la clé cible avec les clés du nœud pour déterminer l’indice de l’enfant suivant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="INDEX_CALC table=utilisateurs rows=500000 key_bytes=16 fill_factor=90">
+  <script type="text/plain" data-lab-starter>import sys
+import math
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer l'empreinte disque et mémoire de l'index B-Tree
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur d’empreinte mémoire d’index et facteur de blocage (Fill Factor)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Estimer le nombre de pages et la taille en Ko/Mo d’un index B-Tree en fonction du nombre de lignes, de la taille des clés et du Fill Factor.</p>
+    <div class="lab__brief">Dans PostgreSQL, une page de base de données fait par défaut 8 192 octets (8 Ko).
+Chaque page comporte un en-tête fixe de 24 octets (PageHeaderData).
+Chaque entrée d’index stocke un ItemId (4 octets) + un en-tête d’index (IndexTupleData, 8 octets) + la clé physique.
+L’espace utilisable par page pour les feuilles est limité par le `fill_factor` (ex: 90% pour réserver 10% d’espace aux insertions futures sans page split).
+Formule pour une feuille :
+- `taille_entree = 4 (ItemId) + 8 (en-tete) + key_bytes`
+- `espace_disponible = (8192 - 24) * (fill_factor / 100.0)`
+- `capacite_page = int(espace_disponible // taille_entree)`
+- `pages_feuilles = ceil(rows / capacite_page)`
+- En ajoutant les nœuds internes de l’arbre (estimés à environ 1,2% des pages feuilles supplémentaires) : `pages_totales = pages_feuilles + ceil(pages_feuilles * 0.012)`
+
+Entrée :
+`INDEX_CALC table=<nom> rows=<N> key_bytes=<B> fill_factor=<PCT>`
+
+Sortie :
+`ESTIMATE table=<nom> entry_bytes=<B> page_capacity=<N> leaf_pages=<N> total_pages=<N> size_kb=<KB> size_mb=<MB.2f>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>INDEX_CALC table=utilisateurs rows=500000 key_bytes=16 fill_factor=90</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ESTIMATE table=utilisateurs entry_bytes=28 page_capacity=262 leaf_pages=1909 total_pages=1932 size_kb=15456 size_mb=15.09</pre></div>
+    </div>
+    <p class="lab__note">500 000 lignes avec des clés de 16 octets à 90% de remplissage occupent ~15 Mo.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Appliquer les constantes de stockage de page PostgreSQL : 8192 octets par page, 24 octets de header.</li>
+        <li>Chaque entrée consomme 4 + 8 + key_bytes octets.</li>
+        <li>Utiliser math.ceil pour arrondir les nombres de pages vers l’entier supérieur.</li>
+        <li>size_kb = total_pages * 8 ; size_mb = size_kb / 1024.0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="ADVISE table=commandes col=client_id:int,date_cmd:timestamp filter=client_id=eq,date_cmd=range order=date_cmd partial_filter=none">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la requête et recommander le type d'index ainsi que le DDL SQL
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Sélecteur d’index optimal (Index Advisor) selon la typologie de prédicats</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les prédicats d’une requête SQL et recommander l’index optimal (B-Tree composite, GIN, Hash ou partiel).</p>
+    <div class="lab__brief">Dans la conception de bases de données haute performance, choisir le bon type d’index est crucial :
+- `GIN` (Generalized Inverted Index) : recommandé pour les colonnes semi-structurées (`jsonb`, tableaux `array`, ou recherche plein texte `tsvector`).
+- `HASH` : recommandé uniquement pour les comparaisons d’égalité stricte sur clé unique (`eq`) sans recherche par intervalle.
+- `PARTIAL_BTREE` : recommandé lorsqu’un filtre WHERE porte sur un sous-ensemble très sélectif (ex: `deleted_at IS NULL` ou `status=active`).
+- `BTREE_COMPOSITE` : recommandé pour les requêtes combinant égalité et ordre ou intervalle (`range` / `order_by`). Règle d’or : colonnes d’égalité en premier, puis colonne de range ou de tri.
+
+Entrée :
+`ADVISE table=<table_name> col=<c1:type,c2:type> filter=<c1=eq,c2=range> order=<col|none> partial_filter=<cond|none>`
+
+Sortie :
+`RECOMMENDATION table=<name> index_type=<GIN|HASH|PARTIAL_BTREE|BTREE_COMPOSITE> cols=<c1,c2> ddl=<CREATE INDEX ...>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ADVISE table=commandes col=client_id:int,date_cmd:timestamp filter=client_id=eq,date_cmd=range order=date_cmd partial_filter=none</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RECOMMENDATION table=commandes index_type=BTREE_COMPOSITE cols=client_id,date_cmd ddl=CREATE INDEX idx_commandes_client_id_date_cmd ON commandes (client_id, date_cmd)</pre></div>
+    </div>
+    <p class="lab__note">Index B-Tree composite ordonné (égalité client_id d’abord, puis range date_cmd).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Si une colonne est de type jsonb ou array, recommander systématiquement GIN.</li>
+        <li>Si un partial_filter est présent non vide, recommander PARTIAL_BTREE avec clause WHERE.</li>
+        <li>Si plusieurs colonnes sont filtrées ou triées, placer les colonnes en égalité en tête dans l’index composite.</li>
+        <li>Générer l’instruction SQL DDL standard correspondante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la taille physique par défaut d’une page de stockage dans PostgreSQL ?</p>
+      <div class="opts">
+        <button class="opt">512 octets</button>
+        <button class="opt">4 096 octets (4 Ko)</button>
+        <button class="opt" data-correct="1">8 192 octets (8 Ko)</button>
+        <button class="opt">65 536 octets (64 Ko)</button>
+      </div>
+      <div class="q__exp">PostgreSQL manipule toutes ses tables et index sous la forme de blocs disques standards de 8 192 octets (8 Ko).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type d’index est universellement recommandé pour indexer des champs semi-structurés de type JSONB dans PostgreSQL ?</p>
+      <div class="opts">
+        <button class="opt">Index B-Tree classique</button>
+        <button class="opt">Index HASH</button>
+        <button class="opt" data-correct="1">Index GIN (Generalized Inverted Index)</button>
+        <button class="opt">Index BRIN</button>
+      </div>
+      <div class="q__exp">L’index GIN décompose les clés et valeurs du document JSONB en index inversé, permettant des recherches instantanées avec l’opérateur @>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’intérêt majeur de la clause INCLUDE lors de la création d’un index B-Tree ?</p>
+      <div class="opts">
+        <button class="opt">Compresser l’index avec l’algorithme gzip</button>
+        <button class="opt" data-correct="1">Ajouter des colonnes de charge utile dans les pages feuilles pour permettre l’Index Only Scan sans modifier la structure de tri</button>
+        <button class="opt">Empêcher les suppressions de lignes dans la table</button>
+        <button class="opt">Traduire les colonnes en minuscules</button>
+      </div>
+      <div class="q__exp">La clause INCLUDE intègre des données complémentaires dans les feuilles de l’index, permettant au moteur d’exécuter la requête sans accéder à la table.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se produit-il lorsqu’une page feuille B-Tree atteint 100 % de sa capacité et reçoit une nouvelle clé ?</p>
+      <div class="opts">
+        <button class="opt">Le serveur s’arrête immédiatement avec une erreur fatale</button>
+        <button class="opt" data-correct="1">Le moteur effectue une division de page (Page Split) en allouant une nouvelle page et en transférant 50 % des clés</button>
+        <button class="opt">La clé la plus ancienne est automatiquement écrasée</button>
+        <button class="opt">La clé est stockée dans un fichier texte temporaire</button>
+      </div>
+      <div class="q__exp">Le Page Split sépare la page en deux pour insérer la nouvelle valeur, un mécanisme coûteux en I/O atténué par le paramètre fillfactor.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour une requête filtrant sur « WHERE client_id = 42 AND date_cmd >= '2025-01-01' », quel ordre de colonnes dans l’index composite est optimal ?</p>
+      <div class="opts">
+        <button class="opt">(date_cmd, client_id)</button>
+        <button class="opt" data-correct="1">(client_id, date_cmd)</button>
+        <button class="opt">L’ordre n’a aucune importance dans un B-Tree</button>
+        <button class="opt">Seul client_id doit être indexé</button>
+      </div>
+      <div class="q__exp">Règle d’or : les colonnes à égalité stricte (client_id) doivent toujours être placées avant les colonnes à intervalle (date_cmd).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande PostgreSQL permet de reconstruire un index sans bloquer les opérations de lecture et d’écriture concurrentes ?</p>
+      <div class="opts">
+        <button class="opt">REINDEX TABLE commandes;</button>
+        <button class="opt">VACUUM FULL commandes;</button>
+        <button class="opt" data-correct="1">REINDEX TABLE CONCURRENTLY commandes;</button>
+        <button class="opt">ALTER INDEX commandes RESTART;</button>
+      </div>
+      <div class="q__exp">L’option CONCURRENTLY évite le verrou exclusif lourd et permet à la production de continuer pendant la reconstruction de l’index.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un index partiel (Partial Index) dans PostgreSQL ?</p>
+      <div class="opts">
+        <button class="opt">Un index qui ne fonctionne que le matin</button>
+        <button class="opt" data-correct="1">Un index restreint à un sous-ensemble de lignes répondant à une clause WHERE définie lors de sa création</button>
+        <button class="opt">Un index contenant uniquement la moitié des colonnes</button>
+        <button class="opt">Un index stocké sur une clé USB</button>
+      </div>
+      <div class="q__exp">Un index partiel (ex: CREATE INDEX ... WHERE actif = true) ne référence que les lignes pertinentes, économisant de la mémoire RAM et des I/O.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité théorique de recherche d’une clé dans un index B-Tree contenant N enregistrements avec un facteur de branchement B ?</p>
+      <div class="opts">
+        <button class="opt">O(N)</button>
+        <button class="opt">O(1)</button>
+        <button class="opt" data-correct="1">O(log_B N)</button>
+        <button class="opt">O(N^2)</button>
+      </div>
+      <div class="q__exp">La traversée de l’arbre B-Tree s’effectue en temps logarithmique O(log_B N), ce qui représente un nombre d’I/O fixe minime.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Créer un index sur chaque colonne individuelle d’une table, provoquant un effondrement dramatique des performances d’INSERT et d’UPDATE.</li>
+      <li>Inverser l’ordre des colonnes dans un index composite (placer la colonne d’intervalle avant la colonne d’égalité), empêchant l’index d’être pleinement exploité.</li>
+      <li>Indexer une colonne JSONB avec un index B-Tree ordinaire plutôt qu’un index GIN, rendant impossible la recherche par clés internes.</li>
+      <li>Oublier le mot-clé CONCURRENTLY lors d’un REINDEX en production, figeant l’ensemble de l’application sous un verrou exclusif.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Analyser les requêtes lentes du journal (slow query log ou pg_stat_statements) pour identifier les prédicats WHERE, JOIN et ORDER BY fréquents.</li>
+      <li>Étape 2 : Vérifier la sélectivité des colonnes : ne jamais indexer une colonne à très faible cardinalité (ex: booléen ou statut binaire) avec un B-Tree complet.</li>
+      <li>Étape 3 : Créer des index composites en respectant la règle d’or : colonnes d’égalité stricte en premier, suivies des colonnes d’intervalle ou de tri.</li>
+      <li>Étape 4 : Déployer des index partiels (WHERE actif = true) sur les tables volumineuses pour réduire l’empreinte mémoire de 80 %.</li>
+      <li>Étape 5 : Exploiter la clause INCLUDE pour concevoir des index couvrants permettant l’exécution en Index Only Scan.</li>
+      <li>Étape 6 : Planifier périodiquement une maintenance des index fragmentés via REINDEX CONCURRENTLY lors des heures creuses.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le stockage PostgreSQL repose sur des pages de 8 Ko contenant un en-tête fixe, des ItemIds et des tuples.</li>
+      <li>L’index B-Tree organise les clés dans un arbre n-aire équilibré assurant une traversée en temps logarithmique O(log N).</li>
+      <li>L’index GIN est le choix indispensable pour indexer les documents semi-structurés JSONB, les tableaux et le texte intégral.</li>
+      <li>Les index couvrants (clause INCLUDE) permettent au moteur de satisfaire la requête par un Index Only Scan sans toucher la table.</li>
+      <li>Le paramètre fillfactor réserve de l’espace libre dans les pages d’index pour prévenir les coûteuses divisions de pages (Page Splits).</li>
+      <li>La maintenance d’un index fragmenté s’opère sans verrouillage applicatif via la commande REINDEX CONCURRENTLY.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends la découpe interne d’une page PostgreSQL de 8 192 octets.</li>
+      <li>Je sais expliquer pourquoi un arbre B-Tree n’a généralement que 3 à 4 niveaux de profondeur.</li>
+      <li>Je maîtrise les cas d’usage distincts de B-Tree, HASH, GIN et GiST.</li>
+      <li>Je sais concevoir un index couvrant avec la clause INCLUDE pour déclencher un Index Only Scan.</li>
+      <li>Je comprends le rôle du Fill Factor dans la prévention des divisions de pages lors d’insertions massives.</li>
+      <li>Je sais pourquoi REINDEX CONCURRENTLY est obligatoire sur une base en production 24/7.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Pages Disques de 8 Ko & PageHeaderData</li><li>Arbre Équilibré B-Tree & Fan-Out</li><li>Index Hash & Accès O(1)</li><li>Generalized Inverted Index (GIN) pour JSONB</li><li>Index Couvrants & Clause INCLUDE</li><li>Index Partiels (Partial Indexes)</li><li>Divisions de Pages (Page Splits) & Fill Factor</li><li>Maintenance Reindex Concurrently</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à identifier le bon type d’index ou confusion sur le fonctionnement des index composites.</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension des arbres B-Tree, dimensionnement avec Fill Factor et utilisation des index GIN pour le JSONB.</div>
+      <div class="bandrow bandrow--high">Maîtrise approfondie des index couvrants (INCLUDE), élimination des accès tables via Index Only Scan et maintenance non bloquante en production.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Analyse des Plans d’Exécution EXPLAIN (ANALYZE, BUFFERS) &amp; Optimiseur CBO <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

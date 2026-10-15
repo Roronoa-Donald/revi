@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercices &amp;amp; projet intégrateur — CCNA 1 B1</title>
+<meta name="description" content="Exercices supplémentaires et projet intégrateur du cours de CCNA 1 B1 : scripts Bash gradués et qualification du commutateur.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-ccna1/exercices/exercices.html">
+<meta property="og:title" content="Exercices &amp;amp; projet intégrateur — CCNA 1 B1">
+<meta property="og:description" content="Exercices supplémentaires et projet intégrateur du cours de CCNA 1 B1 : scripts Bash gradués et qualification du commutateur.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ccnav"><div class="ccnav__in">
+  <a class="ccnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ccnav__sep" aria-hidden="true">/</span>
+  <a class="ccnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> CCNA 1 B1</a>
+  <div class="ccnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html" class="is-active">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ccnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ccwrap">
+<p class="crumb"><a href="../index.html">CCNA 1 B1</a> › <a href="../sommaire.html">Sommaire</a> › Exercices</p>
+
+  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>
+
+  <p class="lead">De la pratique graduée pour consolider chaque chapitre, puis un projet final qui qualifie un commutateur de bout en bout. Les scripts sont en Bash, comme à l'atelier.</p>
+
+  <h2>Entraînement rapide (acquisition)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Échauffement</span></div>
+    <ol>
+      <li>Lit n lignes « equipement couche » (1/2/3) et valide hub, switch, routeur, puis le compteur couche 2.</li>
+      <li>Lit n lignes « unite couche » (bits/trame/paquet/segment) et valide le classement, puis le compteur trame.</li>
+      <li>Lit n lignes « liaison brochage » (droit/croise) et valide selon la règle, puis le compteur croise.</li>
+      <li>Lit n lignes « memoire contenu » (ram/nvram/flash/rom) et valide le placement, puis le compteur d'erreurs.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+l2=0
+for ((k=0; k&lt;n; k++)); do
+  read -r equipement couche
+  case "$equipement" in
+    hub) attendu=1 ;;
+    switch) attendu=2 ;;
+    routeur) attendu=3 ;;
+  esac
+  if [ "$couche" = "$attendu" ]; then
+    echo "$equipement : OK"
+    [ "$equipement" = "switch" ] &amp;&amp; l2=$((l2 + 1))
+  else
+    echo "$equipement : KO (couche $attendu)"
+  fi
+done
+echo "switch en couche 2 : $l2"
+
+read -r n
+t=0
+for ((k=0; k&lt;n; k++)); do
+  read -r unite couche
+  case "$unite" in
+    bits) attendu=1 ;;
+    trame) attendu=2 ;;
+    paquet) attendu=3 ;;
+    segment) attendu=4 ;;
+  esac
+  if [ "$couche" = "$attendu" ]; then
+    echo "$unite : OK"
+    [ "$unite" = "trame" ] &amp;&amp; t=$((t + 1))
+  else
+    echo "$unite : KO (couche $attendu)"
+  fi
+done
+echo "trames justes : $t"
+
+read -r n
+c=0
+for ((k=0; k&lt;n; k++)); do
+  read -r liaison brochage
+  case "$liaison" in
+    pc-switch|pc-routeur) attendu="droit" ;;
+    pc-pc|switch-switch) attendu="croise" ;;
+  esac
+  if [ "$brochage" = "$attendu" ]; then
+    echo "$liaison : OK"
+    [ "$brochage" = "croise" ] &amp;&amp; c=$((c + 1))
+  else
+    echo "$liaison : KO ($attendu attendu)"
+  fi
+done
+echo "croises justes : $c"
+
+read -r n
+e=0
+for ((k=0; k&lt;n; k++)); do
+  read -r memoire contenu
+  case "$memoire" in
+    ram) attendu="running-config" ;;
+    nvram) attendu="startup-config" ;;
+    flash) attendu="ios" ;;
+    rom) attendu="bootstrap" ;;
+  esac
+  if [ "$contenu" = "$attendu" ]; then
+    echo "$memoire : OK"
+  else
+    echo "$memoire : KO ($attendu attendu)"
+    e=$((e + 1))
+  fi
+done
+echo "erreurs : $e/$n"</code></pre></div></details>
+  </div>
+
+  <h2>Application</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Application</span></div>
+    <ol>
+      <li>Lit n lignes « champ octets » et valide les tailles de la trame 802.3, bornes 46-1500 comprises.</li>
+      <li>Lit n lignes « etape action » (1 à 4 : fcs/desencapsule/table/encapsule) et valide l'ordre du routage.</li>
+      <li>Lit n lignes « commande mode » (enable/configure/exit) et valide l'escalade des modes.</li>
+      <li>Lit n lignes « protection commande » et valide la correspondance des sécurisations.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r champ octets
+  case "$champ" in
+    preamble) attendu=7 ;;
+    sfd) attendu=1 ;;
+    mac) attendu=6 ;;
+    type) attendu=2 ;;
+    fcs) attendu=4 ;;
+    donnees)
+      if [ "$octets" -ge 46 ] &amp;&amp; [ "$octets" -le 1500 ]; then
+        echo "$champ : OK" ; ok=$((ok + 1))
+      else
+        echo "$champ : KO (46-1500)"
+      fi
+      continue ;;
+  esac
+  if [ "$octets" = "$attendu" ]; then
+    echo "$champ : OK" ; ok=$((ok + 1))
+  else
+    echo "$champ : KO ($attendu attendu)"
+  fi
+done
+echo "champs justes : $ok/$n"
+
+read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r etape action
+  case "$etape" in
+    1) attendu="fcs" ;;
+    2) attendu="desencapsule" ;;
+    3) attendu="table" ;;
+    4) attendu="encapsule" ;;
+  esac
+  if [ "$action" = "$attendu" ]; then
+    echo "etape $etape : OK" ; ok=$((ok + 1))
+  else
+    echo "etape $etape : NON"
+  fi
+done
+echo "etapes justes : $ok/$n"
+
+read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r commande mode
+  case "$commande" in
+    enable) attendu="enable" ;;
+    configure) attendu="config" ;;
+    exit) echo "$commande : OK" ; ok=$((ok + 1)) ; continue ;;
+  esac
+  if [ "$mode" = "$attendu" ]; then
+    echo "$commande : OK" ; ok=$((ok + 1))
+  else
+    echo "$commande : REFUSE"
+  fi
+done
+echo "commandes valides : $ok/$n"
+
+read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r protection commande
+  if [ "$protection" = "$commande" ]; then
+    echo "$protection : OK" ; ok=$((ok + 1))
+  else
+    echo "$protection : ERREUR"
+  fi
+done
+echo "protections conformes : $ok/$n"</code></pre></div></details>
+  </div>
+
+  <h2>Raisonnement</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Raisonnement</span></div>
+    <ol>
+      <li>Lit n lignes « adresse voisine » (routeur entre les deux ou pas) et tranche même groupe ou groupes différents.</li>
+      <li>Lit n lignes « site debit » et conseille la catégorie de câble, puis le budget cat6a.</li>
+      <li>Lit n lignes « session reglages » (suite s/t/d) et juge le confort de console, premier motif manquant.</li>
+      <li>Lit « seuil n » puis n lignes « switch score » et rend le verdict de qualification (moyenne entière).</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r adresse voisin
+  if [ "$voisin" = "aucun" ]; then verdict="memegroupe" ; else verdict="groupesdifferents" ; fi
+  read -r annonce
+  if [ "$annonce" = "$verdict" ]; then
+    echo "$adresse : conforme" ; ok=$((ok + 1))
+  else
+    echo "$adresse : a revoir ($verdict)"
+  fi
+done
+echo "regles appliquees : $ok/$n"
+
+read -r n
+budget=0
+for ((k=0; k&lt;n; k++)); do
+  read -r site debit
+  case "$debit" in
+    1g) echo "$site : cat5e" ;;
+    10g) echo "$site : cat6a" ; budget=$((budget + 1)) ;;
+    100m) echo "$site : cat3" ;;
+  esac
+done
+echo "budget cat6a : $budget"
+
+read -r n
+fluides=0
+for ((k=0; k&lt;n; k++)); do
+  read -r session reglages
+  s=0 ; t=0 ; d=0
+  for ((j=0; j&lt;${#reglages}; j++)); do
+    c=${reglages:$j:1}
+    case "$c" in
+      s) s=1 ;;
+      t) t=1 ;;
+      d) d=1 ;;
+    esac
+  done
+  if [ "$s" = "1" ] &amp;&amp; [ "$t" = "1" ] &amp;&amp; [ "$d" = "1" ]; then
+    echo "$session : fluide" ; fluides=$((fluides + 1))
+  elif [ "$s" = "0" ]; then echo "$session : gene (motif syslog)"
+  elif [ "$t" = "0" ]; then echo "$session : gene (motif timeout)"
+  else echo "$session : gene (motif dns)"
+  fi
+done
+echo "sessions fluides : $fluides/$n"
+
+read -r seuil
+read -r n
+somme=0
+for ((k=0; k&lt;n; k++)); do
+  read -r switch score
+  echo "$switch : score $score"
+  somme=$((somme + score))
+done
+if [ "$n" -gt 0 ]; then moyenne=$((somme / n)) ; else moyenne=0 ; fi
+if [ "$moyenne" -ge "$seuil" ]; then echo "verdict : qualifie" ; else echo "verdict : formation requise" ; fi</code></pre></div></details>
+  </div>
+
+  <h2>Projet intégrateur — « la qualification du commutateur »</h2>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges</div>
+    <p>Le script reçoit le journal de qualification d'un parc de commutateurs : d'abord <code>n_switch</code> commutateurs au format <code>switch protections</code> où protections est une suite de lettres sans espace — <code>e</code> = enable secret présent, <code>l</code> = login local, <code>s</code> = SSH (crypto key), <code>i</code> = IPv4 de gestion (SVI + default-gateway), le tiret <code>-</code> = commutateur vierge. Puis <code>n_cables</code> câbles au format <code>liaison brochage</code> (droit/croise). Il affiche pour chaque commutateur <code>switch : securise</code> si les quatre protections sont présentes, sinon <code>switch : echec (manque X)</code> avec la première lettre manquante dans l'ordre e, l, s, i ; pour chaque câble <code>liaison : conforme</code> ou <code>liaison : a revoir</code> ; enfin le verdict : <code>parc qualifie</code> si tous les commutateurs sont sécurisés et tous les câbles conformes, <code>intervention requise</code> sinon.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Fonctionnalités attendues</div>
+    <ol>
+      <li><strong>Lire</strong> les deux blocs sans mélanger commutateurs et câbles.</li>
+      <li><strong>Analyser</strong> chaque suite de protections lettre à lettre.</li>
+      <li><strong>Valider</strong> chaque câble selon la règle droit/croisé.</li>
+      <li><strong>Compter</strong> les échecs avec le premier manque dans l'ordre.</li>
+      <li><strong>Verdict</strong> final au format exact du cahier des charges.</li>
+    </ol>
+    <p>Contraintes : parsing lettre à lettre, première lettre manquante, bilan après lecture complète.</p>
+  </div>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Grille d'auto-évaluation du projet (sur 100)</div>
+    <div class="bands">
+      <div class="bandrow">Lecture des deux blocs et parsing correct <strong>20</strong></div>
+      <div class="bandrow">Analyse des protections (premier manque) <strong>20</strong></div>
+      <div class="bandrow">Validation des câbles <strong>20</strong></div>
+      <div class="bandrow">Verdict global conforme <strong>20</strong></div>
+      <div class="bandrow">Rapport lisible et formats exacts <strong>20</strong></div>
+    </div>
+    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>
+  </div>
+
+  <details>
+
+    <summary>Voir une solution de référence (après avoir essayé !)</summary>
+
+    <div class="sol">
+
+      <pre><code>read -r n_switch
+tous_ok=1
+for ((k=0; k&lt;n_switch; k++)); do
+  read -r switch protections
+  e=0 ; l=0 ; s=0 ; i=0
+  if [ "$protections" != "-" ]; then
+    for ((j=0; j&lt;${#protections}; j++)); do
+      c=${protections:$j:1}
+      case "$c" in
+        e) e=1 ;;
+        l) l=1 ;;
+        s) s=1 ;;
+        i) i=1 ;;
+      esac
+    done
+  fi
+  if [ "$e" = "1" ] &amp;&amp; [ "$l" = "1" ] &amp;&amp; [ "$s" = "1" ] &amp;&amp; [ "$i" = "1" ]; then
+    echo "$switch : securise"
+  elif [ "$e" = "0" ]; then
+    echo "$switch : echec (manque e)" ; tous_ok=0
+  elif [ "$l" = "0" ]; then
+    echo "$switch : echec (manque l)" ; tous_ok=0
+  elif [ "$s" = "0" ]; then
+    echo "$switch : echec (manque s)" ; tous_ok=0
+  else
+    echo "$switch : echec (manque i)" ; tous_ok=0
+  fi
+done
+read -r n_cables
+cables_ok=1
+for ((k=0; k&lt;n_cables; k++)); do
+  read -r liaison brochage
+  case "$liaison" in
+    pc-switch|pc-routeur) attendu="droit" ;;
+    pc-pc|switch-switch|routeur-routeur) attendu="croise" ;;
+  esac
+  if [ "$brochage" = "$attendu" ]; then
+    echo "$liaison : conforme"
+  else
+    echo "$liaison : a revoir" ; cables_ok=0
+  fi
+done
+if [ "$tous_ok" = "1" ] &amp;&amp; [ "$cables_ok" = "1" ]; then
+  echo "verdict : parc qualifie"
+else
+  echo "verdict : intervention requise"
+fi</code></pre>
+
+      Cette solution combine parsing lettre à lettre, validation de câbles, comptage du premier manque et verdict global — les chapitres 1, 5 et 6 en un seul script.
+
+    </div>
+
+  </details>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../chapitres/simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Exercices construits d'après le support « B1-IT : CCNA 1 » (Essowaba AHOULOUMI, Collège de Paris, d'après le programme CCNA 200-301). Sources : le support « B1-IT : CCNA 1 » (Essowaba AHOULOUMI, Collège de Paris, d'après le programme CCNA 200-301).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

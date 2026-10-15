@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 2 — Systèmes de Numération | ATO B1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        :root{--accent:#f43f5e;--accent-light:#fb7185;--accent-dark:#e11d48;--accent-glow:rgba(244,63,94,0.25)}
+        .dark{--accent:#fb7185;--accent-light:#fda4af;--accent-dark:#f43f5e;--accent-glow:rgba(251,113,133,0.25)}
+        .conv-block{background:var(--card-bg,#111827);border:1px solid var(--border,rgba(255,255,255,.06));border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:.95rem;overflow-x:auto}
+        .conv-step{margin:.3rem 0;line-height:1.7}
+        .conv-step .hl{color:var(--accent);font-weight:700}
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Aller au contenu</a>
+<div class="reading-progress" id="reading-progress"></div>
+
+<nav class="glass-nav"><div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><i class="fas fa-microchip"></i> ArchiBot</a>
+    <ul class="nav-links">
+        <li><a href="../index.html">Accueil</a></li>
+        <li><a href="chapitre1.html">Ch.1</a></li>
+        <li><a href="chapitre2.html" class="active">Ch.2</a></li>
+        <li><a href="chapitre3.html">Ch.3</a></li>
+        <li><a href="chapitre4.html">Ch.4</a></li>
+        <li><a href="formules.html">Formules</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+</div></nav>
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>🖥️ ArchiBot</span><button class="mobile-nav-close" id="mobile-nav-close"><i class="fas fa-times"></i></button></div>
+    <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+    <a href="chapitre1.html"><i class="fas fa-book-open"></i> Ch.1 — Généralités</a>
+    <a href="chapitre2.html" class="active"><i class="fas fa-book-open"></i> Ch.2 — Numération</a>
+    <a href="chapitre3.html"><i class="fas fa-book-open"></i> Ch.3 — Circuits logiques</a>
+    <a href="chapitre4.html"><i class="fas fa-book-open"></i> Ch.4 — Architecture PC</a>
+    <a href="formules.html"><i class="fas fa-scroll"></i> Formules</a>
+    <a href="cartes.html"><i class="fas fa-layer-group"></i> Cartes</a>
+    <a href="simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Simulateur</a>
+    <a href="../exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a>
+</div>
+
+<section class="hero-section" id="main-content">
+    <div class="hero-badge"><i class="fas fa-binary"></i> Chapitre 2 — ATO</div>
+    <h1>Systèmes de <span class="highlight">Numération</span></h1>
+    <p>Binaire, octal, hexadécimal — conversions, nombres signés, arithmétique binaire et codes.</p>
+</section>
+
+<main class="content-wrapper">
+
+    <!-- 2.1 Bases de numération -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-bullseye"></i> Objectifs du chapitre</h2>
+        <div class="info-box">
+            <ul>
+                <li>Convertir entre binaire, octal, décimal et hexadécimal</li>
+                <li>Effectuer des opérations arithmétiques en binaire</li>
+                <li>Représenter les nombres négatifs (complément à 2)</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-hashtag"></i> 2.1 — Les bases de numération</h2>
+
+        <div class="concept-card">
+            <h4>📋 Pourquoi plusieurs bases ?</h4>
+            <p>Nous, les humains, comptons en <strong>base 10</strong> (décimal) parce qu'on a 10 doigts. Mais un ordinateur n'a pas de doigts — il n'a que des fils électriques avec 2 états : <strong>courant</strong> (1) ou <strong>pas de courant</strong> (0). Il compte donc en <strong>base 2</strong> (binaire).</p>
+            <p>Les bases 8 (octal) et 16 (hexadécimal) servent de <strong>raccourcis</strong> pour écrire les nombres binaires de façon plus compacte.</p>
+        </div>
+
+        <div class="info-box">
+            <h4>Que signifie « base » ?</h4>
+            <p>La <strong>base</strong> d'un système de numération = combien de chiffres différents on utilise :</p>
+            <ul>
+                <li>Base 2 → 2 chiffres : 0 et 1</li>
+                <li>Base 10 → 10 chiffres : 0, 1, 2, 3, 4, 5, 6, 7, 8, 9</li>
+                <li>Base 16 → 16 symboles : 0–9 puis A, B, C, D, E, F</li>
+            </ul>
+            <p>Quand on arrive au dernier chiffre, on repart à 0 et on ajoute 1 à gauche. En décimal : …8, 9, <strong>10</strong>. En binaire : 0, 1, <strong>10</strong> (= 2 en décimal !).</p>
+        </div>
+
+        <div class="concept-card">
+            <h4>📋 Principe de la numération positionnelle</h4>
+            <p>Chaque chiffre a une <strong>valeur qui dépend de sa position</strong>. Plus il est à gauche, plus il « pèse lourd ».</p>
+            <p>Par exemple, dans <strong>253₁₀</strong> : le 2 vaut 200 (2×10²), le 5 vaut 50 (5×10¹), le 3 vaut 3 (3×10⁰).</p>
+            <p style="margin-top:.5rem">Formule générale : un nombre N en base b s'écrit :</p>
+            <p style="text-align:center;font-size:1.1rem"><strong>N = dₙ×bⁿ + dₙ₋₁×bⁿ⁻¹ + … + d₁×b¹ + d₀×b⁰</strong></p>
+        </div>
+
+        <table class="styled-table">
+            <thead><tr><th>Base</th><th>Nom</th><th>Chiffres</th><th>Usage</th></tr></thead>
+            <tbody>
+                <tr><td><strong>2</strong></td><td>Binaire</td><td>0, 1</td><td>Langage machine, électronique</td></tr>
+                <tr><td><strong>8</strong></td><td>Octal</td><td>0–7</td><td>Permissions Unix (chmod)</td></tr>
+                <tr><td><strong>10</strong></td><td>Décimal</td><td>0–9</td><td>Usage quotidien</td></tr>
+                <tr><td><strong>16</strong></td><td>Hexadécimal</td><td>0–9, A–F</td><td>Adresses mémoire, couleurs CSS</td></tr>
+            </tbody>
+        </table>
+
+        <div class="example-box">
+            <h4>📝 Compter en binaire (les 16 premiers nombres)</h4>
+            <p>Observe comment ça « bascule » comme un compteur :</p>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.9rem;margin:.5rem 0">
+                <span>0 = <strong>0000</strong></span><span>4 = <strong>0100</strong></span><span>8 = <strong>1000</strong></span><span>12 = <strong>1100</strong></span>
+                <span>1 = <strong>0001</strong></span><span>5 = <strong>0101</strong></span><span>9 = <strong>1001</strong></span><span>13 = <strong>1101</strong></span>
+                <span>2 = <strong>0010</strong></span><span>6 = <strong>0110</strong></span><span>10 = <strong>1010</strong></span><span>14 = <strong>1110</strong></span>
+                <span>3 = <strong>0011</strong></span><span>7 = <strong>0111</strong></span><span>11 = <strong>1011</strong></span><span>15 = <strong>1111</strong></span>
+            </div>
+        </div>
+
+        <div class="analogy-box">
+            <span class="icon">🔢</span>
+            <div>
+                <strong>Analogie — Les compteurs de voiture :</strong> Un compteur décimal roule de 0 à 9 puis repart à 0 en incrémentant le chiffre de gauche. En binaire, c'est pareil mais le compteur ne va que de 0 à 1 : après 1, on repart à 0 et on incrémente à gauche !
+            </div>
+        </div>
+
+        <div class="mnemonic-box">
+            <span class="icon">🧠</span>
+            <div>
+                <strong>Mnémo Hexa — « Ah Bon ? C'est Du Enfantin, Facile ! » :</strong><br>
+                A=10, B=11, C=12, D=13, E=14, F=15
+            </div>
+        </div>
+    </section>
+
+    <!-- 2.2 Conversion décimal → base -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-arrow-right-arrow-left"></i> 2.2 — Conversion décimal → autre base</h2>
+
+        <div class="concept-card">
+            <h4>📋 Méthode : divisions successives</h4>
+            <p>Diviser le nombre par la base, noter le <strong>reste</strong>, recommencer avec le quotient. Lire les restes de <strong>bas en haut</strong>.</p>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple : 156₁₀ → binaire</h4>
+            <div class="conv-block">
+                <div class="conv-step">156 ÷ 2 = 78 reste <span class="hl">0</span></div>
+                <div class="conv-step"> 78 ÷ 2 = 39 reste <span class="hl">0</span></div>
+                <div class="conv-step"> 39 ÷ 2 = 19 reste <span class="hl">1</span></div>
+                <div class="conv-step"> 19 ÷ 2 =  9 reste <span class="hl">1</span></div>
+                <div class="conv-step">  9 ÷ 2 =  4 reste <span class="hl">1</span></div>
+                <div class="conv-step">  4 ÷ 2 =  2 reste <span class="hl">0</span></div>
+                <div class="conv-step">  2 ÷ 2 =  1 reste <span class="hl">0</span></div>
+                <div class="conv-step">  1 ÷ 2 =  0 reste <span class="hl">1</span></div>
+                <div class="conv-step">Lecture ↑ : <strong>156₁₀ = 10011100₂</strong></div>
+            </div>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple : 255₁₀ → hexadécimal</h4>
+            <div class="conv-block">
+                <div class="conv-step">255 ÷ 16 = 15 reste <span class="hl">15 = F</span></div>
+                <div class="conv-step"> 15 ÷ 16 =  0 reste <span class="hl">15 = F</span></div>
+                <div class="conv-step">Lecture ↑ : <strong>255₁₀ = FF₁₆</strong></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2.3 Conversion base → décimal -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-calculator"></i> 2.3 — Conversion autre base → décimal</h2>
+
+        <div class="concept-card">
+            <h4>📋 Méthode : développement polynomial</h4>
+            <p>Multiplier chaque chiffre par la puissance correspondante de la base.</p>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple : 10011100₂ → décimal</h4>
+            <div class="conv-block">
+                <div class="conv-step">1×2⁷ + 0×2⁶ + 0×2⁵ + 1×2⁴ + 1×2³ + 1×2² + 0×2¹ + 0×2⁰</div>
+                <div class="conv-step">= 128 + 0 + 0 + 16 + 8 + 4 + 0 + 0 = <strong>156₁₀</strong></div>
+            </div>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple : 2A3₁₆ → décimal</h4>
+            <div class="conv-block">
+                <div class="conv-step">2×16² + A×16¹ + 3×16⁰</div>
+                <div class="conv-step">= 2×256 + 10×16 + 3×1</div>
+                <div class="conv-step">= 512 + 160 + 3 = <strong>675₁₀</strong></div>
+            </div>
+        </div>
+
+        <div class="tip-box">
+            <span>💡</span>
+            <div><strong>Astuce puissances de 2 :</strong> 2⁰=1, 2¹=2, 2²=4, 2³=8, 2⁴=16, 2⁵=32, 2⁶=64, 2⁷=128, 2⁸=256, 2⁹=512, 2¹⁰=1024. Apprenez-les par cœur !</div>
+        </div>
+    </section>
+
+    <!-- 2.4 Binaire ↔ Octal ↔ Hexa -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-shuffle"></i> 2.4 — Conversions rapides (Bin ↔ Oct ↔ Hex)</h2>
+
+        <div class="concept-card">
+            <h4>📋 Principe du regroupement</h4>
+            <ul>
+                <li><strong>Binaire ↔ Octal :</strong> grouper par <strong>3 bits</strong> (car 2³ = 8)</li>
+                <li><strong>Binaire ↔ Hexa :</strong> grouper par <strong>4 bits</strong> (car 2⁴ = 16)</li>
+            </ul>
+        </div>
+
+        <h3>Table de correspondance</h3>
+        <table class="styled-table">
+            <thead><tr><th>Décimal</th><th>Binaire</th><th>Octal</th><th>Hexa</th></tr></thead>
+            <tbody>
+                <tr><td>0</td><td>0000</td><td>0</td><td>0</td></tr>
+                <tr><td>1</td><td>0001</td><td>1</td><td>1</td></tr>
+                <tr><td>2</td><td>0010</td><td>2</td><td>2</td></tr>
+                <tr><td>3</td><td>0011</td><td>3</td><td>3</td></tr>
+                <tr><td>4</td><td>0100</td><td>4</td><td>4</td></tr>
+                <tr><td>5</td><td>0101</td><td>5</td><td>5</td></tr>
+                <tr><td>6</td><td>0110</td><td>6</td><td>6</td></tr>
+                <tr><td>7</td><td>0111</td><td>7</td><td>7</td></tr>
+                <tr><td>8</td><td>1000</td><td>10</td><td>8</td></tr>
+                <tr><td>9</td><td>1001</td><td>11</td><td>9</td></tr>
+                <tr><td>10</td><td>1010</td><td>12</td><td>A</td></tr>
+                <tr><td>11</td><td>1011</td><td>13</td><td>B</td></tr>
+                <tr><td>12</td><td>1100</td><td>14</td><td>C</td></tr>
+                <tr><td>13</td><td>1101</td><td>15</td><td>D</td></tr>
+                <tr><td>14</td><td>1110</td><td>16</td><td>E</td></tr>
+                <tr><td>15</td><td>1111</td><td>17</td><td>F</td></tr>
+            </tbody>
+        </table>
+
+        <div class="example-box">
+            <h4>📝 Exemple : 10110101₂ → Hexa</h4>
+            <div class="conv-block">
+                <div class="conv-step">Grouper par 4 depuis la droite : <span class="hl">1011</span> <span class="hl">0101</span></div>
+                <div class="conv-step">1011₂ = B₁₆     0101₂ = 5₁₆</div>
+                <div class="conv-step"><strong>10110101₂ = B5₁₆</strong></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2.5 Nombres signés -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-plus-minus"></i> 2.5 — Représentation des nombres signés</h2>
+
+        <h3>Complément à 2 (méthode standard)</h3>
+        <div class="concept-card">
+            <h4>📋 Codage en complément à 2 (CA2)</h4>
+            <p>Sur n bits, les nombres sont codés de <strong>−2ⁿ⁻¹</strong> à <strong>+2ⁿ⁻¹ − 1</strong>.</p>
+            <p>Pour obtenir l'opposé d'un nombre : <strong>inverser tous les bits + ajouter 1</strong>.</p>
+        </div>
+
+        <div class="analogy-box">
+            <span class="icon">🧊</span>
+            <div>
+                <strong>Analogie — Le thermomètre circulaire :</strong> Imagine un thermomètre qui fait le tour d'un cadran. Après le maximum positif, on tombe directement dans les négatifs. Le bit de poids fort joue le rôle du signe : 0 = positif, 1 = négatif.
+            </div>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple : coder −5 sur 8 bits en CA2</h4>
+            <div class="conv-block">
+                <div class="conv-step">+5 en binaire : <span class="hl">00000101</span></div>
+                <div class="conv-step">Inverser :       <span class="hl">11111010</span></div>
+                <div class="conv-step">Ajouter 1 :      <span class="hl">11111011</span></div>
+                <div class="conv-step"><strong>−5₁₀ = 11111011₂ (CA2, 8 bits)</strong></div>
+            </div>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Plage sur 8 bits</h4>
+            <p>Min = −2⁷ = <strong>−128</strong> (10000000₂)</p>
+            <p>Max = 2⁷−1 = <strong>+127</strong> (01111111₂)</p>
+            <p>Total : 256 valeurs distinctes (2⁸).</p>
+        </div>
+
+        <div class="warning-box">
+            <span>⚠️</span>
+            <div><strong>Piège CA2 :</strong> Le bit de poids fort (MSB) indique le signe MAIS n'est pas un simple « bit de signe ». En CA2, 10000000₂ = −128, pas −0 !</div>
+        </div>
+    </section>
+
+    <!-- 2.6 Arithmétique binaire -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-plus"></i> 2.6 — Arithmétique binaire</h2>
+
+        <div class="concept-card">
+            <h4>📋 Pourquoi l'arithmétique binaire ?</h4>
+            <p>Un ordinateur ne calcule qu'en binaire (0 et 1). Comprendre l'addition, la soustraction et la multiplication binaires, c'est comprendre comment le processeur fait ses calculs !</p>
+        </div>
+
+        <h3>Les 4 règles de l'addition binaire</h3>
+        <div class="info-box">
+            <p>C'est <strong>exactement comme l'addition en décimal</strong>, mais les chiffres vont seulement de 0 à 1. Dès qu'on dépasse 1, on a une <strong>retenue</strong> (comme quand on dépasse 9 en décimal).</p>
+        </div>
+
+        <table class="styled-table" style="max-width:450px">
+            <thead><tr><th>Opération</th><th>Résultat</th><th>Retenue</th><th>Explication</th></tr></thead>
+            <tbody>
+                <tr><td>0 + 0</td><td><strong>0</strong></td><td>0</td><td>Rien + rien = rien</td></tr>
+                <tr><td>0 + 1</td><td><strong>1</strong></td><td>0</td><td>Normal</td></tr>
+                <tr><td>1 + 0</td><td><strong>1</strong></td><td>0</td><td>Normal</td></tr>
+                <tr><td>1 + 1</td><td><strong>0</strong></td><td><span class="hl">1</span></td><td>1+1 = 2 = <strong>10₂</strong> → on écrit 0, retenue 1</td></tr>
+                <tr><td>1 + 1 + 1</td><td><strong>1</strong></td><td><span class="hl">1</span></td><td>1+1+1 = 3 = <strong>11₂</strong> → on écrit 1, retenue 1</td></tr>
+            </tbody>
+        </table>
+
+        <div class="analogy-box">
+            <span class="icon">🧮</span>
+            <div>
+                <strong>Analogie — L'addition décimale :</strong> En décimal, 7 + 5 = 12, on écrit 2 et retenue 1. C'est pareil en binaire : 1 + 1 = 10₂, on écrit 0 et retenue 1. Le principe est <strong>identique</strong>, seule la base change !
+            </div>
+        </div>
+
+        <h3>Addition binaire — Exemple détaillé pas à pas</h3>
+
+        <div class="example-box">
+            <h4>📝 Exemple 1 : 1011₂ + 0110₂ (= 11 + 6 en décimal)</h4>
+            <p>On additionne <strong>colonne par colonne, de droite à gauche</strong> (comme en décimal) :</p>
+            <div class="conv-block">
+                <div class="conv-step" style="color:var(--text-muted);font-size:.85rem">Retenues :  1 1 1 0</div>
+                <div class="conv-step">            <span class="hl">1 0 1 1</span>  ← premier nombre (11₁₀)</div>
+                <div class="conv-step">          + <span class="hl">0 1 1 0</span>  ← deuxième nombre (6₁₀)</div>
+                <div class="conv-step">          ─────────</div>
+                <div class="conv-step">          <span class="hl">1 0 0 0 1</span>  ← résultat (17₁₀) ✓</div>
+            </div>
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem;margin-top:1rem">
+                <p style="font-weight:700;margin-bottom:.5rem">🔍 Détail colonne par colonne :</p>
+                <p><strong>Colonne 0 (droite) :</strong> 1 + 0 = <strong>1</strong>, retenue = 0</p>
+                <p><strong>Colonne 1 :</strong> 1 + 1 = 10₂ → on écrit <strong>0</strong>, retenue = <span style="color:var(--accent);font-weight:700">1</span></p>
+                <p><strong>Colonne 2 :</strong> 0 + 1 + retenue 1 = 10₂ → on écrit <strong>0</strong>, retenue = <span style="color:var(--accent);font-weight:700">1</span></p>
+                <p><strong>Colonne 3 :</strong> 1 + 0 + retenue 1 = 10₂ → on écrit <strong>0</strong>, retenue = <span style="color:var(--accent);font-weight:700">1</span></p>
+                <p><strong>La retenue finale</strong> devient le 5ᵉ bit : <strong>1</strong></p>
+                <p style="margin-top:.5rem"><strong>Résultat : 10001₂ = 16 + 1 = 17₁₀ ✓</strong></p>
+            </div>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple 2 : 1101₂ + 1011₂ (= 13 + 11 en décimal)</h4>
+            <div class="conv-block">
+                <div class="conv-step" style="color:var(--text-muted);font-size:.85rem">Retenues : 1 1 1 1 0</div>
+                <div class="conv-step">            <span class="hl">1 1 0 1</span>  (13₁₀)</div>
+                <div class="conv-step">          + <span class="hl">1 0 1 1</span>  (11₁₀)</div>
+                <div class="conv-step">          ─────────</div>
+                <div class="conv-step">        <span class="hl">1 1 0 0 0</span>  (24₁₀) ✓</div>
+            </div>
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem;margin-top:1rem">
+                <p style="font-weight:700;margin-bottom:.5rem">🔍 Détail :</p>
+                <p><strong>Col 0 :</strong> 1 + 1 = 10₂ → écrit <strong>0</strong>, retenue 1</p>
+                <p><strong>Col 1 :</strong> 0 + 1 + ret 1 = 10₂ → écrit <strong>0</strong>, retenue 1</p>
+                <p><strong>Col 2 :</strong> 1 + 0 + ret 1 = 10₂ → écrit <strong>0</strong>, retenue 1</p>
+                <p><strong>Col 3 :</strong> 1 + 1 + ret 1 = 11₂ → écrit <strong>1</strong>, retenue 1</p>
+                <p><strong>Retenue finale : 1</strong></p>
+                <p style="margin-top:.5rem"><strong>Résultat : 11000₂ = 16+8 = 24₁₀ ✓</strong></p>
+            </div>
+        </div>
+
+        <div class="tip-box">
+            <span>💡</span>
+            <div><strong>Vérification :</strong> Convertis toujours le résultat binaire en décimal pour vérifier ! C'est la meilleure façon de repérer une erreur de retenue.</div>
+        </div>
+
+        <h3>Soustraction binaire (méthode du complément à 2)</h3>
+        <div class="concept-card" style="border-left:4px solid var(--accent)">
+            <h4>⚡ Le secret de la soustraction</h4>
+            <p>Le processeur <strong>n'a pas de circuit de soustraction</strong> ! Il transforme A − B en :</p>
+            <p style="text-align:center;font-size:1.15rem;margin:.8rem 0"><strong>A − B = A + CA2(B)</strong></p>
+            <p>Étapes : 1) Convertir B en complément à 2 (inverser les bits + ajouter 1). 2) Additionner A + CA2(B). 3) Ignorer la retenue qui dépasse le nombre de bits.</p>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple : 7 − 3 sur 4 bits, pas à pas</h4>
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1rem">
+                <p style="font-weight:700">Étape 1 — Écrire les nombres en binaire (4 bits)</p>
+                <p>7₁₀ = <span class="hl" style="font-family:'JetBrains Mono',monospace">0111</span></p>
+                <p>3₁₀ = <span class="hl" style="font-family:'JetBrains Mono',monospace">0011</span></p>
+            </div>
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1rem">
+                <p style="font-weight:700">Étape 2 — Calculer CA2 de 3 (= −3)</p>
+                <p>3 en binaire : <span style="font-family:'JetBrains Mono',monospace">0011</span></p>
+                <p>Inverser tous les bits : <span style="font-family:'JetBrains Mono',monospace">0011</span> → <span style="font-family:'JetBrains Mono',monospace">1100</span></p>
+                <p>Ajouter 1 : <span style="font-family:'JetBrains Mono',monospace">1100 + 0001</span> = <span class="hl" style="font-family:'JetBrains Mono',monospace">1101</span></p>
+                <p>Donc <strong>−3 en CA2 (4 bits) = 1101</strong></p>
+            </div>
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1rem">
+                <p style="font-weight:700">Étape 3 — Additionner 7 + (−3)</p>
+                <div class="conv-block" style="margin:.5rem 0">
+                    <div class="conv-step" style="color:var(--text-muted);font-size:.85rem">Retenues : 1 1 1 0 0</div>
+                    <div class="conv-step">            <span class="hl">0 1 1 1</span>  (7)</div>
+                    <div class="conv-step">          + <span class="hl">1 1 0 1</span>  (−3 en CA2)</div>
+                    <div class="conv-step">          ─────────</div>
+                    <div class="conv-step">        <span class="hl" style="opacity:.4">1</span> <span class="hl">0 1 0 0</span></div>
+                </div>
+                <p><strong>Col 0 :</strong> 1 + 1 = 10₂ → écrit 0, retenue 1</p>
+                <p><strong>Col 1 :</strong> 1 + 0 + ret 1 = 10₂ → écrit 0, retenue 1</p>
+                <p><strong>Col 2 :</strong> 1 + 1 + ret 1 = 11₂ → écrit 1, retenue 1</p>
+                <p><strong>Col 3 :</strong> 0 + 1 + ret 1 = 10₂ → écrit 0, retenue 1</p>
+            </div>
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem">
+                <p style="font-weight:700">Étape 4 — Ignorer la retenue débordante</p>
+                <p>On travaille sur 4 bits, donc on <strong>ignore le 5ᵉ bit</strong> (la retenue)</p>
+                <p>Résultat : <span class="hl" style="font-family:'JetBrains Mono',monospace">0100₂</span> = <strong>4₁₀</strong></p>
+                <p>Vérification : 7 − 3 = 4 ✓</p>
+            </div>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple : 12 − 5 sur 8 bits</h4>
+            <div class="conv-block">
+                <div class="conv-step">12₁₀ = <span class="hl">00001100</span></div>
+                <div class="conv-step"> 5₁₀ = 00000101 → inversé : 11111010 → +1 = <span class="hl">11111011</span> (= −5 en CA2)</div>
+                <div class="conv-step"></div>
+                <div class="conv-step" style="color:var(--text-muted);font-size:.85rem">Retenues : 1 1 1 1 1 1 0 0 0</div>
+                <div class="conv-step">            <span class="hl">0 0 0 0 1 1 0 0</span></div>
+                <div class="conv-step">          + <span class="hl">1 1 1 1 1 0 1 1</span></div>
+                <div class="conv-step">          ─────────────────</div>
+                <div class="conv-step">        <span class="hl" style="opacity:.4">1</span> <span class="hl">0 0 0 0 0 1 1 1</span></div>
+                <div class="conv-step">On ignore la retenue → <strong>00000111₂ = 7₁₀</strong> ✓ (12 − 5 = 7)</div>
+            </div>
+        </div>
+
+        <h3>Multiplication binaire</h3>
+
+        <div class="concept-card">
+            <h4>📋 Principe — comme en décimal !</h4>
+            <p>La multiplication binaire est <strong>encore plus simple</strong> qu'en décimal car on ne multiplie que par 0 ou 1 :</p>
+            <ul>
+                <li>× 0 = on écrit <strong>une ligne de zéros</strong></li>
+                <li>× 1 = on <strong>recopie le nombre</strong> tel quel</li>
+            </ul>
+            <p>Ensuite on additionne les résultats partiels (avec un décalage à chaque ligne, comme en décimal).</p>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple : 1101₂ × 1011₂ (= 13 × 11 en décimal)</h4>
+            <div class="conv-block">
+                <div class="conv-step">            <span class="hl">1 1 0 1</span>  ← multiplicande (13)</div>
+                <div class="conv-step">          × <span class="hl">1 0 1 1</span>  ← multiplicateur (11)</div>
+                <div class="conv-step">          ─────────</div>
+                <div class="conv-step">          1 1 0 1      ← ×1 (bit 0 = 1 → recopier)</div>
+                <div class="conv-step">        1 1 0 1 .      ← ×1 (bit 1 = 1 → recopier, décalé 1×)</div>
+                <div class="conv-step">      0 0 0 0 . .      ← ×0 (bit 2 = 0 → zéros)</div>
+                <div class="conv-step">    1 1 0 1 . . .      ← ×1 (bit 3 = 1 → recopier, décalé 3×)</div>
+                <div class="conv-step">    ─────────────</div>
+                <div class="conv-step">  <span class="hl">1 0 0 0 1 1 1 1</span>  ← résultat (143₁₀) ✓</div>
+            </div>
+            <p style="margin-top:.5rem">Vérification : 13 × 11 = 143 ✓. Et 10001111₂ = 128+8+4+2+1 = 143 ✓</p>
+        </div>
+
+        <div class="warning-box">
+            <span>⚠️</span>
+            <div><strong>Overflow (débordement) :</strong> Si le résultat dépasse la capacité de n bits, on a un <strong>overflow</strong>. Par exemple, sur 4 bits non signés, le max est 1111₂ = 15. Si on additionne 9+9 = 18, le résultat ne tient pas sur 4 bits → erreur ! C'est pour ça que le processeur a un drapeau <strong>C</strong> (carry) et <strong>V</strong> (overflow).</div>
+        </div>
+
+        <div class="mnemonic-box">
+            <span class="icon">🧠</span>
+            <div>
+                <strong>Résumé express — Arithmétique binaire :</strong><br>
+                <strong>Addition :</strong> comme en décimal, retenue quand ≥ 2.<br>
+                <strong>Soustraction :</strong> A − B = A + CA2(B), ignorer la dernière retenue.<br>
+                <strong>Multiplication :</strong> recopier (×1) ou zéros (×0), décaler et additionner.
+            </div>
+        </div>
+    </section>
+
+    <!-- 2.7 Nombres à virgule -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-divide"></i> 2.7 — Nombres à virgule (virgule fixe / flottante)</h2>
+
+        <div class="concept-card">
+            <h4>📋 Virgule fixe</h4>
+            <p>On réserve un nombre fixe de bits pour la partie entière et la partie fractionnaire.</p>
+            <p>Partie fractionnaire : d₋₁×b⁻¹ + d₋₂×b⁻² + … (ex : 0,101₂ = 0,5 + 0,125 = 0,625)</p>
+        </div>
+
+        <div class="concept-card">
+            <h4>📋 Virgule flottante (IEEE 754)</h4>
+            <p>Le standard IEEE 754 représente un nombre sous la forme : <strong>(−1)ˢ × 1,M × 2^(E−biais)</strong></p>
+            <ul>
+                <li><strong>s</strong> = bit de signe (1 bit)</li>
+                <li><strong>E</strong> = exposant biaisé (8 bits en simple, 11 en double)</li>
+                <li><strong>M</strong> = mantisse (23 bits en simple, 52 en double)</li>
+            </ul>
+        </div>
+
+        <div class="tip-box">
+            <span>💡</span>
+            <div><strong>Culture :</strong> Le float (32 bits) a ~7 chiffres significatifs, le double (64 bits) en a ~15. C'est pourquoi 0.1 + 0.2 ≠ 0.3 en programmation !</div>
+        </div>
+    </section>
+
+    <!-- 2.8 Codes -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-barcode"></i> 2.8 — Codes et représentations</h2>
+
+        <table class="styled-table">
+            <thead><tr><th>Code</th><th>Description</th><th>Usage</th></tr></thead>
+            <tbody>
+                <tr><td><strong>BCD</strong></td><td>Chaque chiffre décimal codé sur 4 bits</td><td>Afficheurs 7 segments</td></tr>
+                <tr><td><strong>ASCII</strong></td><td>128 caractères sur 7 bits</td><td>Texte (A=65, a=97, 0=48)</td></tr>
+                <tr><td><strong>Unicode/UTF-8</strong></td><td>Variable (1-4 octets)</td><td>Tous les alphabets, émojis</td></tr>
+                <tr><td><strong>Code de Gray</strong></td><td>1 seul bit change entre 2 valeurs consécutives</td><td>Capteurs rotatifs, réduction d'erreurs</td></tr>
+            </tbody>
+        </table>
+
+        <div class="example-box">
+            <h4>📝 BCD : coder 95₁₀</h4>
+            <div class="conv-block">
+                <div class="conv-step">9 → <span class="hl">1001</span>   5 → <span class="hl">0101</span></div>
+                <div class="conv-step"><strong>95₁₀ = 1001 0101 (BCD)</strong></div>
+            </div>
+            <p>⚠️ Ce n'est PAS la même chose que 95₁₀ en binaire pur (= 01011111₂).</p>
+        </div>
+    </section>
+
+    <!-- RÉSUMÉ -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-clipboard-list"></i> Résumé du chapitre</h2>
+        <div class="concept-card">
+            <h4>🔑 Points clés</h4>
+            <ul>
+                <li><strong>4 bases :</strong> Binaire (2), Octal (8), Décimal (10), Hexa (16)</li>
+                <li><strong>Dec→Bin :</strong> divisions successives par 2, lire restes de bas en haut</li>
+                <li><strong>Bin→Dec :</strong> développement polynomial Σdᵢ×2ⁱ</li>
+                <li><strong>Bin↔Hex :</strong> grouper par 4 bits | <strong>Bin↔Oct :</strong> grouper par 3 bits</li>
+                <li><strong>CA2 :</strong> inverser + ajouter 1 | Plage n bits : [−2ⁿ⁻¹, 2ⁿ⁻¹−1]</li>
+                <li><strong>Soustraction :</strong> A − B = A + CA2(B)</li>
+                <li><strong>IEEE 754 :</strong> (−1)ˢ × 1,M × 2^(E−biais)</li>
+                <li><strong>Codes :</strong> BCD (4 bits/chiffre), ASCII (7 bits), Gray (1 bit change)</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- EXERCICES -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-dumbbell"></i> Exercices interactifs</h2>
+        <div id="chapter-exercises"></div>
+    </section>
+
+    <div class="chapter-nav">
+        <a href="chapitre1.html"><i class="fas fa-arrow-left"></i> Chapitre 1 — Généralités</a>
+        <a href="chapitre3.html">Chapitre 3 — Circuits logiques <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+</main>
+
+<div class="xp-bar-container">
+    <span class="xp-level">Débutant</span>
+    <div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div>
+    <span class="xp-text">0 XP</span>
+</div>
+
+<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/gamification.js"></script>
+<script src="../../assets/js/chapter-exercises.js"></script>
+<script src="../../assets/js/download.js"></script>
+<script>
+GameEngine.configure({
+    storageKey:'b1_ato_progress',
+    badges:[{id:'converter',name:'Convertisseur Pro',icon:'🔄',desc:'Conversions parfaites',xp:20}],
+    levels:[{min:0,title:'Débutant'},{min:30,title:'Apprenti Hardware'},{min:80,title:'Technicien Jr.'},{min:150,title:'Architecte'},{min:250,title:'Ingénieur Système'},{min:400,title:'Guru du Silicium'}],
+    tips:["Dec→Bin : diviser par 2, lire les restes ↑","Hexa : A=10,B=11,...,F=15","CA2 : inverser les bits + ajouter 1"]
+});
+GameEngine.init();
+
+ChapterExercises.init({
+    guided:[
+        {q:"Convertir 42₁₀ en binaire.",hints:["42÷2=21 r0, 21÷2=10 r1, 10÷2=5 r0","5÷2=2 r1, 2÷2=1 r0, 1÷2=0 r1","Lire de bas en haut"],answer:"101010"},
+        {q:"Convertir 1010 1100₂ en hexadécimal.",hints:["Grouper par 4 bits","1010=A, 1100=C",""],answer:"AC"},
+        {q:"Coder −12 sur 8 bits en complément à 2.",hints:["+12 = 00001100","Inverser : 11110011","Ajouter 1 : 11110100"],answer:"11110100"},
+        {q:"Convertir FF₁₆ en décimal.",hints:["F=15","15×16¹ + 15×16⁰","240 + 15"],answer:"255"},
+        {q:"Additionner 1011₂ + 0111₂.",hints:["Poser l'addition bit à bit","1+1=10 (retenue)","Résultat sur 5 bits"],answer:"10010"}
+    ],
+    quiz:[
+        {type:"mcq",q:"En base 16, A vaut :",options:["8","10","12","16"],correct:1},
+        {type:"mcq",q:"1111₂ en décimal =",options:["13","14","15","16"],correct:2},
+        {type:"mcq",q:"Pour convertir binaire→octal, on groupe par :",options:["2 bits","3 bits","4 bits","8 bits"],correct:1},
+        {type:"qa",q:"Plage d'un entier signé sur 8 bits (CA2) ?",answer:["-128 à 127","-128 à +127"]},
+        {type:"mcq",q:"En CA2, l'opposé de 00001010 est :",options:["11110101","11110110","10001010","00001011"],correct:1},
+        {type:"mcq",q:"BCD de 7 =",options:["111","0111","1000","0110"],correct:1},
+        {type:"mcq",q:"ASCII de 'A' =",options:["41₁₆","61₁₆","31₁₆","21₁₆"],correct:0},
+        {type:"qa",q:"10₁₆ en décimal ?",answer:["16"]},
+        {type:"mcq",q:"La soustraction A−B en binaire se fait par :",options:["Division","A + CA2(B)","A × B","Décalage"],correct:1},
+        {type:"mcq",q:"Le code de Gray a pour propriété :",options:["2 bits changent","1 seul bit change","Tous les bits changent","Aucun bit ne change"],correct:1}
+    ],
+    dragdrop:[
+        {instruction:"Associe chaque base à son nombre de chiffres :",pairs:[["Binaire","2 chiffres (0-1)"],["Octal","8 chiffres (0-7)"],["Décimal","10 chiffres (0-9)"],["Hexadécimal","16 chiffres (0-F)"]]},
+        {instruction:"Associe valeur hexa → décimal :",pairs:[["A","10"],["C","12"],["F","15"],["1F","31"]]},
+        {instruction:"Convertir en ordre croissant :",pairs:[["0001₂","1"],["0101₂","5"],["1010₂","10"],["1111₂","15"]]}
+    ]
+});
+</script>
+</body>
+</html>

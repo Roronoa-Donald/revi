@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Cycle de vie et ressources des VM | Admin VM B2</title>
+<meta name="description" content="Chapitre 3 du cours Admin VM B2 : Concepts, cycle de vie, allocation vCPU/RAM/disque, identité réseau, snapshots, clones et templates. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/admin-vm/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Cycle de vie et ressources des VM | Admin VM B2">
+<meta property="og:description" content="Chapitre 3 du cours Admin VM B2 : Concepts, cycle de vie, allocation vCPU/RAM/disque, identité réseau, snapshots, clones et templates. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="admin-vmnav"><div class="admin-vmnav__in">
+  <a class="admin-vmnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="admin-vmnav__sep" aria-hidden="true">/</span>
+  <a class="admin-vmnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Admin VM B2</a>
+  <div class="admin-vmnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="admin-vmnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="admin-vmwrap">
+<p class="crumb"><a href="../index.html">Admin VM B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Cycle de vie et ressources des VM</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une VM se crée, vit et meurt comme un service. Sans cycle de vie clair, elle devient un risque : ressources mal dimensionnées, sauvegardes oubliées, dépendances invisibles. Le cycle de vie est le cadre qui garde le contrôle.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir VM, template, clone et snapshot ;</li>
+      <li>décrire les quatre phases du cycle de vie ;</li>
+      <li>allouer vCPU, RAM et disque selon la charge ;</li>
+      <li>distinguer clone complet et clone lié.</li>
+    </ol>
+  </div>
+
+<h2>1. Concepts essentiels</h2>
+
+<ul>
+  <li><strong>VM</strong> : unité d’exécution isolée avec ses ressources.</li>
+  <li><strong>Template</strong> : modèle standardisé pour uniformiser les déploiements.</li>
+  <li><strong>Clone</strong> : duplication d’un état existant.</li>
+  <li><strong>Snapshot</strong> : point de retour temporel.</li>
+</ul>
+<p>Ces notions se combinent pour accélérer la création sans perdre le contrôle : on part d’un template, on clone, on prend un snapshot avant modification.</p>
+
+<h2>2. Les quatre phases du cycle de vie</h2>
+
+<ol>
+  <li><strong>Conception</strong> : objectifs, charges, criticité.</li>
+  <li><strong>Provisioning</strong> : ressources, stockage, réseau.</li>
+  <li><strong>Exploitation</strong> : supervision, mises à jour, sauvegarde.</li>
+  <li><strong>Retrait</strong> : archivage, nettoyage, traçabilité.</li>
+</ol>
+<p>Une VM sans cycle de vie clair devient vite un risque : personne ne sait ce qu’elle fait, ni si on peut l’éteindre.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg> Tracer pour pouvoir retirer</div>
+    <p>La phase de retrait est la plus souvent oubliée. Archiver les données utiles, libérer les ressources et consigner la suppression évitent de laisser traîner des VM « zombies » qui consomment sans servir.</p>
+  </div>
+
+<h2>3. Allocation de ressources</h2>
+
+<ul>
+  <li><strong>vCPU</strong> : partage temporel du CPU physique — allouer plus que nécessaire crée de l’attente.</li>
+  <li><strong>RAM</strong> : ressource non élastique, à dimensionner finement.</li>
+  <li><strong>Disque</strong> : <em>thin</em> pour la souplesse, <em>thick</em> pour la performance garantie.</li>
+</ul>
+<p>Principe : dimensionner selon la charge réelle et la priorité du service, pas selon le « au cas où ».</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La surallocation de vCPU</div>
+    <p>Quand le total de vCPU dépasse les cœurs physiques, les VM attendent leur tour : le CPU Ready Time s’allonge et toutes les performances baissent. La surallocation doit rester maîtrisée et proportionnée aux charges réelles.</p>
+  </div>
+
+<h2>4. Réseau, snapshots et clones</h2>
+
+<p>Le réseau donne une identité et un périmètre à la VM : le <strong>bridge</strong> relie virtuel et physique, le <strong>VLAN</strong> isole logiquement les flux, l’adressage assure lisibilité et gouvernance.</p>
+<p>Un <strong>snapshot</strong> fige l’état d’une VM à un instant T : utile pour revenir en arrière après un changement, il <strong>ne remplace pas une sauvegarde externe</strong>.</p>
+<p>Un <strong>clone complet</strong> est indépendant mais plus lourd ; un <strong>clone lié</strong> est rapide mais dépend de sa base (souvent un template). La stratégie template → clone garantit cohérence et rapidité.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Standardiser puis décliner</div>
+    <p>Un template fige la qualité ; les clones la diffusent sans réinventer. C’est la même logique qu’une recette de cuisine : on maîtrise la base, puis on la duplique.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vm2-c3-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="24&#10;16">
+  <script type="text/plain" data-lab-starter>$vcpu = [int][Console]::In.ReadLine()
+$coeurs = [int][Console]::In.ReadLine()
+
+# À compléter : afficher "surallocation : oui/non" puis "exces : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Surallocation de vCPU</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter une allocation CPU excessive sur un hôte.</p>
+    <div class="lab__brief"><p>Le script lit le total de <strong>vCPU</strong> alloués aux VM, puis le nombre de <strong>cœurs physiques</strong>. S’il y a plus de vCPU que de cœurs : <code>surallocation : oui</code> puis <code>exces : X</code>. Sinon <code>surallocation : non</code> puis <code>exces : 0</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>24
+16</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>surallocation : oui
+exces : 8</pre></div>
+    </div>
+    <p class="lab__note">8 vCPU de trop.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Surallocation quand ($vcpu -gt $coeurs).</li>
+        <li>L’excédent vaut $vcpu - $coeurs.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c3-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="provisioning">
+  <script type="text/plain" data-lab-starter>$phase = [Console]::In.ReadLine()
+
+# À compléter : avec un switch, afficher la tâche de la phase.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Phase du cycle de vie</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer chaque phase du cycle de vie d’une VM à sa tâche.</p>
+    <div class="lab__brief"><p>Le script lit une <strong>phase</strong> : <code>conception</code>, <code>provisioning</code>, <code>exploitation</code> ou <code>retrait</code>. Affichez la tâche : <code>tache : definir les besoins</code>, <code>tache : allouer les ressources</code>, <code>tache : superviser et sauvegarder</code> ou <code>tache : archiver et nettoyer</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>provisioning</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>tache : allouer les ressources</pre></div>
+    </div>
+    <p class="lab__note">La création des ressources.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Conception → définir les besoins ; Provisioning → allouer les ressources.</li>
+        <li>Exploitation → superviser ; Retrait → archiver et nettoyer.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c3-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="64&#10;8&#10;4">
+  <script type="text/plain" data-lab-starter>$ramHote = [int][Console]::In.ReadLine()
+$ramSysteme = [int][Console]::In.ReadLine()
+$ramVm = [int][Console]::In.ReadLine()
+
+# À compléter : calculer la capacité utile et afficher "capacite : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Capacité utile pour les VM</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Retirer la mémoire réservée au système avant de compter les VM.</p>
+    <div class="lab__brief"><p>Le script lit la <strong>RAM de l’hôte</strong> (Go), la <strong>RAM réservée au système</strong> (Go) et la <strong>RAM par VM</strong> (Go). Affichez <code>capacite : X</code> où <code>X</code> est le nombre entier de VM tenables par la mémoire restante.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>64
+8
+4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>capacite : 14</pre></div>
+    </div>
+    <p class="lab__note">56 Go utiles pour des VM de 4 Go.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Mémoire utile = $ramHote - $ramSysteme.</li>
+        <li>Capacité = division entière de la mémoire utile par $ramVm.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que duplique un clone ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un état existant</button>
+        <button class="opt">Un snapshot</button>
+        <button class="opt">Un réseau</button>
+      </div>
+      <div class="q__exp">Le clone copie une VM ou un template.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Première phase du cycle de vie ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Conception</button>
+        <button class="opt">Retrait</button>
+        <button class="opt">Exploitation</button>
+      </div>
+      <div class="q__exp">On définit les besoins avant de provisionner.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait la phase de provisioning ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Allouer les ressources</button>
+        <button class="opt">Archiver</button>
+        <button class="opt">Superviser</button>
+      </div>
+      <div class="q__exp">On attribue CPU, RAM, stockage, réseau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle ressource est non élastique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La RAM</button>
+        <button class="opt">Le vCPU</button>
+        <button class="opt">Le réseau</button>
+      </div>
+      <div class="q__exp">La RAM ne se partage pas dynamiquement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Disque thin : avantage ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Souplesse</button>
+        <button class="opt">Performance garantie</button>
+        <button class="opt">Chiffrement</button>
+      </div>
+      <div class="q__exp">L’espace est alloué selon l’usage réel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un snapshot remplace-t-il une sauvegarde ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Non</button>
+        <button class="opt">Oui</button>
+        <button class="opt">Toujours</button>
+      </div>
+      <div class="q__exp">Il vit sur le même stockage et reste temporaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Clone lié : faiblesse ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il dépend de sa base</button>
+        <button class="opt">Il est trop gros</button>
+        <button class="opt">Il est trop lent</button>
+      </div>
+      <div class="q__exp">Si la base disparaît, le clone lié ne fonctionne plus.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que garantit un template ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Cohérence et rapidité</button>
+        <button class="opt">Le chiffrement</button>
+        <button class="opt">La migration</button>
+      </div>
+      <div class="q__exp">Un modèle standardise les déploiements.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser un snapshot comme sauvegarde durable.</li>
+      <li>Surallouer les vCPU et dégrader toutes les VM.</li>
+      <li>Allouer la RAM « au cas où », sans dimensionnement fin.</li>
+      <li>Oublier la phase de retrait (VM zombies).</li>
+      <li>Supprimer la base d’un clone lié, qui cesse de fonctionner.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Cycler une VM proprement</div>
+    <ol>
+      <li><strong>Concevoir</strong> : objectifs, charges, criticité.</li>
+      <li><strong>Provisionner</strong> à partir d’un template (cohérence).</li>
+      <li><strong>Exploiter</strong> : superviser, mettre à jour, sauvegarder.</li>
+      <li><strong>Protéger</strong> par snapshots (court terme) et sauvegardes (long terme).</li>
+      <li><strong>Retirer</strong> : archiver, nettoyer, tracer.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>VM, template, clone et snapshot se combinent pour créer vite et bien.</li>
+      <li>Cycle de vie : conception, provisioning, exploitation, retrait.</li>
+      <li>vCPU (partage temporel), RAM (non élastique), disque thin/thick.</li>
+      <li>Bridge pour le lien réseau, VLAN pour l’isolation.</li>
+      <li>Snapshot = retour rapide ; backup = résilience.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je définis VM, template, clone, snapshot.</li>
+      <li>Je décris les quatre phases du cycle de vie.</li>
+      <li>Je dimensionne vCPU, RAM et disque.</li>
+      <li>Je distingue clone complet et clone lié.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>VM</li><li>template</li><li>clone</li><li>clone complet</li><li>clone lié</li><li>snapshot</li><li>cycle de vie</li><li>conception</li><li>provisioning</li><li>exploitation</li><li>retrait</li><li>vCPU</li><li>RAM</li><li>thin</li><li>thick</li><li>bridge</li><li>VLAN</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les quatre phases du cycle de vie.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur l’allocation des ressources.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu cycles une VM sans laisser de risque.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au stockage et aux volumes, chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Stockage et gestion des volumes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique Admin VM (modules 1 à 7 : introduction, prérequis, architecture, cycle de vie, stockage, réseau, administration avancée).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

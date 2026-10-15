@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Inverse d’une matrice et méthode de Gauss | Algèbre B1</title>
+<meta name="description" content="Chapitre 3 du cours d’algèbre linéaire B1 : Matrice inverse, condition det ≠ 0, formule 2 × 2, opérations élémentaires et Gauss-Jordan. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-algebre/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Inverse d’une matrice et méthode de Gauss | Algèbre B1">
+<meta property="og:description" content="Chapitre 3 du cours d’algèbre linéaire B1 : Matrice inverse, condition det ≠ 0, formule 2 × 2, opérations élémentaires et Gauss-Jordan. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="alnav"><div class="alnav__in">
+  <a class="alnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="alnav__sep" aria-hidden="true">/</span>
+  <a class="alnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-i-calculator"></use></svg> Algèbre B1</a>
+  <div class="alnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="alnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="alwrap">
+<p class="crumb"><a href="../index.html">Algèbre B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Inverse d’une matrice et méthode de Gauss</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un problème de production se traduit par un système de trois équations à trois inconnues. Le résoudre « à la main » par substitution devient vite illisible dès que les coefficients sont décimaux. La méthode du pivot de Gauss automatise la démarche, et la notion d’inverse permet de l’écrire en une seule opération : si <code>A</code> est inversible, la solution est <code>X = A⁻¹·B</code>.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir l’inverse d’une matrice et sa condition d’existence ;</li>
+      <li>calculer l’inverse d’une matrice 2 × 2 avec la formule de l’inverse ;</li>
+      <li>appliquer les trois opérations élémentaires sur les lignes ;</li>
+      <li>inverser une matrice et résoudre un système par la méthode de Gauss.</li>
+    </ol>
+  </div>
+
+<h2>1. Matrice inverse : définition</h2>
+
+<p><strong>Définition.</strong> Soit <code>A</code> une matrice carrée d’ordre n. On dit que <code>A</code> est <strong>inversible</strong> s’il existe une matrice carrée <code>B</code> d’ordre n telle que :</p>
+<pre><code>A · B = B · A = I<sub>n</sub></code></pre>
+<p>Cette matrice <code>B</code>, quand elle existe, est unique : on la note <code>A⁻¹</code>. Attention à deux choses : la définition exige <em>les deux</em> produits égaux à I<sub>n</sub>, et l’inverse n’existe que pour une matrice <strong>carrée</strong>.</p>
+<p><strong>Théorème.</strong> Une matrice carrée A est inversible si et seulement si <code>det(A) ≠ 0</code>. Une matrice dont le déterminant est nul est dite <strong>singulière</strong> ; elle n’a pas d’inverse.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Intuition — diviser par une matrice</div>
+    <p>Chez les nombres, résoudre <code>a·x = b</code> se fait en divisant par a, possible seulement si <code>a ≠ 0</code>. Chez les matrices, il n’y a pas de division : on multiplie par l’inverse. Et l’inverse n’existe que si <code>det(A) ≠ 0</code> — exactement le rôle du « a ≠ 0 » des nombres.</p>
+  </div>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « det zéro, zéro inverse »</div>
+    <p>La règle se retient en cinq mots : <strong>« det zéro, zéro inverse »</strong>. Dès que tu calcules un déterminant nul, arrête-toi : ni inverse, ni solution unique.</p>
+  </div>
+
+<h2>2. Le cas 2 × 2 et le cas 3 × 3</h2>
+
+<p>Pour une matrice 2 × 2, l’inverse se calcule de tête :</p>
+<pre><code>     [ a  b ]
+A =  [ c  d ]        det(A) = a·d − b·c
+
+               1      [  d  −b ]
+A⁻¹ =  ───────────── · [ −c   a ]
+           det(A)</code></pre>
+<p>La recette est simple : <strong>on échange les coefficients de la diagonale</strong> (<code>a</code> et <code>d</code>), <strong>on change le signe des autres</strong> (<code>b</code> et <code>c</code>), et on divise le tout par le déterminant.</p>
+<p><strong>Exemple.</strong> <code>A = [[1, 2], [3, 4]]</code> : <code>det(A) = 1·4 − 2·3 = −2 ≠ 0</code>, donc A est inversible et</p>
+<pre><code>A⁻¹ = 1/(−2) · [ 4  −2 ; −3  1]  =  [−2   1  ; 1.5  −0.5]
+
+Vérification :  [1 2]   [−2   1  ]   [1 0]
+                [3 4] · [1.5 −0.5] = [0 1]</code></pre>
+<p>Au-delà de 2 × 2, la formule devient impraticable : on utilise la méthode de Gauss, qui fonctionne quelle que soit la taille.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — oublier de diviser par le déterminant</div>
+    <p>La matrice <code>[[d, −b], [−c, a]]</code> seule n’est pas l’inverse : c’est sa « comatrice transposée ». Sans la division par <code>det(A)</code>, la vérification <code>A · B = I</code> échoue. C’est l’erreur la plus fréquente en contrôle.</p>
+  </div>
+
+<h2>3. Les opérations élémentaires sur les lignes</h2>
+
+<p>La méthode de Gauss repose sur une idée : transformer une matrice compliquée en une matrice simple sans changer l’ensemble des solutions. Trois opérations sont autorisées, et elles seules :</p>
+<table>
+    <tr><th>#</th><th>Opération</th><th>Notation</th></tr>
+    <tr><td>1</td><td>Échanger deux lignes</td><td><code>L<sub>i</sub> ↔ L<sub>j</sub></code></td></tr>
+    <tr><td>2</td><td>Multiplier une ligne par un réel k ≠ 0</td><td><code>L<sub>i</sub> ← k · L<sub>i</sub></code></td></tr>
+    <tr><td>3</td><td>Ajouter à une ligne un multiple d’une autre</td><td><code>L<sub>i</sub> ← L<sub>i</sub> + k · L<sub>j</sub></code></td></tr>
+  </table>
+<p>Une opération interdite : <strong>remplacer une ligne par une autre</strong>. Cela détruirait l’information et, avec elle, les solutions.</p>
+<p><strong>Objectif.</strong> Faire apparaître des zéros sous la diagonale : la matrice est alors <strong>échelonnée</strong>, et un système échelonné se résout par une simple <em>remontée</em> (on part de la dernière équation).</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Le pivot</div>
+    <p>À chaque étape, on choisit un <strong>pivot</strong> : un coefficient non nul en tête de colonne. Si le pivot naturel est nul, l’opération 1 (échange de lignes) le remplace. On annule ensuite tous les coefficients situés sous le pivot.</p>
+  </div>
+
+<h2>4. Gauss-Jordan : inverser et résoudre</h2>
+
+<p><strong>Inverser une matrice.</strong> On accole la matrice identité à droite, puis on applique les opérations élémentaires jusqu’à obtenir l’identité à gauche. Ce qui reste à droite <em>est</em> l’inverse :</p>
+<pre><code>[ A | I ]   ── opérations élémentaires ──►   [ I | A⁻¹ ]</code></pre>
+<p><strong>Résoudre un système.</strong> On accole le second membre, et on échelonne :</p>
+<pre><code>[ A | B ]   ── échelonnement ──►   forme échelonnée   ── remontée ──►   X</code></pre>
+<p><strong>Exemple complet.</strong> Résolvons :</p>
+<pre><code>  x +  y +  z = 6
+ 2x −  y +  z = 3
+  x + 2y −  z = 2</code></pre>
+<p>Matrice augmentée, puis élimination :</p>
+<pre><code>[ 1  1  1 | 6 ]                 [ 1  1  1 |  6 ]
+[ 2 −1  1 | 3 ]   L2←L2−2L1     [ 0 −3 −1 | −9 ]   L2↔L3    [ 0  1 −2 | −4 ]
+[ 1  2 −1 | 2 ]   L3←L3−L1      [ 0  1 −2 | −4 ]   L3←L3+3L2 [ 0  0 −7 | −21 ]</code></pre>
+<p>La remontée donne <code>z = 3</code>, puis <code>y − 2z = −4 ⇒ y = 2</code>, puis <code>x + 2 + 3 = 6 ⇒ x = 1</code>. Solution : <code>(x, y, z) = (1, 2, 3)</code>.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-check-circle"></use></svg> Vérifier sa solution, toujours</div>
+    <p>Remplacer dans la première équation d’origine est un contrôle de 10 secondes : <code>1 + 2 + 3 = 6</code>, le compte est bon. Un système à trois inconnues se vérifie en trois additions — ne jamais rendre une copie sans ce contrôle.</p>
+  </div>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Les trois cas possibles</div>
+    <p>Après échelonnement, trois situations et trois seulement :</p>
+    <ul>
+      <li>autant de pivots que d’inconnues → <strong>solution unique</strong> ;</li>
+      <li>une ligne <code>0 = 0</code> → <strong>une infinité de solutions</strong> ;</li>
+      <li>une ligne <code>0 = k</code> avec k ≠ 0 → <strong>aucune solution</strong>.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="al-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="1 2&#10;3 4">
+  <script type="text/plain" data-lab-starter>a, b = (int(x) for x in input().split())
+c, d = (int(x) for x in input().split())
+
+# À compléter : afficher le déterminant a·d − b·c.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Déterminant d’une matrice 2 × 2</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la formule ad − bc et en déduire l’inversibilité.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux lignes de deux entiers (la matrice <code>[[a, b], [c, d]]</code>). Affichez son déterminant, c’est-à-dire <code>a·d − b·c</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1 2
+3 4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>-2</pre></div>
+    </div>
+    <p class="lab__note">1·4 − 2·3 = 4 − 6 = −2.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le déterminant d’une matrice 2 × 2 est le produit de la diagonale moins le produit de l’autre diagonale.</li>
+        <li>Attention à l’ordre : c’est bien a·d − b·c, et non b·c − a·d.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="2 1&#10;1 1">
+  <script type="text/plain" data-lab-starter>a, b = (int(x) for x in input().split())
+c, d = (int(x) for x in input().split())
+
+# À compléter : afficher l’inverse (deux lignes de deux entiers) ou "singuliere".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Inverse d’une matrice 2 × 2</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Diviser l’adjugate par le déterminant, en traitant le cas singulier.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux lignes de deux entiers. Affichez l’inverse de la matrice : deux lignes de deux coefficients entiers. Si le déterminant est nul, affichez <code>singuliere</code>. Les entrées sont choisies pour que l’inverse ait des coefficients entiers.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2 1
+1 1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1 -1
+-1 2</pre></div>
+    </div>
+    <p class="lab__note">det = 1 : l’inverse est directement l’adjugate.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’inverse vaut 1/det · [[d, −b], [−c, a]] : on échange a et d, on change le signe de b et c, puis on divise.</li>
+        <li>Avant tout calcul, teste le déterminant : s’il est nul, la matrice est singulière et n’a pas d’inverse.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="1 1 3&#10;1 -1 1">
+  <script type="text/plain" data-lab-starter>a, b, e = (int(x) for x in input().split())
+c, d, f = (int(x) for x in input().split())
+
+# À compléter : résoudre le système et afficher x puis y, deux décimales chacune.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Résoudre un système 2 × 2</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Mettre en œuvre l’élimination de Gauss et la remontée sur un système carré.</p>
+    <div class="lab__brief"><p>Le programme reçoit trois lignes : <code>a b e</code> pour l’équation <code>a·x + b·y = e</code>, puis <code>c d f</code> pour <code>c·x + d·y = f</code>. Le déterminant est non nul. Affichez <code>x</code> puis <code>y</code>, chacun sur sa ligne, arrondis à deux décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1 1 3
+1 -1 1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>2.00
+1.00</pre></div>
+    </div>
+    <p class="lab__note">x = 2 et y = 1 : 2 + 1 = 3 et 2 − 1 = 1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Élimine x dans la deuxième équation : multiplie la première par c et la seconde par a, puis soustrais.</li>
+        <li>Tu peux aussi résoudre par les formules de Cramer : x = (e·d − b·f)/det et y = (a·f − e·c)/det.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Une matrice carrée est inversible si et seulement si…</p>
+      <div class="opts">
+        <button class="opt">elle n’a pas de zéros</button>
+        <button class="opt" data-correct="1">det(A) ≠ 0</button>
+        <button class="opt">elle est symétrique</button>
+      </div>
+      <div class="q__exp">det(A) ≠ 0 ⇔ A inversible ⇔ rang(A) = n.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>A⁻¹</code> pour A = [[a, b], [c, d]] ?</p>
+      <div class="opts">
+        <button class="opt">[[d, −b], [−c, a]]</button>
+        <button class="opt" data-correct="1">1/det(A) · [[d, −b], [−c, a]]</button>
+        <button class="opt">1/det(A) · [[a, −b], [−c, d]]</button>
+      </div>
+      <div class="q__exp">Il ne faut pas oublier la division par le déterminant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Parmi ces opérations, laquelle est interdite ?</p>
+      <div class="opts">
+        <button class="opt">L1 ↔ L2</button>
+        <button class="opt">L2 ← 3·L2</button>
+        <button class="opt" data-correct="1">L2 ← L1</button>
+      </div>
+      <div class="q__exp">Remplacer une ligne par une autre fait perdre de l’information.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans [ A | I ], à quoi aboutit Gauss-Jordan ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">[ I | A⁻¹ ]</button>
+        <button class="opt">[ A⁻¹ | I ]</button>
+        <button class="opt">[ I | A ]</button>
+      </div>
+      <div class="q__exp">Quand A devient I, ce qui reste à droite est l’inverse.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Après échelonnement d’un système 3 × 3 on lit la ligne <code>[0 0 0 | 5]</code>. Conclusion ?</p>
+      <div class="opts">
+        <button class="opt">Trois solutions</button>
+        <button class="opt" data-correct="1">Aucune solution</button>
+        <button class="opt">Une infinité de solutions</button>
+      </div>
+      <div class="q__exp">0 = 5 est impossible : le système est incompatible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut det(A) si A·B = I ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">Il est non nul</button>
+        <button class="opt">1 exactement</button>
+      </div>
+      <div class="q__exp">A est inversible, donc son déterminant ne peut pas être nul.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Utiliser une opération interdite</strong> : remplacer une ligne par une autre au lieu de l’ajouter.</li>
+      <li><strong>Division par un déterminant nul</strong> : écrire A⁻¹ sans vérifier det(A) ≠ 0.</li>
+      <li><strong>Oublier le signe</strong> dans la formule 2 × 2 : les coefficients hors diagonale changent de signe.</li>
+      <li><strong>Erreurs d’arithmétique en cascade</strong> : une faute à la deuxième ligne contamine toute la remontée.</li>
+      <li><strong>Répondre avant de vérifier</strong> : remplacer la solution dans l’équation d’origine.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Résoudre un système par Gauss</div>
+    <ol>
+      <li><strong>Écrire la matrice augmentée</strong> <code>[A | B]</code>, une colonne par inconnue plus le second membre.</li>
+      <li><strong>Choisir un pivot</strong> non nul en haut à gauche ; si besoin, échanger deux lignes.</li>
+      <li><strong>Éliminer</strong> tous les coefficients sous le pivot, colonne par colonne.</li>
+      <li><strong>Recommencer</strong> sur la sous-matrice suivante jusqu’à la forme échelonnée.</li>
+      <li><strong>Remonter</strong> de la dernière équation vers la première, puis <strong>vérifier</strong> dans le système initial.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li><code>A·A⁻¹ = A⁻¹·A = I<sub>n</sub></code> ; l’inverse est unique et n’existe que si <code>det(A) ≠ 0</code>.</li>
+      <li>2 × 2 : <code>A⁻¹ = 1/det(A) · [[d, −b], [−c, a]]</code> avec <code>det = ad − bc</code>.</li>
+      <li>Trois opérations élémentaires autorisées sur les lignes ; elles ne changent pas les solutions.</li>
+      <li>Gauss : échelonner puis remonter ; Gauss-Jordan : <code>[A | I] → [I | A⁻¹]</code>.</li>
+      <li>Un système a une solution unique, aucune, ou une infinité — jamais deux.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je teste l’inversibilité avant tout calcul d’inverse.</li>
+      <li>J’inverse une matrice 2 × 2 sans hésiter, division comprise.</li>
+      <li>Je cite les trois opérations élémentaires autorisées.</li>
+      <li>Je résous un système 3 × 3 par Gauss et je vérifie la solution.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>matrice inverse</li><li>matrice singulière</li><li>det(A) ≠ 0</li><li>formule 2 × 2</li><li>opérations élémentaires</li><li>pivot</li><li>matrice échelonnée</li><li>remontée</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends l’exemple complet de la section 4, ligne à ligne.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais deux systèmes de l’atelier du chapitre 3.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible les signes de la formule 2 × 2.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 4, les espaces vectoriels.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Espaces vectoriels et sous-espaces vectoriels <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les supports B1 d’algèbre linéaire (tomes 1 et 2) et les corrigés de CC1 et CC2.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

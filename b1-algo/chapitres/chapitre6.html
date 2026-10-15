@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Tableaux à une dimension | Algorithmique B1</title>
+<meta name="description" content="Chapitre 6 du cours d'algorithmique B1 : déclaration de tableau, parcours, somme, maximum, minimum, recherche séquentielle, tri simple. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="6">
+
+<nav class="alnav"><div class="alnav__in">
+  <a class="alnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="alnav__sep" aria-hidden="true">/</span>
+  <a class="alnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algo B1</a>
+  <div class="alnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre5.html">Ch. 5</a>
+    <a href="chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="alwrap">
+  <p class="crumb"><a href="../index.html">Algo B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+  <h1>Chapitre 6 — Tableaux à une dimension</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Trente notes à manipuler : trente variables ? Impossible à maintenir. Le <em>tableau</em> range plusieurs
+    valeurs du même type sous un seul nom, chacune repérée par un indice. C'est la structure de données de base
+    de tout le cours.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Déclarer et remplir un tableau ;</li>
+      <li>le parcourir avec la bonne borne ;</li>
+      <li>calculer somme, moyenne, maximum et minimum ;</li>
+      <li>implémenter la recherche séquentielle ;</li>
+      <li>implémenter un tri simple (sélection).</li>
+    </ol>
+  </div>
+
+  <h2>1. Déclarer et remplir un tableau</h2>
+  <p><strong>Définition.</strong> Un tableau est une suite de cases de même type, repérées par un indice. En
+  pseudo-code et en Pascal, la taille est fixée à la déclaration ; les indices peuvent démarrer à 1 en Pascal,
+  ils démarrent à 0 en Python.</p>
+
+  <div class="pseudo"><b>Pseudo-code</b><br>Tableau t[100] : Entiers<br>Lire n<br>Pour i de 0 à n−1 Faire<br>&nbsp;&nbsp;Lire t[i]<br>FinPour</div>
+  <pre><code><span class="k">var</span> t: <span class="k">array</span>[1..100] <span class="k">of</span> integer;
+n, i: integer;
+...
+<span class="k">for</span> i := 1 <span class="k">to</span> n <span class="k">do</span>
+  readln(t[i]);</code></pre>
+  <pre><code>n = int(input())
+t = []
+<span class="k">for</span> i <span class="k">in</span> range(n):
+    t.append(int(input()))</code></pre>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Deux conventions d'indices</div>
+    <p>En Pascal, on déclare souvent <code>array[1..n]</code> : le premier élément est <code>t[1]</code>, le
+    dernier <code>t[n]</code>. En Python, un tableau de n éléments va de <code>t[0]</code> à <code>t[n−1]</code>.
+    Les algorithmes sont identiques, seules les bornes des boucles changent.</p>
+  </div>
+
+  <h2>2. Parcourir un tableau</h2>
+  <pre><code><span class="c"># Somme en un seul parcours, avec maximum</span>
+somme = 0
+maximum = t[0]
+<span class="k">for</span> valeur <span class="k">in</span> t:
+    somme += valeur
+    <span class="k">if</span> valeur &gt; maximum:
+        maximum = valeur
+
+print(somme)
+print(maximum)</code></pre>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — maximum initialisé à zéro</div>
+    <p>Initialiser le maximum à 0 donne un résultat faux si toutes les valeurs sont négatives (le maximum
+    resterait 0, valeur qui n'est même pas dans le tableau). Toujours partir du <strong>premier élément</strong>.</p>
+  </div>
+
+  <h2>3. La recherche séquentielle</h2>
+  <div class="pseudo"><b>Pseudo-code</b><br>trouve ← −1<br>Pour i de 0 à n−1 Faire<br>&nbsp;&nbsp;Si t[i] = cible Alors<br>&nbsp;&nbsp;&nbsp;&nbsp;trouve ← i<br>&nbsp;&nbsp;&nbsp;&nbsp;SortirDeBoucle<br>&nbsp;&nbsp;FinSi<br>FinPour</div>
+  <pre><code>trouve = -1
+<span class="k">for</span> i <span class="k">in</span> range(n):
+    <span class="k">if</span> t[i] == cible:
+        trouve = i
+        <span class="k">break</span>
+
+<span class="k">if</span> trouve == -1:
+    print("absent")
+<span class="k">else</span>:
+    print(trouve + 1)</code></pre>
+  <p>On compare les éléments un par un depuis le début ; la première occurrence gagne. Si la boucle se termine
+  sans succès, la convention −1 (ou « absent ») signale l'échec.</p>
+
+  <h2>4. Le tri par sélection</h2>
+  <div class="pseudo"><b>Pseudo-code</b><br>Pour debut de 0 à n−2 Faire<br>&nbsp;&nbsp;imin ← debut<br>&nbsp;&nbsp;Pour i de debut+1 à n−1 Faire<br>&nbsp;&nbsp;&nbsp;&nbsp;Si t[i] &lt; t[imin] Alors imin ← i<br>&nbsp;&nbsp;FinPour<br>&nbsp;&nbsp;Échanger t[debut] et t[imin]<br>FinPour</div>
+  <pre><code><span class="k">for</span> debut <span class="k">in</span> range(n - 1):
+    imin = debut
+    <span class="k">for</span> i <span class="k">in</span> range(debut + 1, n):
+        <span class="k">if</span> t[i] &lt; t[imin]:
+            imin = i
+    t[debut], t[imin] = t[imin], t[debut]</code></pre>
+  <p>La partie triée grandit depuis le début : à chaque tour, on cherche le minimum de ce qui reste et on l'échange
+  avec la première position libre.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="algo-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;12&#10;15&#10;14&#10;9&#10;18">
+  <script type="text/plain" data-lab-starter>n = int(input())
+tableau = []
+for i in range(n):
+    tableau.append(int(input()))
+
+# À compléter : calculer la somme et le maximum en un seul parcours.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Somme et maximum d’un tableau</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parcourir un tableau une seule fois pour deux résultats.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers. Affichez la somme sur une ligne, puis le maximum sur la suivante, en un seul parcours.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+12
+15
+14
+9
+18</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>68
+18</pre></div>
+    </div>
+    <p class="lab__note">Somme 68 ; maximum 18.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le maximum ne se devine pas : partez du premier élément et remplacez le candidat dès qu’un élément le dépasse.</li>
+        <li>Les deux accumulateurs vivent dans la même boucle : la somme grandit à chaque tour, le maximum seulement quand il est battu.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;10&#10;20&#10;30&#10;20&#10;50&#10;20">
+  <script type="text/plain" data-lab-starter>n = int(input())
+tableau = []
+for i in range(n):
+    tableau.append(int(input()))
+cible = int(input())
+
+# À compléter : chercher la cible et afficher sa position ou « absent ».
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Recherche séquentielle</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter la recherche dans un tableau.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers, puis une valeur cible. Affichez la position de la première occurrence de la cible dans le tableau (positions numérotées à partir de 1), ou <code>absent</code> si elle n’y figure pas.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+10
+20
+30
+20
+50
+20</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>2</pre></div>
+    </div>
+    <p class="lab__note">La première occurrence de 20 est à la position 2.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parcourez les positions dans l’ordre : la première occurrence rencontrée est la bonne réponse.</li>
+        <li>Si la boucle se termine sans avoir trouvé, c’est que la valeur est absente : il faut un cas pour ce résultat.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;5&#10;2&#10;8&#10;1&#10;9">
+  <script type="text/plain" data-lab-starter>n = int(input())
+tableau = []
+for i in range(n):
+    tableau.append(int(input()))
+
+# À compléter : tri par sélection, sans sort() ni sorted().
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Tri par sélection</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter un tri simple du cours, sans sort().</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers. Triez le tableau par sélection (repeatedly : chercher le minimum de la partie non triée et l’échanger), <strong>sans</strong> utiliser <code>sort()</code> ni <code>sorted()</code>. Affichez les valeurs triées sur une ligne, séparées par des espaces.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+5
+2
+8
+1
+9</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1 2 5 8 9</pre></div>
+    </div>
+    <p class="lab__note">Tri croissant complet.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La partie triée grandit depuis le début : à chaque tour, cherchez le minimum de ce qui reste et échangez-le avec la première position libre.</li>
+        <li>Pour l’échange, une variable temporaire (ou l’affectation simultanée) évite d’écraser une valeur avant de l’avoir déplacée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi un tableau plutôt que 30 variables ?</p>
+      <div class="opts">
+        <button class="opt">Pour aller plus vite</button>
+        <button class="opt" data-correct="1">Pour manipuler une collection avec un seul nom et des boucles</button>
+        <button class="opt">Pour économiser la mémoire</button>
+      </div>
+      <div class="q__exp">Le tableau permet un traitement uniforme par indice.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En Python, le dernier indice d'un tableau de n éléments est…</p>
+      <div class="opts">
+        <button class="opt">n</button>
+        <button class="opt" data-correct="1">n − 1</button>
+        <button class="opt">1</button>
+      </div>
+      <div class="q__exp">Les indices vont de 0 à n − 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment initialiser le maximum ?</p>
+      <div class="opts">
+        <button class="opt">À 0</button>
+        <button class="opt" data-correct="1">Au premier élément du tableau</button>
+        <button class="opt">À −1</button>
+      </div>
+      <div class="q__exp">Sinon les valeurs toutes négatives donnent un maximum faux.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait la recherche séquentielle si la valeur apparaît deux fois ?</p>
+      <div class="opts">
+        <button class="opt">Elle renvoie la dernière occurrence</button>
+        <button class="opt" data-correct="1">Elle renvoie la première occurrence</button>
+        <button class="opt">Elle signale une erreur</button>
+      </div>
+      <div class="q__exp">Le parcours s'arrête au premier succès.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Principe du tri par sélection ?</p>
+      <div class="opts">
+        <button class="opt">Échanger les paires voisines mal ordonnées</button>
+        <button class="opt" data-correct="1">Chercher le minimum restant et l'échanger à sa place</button>
+        <button class="opt">Découper le tableau en deux moitiés</button>
+      </div>
+      <div class="q__exp">Chaque tour place définitivement une valeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une boucle interne de sélection parcourt…</p>
+      <div class="opts">
+        <button class="opt">Tout le tableau à chaque tour</button>
+        <button class="opt" data-correct="1">La partie non encore triée</button>
+        <button class="opt">Un seul élément</button>
+      </div>
+      <div class="q__exp">La zone de recherche rétrécit à chaque tour.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Hors des bornes</strong> : <code>range(1, n+1)</code> au lieu de <code>range(n)</code> selon le cas.</li>
+      <li><strong>Maximum/minimum à 0</strong> au lieu du premier élément.</li>
+      <li><strong>Mélanger indice et valeur</strong> : <code>t[i]</code> est une valeur, <code>i</code> une position.</li>
+      <li><strong>Oublier le break</strong> : la recherche continue et renvoie la dernière occurrence.</li>
+      <li><strong>Échange sans temporaire</strong> (hors affectation simultanée).</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Traiter un tableau</div>
+    <ol>
+      <li><strong>Lire la taille</strong> puis les éléments, dans le même ordre que l'énoncé.</li>
+      <li><strong>Choisir la borne</strong> selon la convention d'indices.</li>
+      <li><strong>Un seul parcours</strong> quand c'est possible (accumulateurs partagés).</li>
+      <li><strong>Initialiser</strong> min/max au premier élément.</li>
+      <li><strong>Tester</strong> : un élément, valeurs négatives, doublons.</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Tableau = plusieurs valeurs, un nom, un indice par case.</li>
+      <li>Indices 0..n−1 (Python) ou 1..n (Pascal selon déclaration).</li>
+      <li>Somme/maximum : un seul parcours, accumulateurs.</li>
+      <li>Recherche séquentielle : première occurrence ou « absent ».</li>
+      <li>Tri par sélection : minimum restant échangé à sa place.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je déclare et remplis un tableau sans déborder.</li>
+      <li>J'écris un parcours avec les bonnes bornes.</li>
+      <li>J'initialise min/max correctement.</li>
+      <li>J'implémente recherche et tri par sélection.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>déclaration</li><li>indice</li><li>bornes de parcours</li><li>somme/moyenne</li>
+      <li>maximum/minimum</li><li>recherche séquentielle</li><li>tri par sélection</li><li>échange</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 2.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 3.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible le tri par sélection.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : tu peux passer au chapitre 7.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre5.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 5</a>
+    <a class="btn btn--primary" href="chapitre7.html">Chapitre 7 — Fonctions et procédures <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (INF-1002) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

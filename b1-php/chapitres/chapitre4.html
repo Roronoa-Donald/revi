@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Boucles | PHP B1</title>
+<meta name="description" content="Chapitre 4 du cours PHP B1 : boucle for (trois parties, pas négatif), while, accumulateurs, boucles imbriquées, pièges de la boucle infinie. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="4">
+
+<nav class="phnav"><div class="phnav__in">
+  <a class="phnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phnav__sep" aria-hidden="true">/</span>
+  <a class="phnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP B1</a>
+  <div class="phnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html">Ch. 2</a>
+    <a href="chapitre3.html">Ch. 3</a>
+    <a href="chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="phwrap">
+  <p class="crumb"><a href="../index.html">PHP B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+  <h1>Chapitre 4 — Boucles</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Afficher une table de multiplication, additionner cent notes, compter à rebours avant un lancement :
+    répéter la même action vingt fois en la copiant-collant serait absurde. La boucle répète un bloc
+    d'instructions autant de fois que nécessaire — c'est la deuxième structure de contrôle, et celle qui donne
+    au programme sa puissance.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>écrire une boucle <code>for</code> avec ses trois parties, à pas positif ou négatif ;</li>
+      <li>choisir <code>while</code> quand le nombre de tours est inconnu ;</li>
+      <li>utiliser un accumulateur (somme, produit) initialisé au bon endroit ;</li>
+      <li>imbriquer deux boucles et prédire le nombre total de tours.</li>
+    </ol>
+  </div>
+
+  <h2>1. La boucle for : trois parties</h2>
+  <p><strong>Définition.</strong> La boucle <code>for</code> rassemble sur une ligne tout ce qui gouverne la
+  répétition : l'<em>initialisation</em> (une fois), la <em>condition de poursuite</em> (testée avant chaque
+  tour), le <em>pas</em> (exécuté après chaque tour).</p>
+  <pre><code><span class="k">for</span> ($i = 1; $i &lt;= 5; $i++) {
+    echo $i . "\n";
+}</code></pre>
+  <div class="out">1
+2
+3
+4
+5</div>
+  <table>
+    <tr><th>Tour</th><th>$i (début)</th><th>$i &lt;= 5 ?</th><th>Affichage</th><th>$i (après pas)</th></tr>
+    <tr><td>1</td><td>1</td><td>oui</td><td>1</td><td>2</td></tr>
+    <tr><td>5</td><td>5</td><td>oui</td><td>5</td><td>6</td></tr>
+    <tr><td>—</td><td>6</td><td>non</td><td>sortie</td><td>—</td></tr>
+  </table>
+  <p>La boucle s'exécute donc <strong>tant que</strong> la condition est vraie : quand $i atteint 6, elle
+  s'arrête sans afficher. Cinq tours pour <code>$i = 1; $i &lt;= 5</code>.</p>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la borne de fin</div>
+    <p><code>$i &lt; 5</code> fait quatre tours (1, 2, 3, 4) ; <code>$i &lt;= 5</code> en fait cinq. L'énoncé
+    « de 1 à 5 » se traduit par <code>&lt;= 5</code>. Une borne fausse décale tout le résultat d'une unité :
+    c'est l'erreur la plus fréquente sur les boucles.</p>
+  </div>
+
+  <h2>2. Pas négatif : compter à rebours</h2>
+  <p>Le pas peut diminuer la variable : la boucle descend tant que la condition de borne basse reste vraie.</p>
+  <pre><code><span class="k">for</span> ($i = 3; $i &gt;= 1; $i--) {
+    echo $i . "\n";
+}
+echo "Decollage\n";</code></pre>
+  <div class="out">3
+2
+1
+Decollage</div>
+  <p>Les trois parties suivent la logique inverse : initialisation en haut, condition de borne basse, pas
+  négatif. Oublier de retourner la condition (<code>&gt;=</code> au lieu de <code>&lt;=</code>) produit une
+  boucle infinie.</p>
+
+  <h2>3. L'accumulateur</h2>
+  <p><strong>Définition.</strong> Un accumulateur est une variable qui se met à jour à chaque tour pour
+  construire un résultat : une somme, un produit, un comptage.</p>
+  <pre><code>$somme = 0;                    <span class="c">// élément neutre de l'addition</span>
+<span class="k">for</span> ($i = 1; $i &lt;= $n; $i++) {
+    $somme += $i;
+}
+echo $somme . "\n";</code></pre>
+  <p>Pour un produit, l'élément neutre change : <code>$produit = 1;</code> — initialiser à zéro annulerait tout
+  (0 × quoi que ce soit = 0). Chaque puissance de deux, par exemple, est le double de la précédente :
+  une seule multiplication par tour.</p>
+  <pre><code>$puissance = 1;
+<span class="k">for</span> ($i = 1; $i &lt;= $n; $i++) {
+    $puissance *= 2;
+    echo $puissance . "\n";
+}</code></pre>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Où initialiser ?</div>
+    <p>Avant la boucle, toujours. Initialisée dans le corps, l'accumulateur repart de sa valeur initiale à
+    chaque tour : la somme vaudrait n à la fin (le dernier terme seul), pas la somme des termes.</p>
+  </div>
+
+  <h2>4. while : quand on ne sait pas combien de tours</h2>
+  <p>La boucle <code>while</code> teste avant chaque tour et s'arrête quand la condition devient fausse. Elle
+  convient quand le nombre d'itérations dépend des données, pas d'un compteur fixe.</p>
+  <pre><code>$somme = 0;
+<span class="k">while</span> ($somme &lt; $seuil) {
+    $somme += $valeurSuivante;
+}</code></pre>
+  <p>Un <code>while</code> peut ne pas s'exécuter du tout (condition fausse dès le départ). Les trois règles
+  d'une boucle while saine : une <strong>initialisation</strong> avant, une <strong>progression</strong> dans
+  le corps vers l'arrêt, une <strong>condition</strong> qui finit par être fausse. Manquer la progression
+  donne la boucle infinie : le programme tourne sans fin et doit être interrompu.</p>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Boucles imbriquées</div>
+    <p>Une boucle dans une boucle multiplie les tours : 4 × 3 = 12 tours pour <code>for</code> externe de 4 et
+    interne de 3. La boucle interne finit entièrement chaque tour de l'externe. C'est la structure de base du
+    parcours des tableaux à deux dimensions (module 8 du cours d'algorithmique) et des affichages en grille.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php-c4-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="3">
+  <script type="text/plain" data-lab-starter><?php
+$n = (int)trim(fgets(STDIN));
+
+// À compléter : le compte à rebours.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Compte à rebours</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une boucle for à pas décroissant.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n (≥ 1). Affichez un nombre par ligne en descendant de n jusqu’à 1, puis <code>Decollage</code> sur la dernière ligne.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>3
+2
+1
+Decollage</pre></div>
+    </div>
+    <p class="lab__note">De 3 à 1, puis le message final.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une boucle for se décline en trois parties : initialisation, condition de poursuite, pas.</li>
+        <li>Le pas peut être négatif : la variable diminue à chaque tour jusqu’à la borne basse.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c4-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="10">
+  <script type="text/plain" data-lab-starter><?php
+$n = (int)trim(fgets(STDIN));
+
+// À compléter : accumuler avec une boucle.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Somme des entiers de 1 à n</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Accumuler un résultat dans une boucle.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n. Affichez la somme 1 + 2 + … + n en utilisant une boucle, sans <code>array_sum()</code> ni formule directe.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>55</pre></div>
+    </div>
+    <p class="lab__note">1 + 2 + … + 10 = 55.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’accumulateur s’initialise avant la boucle : sinon il repart de zéro à chaque tour.</li>
+        <li>La boucle monte de 1 jusqu’à n inclus : la condition de poursuite porte sur cette borne.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c4-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="4">
+  <script type="text/plain" data-lab-starter><?php
+$n = (int)trim(fgets(STDIN));
+
+// À compléter : les puissances de deux, une par ligne.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Puissances de deux</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Faire évoluer un accumulateur multiplicatif dans une boucle.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n (1 ≤ n ≤ 20). Affichez les n premières puissances de deux (2, 4, 8, …), une par ligne, en utilisant une boucle et sans <code>pow()</code> ni l’opérateur <code>**</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>2
+4
+8
+16</pre></div>
+    </div>
+    <p class="lab__note">Quatre puissances : 2, 4, 8, 16.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Chaque puissance de deux est le double de la précédente : une seule multiplication par tour suffit.</li>
+        <li>L’accumulateur multiplicatif démarre à 1 : élément neutre de la multiplication.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien de tours pour <code>for ($i = 2; $i &lt;= 6; $i++)</code> ?</p>
+      <div class="opts">
+        <button class="opt">4</button>
+        <button class="opt" data-correct="1">5</button>
+        <button class="opt">6</button>
+      </div>
+      <div class="q__exp">$i vaut 2, 3, 4, 5, 6 : cinq valeurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Compter à rebours de n à 1 exige…</p>
+      <div class="opts">
+        <button class="opt">for ($i = n; $i &lt;= 1; $i--)</button>
+        <button class="opt" data-correct="1">for ($i = n; $i &gt;= 1; $i--)</button>
+        <button class="opt">for ($i = 1; $i &gt;= n; $i++)</button>
+      </div>
+      <div class="q__exp">Initialisation en haut, borne basse, pas négatif.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où initialiser un accumulateur de somme ?</p>
+      <div class="opts">
+        <button class="opt">Dans la boucle</button>
+        <button class="opt" data-correct="1">Avant la boucle</button>
+        <button class="opt">Après la boucle</button>
+      </div>
+      <div class="q__exp">Dans la boucle, il repart de zéro à chaque tour.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Valeur initiale d'un accumulateur de produit ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">1</button>
+        <button class="opt">Peu importe</button>
+      </div>
+      <div class="q__exp">Multiplier par zéro efface tout : 1 est l'élément neutre.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Cause typique de boucle infinie ?</p>
+      <div class="opts">
+        <button class="opt">Un echo dans la boucle</button>
+        <button class="opt" data-correct="1">L'oubli de la progression vers l'arrêt</button>
+        <button class="opt">Une condition trop stricte</button>
+      </div>
+      <div class="q__exp">Sans progression, la condition reste vraie indéfiniment.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Boucles de 4 et 3 tours imbriquées : nombre total d'itérations internes ?</p>
+      <div class="opts">
+        <button class="opt">7</button>
+        <button class="opt" data-correct="1">12</button>
+        <button class="opt">4</button>
+      </div>
+      <div class="q__exp">Les tours se multiplient : 4 × 3 = 12.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Borne &lt; au lieu de &lt;=</strong> : un tour manquant, résultat décalé.</li>
+      <li><strong>A accumulateur initialisé dans la boucle</strong> : seul le dernier terme reste.</li>
+      <li><strong>Produit initialisé à 0</strong> : résultat nul quelle que soit la donnée.</li>
+      <li><strong>Pas négatif sans condition retournée</strong> : boucle infinie.</li>
+      <li><strong>Compteur modifié dans le corps</strong> d'un for : double avancement imprévisible.</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Écrire une boucle juste</div>
+    <ol>
+      <li><strong>Identifer le type</strong> : nombre de tours connu (for) ou dépendant des données (while).</li>
+      <li><strong>Poser la première et la dernière valeur</strong> du compteur, choisir la condition en conséquence.</li>
+      <li><strong>Initialiser</strong> les accumulateurs avant la boucle, avec le bon élément neutre.</li>
+      <li><strong>Tracer</strong> les deux premiers tours et le dernier à la main pour vérifier les bornes.</li>
+      <li><strong>Tester</strong> les cas limites : n = 0 (aucun tour), n = 1 (un seul tour).</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>for : initialisation ; condition de poursuite ; pas — sur une ligne.</li>
+      <li>« de 1 à n » se traduit $i &lt;= $n ; « strictement avant » par &lt;.</li>
+      <li>Pas négatif : initialisation haute, condition &gt;=, $i--.</li>
+      <li>Accumulateur : initialisé avant la boucle, neutre de l'opération (0 somme, 1 produit).</li>
+      <li>while : nombre de tours inconnu ; trois règles pour garantir l'arrêt.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J'écris une boucle for à pas positif et négatif sans modèle.</li>
+      <li>Je place mes accumulateurs et leurs valeurs neutres.</li>
+      <li>Je prédis le nombre de tours d'une boucle imbriquée.</li>
+      <li>Je diagnostique une boucle infinie avec les trois règles.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>for (3 parties)</li><li>condition de poursuite</li><li>pas négatif</li><li>while</li>
+      <li>accumulateur</li><li>élément neutre</li><li>boucle infinie</li><li>boucles imbriquées</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 3, trace les exemples.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 2-3 de l'atelier.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible les bornes exactes.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 5, les tableaux.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre3.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 3</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Tableaux indexés <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (Cours-PHP-PDO, CoursPHP, TP1) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

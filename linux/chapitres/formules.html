@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mémo de l’administrateur — Administration Linux B2</title>
+<meta name="description" content="Mémo du cours d’administration Linux B2 : arborescence, commandes, find et grep, droits, comptes, réseau, services et squelette de script Bash sur une page.">
+<link rel="canonical" href="https://revi-mu.vercel.app/linux/chapitres/formules.html">
+<meta property="og:title" content="Mémo de l’administrateur — Administration Linux B2">
+<meta property="og:description" content="Mémo du cours d’administration Linux B2 : arborescence, commandes, find et grep, droits, comptes, réseau, services et squelette de script Bash sur une page.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="linuxnav"><div class="linuxnav__in">
+  <a class="linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="linuxnav__sep" aria-hidden="true">/</span>
+  <a class="linuxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Administration Linux B2</a>
+  <div class="linuxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html" class="is-active">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="linuxwrap">
+<p class="crumb"><a href="../index.html">Administration Linux B2</a> › <a href="../sommaire.html">Sommaire</a> › Mémo</p>
+
+  <h1>Mémo de l’administrateur</h1>
+
+  <p class="lead">Arborescence, commandes, droits, réseau, services et squelettes de scripts du cours sur une page. À garder ouvert pendant les exercices et l’atelier.</p>
+
+  <h2>L’arborescence en une image</h2>
+<pre><code>/          racine : origine de tout
+
+etc        configuration (à sauvegarder)      home   répertoires des utilisateurs
+
+tmp        temporaires, vidés au reboot        var    journaux, spools, bases
+
+root       maison du super-utilisateur         dev    fichiers des périphériques
+
+usr        programmes et bibliothèques         bin/sbin  binaires essentiels
+
+boot       noyau et démarrage                  proc   arborescence virtuelle du noyau</code></pre>
+<p>Tout chemin absolu commence par / ; /root n’est pas /.</p>
+
+  <h2>Commandes de base</h2>
+<pre><code>où suis-je        pwd            changer      cd chemin
+
+lister            ls [-a -l]      créer rep    mkdir -p
+
+créer fichier     touch          copier      cp [-r] source cible
+
+renommer/déplacer mv             supprimer   rm [-r] (danger : -f)
+
+afficher          cat, head, tail            manuel      man cmd
+
+écrire            echo "x" &gt; f (écrase) ; echo "x" &gt;&gt; f (ajoute)</code></pre>
+<p>Syntaxe immuable : COMMANDE OPTIONS ARGUMENTS — ls -l /home.</p>
+
+  <h2>Chercher : find et grep</h2>
+<pre><code>find /tmp -name "fich*"     -type f|d    -size +10M   -user root
+
+find / -perm -4000 -type f  # audit setuid
+
+grep "ERROR" /var/log/syslog   -c (compte)   -i (casse)   -v (inverse)
+
+journalctl -u service   -p err -b   tail -f /var/log/syslog</code></pre>
+<p>Toujours des guillemets autour du motif de find, sinon le shell le développe.</p>
+
+  <h2>Droits d’accès</h2>
+<pre><code>-rwxr-x---     type(-,d,l) + u:rwx  g:r-x  o:---
+
+poids          r=4  w=2  x=1  →  rwx=7  r-x=5  rw-=6  ---=0
+
+octal          rwxr-x--- = 750 ; rw-r--r-- = 644 ; rw-r----- = 640
+
+chmod          symbolique (u/g/o/a + - = lettres) ou octal ; -R récursif
+
+chown          propriétaire (utilisateur:groupe) ; chgrp groupe
+
+vérifier       ls -l, id utilisateur</code></pre>
+<p>+ ajoute, - retire, = fixe exactement : ug=rwx efface ce qui dépassait rwx.</p>
+
+  <h2>Comptes et groupes</h2>
+<pre><code>/etc/passwd  login:mot-de-passe:UID:GID:info:maison:shell
+
+             x ou ! = mot de passe dans shadow ; * interdit ; !! désactive
+
+/etc/shadow  mots de passe chiffrés (root seul)
+
+/etc/group   groupe:*:GID:utilisateurs
+
+commandes    useradd, usermod, userdel -r, passwd, groupadd, groupdel
+
+UID          root = 0 ; &lt; 1000 = système ; ≥ 1000 = humains</code></pre>
+<p>id utilisateur affiche UID, GID et groupes secondaires.</p>
+
+  <h2>Réseau et SSH</h2>
+<pre><code>ip a ; ip route          adresses et passerelle (default via)
+
+privées  10.0.0.0/8 ; 172.16–172.31 ; 192.168.0.0/16
+
+statique /etc/network/interfaces : address / gateway / dns-nameservers
+
+ssh user@hote:port       port 22 par défaut
+
+ssh-keygen -t ed25519 ; ssh-copy-id user@hote ; scp f user@hote:/tmp/</code></pre>
+<p>Adresse IPv4 valide : exactement quatre octets de 0 à 255.</p>
+
+  <h2>Services, processus, planification</h2>
+<pre><code>systemctl status|start|restart|enable service
+
+active → rien ; inactive → start ; failed → restart
+
+ps aux ; top ; kill PID (propre) ; kill -9 PID (dernier recours)
+
+cron : minute heure jour mois jour-semaine  commande
+
+journalctl -u service   journalctl -p err -b</code></pre>
+<p>Un zombie est un processus terminé non récupéré par son parent.</p>
+
+  <h2>Squelette d’un script Bash</h2>
+<pre><code>#!/bin/bash
+
+read -r n                    # premier : le compteur d’entrées
+
+compteur=0                   # initialisation AVANT la boucle
+
+for ((i=0; i&lt;n; i++)); do
+
+  read -r valeur             # une lecture par ligne d’entrée
+
+  case "$valeur" in OK) compteur=$((compteur + 1)) ;; esac
+
+done
+
+echo "compteur : $compteur"  # bilan APRÈS la boucle</code></pre>
+<p>Comparer des nombres : -eq -ne -lt -le -gt -ge. Toujours entre guillemets dans [ ].</p>
+
+  <h2>Erreurs fréquentes à éviter</h2>
+<ul>
+    <li>Confondre / (racine) et /root (maison de root).</li>
+    <li>Écrire les journaux dans /etc au lieu de /var.</li>
+    <li>Un seul chevron &gt; qui écrase un fichier de configuration.</li>
+    <li>Ouvrir un fichier en 777 au lieu d’accorder le droit à la bonne classe.</li>
+    <li>Redémarrer un service sans lire son status ni son journal.</li>
+    <li>Lire le seuil après n, ou oublier le retour à la ligne final du dernier read.</li>
+  </ul>
+
+  <div class="chnav">
+    <a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Cartes</a>
+    <a class="btn btn--primary" href="simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

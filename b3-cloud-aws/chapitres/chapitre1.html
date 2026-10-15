@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1 — Fondements d'AWS, Infrastructure Globale &amp; Modèle de Responsabilité Partagée | Services Cloud AWS B3</title>
+<meta name="description" content="Module 1 du cours Services Cloud AWS B3 : Infrastructure mondiale (Régions, AZs, Edge Locations), modèle de responsabilité partagée, outils CLI et AWS Well-Architected Framework. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-aws/chapitres/chapitre1.html">
+<meta property="og:title" content="Module 1 — Fondements d'AWS, Infrastructure Globale &amp; Modèle de Responsabilité Partagée | Services Cloud AWS B3">
+<meta property="og:description" content="Module 1 du cours Services Cloud AWS B3 : Infrastructure mondiale (Régions, AZs, Edge Locations), modèle de responsabilité partagée, outils CLI et AWS Well-Architected Framework. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-awsnav"><div class="b3-cloud-awsnav__in">
+  <a class="b3-cloud-awsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-awsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-awsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Services Cloud AWS B3</a>
+  <div class="b3-cloud-awsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-awsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-awswrap">
+<p class="crumb"><a href="../index.html">Services Cloud AWS B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements d'AWS, Infrastructure Globale & Modèle de Responsabilité Partagée</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Vous intégrez l'équipe Architecture & Cloud d'une entreprise multinationale qui engage la migration de son système d'information sur Amazon Web Services (AWS). Votre mission initiale consiste à cartographier l'infrastructure mondiale cible, à déterminer avec précision la frontière des responsabilités de sécurité entre AWS et votre organisation, à configurer l'environnement d'administration via l'AWS CLI v2 et à garantir l'alignement des choix d'architecture avec les six piliers du AWS Well-Architected Framework.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Comprendre l'infrastructure mondiale d'AWS : Régions géographiques, Availability Zones (AZs indépendantes) et Edge Locations pour CloudFront et Route 53.</li>
+      <li>Maîtriser et appliquer le modèle de responsabilité partagée d'AWS selon les modèles IaaS (EC2), PaaS (RDS) et Serverless (Lambda, S3).</li>
+      <li>Installer, configurer et automatiser l'administration via l'AWS CLI v2 (profils nommés, variables d'environnement, format de sortie).</li>
+      <li>Identifier et implémenter les six piliers du AWS Well-Architected Framework pour concevoir des architectures fiables, sécurisées et optimisées en coût.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Cloud Computing & les Avantages Stratégiques d'AWS</h2>
+
+<p>Amazon Web Services (AWS) est la plateforme cloud pionnière et leader mondial, offrant plus de 200 services complets depuis des centres de données distribués à l'échelle planétaire.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les 6 Avantages Stratégiques du Cloud AWS</h4>
+    <ul>
+      <li><strong>Substitution des dépenses d'investissement (CapEx) par des dépenses d'exploitation (OpEx) :</strong> fin des achats massifs de serveurs physiques anticipés.</li>
+      <li><strong>Économies d'échelle massives :</strong> AWS répercute ses baisses de coûts matériels sur le tarif unitaire des services.</li>
+      <li><strong>Fin de la conjecture des capacités :</strong> élasticité automatique à la hausse comme à la baisse selon la demande réelle.</li>
+      <li><strong>Agilité et vitesse accrue :</strong> mise à disposition d'infrastructures complexes en quelques clics ou lignes de code.</li>
+      <li><strong>Concentration sur la valeur métier :</strong> suppression des corvées d'administration de centres de données (racks, clim, câblage).</li>
+      <li><strong>Déploiement mondial en quelques minutes :</strong> accès immédiat à des dizaines de régions géographiques sans délai.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Les 3 Modèles de Service du Cloud</h4>
+    <ul>
+      <li><strong>IaaS (Infrastructure as a Service) :</strong> niveau de contrôle maximal sur les ressources informatiques (serveurs virtuels Amazon EC2, stockage bloc EBS, réseau VPC).</li>
+      <li><strong>PaaS (Platform as a Service) :</strong> abstraction de l'OS et de la couche matérielle, l'utilisateur se concentre sur le déploiement applicatif (AWS Elastic Beanstalk, Amazon RDS).</li>
+      <li><strong>SaaS (Software as a Service) :</strong> produit complet fourni et géré par le fournisseur (Amazon WorkSpaces, outils de messagerie).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Infrastructure Mondiale : Régions, Availability Zones &amp; Edge Locations</h2>
+
+<p>La résilience d'AWS repose sur un découpage géographique hiérarchique hautement redondé :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Régions AWS (Regions)</h4>
+    <p>Une Région est un emplacement physique distinct dans le monde où AWS regroupe des centres de données (ex: <code>eu-west-3</code> à Paris, <code>us-east-1</code> en Virginie du Nord, <code>af-south-1</code> au Cap).</p>
+    <p>Critères de choix d'une région : conformité légale et souveraineté des données (RGPD), proximité des utilisateurs pour minimiser la latence, disponibilité des services et coûts horaires.</p>
+  </div>
+  <div class="card">
+    <h4>Availability Zones (AZs)</h4>
+    <p>Chaque Région comprend au minimum <strong>trois Availability Zones</strong> (ex: <code>eu-west-3a</code>, <code>eu-west-3b</code>, <code>eu-west-3c</code>).</p>
+    <p>Chaque AZ est composée d'un ou plusieurs centres de données discrets équipés d'alimentations, de refroidissements et de connexions physiques distincts, reliés par un réseau privé à très faible latence (&lt; 2 ms).</p>
+  </div>
+  <div class="card">
+    <h4>Edge Locations &amp; CDN</h4>
+    <p>Plus de 400 points de présence (PoP) situés dans les grandes métropoles mondiales pour mettre en cache le contenu statique et dynamique au plus près des utilisateurs finaux via <strong>Amazon CloudFront</strong> et accélérer les requêtes DNS via <strong>Route 53</strong>.</p>
+  </div>
+</div>
+
+<h2>3. Le Modèle de Responsabilité Partagée (Shared Responsibility Model)</h2>
+
+<p>La sécurité dans le cloud est une responsabilité partagée entre AWS et le client. Cette frontière dépend directement du type de service souscrit :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Sécurité « DU » Cloud (Responsabilité d'AWS)</h4>
+    <p>AWS est responsable de la protection de l'infrastructure globale qui exécute l'ensemble des services :</p>
+    <ul>
+      <li>Sécurité physique des centres de données (contrôle d'accès biométrique, surveillance 24/7).</li>
+      <li>Matériel sous-jacent, disques durs, barrettes de RAM, processeurs physiques.</li>
+      <li>Réseau physique sous-jacent et commutateurs.</li>
+      <li>Couche d'hyperviseur physique (Nitro System / Xen).</li>
+      <li>Mises à jour et correctifs de l'OS pour les services managés (RDS, DynamoDB, Lambda).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Sécurité « DANS » le Cloud (Responsabilité du Client)</h4>
+    <p>Le client est responsable de la sécurisation de tout ce qu'il déploie sur la plateforme :</p>
+    <ul>
+      <li>Gestion des données clients et classification.</li>
+      <li>Chiffrement des données au repos (KMS) et en transit (TLS).</li>
+      <li>Gestion des identités et des accès (IAM, mots de passe, MFA, moindre privilège).</li>
+      <li>Configuration des pare-feux (Security Groups et Network ACLs).</li>
+      <li>Application des correctifs de l'OS invité des machines virtuelles Amazon EC2.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Outils d'Accès &amp; Administration : Console Web, AWS CLI v2 &amp; CloudShell</h2>
+
+<p>AWS propose trois interfaces d'administration complémentaires :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>AWS Management Console &amp; CloudShell</h4>
+    <ul>
+      <li><strong>Console Web :</strong> interface graphique intuitive idéale pour la découverte et la supervision visuelle.</li>
+      <li><strong>AWS CloudShell :</strong> terminal Linux dans le navigateur pré-authentifié avec 1 Go de stockage persistant gratuit et les outils CLI préinstallés.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>L'AWS CLI v2 (Command Line Interface)</h4>
+    <p>Outil en ligne de commande permettant d'automatiser l'intégralité des interactions API d'AWS :</p>
+    <pre><code># Initialisation des identifiants et de la région
+aws configure
+# AWS Access Key ID [None]: AKIAIOSFODNN7EXAMPLE
+# AWS Secret Access Key [None]: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+# Default region name [None]: eu-west-3
+# Default output format [None]: json</code></pre>
+    <p>Les identifiants sont stockés dans <code>~/.aws/credentials</code> et les configurations régionales dans <code>~/.aws/config</code>.</p>
+  </div>
+</div>
+
+<h2>5. Les 6 Piliers du AWS Well-Architected Framework</h2>
+
+<p>Le Well-Architected Framework fournit une méthode cohérente pour évaluer les architectures et appliquer les meilleures pratiques de conception cloud :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Excellence Opérationnelle</h4>
+    <p>Exécuter et surveiller les systèmes, apporter des améliorations continues aux processus et gérer les infrastructures comme du code (IaC).</p>
+  </div>
+  <div class="card">
+    <h4>2. Sécurité</h4>
+    <p>Appliquer le principe du moindre privilège, chiffrer les données en transit et au repos, et automatiser la traçabilité des accès.</p>
+  </div>
+  <div class="card">
+    <h4>3. Fiabilité</h4>
+    <p>Prévenir et récupérer automatiquement des défaillances via la redondance Multi-AZ, l'auto-scaling et les tests de panne réguliers.</p>
+  </div>
+  <div class="card">
+    <h4>4. Efficacité des Performances</h4>
+    <p>Choisir les types d'instances adaptés à la charge (CPU, GPU, RAM, NVMe) et adopter des technologies serverless modernes.</p>
+  </div>
+  <div class="card">
+    <h4>5. Optimisation des Coûts</h4>
+    <p>Éliminer les dépenses inutiles en dimensionnant au plus juste (Rightsizing) et en profitant des remises Spot et Reserved.</p>
+  </div>
+  <div class="card">
+    <h4>6. Durabilité (Sustainability)</h4>
+    <p>Minimiser l'empreinte environnementale des services en optimisant l'efficacité énergétique du parc de calcul.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="aws3-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="ARN_PARSE arn:aws:ec2:eu-west-3:123456789012:instance/i-0123456789abcdef0">
+  <script type="text/plain" data-lab-starter>import sys
+import re
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser et valider les ARN AWS
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur d'ARN (Amazon Resource Name) &amp; Parseur de Composants</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider et décomposer un identifiant de ressource AWS (ARN) selon la spécification officielle.</p>
+    <div class="lab__brief"><p>Un <strong>ARN (Amazon Resource Name)</strong> identifie de manière unique toute ressource dans AWS.<br><br>
+Format standard d'un ARN :<br>
+<code>arn:partition:service:region:account-id:resource-id</code><br>
+ou<br>
+<code>arn:partition:service:region:account-id:resourcetype/resource-id</code><br>
+ou<br>
+<code>arn:partition:service:region:account-id:resourcetype:resource-id</code><br><br>
+Règles de validation :<br>
+1. Doit commencer par <code>arn:</code>.<br>
+2. <code>partition</code> : doit être <code>aws</code>, <code>aws-cn</code> ou <code>aws-us-gov</code>.<br>
+3. <code>service</code> : chaîne en minuscules, non vide (ex: <code>s3</code>, <code>ec2</code>, <code>iam</code>).<br>
+4. <code>region</code> : code région AWS valide (ex: <code>eu-west-3</code>, <code>us-east-1</code>) ou vide pour les services globaux (ex: S3, IAM, CloudFront).<br>
+5. <code>account-id</code> : exactement 12 chiffres décimaux, ou vide pour les services globaux/ressources sans compte explicite (ex: buckets S3).<br>
+6. <code>resource</code> : non vide (tout ce qui suit le 5e séparateur deux-points <code>:</code>).<br><br>
+Entrée STDIN : <code>ARN_PARSE &lt;arn_string&gt;</code>.<br>
+Sortie : Si valide : <code>ARN: partition=&lt;part&gt; service=&lt;svc&gt; region=&lt;reg&gt; account=&lt;acc&gt; resource=&lt;res&gt;</code>.<br>
+Si invalide : <code>INVALID_ARN: reason=&lt;raison&gt;</code> (ex: <code>BAD_PREFIX</code>, <code>INVALID_PARTITION</code>, <code>EMPTY_SERVICE</code>, <code>BAD_ACCOUNT</code>, <code>EMPTY_RESOURCE</code>, <code>BAD_SEGMENTS</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ARN_PARSE arn:aws:ec2:eu-west-3:123456789012:instance/i-0123456789abcdef0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ARN: partition=aws service=ec2 region=eu-west-3 account=123456789012 resource=instance/i-0123456789abcdef0</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="AVAIL_CALC MODE=SERIE SLA=99.9,99.95">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer la disponibilité globale et le temps d'arrêt annuel
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de Disponibilité &amp; Temps d'Arrêt Annuel (SLA Multi-AZ)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la disponibilité globale d'une architecture en série ou en parallèle et estimer le temps d'arrêt maximal autorisé par an.</p>
+    <div class="lab__brief"><p>La haute disponibilité dans AWS repose sur la composition de services résilients :<br><br>
+1. <strong>Composants en série (dépendance stricte)</strong> :<br>
+La défaillance d'un seul composant entraîne la panne globale.<br>
+<code>A_total = A_1 * A_2 * ... * A_n</code> (où <code>A_i</code> est la disponibilité en fraction [0..1]).<br><br>
+2. <strong>Composants en parallèle (redondance active Multi-AZ)</strong> :<br>
+Le système fonctionne tant qu'au moins un composant est actif.<br>
+<code>A_total = 1.0 - ((1.0 - A_1) * (1.0 - A_2) * ... * (1.0 - A_n))</code>.<br><br>
+3. <strong>Temps d'arrêt annuel maximal (Downtime)</strong> :<br>
+Sur une base de 365 jours (soit 8 760 heures = 525 600 minutes) :<br>
+<code>Downtime_heures = (1.0 - A_total) * 8760</code>.<br><br>
+Entrée STDIN : <code>AVAIL_CALC MODE=&lt;SERIE|PARALLELE&gt; SLA=&lt;pct1,pct2,...&gt;</code>.<br>
+Sortie : <code>AVAILABILITY: mode=&lt;MODE&gt; sla=&lt;pct_final:.4f&gt;% downtime_hours=&lt;h:.2f&gt; downtime_minutes=&lt;m:.1f&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>AVAIL_CALC MODE=SERIE SLA=99.9,99.95</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AVAILABILITY: mode=SERIE sla=99.8501% downtime_hours=13.14 downtime_minutes=788.1</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="RESP_AUDIT SERVICE=IAAS ITEM=GUEST_OS_PATCHING">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : classifier la responsabilité selon la matrice AWS
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Auditeur de Responsabilité Partagée AWS (Shared Responsibility Model)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer qui d'AWS ou du Client est responsable d'une tâche de sécurité selon le modèle de service.</p>
+    <div class="lab__brief"><p>Le <strong>modèle de responsabilité partagée</strong> d'AWS distingue :<br>
+- <strong>Sécurité DU Cloud (AWS)</strong> : matériel physique, hyperviseurs, installations des centres de données, réseau sous-jacent, patchs des services managés/serverless.<br>
+- <strong>Sécurité DANS le Cloud (Client)</strong> : configuration réseau (VPC, Security Groups), gestion des identités IAM, mises à jour des OS d'instances EC2, chiffrement des données au repos/en transit.<br><br>
+Règles selon le modèle de service :<br>
+1. <strong>IaaS (ex: EC2, EBS, VPC)</strong> :<br>
+- Matériel physique, hyperviseur, réseau physique -> <code>AWS</code>.<br>
+- Patch OS invité, firewall instance (Security Group), logiciels applicatifs, données -> <code>CUSTOMER</code>.<br>
+2. <strong>PaaS (ex: RDS, Elastic Beanstalk)</strong> :<br>
+- Patch OS serveur de base de données, infrastructure RDS -> <code>AWS</code>.<br>
+- Optimisation des index SQL, gestion des utilisateurs DB, paramètres de chiffrement -> <code>CUSTOMER</code>.<br>
+3. <strong>Serverless (ex: Lambda, S3, DynamoDB)</strong> :<br>
+- Système d'exploitation, runtime d'exécution (Python/Node.js), haute disponibilité du service -> <code>AWS</code>.<br>
+- Code applicatif, permissions IAM de fonction, bucket policies S3, chiffrement applicatif -> <code>CUSTOMER</code>.<br><br>
+Entrée STDIN : <code>RESP_AUDIT SERVICE=&lt;IAAS|PAAS|SERVERLESS&gt; ITEM=&lt;tâche_de_sécurité&gt;</code>.<br>
+Sortie : <code>SHARED_RESP: service=&lt;svc&gt; item=&lt;item&gt; responsible=&lt;AWS|CUSTOMER&gt; scope=&lt;OF_THE_CLOUD|IN_THE_CLOUD&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RESP_AUDIT SERVICE=IAAS ITEM=GUEST_OS_PATCHING</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SHARED_RESP: service=IAAS item=GUEST_OS_PATCHING responsible=CUSTOMER scope=IN_THE_CLOUD</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien d'Availability Zones (AZs) au minimum une région AWS contient-elle obligatoirement ?</p>
+      <div class="opts">
+        <button class="opt">1 seule zone</button>
+        <button class="opt">2 zones</button>
+        <button class="opt" data-correct="1">Au moins 3 zones</button>
+        <button class="opt">5 zones</button>
+      </div>
+      <div class="q__exp">Chaque région AWS contient au minimum 3 Availability Zones physiques distinctes afin de garantir la haute disponibilité et la tolérance aux pannes des applications multi-AZ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le modèle de responsabilité partagée d'AWS, qui est responsable de l'application des correctifs de sécurité sur l'OS d'une instance EC2 ?</p>
+      <div class="opts">
+        <button class="opt">AWS exclusivement</button>
+        <button class="opt" data-correct="1">Le client exclusivement</button>
+        <button class="opt">Le fournisseur d'accès Internet</button>
+        <button class="opt">Amazon EC2 Auto Scaling</button>
+      </div>
+      <div class="q__exp">Sur une instance IaaS comme EC2, le client a le contrôle total du système d'exploitation invité : il est donc exclusivement responsable de ses mises à jour et correctifs de sécurité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel service mondial AWS utilise principalement le réseau des Edge Locations pour diffuser du contenu web avec une très faible latence ?</p>
+      <div class="opts">
+        <button class="opt">Amazon EC2</button>
+        <button class="opt" data-correct="1">Amazon CloudFront</button>
+        <button class="opt">Amazon EBS</button>
+        <button class="opt">AWS Storage Gateway</button>
+      </div>
+      <div class="q__exp">Amazon CloudFront est le réseau de diffusion de contenu (CDN) mondial d'AWS qui s'appuie sur plus de 400 Edge Locations pour mettre en cache les données au plus près des utilisateurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel fichier local sont enregistrés par défaut les identifiants d'authentification générés par la commande « aws configure » ?</p>
+      <div class="opts">
+        <button class="opt">/etc/aws/auth.conf</button>
+        <button class="opt" data-correct="1">~/.aws/credentials</button>
+        <button class="opt">~/.ssh/authorized_keys</button>
+        <button class="opt">/var/log/aws.log</button>
+      </div>
+      <div class="q__exp">L'AWS CLI enregistre les identifiants secrets (Access Key ID et Secret Access Key) dans le fichier sécurisé ~/.aws/credentials du répertoire personnel de l'utilisateur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Lequel de ces principes N'EST PAS l'un des six piliers du AWS Well-Architected Framework ?</p>
+      <div class="opts">
+        <button class="opt">Excellence opérationnelle</button>
+        <button class="opt" data-correct="1">Verrouillage propriétaire (Vendor Lock-in)</button>
+        <button class="opt">Optimisation des coûts</button>
+        <button class="opt">Fiabilité</button>
+      </div>
+      <div class="q__exp">Les 6 piliers sont l'Excellence opérationnelle, la Sécurité, la Fiabilité, l'Efficacité des performances, l'Optimisation des coûts et la Durabilité. Le verrouillage propriétaire n'en fait évidemment pas partie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il formellement déconseillé d'utiliser les identifiants du compte AWS Root au quotidien ?</p>
+      <div class="opts">
+        <button class="opt">Car le compte Root ne peut pas démarrer d'instances EC2</button>
+        <button class="opt" data-correct="1">Car le compte Root possède des privilèges absolus et irrévocables qui augmentent considérablement le risque d'impact en cas de compromission</button>
+        <button class="opt">Car le compte Root facture chaque clic de souris dans la console</button>
+        <button class="opt">Car le compte Root expire automatiquement après 24 heures</button>
+      </div>
+      <div class="q__exp">Le compte Root détient un accès irrévocable à toutes les ressources et facturations. Les bonnes pratiques exigent de verrouiller le compte Root avec du MFA et d'utiliser des comptes IAM restreints.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne l'acronyme ARN dans l'écosystème Amazon Web Services ?</p>
+      <div class="opts">
+        <button class="opt">Amazon Routing Network</button>
+        <button class="opt" data-correct="1">Amazon Resource Name</button>
+        <button class="opt">Automated Relay Node</button>
+        <button class="opt">Advanced Resilience Number</button>
+      </div>
+      <div class="q__exp">ARN signifie Amazon Resource Name. C'est l'identifiant unique universel permettant de désigner toute ressource dans AWS (ex: arn:aws:s3:::mon-bucket).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un composant A a une disponibilité de 99% et un composant B a une disponibilité de 99%, quelle est la disponibilité globale s'ils sont montés en série ?</p>
+      <div class="opts">
+        <button class="opt">99.00%</button>
+        <button class="opt" data-correct="1">98.01%</button>
+        <button class="opt">99.99%</button>
+        <button class="opt">100%</button>
+      </div>
+      <div class="q__exp">En série, la disponibilité totale est le produit des disponibilités individuelles : 0.99 * 0.99 = 0.9801, soit 98.01%.</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre Availability Zone et Région : une région est une zone géographique globale, une AZ est un groupe de centres de données locaux au sein de cette région.</li>
+      <li>Supposer qu'AWS applique les correctifs de sécurité de l'OS des machines virtuelles EC2 : c'est une responsabilité exclusive du client (modèle IaaS).</li>
+      <li>Utiliser les clés d'accès du compte AWS root pour les opérations quotidiennes au lieu de créer des utilisateurs ou rôles IAM restreints.</li>
+      <li>Stocker des clés d'accès AWS (AccessKeyId et SecretAccessKey) en dur dans des scripts ou des dépôts de code GitHub publics.</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie & Cadrage Architectural AWS</div>
+    <ol>
+      <li>Sélection de la Région AWS : valider les exigences de conformité légale (RGPD/Souveraineté des données), la latence réseau vers les utilisateurs et la disponibilité des services souhaités.</li>
+      <li>Définition de la topologie de résilience : exiger un déploiement sur au minimum 2 voire 3 Availability Zones (Multi-AZ) pour éliminer tout point unique de défaillance (SPOF).</li>
+      <li>Cartographie de la matrice de responsabilité : lister pour chaque composant (EC2, RDS, S3) les devoirs de maintenance incombant à l'équipe interne (patchs OS, sauvegardes, chiffrement).</li>
+      <li>Initialisation sécurisée de l'AWS CLI : configurer des profils d'accès dédiés (aws configure --profile prod) et bannir l'utilisation de clés d'accès permanentes pour le compte root.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>AWS propose une infrastructure mondiale organisée en Régions géographiques autonomes, composées chacune d'au moins 3 Availability Zones physiquement isolées.</li>
+      <li>Les Edge Locations d'Amazon CloudFront et de Route 53 optimisent la diffusion de contenu et la résolution DNS à faible latence dans plus de 400 points de présence.</li>
+      <li>Le modèle de responsabilité partagée confie à AWS la sécurité DU cloud (matériel, centres de données, hyperviseurs) et au client la sécurité DANS le cloud (données, IAM, OS EC2, pare-feux).</li>
+      <li>L'AWS CLI v2 permet d'automatiser toutes les interactions API en stockant les identifiants dans ~/.aws/credentials et la configuration dans ~/.aws/config.</li>
+      <li>Les 6 piliers du Well-Architected Framework (Excellence opérationnelle, Sécurité, Fiabilité, Efficacité des performances, Optimisation des coûts, Durabilité) guident toute conception cloud robuste.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Comprenez-vous la différence physique et logique entre une Région, une Availability Zone et une Edge Location ?</li>
+      <li>Savez-vous délimiter qui d'AWS ou du Client est responsable du patching de l'OS d'une VM EC2 par rapport à une base RDS ?</li>
+      <li>Savez-vous configurer et manipuler l'AWS CLI v2 avec plusieurs profils nommés (aws configure --profile) ?</li>
+      <li>Pouvez-vous citer les six piliers du AWS Well-Architected Framework et donner un exemple de mise en œuvre pour chacun ?</li>
+      <li>Savez-vous calculer la disponibilité globale en série et en parallèle d'un système multi-zones ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Région AWS :</strong> Zone géographique autonome dans le monde hébergeant des centres de données hautement sécurisés (ex: eu-west-3 à Paris).</li><li><strong>Availability Zone (AZ) :</strong> Ensemble d'un ou plusieurs centres de données isolés au sein d'une région, dotés d'alimentations et de réseaux redondants.</li><li><strong>Edge Location :</strong> Point de présence mondial ultra-distribué utilisé par CloudFront et Route 53 pour mettre en cache du contenu au plus près des utilisateurs.</li><li><strong>Responsabilité Partagée :</strong> Modèle répartissant la sécurité : AWS protège l'infrastructure DU cloud, le client protège les données et configurations DANS le cloud.</li><li><strong>AWS CLI v2 :</strong> Outil officiel en ligne de commande unifié permettant d'automatiser et de piloter tous les services AWS via leurs API REST.</li><li><strong>Well-Architected Framework :</strong> Guide architectural officiel d'AWS structuré en 6 piliers pour concevoir des systèmes cloud sécurisés, résilients et économiques.</li><li><strong>Amazon Nitro System :</strong> Hyperviseur matériel moderne d'AWS déchargeant la virtualisation, le réseau et le stockage pour allouer 100% du CPU/RAM à l'instance.</li><li><strong>ARN (Amazon Resource Name) :</strong> Chaîne standardisée identifiant de manière univoque toute ressource à travers les comptes et régions d'AWS.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions d'infrastructure et responsabilité partagée fragiles. Relisez la frontière IaaS/PaaS et refaites le QCM.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Fondements compris. Approfondissez les calculs de disponibilité multi-AZ et les commandes CLI.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à valider les ARN et les profils CLI dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez l'infrastructure mondiale et les piliers du Well-Architected Framework.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte. Prêt pour l'étude des identités IAM et la gouvernance multi-comptes du Module 2 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Module 2 — Sécurité des Identités IAM, Politiques JSON & Gouvernance Multi-Comptes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AWS L3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja, 2025/2026), Documentation officielle Amazon Web Services (AWS Architecture Center), Référentiels des certifications AWS Certified Cloud Practitioner (CLF-C02) et Solutions Architect - Associate (SAA-C03).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

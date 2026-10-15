@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Branches : isoler, fusionner, supprimer | Git B1</title>
+<meta name="description" content="Chapitre 4 du cours de Git B1 : Créer et basculer (checkout -b), lister les branches, fusionner avec merge, fast-forward et conflits. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-git/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Branches : isoler, fusionner, supprimer | Git B1">
+<meta property="og:description" content="Chapitre 4 du cours de Git B1 : Créer et basculer (checkout -b), lister les branches, fusionner avec merge, fast-forward et conflits. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="gtnav"><div class="gtnav__in">
+  <a class="gtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="gtnav__sep" aria-hidden="true">/</span>
+  <a class="gtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git B1</a>
+  <div class="gtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="gtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="gtwrap">
+<p class="crumb"><a href="../index.html">Git B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Branches : isoler, fusionner, supprimer</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le workflow professionnel du TP3 est formel : interdiction de travailler directement sur main. Chaque fonctionnalité vit sur sa branche, se développe tranquillement, puis fusionne dans main. Ce chapitre fait passer du « je commite tout sur main » au cycle main → feature → merge → main.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>créer une branche et s'y déplacer (branch + checkout, ou checkout -b) ;</li>
+      <li>lister les branches locales et distantes ;</li>
+      <li>fusionner une branche dans une autre et reconnaître un fast-forward ;</li>
+      <li>identifier l'origine d'un conflit et choisir entre annulation et résolution.</li>
+    </ol>
+  </div>
+
+<h2>1. Créer et basculer</h2>
+
+<p>Une <strong>branche</strong> est un pointeur mobile sur un commit : créer une branche n'écrase rien, cela pose une étiquette. Deux façons, équivalentes :</p>
+<pre><code>git branch 15_query_database        # créer
+git checkout 15_query_database      # puis se déplacer dessus
+
+git checkout -b 15_query_database   # créer ET se déplacer en une commande</code></pre>
+<p>Le TP3 l'utilise : <code>git checkout -b feature-ajout-tache</code> depuis main — la fonctionnalité se développe maintenant hors du fil principal. La vérification : <code>git branch</code> liste les branches locales, la courante marquée d'une étoile.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « -b = branch + basculer »</div>
+    <p>checkout -b est la contraction du duo branch/checkout : la lettre b fait les deux d'un coup. C'est la forme du workflow professionnel, parce qu'on ne crée presque jamais une branche sans aller travailler dessus aussitôt.</p>
+  </div>
+
+<h2>2. Changer de branche proprement</h2>
+
+<p><code>git checkout nom</code> change la branche courante — possible seulement s'il n'y a pas de modification dans la copie de travail (fichier ajouté, modifié ou supprimé). Pour forcer le changement, deux solutions :</p>
+<table>
+    <tr><th>Solution</th><th>Effet</th></tr>
+    <tr><td><code>git checkout -f nom</code></td><td>force ; les fichiers modifiés sont définitivement perdus</td></tr>
+    <tr><td><code>git stash</code></td><td>remise temporaire ; rien ne se perd (chapitre 6)</td></tr>
+  </table>
+<p>Listes utiles : <code>git branch -v</code> pour les branches locales avec leur dernier commit, <code>git branch -r</code> pour les branches distantes. Suppression : <code>git branch -d nom</code> — le TP3 supprime la branche après fusion.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le checkout qui jette</div>
+    <p>checkout -f écrase les modifications non commitées, sans demande de confirmation. Avant de forcer un changement de branche, se demander ce que valent les fichiers modifiés : souvent, git stash est la réponse honnête.</p>
+  </div>
+
+<h2>3. Fusionner : merge et fast-forward</h2>
+
+<p>Fusionner la branche feature dans main :</p>
+<pre><code>git checkout main
+git merge feature-ajout-tache</code></pre>
+<p>Cas attendu du TP3 : le <strong>fast-forward</strong>. Quand main n'a pas bougé depuis la création de la branche, la fusion avance simplement le pointeur : les commits de la branche deviennent des commits de main comme s'ils y avaient toujours été. <strong>Il n'y a plus trace de la branche</strong> dans l'historique — impossible de voir quels commits constituaient la fonctionnalité.</p>
+<p>L'option <code>--no-ff</code> (no fast-forward) force la création d'un commit de fusion même quand le fast-forward est possible : l'existence de la branche de fonctionnalité reste visible. Un merge en cours s'annule avec <code>git merge --abort</code>.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « ff avance, no-ff grave »</div>
+    <p>fast-forward : le pointeur glisse, l'historique reste droit, la branche disparaît. no-ff : un commit de fusion grave la fonctionnalité dans l'historique. Choix d'équipe : traçabilité contre simplicité de lecture.</p>
+  </div>
+
+<h2>4. Conflits : pourquoi, comment</h2>
+
+<p>Le conflit naît quand <strong>deux branches modifient la même zone d'un même fichier</strong> : Git ne peut pas choisir à votre place. C'est exactement le scénario des TP2 et TP5 : deux développeurs modifient main.py, la fusion s'arrête, le fichier porte des marqueurs :</p>
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+print("Bienvenue dans le gestionnaire de tâches version finale")
+=======
+print("Bienvenue dans l'application de gestion des tâches")
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-message</code></pre>
+<p>Lecture des marqueurs : <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> ouvre la version de la branche courante, <code>=======</code> sépare, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; branche</code> ferme la version de la branche fusionnée. La résolution se fait à la main : garder l'une, l'autre, ou les combiner — puis valider :</p>
+<pre><code>git add main.py
+git commit -m "Résolution du conflit entre A et B"</code></pre>
+<p>Pour les fichiers binaires, pas de résolution à la main : choisir entre l'ancienne version (<code>git checkout --ours fichier</code>) et la nouvelle (<code>git checkout --theirs fichier</code>).</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le fil du TP3 en une séquence</div>
+    <p>checkout main → checkout -b feature-ajout-tache → deux commits atomiques → checkout main → merge feature → push origin main → git log --oneline --graph --all → branch -d feature. Le cycle complet du workflow professionnel.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gt-c4-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;branch feature&#10;checkout feature&#10;branches&#10;checkout main&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+branches=(main)
+courante=main
+for ((i=0; i<n; i++)); do
+  read -r op nom
+  # À compléter : créer, basculer, lister.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Créer et basculer</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler git branch et git checkout : la branche courante et la liste des branches.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>branch nom</code> (crée une branche ; si elle existe déjà, affiche <code>existe</code>), <code>checkout nom</code> (basculer ; si la branche n’existe pas, affiche <code>inconnue</code>), ou <code>branches</code> (affiche la liste des branches, une par ligne, dans l’ordre de création, la courante marquée d’une étoile : <code>* nom</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+branch feature
+checkout feature
+branches
+checkout main
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>  main
+* feature</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le dépôt démarre avec une branche main, qui est la courante.</li>
+        <li>Pour lister : étoile si le nom vaut la courante, deux espaces sinon.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c4-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="7&#10;commit&#10;commit&#10;branch feature&#10;checkout feature&#10;commit&#10;commit&#10;bilan&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op nom
+  # À compléter : hériter le compte à la création, incrémenter la courante.
+done
+# À compléter : afficher les comptes.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Commits par branche</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Chaque branche garde son propre historique : compter les commits par branche.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>branch nom</code> (crée, sans bascule), <code>checkout nom</code> (bascule), ou <code>commit</code> (ajoute un commit sur la branche courante). Puis il affiche, dans l’ordre de création des branches, <code>nom : K</code> pour chacune. Toute branche démarre avec le nombre de commits de la branche depuis laquelle elle est créée (checkout courant au moment du branch).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>7
+commit
+commit
+branch feature
+checkout feature
+commit
+commit
+bilan
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>main : 2
+feature : 4</pre></div>
+    </div>
+    <p class="lab__note">feature hérite des 2 commits de main à sa création, puis en gagne 2.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Deux tableaux parallèles : noms des branches et leurs comptes de commits.</li>
+        <li>À la création : le compte de la nouvelle branche est celui de la courante (historique hérité).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c4-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="7&#10;branch feature&#10;touch taches.py&#10;commit&#10;checkout main&#10;touch main.py&#10;commit&#10;merge feature&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op a
+  # À compléter : suivre par branche les fichiers touchés, puis comparer.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — merge et conflit</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la fusion de deux branches et détecter le conflit sur fichier commun.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>branch nom</code> + bascule immédiate (comme checkout -b), <code>checkout nom</code>, <code>touch fichier</code> (modifie un fichier sur la branche courante), <code>commit</code> (valide les modifications de la branche courante), ou <code>merge nom</code>. La fusion réussit (<code>fast-forward</code>) si les deux branches n’ont modifié aucun fichier en commun depuis leur séparation ; elle échoue (<code>conflit</code>) si un même fichier a été modifié des deux côtés. La fusion ramène sur la branche cible. Une branche créée hérite des fichiers modifiés non commités ? Non : chaque <code>touch</code> ne concerne que la branche courante.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>7
+branch feature
+touch taches.py
+commit
+checkout main
+touch main.py
+commit
+merge feature
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>fast-forward</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une clé composée branche:fichier dans un tableau associatif décrit qui a touché quoi.</li>
+        <li>Au merge : parcourir les fichiers de la branche fusionnée ; si l’un existe aussi côté cible, conflit.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que fait git checkout -b nom ?</p>
+      <div class="opts">
+        <button class="opt">Supprime la branche</button>
+        <button class="opt" data-correct="1">Crée la branche et s'y déplace</button>
+        <button class="opt">Renomme la branche courante</button>
+      </div>
+      <div class="q__exp">-b combine branch (créer) et checkout (basculer).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le fast-forward, que devient la branche fusionnée dans l'historique ?</p>
+      <div class="opts">
+        <button class="opt">Elle reste visible</button>
+        <button class="opt" data-correct="1">Il n'y a plus trace d'elle</button>
+        <button class="opt">Elle devient une étiquette</button>
+      </div>
+      <div class="q__exp">Les commits s'enchaînent comme s'ils avaient toujours été sur main : plus de trace de la branche.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle option force la création d'un commit de fusion ?</p>
+      <div class="opts">
+        <button class="opt">--force</button>
+        <button class="opt" data-correct="1">--no-ff</button>
+        <button class="opt">--abort</button>
+      </div>
+      <div class="q__exp">--no-ff crée l'objet commit même quand le fast-forward est possible : la branche reste visible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un merge en cours s'annule avec…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">git merge --abort</button>
+        <button class="opt">git reset --hard</button>
+        <button class="opt">git checkout -f</button>
+      </div>
+      <div class="q__exp">merge --abort remet la branche dans l'état d'avant fusion.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un conflit naît quand…</p>
+      <div class="opts">
+        <button class="opt">deux branches existent</button>
+        <button class="opt" data-correct="1">deux modifications touchent la même zone d'un même fichier</button>
+        <button class="opt">un push est refusé</button>
+      </div>
+      <div class="q__exp">Git ne choisit pas à votre place entre deux versions d'une même zone.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans les marqueurs de conflit, HEAD désigne…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la version de la branche courante</button>
+        <button class="opt">la version de la branche fusionnée</button>
+        <button class="opt">le dernier push</button>
+      </div>
+      <div class="q__exp">HEAD est la version courante ; la section après ======= vient de la branche fusionnée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait git branch -d nom ?</p>
+      <div class="opts">
+        <button class="opt">Bascule dessus</button>
+        <button class="opt" data-correct="1">Supprime la branche</button>
+        <button class="opt">La fusionne</button>
+      </div>
+      <div class="q__exp">branch -d supprime — le TP3 le fait après fusion de la branche.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">checkout refuse de changer de branche quand…</p>
+      <div class="opts">
+        <button class="opt">la branche n'existe pas</button>
+        <button class="opt" data-correct="1">la copie de travail porte des modifications</button>
+        <button class="opt">il y a un dépôt distant</button>
+      </div>
+      <div class="q__exp">Changer de branche écraserait les modifications : -f les perd, stash les garde.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Travailler directement sur main</strong> : l'interdiction n°1 du workflow du TP3.</li>
+      <li><strong>checkout -f par impatience</strong> : les modifications non commitées disparaissent.</li>
+      <li><strong>Fast-forward confondu avec fusion propre</strong> : ff efface la trace de la branche.</li>
+      <li><strong>Marqueurs de conflit commités</strong> : &lt;&lt;&lt;&lt;&lt;&lt;&lt; partis dans l'historique par un add aveugle.</li>
+      <li><strong>Résoudre sans comprendre</strong> : choisir un côté au hasard fait perdre un travail.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Résoudre un conflit sans panique</div>
+    <ol>
+      <li><strong>Reconnaître l'état</strong> : merge arrêté, fichier marqué par les chevrons.</li>
+      <li><strong>Relire les deux versions</strong> : HEAD (courante) et la branche fusionnée.</li>
+      <li><strong>Décider du contenu final</strong> : garder, combiner, ou réécrire — jamais au hasard.</li>
+      <li><strong>Nettoyer les marqueurs</strong> : plus aucun chevron dans le fichier.</li>
+      <li><strong>Valider la résolution</strong> : add puis commit dédié au conflit.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>checkout -b crée et bascule en une commande ; la courante porte l'étoile dans git branch.</li>
+      <li>Changer de branche exige une copie propre : -f perd les modifications, stash les garde.</li>
+      <li>merge avance par fast-forward quand main n'a pas bougé — sans trace de la branche.</li>
+      <li>--no-ff grave un commit de fusion : l'existence de la fonctionnalité reste lisible.</li>
+      <li>Conflit = même zone, deux versions ; les chevrons se lisent, se résolvent, s'add puis se commitent.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je crée une branche de fonctionnalité et je m'y place en une commande.</li>
+      <li>Je fusionne dans main et je reconnais un fast-forward.</li>
+      <li>Je lis des marqueurs de conflit et produis la version combinée.</li>
+      <li>Je supprime une branche après fusion et vérifie le graphe avec log --graph.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>branche</li><li>checkout</li><li>checkout -b</li><li>merge</li><li>fast-forward</li><li>--no-ff</li><li>conflit</li><li>marqueurs</li><li>--ours</li><li>--theirs</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le TP3 (branches puis fusion) en machine virtuelle.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Dessine deux historiques : fast-forward et --no-ff.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : résous un conflit à trois versions combinées.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 5, le dépôt distant.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Dépôt distant : clone, push, pull, fetch <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : l'« Aide-mémoire GitHub Git », le vade-mecum « Travailler avec Git au quotidien » (ENSICAEN) et les TP 1 à 5 du module Git.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

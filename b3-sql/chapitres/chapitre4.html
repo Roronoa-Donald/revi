@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Fonctions de Fenêtrage (Window Functions) &amp;amp; Requêtes Hiérarchiques (CTEs Récursives) | SQL Avancé B3</title>
+<meta name="description" content="Chapitre 4 du cours SQL Avancé B3 : Fonctions analytiques (ROW_NUMBER, RANK, DENSE_RANK, NTILE, LAG, LEAD), clauses OVER (PARTITION BY, ORDER BY), cadrage de fenêtres (ROWS/RANGE BETWEEN), agrégats cumulatifs glissants, expressions de table communes récursives (WITH RECURSIVE), arborescences organisationnelles et détection de cycles hiérarchiques. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-sql/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Fonctions de Fenêtrage (Window Functions) &amp;amp; Requêtes Hiérarchiques (CTEs Récursives) | SQL Avancé B3">
+<meta property="og:description" content="Chapitre 4 du cours SQL Avancé B3 : Fonctions analytiques (ROW_NUMBER, RANK, DENSE_RANK, NTILE, LAG, LEAD), clauses OVER (PARTITION BY, ORDER BY), cadrage de fenêtres (ROWS/RANGE BETWEEN), agrégats cumulatifs glissants, expressions de table communes récursives (WITH RECURSIVE), arborescences organisationnelles et détection de cycles hiérarchiques. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-sqlnav"><div class="b3-sqlnav__in">
+  <a class="b3-sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-sqlnav__sep" aria-hidden="true">/</span>
+  <a class="b3-sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL Avancé B3</a>
+  <div class="b3-sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-sqlwrap">
+<p class="crumb"><a href="../index.html">SQL Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Fonctions de Fenêtrage (Window Functions) &amp; Requêtes Hiérarchiques (CTEs Récursives)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un entrepôt de données d’entreprise ou une application financière, les calculs analytiques — tels que le calcul de rangs commerciaux, les variations de solde de compte au fil de l’eau, les moyennes mobiles sur 7 jours ou la navigation dans un organigramme d’entreprise — s’avèrent extrêmement complexes et inefficaces avec de simples jointures `GROUP BY`. Le standard SQL:2003 a révolutionné l’analytique relationnelle en introduisant les fonctions de fenêtrage (Window Functions) et les Common Table Expressions récursives (`WITH RECURSIVE`). L’ingénieur de données doit maîtriser le découpage partitionné sans écrasement de lignes, la définition précise du cadre d’agrégation (window frame) et la construction rigoureuse de requêtes hiérarchiques composées d’une ancre et d’un terme récursif.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la clause analytique OVER avec ses sous-clauses PARTITION BY et ORDER BY ;</li>
+      <li>différencier avec rigueur les fonctions de classement ROW_NUMBER, RANK et DENSE_RANK sur des ex-æquo ;</li>
+      <li>manipuler les fonctions de décalage temporel LAG() et LEAD() pour calculer des deltas d’une ligne à l’autre ;</li>
+      <li>configurer les cadres d’agrégation mobiles avec ROWS et RANGE BETWEEN pour le calcul de moyennes glissantes ;</li>
+      <li>concevoir des requêtes hiérarchiques avancées grâce aux CTEs récursives (WITH RECURSIVE) pour parcourir des arborescences ;</li>
+      <li>implémenter en Python 3 des simulateurs de classement analytique, de moyennes glissantes et de résolution d’arbres hiérarchiques.</li>
+    </ol>
+  </div>
+
+<h2>1. Les Fonctions de Fenêtrage (Window Functions) & La Clause OVER</h2>
+
+<p>Contrairement à une agrégation classique avec <code>GROUP BY</code> qui regroupe et compresse plusieurs tuples en une ligne unique, une <strong>fonction de fenêtrage</strong> calcule une valeur agrégée ou ordonnée pour chaque ligne tout en <em>conservant l’intégrité et l’identité de chaque ligne individuelle</em> du résultat :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Structure Canonique de la Clause OVER</h4>
+    <pre><code>SELECT id, departement, salaire,
+       AVG(salaire) OVER (
+           PARTITION BY departement
+           ORDER BY date_embauche
+           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS salaire_moyen_cumul
+FROM employes;</code></pre>
+    <ul>
+      <li><strong>PARTITION BY :</strong> Découpe le jeu de données en sous-groupes indépendants (ex: par département). Le calcul redémarre à zéro pour chaque partition.</li>
+      <li><strong>ORDER BY :</strong> Détermine l’ordre d’évaluation séquentielle des tuples au sein de chaque partition.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Fonctions de Classement : ROW_NUMBER, RANK, DENSE_RANK</h4>
+    <p>Sur une série de valeurs décroissantes comportant des ex-æquo (ex: <code>100, 90, 90, 80</code>) :</p>
+    <ul>
+      <li><strong>ROW_NUMBER() :</strong> Attribue un numéro séquentiel unique strict sans ex-æquo (<code>1, 2, 3, 4</code>). Idéal pour la pagination.</li>
+      <li><strong>RANK() :</strong> Attribue le même rang aux valeurs égales, puis <em>saute</em> les rangs suivants (<code>1, 2, 2, 4</code>).</li>
+      <li><strong>DENSE_RANK() :</strong> Attribue le même rang aux ex-æquo sans sauter de rang (<code>1, 2, 2, 3</code>).</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> <strong>Attention à l’ORDER BY implicite dans la clause OVER :</strong> Dès qu’une clause <code>ORDER BY</code> est ajoutée dans un <code>OVER()</code> sans spécifier de cadre explicite, PostgreSQL applique par défaut le cadre <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code>. Cela transforme une somme totale en une somme cumulative ! Pour obtenir la somme globale sur toute la partition, omettez l’<code>ORDER BY</code>.</div>
+
+  </div>
+
+<h2>2. Cadrage de Fenêtres (Window Frames) & Fonctions de Décalage (LAG, LEAD)</h2>
+
+<p>Le cadre de fenêtre (<em>window frame</em>) permet de restreindre l’ensemble des lignes prises en compte par la fonction d’agrégation autour du tuple courant :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Spécification du Cadre : ROWS vs RANGE</h4>
+    <ul>
+      <li><strong>ROWS :</strong> Fonctionne sur le nombre physique de lignes (ex: <code>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</code> prend la ligne courante et les 2 précédentes physiques).</li>
+      <li><strong>RANGE :</strong> Fonctionne sur les valeurs logiques de la colonne triée (les lignes ex-æquo sont traitées en bloc).</li>
+      <li><strong>Bornes courantes :</strong>
+        <ul>
+          <li><code>UNBOUNDED PRECEDING</code> : Depuis le début de la partition.</li>
+          <li><code>CURRENT ROW</code> : Jusqu’à la ligne courante.</li>
+          <li><code>UNBOUNDED FOLLOWING</code> : Jusqu’à la fin de la partition.</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Navigation Relative : LAG, LEAD & NTILE</h4>
+    <pre><code>SELECT date_mesure, valeur,
+       LAG(valeur, 1, 0) OVER (ORDER BY date_mesure) AS val_prec,
+       LEAD(valeur, 1, 0) OVER (ORDER BY date_mesure) AS val_suiv,
+       NTILE(4) OVER (ORDER BY valeur) AS quartile
+FROM metriques;</code></pre>
+    <ul>
+      <li><code>LAG(col, offset, defaut)</code> : Lit la valeur de la ligne située <code>offset</code> positions en arrière.</li>
+      <li><code>LEAD(col, offset, defaut)</code> : Lit la valeur de la ligne située <code>offset</code> positions en avant.</li>
+      <li><code>NTILE(k)</code> : Répartit uniformément les lignes en <code>k</code> compartiments (quantiles).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Expressions de Table Communes Récursives (WITH RECURSIVE)</h2>
+
+<p>Les structures hiérarchiques (arbres organisationnels, nomenclatures de pièces BOM, graphes de dépendances réseau) ne peuvent pas être parcourues en SQL plat sans connaître la profondeur maximale. La commande <code>WITH RECURSIVE</code> permet d’exécuter des requêtes itératives jusqu’à point fixe :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Anatomie d’une CTE Récursive</h4>
+    <pre><code>WITH RECURSIVE hierarchie AS (
+    -- 1. Requête d’ancrage (Point de départ)
+    SELECT id, nom, manager_id, 1 AS niveau,
+           ARRAY[id] AS chemin
+    FROM employes
+    WHERE manager_id IS NULL
+
+    UNION ALL
+
+    -- 2. Terme récursif (Itération)
+    SELECT e.id, e.nom, e.manager_id, h.niveau + 1,
+           h.chemin || e.id
+    FROM employes e
+    JOIN hierarchie h ON e.manager_id = h.id
+    WHERE NOT (e.id = ANY(h.chemin)) -- Anti-boucle
+)
+SELECT * FROM hierarchie ORDER BY niveau, id;</code></pre>
+  </div>
+  <div class="card">
+    <h4>Mécanique Interne du Moteur PostgreSQL</h4>
+    <ol>
+      <li><strong>Initialisation :</strong> Le moteur exécute l’ancre et insère le résultat dans la table intermédiaire de travail (<em>working table</em>) et la table de résultat final.</li>
+      <li><strong>Itération :</strong> Le terme récursif est exécuté en jointure avec la table de travail pour produire une table intermédiaire suivante.</li>
+      <li><strong>Boucle :</strong> Les nouveaux tuples sont injectés dans le résultat final, la working table est remplacée par ces nouveaux tuples.</li>
+      <li><strong>Terminaison :</strong> La récursion s’arrête dès que la working table est vide (point fixe atteint).</li>
+    </ol>
+  </div>
+</div>
+  <div class="box box--danger">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Risque de boucle infinie en cas de cycle :</strong> Si les données contiennent une référence circulaire (ex: A est le manager de B qui est le manager de A), la CTE récursive bouclera indéfiniment jusqu’au crash mémoire ou au timeout. L’utilisation d’un tableau d’identifiants parcourus (<code>ARRAY[id]</code>) avec une condition <code>WHERE NOT (id = ANY(chemin))</code> est impérative pour détecter et couper les cycles !</div>
+
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="sql3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="SERIE vals=100,90,90,80,70">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer ROW_NUMBER, RANK et DENSE_RANK pour chaque valeur
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de fonctions de classement (ROW_NUMBER vs RANK vs DENSE_RANK)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer et comparer les trois fonctions de classement standardisées SQL sur une série de valeurs avec ex-æquo.</p>
+    <div class="lab__brief">Dans la norme SQL analytique, les fonctions de classement ordonnent les lignes au sein d’une fenêtre de partition :
+- `ROW_NUMBER()` : attribue un entier consécutif unique strict ($1, 2, 3, \dots$) sans aucun doublon.
+- `RANK()` : attribue le même rang aux lignes ex-æquo, puis saute les rangs suivants ($1, 2, 2, 4, 5, \dots$).
+- `DENSE_RANK()` : attribue le même rang aux lignes ex-æquo, sans sauter de rang ($1, 2, 2, 3, 4, \dots$).
+
+Entrée :
+`SERIE vals=<v1,v2,...>` (les valeurs sont ordonnées de manière décroissante)
+
+Sortie :
+- Pour chaque élément :
+  `RANK_ROW val=<V> row_num=<N> rank=<R> dense_rank=<D>`
+- Bilan : `SUMMARY total_rows=<N> max_rank=<R> max_dense_rank=<D>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SERIE vals=100,90,90,80,70</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RANK_ROW val=100 row_num=1 rank=1 dense_rank=1
+RANK_ROW val=90 row_num=2 rank=2 dense_rank=2
+RANK_ROW val=90 row_num=3 rank=2 dense_rank=2
+RANK_ROW val=80 row_num=4 rank=4 dense_rank=3
+RANK_ROW val=70 row_num=5 rank=5 dense_rank=4
+SUMMARY total_rows=5 max_rank=5 max_dense_rank=4</pre></div>
+    </div>
+    <p class="lab__note">Les deux notes à 90 partagent le rang 2. RANK saute à 4, DENSE_RANK continue à 3.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Itérer sur la liste triée avec l’indice courant i (1-based pour row_number).</li>
+        <li>Pour RANK : si val == val_precedente, conserver le même rank que le premier ex-æquo ; sinon rank = i.</li>
+        <li>Pour DENSE_RANK : n’incrémenter le rang que lorsque la valeur change.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="CONFIG preceding=2&#10;ROW id=1 val=10&#10;ROW id=2 val=20&#10;ROW id=3 val=30&#10;ROW id=4 val=40">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la fenêtre glissante ROWS BETWEEN k PRECEDING AND CURRENT ROW
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de moyennes et sommes glissantes avec clause d’encadrement</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l’agrégation fenêtrée avec la clause de cadrage ROWS BETWEEN k PRECEDING AND CURRENT ROW.</p>
+    <div class="lab__brief">Dans la clause `OVER (ORDER BY date ROWS BETWEEN k PRECEDING AND CURRENT ROW)` :
+- Pour chaque ligne courante, la fenêtre d’agrégation englobe au maximum les $k$ lignes précédentes plus la ligne courante (soit jusqu’à $k+1$ éléments).
+- On calcule la somme cumulée de la fenêtre et la moyenne mobile arithmétique associée arrondie à 2 décimales.
+
+Entrée :
+- Une ligne définissant la taille de l’historique : `CONFIG preceding=<K>`
+- Des lignes de données : `ROW id=<step> val=<float_val>`
+
+Sortie :
+- Pour chaque ligne : `WINDOW_AGG id=<step> val=<V.2f> sum=<SUM.2f> avg=<AVG.2f> window_size=<COUNT>`
+- En fin de série : `FINAL_METRIC total_rows=<N> last_avg=<LAST_AVG.2f>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CONFIG preceding=2
+ROW id=1 val=10
+ROW id=2 val=20
+ROW id=3 val=30
+ROW id=4 val=40</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>WINDOW_AGG id=1 val=10.00 sum=10.00 avg=10.00 window_size=1
+WINDOW_AGG id=2 val=20.00 sum=30.00 avg=15.00 window_size=2
+WINDOW_AGG id=3 val=30.00 sum=60.00 avg=20.00 window_size=3
+WINDOW_AGG id=4 val=40.00 sum=90.00 avg=30.00 window_size=3
+FINAL_METRIC total_rows=4 last_avg=30.00</pre></div>
+    </div>
+    <p class="lab__note">Pour l’id=4 avec preceding=2, la fenêtre contient [20, 30, 40] : somme=90, moyenne=30.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Maintenir une liste ou deque des k+1 dernières valeurs observées.</li>
+        <li>Pour chaque ligne, sommer les éléments de la fenêtre et diviser par len(fenetre).</li>
+        <li>Formater avec :.2f pour les sommes et moyennes.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="EMP id=1 name=CEO manager=0&#10;EMP id=2 name=CTO manager=1&#10;EMP id=3 name=DevLead manager=2&#10;EMP id=4 name=Dev1 manager=3">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la récursion CTE pour calculer les niveaux, chemins et descendants
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur de résolution de hiérarchie arborescente par CTE récursive</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la profondeur, le chemin absolu et le nombre total de subordonnés dans une structure hiérarchique via une CTE récursive simulée.</p>
+    <div class="lab__brief">Dans SQL standard, la syntaxe `WITH RECURSIVE` permet de parcourir des graphes et arbres hiérarchiques (ex: organigramme d’entreprise, nomenclature de pièces BOM) :
+- Nœud racine (Ancre récursive) : employé dont `manager_id=0` (niveau 1, chemin `/<nom>`).
+- Membre récursif : chaque subordonné direct d’un employé résolu hérite d’un `level = level_manager + 1` et d’un `path = path_manager / <nom>`.
+- Le moteur calcule également pour chaque nœud le nombre total de subordonnés (descendants directs et indirects).
+
+Entrée :
+`EMP id=<int> name=<nom> manager=<int>` (manager=0 pour le sommet de l’arbre)
+
+Sortie :
+- Liste des employés triés par niveau puis par identifiant :
+  `HIERARCHY id=<id> name=<name> level=<L> path=<PATH> subordinates=<COUNT>`
+- Bilan de l’arbre : `TREE_REPORT max_depth=<D> total_nodes=<N>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>EMP id=1 name=CEO manager=0
+EMP id=2 name=CTO manager=1
+EMP id=3 name=DevLead manager=2
+EMP id=4 name=Dev1 manager=3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>HIERARCHY id=1 name=CEO level=1 path=/CEO subordinates=3
+HIERARCHY id=2 name=CTO level=2 path=/CEO/CTO subordinates=2
+HIERARCHY id=3 name=DevLead level=3 path=/CEO/CTO/DevLead subordinates=1
+HIERARCHY id=4 name=Dev1 level=4 path=/CEO/CTO/DevLead/Dev1 subordinates=0
+TREE_REPORT max_depth=4 total_nodes=4</pre></div>
+    </div>
+    <p class="lab__note">Arbre à 4 niveaux : le CEO a 3 subordonnés au total.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Construire un dictionnaire des employés et un graphe direct manager -&gt; [enfants].</li>
+        <li>Identifier la racine (manager=0) pour initialiser la récursion (BFS ou DFS).</li>
+        <li>Pour le compte des subordonnés, une fonction récursive d’exploration du sous-arbre permet de sommer tous les descendants.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle fonction de classement attribue la suite (1, 2, 2, 3) pour quatre éléments dont le 2e et le 3e sont ex-æquo ?</p>
+      <div class="opts">
+        <button class="opt">ROW_NUMBER()</button>
+        <button class="opt">RANK()</button>
+        <button class="opt" data-correct="1">DENSE_RANK()</button>
+        <button class="opt">NTILE(4)</button>
+      </div>
+      <div class="q__exp">DENSE_RANK() attribue le même rang aux éléments ex-æquo sans sauter de valeur dans la suite des entiers consécutifs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que produit la requête SELECT SUM(montant) OVER (ORDER BY date_vente) FROM ventes ?</p>
+      <div class="opts">
+        <button class="opt">La somme totale globale répétée sur chaque ligne</button>
+        <button class="opt" data-correct="1">Une somme cumulative progressive au fur et à mesure des dates</button>
+        <button class="opt">Une erreur de syntaxe car PARTITION BY est obligatoire</button>
+        <button class="opt">La moyenne arithmétique des ventes</button>
+      </div>
+      <div class="q__exp">En présence d’un ORDER BY dans OVER sans clause ROWS, le cadre par défaut devient RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW, calculant un cumul.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle clause permet de calculer une moyenne glissante sur la ligne courante et les 2 lignes physiques précédentes ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</button>
+        <button class="opt">RANGE BETWEEN 2 PRECEDING AND CURRENT ROW</button>
+        <button class="opt">ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING</button>
+        <button class="opt">PARTITION BY 2 ROWS</button>
+      </div>
+      <div class="q__exp">ROWS BETWEEN 2 PRECEDING AND CURRENT ROW sélectionne exactement les 2 tuples physiques précédents et le tuple courant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert le troisième paramètre de la fonction LAG(colonne, décalage, valeur_defaut) ?</p>
+      <div class="opts">
+        <button class="opt">À spécifier le nom de la partition</button>
+        <button class="opt" data-correct="1">À fournir une valeur de substitution si la ligne précédente n’existe pas (à la place de NULL)</button>
+        <button class="opt">À définir le pas d’incrémentation</button>
+        <button class="opt">À indiquer le type de données de sortie</button>
+      </div>
+      <div class="q__exp">Le troisième paramètre de LAG permet de remplacer la valeur NULL retournée pour la toute première ligne de la partition.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une CTE WITH RECURSIVE, quel mot-clé combine traditionnellement l’ancre et le terme récursif ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">UNION ALL</button>
+        <button class="opt">INTERSECT</button>
+        <button class="opt">CROSS JOIN</button>
+        <button class="opt">MERGE</button>
+      </div>
+      <div class="q__exp">UNION ALL combine l’ensemble initial de l’ancre avec les tuples générés à chaque itération par le terme récursif.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment éviter qu’une requête WITH RECURSIVE ne boucle à l’infini dans un graphe contenant des cycles ?</p>
+      <div class="opts">
+        <button class="opt">En désactivant le cache PostgreSQL</button>
+        <button class="opt" data-correct="1">En traçant les identifiants visités dans un tableau et en vérifiant WHERE NOT (id = ANY(chemin))</button>
+        <button class="opt">En remplaçant UNION ALL par UNION</button>
+        <button class="opt">En augmentant la variable work_mem</button>
+      </div>
+      <div class="q__exp">L’accumulation des IDs visités dans un tableau ARRAY permet d’exclure les nœuds déjà visités et d’interrompre la récursion.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre une fonction d’agrégation ordinaire et une fonction de fenêtrage ?</p>
+      <div class="opts">
+        <button class="opt">La fonction de fenêtrage ne peut s’exécuter que la nuit</button>
+        <button class="opt" data-correct="1">La fonction d’agrégation compresse les lignes en une seule, la fonction de fenêtrage conserve chaque ligne</button>
+        <button class="opt">La fonction de fenêtrage ne fonctionne que sur des chaînes de caractères</button>
+        <button class="opt">Aucune différence, ce sont de purs synonymes</button>
+      </div>
+      <div class="q__exp">Une fonction de fenêtrage calcule une valeur pour chaque ligne sans réduire le nombre total de lignes renvoyées par la requête.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie la fonction NTILE(4) appliquée sur une partition de 100 lignes ?</p>
+      <div class="opts">
+        <button class="opt">4 lignes au hasard</button>
+        <button class="opt" data-correct="1">Un numéro de quartile (1, 2, 3 ou 4) affecté à chaque tranche de 25 lignes</button>
+        <button class="opt">Le pourcentage d’avancement de chaque ligne</button>
+        <button class="opt">Le quotient de la division entière par 4</button>
+      </div>
+      <div class="q__exp">NTILE(4) répartit les 100 lignes ordonnées en 4 tranches égales (quartiles) numérotées de 1 à 4.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre RANK() et DENSE_RANK() et fausser les classements d’attribution de récompenses ou de quotas.</li>
+      <li>Oublier que par défaut en présence d’ORDER BY dans OVER(), PostgreSQL applique un cumul progressif plutôt qu’un total.</li>
+      <li>Omettre le garde-fou anti-cycle dans une CTE récursive et provoquer un blocage infini du moteur PostgreSQL.</li>
+      <li>Utiliser RANGE BETWEEN au lieu de ROWS BETWEEN pour des calculs glissants physiques lorsque plusieurs lignes partagent le même timestamp.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>1. Identifier si le problème nécessite une fonction de classement (ROW_NUMBER/RANK), une navigation séquentielle (LAG/LEAD) ou une hiérarchie (WITH RECURSIVE).</li>
+      <li>2. Définir le découpage logique des partitions avec PARTITION BY (ex: par compte, par produit, par région).</li>
+      <li>3. Établir l’ordre chronologique ou de tri strict avec ORDER BY au sein du bloc analytique.</li>
+      <li>4. Préciser le cadre ROWS BETWEEN lorsque vous calculez des moyennes ou sommes mobiles physiques.</li>
+      <li>5. Structurer les CTEs récursives avec une ancre claire (racines WHERE parent IS NULL) et un terme récursif avec jointure.</li>
+      <li>6. Intégrer systématiquement une colonne de profondeur (niveau) et un tableau anti-cycle (path array) pour garantir la terminaison.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les fonctions de fenêtrage calculent des métriques agrégées sans compresser ni faire disparaître les lignes individuelles.</li>
+      <li>ROW_NUMBER génère une numérotation continue stricte, RANK saute des numéros après des ex-æquo, DENSE_RANK ne saute aucun numéro.</li>
+      <li>LAG et LEAD permettent d’accéder sans auto-jointure aux valeurs précédentes et suivantes d’une partition.</li>
+      <li>La clause ROWS BETWEEN définit le cadre physique des lignes mobiles pour le lissage statistique (moyennes mobiles).</li>
+      <li>WITH RECURSIVE résout l’exploration des graphes et des arbres hiérarchiques par point fixe itératif.</li>
+      <li>La prévention des boucles infinies dans les graphes cycliques s’opère par la détection de présence dans un tableau de trace de parcours.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Ai-je bien distingué le besoin entre un GROUP BY (agrégation destructive) et une Window Function (conservatrice de lignes) ?</li>
+      <li>Ai-je choisi entre RANK() et DENSE_RANK() en fonction du traitement souhaité pour les ex-æquo ?</li>
+      <li>Le cadrage ROWS BETWEEN est-il explicitement défini pour éviter le comportement par défaut de RANGE ?</li>
+      <li>Les fonctions LAG() et LEAD() incluent-elles une valeur de remplacement par défaut en cas de NULL ?</li>
+      <li>L’ancre de ma requête WITH RECURSIVE sélectionne-t-elle strictement les nœuds racines ?</li>
+      <li>Un mécanisme de protection anti-cycle (chemin parcouru ou seuil de profondeur MAX) est-il en place ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Clause OVER()</li><li>PARTITION BY & ORDER BY</li><li>ROW_NUMBER(), RANK(), DENSE_RANK()</li><li>LAG() & LEAD()</li><li>Cadres de fenêtre ROWS vs RANGE BETWEEN</li><li>Moyennes glissantes (Moving Averages)</li><li>Common Table Expression récursive (WITH RECURSIVE)</li><li>Détection et rupture de cycles hiérarchiques</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à formuler une clause OVER ou confusion entre agrégation classique et calcul analytique.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de ROW_NUMBER, RANK, LAG et calculs cumulatifs mobiles avec cadrage ROWS.</div>
+      <div class="bandrow bandrow--high">Conception avancée de requêtes hiérarchiques complexes avec WITH RECURSIVE, anti-boucle robuste et calculs analytiques multi-niveaux.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Procédures Stockées PL/pgSQL, Déclencheurs (Triggers) &amp; Row-Level Security (RLS) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

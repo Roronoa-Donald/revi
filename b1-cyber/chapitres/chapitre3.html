@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Authentification, cryptographie, pare-feu | Cybersécurité B1</title>
+<meta name="description" content="Chapitre 3 du cours de Cybersécurité B1 : Mots de passe forts et 2FA, IAM, chiffrement symétrique et asymétrique, hachage, PKI, pare-feu et VPN. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-cyber/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Authentification, cryptographie, pare-feu | Cybersécurité B1">
+<meta property="og:description" content="Chapitre 3 du cours de Cybersécurité B1 : Mots de passe forts et 2FA, IAM, chiffrement symétrique et asymétrique, hachage, PKI, pare-feu et VPN. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="cynav"><div class="cynav__in">
+  <a class="cynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="cynav__sep" aria-hidden="true">/</span>
+  <a class="cynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B1</a>
+  <div class="cynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="cynav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="cywrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Authentification, cryptographie, pare-feu</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un compte à 8 caractères cède en quelques heures ; un compte à 15 avec 2FA n'a jamais cédé. Ce chapitre donne les mécanismes qui séparent les deux : facteurs d'authentification, clés symétriques et asymétriques, hachage, et les gardiens du réseau — pare-feu et VPN.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>appliquer une politique de mots de passe forts et justifier la 2FA ;</li>
+      <li>classer les preuves d'identité en connaissance, possession, inhérence ;</li>
+      <li>calculer pourquoi le symétrique explose en clés et l'asymétrique non ;</li>
+      <li>décrire pare-feu, VPN et protocoles sécurisés comme garde-fous réseau.</li>
+    </ol>
+  </div>
+
+<h2>1. Mots de passe forts et 2FA</h2>
+
+<p>Le mot de passe est la première ligne de défense ; sa faiblesse expose à la force brute (essais systématiques), au dictionnaire (mots courants) et au credential stuffing (réutilisation des fuites). Les recommandations actuelles (ANSSI, NIST) : privilégier la <strong>longueur</strong> (12 à 15 caractères minimum), une <strong>phrase de passe</strong> mémorisable, l'unicité par service — et ne renouveler le mot de passe que sur suspicion de compromission, car l'expiration forcée produit des suites prévisibles (Ete2024!, Automne2024!).</p>\n<p>La <strong>2FA</strong> ajoute une seconde preuve d'identité issue d'une catégorie <em>différente</em> de la première :</p>\n<table>
+    <tr><th>Facteur</th><th>Ce que l'on a</th><th>Exemples</th></tr>
+    <tr><td>Connaissance</td><td>ce que l'on sait</td><td>mot de passe, code PIN</td></tr>
+    <tr><td>Possession</td><td>ce que l'on possède</td><td>smartphone, clé YubiKey, carte à puce</td></tr>
+    <tr><td>Inhérence</td><td>ce que l'on est</td><td>empreinte, visage, iris</td></tr>
+  </table>\n<p>Deux facteurs de la même catégorie (code PIN + mot de passe) ne font pas de la 2FA. Le code TOTP des applications d'authentification change toutes les 30 secondes ; le SMS reste plus fragile car interceptable.</p>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « savoir, avoir, être »</div>
+    <p>Connaissance = <strong>savoir</strong>, possession = <strong>avoir</strong>, inhérence = <strong>être</strong>. La 2FA exige deux catégories différentes : mot de passe (savoir) + application TOTP ou clé (avoir).</p>
+  </div>
+
+<h2>2. IAM : identités et accès</h2>
+
+<p>L'<strong>IAM</strong> (Identity and Access Management) gouverne le cycle de vie des identités : <strong>authentification</strong> (qui es-tu ?) puis <strong>autorisation</strong> (qu'as-tu le droit de faire ?). Les solutions citées en cours : AWS IAM pour le cloud Amazon, Azure Active Directory dans les environnements Microsoft, Okta pour le SaaS, Keycloak en open source.</p>\n<p>Le principe directeur est le <strong>moindre privilège</strong> (PoLP) : chaque utilisateur ne reçoit que les accès strictement nécessaires à sa mission. Il limite l'impact de la compromission d'un compte — l'attaquant entre dans une pièce, pas dans le bâtiment.</p>\n  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-key"></use></svg> Authentification et autorisation : le duo à ne pas inverser</div>
+    <p>L'authentification vérifie l'identité (le badge scanne) ; l'autorisation décide de l'accès (la porte s'ouvre ou non). On s'authentifie toujours AVANT d'être autorisé, jamais l'inverse.</p>
+  </div>
+
+<h2>3. Cryptographie : symétrique, asymétrique, hachage</h2>
+
+<p>Le <strong>chiffrement symétrique</strong> (AES) utilise la même clé pour chiffrer et déchiffrer : rapide, mais chaque paire de machines doit partager un secret. Pour k machines, il faut k(k-1)/2 clés — 6 clés pour 4 machines, plus de 350 pour 27. Le chiffrement <strong>asymétrique</strong> (RSA, ECC) remplace ce problème par une paire clé publique/clé privée : chacun publie sa clé publique, tout le monde chiffre, seul le propriétaire déchiffre. Plus lent, mais il passe à l'échelle — et sert aussi à signer.</p>\n<p>Le <strong>hachage</strong> (SHA-256…) transforme une donnée en empreinte de taille fixe, sans clé et irréversible : il prouve l'<strong>intégrité</strong> (le fichier a-t-il changé ?) et garde les mots de passe en base (on compare des empreintes, jamais les mots de passe en clair). La <strong>PKI</strong> relie une clé publique à une identité par un <strong>certificat numérique</strong> signé par une autorité de certification — c'est le cadenas du navigateur.</p>\n<pre><code>symétrique  : k(k-1)/2 clés secrètes          → 4 machines = 6 clés
+asymétrique : k paires publiques/privées      → 4 machines = 4 paires
+hachage     : empreinte fixe, sans clé        → contrôle d'intégrité</code></pre>\n  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — hacher n'est pas chiffrer</div>
+    <p>Le chiffrement est réversible avec la clé ; le hachage ne l'est jamais. Une question qui parle de « vérifier qu'un fichier n'a pas changé » parle de hachage ; une question qui parle de « garder le secret » parle de chiffrement.</p>
+  </div>
+
+<h2>4. Pare-feu, VPN, protocoles sécurisés</h2>
+
+<p>Le <strong>pare-feu</strong> filtre le trafic réseau selon des règles (adresses, ports, protocoles) : il est la frontière entre zones de confiance. Le <strong>VPN</strong> crée un tunnel chiffré sur un réseau non sûr — obligatoire sur le Wi-Fi public selon la politique de mobilité. Les <strong>protocoles sécurisés</strong> chiffrent le dialogue applicatif : HTTPS pour le Web (TLS sous HTTP), SSH pour l'administration distante, contre FTP et Telnet en clair.</p>\n<p>Les trois se complètent : le pare-feu contrôle <em>ce qui passe</em>, le VPN protège <em>le trajet</em>, HTTPS/SSH protègent <em>la conversation</em>.</p>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « frontière, tunnel, dialogue »</div>
+    <p>Pare-feu = <strong>frontière</strong> (filtre les flux) ; VPN = <strong>tunnel</strong> (protège le trajet entre deux sites) ; HTTPS/SSH = <strong>dialogue</strong> (chiffre la session de bout en bout).</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="cy-c3-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="5&#10;8&#10;3&#10;9&#10;2&#10;5&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+somme=0
+for ((i=0; i<n; i++)); do
+  read -r machines
+  # À compléter : accumuler, puis appliquer la formule de la main à la main.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Compteur de clés</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier par le calcul pourquoi le chiffrement symétrique ne passe pas à l’échelle.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n</strong> puis n valeurs : le nombre de machines de n groupes de travail. Il cumule le total, puis affiche le nombre de clés secrètes nécessaires : <code>symétrique : k(k-1)/2 clés</code> contre <code>asymétrique : 2×k(k-1)/2 clés</code> — soit une paire de clés par machine, avec k le total de machines.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+8
+3
+9
+2
+5
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>symétrique : 351 clés
+asymétrique : 702 clés</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Accumule d’abord : somme=$((somme + machines)), la formule vient après la boucle.</li>
+        <li>k(k-1)/2 s’écrit en Bash : paire=$((somme * (somme - 1) / 2)). L’asymétrique en vaut le double.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c3-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="5&#10;password connaissance&#10;code_totp possession&#10;password possession&#10;code_sms possession&#10;empreinte inherence&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+solides=0
+fragiles=0
+refuses=0
+for ((i=0; i<n; i++)); do
+  read -r preuve categorie
+  # À compléter : ok, fragile ou refusé selon la combinaison.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Vérificateur de 2FA</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la règle des deux facteurs : deux catégories différentes, sinon refus.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « preuve categorie » : preuve vaut <code>password</code>, <code>code_totp</code>, <code>code_sms</code> ou <code>empreinte</code> ; categorie vaut <code>connaissance</code>, <code>possession</code> ou <code>inherence</code>. Le verdict par ligne : <code>ok</code> (password+connaissance, code_totp+possession), <code>fragile</code> (code_sms+possession, SMS interceptable), <code>refusé</code> (toute autre combinaison). Enfin <code>bilan : a solides, b fragile, c refusés</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+password connaissance
+code_totp possession
+password possession
+code_sms possession
+empreinte inherence
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>password connaissance : ok
+code_totp possession : ok
+password possession : refusé
+code_sms possession : fragile
+empreinte inherence : refusé
+bilan : 2 solides, 1 fragile, 2 refusés</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur « $preuve $categorie » avec deux motifs exacts gagne : password\ connaissance) et code_totp\ possession).</li>
+        <li>N’incrémente les compteurs qu’une fois, au moment où le verdict est posé.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c3-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;DAC messagerie&#10;RBAC paie&#10;ACL facture&#10;MAC projet&#10;ABAC archivage&#10;RBAC RH&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+modeles=0
+inconnus=0
+for ((i=0; i<n; i++)); do
+  read -r politique ressource
+  # À compléter : une étiquette par modèle, puis les deux compteurs.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Modèle de contrôle d’accès</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Relier chaque politique d’accès à son mécanisme de décision.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « politique ressource ». Politique : <code>DAC</code> (le propriétaire décide → <code>propriétaire</code>), <code>MAC</code> (politique imposée par le système → <code>politique</code>), <code>RBAC</code> (permissions par rôle → <code>role</code>), <code>ABAC</code> (critères dynamiques → <code>attribut</code>), <code>ACL</code> (liste explicite → <code>liste</code>). Toute autre politique est affichée <code>inconnu</code>. Enfin <code>bilan : a modèles, b inconnus</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+DAC messagerie
+RBAC paie
+ACL facture
+MAC projet
+ABAC archivage
+RBAC RH
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DAC messagerie : propriétaire
+RBAC paie : role
+ACL facture : liste
+MAC projet : politique
+ABAC archivage : attribut
+RBAC RH : role
+bilan : 6 modèles, 0 inconnus</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Cinq motifs exacts dans le case, puis *) pour l’inconnu : l’étiquette se choisit en un seul case.</li>
+        <li>Le bilan se calcule avec un if sur l’étiquette après le echo, pas dans chaque branche du case.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Code PIN + mot de passe, c'est…</p>
+      <div class="opts">
+        <button class="opt">de la 2FA</button>
+        <button class="opt" data-correct="1">du même facteur</button>
+        <button class="opt">de l'inhérence</button>
+      </div>
+      <div class="q__exp">Deux preuves de connaissance : la 2FA exige deux catégories différentes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le code TOTP change…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">toutes les 30 secondes</button>
+        <button class="opt">chaque jour</button>
+        <button class="opt">à chaque connexion</button>
+      </div>
+      <div class="q__exp">Time-based One-Time Password : le code tourne toutes les 30 secondes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L'empreinte digitale est un facteur de…</p>
+      <div class="opts">
+        <button class="opt">connaissance</button>
+        <button class="opt">possession</button>
+        <button class="opt" data-correct="1">inhérence</button>
+      </div>
+      <div class="q__exp">Ce que l'on est : biométrie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour 4 machines en symétrique, il faut…</p>
+      <div class="opts">
+        <button class="opt">4 clés</button>
+        <button class="opt" data-correct="1">6 clés</button>
+        <button class="opt">8 clés</button>
+      </div>
+      <div class="q__exp">k(k-1)/2 = 4×3/2 = 6 clés secrètes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L'avantage de l'asymétrique est…</p>
+      <div class="opts">
+        <button class="opt">la vitesse</button>
+        <button class="opt" data-correct="1">la distribution des clés</button>
+        <button class="opt">la taille des clés</button>
+      </div>
+      <div class="q__exp">Chacun publie sa clé publique : plus besoin d'échanger des secrets pour chaque paire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le hachage sert à…</p>
+      <div class="opts">
+        <button class="opt">garder un secret</button>
+        <button class="opt" data-correct="1">vérifier l'intégrité</button>
+        <button class="opt">accélérer le réseau</button>
+      </div>
+      <div class="q__exp">Empreinte fixe et irréversible : elle prouve que la donnée n'a pas changé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le certificat numérique lie…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">une clé publique à une identité</button>
+        <button class="opt">un mot de passe à un compte</button>
+        <button class="opt">un port à un protocole</button>
+      </div>
+      <div class="q__exp">La PKI signe cette liaison : c'est le rôle de l'autorité de certification.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un Wi-Fi public, la mesure attendue est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">un VPN</button>
+        <button class="opt">un pare-feu local seul</button>
+        <button class="opt">changer de navigateur</button>
+      </div>
+      <div class="q__exp">La politique de mobilité impose le VPN sur les réseaux publics.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Croire que deux secrets font une 2FA</strong> : il faut deux catégories de facteurs.</li>
+      <li><strong>Changer les mots de passe tous les 90 jours</strong> : l'ANSSI et le NIST l'ont abandonné, sauf compromission.</li>
+      <li><strong>Confondre hachage et chiffrement</strong> : l'un prouve l'intégrité, l'autre garde le secret.</li>
+      <li><strong>Négliger le SMS comme second facteur</strong> : interceptable, préférer TOTP ou clé FIDO2.</li>
+      <li><strong>Donner des droits « au cas où »</strong> : le moindre privilège limite la casse d'un compte volé.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Sécuriser un compte en cinq mesures</div>
+    <ol>
+      <li><strong>Longueur d'abord</strong> : phrase de passe de 12 à 15 caractères minimum, unique par service.</li>
+      <li><strong>Gestionnaire de mots de passe</strong> : secrets aléatoires générés, coffre chiffré, remplissage qui refuse les URLs frauduleuses.</li>
+      <li><strong>2FA systématique</strong> : application TOTP ou clé matérielle de préférence au SMS.</li>
+      <li><strong>Moindre privilège</strong> : des accès proportionnés à la mission, révisés aux mouvements de poste.</li>
+      <li><strong>Surveillance des fuites</strong> : alerter si les identifiants apparaissent dans une base piratée, changement immédiat.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Mot de passe : longueur et unicité ; l'expiration forcée produit des suites prévisibles.</li>
+      <li>2FA = deux facteurs de catégories différentes : connaissance, possession, inhérence (savoir, avoir, être).</li>
+      <li>L'IAM gère identités et accès ; l'authentification précède l'autorisation ; le PoLP limite la casse.</li>
+      <li>Symétrique (AES) : k(k-1)/2 clés ; asymétrique (RSA, ECC) : une paire par entité ; hachage : intégrité sans clé.</li>
+      <li>Pare-feu filtre, VPN tunnelise, HTTPS/SSH chiffrent le dialogue.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je justifie une politique de mots de passe avec les recommandations actuelles.</li>
+      <li>Je classe une preuve d'identité dans les trois facteurs.</li>
+      <li>Je calcule les clés symétriques nécessaires et j'explique pourquoi l'asymétrique gagne.</li>
+      <li>Je décris pare-feu, VPN et HTTPS avec leur rôle propre.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>2FA</li><li>facteur de connaissance</li><li>facteur de possession</li><li>facteur d'inhérence</li><li>IAM</li><li>chiffrement symétrique</li><li>clé publique</li><li>hachage</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Rejoue le tableau des trois facteurs et la formule des clés.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Audit ton propre compte : longueur, unicité, second facteur.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : explique symétrique vs asymétrique en quatre phrases.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 4, la sécurité des systèmes et applications.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Sécurité des systèmes et des applications <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Introduction à la Cybersécurité B1 IT 2024-2025 » (modules 1 à 7).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

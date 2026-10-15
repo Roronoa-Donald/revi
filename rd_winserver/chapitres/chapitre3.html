@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Clustering | Windows Server B2</title>
+<meta name="description" content="Chapitre 3 du cours Windows Server B2 : Principe, quorum, et les cinq types de clusters : active-passive, active-active, load balancing, failover, grid. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/rd_winserver/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Clustering | Windows Server B2">
+<meta property="og:description" content="Chapitre 3 du cours Windows Server B2 : Principe, quorum, et les cinq types de clusters : active-passive, active-active, load balancing, failover, grid. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rd_winservernav"><div class="rd_winservernav__in">
+  <a class="rd_winservernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rd_winservernav__sep" aria-hidden="true">/</span>
+  <a class="rd_winservernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B2</a>
+  <div class="rd_winservernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rd_winservernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rd_winserverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Clustering</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Mettre deux serveurs côte à côte ne suffit pas : il faut qu’ils coopèrent. Le clustering regroupe plusieurs nœuds pour qu’ils fonctionnent comme un seul système, avec haute disponibilité, répartition de charge et tolérance aux pannes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir le clustering et ses trois bénéfices ;</li>
+      <li>expliquer le rôle du quorum ;</li>
+      <li>distinguer active-passive, active-active, load balancing, failover et grid ;</li>
+      <li>choisir le type de cluster adapté à un besoin.</li>
+    </ol>
+  </div>
+
+<h2>1. Qu’est-ce qu’un cluster</h2>
+
+<p>Le <strong>clustering</strong> (grappes de serveurs) regroupe plusieurs serveurs, ou <strong>nœuds</strong>, pour qu’ils fonctionnent comme un seul système. Il apporte trois bénéfices :</p>
+<ul>
+  <li>la <strong>haute disponibilité</strong> ;</li>
+  <li>la <strong>répartition de charge</strong> ;</li>
+  <li>la <strong>tolérance aux pannes</strong>.</li>
+</ul>
+<p>Exemple : une boutique en ligne déployée sur trois serveurs en cluster. Si l’un tombe, les autres prennent le relais (failover) et le trafic se répartit (load balancing). Le service ne s’interrompt pas.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-users"></use></svg> Le quorum</div>
+    <p>Dans un cluster, le <strong>quorum</strong> est la majorité des nœuds nécessaire pour décider qui fait quoi. Si le quorum est perdu, le cluster cesse de rendre le service : c’est ce qui évite le « split brain », deux moitiés qui se croient seules.</p>
+  </div>
+
+<h2>2. Active-passive et active-active</h2>
+
+<p><strong>Active-passive</strong> : un ou plusieurs nœuds traitent les requêtes, les autres sont en veille, prêts à prendre le relais. Configuration simple, mais le nœud passif ne travaille pas et la bascule peut être perceptible.</p>
+<p><strong>Active-active</strong> : tous les nœuds sont actifs et partagent les tâches. Meilleure performance et forte tolérance aux pannes, mais la synchronisation est plus délicate.</p>
+<table><thead><tr><th>Type</th><th>Tous actifs ?</th><th>Performance</th><th>Complexité</th></tr></thead><tbody>
+<tr><td>Active-passive</td><td>Non</td><td>Limitée (nœud en veille)</td><td>Faible</td></tr>
+<tr><td>Active-active</td><td>Oui</td><td>Élevée (répartition)</td><td>Élevée</td></tr>
+</tbody></table>
+
+<h2>3. Load balancing et failover</h2>
+
+<p><strong>Load balancing cluster</strong> : un répartiteur de charge distribue les requêtes entre plusieurs serveurs actifs. Idéal pour la performance et la mise à l’échelle horizontale. Limite : ce n’est pas un failover complet, et le répartiteur devient un point critique s’il n’est pas lui-même redondant.</p>
+<p><strong>Failover cluster</strong> : chaque nœud partage un <strong>même espace de stockage</strong> (SAN/NAS). Si un nœud échoue, un autre reprend les services avec le même état. Tolérance aux pannes élevée et cohérence des données, mais dépendance au stockage partagé.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Le répartiteur de charge, point critique</div>
+    <p>Un load balancer unique redevient le point unique de défaillance du service. Pour une vraie HA, il faut le redonder lui aussi.</p>
+  </div>
+
+<h2>4. Grid cluster et tableau récapitulatif</h2>
+
+<p><strong>Grid cluster / compute cluster</strong> : utilisé pour le calcul intensif distribué. Plusieurs nœuds traitent en parallèle des calculs complexes (simulation météo, rendu 3D, intelligence artificielle). Cas d’usage : laboratoires, universités, industrie scientifique.</p>
+<table><thead><tr><th>Type</th><th>Tous actifs ?</th><th>Haute disponibilité</th><th>Usage</th></tr></thead><tbody>
+<tr><td>Active-Passive</td><td>Non</td><td>Oui</td><td>Applications critiques</td></tr>
+<tr><td>Active-Active</td><td>Oui</td><td>Oui</td><td>Performance et disponibilité</td></tr>
+<tr><td>Load Balancing</td><td>Oui</td><td>Oui si redondant</td><td>Sites web, APIs</td></tr>
+<tr><td>Failover</td><td>Non</td><td>Très haute</td><td>Bases de données</td></tr>
+<tr><td>Grid</td><td>Oui</td><td>Souvent non</td><td>Calculs complexes</td></tr>
+</tbody></table>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Un type par besoin</div>
+    <p>Il n’y a pas de « meilleur » cluster : active-passive privilégie la simplicité, active-active la performance, failover la cohérence des données, grid la puissance de calcul. Le bon choix dépend du service à protéger.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ws2-c3-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="4&#10;3">
+  <script type="text/plain" data-lab-starter>$total = [int][Console]::In.ReadLine()
+$enLigne = [int][Console]::In.ReadLine()
+
+# À compléter : tester si $enLigne * 2 dépasse $total,
+# puis afficher "quorum : atteint" ou "quorum : perdu".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Quorum d’un cluster</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer deux valeurs pour décider si un cluster conserve la majorité.</p>
+    <div class="lab__brief"><p>Le script lit le nombre total de <strong>nœuds</strong>, puis le nombre de nœuds <strong>en ligne</strong>. Le quorum est atteint si les nœuds en ligne représentent plus de la moitié du cluster. Affichez <code>quorum : atteint</code> ou <code>quorum : perdu</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>quorum : atteint</pre></div>
+    </div>
+    <p class="lab__note">3 nœuds sur 4 : majorité.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La condition « plus de la moitié » s’écrit ($enLigne * 2 -gt $total).</li>
+        <li>Évitez la division : multiplier par 2 garde des entiers exacts.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws2-c3-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="3&#10;actif&#10;actif&#10;actif">
+  <script type="text/plain" data-lab-starter>$n = [int][Console]::In.ReadLine()
+$actifs = 0
+for ($i = 0; $i -lt $n; $i++) {
+    $etat = [Console]::In.ReadLine()
+    # À compléter : incrémenter $actifs si $etat vaut "actif".
+}
+
+# À compléter : afficher "actifs : X", puis le type de cluster.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Nœuds actifs d’un cluster</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parcourir un ensemble et classer la configuration active-active ou active-passive.</p>
+    <div class="lab__brief"><p>Le script lit un entier <code>n</code>, puis <code>n</code> états de nœuds (<code>actif</code> ou <code>veille</code>). Affichez <code>actifs : X</code>, puis <code>type : active-active</code> si <strong>tous</strong> les nœuds sont actifs, sinon <code>type : active-passive</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+actif
+actif
+actif</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>actifs : 3
+type : active-active</pre></div>
+    </div>
+    <p class="lab__note">Trois nœuds actifs.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le test d’égalité de chaînes s’écrit ($etat -eq "actif").</li>
+        <li>Tous les nœuds sont actifs si $actifs -eq $n.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws2-c3-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="10&#10;3">
+  <script type="text/plain" data-lab-starter>$requetes = [int][Console]::In.ReadLine()
+$serveurs = [int][Console]::In.ReadLine()
+
+# À compléter : calculer la part entière et le reste, puis les afficher.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Restes de la répartition de charge</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Répartir des requêtes et isoler ce qui reste après distribution.</p>
+    <div class="lab__brief"><p>Le script lit le nombre de <strong>requêtes</strong>, puis le nombre de <strong>serveurs</strong>. Affichez <code>par serveur : X</code> (division entière), puis <code>non reparties : Y</code> où <code>Y</code> est le reste non distribué.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10
+3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>par serveur : 3
+non reparties : 1</pre></div>
+    </div>
+    <p class="lab__note">10 requêtes sur 3 serveurs.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La part entière vaut [int]([math]::Floor($requetes / $serveurs)).</li>
+        <li>Le reste se calcule avec l’opérateur modulo % ou par soustraction.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que regroupe un cluster ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Plusieurs serveurs en un seul système</button>
+        <button class="opt">Des fichiers</button>
+        <button class="opt">Des utilisateurs</button>
+      </div>
+      <div class="q__exp">Les nœuds coopèrent comme un ensemble.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Citez un bénéfice du clustering.</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Tolérance aux pannes</button>
+        <button class="opt">Compression</button>
+        <button class="opt">Chiffrement</button>
+      </div>
+      <div class="q__exp">HA, répartition de charge et tolérance aux pannes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un cluster active-passive…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un nœud actif, d’autres en veille</button>
+        <button class="opt">Tous actifs</button>
+        <button class="opt">Aucun nœud actif</button>
+      </div>
+      <div class="q__exp">Le passif prend le relais en cas de panne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Inconvénient d’active-passive ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Sous-utilisation du nœud passif</button>
+        <button class="opt">Aucune tolérance</button>
+        <button class="opt">Trop rapide</button>
+      </div>
+      <div class="q__exp">Le nœud en veille ne travaille pas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un cluster active-active…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Tous les nœuds sont actifs</button>
+        <button class="opt">Un seul nœud travaille</button>
+        <button class="opt">Aucun nœud ne travaille</button>
+      </div>
+      <div class="q__exp">Les nœuds partagent les tâches.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que distribue un load balancer ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les requêtes entre serveurs</button>
+        <button class="opt">Les sauvegardes</button>
+        <button class="opt">Les adresses MAC</button>
+      </div>
+      <div class="q__exp">Il équilibre la charge entre les serveurs actifs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur quoi repose un failover cluster ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un stockage partagé</button>
+        <button class="opt">Un seul disque local</button>
+        <button class="opt">Aucun disque</button>
+      </div>
+      <div class="q__exp">Un autre nœud reprend les services avec le même état.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert un grid cluster ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Au calcul intensif distribué</button>
+        <button class="opt">À héberger un site vitrine</button>
+        <button class="opt">À sauvegarder</button>
+      </div>
+      <div class="q__exp">Plusieurs nœuds calculent en parallèle.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Croire que répartir la charge protège aussi contre une panne : il faut un failover.</li>
+      <li>Laisser le load balancer sans redondance.</li>
+      <li>Configurer un failover cluster sans stockage partagé.</li>
+      <li>Négliger le quorum : perdre la majorité arrête le cluster.</li>
+      <li>Choisir active-active sans maîtriser la synchronisation.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Choisir un type de cluster</div>
+    <ol>
+      <li><strong>Définir</strong> le besoin : disponibilité, performance ou calcul.</li>
+      <li><strong>Choisir</strong> le type : active-passive, active-active, load balancing, failover ou grid.</li>
+      <li><strong>Sécuriser</strong> le quorum et le stockage partagé si nécessaire.</li>
+      <li><strong>Redonder</strong> les points critiques, comme le répartiteur de charge.</li>
+      <li><strong>Valider</strong> la bascule et la répartition en conditions réelles.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un cluster regroupe des nœuds en un seul système.</li>
+      <li>Trois bénéfices : haute disponibilité, répartition de charge, tolérance aux pannes.</li>
+      <li>Active-passive : simple, mais un nœud en veille.</li>
+      <li>Active-active : performant, mais synchronisation complexe.</li>
+      <li>Load balancing, failover (stockage partagé) et grid (calcul) complètent la panoplie.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je définis le clustering et ses bénéfices.</li>
+      <li>Je distingue les cinq types de clusters.</li>
+      <li>J’explique le rôle du quorum.</li>
+      <li>Je choisis un type adapté à un besoin.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>clustering</li><li>nœud</li><li>quorum</li><li>split brain</li><li>active-passive</li><li>active-active</li><li>load balancing</li><li>failover cluster</li><li>grid cluster</li><li>SAN</li><li>NAS</li><li>stockage partagé</li><li>tolérance aux pannes</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les cinq types de clusters.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le tableau récapitulatif.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu choisis le bon type selon le besoin.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : enchaîne sur la maintenance, chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Maintenance de Windows Server <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique RD WinServer (modules 1 à 5 : sauvegarde, haute disponibilité, maintenance, virtualisation/VMware, snapshots/clones).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

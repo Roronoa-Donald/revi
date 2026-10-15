@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Intégration Continue (CI), Stratégies de Branchement &amp;amp; Automatisation des Tests | DevOps B3</title>
+<meta name="description" content="Chapitre 2 du cours DevOps B3 : Fondements de l’Intégration Continue, Trunk-Based Development vs GitFlow, conformité SemVer 2.0.0, pyramide des tests et détection des Flaky Tests. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-devops/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Intégration Continue (CI), Stratégies de Branchement &amp;amp; Automatisation des Tests | DevOps B3">
+<meta property="og:description" content="Chapitre 2 du cours DevOps B3 : Fondements de l’Intégration Continue, Trunk-Based Development vs GitFlow, conformité SemVer 2.0.0, pyramide des tests et détection des Flaky Tests. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-devopsnav"><div class="b3-devopsnav__in">
+  <a class="b3-devopsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-devopsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-devopsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> DevOps B3</a>
+  <div class="b3-devopsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-devopsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-devopswrap">
+<p class="crumb"><a href="../index.html">DevOps B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Intégration Continue (CI), Stratégies de Branchement &amp; Automatisation des Tests</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un projet d’envergure réunissant des dizaines de développeurs, l’intégration tardive des fonctionnalités développées en parallèle provoque systématiquement « l’enfer des fusions » (Merge Hell) : branches Git divergentes pendant plusieurs semaines, conflits insolubles, régressions massives et instabilité chronique du tronc principal. Pour garantir un flux de livraison continu et fiable, l’ingénieur DevOps doit implémenter un pipeline d’Intégration Continue (CI) d’élite : standardiser les conventions de versioning sémantique (SemVer 2.0.0), privilégier le Trunk-Based Development pour minimiser le coût d’intégration, structurer la pyramide des tests automatisés (unitaires, composants, intégration) et éradiquer méthodiquement les tests instables (Flaky Tests) qui corrompent la confiance des équipes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>assimiler les principes fondateurs de l’Intégration Continue selon Martin Fowler et Jez Humble ;</li>
+      <li>comparer de manière critique les stratégies de branchement GitFlow et Trunk-Based Development ;</li>
+      <li>appliquer rigoureusement la norme Semantic Versioning (SemVer 2.0.0) et analyser l’impact des ruptures d’API ;</li>
+      <li>dimensionner et organiser la pyramide des tests logiciels pour optimiser la rapidité du retour d’information ;</li>
+      <li>identifier, isoler et corriger les tests instables (Flaky Tests) dans un pipeline distribué ;</li>
+      <li>développer en Python 3 des analyseurs d’étapes CI, de conformité SemVer et de matrices d’instabilité de tests.</li>
+    </ol>
+  </div>
+
+<h2>1. L’Intégration Continue (CI) : Philosophie &amp; Règles d’Or</h2>
+
+<p>L’<strong>Intégration Continue (Continuous Integration)</strong> est une pratique de développement logiciel formalisée par Martin Fowler et Kent Beck, dans laquelle les membres d’une équipe intègrent leur travail fréquemment (au minimum une fois par jour et idéalement plusieurs fois par jour) sur une branche partagée (le tronc commun). Chaque intégration est automatiquement vérifiée par un serveur de build indépendant exécutant les étapes de compilation, d’analyse statique et de tests automatisés.</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Commit Fréquent sur le Tronc</h4>
+    <p>Chaque développeur pousse ses modifications au moins une fois par jour sur la branche principale. Travailler sur des branches isolées pendant des semaines est l’antithèse de l’intégration continue.</p>
+  </div>
+  <div class="card">
+    <h4>2. Feedback en Moins de 10 Minutes</h4>
+    <p>Le pipeline de validation CI doit retourner son verdict en moins de dix minutes. Un retour trop lent pousse les développeurs à changer de contexte, brisant la concentration et différant les corrections.</p>
+  </div>
+  <div class="card">
+    <h4>3. Règle du Tronc Vert (Stop the Line)</h4>
+    <p>Si le build ou un test échoue sur le tronc (build rouge), la correction de cette rupture devient la priorité absolue de toute l’équipe. Aucun nouveau commit fonctionnel n’est toléré avant réparation.</p>
+  </div>
+</div>
+
+<h2>2. Stratégies de Branchement Git : Trunk-Based vs GitFlow</h2>
+
+<p>Le choix de la stratégie de branchement détermine la fréquence d’intégration et le risque de dérive du code source :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th style="width:20%">Critère</th>
+      <th style="width:40%">GitFlow (Traditionnel)</th>
+      <th style="width:40%">Trunk-Based Development (DevOps d’Élite)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Structure de branches</strong></td>
+      <td>Multiples branches à longue durée de vie : <code>main</code>, <code>develop</code>, <code>release/*</code>, <code>feature/*</code>, <code>hotfix/*</code>.</td>
+      <td>Une seule branche active principale (<code>main</code> ou <code>trunk</code>) et de très courtes branches de travail éphémères (&lt; 24h).</td>
+    </tr>
+    <tr>
+      <td><strong>Durée de vie des branches</strong></td>
+      <td>Plusieurs jours, semaines voire mois.</td>
+      <td>Quelques heures (moins d’une journée de travail).</td>
+    </tr>
+    <tr>
+      <td><strong>Complexité des merges</strong></td>
+      <td>Élevée : risques majeurs de conflits massifs lors de la fusion sur <code>develop</code> ou <code>main</code>.</td>
+      <td>Minimale : fusions minuscules et continues, conflits résolus en quelques secondes.</td>
+    </tr>
+    <tr>
+      <td><strong>Gestion des features incomplètes</strong></td>
+      <td>Conservées sur leur branche jusqu’à finalisation complète.</td>
+      <td>Fusionnées directement sur le tronc mais masquées derrière des <strong>Feature Flags</strong>.</td>
+    </tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le Choix des Équipes Performantes</div>
+<p>Le rapport annuel State of DevOps (DORA) démontre de manière récurrente que les équipes adoptant le <strong>Trunk-Based Development</strong> affichent une fréquence de déploiement nettement supérieure et un taux d’échec des changements (CFR) considérablement inférieur à celles utilisant GitFlow.</p>
+  </div>
+
+<h2>3. Semantic Versioning (SemVer 2.0.0) : La Rigueur Contractuelle</h2>
+
+<p>Pour orchestrer les dépendances logicielles sans régression, la spécification <strong>SemVer 2.0.0</strong> définit une convention universelle structurée sous la forme <code>MAJOR.MINOR.PATCH</code> :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>MAJOR (X.0.0)</h4>
+    <p>Incrémenté lorsqu’une modification introduit une <strong>rupture de compatibilité descendante (Breaking Change)</strong> dans l’API publique. Les applications consommatrices doivent obligatoirement adapter leur code.</p>
+  </div>
+  <div class="card">
+    <h4>MINOR (X.Y.0)</h4>
+    <p>Incrémenté lors de l’ajout de nouvelles fonctionnalités tout en garantissant une <strong>stricte rétrocompatibilité</strong>. Aucun code client existant ne doit être brisé.</p>
+  </div>
+  <div class="card">
+    <h4>PATCH (X.Y.Z)</h4>
+    <p>Incrémenté exclusivement lors de <strong>corrections de bogues rétrocompatibles</strong>. Le comportement contractuel initial est restauré sans altérer les interfaces.</p>
+  </div>
+</div>
+
+<h2>4. La Pyramide des Tests &amp; La Chasse aux Tests Instables (Flaky Tests)</h2>
+
+<p>La pyramide des tests de Mike Cohn fournit le modèle architectural pour concevoir une suite de tests rapide, fiable et économique :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Tests Unitaires (70% du volume)</h4>
+    <p>Ultra-rapides (millisecondes), exécutés en mémoire pure sans base de données ni réseau. Isolent une fonction ou classe unique. Coût de maintenance infime.</p>
+  </div>
+  <div class="card">
+    <h4>Tests d’Intégration (20% du volume)</h4>
+    <p>Vérifient les interactions réelles entre composants (accès base de données, client HTTP, sérialisation). Légèrement plus lents (secondes), indispensables.</p>
+  </div>
+  <div class="card">
+    <h4>Tests End-to-End E2E (10% du volume)</h4>
+    <p>Traversent l’application complète via l’interface utilisateur ou l’API publique. Lourds, fragiles face aux variations de timing, très coûteux en exécution.</p>
+  </div>
+</div>
+<h4 style="margin-top:20px">Le Fléau des Tests Instables (Flaky Tests)</h4>
+<p>Un <strong>Flaky Test</strong> est un test automatisé qui produit des résultats variables (réussite ou échec intermittent) pour un même code source sans modification. Leurs origines sont bien identifiées :</p>
+<ul>
+  <li><strong>Conditions de course (Race Conditions) :</strong> dépendances temporelles aléatoires (<code>sleep(2)</code> au lieu d’attente explicite de signaux) ;</li>
+  <li><strong>Ordre d’exécution et état partagé :</strong> tests qui polluent une base de données sans nettoyage (tearDown déficient) ;</li>
+  <li><strong>Dépendances externes réseau :</strong> requêtes directes vers des services tiers non bouchonnés (mocks/stubs).</li>
+</ul>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Conséquence Psychologique des Flaky Tests</div>
+<p>Les tests instables détruisent le principe fondamental du « Tronc Vert ». Lorsqu’un échec est attribué d’office à un « bogue de test passager » et qu’on relance le pipeline jusqu’à ce qu’il passe, les véritables régressions se faufilent en production sans être détectées. La règle d’or : tout test instable doit être <strong>immédiatement mis en quarantaine</strong> hors du chemin critique du build.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="do3-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="RELEASE version=1.4.2 type=FIX&#10;RELEASE version=1.4.2 type=FEAT&#10;RELEASE version=1.4.2 type=BREAKING">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la version et calculer le bump SemVer
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Incrémenteur de versioning sémantique SemVer 2.0.0 selon Conventional Commits</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la prochaine version d’un livrable logiciel à partir de sa version courante et de la nature du commit selon la spécification SemVer 2.0.0.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations :<br>
+<code>RELEASE version=&lt;M.m.p&gt; type=&lt;BREAKING|FEAT|FIX&gt;</code>.<br>
+Règles de transition SemVer :<br>
+- <code>BREAKING</code> (rupture de compatibilité descendante) : $MAJOR = M + 1$, $MINOR = 0$, $PATCH = 0$<br>
+- <code>FEAT</code> (nouvelle fonctionnalité rétro-compatible) : $MAJOR = M$, $MINOR = m + 1$, $PATCH = 0$<br>
+- <code>FIX</code> (correction de bogue rétro-compatible) : $MAJOR = M$, $MINOR = m$, $PATCH = p + 1$<br><br>
+Afficher :<br>
+<code>SEMVER_BUMP: &lt;M.m.p&gt; + &lt;type&gt; -&gt; &lt;nouvelle_version&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RELEASE version=1.4.2 type=FIX
+RELEASE version=1.4.2 type=FEAT
+RELEASE version=1.4.2 type=BREAKING</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SEMVER_BUMP: 1.4.2 + FIX -&gt; 1.4.3
+SEMVER_BUMP: 1.4.2 + FEAT -&gt; 1.5.0
+SEMVER_BUMP: 1.4.2 + BREAKING -&gt; 2.0.0</pre></div>
+    </div>
+    <p class="lab__note">FIX passe à 1.4.3, FEAT à 1.5.0, BREAKING à 2.0.0.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découper la version avec .split(".") pour manipuler les entiers M, m, p.</li>
+        <li>Un changement BREAKING réinitialise à zéro MINOR et PATCH.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="GATE app=auth_service coverage=85.5 vuln=0 bugs=0 duplicated=1.8&#10;GATE app=payment_api coverage=72.0 vuln=2 bugs=1 duplicated=4.5">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : auditer les métriques du Quality Gate
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Auditeur de seuil de qualité de build CI (Quality Gate SonarQube)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier automatiquement si un code soumis en intégration continue satisfait les exigences de qualité et de sécurité requises pour être fusionné.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard les métriques d'un rapport d'analyse statique :<br>
+<code>GATE app=&lt;nom&gt; coverage=&lt;val&gt; vuln=&lt;nb&gt; bugs=&lt;nb&gt; duplicated=&lt;val&gt;</code>.<br><br>
+Seuils d'acceptation du Quality Gate :<br>
+1. <code>coverage &gt;= 80.0</code> (sinon alerte : <code>COUVERTURE_INSUFFISANTE</code>)<br>
+2. <code>vuln == 0</code> (sinon alerte : <code>VULNERABILITES_DETECTEES</code>)<br>
+3. <code>bugs == 0</code> (sinon alerte : <code>BUGS_CRITIQUES_DETECTES</code>)<br>
+4. <code>duplicated &lt;= 3.0</code> (sinon alerte : <code>DUPLICATION_EXCESSIVE</code>)<br><br>
+Statut global :<br>
+- Si aucune alerte : <code>STATUT=PASSED</code> et <code>MOTIFS=[AUCUN]</code><br>
+- Si une ou plusieurs alertes : <code>STATUT=FAILED</code> et <code>MOTIFS=[&lt;liste ordonnée séparée par virgule&gt;]</code><br><br>
+Afficher :<br>
+<code>QUALITY_GATE: &lt;nom&gt; -&gt; STATUT=&lt;PASSED|FAILED&gt; | MOTIFS=[&lt;motifs&gt;]</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>GATE app=auth_service coverage=85.5 vuln=0 bugs=0 duplicated=1.8
+GATE app=payment_api coverage=72.0 vuln=2 bugs=1 duplicated=4.5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>QUALITY_GATE: auth_service -&gt; STATUT=PASSED | MOTIFS=[AUCUN]
+QUALITY_GATE: payment_api -&gt; STATUT=FAILED | MOTIFS=[COUVERTURE_INSUFFISANTE, VULNERABILITES_DETECTEES, BUGS_CRITIQUES_DETECTES, DUPLICATION_EXCESSIVE]</pre></div>
+    </div>
+    <p class="lab__note">auth_service remplit tous les critères. payment_api échoue sur l’ensemble des seuils.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garder l’ordre exact des motifs en cas de défaillances multiples.</li>
+        <li>Un Quality Gate strict empêche la dette technique de s’infiltrer dans la branche principale.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="STAGE nom=build groupe=NONE duree=45&#10;STAGE nom=unit_tests groupe=test_matrix duree=60&#10;STAGE nom=integration_tests groupe=test_matrix duree=120&#10;STAGE nom=linting groupe=test_matrix duree=30&#10;STAGE nom=package groupe=NONE duree=25">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer la durée totale du pipeline avec parallélisme
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur d’optimisation temporelle de pipeline CI/CD (Parallélisme &amp; Chemin critique)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la durée totale d’exécution d’un pipeline d’intégration et livraison continues en tenant compte des étapes exécutées en parallèle.</p>
+    <div class="lab__brief"><p>Le script lit une suite d'étapes de pipeline :<br>
+<code>STAGE nom=&lt;nom&gt; groupe=&lt;grp|NONE&gt; duree=&lt;sec&gt;</code>.<br><br>
+Règles de synchronisation :<br>
+- Si <code>groupe == NONE</code> : l’étape s’exécute séquentiellement de manière isolée.<br>
+- Si plusieurs étapes consécutives partagent le même identifiant <code>groupe</code> (ex: <code>test_unit</code>, <code>test_e2e</code>, <code>lint</code> avec <code>groupe=tests</code>) : elles s’exécutent simultanément en parallèle. La durée effective de ce bloc parallèle est égale au <strong>maximum</strong> des durées des étapes composant ce groupe : $D_{bloc} = \max(duree_i)$.<br>
+- Les différents blocs s'enchaînent séquentiellement dans l'ordre d'apparition des groupes.<br><br>
+Calculs :<br>
+- Nombre total d'étapes analysées.<br>
+- Nombre de groupes parallèles distincts (différents de NONE).<br>
+- Durée totale du pipeline = somme des durées de tous les blocs.<br><br>
+Afficher :<br>
+<code>PIPELINE_TIMING: STAGES=&lt;nb_stages&gt; | GROUPES_PARALLELES=&lt;nb_groupes&gt; | DUREE_TOTALE=&lt;durée_totale&gt;s</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STAGE nom=build groupe=NONE duree=45
+STAGE nom=unit_tests groupe=test_matrix duree=60
+STAGE nom=integration_tests groupe=test_matrix duree=120
+STAGE nom=linting groupe=test_matrix duree=30
+STAGE nom=package groupe=NONE duree=25</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PIPELINE_TIMING: STAGES=5 | GROUPES_PARALLELES=1 | DUREE_TOTALE=190s</pre></div>
+    </div>
+    <p class="lab__note">build (45s) + max(60, 120, 30 = 120s) + package (25s) = 45 + 120 + 25 = 190s.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Regrouper les étapes par leur nom de groupe pour extraire le temps maximal de chaque groupe parallèle.</li>
+        <li>Paralléliser les suites de tests est le moyen le plus efficace de réduire le temps de feedback CI.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l’intervalle temporel maximal préconisé pour intégrer son code sur le tronc dans une véritable démarche d’Intégration Continue ?</p>
+      <div class="opts">
+        <button class="opt">Une fois par mois à la fin du sprint</button>
+        <button class="opt" data-correct="1">Au minimum une fois par jour (idéalement plusieurs fois par jour)</button>
+        <button class="opt">Uniquement lorsque la fonctionnalité complète est recettée par le client</button>
+        <button class="opt">À chaque fin de trimestre</button>
+      </div>
+      <div class="q__exp">L’Intégration Continue exige des commits fréquents (au moins quotidiens) sur la branche commune pour éviter l’accumulation de divergences et le merge hell.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle caractéristique distingue le Trunk-Based Development de la stratégie GitFlow classique ?</p>
+      <div class="opts">
+        <button class="opt">L’absence totale de système de contrôle de version</button>
+        <button class="opt" data-correct="1">L’utilisation d’une branche principale unique avec des branches de travail très courtes (moins de 24h) et des Feature Flags</button>
+        <button class="opt">L’interdiction formelle d’exécuter des tests automatisés</button>
+        <button class="opt">La conservation de branches de fonctionnalités pendant au moins six mois</button>
+      </div>
+      <div class="q__exp">Le Trunk-Based Development s’appuie sur des branches éphémères fusionnées rapidement sur le tronc principal, les fonctionnalités en cours de développement étant neutralisées via des Feature Flags.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon la spécification SemVer 2.0.0, quelle composante doit être incrémentée lors de la suppression d’un paramètre obligatoire dans une route d’API publique ?</p>
+      <div class="opts">
+        <button class="opt">PATCH</button>
+        <button class="opt">MINOR</button>
+        <button class="opt" data-correct="1">MAJOR</button>
+        <button class="opt">BUILD</button>
+      </div>
+      <div class="q__exp">Supprimer ou modifier un paramètre dans une API publique rompt la compatibilité ascendante pour les clients existants (Breaking Change) : la version MAJOR doit être incrémentée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la répartition approximative recommandée des types de tests dans la pyramide des tests de Mike Cohn ?</p>
+      <div class="opts">
+        <button class="opt">70% E2E, 20% Intégration, 10% Unitaires</button>
+        <button class="opt" data-correct="1">70% Unitaires, 20% Intégration, 10% E2E / UI</button>
+        <button class="opt">33% de chaque type à parts strictement égales</button>
+        <button class="opt">90% manuels, 10% automatisés</button>
+      </div>
+      <div class="q__exp">La pyramide préconise une large base de tests unitaires rapides et isolés (≈70%), complétée par des tests d’intégration (≈20%) et un sommet réduit de tests E2E coûteux (≈10%).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un « Flaky Test » dans un pipeline d’automatisation ?</p>
+      <div class="opts">
+        <button class="opt">Un test écrit en langage Perl déprécié</button>
+        <button class="opt" data-correct="1">Un test qui réussit ou échoue de manière intermittente sur un même code source sans modification</button>
+        <button class="opt">Un test qui prend systématiquement plus d’une heure à s’exécuter</button>
+        <button class="opt">Un test unitaire qui ne teste aucune assertion</button>
+      </div>
+      <div class="q__exp">Un Flaky Test est instable : pour un même commit immuable, il passe ou échoue aléatoirement, souvent à cause de conditions de course (timing) ou d’état externe partagé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la réaction appropriée lorsqu’un test est identifié comme « Flaky » sur le pipeline de CI principal ?</p>
+      <div class="opts">
+        <button class="opt">Relancer en boucle le pipeline jusqu’à ce qu’il devienne vert par hasard</button>
+        <button class="opt" data-correct="1">Mettre immédiatement le test en quarantaine hors du build bloquant et planifier sa correction</button>
+        <button class="opt">Supprimer la suite de tests complète du projet</button>
+        <button class="opt">Désactiver la vérification des tests sur la branche de production</button>
+      </div>
+      <div class="q__exp">La quarantaine évite de bloquer abusivement les déploiements légitimes tout en éliminant l’accoutumance toxique aux faux positifs qui décrédibilise l’outillage CI.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si une librairie passe de la version 1.4.2 à 1.5.0, quel type d’évolution ce changement représente-t-il obligatoirement selon SemVer ?</p>
+      <div class="opts">
+        <button class="opt">Une refonte totale avec rupture de contrat</button>
+        <button class="opt" data-correct="1">L’ajout d’une nouvelle fonctionnalité rétrocompatible sans breaking change</button>
+        <button class="opt">Uniquement la correction d’un bogue de sécurité critique</button>
+        <button class="opt">Une version de pré-développement instable</button>
+      </div>
+      <div class="q__exp">L’incrément MINOR (1.4.2 -> 1.5.0) certifie contractuellement l’ajout de nouvelles capacités logicielles tout en maintenant une compatibilité ascendante absolue.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le seuil de temps recommandé pour qu’un pipeline d’intégration continue retourne son feedback aux développeurs ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Moins de 10 minutes</button>
+        <button class="opt">Environ 4 heures (pendant la pause déjeuner)</button>
+        <button class="opt">24 heures (la nuit suivante)</button>
+        <button class="opt">Une semaine</button>
+      </div>
+      <div class="q__exp">Un retour rapide en moins de 10 minutes permet au développeur de corriger immédiatement le bogue tant que le contexte mental du code modifié est encore parfaitement frais.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Conserver des branches Git de fonctionnalités isolées pendant des semaines en prétendant pratiquer l’Intégration Continue.</li>
+      <li>Relancer en boucle un pipeline de tests défaillant au lieu d’isoler immédiatement un test instable (Flaky Test) en quarantaine.</li>
+      <li>Incrémenter une version MINOR ou PATCH lors de la modification cassante d’un paramètre d’API publique, brisant le contrat SemVer.</li>
+      <li>Inverser la pyramide des tests en automatisant quasi-exclusivement des tests End-to-End ultra-lents et fragiles au détriment des tests unitaires.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Conception d’un Pipeline d’Intégration Continue (CI)</div>
+    <ol>
+      <li>Standardiser les conventions de commits et adopter le Trunk-Based Development avec branches éphémères.</li>
+      <li>Configurer un agent de build automatisé déclenché sur chaque événement push ou pull request.</li>
+      <li>Structurer la pyramide de tests : base massive de tests unitaires rapides, tests d’intégration, et sommet E2E ciblé.</li>
+      <li>Optimiser l’exécution parallèle des jobs pour garantir un feedback complet en moins de 10 minutes.</li>
+      <li>Formaliser les incréments de versions contractuelles selon la norme Semantic Versioning (SemVer 2.0.0).</li>
+      <li>Détecter et isoler immédiatement les tests instables (Flaky Tests) dans une suite de quarantaine non bloquante.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L’Intégration Continue (CI) exige des fusions quotidiennes sur le tronc commun et une validation automatisée.</li>
+      <li>Le Trunk-Based Development surpasse GitFlow en éliminant les fusions douloureuses et les branches à longue durée de vie.</li>
+      <li>SemVer 2.0.0 gouverne la compatibilité : MAJOR pour rupture d’API, MINOR pour ajout rétrocompatible, PATCH pour correctif.</li>
+      <li>La pyramide des tests de Mike Cohn préconise 70% de tests unitaires rapides pour une rétroaction immédiate.</li>
+      <li>Les Flaky Tests dégradent la confiance et doivent être traités sans délai pour préserver la règle du Tronc Vert.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliciter les conditions impératives d’une véritable pratique d’Intégration Continue.</li>
+      <li>Je sais argumenter les bénéfices du Trunk-Based Development par rapport à GitFlow.</li>
+      <li>Je sais déterminer l’incrément SemVer adéquat pour toute modification d’interface logicielle.</li>
+      <li>Je connais les ratios recommandés de la pyramide des tests logiciels.</li>
+      <li>Je sais diagnostiquer les causes courantes de flakiness (conditions de course, état partagé, réseau).</li>
+      <li>Je sais concevoir un workflow d’isolation et de réhabilitation pour un test instable.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Principes de l’Intégration Continue (CI)</li><li>Trunk-Based Development vs GitFlow</li><li>Semantic Versioning (SemVer 2.0.0)</li><li>Breaking Changes &amp; Rétrocompatibilité</li><li>Pyramide des tests (Mike Cohn)</li><li>Tests Unitaires, Intégration, E2E</li><li>Tests instables (Flaky Tests)</li><li>Mise en quarantaine &amp; Règle du Tronc Vert</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la définition de la CI, les règles de SemVer 2.0.0 et la pyramide des tests.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, revoyez les causes de flakiness et les nuances de Trunk-Based Development.</div>
+      <div class="bandrow bandrow--high">8/8 : Excellent ! Vous maîtrisez parfaitement les principes d’intégration continue et de qualification logicielle.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Conteneurisation Docker, Multi-Stage Builds &amp; Infrastructure as Code (IaC) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours CC_Devops.docx, les principes de Continuous Delivery (Jez Humble, David Farley), The Phoenix Project (Gene Kim), les recherches DORA (Accelerate) et les référentiels Site Reliability Engineering de Google.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

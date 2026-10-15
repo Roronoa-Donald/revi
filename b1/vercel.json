@@ -1,0 +1,56 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "buildCommand": "node scripts/build.js",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "server/**"
+    }
+  },
+  "redirects": [
+    {
+      "source": "/:course(algo|c_cpp|python|reseaux|stats|fbd|merise|algebre|ato)/chapitres/:file(chapitre[2-9].html|chapitre[1-9][0-9]+.html|simulateur-examen.html|formules.html|cartes.html)",
+      "missing": [{ "type": "cookie", "key": "auth_token" }],
+      "destination": "/_auth/activate.html?redirect=/:course/chapitres/:file&course=:course",
+      "permanent": false
+    },
+    {
+      "source": "/:course(algo|c_cpp|python|reseaux|stats|fbd|merise|algebre|ato)/exercices/:path+",
+      "missing": [{ "type": "cookie", "key": "auth_token" }],
+      "destination": "/_auth/activate.html?redirect=/:course/exercices/:path&course=:course",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.js" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
+      ]
+    },
+    {
+      "source": "/_auth/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=604800, immutable" }
+      ]
+    },
+    {
+      "source": "/:course(algo|c_cpp|python|reseaux|stats|fbd|merise|algebre|ato)/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, immutable" }
+      ]
+    }
+  ]
+}

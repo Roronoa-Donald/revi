@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Déterminants, applications linéaires et valeurs propres | Algèbre B1</title>
+<meta name="description" content="Chapitre 6 du cours d’algèbre linéaire B1 : Calcul du déterminant, propriétés, noyau et image d’une application linéaire, valeurs propres. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-algebre/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Déterminants, applications linéaires et valeurs propres | Algèbre B1">
+<meta property="og:description" content="Chapitre 6 du cours d’algèbre linéaire B1 : Calcul du déterminant, propriétés, noyau et image d’une application linéaire, valeurs propres. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="alnav"><div class="alnav__in">
+  <a class="alnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="alnav__sep" aria-hidden="true">/</span>
+  <a class="alnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-i-calculator"></use></svg> Algèbre B1</a>
+  <div class="alnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="alnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="alwrap">
+<p class="crumb"><a href="../index.html">Algèbre B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Déterminants, applications linéaires et valeurs propres</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 3 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un logiciel de vision par ordinateur fait pivoter une image : géométriquement, c’est une transformation du plan. Cette transformation est une application linéaire, elle se code par une matrice, et deux questions se posent immédiatement : garde-t-elle l’information (déterminant non nul) et existe-t-il des directions qu’elle ne fait que dilater (valeurs propres) ? Ce dernier chapitre répond à ces deux questions.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>calculer un déterminant 2 × 2 et 3 × 3 par développement ;</li>
+      <li>appliquer les propriétés du déterminant ;</li>
+      <li>définir une application linéaire et déterminer noyau et image ;</li>
+      <li>calculer les valeurs propres d’une matrice 2 × 2.</li>
+    </ol>
+  </div>
+
+<h2>1. Le déterminant : définition et calcul</h2>
+
+<p><strong>Définition.</strong> Le <strong>déterminant</strong> est un nombre associé à toute matrice carrée. On le note <code>det(A)</code> ou <code>|A|</code>. Il mesure en quelque sorte le « volume » du parallélépipède construit sur les lignes de A — et lorsqu’il est nul, ce volume est plat : les lignes sont dépendantes.</p>
+<p><strong>Ordre 2.</strong> La formule est directe :</p>
+<pre><code>     [ a  b ]
+det  [ c  d ]  =  a·d − b·c</code></pre>
+<p><strong>Ordre 3.</strong> On développe selon la première ligne, en alternant les signes <code>+ − +</code> :</p>
+<pre><code>     [ a  b  c ]
+det  [ d  e  f ]  =  a(e·i − f·h) − b(d·i − f·g) + c(d·h − e·g)
+     [ g  h  i ]</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — la règle de Sarrus (ordre 3) et les signes</div>
+    <p>Pour une matrice 3 × 3, la <strong>règle de Sarrus</strong> évite le développement : on recopie les deux premières colonnes à droite, puis on additionne les trois diagonales « descendantes » et on retranche les trois « montantes ».</p>
+    <p>Et pour ne jamais se tromper sur les signes du développement : <strong>« + − + »</strong> le long de la première ligne, comme les cases d’un échiquier.</p>
+  </div>
+<p><strong>Propriétés à connaître par cœur :</strong></p>
+<table>
+    <tr><th>Propriété</th><th>Formule</th></tr>
+    <tr><td>Déterminant d’un produit</td><td><code>det(A · B) = det(A) · det(B)</code></td></tr>
+    <tr><td>Transposée</td><td><code>det(<sup>t</sup>A) = det(A)</code></td></tr>
+    <tr><td>Multiplication par un scalaire</td><td><code>det(k · A) = kⁿ · det(A)</code> (A de taille n)</td></tr>
+    <tr><td>Échange de deux lignes</td><td>le déterminant <strong>change de signe</strong></td></tr>
+    <tr><td>Ajout de k·L<sub>j</sub> à L<sub>i</sub></td><td>le déterminant est <strong>inchangé</strong></td></tr>
+    <tr><td>Ligne ou colonne nulle</td><td><code>det(A) = 0</code></td></tr>
+  </table>
+
+<h2>2. Applications linéaires</h2>
+
+<p><strong>Définition.</strong> Soient E et F deux espaces vectoriels. Une application <code>f : E → F</code> est <strong>linéaire</strong> si elle respecte les deux lois :</p>
+<pre><code>f(u + v) = f(u) + f(v)          (additivité)
+f(k · u) = k · f(u)              (homogénéité)
+
+Les deux se résument en une seule condition :
+f(k·u + v) = k·f(u) + f(v)</code></pre>
+<p><strong>Conséquence immédiate :</strong> une application linéaire envoie toujours le vecteur nul sur le vecteur nul, <code>f(0) = 0</code>. C’est le premier contrôle à faire : si <code>f(0) ≠ 0</code>, l’application n’est pas linéaire.</p>
+<p><strong>Noyau et image.</strong> Deux sous-espaces décrivent complètement une application linéaire :</p>
+<pre><code>ker f = { u ∈ E | f(u) = 0 }        sous-espace de E
+Im f  = { f(u) | u ∈ E }            sous-espace de F
+
+Théorème du rang :   dim(ker f) + dim(Im f) = dim E</code></pre>
+<p>L’injectivité se lit sur le noyau : <code>f</code> est injective si et seulement si <code>ker f = {0}</code>.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> La matrice associée</div>
+    <p>Toute application linéaire de ℝⁿ dans ℝᵖ s’écrit <code>f(X) = A·X</code>, où A est la matrice <code>p × n</code> dont les <em>colonnes</em> sont les images des vecteurs de la base canonique.</p>
+    <p>Exemple : <code>f(x, y, z) = (x + y, y + z)</code> a pour matrice <code>[[1, 1, 0], [0, 1, 1]]</code> — une matrice 2 × 3, conforme au passage de ℝ³ dans ℝ².</p>
+  </div>
+
+<h2>3. Valeurs propres et vecteurs propres</h2>
+
+<p><strong>Définition.</strong> Soit A une matrice carrée. Un réel λ est une <strong>valeur propre</strong> de A s’il existe un vecteur <code>X ≠ 0</code> tel que</p>
+<pre><code>A · X = λ · X</code></pre>
+<p>Le vecteur X est alors un <strong>vecteur propre</strong> associé à λ. Géométriquement, dans la direction de X, la transformation <code>A</code> se réduit à une homothétie de rapport λ : elle ne change pas la direction, seulement la longueur (et éventuellement le sens).</p>
+<p><strong>Comment les trouver ?</strong> L’équation s’écrit <code>(A − λ·I)·X = 0</code>. Comme on cherche <code>X ≠ 0</code>, cette équation n’a de solution non nulle que si la matrice <code>A − λ·I</code> est <em>non inversible</em> :</p>
+<pre><code>det(A − λ·I) = 0        ← polynôme caractéristique</code></pre>
+<p>Pour une matrice 2 × 2, ce déterminant est un polynôme du second degré : on le résout avec le discriminant.</p>
+<p><strong>Exemple complet.</strong> <code>A = [[4, 1], [2, 3]]</code> :</p>
+<pre><code>det(A − λI) = (4 − λ)(3 − λ) − 1·2 = λ² − 7λ + 10 = 0
+Δ = 49 − 40 = 9     ⇒     λ = (7 ± 3)/2
+
+Valeurs propres :  λ₁ = 5      λ₂ = 2</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Pourquoi cela compte en informatique</div>
+    <p>Les valeurs propres servent à mesurer la stabilité d’un système, à comprimer des images (l’analyse en composantes principales ne garde que les grandes valeurs propres), à classer les pages du Web (l’algorithme PageRank cherche un vecteur propre) et à étudier la convergence d’un algorithme itératif. C’est l’outil de réduction d’une matrice.</p>
+  </div>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — oublier que X ≠ 0</div>
+    <p>Le vecteur nul vérifie <code>A·0 = λ·0</code> pour <em>n’importe quel</em> λ : il n’est donc jamais un vecteur propre. Un vecteur propre est par définition non nul — sinon la notion n’aurait aucun sens.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="al-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="1 2 3&#10;4 5 6&#10;7 8 9">
+  <script type="text/plain" data-lab-starter>a, b, c = (int(x) for x in input().split())
+d, e, f = (int(x) for x in input().split())
+g, h, i = (int(x) for x in input().split())
+
+# À compléter : afficher le déterminant (développement selon la première ligne).
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Déterminant d’une matrice 3 × 3</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Développer un déterminant par rapport à la première ligne.</p>
+    <div class="lab__brief"><p>Le programme reçoit trois lignes de trois entiers. Affichez le déterminant de la matrice.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1 2 3
+4 5 6
+7 8 9</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0</pre></div>
+    </div>
+    <p class="lab__note">La troisième ligne est la deuxième plus (1, 1, 1) doublé… le déterminant s’annule.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Développe selon la première ligne en alternant les signes : a(ei − fh) − b(di − fg) + c(dh − eg).</li>
+        <li>Alterner les signes revient à multiplier chaque terme par (−1) puissance la position : + − +.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="4 1&#10;2 3">
+  <script type="text/plain" data-lab-starter>a, b = (int(x) for x in input().split())
+c, d = (int(x) for x in input().split())
+
+# À compléter : afficher les valeurs propres, ou "pas de valeur propre reelle".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Valeurs propres d’une matrice 2 × 2</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Résoudre le polynôme caractéristique λ² − s·λ + p = 0.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux lignes de deux entiers (une matrice 2 × 2). Affichez ses valeurs propres réelles, la plus petite puis la plus grande, chacune arrondie à deux décimales. S’il n’y a pas de valeur propre réelle, affichez <code>pas de valeur propre reelle</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4 1
+2 3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>2.00
+5.00</pre></div>
+    </div>
+    <p class="lab__note">s = 7, p = 10 : λ² − 7λ + 10 = 0 donne 2 et 5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le polynôme caractéristique s’écrit λ² − s·λ + p = 0, où s est la trace et p le déterminant.</li>
+        <li>Le discriminant Δ = s² − 4p décide : négatif, pas de racine réelle ; sinon les racines sont (s ± √Δ)/2.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="1 1 0&#10;0 1 1&#10;1&#10;2&#10;3">
+  <script type="text/plain" data-lab-starter>ligne1 = [int(x) for x in input().split()]
+ligne2 = [int(x) for x in input().split()]
+v = [int(input()) for _ in range(3)]
+
+# À compléter : afficher l’image f(v), deux entiers séparés par un espace.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Image d’un vecteur par une application linéaire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la matrice associée à une application linéaire de ℝ³ dans ℝ².</p>
+    <div class="lab__brief"><p>Le programme reçoit deux lignes de trois entiers (la matrice de l’application <code>f</code>), puis trois lignes donnant les coordonnées d’un vecteur <code>v</code>. Affichez <code>f(v)</code> : deux entiers séparés par un espace.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1 1 0
+0 1 1
+1
+2
+3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>3 5</pre></div>
+    </div>
+    <p class="lab__note">1 + 2 = 3 et 2 + 3 = 5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Chaque coordonnée de f(v) est le produit scalaire d’une ligne de la matrice avec v.</li>
+        <li>La matrice est 2 × 3 : la première ligne donne la première coordonnée, la seconde la deuxième.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que vaut <code>det [[a, b], [c, d]]</code> ?</p>
+      <div class="opts">
+        <button class="opt">ad + bc</button>
+        <button class="opt" data-correct="1">ad − bc</button>
+        <button class="opt">ab − cd</button>
+      </div>
+      <div class="q__exp">Le produit de la diagonale moins le produit de l’anti-diagonale.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que devient le déterminant si l’on échange deux lignes ?</p>
+      <div class="opts">
+        <button class="opt">Il ne change pas</button>
+        <button class="opt" data-correct="1">Il change de signe</button>
+        <button class="opt">Il devient nul</button>
+      </div>
+      <div class="q__exp">L’échange de deux lignes inverse le signe du déterminant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>det(A · B)</code> ?</p>
+      <div class="opts">
+        <button class="opt">det(A) + det(B)</button>
+        <button class="opt" data-correct="1">det(A) · det(B)</button>
+        <button class="opt">det(A) / det(B)</button>
+      </div>
+      <div class="q__exp">Le déterminant est multiplicatif.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une application linéaire vérifie nécessairement…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">f(0) = 0</button>
+        <button class="opt">f(1) = 1</button>
+        <button class="opt">f est croissante</button>
+      </div>
+      <div class="q__exp">Test rapide : si f(0) ≠ 0, l’application n’est pas linéaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une application linéaire est injective si et seulement si…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">son noyau est {0}</button>
+        <button class="opt">son image est E</button>
+        <button class="opt">sa matrice est carrée</button>
+      </div>
+      <div class="q__exp">ker f = {0} ⇔ f injective.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment trouve-t-on les valeurs propres de A ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">en résolvant det(A − λI) = 0</button>
+        <button class="opt">en calculant la trace</button>
+        <button class="opt">en inversant A</button>
+      </div>
+      <div class="q__exp">Les valeurs propres sont les racines du polynôme caractéristique.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Signes du développement</strong> : alterner <code>+ − +</code> sur la ligne de développement.</li>
+      <li><strong>Confondre det(A) = 0 et A = 0</strong> : une matrice non nulle peut être singulière.</li>
+      <li><strong>Oublier <code>det(k·A) = kⁿ·det(A)</code></strong> et écrire simplement <code>k·det(A)</code>.</li>
+      <li><strong>Tester la linéarité sur un exemple</strong> au lieu de la formule générale.</li>
+      <li><strong>Vecteur propre nul</strong> : accepter X = 0, qui n’est jamais un vecteur propre.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Étudier une application linéaire donnée par sa matrice</div>
+    <ol>
+      <li><strong>Vérifier la linéarité</strong> avec <code>f(k·u + v) = k·f(u) + f(v)</code>, ou contrôler <code>f(0) = 0</code>.</li>
+      <li><strong>Écrire la matrice</strong> dont les colonnes sont les images des vecteurs de la base canonique.</li>
+      <li><strong>Déterminer le noyau</strong> en résolvant <code>A·X = 0</code> par échelonnement.</li>
+      <li><strong>Calculer le rang</strong> : il donne <code>dim(Im f)</code>, et le théorème du rang donne <code>dim(ker f)</code>.</li>
+      <li><strong>Conclure</strong> : injective si le noyau est réduit à {0}, surjective si le rang égale la dimension d’arrivée.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>det 2 × 2 : <code>ad − bc</code> ; det 3 × 3 : développement <code>+ − +</code> ou règle de Sarrus.</li>
+      <li><code>det(A·B) = det(A)·det(B)</code>, <code>det(<sup>t</sup>A) = det(A)</code>, <code>det(k·A) = kⁿ·det(A)</code>.</li>
+      <li>Une application linéaire respecte addition et multiplication scalaire, et vérifie <code>f(0) = 0</code>.</li>
+      <li><code>ker f = {u | f(u) = 0}</code>, <code>Im f = {f(u)}</code>, et <code>dim ker f + dim Im f = dim E</code>.</li>
+      <li>Les valeurs propres annulent <code>det(A − λI) = 0</code> ; le vecteur propre associé n’est jamais nul.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je calcule un déterminant 2 × 2 et 3 × 3 sans hésiter.</li>
+      <li>Je connais les propriétés du déterminant, produit et scalaire compris.</li>
+      <li>Je détermine le noyau et l’image d’une application linéaire simple.</li>
+      <li>Je trouve les valeurs propres d’une matrice 2 × 2 par le discriminant.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>déterminant</li><li>règle de Sarrus</li><li>application linéaire</li><li>noyau</li><li>image</li><li>théorème du rang</li><li>valeur propre</li><li>vecteur propre</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends le calcul du déterminant 3 × 3, section 1.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les valeurs propres de l’atelier du chapitre 6.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible le théorème du rang.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise du cours : revois les examens blancs et le projet intégrateur.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de calcul <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les supports B1 d’algèbre linéaire (tomes 1 et 2) et les corrigés de CC1 et CC2.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

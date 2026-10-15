@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Prérequis et architecture des hyperviseurs | Admin VM B2</title>
+<meta name="description" content="Chapitre 2 du cours Admin VM B2 : Extensions CPU, virtualisation imbriquée, pile KVM, plan de données et plan de gestion. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/admin-vm/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Prérequis et architecture des hyperviseurs | Admin VM B2">
+<meta property="og:description" content="Chapitre 2 du cours Admin VM B2 : Extensions CPU, virtualisation imbriquée, pile KVM, plan de données et plan de gestion. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="admin-vmnav"><div class="admin-vmnav__in">
+  <a class="admin-vmnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="admin-vmnav__sep" aria-hidden="true">/</span>
+  <a class="admin-vmnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Admin VM B2</a>
+  <div class="admin-vmnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="admin-vmnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="admin-vmwrap">
+<p class="crumb"><a href="../index.html">Admin VM B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Prérequis et architecture des hyperviseurs</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un hyperviseur ne s’installe pas au hasard : le firmware doit exposer les extensions de virtualisation, et l’architecture sépare clairement le plan de données du plan de gestion. Comprendre ces couches évite bien des erreurs de conception.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>identifier les prérequis matériels (extensions CPU, RAM, I/O, réseau) ;</li>
+      <li>expliquer le rôle du BIOS/UEFI et des extensions ;</li>
+      <li>décrire la pile KVM (noyau, QEMU, libvirt) ;</li>
+      <li>distinguer plan de données et plan de gestion.</li>
+    </ol>
+  </div>
+
+<h2>1. Prérequis matériels</h2>
+
+<p>Quatre éléments conditionnent la virtualisation :</p>
+<ul>
+  <li><strong>Extensions CPU</strong> (VT-x / AMD-V) : base de l’isolation matérielle.</li>
+  <li><strong>RAM</strong> : ressource la plus critique, car partagée sans élasticité entre VM.</li>
+  <li><strong>I/O disque</strong> : limite directe de la réactivité des VM.</li>
+  <li><strong>Réseau</strong> : débit et latence conditionnent migrations et services.</li>
+</ul>
+<p>Le prérequis principal est la <strong>capacité</strong> (CPU, RAM, I/O), pas une marque ou un modèle précis.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Le firmware décide</div>
+    <p>Le BIOS/UEFI expose ou bloque les extensions : sans elles, l’hyperviseur ne peut pas isoler correctement les VM. À côté de VT-x/AMD-V, VT-d/IOMMU isole les accès périphériques, et Secure Boot influence le chargement de certains hyperviseurs.</p>
+  </div>
+
+<h2>2. Virtualisation imbriquée et conflits de couches</h2>
+
+<p>La <strong>virtualisation imbriquée</strong> (nested) exécute un hyperviseur dans une VM. Elle met en évidence la chaîne d’abstraction : matériel → hyperviseur → VM → hyperviseur → VM.</p>
+<p>Elle est utile pour comprendre les couches, pas pour la performance : plus on empile, plus la latence augmente. Elle montre aussi la différence entre isolement logique et limites physiques.</p>
+<p>Sur un OS hôte, plusieurs hyperviseurs peuvent entrer en <strong>conflit</strong> : ils cherchent à contrôler les mêmes extensions CPU. Un seul moteur doit posséder l’accès privilégié au processeur.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Nested en production</div>
+    <p>La virtualisation imbriquée est avant tout <strong>pédagogique</strong>. L’utiliser en production mène à des performances insuffisantes et à des dépendances fragiles.</p>
+  </div>
+
+<h2>3. La pile KVM</h2>
+
+<p>Sur Linux, la virtualisation repose sur trois composants complémentaires :</p>
+<ul>
+  <li><strong>Noyau</strong> : module KVM qui expose les extensions CPU et fournit l’accélération matérielle.</li>
+  <li><strong>QEMU</strong> : crée et exécute les machines virtuelles.</li>
+  <li><strong>Libvirt</strong> : couche de pilotage et d’API qui unifie la gestion.</li>
+</ul>
+<p>Le principe clé : l’accélération matérielle réduit la pénalité de la virtualisation. D’autres architectures (Apple Silicon, ARM) modifient la compatibilité, mais les concepts restent les mêmes.</p>
+
+<h2>4. Architecture d’un hyperviseur</h2>
+
+<p>Un hyperviseur réunit compute, stockage et réseau sous un pilotage central, avec deux plans :</p>
+<ul>
+  <li><strong>Plan de données</strong> : exécution des VM et entrées/sorties.</li>
+  <li><strong>Plan de gestion</strong> : interface, API, rôles et audit.</li>
+</ul>
+<p>Les choix initiaux structurent la suite : stockage (LVM-thin pour la souplesse, ZFS pour la robustesse), réseau (plan IP et segmentation), identité (noms clairs, rôles et périmètres). Le <strong>stockage</strong> est le point de défaillance principal : il conditionne toute la plateforme.</p>
+<p>Un plan de gestion bien conçu applique le <strong>moindre privilège</strong>, journalise les changements et planifie la maintenance. Un hyperviseur non gouverné expose toutes ses VM.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux plans, deux responsabilités</div>
+    <p>Le plan de données fait tourner les VM ; le plan de gestion décide qui peut quoi. Les confondre — administrer depuis le réseau des VM — revient à laisser la porte ouverte sur toute la plateforme.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vm2-c2-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="oui&#10;16">
+  <script type="text/plain" data-lab-starter>$extensions = [Console]::In.ReadLine()
+$ram = [int][Console]::In.ReadLine()
+
+# À compléter : afficher l'état de la virtualisation selon les extensions
+# et la mémoire disponible.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Prérequis de virtualisation</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier les extensions CPU et la mémoire avant de virtualiser.</p>
+    <div class="lab__brief"><p>Le script lit la présence des extensions de virtualisation <code>VT-x / AMD-V</code> (<code>oui</code>/<code>non</code>), puis la mémoire vive disponible en Go. Sans extensions, affichez <code>virtualisation : impossible</code>. Sinon, affichez <code>virtualisation : possible</code> si la RAM atteint 8 Go, sinon <code>ram insuffisante</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>oui
+16</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>virtualisation : possible</pre></div>
+    </div>
+    <p class="lab__note">Extensions présentes, 16 Go de RAM.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Sans extensions CPU, l’hyperviseur ne peut pas isoler les VM : impossible.</li>
+        <li>Avec extensions, vérifiez la RAM : au moins 8 Go.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c2-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="64&#10;4">
+  <script type="text/plain" data-lab-starter>$ramHote = [int][Console]::In.ReadLine()
+$ramVm = [int][Console]::In.ReadLine()
+
+# À compléter : calculer la division entière et afficher "vms possibles : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Nombre de VM tenables par la RAM</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Estimer combien de VM la mémoire de l’hôte peut accueillir.</p>
+    <div class="lab__brief"><p>Le script lit la <strong>RAM de l’hôte</strong> (Go), puis la <strong>RAM prévue par VM</strong> (Go). Affichez <code>vms possibles : X</code> où <code>X</code> est la division entière de la mémoire par celle d’une VM.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>64
+4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>vms possibles : 16</pre></div>
+    </div>
+    <p class="lab__note">64 Go pour des VM de 4 Go.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La RAM est la ressource la plus critique : elle est partagée sans élasticité.</li>
+        <li>Division entière : [int]([math]::Floor($ramHote / $ramVm)).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c2-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="noyau">
+  <script type="text/plain" data-lab-starter>$composant = [Console]::In.ReadLine()
+
+# À compléter : avec un switch, afficher le rôle du composant.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Pile KVM : rôle des composants</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Situer noyau, QEMU et libvirt dans la chaîne d’abstraction Linux.</p>
+    <div class="lab__brief"><p>Le script lit un <strong>composant</strong> de la pile KVM : <code>noyau</code>, <code>qemu</code> ou <code>libvirt</code>. Affichez son rôle : <code>role : extensions CPU</code>, <code>role : execution des VM</code> ou <code>role : pilotage et API</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>noyau</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>role : extensions CPU</pre></div>
+    </div>
+    <p class="lab__note">Le module noyau KVM.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le noyau fournit l’accélération matérielle (extensions CPU).</li>
+        <li>QEMU exécute les VM, libvirt pilote et expose une API.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel prérequis permet l’isolation matérielle ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les extensions CPU</button>
+        <button class="opt">Le clavier</button>
+        <button class="opt">Le DNS</button>
+      </div>
+      <div class="q__exp">VT-x / AMD-V exécutent les instructions privilégiées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle ressource est la plus critique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La RAM</button>
+        <button class="opt">La souris</button>
+        <button class="opt">Le lecteur CD</button>
+      </div>
+      <div class="q__exp">La RAM se partage sans élasticité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait VT-d / IOMMU ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Isole les accès périphériques</button>
+        <button class="opt">Compresse les disques</button>
+        <button class="opt">Route le réseau</button>
+      </div>
+      <div class="q__exp">Il isole les accès matériels directs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La virtualisation imbriquée est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Surtout pédagogique</button>
+        <button class="opt">Plus rapide</button>
+        <button class="opt">Obligatoire en production</button>
+      </div>
+      <div class="q__exp">Empiler des couches augmente la latence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel composant exécute les VM dans KVM ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">QEMU</button>
+        <button class="opt">Libvirt</button>
+        <button class="opt">Le noyau</button>
+      </div>
+      <div class="q__exp">QEMU crée et exécute les VM.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Rôle de libvirt ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pilotage et API</button>
+        <button class="opt">Accélération CPU</button>
+        <button class="opt">Émulation</button>
+      </div>
+      <div class="q__exp">Libvirt unifie la gestion.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel plan exécute les VM ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le plan de données</button>
+        <button class="opt">Le plan de gestion</button>
+        <button class="opt">Le firmware</button>
+      </div>
+      <div class="q__exp">Le plan de données traite l’exécution et les I/O.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le point de défaillance principal ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le stockage</button>
+        <button class="opt">Le clavier</button>
+        <button class="opt">L’écran</button>
+      </div>
+      <div class="q__exp">Toutes les VM reposent sur le stockage.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Croire que la CPU suffit : la RAM limite le nombre de VM.</li>
+      <li>Utiliser la virtualisation imbriquée en production.</li>
+      <li>Laisser plusieurs hyperviseurs se disputer les extensions CPU.</li>
+      <li>Administrer depuis le réseau des VM (plan de gestion exposé).</li>
+      <li>Négliger les I/O disque, qui conditionnent la réactivité.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Préparer et architecturer un hôte</div>
+    <ol>
+      <li><strong>Vérifier</strong> les extensions CPU et le firmware (VT-x/AMD-V, VT-d).</li>
+      <li><strong>Dimensionner</strong> la RAM et les I/O selon les charges.</li>
+      <li><strong>Choisir</strong> la pile (KVM : noyau, QEMU, libvirt) sans conflit de couches.</li>
+      <li><strong>Séparer</strong> plan de données et plan de gestion.</li>
+      <li><strong>Sécuriser</strong> le plan de gestion (moindre privilège, audit).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Prérequis : extensions CPU, RAM, I/O, réseau.</li>
+      <li>Le firmware expose ou bloque les extensions.</li>
+      <li>Nested = pédagogique, plus lent ; conflits possibles entre hyperviseurs.</li>
+      <li>Pile KVM : noyau (CPU), QEMU (VM), libvirt (pilotage).</li>
+      <li>Plan de données (exécution) et plan de gestion (gouvernance).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais les prérequis matériels.</li>
+      <li>J’explique le rôle du BIOS/UEFI.</li>
+      <li>Je décris la pile KVM.</li>
+      <li>Je distingue plan de données et plan de gestion.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>prérequis</li><li>VT-x</li><li>AMD-V</li><li>VT-d</li><li>IOMMU</li><li>Secure Boot</li><li>virtualisation imbriquée</li><li>nested</li><li>KVM</li><li>QEMU</li><li>libvirt</li><li>plan de données</li><li>plan de gestion</li><li>stockage</li><li>compute</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les prérequis matériels.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur la pile KVM.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu architectures un hôte proprement.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au cycle de vie des VM, chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Cycle de vie et ressources des VM <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique Admin VM (modules 1 à 7 : introduction, prérequis, architecture, cycle de vie, stockage, réseau, administration avancée).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

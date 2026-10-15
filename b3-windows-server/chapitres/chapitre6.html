@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Administration Avancée PowerShell, Sauvegardes VSS &amp;amp; Tolérance aux Pannes | Windows Server B3</title>
+<meta name="description" content="Chapitre 6 du cours Windows Server B3 : Automatisation d’administration système avec PowerShell 5.1/7 et cmdlets d’infrastructure, administration à distance sécurisée PowerShell Remoting (WinRM, sessions interactives et Invoke-Command distribué), stratégie de sauvegardes bare-metal d’entreprise avec Windows Server Backup (wbadmin) et architecture VSS (Requestor, Writer, Provider), clusters de basculement Windows Server Failover Clustering (WSFC), modèle mathématique de calcul du quorum (majorité absolue, témoins Disk, File Share et Cloud Witness) et prévention absolue du Split-Brain. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-windows-server/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Administration Avancée PowerShell, Sauvegardes VSS &amp;amp; Tolérance aux Pannes | Windows Server B3">
+<meta property="og:description" content="Chapitre 6 du cours Windows Server B3 : Automatisation d’administration système avec PowerShell 5.1/7 et cmdlets d’infrastructure, administration à distance sécurisée PowerShell Remoting (WinRM, sessions interactives et Invoke-Command distribué), stratégie de sauvegardes bare-metal d’entreprise avec Windows Server Backup (wbadmin) et architecture VSS (Requestor, Writer, Provider), clusters de basculement Windows Server Failover Clustering (WSFC), modèle mathématique de calcul du quorum (majorité absolue, témoins Disk, File Share et Cloud Witness) et prévention absolue du Split-Brain. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-windows-servernav"><div class="b3-windows-servernav__in">
+  <a class="b3-windows-servernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-windows-servernav__sep" aria-hidden="true">/</span>
+  <a class="b3-windows-servernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B3</a>
+  <div class="b3-windows-servernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-windows-servernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-windows-serverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Administration Avancée PowerShell, Sauvegardes VSS &amp; Tolérance aux Pannes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans une infrastructure d’entreprise mature, l’administration manuelle via des interfaces graphiques est proscrite au profit de l’automatisation par scripts et de la haute disponibilité. Un administrateur système en Bachelor 3 doit être capable de piloter des centaines de serveurs à distance via PowerShell Remoting sans jamais ouvrir de session RDP interactive, de garantir la continuité d’activité grâce à des politiques de sauvegarde bare-metal imperméables aux ransomwares via les clichés instantanés VSS, et d’orchestrer des clusters de basculement (Failover Clustering) garantissant un taux de disponibilité supérieur à 99,99 %. Si la formule de quorum n’est pas maîtrisée, une panne de réseau local peut scinder le cluster et provoquer le phénomène catastrophique de Split-Brain (corruption irrémédiable des données par écritures concurrentes). Ce module final scelle l’expertise opérationnelle de l’ingénieur système sous Windows Server.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser le pipeline et les cmdlets avancées des modules ActiveDirectory, Hyper-V et NetTCPIP sous PowerShell 5.1/7 ;</li>
+      <li>configurer et auditer l’administration à distance via PowerShell Remoting (protocole WS-Management, ports WinRM 5985/5986, Invoke-Command) ;</li>
+      <li>concevoir une politique de sauvegarde bare-metal d’entreprise avec Windows Server Backup (wbadmin) et dimensionner le stockage de rétention ;</li>
+      <li>disséquer le fonctionnement tripartite de l’architecture VSS (Volume Shadow Copy Service : Requestor, Writer et Provider) ;</li>
+      <li>calculer mathématiquement le quorum d’un cluster de basculement (WSFC) et arbitrer le choix du témoin (Disk, File Share, Cloud Witness) ;</li>
+      <li>implémenter en Python 3 des parseurs de syntaxe PowerShell, des calculateurs de quorum de cluster et des planificateurs de volumétrie de sauvegarde.</li>
+    </ol>
+  </div>
+
+<h2>1. Automatisation Système et Administration à Distance (WinRM)</h2>
+
+<p>PowerShell est l’outil régalien de l’ingénieur système pour automatiser le cycle de vie de l’infrastructure et administrer le parc à grande échelle :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Architecture de PowerShell Remoting (WinRM)</h4>
+    <p>Basé sur le protocole standardisé <strong>WS-Management (WS-Man)</strong> et le service Windows Remote Management (WinRM) :</p>
+    <ul>
+      <li><strong>Ports d’écoute :</strong> port TCP <code>5985</code> en HTTP chiffré par Kerberos en environnement de domaine, et port TCP <code>5986</code> en HTTPS avec certificat SSL/TLS.</li>
+      <li><strong>Session interactive 1:1 :</strong> <code>Enter-PSSession -ComputerName srv01</code> ouvre un shell distant équivalent à SSH.</li>
+      <li><strong>Exécution distribuée 1:N :</strong> <code>Invoke-Command -ComputerName (Get-ADComputer -Filter *).Name -ScriptBlock { Get-Service wuauserv }</code> exécute une commande en parallèle sur des centaines de serveurs.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Modules Fondamentaux d’Infrastructure</h4>
+    <table class="table">
+      <thead><tr><th>Module</th><th>Rôle</th><th>Cmdlets Clés</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ActiveDirectory</strong></td><td>Objets d’annuaire</td><td><code>New-ADUser</code>, <code>Set-ADUser</code>, <code>Get-ADGroup</code>, <code>Search-ADAccount</code></td></tr>
+        <tr><td><strong>Hyper-V</strong></td><td>Machines virtuelles</td><td><code>Get-VM</code>, <code>Set-VMMemory</code>, <code>Checkpoint-VM</code>, <code>Export-VM</code></td></tr>
+        <tr><td><strong>NetTCPIP</strong></td><td>Réseau &amp; routage</td><td><code>Get-NetIPAddress</code>, <code>New-NetRoute</code>, <code>Test-NetConnection</code></td></tr>
+        <tr><td><strong>ServerManager</strong></td><td>Rôles &amp; fonctionnalités</td><td><code>Install-WindowsFeature</code>, <code>Get-WindowsFeature</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h2>2. Sauvegardes d’Entreprise et Architecture VSS (Volume Shadow Copy)</h2>
+
+<p>La protection contre les ransomwares et les pannes matérielles repose sur la coordination du service <strong>Volume Shadow Copy (VSS)</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Modèle Tripartite de VSS</h4>
+    <ol>
+      <li><strong>VSS Requestor (Le Demandeur) :</strong> logiciel de sauvegarde (ex. <code>wbadmin.exe</code>, Veeam Backup) qui initie la requête de cliché instantané.</li>
+      <li><strong>VSS Writer (Le Rédacteur) :</strong> composant intégré à chaque application (Active Directory NTDS Writer, Microsoft Exchange Writer, SQL Server Writer). Il vide les caches mémoire sur disque et gèle temporairement les transactions pendant quelques millisecondes.</li>
+      <li><strong>VSS Provider (Le Fournisseur) :</strong> composant de stockage (logiciel dans NTFS ou matériel dans une baie SAN) qui capture le cliché différentiel instantané (Copy-on-Write) sur le volume.</li>
+    </ol>
+    <p>Ce mécanisme permet de sauvegarder des bases de données en production sans jamais interrompre le travail des utilisateurs ni subir d’incohérence.</p>
+  </div>
+  <div class="card">
+    <h4>Types de Sauvegardes & Stratégie Bare-Metal</h4>
+    <ul>
+      <li><strong>Sauvegarde de l’état du système (System State) :</strong> sauvegarde la base Active Directory (ntds.dit), le registre, SYSVOL et la base de données COM+.</li>
+      <li><strong>Sauvegarde Bare-Metal (BMR) :</strong> inclut l’ensemble des volumes requis pour reconstruire le serveur à partir de zéro sur une machine physique neuve.</li>
+      <li><strong>Dimensionnement de rétention :</strong> une politique combinant une sauvegarde complète (Full) hebdomadaire et des sauvegardes incrémentales (Incremental) quotidiennes avec une réserve d’overhead VSS de 15 % garantit un RPO et RTO conformes aux SLAs d’entreprise.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Clustering de Basculement (WSFC) & Formules de Quorum</h2>
+
+<p>Pour garantir la haute disponibilité sans point unique de défaillance (SPOF), le rôle <strong>Failover Clustering</strong> regroupe plusieurs serveurs physiques :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Modèle Mathématique du Quorum</h4>
+    <p>Le quorum détermine si le cluster détient la légitimité pour rester en ligne en cas de défaillance :</p>
+    <ul>
+      <li>Chaque nœud actif dispose de <strong>1 voix</strong> ($V_{\text{node}} = 1$).</li>
+      <li>Un témoin de quorum (Witness) apporte <strong>1 voix</strong> de départage ($V_{\text{witness}} = 1$).</li>
+      <li><strong>Nombre total de voix :</strong> $N_{\text{total}} = \sum V_{\text{nodes}} + V_{\text{witness}}$.</li>
+      <li><strong>Majorité absolue requise :</strong> $\text{Quorum} = \lfloor N_{\text{total}} / 2 \rfloor + 1$.</li>
+      <li>Si les voix actives sont $\ge \text{Quorum}$, le cluster reste en ligne (<code>QUORUM_OK</code>). Sinon, il s’arrête immédiatement pour protéger les données.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Prévention du Split-Brain & Choix du Témoin</h4>
+    <ul>
+      <li><strong>Phénomène de Split-Brain :</strong> si le réseau de communication inter-nœuds (Heartbeat) se rompt sans quorum, deux sous-groupes de serveurs croiraient l’autre mort et tenteraient d’écrire simultanément sur le stockage partagé, corrompant irrémédiablement les données.</li>
+      <li><strong>Témoin de disque (Disk Witness) :</strong> LUN partagée sur baie SAN/iSCSI réservée au cluster.</li>
+      <li><strong>Témoin de partage de fichiers (File Share Witness) :</strong> partage SMB distant sur un serveur tiers.</li>
+      <li><strong>Témoin Cloud (Cloud Witness) :</strong> stockage Blob Azure, éliminant tout besoin de troisième site physique.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ws3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="POWERSHELL New-ADUser -Name &quot;Alice Smith&quot; -SamAccountName asmith -Enabled $true&#10;POWERSHELL Set-ADUser -Department &quot;Finance&quot;">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la syntaxe des cmdlets PowerShell Active Directory
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Analyseur syntaxique de commandes PowerShell d’administration Active Directory</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider la présence des paramètres obligatoires dans les commandes PowerShell d’administration d’annuaire AD DS.</p>
+    <div class="lab__brief">L’administration automatisée d’un contrôleur de domaine s’appuie sur les cmdlets officielles du module ActiveDirectory :
+- `New-ADUser` : paramètres obligatoires = `-Name`, `-SamAccountName`.
+- `Set-ADUser` : paramètre obligatoire = `-Identity`.
+- `New-ADGroup` : paramètres obligatoires = `-GroupCategory`, `-GroupScope`, `-Name`.
+
+Règles de validation :
+1. Si la commande commence par l’une de ces 3 cmdlets, vérifier que tous les paramètres obligatoires sont présents.
+2. Si tous les paramètres obligatoires sont présents :
+   `CMD_STATUS cmdlet=<NAME> result=VALIDE params_count=<N>` (où N = nombre total de paramètres préfixés par `-`).
+3. Si au moins un paramètre obligatoire est absent :
+   `CMD_STATUS cmdlet=<NAME> result=INVALIDE manquant=<PARAM>` (le premier paramètre obligatoire manquant dans l’ordre alphabétique).
+
+Entrée :
+`POWERSHELL <CMDLET> -<PARAM1> <VAL1> -<PARAM2> <VAL2> ...` (1 ou plusieurs)
+
+Sortie :
+- Pour chaque ligne :
+  `CMD_STATUS cmdlet=<NAME> result=<VALIDE|INVALIDE> ...`
+- Bilan :
+  `SUMMARY total_cmds=<N> valides=<V> invalides=<I>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POWERSHELL New-ADUser -Name "Alice Smith" -SamAccountName asmith -Enabled $true
+POWERSHELL Set-ADUser -Department "Finance"</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CMD_STATUS cmdlet=New-ADUser result=VALIDE params_count=3
+CMD_STATUS cmdlet=Set-ADUser result=INVALIDE manquant=-Identity
+SUMMARY total_cmds=2 valides=1 invalides=1</pre></div>
+    </div>
+    <p class="lab__note">New-ADUser a -Name et -SamAccountName (VALIDE). Set-ADUser omet son paramètre obligatoire -Identity (INVALIDE).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Créer un dictionnaire listant les paramètres obligatoires pour chaque cmdlet.</li>
+        <li>Extraire tous les jetons commençant par un tiret (-) pour former la liste des paramètres fournis.</li>
+        <li>Comparer les ensembles de paramètres et ordonner les manquants par ordre alphabétique.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="NODE id=NODE-01 vote=1 status=ONLINE&#10;NODE id=NODE-02 vote=1 status=ONLINE&#10;NODE id=NODE-03 vote=1 status=OFFLINE&#10;WITNESS type=CLOUD status=ONLINE">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer le quorum et vérifier la majorité absolue
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de quorum de cluster de basculement (Failover Clustering)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la majorité absolue des voix et vérifier le maintien du quorum dans un cluster Windows Server en cas de panne de nœuds.</p>
+    <div class="lab__brief">Dans un cluster de basculement (WSFC - Windows Server Failover Clustering), le modèle de Quorum garantit la cohérence du cluster :
+- `NODE id=<NOM> vote=<0|1> status=<ONLINE|OFFLINE>` : chaque nœud ayant `vote=1` détient 1 voix.
+- `WITNESS type=<DISK|CLOUD|FILE_SHARE|NONE> status=<ONLINE|OFFLINE>` : si `type != NONE`, le témoin apporte 1 voix de départage.
+
+Règles de Quorum officielles Microsoft :
+1. Total des voix configurées : `total_votes = sum(votes des nœuds) + (1 si witness != NONE sinon 0)`.
+2. Majorité absolue requise : `required_majority = (total_votes // 2) + 1`.
+3. Voix actives : `active_votes = sum(voix des nœuds avec vote=1 et status=ONLINE) + (1 si witness != NONE et status=ONLINE sinon 0)`.
+4. État du cluster : si `active_votes >= required_majority` -> `QUORUM_OK` ; sinon -> `PERTE_QUORUM`.
+
+Entrée :
+`NODE id=<NOM> vote=<0|1> status=<ONLINE|OFFLINE>` (1 ou plusieurs)
+`WITNESS type=<DISK|CLOUD|FILE_SHARE|NONE> status=<ONLINE|OFFLINE>`
+
+Sortie :
+- Ligne d’analyse du quorum :
+  `QUORUM_ANALYSIS total_votes=<T> required_majority=<M> active_votes=<A> cluster_status=<QUORUM_OK|PERTE_QUORUM>`
+- Bilan de disponibilité :
+  `SUMMARY nodes_online=<N_ON> nodes_offline=<N_OFF> witness_status=<WITNESS_STATUT>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NODE id=NODE-01 vote=1 status=ONLINE
+NODE id=NODE-02 vote=1 status=ONLINE
+NODE id=NODE-03 vote=1 status=OFFLINE
+WITNESS type=CLOUD status=ONLINE</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>QUORUM_ANALYSIS total_votes=4 required_majority=3 active_votes=3 cluster_status=QUORUM_OK
+SUMMARY nodes_online=2 nodes_offline=1 witness_status=ONLINE</pre></div>
+    </div>
+    <p class="lab__note">4 voix configurées (3 nœuds + 1 témoin). Majorité requise = 4//2 + 1 = 3 voix. 3 voix actives (2 nœuds + témoin) : le quorum est maintenu.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Compter les voix configurées (nœuds avec vote=1 + 1 si witness présent).</li>
+        <li>Calculer la majorité avec total_votes // 2 + 1.</li>
+        <li>Additionner les voix en ligne et comparer au seuil de majorité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="SOURCE_VOL letter=D size_gb=500 daily_change_gb=20&#10;POLICY retention_weeks=4">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer la volumétrie des sauvegardes et le stockage cible
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Planificateur de sauvegardes Windows Server Backup (VSS Full vs Incremental)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la capacité de stockage cible pour un cycle de sauvegarde hebdomadaire (VSS Full + Incrémentales) avec overhead de 15%.</p>
+    <div class="lab__brief">Dans l’outil de sauvegarde Windows Server Backup (wbadmin), la volumétrie s’articule autour de clichés instantanés VSS :
+- Volume source : `SOURCE_VOL letter=<L> size_gb=<S> daily_change_gb=<C>`
+- Période de rétention : `POLICY retention_weeks=<W>`
+
+Formules de dimensionnement du stockage de sauvegarde :
+1. Cycle hebdomadaire (1 sauvegarde complète le jour 1 + 6 sauvegardes incrémentales) :
+   `cycle_hebdo_gb = size_gb + (6 * daily_change_gb)`
+2. Données brutes sur $W$ semaines de rétention :
+   `raw_backup_gb = W * cycle_hebdo_gb`
+3. Réserve de surcharge VSS (Overhead de +15%) :
+   `vss_overhead_15pct = round(raw_backup_gb * 0.15, 1)`
+4. Capacité cible recommandée finale :
+   `final_target_gb = round(raw_backup_gb * 1.15, 1)`
+
+Entrée :
+`SOURCE_VOL letter=<L> size_gb=<S> daily_change_gb=<C>`
+`POLICY retention_weeks=<W>`
+
+Sortie :
+- Profil du cycle hebdomadaire :
+  `VOL_PLAN letter=<L> full_backup_gb=<S> week_inc_gb=<6*C> cycle_hebdo_gb=<CYCLE>`
+- Dimensionnement de la cible de stockage :
+  `TARGET_STORAGE weeks=<W> raw_backup_gb=<RAW> vss_overhead_15pct=<OVERHEAD> final_target_gb=<FINAL>`
+- Bilan :
+  `SUMMARY retention_days=<7*W> storage_recommande_gb=<FINAL>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SOURCE_VOL letter=D size_gb=500 daily_change_gb=20
+POLICY retention_weeks=4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VOL_PLAN letter=D full_backup_gb=500 week_inc_gb=120 cycle_hebdo_gb=620
+TARGET_STORAGE weeks=4 raw_backup_gb=2480 vss_overhead_15pct=372.0 final_target_gb=2852.0
+SUMMARY retention_days=28 storage_recommande_gb=2852.0</pre></div>
+    </div>
+    <p class="lab__note">1 semaine = 500 Go Full + 120 Go Incrémentales = 620 Go. 4 semaines = 2480 Go bruts. Avec 15% VSS = 2852.0 Go.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer week_inc = 6 * daily_change_gb.</li>
+        <li>Calculer cycle = size_gb + week_inc, puis multiplier par retention_weeks.</li>
+        <li>Appliquer l’overhead de 15% et arrondir à 1 décimale.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel protocole réseau sous-jacent est utilisé par PowerShell Remoting pour la communication distante ?</p>
+      <div class="opts">
+        <button class="opt">SSH uniquement</button>
+        <button class="opt" data-correct="1">WS-Management (WS-Man) via le service WinRM</button>
+        <button class="opt">Telnet sur le port 23</button>
+        <button class="opt">SNMPv1</button>
+      </div>
+      <div class="q__exp">PowerShell Remoting repose sur le protocole standardisé WS-Management implémenté par le service système WinRM.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le port TCP d’écoute par défaut de WinRM en environnement de domaine Active Directory (HTTP avec chiffrement Kerberos) ?</p>
+      <div class="opts">
+        <button class="opt">Port 80</button>
+        <button class="opt">Port 443</button>
+        <button class="opt" data-correct="1">Port 5985</button>
+        <button class="opt">Port 3389</button>
+      </div>
+      <div class="q__exp">Le port TCP 5985 est le port standard de WinRM HTTP (le port 5986 étant réservé à HTTPS avec certificat SSL dédié).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’architecture VSS, quel rôle remplit le composant « VSS Writer » ?</p>
+      <div class="opts">
+        <button class="opt">Il écrit les données sur la bande magnétique</button>
+        <button class="opt" data-correct="1">Il suspend brièvement les transactions de l’application et vide les caches pour assurer la cohérence des données</button>
+        <button class="opt">Il facture les licences de sauvegarde à l’entreprise</button>
+        <button class="opt">Il chiffre le disque avec BitLocker</button>
+      </div>
+      <div class="q__exp">Le VSS Writer appartient à l’application (AD DS, SQL Server) et prépare celle-ci en figeant temporairement les écritures pendant la création du cliché.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un cluster à 3 nœuds physiques sans témoin, combien de voix composent le quorum et quelle est la majorité requise ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">3 voix au total, majorité de 2 voix</button>
+        <button class="opt">3 voix au total, majorité de 3 voix</button>
+        <button class="opt">2 voix au total, majorité de 1 voix</button>
+        <button class="opt">4 voix au total, majorité de 3 voix</button>
+      </div>
+      <div class="q__exp">Chaque nœud a 1 voix (total = 3). La majorité absolue est égale à $\lfloor 3 / 2 \rfloor + 1 = 2$ voix.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel risque critique le mécanisme de quorum empêche-t-il formellement dans un cluster de basculement ?</p>
+      <div class="opts">
+        <button class="opt">Le dépassement de la mémoire vive</button>
+        <button class="opt" data-correct="1">Le phénomène de Split-Brain et la corruption des données sur le stockage partagé</button>
+        <button class="opt">La surchauffe des ventilateurs du serveur</button>
+        <button class="opt">L’expiration des licences Windows</button>
+      </div>
+      <div class="q__exp">Le quorum évite qu’une partition réseau n’entraîne l’exécution concurrente de deux instances du même service écrivant sur le même disque (Split-Brain).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de témoin de quorum est recommandé pour un cluster sans baie SAN partagée ou réparti sur plusieurs sites géographiques ?</p>
+      <div class="opts">
+        <button class="opt">Témoin disquette 3.5 pouces</button>
+        <button class="opt" data-correct="1">Témoin Cloud (Cloud Witness) sur stockage Blob Azure</button>
+        <button class="opt">Témoin imprimante réseau</button>
+        <button class="opt">Témoin câble série RS-232</button>
+      </div>
+      <div class="q__exp">Le Cloud Witness exploite un compte Azure Blob léger et économique comme arbitre tiers, idéal pour les clusters multi-sites ou sans SAN.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande PowerShell permet d’exécuter un bloc de script en parallèle sur une liste de serveurs distants ?</p>
+      <div class="opts">
+        <button class="opt">Enter-PSSession</button>
+        <button class="opt" data-correct="1">Invoke-Command</button>
+        <button class="opt">Start-Process</button>
+        <button class="opt">Set-ExecutionPolicy</button>
+      </div>
+      <div class="q__exp">Invoke-Command permet l’exécution distribuée 1:N en envoyant le ScriptBlock à travers des sessions WinRM parallèles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande en ligne permet de vérifier l’état de santé de tous les VSS Writers sur un serveur Windows ?</p>
+      <div class="opts">
+        <button class="opt">wbadmin stop job</button>
+        <button class="opt" data-correct="1">vssadmin list writers</button>
+        <button class="opt">netstat -an</button>
+        <button class="opt">dism /online /cleanup-image</button>
+      </div>
+      <div class="q__exp">La commande vssadmin list writers affiche l’état de chaque composant de sauvegarde VSS (vérifier que l’état est [1] Stable).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Activer WinRM sur tous les serveurs et vérifier la connectivité via Test-WSMan avant tout déploiement de scripts distribués.</li>
+      <li>Utiliser Invoke-Command avec des blocs de scripts (ScriptBlock) pour paralléliser les audits sans saturer les files d’attente séquentielles.</li>
+      <li>Vérifier l’état de santé des VSS Writers à l’aide de la commande vssadmin list writers avant d’exécuter une tâche de sauvegarde critique.</li>
+      <li>Configurer un plan de sauvegarde hybride (Full hebdomadaire + Incremental quotidien) et tester périodiquement la procédure de restauration Bare Metal.</li>
+      <li>Déterminer le nombre total de voix de cluster et choisir le témoin Witness adapté (Cloud Witness pour les clusters multi-sites).</li>
+      <li>Auditer le calcul du quorum après chaque opération de maintenance ou d’éviction de nœud pour garantir la tolérance aux pannes.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>PowerShell Remoting exploite WinRM (ports 5985/5986) pour administrer les serveurs à grande échelle via Enter-PSSession et Invoke-Command.</li>
+      <li>L’architecture VSS coordonne le Requestor (wbadmin), les Writers applicatifs (AD, SQL) et le Provider de stockage pour des instantanés cohérents.</li>
+      <li>Les sauvegardes de l’état du système (System State) et Bare Metal Recovery (BMR) constituent les garanties ultimes contre les ransomwares.</li>
+      <li>Le Failover Clustering (WSFC) élimine les SPOFs et maintient les services critiques en production (Hyper-V, SQL Server, serveurs de fichiers).</li>
+      <li>La règle du quorum impose une majorité absolue stricte : $\lfloor N / 2 \rfloor + 1$ voix actives pour maintenir le cluster en ligne.</li>
+      <li>Le mécanisme de quorum empêche le Split-Brain, protégeant le stockage partagé contre toute écriture concurrente destructrice.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Le service WinRM est-il démarré et autorisé dans le pare-feu Windows pour autoriser l’administration distante ?</li>
+      <li>Les commandes PowerShell critiques utilisent-elles des paramètres obligatoires validés sans ambiguïté ?</li>
+      <li>Tous les VSS Writers affichent-ils un statut stable sans erreur (State: [1] Stable) sous vssadmin list writers ?</li>
+      <li>L’espace de stockage cible de la sauvegarde intègre-t-il la réserve d’overhead VSS de 15 % recommandée ?</li>
+      <li>Le cluster de basculement dispose-t-il d’un nombre impair total de voix grâce à un témoin Witness approprié ?</li>
+      <li>La procédure de reprise après sinistre (Disaster Recovery Plan) a-t-elle été validée par un test réel de basculement de nœud ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong> :</strong> Technologie d’administration à distance s’appuyant sur le protocole WS-Management et WinRM pour exécuter des scripts sur des machines distantes.</li><li><strong> :</strong> Service Windows implémentant la norme WS-Man sur les ports TCP 5985 (HTTP/Kerberos) et 5986 (HTTPS).</li><li><strong> :</strong> Cadre architectural de Windows coordonnant la création de clichés instantanés différentiels sans interruption de service applicatif.</li><li><strong> :</strong> Composant logiciel applicatif spécialisé (AD, SQL, Exchange) garantissant que les données en mémoire sont gelées proprement lors du cliché.</li><li><strong> :</strong> Rôle de haute disponibilité regroupant des serveurs physiques indépendants pour assurer le basculement transparent de charges applicatives.</li><li><strong> :</strong> Nombre minimal de voix actives requis pour qu’un cluster de basculement soit autorisé à rester opérationnel et à gérer les ressources.</li><li><strong> :</strong> Scénario critique où deux sous-groupes d’un cluster coupé tentent d’accéder simultanément au même stockage, risquant la corruption irréversible.</li><li><strong> :</strong> Type de témoin de quorum utilisant un compte de stockage Azure Blob comme tiers de confiance arbitre dans un cluster Windows Server.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés avec la syntaxe PowerShell Remoting ou incompréhension de la formule de quorum.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de l’automatisation WinRM, gestion saine des clichés VSS et configuration de clusters haute disponibilité.</div>
+      <div class="bandrow bandrow--high">Excellence en ingénierie système Windows : architecture WSFC multi-sites avec Cloud Witness, scripts DevOps durcis et résilience BMR éprouvée.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Microsoft Learn Windows Server 2022/2025, Standards RFC 2131 (DHCP), RFC 2782 (DNS SRV), Guide d’administration L3-IT (Caleb AGOUTOCO-POKO, Collège de Paris).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

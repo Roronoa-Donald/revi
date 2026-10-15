@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Orchestration avec Docker Compose | Docker B2</title>
+<meta name="description" content="Chapitre 5 du cours Docker B2 : Infrastructure as Code pour conteneurs, structure du fichier docker-compose.yml (services, networks, volumes), gestion des dépendances depends_on, healthchecks applicatifs et conditions de santé, interpolation de variables d’environnement (.env) et pilotage multi-conteneurs. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/docker/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Orchestration avec Docker Compose | Docker B2">
+<meta property="og:description" content="Chapitre 5 du cours Docker B2 : Infrastructure as Code pour conteneurs, structure du fichier docker-compose.yml (services, networks, volumes), gestion des dépendances depends_on, healthchecks applicatifs et conditions de santé, interpolation de variables d’environnement (.env) et pilotage multi-conteneurs. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="dockernav"><div class="dockernav__in">
+  <a class="dockernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="dockernav__sep" aria-hidden="true">/</span>
+  <a class="dockernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Docker B2</a>
+  <div class="dockernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="dockernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="dockerwrap">
+<p class="crumb"><a href="../index.html">Docker B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Orchestration avec Docker Compose</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans une start-up en pleine expansion, le déploiement de l’application sur la machine de test nécessite d’exécuter à la main un script shell complexe contenant 14 commandes « docker run » consécutives avec des dizaines de variables d’environnement, des ports et des volumes en ligne de commande. Régulièrement, un développeur oublie un argument ou lance l’API avant la base de données, provoquant des crashs en cascade. De plus, nettoyer l’environnement demande d’arrêter et supprimer chaque conteneur un par un. Pour professionnaliser ce flux de travail, l’équipe décide de standardiser l’ensemble de la pile sous Docker Compose. Ce module forme les étudiants à modéliser des architectures multi-services déclaratives, à orchestrer le cycle de vie applicatif d’une seule commande (« docker compose up -d »), et à fiabiliser les dépendances de démarrage à l’aide de sondes de santé (Healthchecks).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l’apport de l’approche déclarative (Infrastructure as Code) face aux scripts impératifs docker run ;</li>
+      <li>structurer un fichier docker-compose.yml complet (sections services, networks, volumes) ;</li>
+      <li>configurer des services avec directives build, image, ports, environment, env_file et restart ;</li>
+      <li>analyser les limites de la directive depends_on et la compléter avec des sondes de santé (Healthchecks) ;</li>
+      <li>maîtriser l’interpolation de variables d’environnement et les fichiers .env dans Compose ;</li>
+      <li>piloter des piles applicatives complètes avec les commandes CLI (up, down, ps, logs, exec).</li>
+    </ol>
+  </div>
+
+<h2>1. Du Script Impératif à la Déclaration d’Infrastructure as Code</h2>
+
+<p>Lancer plusieurs conteneurs interconnectés par des commandes CLI brutes est fastidieux, fragile et non reproductible :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Approche Impérative (Scripts Shell)</h4>
+    <p>Le développeur écrit un script <code>start.sh</code> rempli de commandes :</p>
+    <pre><code>docker network create mynet\ndocker volume create dbdata\ndocker run -d --net mynet -v dbdata:/var/lib/postgresql/data postgres\ndocker run -d --net mynet -p 8080:8080 myapi</code></pre>
+    <p>Aucune gestion de l’état désiré, pas de mécanisme de nettoyage automatique, et code difficile à maintenir.</p>
+  </div>
+  <div class="card">
+    <h4>Approche Déclarative (Docker Compose)</h4>
+    <p>L’architecture complète est déclarée dans un fichier <code>docker-compose.yml</code> :</p>
+    <pre><code>services:\n  db:\n    image: postgres:15-alpine\n    volumes: [pgdata:/var/lib/postgresql/data]\n  api:\n    build: ./api\n    ports: ["8080:8080"]</code></pre>
+    <p>Une seule commande <code>docker compose up -d</code> crée les réseaux, volumes et conteneurs nécessaires.</p>
+  </div>
+</div>
+
+<h2>2. Structure Complète du Fichier docker-compose.yml</h2>
+
+<p>La spécification moderne de Docker Compose (spécification Compose unifiée) articule la configuration en trois grands blocs de niveau racine :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Bloc Racine</th>
+      <th>Rôle</th>
+      <th>Éléments configurables clés</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>services:</strong></td>
+      <td>Définit chaque conteneur applicatif de la pile.</td>
+      <td><code>image</code> ou <code>build</code>, <code>ports</code>, <code>environment</code>, <code>volumes</code>, <code>depends_on</code>, <code>restart</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>networks:</strong></td>
+      <td>Définit les réseaux virtuels partagés entre les services.</td>
+      <td>Driver (bridge par défaut), sous-réseau IPAM, isolation réseau entre tiers.</td>
+    </tr>
+    <tr>
+      <td><strong>volumes:</strong></td>
+      <td>Définit les volumes managés persistants créés automatiquement.</td>
+      <td>Driver de stockage, options de montage pour persister les données.</td>
+    </tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Création Automatique du Réseau par Défaut</div>
+<p>Lorsque vous exécutez <code>docker compose up</code> dans un dossier nommé <code>projet</code>, Compose crée automatiquement un réseau bridge isolé nommé <code>projet_default</code>. Tous les services déclarés dans le fichier rejoignent ce réseau et peuvent immédiatement communiquer entre eux par leur nom de service (ex: <code>http://db:5432</code> ou <code>http://redis:6379</code>) sans avoir besoin de déclarer manuellement de réseau personnalisé.</p>
+  </div>
+
+<h2>3. Dépendances depends_on vs Sondes de Santé (Healthchecks)</h2>
+
+<p>L’un des pièges les plus célèbres de Docker Compose réside dans la directive <code>depends_on</code> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Piège de depends_on Classique</h4>
+    <p>Écrire simplement <code>depends_on: [db]</code> indique à Docker de démarrer le conteneur <code>db</code>     avant le conteneur <code>api</code>. Cependant, pour Docker, un conteneur est « démarré » dès que son processus est spawné !     Or, une base de données PostgreSQL ou MySQL prend 5 à 15 secondes pour initialiser ses tables et écouter sur le port TCP.     L’API démarre, tente de se connecter immédiatement, échoue et s’arrête en erreur (CrashLoop).</p>
+  </div>
+  <div class="card">
+    <h4>La Solution Professionnelle : Healthcheck</h4>
+    <p>On définit une sonde de santé sur la base de données et on attend qu’elle soit saine :</p>
+    <pre><code>services:\n  db:\n    image: postgres:15-alpine\n    healthcheck:\n      test: ["CMD-SHELL", "pg_isready -U postgres"]\n      interval: 5s\n      timeout: 3s\n      retries: 5\n  api:\n    build: .\n    depends_on:\n      db:\n        condition: service_healthy</code></pre>
+  </div>
+</div>
+
+<h2>4. Gestion des Variables d’Environnement et Fichiers .env</h2>
+
+<p>Docker Compose lit automatiquement le fichier <code>.env</code> présent dans le même répertoire et remplace les variables selon des syntaxes d’interpolation normalisées :</p>
+<ul>
+  <li><code>${VARIABLE}</code> : insère la valeur définie dans <code>.env</code>. Si la variable n’existe pas, renvoie une chaîne vide.</li>
+  <li><code>${VARIABLE:-valeur_par_defaut}</code> : utilise la variable si elle existe et n’est pas vide, sinon applique <code>valeur_par_defaut</code>.</li>
+  <li><code>${VARIABLE:?message_erreur}</code> : bloque immédiatement le lancement avec une erreur si la variable obligatoire est manquante.</li>
+</ul>
+  <div class="box box--important">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Règle de Sécurité des Fichiers .env</div>
+<p>Le fichier <code>.env</code> contient généralement des secrets de configuration (mots de passe de base de données, clés API privées, tokens de signature JWT). Il doit <strong>impérativement figurer dans votre fichier .gitignore</strong> et ne jamais être commité dans le dépôt git. Fournissez à la place un fichier modèle <code>.env.example</code> contenant des valeurs fictives documentées.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="dk2-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="service: frontend | image: nginx:alpine | ports: 80:80 | restart: always&#10;service: cache | image: redis:7 | restart: unless-stopped&#10;service: orphelin | restart: always">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : valider chaque service Compose
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur et validateur de services Docker Compose</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider la structure des déclarations de services dans une spécification Docker Compose.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations de services au format plat <code>service: &lt;Nom&gt; | image: &lt;Img&gt; | ports: &lt;P&gt; | restart: &lt;R&gt;</code>.<br>
+Règles de validation :<br>
+1. Chaque service DOIT comporter au moins une directive <code>image</code> OU <code>build</code>.<br>
+2. La directive <code>restart</code>, si présente, doit être parmi : <code>no</code>, <code>always</code>, <code>unless-stopped</code>, <code>on-failure</code>. (Sinon <code>no</code> par défaut).<br>
+Pour chaque service :<br>
+- Si valide : <code>SERVICE: &lt;Nom&gt; -&gt; VALIDE [Origine: &lt;ImageOuBuild&gt; | Ports: &lt;PortsOuAucun&gt; | Restart: &lt;Restart&gt;]</code><br>
+- Si ni image ni build n'est défini : <code>SERVICE: &lt;Nom&gt; -&gt; INVALIDE (Directive image ou build obligatoire)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>service: frontend | image: nginx:alpine | ports: 80:80 | restart: always
+service: cache | image: redis:7 | restart: unless-stopped
+service: orphelin | restart: always</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SERVICE: frontend -&gt; VALIDE [Origine: image:nginx:alpine | Ports: 80:80 | Restart: always]
+SERVICE: cache -&gt; VALIDE [Origine: image:redis:7 | Ports: aucun | Restart: unless-stopped]
+SERVICE: orphelin -&gt; INVALIDE (Directive image ou build obligatoire)</pre></div>
+    </div>
+    <p class="lab__note">Validation des directives requises de la spécification Compose.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découper chaque ligne par le caractère pipe |.</li>
+        <li>Extraire les paires cle: valeur.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="web -&gt; api&#10;api -&gt; db, redis&#10;db -&gt; NONE&#10;redis -&gt; NONE">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : résoudre le graphe de dépendances depends_on
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Résolveur d’ordre de démarrage par graphe de dépendances (depends_on)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l’ordre d’instanciation séquentiel des conteneurs via un tri topologique sans cycle.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations de dépendances Compose au format <code>&lt;Service&gt; -&gt; &lt;Dep1, Dep2, ... ou NONE&gt;</code>.<br>
+Par exemple : <code>web -&gt; api</code> signifie que <code>web</code> dépend de <code>api</code> (donc <code>api</code> doit démarrer avant <code>web</code>).<br>
+Règles :<br>
+- Effectuer un tri topologique des services.<br>
+- En cas d'égalité de niveau de dépendance, trier par ordre alphabétique des noms de service.<br>
+- Si une boucle de dépendance mutuelle est détectée, afficher : <code>ERREUR_COMPOSE: Dependance cyclique detectee</code>.<br>
+- Sinon, afficher l'ordre strict de démarrage :<br>
+<code>ORDRE_DEMARRAGE: &lt;S1&gt; -&gt; &lt;S2&gt; -&gt; ...</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>web -&gt; api
+api -&gt; db, redis
+db -&gt; NONE
+redis -&gt; NONE</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ORDRE_DEMARRAGE: db -&gt; redis -&gt; api -&gt; web</pre></div>
+    </div>
+    <p class="lab__note">db et redis démarrent en premier, puis api, puis web.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Construire la liste d’adjacence et les degrés entrants.</li>
+        <li>Un service avec 0 dépendance restante peut démarrer immédiatement.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="PORT=8080&#10;DB_USER=admin&#10;---&#10;image: nginx:${TAG:-latest}&#10;ports: ${PORT}:80&#10;user: ${DB_USER}&#10;db_pass: ${DB_PASS:-secret123}">
+  <script type="text/plain" data-lab-starter>import sys
+
+contenu = sys.stdin.read()
+
+# À compléter : interpoler les variables .env dans les expressions Compose
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Interprète de variables d’environnement et fichiers .env dans Compose</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Résoudre les syntaxes d’interpolation ${VAR} et ${VAR:-default} dans les fichiers de configuration Compose.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+- Bloc 1 (jusqu'à la ligne contenant <code>---</code>) : paires <code>CLE=VALEUR</code> définies dans le fichier <code>.env</code>.<br>
+- Bloc 2 (après <code>---</code>) : chaînes de configuration Compose à évaluer (une par ligne).<br>
+Règles d'interpolation :<br>
+- <code>${VAR}</code> : remplacé par la valeur de <code>VAR</code> si elle existe, sinon chaîne vide.<br>
+- <code>${VAR:-default}</code> : remplacé par la valeur de <code>VAR</code> si non vide, sinon par <code>default</code>.<br>
+Pour chaque chaîne du bloc 2, afficher :<br>
+<code>RESOLU: &lt;ChaineApresInterpolation&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PORT=8080
+DB_USER=admin
+---
+image: nginx:${TAG:-latest}
+ports: ${PORT}:80
+user: ${DB_USER}
+db_pass: ${DB_PASS:-secret123}</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RESOLU: image: nginx:latest
+RESOLU: ports: 8080:80
+RESOLU: user: admin
+RESOLU: db_pass: secret123</pre></div>
+    </div>
+    <p class="lab__note">TAG prend la valeur latest par défaut, PORT et DB_USER sont interpolés.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer les expressions régulières ou le parcours caractère par caractère pour repérer ${...}.</li>
+        <li>Séparer proprement le bloc .env du bloc Compose via le délimiteur ---.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l’avantage fondamental de Docker Compose par rapport à des scripts de déploiement composés de commandes « docker run » ?</p>
+      <div class="opts">
+        <button class="opt">Il permet d’exécuter du code Java sans machine virtuelle</button>
+        <button class="opt" data-correct="1">Il adopte une approche déclarative (Infrastructure as Code) permettant de décrire l’ensemble de la pile multi-conteneurs dans un fichier unique versionnable</button>
+        <button class="opt">Il supprime le besoin de disposer d’un système d’exploitation</button>
+        <button class="opt">Il rend les conteneurs compatibles avec les smartphones des années 1990</button>
+      </div>
+      <div class="q__exp">Docker Compose centralise l’architecture (services, volumes, réseaux, configurations) dans un fichier YAML déclaratif garantissant des déploiements reproductibles et unifiés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi une directive « depends_on: [database] » classique est-elle souvent insuffisante pour empêcher un conteneur d’API de crasher au démarrage ?</p>
+      <div class="opts">
+        <button class="opt">Parce que Compose ne lit pas cette directive</button>
+        <button class="opt" data-correct="1">Parce que depends_on attend uniquement que le conteneur database soit démarré au sens système, pas que le moteur de base de données ait terminé son initialisation interne et écoute sur le port réseau</button>
+        <button class="opt">Parce que le port de la base de données est toujours fermé par défaut</button>
+        <button class="opt">Parce que les conteneurs refusent de communiquer entre eux sans clé SSH</button>
+      </div>
+      <div class="q__exp">Démarré ne signifie pas prêt : la base a besoin de quelques secondes pour charger ses fichiers et démarrer son écoute. Sans sonde healthcheck, l’API tente une connexion immédiate et plante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle configuration Compose moderne permet d’attendre qu’un service de base de données soit pleinement opérationnel avant de lancer l’API ?</p>
+      <div class="opts">
+        <button class="opt">sleep 30 dans le script shell</button>
+        <button class="opt" data-correct="1">Une directive healthcheck sur la base de données combinée à « depends_on: db: { condition: service_healthy } » dans l’API</button>
+        <button class="opt">En redémarrant le serveur physique</button>
+        <button class="opt">En désactivant le pare-feu</button>
+      </div>
+      <div class="q__exp">L’option condition: service_healthy suspend le démarrage du service consommateur jusqu’à ce que le test de santé (healthcheck) du service requis réussisse avec succès.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait Docker Compose par défaut concernant le réseau lorsque l’on exécute « docker compose up » dans un projet sans déclaration explicite de bloc networks ?</p>
+      <div class="opts">
+        <button class="opt">Il désactive toute connectivité réseau pour tous les services</button>
+        <button class="opt" data-correct="1">Il crée automatiquement un réseau bridge dédié portant le nom du projet et y connecte tous les services avec résolution DNS par nom</button>
+        <button class="opt">Il connecte tous les services au Wi-Fi public le plus proche</button>
+        <button class="opt">Il oblige l’utilisateur à saisir manuellement une adresse IPv6</button>
+      </div>
+      <div class="q__exp">Compose instancie un réseau par défaut (projet_default) sur lequel tous les conteneurs sont automatiquement branchés et peuvent se joindre directement par leur nom de service.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que produit la syntaxe d’interpolation « ${DB_PORT:-5432} » dans un fichier docker-compose.yml si la variable DB_PORT n’est pas définie dans l’environnement ni dans le fichier .env ?</p>
+      <div class="opts">
+        <button class="opt">Le fichier plante avec une erreur de syntaxe YAML</button>
+        <button class="opt" data-correct="1">La valeur par défaut « 5432 » est utilisée</button>
+        <button class="opt">La valeur est remplacée par le mot « NULL »</button>
+        <button class="opt">Le port 80 est attribué automatiquement</button>
+      </div>
+      <div class="q__exp">La syntaxe ${VAR:-defaut} permet de fournir une valeur de repli robuste lorsque la variable d’environnement n’est pas renseignée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il impératif d’ajouter le fichier « .env » dans le fichier « .gitignore » du projet ?</p>
+      <div class="opts">
+        <button class="opt">Pour éviter que Git ne ralentisse la compilation</button>
+        <button class="opt" data-correct="1">Pour empêcher la fuite de secrets de production (mots de passe, clés d’API, jetons de chiffrement) sur un référentiel de code partagé</button>
+        <button class="opt">Parce que Git ne supporte pas les fichiers commençant par un point</button>
+        <button class="opt">C’est une obligation légale de la CNIL sous peine d’amende</button>
+      </div>
+      <div class="q__exp">Le fichier .env renferme les secrets et identifiants sensibles de la configuration locale : il ne doit jamais être commité ni poussé sur un dépôt partagé (GitHub, GitLab).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande Docker Compose permet d’arrêter tous les conteneurs de la pile ET de supprimer définitivement tous les volumes de données persistants associés ?</p>
+      <div class="opts">
+        <button class="opt">docker compose stop</button>
+        <button class="opt" data-correct="1">docker compose down -v</button>
+        <button class="opt">docker compose delete --all</button>
+        <button class="opt">docker compose rm --clean</button>
+      </div>
+      <div class="q__exp">docker compose down éteint les conteneurs et supprime le réseau. L’adjonction du drapeau -v (ou --volumes) détruit en plus les volumes nommés déclarés dans le fichier.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle politique de redémarrage (restart) permet à un conteneur Compose de redémarrer automatiquement en cas de crash ou de redémarrage de l’hôte, SAUF si l’administrateur l’a explicitement arrêté ?</p>
+      <div class="opts">
+        <button class="opt">restart: no</button>
+        <button class="opt" data-correct="1">restart: unless-stopped</button>
+        <button class="opt">restart: always-force</button>
+        <button class="opt">restart: on-reboot</button>
+      </div>
+      <div class="q__exp">unless-stopped relance automatiquement le conteneur dans tous les cas, sauf si une commande manuelle docker stop ou docker compose stop a été explicitement exécutée.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Croire que depends_on attend que PostgreSQL ou MySQL soit prêt à accepter des requêtes SQL.</li>
+      <li>Commiter le fichier .env contenant des mots de passe en clair dans un dépôt git public.</li>
+      <li>Oublier les guillemets autour des ports dans YAML (ex: ports: - 80:80 au lieu de "80:80"), pouvant être interprété comme un nombre sexagésimal.</li>
+      <li>Utiliser docker compose down -v en pensant simplement arrêter la pile : le flag -v détruit irréversiblement tous les volumes de données associés.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Déploiement et de Gestion d’une Pile Docker Compose</div>
+    <ol>
+      <li>Étape 1 — Rédiger le fichier docker-compose.yml : Définir les services, volumes et dépendances d’état de santé.</li>
+      <li>Étape 2 — Préparer le fichier de variables d’environnement : Créer un fichier .env local avec les identifiants et clés de chiffrement.</li>
+      <li>Étape 3 — Lancer la pile en arrière-plan : Exécuter « docker compose up -d » pour télécharger les images, compiler les services et instancier les conteneurs.</li>
+      <li>Étape 4 — Vérifier l’état de santé des services : Lancer « docker compose ps » et constater que les conteneurs affichent le statut « healthy ».</li>
+      <li>Étape 5 — Suivre les journaux consolidés : Observer les flux d’interaction entre conteneurs avec « docker compose logs -f ».</li>
+      <li>Étape 6 — Arrêter et nettoyer la pile proprement : Éteindre les conteneurs avec « docker compose down » ou « docker compose down -v » pour purger les volumes de données.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Docker Compose fournit un format déclaratif (Infrastructure as Code) unifiant la gestion multi-conteneurs.</li>
+      <li>Par défaut, Compose crée un réseau bridge privé dédié et connecte tous les services déclarés avec résolution DNS interne.</li>
+      <li>depends_on seul ne garantit que le lancement du conteneur cible, pas sa disponibilité applicative interne.</li>
+      <li>L’association de healthcheck avec condition: service_healthy garantit un ordre de démarrage parfaitement fiable.</li>
+      <li>Le fichier .env permet de paramétrer la pile par interpolation sans coder de valeurs sensibles en dur.</li>
+      <li>La commande docker compose down arrête les conteneurs et supprime le réseau virtuel associé en une seule opération.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends l’intérêt de l’approche déclarative par rapport à une suite de commandes docker run.</li>
+      <li>Je sais structurer les trois grands blocs : services, networks et volumes.</li>
+      <li>Je sais pourquoi depends_on classique peut conduire à un plantage d’application au démarrage.</li>
+      <li>Je sais configurer une directive healthcheck avec interval, timeout et retries.</li>
+      <li>Je maîtrise la syntaxe d’interpolation ${VAR:-default} dans les fichiers YAML Compose.</li>
+      <li>Je sais pourquoi le fichier .env ne doit jamais être versionné dans git.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Infrastructure as Code pour conteneurs</li><li>Structure du fichier docker-compose.yml</li><li>Blocs racine services, networks, volumes</li><li>Réseau virtuel automatique de projet</li><li>Directive depends_on et ses limites</li><li>Healthcheck et condition: service_healthy</li><li>Interpolation de variables et fichier .env</li><li>Cycle de vie CLI (up, down, ps, logs, exec)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la structure YAML Compose, la commande up et le rôle de depends_on.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bon socle acquis. Approfondissez les Healthchecks et la gestion des variables d’environnement.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise de l’orchestration multi-conteneurs sous Docker Compose.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous architectez des environnements de déploiement déclaratifs d’une fiabilité exemplaire.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Sécurité, Production &amp; Optimisation <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Docker Engine, la spécification Open Container Initiative (OCI), le standard Docker Compose et le guide de sécurité CIS Docker Benchmark.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

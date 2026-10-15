@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 5 — Pointeurs | C/C++ B1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>:root{--accent:#f59e0b;--accent-light:#fbbf24;--accent-dark:#d97706;--accent-glow:rgba(245,158,11,0.25)}.dark{--accent:#fbbf24;--accent-light:#fcd34d;--accent-dark:#f59e0b;--accent-glow:rgba(251,191,36,0.25)}</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Aller au contenu</a>
+<div class="reading-progress" id="reading-progress"></div>
+<nav class="glass-nav"><div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><i class="fas fa-bolt"></i> CeeBot</a>
+    <ul class="nav-links">
+        <li><a href="../index.html">Accueil</a></li>
+        <li><a href="chapitre1.html">Ch.1</a></li><li><a href="chapitre2.html">Ch.2</a></li>
+        <li><a href="chapitre3.html">Ch.3</a></li><li><a href="chapitre4.html">Ch.4</a></li>
+        <li><a href="chapitre5.html" class="active">Ch.5</a></li>
+        <li><a href="formules.html">Formules</a></li><li><a href="../exercices/exercices.html">Exercices</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+</div></nav>
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>⚡ CeeBot</span><button class="mobile-nav-close" id="mobile-nav-close"><i class="fas fa-times"></i></button></div>
+    <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+    <a href="chapitre1.html"><i class="fas fa-book-open"></i> Ch.1 — Bases du C</a>
+    <a href="chapitre2.html"><i class="fas fa-book-open"></i> Ch.2 — Contrôle de flux</a>
+    <a href="chapitre3.html"><i class="fas fa-book-open"></i> Ch.3 — Fonctions</a>
+    <a href="chapitre4.html"><i class="fas fa-book-open"></i> Ch.4 — Tableaux & Chaînes</a>
+    <a href="chapitre5.html" class="active"><i class="fas fa-book-open"></i> Ch.5 — Pointeurs</a>
+    <a href="chapitre6.html"><i class="fas fa-book-open"></i> Ch.6 — Structures</a>
+    <a href="chapitre7.html"><i class="fas fa-book-open"></i> Ch.7 — Fichiers</a>
+    <a href="chapitre8.html"><i class="fas fa-book-open"></i> Ch.8 — Intro C++</a>
+    <a href="formules.html"><i class="fas fa-scroll"></i> Formules</a>
+    <a href="cartes.html"><i class="fas fa-layer-group"></i> Cartes Flash</a>
+    <a href="simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Simulateur</a>
+    <a href="../exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a>
+</div>
+
+<section class="hero-section" id="main-content">
+    <div class="hero-badge"><i class="fas fa-map-marker-alt"></i> Chapitre 5</div>
+    <h1>⚡ Les <span class="highlight">Pointeurs</span></h1>
+    <p>Le concept le plus puissant (et le plus redouté) du C : comprendre les adresses mémoire, le déréférencement et l'allocation dynamique.</p>
+</section>
+
+<main class="content-wrapper">
+
+<!-- ═══════════════ 5.1 Qu'est-ce qu'un pointeur ═══════════════ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-bullseye"></i> Objectifs du chapitre</h2>
+    <div class="info-box">
+        <ul>
+            <li>Déclarer et appeler des fonctions</li>
+            <li>Comprendre prototypes, passage par valeur et par référence</li>
+            <li>Maîtriser la portée et la durée de vie des variables</li>
+        </ul>
+    </div>
+</section>
+
+<section class="chapter-section reveal-on-scroll" id="definition">
+    <h2><i class="fas fa-map-marker-alt"></i> 5.1 — Qu'est-ce qu'un pointeur ?</h2>
+
+    <div class="analogy-box">
+        <div class="analogy-title"><i class="fas fa-lightbulb"></i> Analogie — L'adresse postale</div>
+        <p>Imaginez que chaque variable est une <strong>maison</strong> dans une rue. La maison contient une valeur (son habitant). Un <strong>pointeur</strong> n'est pas une maison, c'est un <strong>Post-it</strong> sur lequel est écrit l'adresse de la maison. Avec le Post-it (pointeur), vous pouvez aller à la maison et voir/modifier son habitant (la valeur).</p>
+    </div>
+
+    <div class="concept-card">
+        <h4>🔑 Définition formelle</h4>
+        <p>Un <strong>pointeur</strong> est une variable qui stocke <strong>l'adresse mémoire</strong> d'une autre variable.</p>
+    </div>
+
+    <div class="code-block"><div class="code-header"><span>Les deux opérateurs clés</span><button class="copy-btn" title="Copier"><i class="fas fa-copy"></i></button></div><pre><code>int a = 42;       // Variable normale (la maison)
+int *p = &amp;a;      // Pointeur vers a (le Post-it avec l'adresse)
+
+// &amp; = "adresse de"  → &amp;a donne l'adresse de a
+// *  = "valeur à"    → *p donne la valeur à l'adresse stockée dans p
+
+printf("Valeur de a   : %d\n", a);    // 42
+printf("Adresse de a  : %p\n", &amp;a);   // 0x7ffc... (adresse hex)
+printf("Valeur de p   : %p\n", p);    // Même adresse
+printf("Valeur via *p : %d\n", *p);   // 42 (déréférencement)</code></pre></div>
+
+    <div class="mnemonic-box">
+        <div class="mnemonic-title"><i class="fas fa-brain"></i> Mnémonique — <strong>&amp; → Adresse · * → Accéder</strong></div>
+        <ul>
+            <li><code>&amp;</code> commence par un A → <strong>A</strong>dresse (« où habites-tu ? »)</li>
+            <li><code>*</code> ressemble à une étoile → elle <strong>ouvre la porte</strong> (« montre-moi ce qu'il y a dedans ! »)</li>
+        </ul>
+    </div>
+
+    <div class="tip-box">
+        <strong>Visualisation mémoire :</strong>
+        <br><code>a</code> est à l'adresse <code>0x100</code> et contient <code>42</code>.
+        <br><code>p</code> est à l'adresse <code>0x200</code> et contient <code>0x100</code> (l'adresse de a).
+        <br><code>*p</code> suit le « lien » 0x100 → trouve <code>42</code>.
+    </div>
+</section>
+
+<!-- ═══════════════ 5.2 Déréférencement & modification ═══════════════ -->
+<section class="chapter-section reveal-on-scroll" id="dereferencement">
+    <h2><i class="fas fa-edit"></i> 5.2 — Modifier une valeur via un pointeur</h2>
+
+    <div class="code-block"><div class="code-header"><span>Modification via pointeur</span><button class="copy-btn" title="Copier"><i class="fas fa-copy"></i></button></div><pre><code>int x = 10;
+int *p = &amp;x;
+
+printf("Avant : x = %d\n", x);  // 10
+
+*p = 99;  // Modifie la valeur à l'adresse de x → x vaut 99
+
+printf("Après : x = %d\n", x);  // 99 ← Modifié via le pointeur !
+
+// C'est EXACTEMENT le même mécanisme que le passage par adresse
+// dans les fonctions (chapitre 3)</code></pre></div>
+
+    <div class="warning-box">
+        <strong>⚠️ Pointeur non initialisé = DANGER !</strong>
+        <div class="code-block"><div class="code-header"><span>❌ Ne faites JAMAIS ça</span></div><pre><code>int *p;          // p pointe vers... n'importe où !
+*p = 42;         // CRASH ! Écriture à une adresse inconnue
+
+// ✅ Toujours initialiser :
+int *p = NULL;   // Pointeur nul (sûr, testable)
+// OU
+int x;
+int *p = &amp;x;     // Pointe vers x (valide)</code></pre></div>
+    </div>
+</section>
+
+<!-- ═══════════════ 5.3 Pointeurs et tableaux ═══════════════ -->
+<section class="chapter-section reveal-on-scroll" id="pointeurs-tableaux">
+    <h2><i class="fas fa-link"></i> 5.3 — Pointeurs et tableaux</h2>
+
+    <div class="concept-card">
+        <h4>🔗 Le lien secret</h4>
+        <p>En C, le nom d'un tableau EST un pointeur vers son premier élément. <code>tab</code> est équivalent à <code>&amp;tab[0]</code>.</p>
+    </div>
+
+    <div class="code-block"><div class="code-header"><span>Relation tableau ↔ pointeur</span><button class="copy-btn" title="Copier"><i class="fas fa-copy"></i></button></div><pre><code>int tab[] = {10, 20, 30, 40, 50};
+int *p = tab;  // Pas besoin de &amp; : tab EST déjà une adresse !
+
+// Deux façons d'accéder aux éléments :
+printf("%d\n", tab[2]);     // 30 (notation tableau)
+printf("%d\n", *(p + 2));   // 30 (arithmétique de pointeur)
+printf("%d\n", *(tab + 2)); // 30 (même chose !)
+
+// tab[i]  est IDENTIQUE à  *(tab + i)
+
+// Parcours avec pointeur
+for (int *ptr = tab; ptr < tab + 5; ptr++) {
+    printf("%d ", *ptr);  // 10 20 30 40 50
+}</code></pre></div>
+
+    <div class="analogy-box">
+        <div class="analogy-title"><i class="fas fa-lightbulb"></i> Analogie — Le GPS qui avance</div>
+        <p>Le pointeur <code>p</code> est un GPS positionné au début du tableau. <code>p+1</code> avance d'une case, <code>p+2</code> de deux cases. <code>*p</code> = « qu'est-ce qu'il y a ICI ? ».</p>
+    </div>
+
+    <div class="info-box">
+        <strong>Arithmétique de pointeur :</strong> <code>p + 1</code> n'ajoute pas 1 octet mais la <strong>taille d'un élément</strong>. Si <code>p</code> pointe sur un <code>int</code> (4 octets), <code>p+1</code> avance de 4 octets.
+    </div>
+</section>
+
+<!-- ═══════════════ 5.4 Allocation dynamique ═══════════════ -->
+<section class="chapter-section reveal-on-scroll" id="malloc">
+    <h2><i class="fas fa-memory"></i> 5.4 — Allocation dynamique : malloc et free</h2>
+
+    <div class="analogy-box">
+        <div class="analogy-title"><i class="fas fa-lightbulb"></i> Analogie — Réserver une chambre d'hôtel</div>
+        <p><code>malloc</code> = <strong>réserver</strong> une chambre (de la mémoire) à la demande. <code>free</code> = <strong>libérer</strong> la chambre quand vous avez fini. Si vous ne libérez pas, c'est une <strong>fuite mémoire</strong> (comme payer une chambre vide).</p>
+    </div>
+
+    <div class="code-block"><div class="code-header"><span>malloc, calloc, realloc, free</span><button class="copy-btn" title="Copier"><i class="fas fa-copy"></i></button></div><pre><code>#include &lt;stdlib.h&gt;  // Pour malloc, free, etc.
+
+// malloc : alloue n octets (NON initialisés)
+int *tab = (int*)malloc(5 * sizeof(int));
+
+// calloc : alloue et initialise à 0
+int *tab2 = (int*)calloc(5, sizeof(int));
+
+// Vérifier que l'allocation a réussi !
+if (tab == NULL) {
+    printf("Erreur d'allocation !\n");
+    return 1;
+}
+
+// Utiliser comme un tableau normal
+for (int i = 0; i < 5; i++) {
+    tab[i] = i * 10;
+}
+
+// Agrandir : realloc
+tab = (int*)realloc(tab, 10 * sizeof(int));
+
+// LIBÉRER quand on n'en a plus besoin
+free(tab);
+tab = NULL;  // Bonne pratique : mettre à NULL après free</code></pre></div>
+
+    <div class="mnemonic-box">
+        <div class="mnemonic-title"><i class="fas fa-brain"></i> Mnémonique — <strong>M.C.R.F.</strong> (Mon Chat Ronronne Fort)</div>
+        <ul>
+            <li><strong>M</strong>alloc — alloue (non initialisé)</li>
+            <li><strong>C</strong>alloc — alloue + initialise à 0</li>
+            <li><strong>R</strong>ealloc — redimensionne</li>
+            <li><strong>F</strong>ree — libère !</li>
+        </ul>
+    </div>
+
+    <div class="warning-box">
+        <strong>⚠️ Les 3 erreurs mortelles de l'allocation :</strong>
+        <ol>
+            <li><strong>Oublier free</strong> → fuite mémoire (programme consomme de plus en plus)</li>
+            <li><strong>Double free</strong> → crash (libérer deux fois la même zone)</li>
+            <li><strong>Utiliser après free</strong> → comportement imprévisible (dangling pointer)</li>
+        </ol>
+    </div>
+</section>
+
+<!-- ═══════════════ 5.5 Pointeurs et fonctions ═══════════════ -->
+<section class="chapter-section reveal-on-scroll" id="pointeurs-fonctions">
+    <h2><i class="fas fa-exchange-alt"></i> 5.5 — Pointeurs et fonctions (rappel enrichi)</h2>
+
+    <div class="code-block"><div class="code-header"><span>Fonction qui renvoie un tableau dynamique</span><button class="copy-btn" title="Copier"><i class="fas fa-copy"></i></button></div><pre><code>// Créer un tableau dynamique et le retourner
+int* creerTableau(int n) {
+    int *t = (int*)calloc(n, sizeof(int));
+    for (int i = 0; i < n; i++) t[i] = i + 1;
+    return t;  // OK car alloué dynamiquement !
+}
+
+int main() {
+    int *tab = creerTableau(5);
+    for (int i = 0; i < 5; i++)
+        printf("%d ", tab[i]);  // 1 2 3 4 5
+    free(tab);  // INDISPENSABLE !
+    return 0;
+}</code></pre></div>
+
+    <div class="warning-box">
+        <strong>⚠️ JAMAIS retourner l'adresse d'une variable locale !</strong>
+        <div class="code-block"><div class="code-header"><span>❌ Erreur grave</span></div><pre><code>int* mauvais() {
+    int x = 42;
+    return &amp;x;  // ❌ x est détruite à la sortie de la fonction !
+}
+// Le pointeur retourné pointe vers une zone détruite (dangling pointer)</code></pre></div>
+    </div>
+</section>
+
+<!-- ═══════════════ 5.6 Récap ═══════════════ -->
+
+<!-- EXERCICES GUIDES -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-pencil-alt"></i> Exercices guidés pas à pas</h2>
+
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Tableau dynamique avec malloc</h4>
+        <p><strong>Objectif :</strong> Allouer un tableau dont la taille est choisie à l'exécution.</p>
+
+        <p><strong>Étape 1 — Allouer :</strong></p>
+        <div class="code-block"><pre>int n;
+printf("Combien de notes ? ");
+scanf("%d", &amp;n);
+
+int *notes = (int *)malloc(n * sizeof(int));
+if (notes == NULL) {
+    printf("Erreur d'allocation !\n");
+    return 1;
+}</pre></div>
+        <div class="warning-box"><strong>⚠️</strong> Toujours vérifier que <code>malloc</code> ne retourne pas <code>NULL</code> !</div>
+
+        <p><strong>Étape 2 — Utiliser comme un tableau normal :</strong></p>
+        <div class="code-block"><pre>for (int i = 0; i &lt; n; i++) {
+    printf("Note %d : ", i + 1);
+    scanf("%d", &amp;notes[i]);  // notes[i] = *(notes + i)
+}</pre></div>
+
+        <p><strong>Étape 3 — Libérer la mémoire :</strong></p>
+        <div class="code-block"><pre>free(notes);    // Toujours libérer !
+notes = NULL;   // Bonne pratique : évite les pointeurs pendants</pre></div>
+        <div class="tip-box"><strong>💡</strong> Règle d'or : chaque <code>malloc</code> doit avoir son <code>free</code>.</div>
+    </div>
+
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Pointeurs et arithmétique</h4>
+        <p><strong>Objectif :</strong> Comprendre l'arithmétique des pointeurs.</p>
+
+        <div class="code-block"><pre>int tab[] = {10, 20, 30, 40, 50};
+int *p = tab;  // p pointe sur tab[0]
+
+printf("*p     = %d\n", *p);       // 10 (valeur pointée)
+printf("*(p+2) = %d\n", *(p+2));   // 30 (avance de 2 cases)
+printf("p[3]   = %d\n", p[3]);     // 40 (notation tableau)
+p++;                                // p pointe maintenant sur tab[1]
+printf("*p     = %d\n", *p);       // 20</pre></div>
+        <div class="tip-box"><strong>💡</strong> <code>p+1</code> avance de <code>sizeof(int)</code> octets (4 octets), pas de 1 octet ! C ajuste automatiquement.</div>
+    </div>
+</section>
+
+<section class="chapter-section reveal-on-scroll" id="recap">
+    <h2><i class="fas fa-clipboard-check"></i> 5.6 — Récapitulatif</h2>
+
+    <div class="styled-table-container">
+        <table class="styled-table">
+            <thead><tr><th>Concept</th><th>Syntaxe</th><th>Mémo</th></tr></thead>
+            <tbody>
+                <tr><td>Déclarer</td><td><code>int *p;</code></td><td>Type + étoile + nom</td></tr>
+                <tr><td>Adresse</td><td><code>&amp;x</code></td><td>&amp; = Adresse</td></tr>
+                <tr><td>Déréférencement</td><td><code>*p</code></td><td>* = Accéder au contenu</td></tr>
+                <tr><td>NULL</td><td><code>int *p = NULL;</code></td><td>Pointeur sûr (pointe nulle part)</td></tr>
+                <tr><td>Tab ↔ Pointeur</td><td><code>tab ≡ &amp;tab[0]</code></td><td>tab[i] ≡ *(tab+i)</td></tr>
+                <tr><td>malloc</td><td><code>(int*)malloc(n*sizeof(int))</code></td><td>Alloue (non init)</td></tr>
+                <tr><td>calloc</td><td><code>(int*)calloc(n, sizeof(int))</code></td><td>Alloue (init à 0)</td></tr>
+                <tr><td>free</td><td><code>free(p); p=NULL;</code></td><td>Toujours libérer !</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ═══════════════ EXERCICES ═══════════════ -->
+<section class="chapter-section reveal-on-scroll" id="exercices">
+    <h2><i class="fas fa-dumbbell"></i> Exercices du Chapitre 5</h2>
+    <div id="chapter-exercises"></div>
+</section>
+
+<div class="chapter-nav">
+    <a href="chapitre4.html" class="nav-btn prev-btn"><i class="fas fa-arrow-left"></i> Chapitre 4</a>
+    <a href="chapitre6.html" class="nav-btn next-btn">Chapitre 6 <i class="fas fa-arrow-right"></i></a>
+</div>
+</main>
+
+<div class="xp-bar-container"><span class="xp-level">Débutant</span><div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div><span class="xp-text">0 XP</span></div>
+
+<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/gamification.js"></script>
+<script>
+GameEngine.configure({storageKey:'b1_c_cpp_progress',badges:[{id:'first_step',name:'Premier Pas',icon:'🏁',desc:'Premier exercice',xp:10},{id:'pointer_master',name:'Maître Pointeur',icon:'🎯',desc:'Termine les pointeurs',xp:25}],levels:[{min:0,title:'Débutant'},{min:30,title:'Apprenti C'},{min:80,title:'Développeur Jr.'},{min:150,title:'Codeur Confirmé'},{min:250,title:'Maître du C'},{min:400,title:'Guru C/C++'}]});
+GameEngine.init();
+</script>
+<script src="../../assets/js/chapter-exercises.js"></script>
+<script>
+ChapterExercises.init({
+    guided: [
+        { q: "Déclarez un pointeur sur entier, faites-le pointer sur une variable, et modifiez la valeur via le pointeur.", hints: ["int *p = &x;","*p = nouvelle_valeur;"], answer: 'int x = 10;\nint *p = &x;\n*p = 42;\nprintf("x = %d\\n", x);  // 42' },
+        { q: "Allouez dynamiquement un tableau de 10 entiers, remplissez-le avec les carrés (0,1,4,9…) et libérez-le.", hints: ["malloc(10 * sizeof(int))","Boucle: tab[i] = i*i","N'oubliez pas free()"], answer: 'int *t = (int*)malloc(10*sizeof(int));\nfor(int i=0;i<10;i++) t[i]=i*i;\nfor(int i=0;i<10;i++) printf("%d ",t[i]);\nfree(t);' },
+        { q: "Écrivez une fonction `sommeTab` utilisant l'arithmétique de pointeurs pour calculer la somme.", hints: ["*(p+i) au lieu de tab[i]","Boucle avec ptr < tab+n"], answer: 'int sommeTab(int *tab, int n){\n    int s=0;\n    for(int *p=tab; p<tab+n; p++) s+=*p;\n    return s;\n}' },
+        { q: "Écrivez une fonction `allouerCopie` qui crée une copie dynamique d'un tableau.", hints: ["malloc + boucle de copie","Retourner le pointeur"], answer: 'int* allouerCopie(int *src, int n){\n    int *dest=(int*)malloc(n*sizeof(int));\n    for(int i=0;i<n;i++) dest[i]=src[i];\n    return dest;\n}' },
+        { q: "Créez un programme qui lit n entiers au clavier dans un tableau alloué dynamiquement.", hints: ["scanf n d'abord","malloc en fonction de n","free à la fin"], answer: 'int n;\nscanf("%d",&n);\nint *t=(int*)malloc(n*sizeof(int));\nfor(int i=0;i<n;i++) scanf("%d",&t[i]);\nfor(int i=0;i<n;i++) printf("%d ",t[i]);\nfree(t);' }
+    ],
+    quiz: [
+        { type:'mcq', q:"Que fait l'opérateur & ?", options:["Déréférencement","Donne l'adresse","Multiplication","Comparaison"], correct:1 },
+        { type:'mcq', q:"Un pointeur non initialisé pointe vers :", options:["0","NULL","Une adresse inconnue (danger !)","Le début du programme"], correct:2 },
+        { type:'mcq', q:"tab[3] est équivalent à :", options:["*(tab + 3)","&tab[3]","tab * 3","tab[3 + 1]"], correct:0 },
+        { type:'mcq', q:"malloc retourne :", options:["Un entier","Un pointeur void*","Un tableau","La taille"], correct:1 },
+        { type:'qa', q:"Quelle est la différence entre malloc et calloc ?", answer:"malloc n'initialise pas la mémoire, calloc initialise à 0" },
+        { type:'mcq', q:"Que se passe-t-il si on oublie free() ?", options:["Rien","Fuite mémoire","Crash immédiat","Erreur de compilation"], correct:1 },
+        { type:'mcq', q:"int *p = NULL; *p = 5; que se passe-t-il ?", options:["p vaut 5","Le programme compile mais plante","Erreur de compilation","Rien"], correct:1 },
+        { type:'qa', q:"Pourquoi mettre p = NULL après free(p) ?", answer:"Pour éviter un dangling pointer (utilisation accidentelle d'une adresse libérée)" },
+        { type:'mcq', q:"sizeof(int) vaut généralement :", options:["1","2","4","8"], correct:2 },
+        { type:'mcq', q:"(int*)malloc(5*sizeof(int)) alloue :", options:["5 octets","20 octets","5 pointeurs","40 octets"], correct:1 }
+    ],
+    dragdrop: [
+        { instruction:"Associez le symbole à son rôle :", pairs:[
+            ["&x","Adresse de x"],["*p","Valeur pointée par p"],["NULL","Pointeur nul sûr"],["sizeof","Taille en octets"]
+        ]},
+        { instruction:"Associez la fonction à son effet :", pairs:[
+            ["malloc","Alloue (non initialisé)"],["calloc","Alloue (initialisé à 0)"],["realloc","Redimensionne"],["free","Libère la mémoire"]
+        ]},
+        { instruction:"Associez l'erreur à sa conséquence :", pairs:[
+            ["Oublier free","Fuite mémoire"],["Double free","Crash"],["*p sur NULL","Segfault"],["Retourner &local","Dangling pointer"]
+        ]}
+    ]
+});
+</script>
+<script src="../../assets/js/download.js"></script>
+</body>
+</html>

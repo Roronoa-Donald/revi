@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 2 — Espaces Vectoriels | Algèbre Linéaire B1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        :root { --accent: #a855f7; --accent-light: #c084fc; --accent-dark: #9333ea; --accent-glow: rgba(168,85,247,0.25); }
+        .dark { --accent: #c084fc; --accent-light: #d8b4fe; --accent-dark: #a855f7; --accent-glow: rgba(192,132,252,0.25); }
+        .math-block{background:var(--bg-card,#111827);border:1px solid var(--border,rgba(255,255,255,.06));border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0;text-align:center;font-size:1.05rem;overflow-x:auto}
+        .vector{font-weight:700;color:var(--accent)}
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Aller au contenu</a>
+<div class="reading-progress" id="reading-progress"></div>
+<nav class="glass-nav"><div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><i class="fas fa-square-root-variable"></i> MatriBot</a>
+    <ul class="nav-links">
+        <li><a href="../index.html">Accueil</a></li><li><a href="formules.html">Formules</a></li>
+        <li><a href="cartes.html">Cartes</a></li><li><a href="simulateur-examen.html">Simulateur</a></li>
+        <li><a href="../exercices/exercices.html">Exercices</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+</div></nav>
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>📐 MatriBot</span><button class="mobile-nav-close" id="mobile-nav-close"><i class="fas fa-times"></i></button></div>
+    <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+    <a href="chapitre1.html"><i class="fas fa-book-open"></i> Ch.1 — Matrices</a>
+    <a href="chapitre2.html" class="active"><i class="fas fa-book-open"></i> Ch.2 — Espaces vectoriels</a>
+    <a href="chapitre3.html"><i class="fas fa-book-open"></i> Ch.3 — Applications linéaires</a>
+    <a href="formules.html"><i class="fas fa-scroll"></i> Formules</a>
+    <a href="cartes.html"><i class="fas fa-layer-group"></i> Cartes</a>
+    <a href="simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Simulateur</a>
+    <a href="../exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a>
+</div>
+
+<section class="hero-section" id="main-content">
+    <div class="hero-badge"><i class="fas fa-arrows-alt"></i> Chapitre 2</div>
+    <h1>📐 Espaces <span class="highlight">Vectoriels</span></h1>
+    <p>Axiomes, sous-espaces, familles libres, bases et dimension — la structure de l'algèbre linéaire.</p>
+</section>
+
+<main class="content-wrapper">
+
+<!-- ═══ Objectifs ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-bullseye"></i> Objectifs du chapitre</h2>
+    <div class="info-box">
+        <ul>
+            <li>Connaître les 8 axiomes d'un espace vectoriel</li>
+            <li>Vérifier si un sous-ensemble est un sous-espace vectoriel (SEV)</li>
+            <li>Distinguer famille libre, liée, génératrice et base</li>
+            <li>Calculer la dimension d'un espace et appliquer la formule de Grassmann</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ═══ 1. Introduction ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-question-circle"></i> C'est quoi un espace vectoriel ?</h2>
+    <div class="concept-card">
+        <h4>🏫 Analogie de la boîte à outils</h4>
+        <p>Un espace vectoriel, c'est une <strong>boîte à outils mathématique</strong> : un ensemble de « vecteurs » munis de deux opérations (addition + multiplication par un scalaire) qui respectent <strong>8 règles strictes</strong>.</p>
+        <p>Exemples classiques : \(\mathbb{R}^2\), \(\mathbb{R}^3\), \(\mathbb{R}_n[X]\) (polynômes de degré ≤ n), \(\mathcal{M}_{n,p}(\mathbb{R})\).</p>
+    </div>
+</section>
+
+<!-- ═══ 2. Les 8 axiomes ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-gavel"></i> Les 8 axiomes — Structure \((E, +, \cdot)\)</h2>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 Mnémonique : 4 + 4 = 8 — « A.C.N.I. × 2 »</h4>
+        <p><strong>A</strong>ssociativité · <strong>C</strong>ommutativité · élément <strong>N</strong>eutre · élément <strong>I</strong>nverse</p>
+    </div>
+    <h3>4 axiomes pour l'addition (+)</h3>
+    <div class="styled-table-container"><table class="styled-table">
+        <thead><tr><th>#</th><th>Axiome</th><th>Formule</th></tr></thead>
+        <tbody>
+            <tr><td>A1</td><td>Associativité</td><td>\((u+v)+w = u+(v+w)\)</td></tr>
+            <tr><td>A2</td><td>Commutativité</td><td>\(u+v = v+u\)</td></tr>
+            <tr><td>A3</td><td>Élément neutre</td><td>\(\exists\, 0_E : u + 0_E = u\)</td></tr>
+            <tr><td>A4</td><td>Opposé</td><td>\(\forall u,\ \exists\, (-u) : u + (-u) = 0_E\)</td></tr>
+        </tbody>
+    </table></div>
+    <h3>4 axiomes pour la loi externe (·)</h3>
+    <div class="styled-table-container"><table class="styled-table">
+        <thead><tr><th>#</th><th>Axiome</th><th>Formule</th></tr></thead>
+        <tbody>
+            <tr><td>M1</td><td>Associativité mixte</td><td>\(\lambda(\mu\, u) = (\lambda\mu)\, u\)</td></tr>
+            <tr><td>M2</td><td>Élément neutre scalaire</td><td>\(1 \cdot u = u\)</td></tr>
+            <tr><td>D1</td><td>Distributivité / vecteurs</td><td>\(\lambda(u+v) = \lambda u + \lambda v\)</td></tr>
+            <tr><td>D2</td><td>Distributivité / scalaires</td><td>\((\lambda+\mu)\, u = \lambda u + \mu u\)</td></tr>
+        </tbody>
+    </table></div>
+</section>
+
+<!-- ═══ 3. Sous-espaces vectoriels ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-layer-group"></i> Sous-espaces vectoriels (SEV)</h2>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 3 Tests pour un SEV — « N.A.M. » (Non-vide, Addition, Multiplication)</h4>
+        <p>Un sous-ensemble \(F \subset E\) est un SEV ssi :</p>
+        <ul>
+            <li><strong>N</strong>on-vide : \(0_E \in F\) (ou montrer que \(F \neq \varnothing\))</li>
+            <li><strong>A</strong>ddition stable : \(\forall u, v \in F,\ u+v \in F\)</li>
+            <li><strong>M</strong>ultiplication stable : \(\forall \lambda \in \mathbb{R},\ \forall u \in F,\ \lambda u \in F\)</li>
+        </ul>
+    </div>
+    <div class="tip-box"><strong>💡 Test 2-en-1 :</strong> On peut regrouper A + M : \(\forall \lambda, \mu \in \mathbb{R},\ \forall u, v \in F : \lambda u + \mu v \in F\)</div>
+    <div class="warning-box"><strong>⚠️ Piège :</strong> \(F = \{(x, y) \in \mathbb{R}^2 \mid x + y = 1\}\) n'est <strong>pas</strong> un SEV car \((0,0) \notin F\).</div>
+
+    <!-- ─── Exercice guidé : Vérifier un SEV ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Vérifier si un ensemble est un SEV</h4>
+        <p><strong>Énoncé :</strong> L'ensemble \(F = \{(x, y, z) \in \mathbb{R}^3 \mid x - 2y + z = 0\}\) est-il un SEV de \(\mathbb{R}^3\) ?</p>
+
+        <p><strong>Étape 1 — Test N (non-vide) :</strong></p>
+        <p>\((0,0,0) \in F\) ? → \(0 - 2(0) + 0 = 0\) ✓ Le vecteur nul est dans \(F\).</p>
+
+        <p><strong>Étape 2 — Test A (stabilité par addition) :</strong></p>
+        <p>Soient \(u = (x_1, y_1, z_1)\) et \(v = (x_2, y_2, z_2)\) dans \(F\), donc \(x_1 - 2y_1 + z_1 = 0\) et \(x_2 - 2y_2 + z_2 = 0\).</p>
+        <div class="math-block">
+            \[(x_1+x_2) - 2(y_1+y_2) + (z_1+z_2) = \underbrace{(x_1-2y_1+z_1)}_{=0} + \underbrace{(x_2-2y_2+z_2)}_{=0} = 0 \quad ✓\]
+        </div>
+
+        <p><strong>Étape 3 — Test M (stabilité par multiplication scalaire) :</strong></p>
+        <div class="math-block">
+            \[\lambda x_1 - 2(\lambda y_1) + \lambda z_1 = \lambda\underbrace{(x_1 - 2y_1 + z_1)}_{=0} = 0 \quad ✓\]
+        </div>
+
+        <p><strong>Conclusion :</strong> \(F\) est un SEV de \(\mathbb{R}^3\). C'est le plan d'équation \(x - 2y + z = 0\) passant par l'origine.</p>
+        <div class="tip-box"><strong>💡 Règle générale :</strong> Tout ensemble défini par une <strong>équation linéaire homogène</strong> (= 0) est un SEV !</div>
+    </div>
+
+    <!-- ─── Exercice guidé : Contre-exemple ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Contre-exemple : ce n'est PAS un SEV</h4>
+        <p><strong>Énoncé :</strong> \(G = \{(x, y) \in \mathbb{R}^2 \mid xy \geq 0\}\) est-il un SEV ?</p>
+
+        <p><strong>Test N :</strong> \((0,0) \in G\) car \(0 \times 0 = 0 \geq 0\) ✓</p>
+        <p><strong>Test A :</strong> Prenons \(u = (1,1)\) et \(v = (-1,2)\). On a \(1 \times 1 = 1 \geq 0\) ✓ et \((-1)(2) = -2 \not\geq 0\) ✗</p>
+        <p>En fait, \(v \notin G\). Prenons \(u=(1, -1)\) (xy = -1 < 0) → \(u \notin G\) non plus. Essayons \(u = (1, 0)\) et \(v = (0, -1)\) :</p>
+        <p>\(u + v = (1, -1)\) et \(1 \times (-1) = -1 < 0\), donc \(u+v \notin G\). Le test A <strong>échoue</strong> !</p>
+        <p><strong>Conclusion :</strong> \(G\) n'est <strong>pas</strong> un SEV (il suffit d'UN contre-exemple !).</p>
+    </div>
+    <p><strong>Exemple :</strong> \(F = \{(x, y) \in \mathbb{R}^2 \mid 2x - y = 0\}\) est un SEV de \(\mathbb{R}^2\) :</p>
+    <ul>
+        <li>\((0,0)\) vérifie \(2(0)-0=0\) ✓ (non-vide)</li>
+        <li>Si \((x_1,y_1), (x_2,y_2) \in F\) → \(2(x_1+x_2)-(y_1+y_2) = (2x_1-y_1)+(2x_2-y_2) = 0\) ✓</li>
+        <li>\(\lambda(x,y) = (\lambda x, \lambda y)\) et \(2\lambda x - \lambda y = \lambda(2x-y) = 0\) ✓</li>
+    </ul>
+</section>
+
+<!-- ═══ 4. Combinaisons linéaires ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-blender"></i> Combinaisons linéaires &amp; Vect</h2>
+    <div class="concept-card">
+        <p>Une <strong>combinaison linéaire</strong> (CL) de \(v_1, \ldots, v_k\) :</p>
+        \[\lambda_1 v_1 + \lambda_2 v_2 + \cdots + \lambda_k v_k \quad (\lambda_i \in \mathbb{R})\]
+        <p>L'ensemble de toutes les CL possibles forme le <strong>sous-espace engendré</strong> :</p>
+        \[\text{Vect}(v_1, \ldots, v_k) = \{\lambda_1 v_1 + \cdots + \lambda_k v_k \mid \lambda_i \in \mathbb{R}\}\]
+        <p>C'est toujours un SEV de \(E\).</p>
+    </div>
+</section>
+
+<!-- ═══ 5. Familles libres et liées ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-link"></i> Familles libres et liées</h2>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 Mnémonique : « Libre = Aucune redondance »</h4>
+        <ul>
+            <li><strong>Famille libre</strong> : la seule CL donnant \(0_E\) est la triviale (\(\lambda_1 = \cdots = \lambda_k = 0\))</li>
+            <li><strong>Famille liée</strong> : il existe une CL non triviale qui donne \(0_E\) (il y a de la redondance !)</li>
+        </ul>
+    </div>
+    <div class="tip-box"><strong>💡 Règles rapides :</strong>
+        <ul>
+            <li>Plus de vecteurs que \(\dim(E)\) → automatiquement <strong>liée</strong></li>
+            <li>Si un vecteur est CL des autres → <strong>liée</strong></li>
+            <li>\(\{0_E, \ldots\}\) → toujours <strong>liée</strong> (car \(1 \cdot 0_E = 0_E\))</li>
+        </ul>
+    </div>
+    <p><strong>Exemple 1 :</strong> \(\{(1,0), (0,1)\}\) dans \(\mathbb{R}^2\) :</p>
+    <p>\(\lambda_1(1,0) + \lambda_2(0,1) = (0,0) \Rightarrow \lambda_1 = \lambda_2 = 0\) → <strong>libre ✓</strong></p>
+    <p><strong>Exemple 2 :</strong> \(\{(1,0), (0,1), (1,1)\}\) dans \(\mathbb{R}^2\) : 3 vecteurs pour \(\dim = 2\) → <strong>liée ✓</strong></p>
+    <p>En effet : \(1 \cdot (1,0) + 1 \cdot (0,1) - 1 \cdot (1,1) = (0,0)\) avec des coefficients non tous nuls.</p>
+
+    <!-- ─── Exercice guidé : Famille libre ou liée ? ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Déterminer si une famille est libre ou liée</h4>
+        <p><strong>Énoncé :</strong> La famille \(\{v_1 = (1,2,1),\ v_2 = (0,1,-1),\ v_3 = (2,5,1)\}\) est-elle libre dans \(\mathbb{R}^3\) ?</p>
+
+        <p><strong>Étape 1 — Poser l'équation :</strong></p>
+        <div class="math-block">
+            \[\lambda_1(1,2,1) + \lambda_2(0,1,-1) + \lambda_3(2,5,1) = (0,0,0)\]
+        </div>
+
+        <p><strong>Étape 2 — Former le système :</strong></p>
+        <div class="math-block">
+            \[\begin{cases} \lambda_1 + 0 + 2\lambda_3 = 0 \\ 2\lambda_1 + \lambda_2 + 5\lambda_3 = 0 \\ \lambda_1 - \lambda_2 + \lambda_3 = 0 \end{cases}\]
+        </div>
+
+        <p><strong>Étape 3 — Résoudre par échelonnement :</strong></p>
+        <p>De \(L_1\) : \(\lambda_1 = -2\lambda_3\)</p>
+        <p>\(L_2 : 2(-2\lambda_3) + \lambda_2 + 5\lambda_3 = 0 \Rightarrow \lambda_2 + \lambda_3 = 0 \Rightarrow \lambda_2 = -\lambda_3\)</p>
+        <p>\(L_3 : (-2\lambda_3) - (-\lambda_3) + \lambda_3 = -2\lambda_3 + \lambda_3 + \lambda_3 = 0\) ✓ (automatiquement satisfaite)</p>
+
+        <p><strong>Étape 4 — Conclure :</strong></p>
+        <p>Pour \(\lambda_3 = 1\) : \(\lambda_1 = -2\), \(\lambda_2 = -1\), \(\lambda_3 = 1\). Tous non nuls → CL non triviale !</p>
+        <div class="math-block">
+            \[-2(1,2,1) - 1(0,1,-1) + 1(2,5,1) = (-2+0+2,\ -4-1+5,\ -2+1+1) = (0,0,0) ✓\]
+        </div>
+        <p><strong>Conclusion :</strong> La famille est <strong>liée</strong>. On a \(v_3 = 2v_1 + v_2\).</p>
+    </div>
+</section>
+
+<!-- ═══ 6. Base et dimension ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-ruler-combined"></i> Base et dimension</h2>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 Base = Libre + Génératrice = « Le juste nécessaire »</h4>
+        <p>Une <strong>base</strong> de \(E\) est une famille à la fois <strong>libre</strong> et <strong>génératrice</strong>.</p>
+        <p>La <strong>dimension</strong> de \(E\) = nombre de vecteurs dans n'importe quelle base.</p>
+    </div>
+    <div class="styled-table-container"><table class="styled-table">
+        <thead><tr><th>Espace</th><th>Base canonique</th><th>Dimension</th></tr></thead>
+        <tbody>
+            <tr><td>\(\mathbb{R}^n\)</td><td>\(\{e_1, \ldots, e_n\}\)</td><td>\(n\)</td></tr>
+            <tr><td>\(\mathbb{R}_n[X]\) (deg ≤ n)</td><td>\(\{1, X, X^2, \ldots, X^n\}\)</td><td>\(n+1\)</td></tr>
+            <tr><td>\(\mathcal{M}_{n,p}(\mathbb{R})\)</td><td>\(\{E_{ij}\}\) (matrices élémentaires)</td><td>\(n \times p\)</td></tr>
+        </tbody>
+    </table></div>
+    <div class="info-box"><strong>ℹ️ Propriétés utiles :</strong>
+        <ul>
+            <li>Famille libre dans \(E\) → au plus \(\dim(E)\) vecteurs</li>
+            <li>Famille libre de \(\dim(E)\) vecteurs → c'est une base !</li>
+            <li>Famille génératrice de \(\dim(E)\) vecteurs → c'est une base !</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ═══ 7. Grassmann ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-plus-minus"></i> Formule de Grassmann &amp; Somme directe</h2>
+    <div class="concept-card">
+        <p>Pour deux sous-espaces \(F_1\) et \(F_2\) de \(E\) :</p>
+        \[\boxed{\dim(F_1 + F_2) = \dim(F_1) + \dim(F_2) - \dim(F_1 \cap F_2)}\]
+    </div>
+    <div class="info-box"><strong>ℹ️ Somme directe :</strong> Si \(F_1 \cap F_2 = \{0_E\}\), on écrit \(F_1 \oplus F_2\) et alors \(\dim(F_1 \oplus F_2) = \dim(F_1) + \dim(F_2)\).</div>
+    <p><strong>Exemple :</strong> Soit \(F_1 = \text{Vect}((1,0,0), (0,1,0))\) et \(F_2 = \text{Vect}((0,1,0), (0,0,1))\) dans \(\mathbb{R}^3\).</p>
+    <ul>
+        <li>\(\dim(F_1) = 2\), \(\dim(F_2) = 2\)</li>
+        <li>\(F_1 \cap F_2 = \text{Vect}((0,1,0))\) → \(\dim(F_1 \cap F_2) = 1\)</li>
+        <li>\(\dim(F_1 + F_2) = 2 + 2 - 1 = 3\), donc \(F_1 + F_2 = \mathbb{R}^3\).</li>
+    </ul>
+
+    <!-- ─── Exercice guidé : Grassmann ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Formule de Grassmann pas à pas</h4>
+        <p><strong>Énoncé :</strong> Dans \(\mathbb{R}^4\), on donne :</p>
+        \[F = \text{Vect}((1,0,1,0),\ (0,1,0,1)) \qquad G = \text{Vect}((1,1,1,1),\ (0,1,1,0))\]
+        <p>Calculer \(\dim(F+G)\) et déterminer si \(F + G\) est une somme directe.</p>
+
+        <p><strong>Étape 1 — Dimensions de \(F\) et \(G\) :</strong></p>
+        <p>\(\dim(F) = 2\) (les deux vecteurs ne sont pas proportionnels → libre).</p>
+        <p>\(\dim(G) = 2\) (idem).</p>
+
+        <p><strong>Étape 2 — Trouver \(F \cap G\) :</strong></p>
+        <p>Un vecteur \(w \in F \cap G\) s'écrit \(w = \alpha(1,0,1,0) + \beta(0,1,0,1) = \gamma(1,1,1,1) + \delta(0,1,1,0)\).</p>
+        <div class="math-block">
+            \[\begin{cases} \alpha = \gamma \\ \beta = \gamma + \delta \\ \alpha = \gamma + \delta \\ \beta = \gamma \end{cases} \Rightarrow \begin{cases} \alpha = \gamma \\ \delta = \beta - \gamma \\ \delta = \alpha - \gamma = 0 \\ \beta = \gamma = \alpha \end{cases}\]
+        </div>
+        <p>Donc \(\delta = 0\) et \(\alpha = \beta = \gamma\) → \(w = \alpha(1,1,1,1)\), donc \(F \cap G = \text{Vect}((1,1,1,1))\) et \(\dim(F \cap G) = 1\).</p>
+
+        <p><strong>Étape 3 — Appliquer Grassmann :</strong></p>
+        \[\dim(F+G) = 2 + 2 - 1 = \boxed{3}\]
+
+        <p><strong>Conclusion :</strong> \(F \cap G \neq \{0\}\), donc la somme n'est <strong>pas directe</strong>. \(F + G\) est un sous-espace de dimension 3 de \(\mathbb{R}^4\).</p>
+    </div>
+</section>
+
+<!-- ═══ 8. Pièges ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-exclamation-triangle"></i> Pièges classiques à l'examen</h2>
+    <div class="warning-box"><strong>⚠️ Piège n°1 :</strong> Confondre « libre » et « génératrice ». Ce sont deux notions <strong>indépendantes</strong> : libre = pas de redondance, génératrice = couvre tout.</div>
+    <div class="warning-box"><strong>⚠️ Piège n°2 :</strong> Oublier de vérifier \(0_E \in F\) pour un SEV. C'est le test le <strong>plus rapide</strong> pour éliminer.</div>
+    <div class="warning-box"><strong>⚠️ Piège n°3 :</strong> Dire que \(\dim(\mathbb{R}_n[X]) = n\) au lieu de \(\mathbf{n+1}\). La base est \(\{1, X, \ldots, X^n\}\), soit \(n+1\) éléments !</div>
+</section>
+
+<!-- ═══ 9. Récapitulatif ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-check-circle"></i> Récapitulatif</h2>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>📝 L'essentiel du Chapitre 2</h4>
+        <ul>
+            <li><strong>8 axiomes</strong> : 4 pour \(+\), 4 pour \(\cdot\) (A.C.N.I. × 2)</li>
+            <li><strong>SEV</strong> : tester N.A.M. (Non-vide, Addition, Multiplication)</li>
+            <li><strong>Libre</strong> = seule CL nulle est triviale · <strong>Liée</strong> = redondance</li>
+            <li><strong>Base = Libre + Génératrice</strong> · \(\dim\) = taille de la base</li>
+            <li><strong>Grassmann</strong> : \(\dim(F_1{+}F_2) = \dim(F_1) + \dim(F_2) - \dim(F_1 \cap F_2)\)</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ═══ 10. Exercices ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-dumbbell"></i> Exercices</h2>
+    <div id="chapter-exercises"></div>
+</section>
+
+<div class="chapter-nav">
+    <a href="chapitre1.html" class="prev-chapter"><i class="fas fa-arrow-left"></i> Matrices</a>
+    <a href="chapitre3.html" class="next-chapter">Applications linéaires <i class="fas fa-arrow-right"></i></a>
+</div>
+</main>
+
+<div class="xp-bar-container">
+    <span class="xp-level">Débutant</span>
+    <div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div>
+    <span class="xp-text">0 XP</span>
+</div>
+<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/gamification.js"></script>
+<script src="../../assets/js/chapter-exercises.js"></script>
+<script src="../../assets/js/download.js"></script>
+<script>
+GameEngine.configure({
+    storageKey:'b1_algebre_progress',
+    badges:[
+        {id:'vector_hero',name:'Héros Vectoriel',icon:'🏹',desc:'Comprendre les espaces vectoriels',xp:20},
+        {id:'base_finder',name:'Chercheur de Base',icon:'🔍',desc:'Trouver une base d\'un espace',xp:25}
+    ],
+    levels:[
+        {min:0,title:'Débutant'},{min:30,title:'Apprenti Matriciel'},{min:80,title:'Calculateur Jr.'},
+        {min:150,title:'Algébriste'},{min:250,title:'Maître des Vecteurs'},{min:400,title:'Guru Linéaire'}
+    ],
+    tips:[
+        "Libre = le seul moyen d'obtenir 0 est avec tous les λᵢ = 0.",
+        "Base = Libre + Génératrice. C'est le 'juste nécessaire'.",
+        "dim(ℝⁿ) = n, dim(ℝₙ[X]) = n+1.",
+        "Plus de vecteurs que la dimension ⟹ famille liée."
+    ]
+});
+GameEngine.init();
+
+ChapterExercises.init({
+    guided:[
+        {q:"Un espace vectoriel a combien d'axiomes à vérifier ?",hints:["Compte les propriétés de + et ·","4 pour +, 4 pour ·","Huit"],answer:"8"},
+        {q:"Quelle est la dimension de ℝ³ ?",hints:["Combien de vecteurs dans la base canonique ?","(1,0,0), (0,1,0), (0,0,1)","Trois"],answer:"3"},
+        {q:"Quelle est la dimension de ℝ₂[X] (polynômes de degré ≤ 2) ?",hints:["La base est {1, X, X²}","Compte les éléments","n+1 avec n=2"],answer:"3"},
+        {q:"Si {v₁, v₂, v₃} est libre et 2v₁ − 3v₂ + 0v₃ = 0, que vaut λ₁ ?",hints:["Famille libre : seule CL nulle = triviale","Donc tous les λᵢ = 0","λ₁ doit être 0... mais 2 ≠ 0, contradiction !"],answer:"impossible"},
+        {q:"Comment appelle-t-on une famille qui est à la fois libre et génératrice ?",hints:["Deux mots en un","Li + Ge","4 lettres"],answer:"base"}
+    ],
+    quiz:[
+        {type:"mcq",q:"Lequel n'est PAS un espace vectoriel ?",options:["ℝ²","ℕ (les entiers naturels)","M₂(ℝ)","ℝ[X]"],correct:1},
+        {type:"mcq",q:"{(1,0),(0,1),(1,1)} est une famille :",options:["Libre","Liée","Ni l'un ni l'autre"],correct:1},
+        {type:"qa",q:"Quelle est la formule de Grassmann ?",answer:["dim(F₁+F₂) = dim(F₁) + dim(F₂) - dim(F₁∩F₂)","dim(F1+F2) = dim(F1) + dim(F2) - dim(F1∩F2)"]},
+        {type:"mcq",q:"dim(M₂,₃(ℝ)) = ?",options:["2","3","5","6"],correct:3},
+        {type:"mcq",q:"Dans ℝ³, une famille de 4 vecteurs est forcément :",options:["Libre","Liée","Génératrice","Base"],correct:1},
+        {type:"qa",q:"Que signifie 'famille génératrice' ?",answer:["tout vecteur est CL de la famille","on peut tout exprimer","tout élément est combinaison linéaire"]},
+        {type:"mcq",q:"F ⊕ G signifie que F ∩ G = ?",options:["{0}","F","G","E"],correct:0},
+        {type:"mcq",q:"{0E} est un sous-espace vectoriel de E ?",options:["Vrai","Faux"],correct:0},
+        {type:"qa",q:"Si dim(E)=5 et une famille libre a 5 vecteurs, c'est une... ?",answer:["base"]},
+        {type:"mcq",q:"La base canonique de ℝ² est :",options:["{(1,0),(0,1)}","{(1,1),(0,1)}","{(1,0),(1,0)}","{(2,0),(0,2)}"],correct:0}
+    ],
+    dragdrop:[
+        {instruction:"Associe chaque concept à sa définition :",pairs:[["Famille libre","Seule CL nulle = triviale"],["Famille liée","∃ CL nulle non triviale"],["Famille génératrice","Tout vecteur = CL de la famille"],["Base","Libre + Génératrice"],["Dimension","Nombre de vecteurs de la base"]]},
+        {instruction:"Associe chaque espace à sa dimension :",pairs:[["ℝ³","3"],["M₂,₃(ℝ)","6"],["ℝ₂[X]","3"],["ℝ⁴","4"]]},
+        {instruction:"Classe dans l'ordre : famille liée → libre → génératrice → base :",pairs:[["Le plus faible","Liée (redondance)"],["Indépendance","Libre"],["Couverture","Génératrice"],["Le plus fort","Base (libre + gén.)"]]}
+    ]
+});
+</script>
+<script>document.addEventListener("DOMContentLoaded",function(){if(typeof renderMathInElement!=="undefined"){renderMathInElement(document.body,{delimiters:[{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}],throwOnError:false})}});</script>
+</body>
+</html>

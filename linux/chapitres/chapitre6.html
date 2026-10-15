@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Services, processus et planification | Administration Linux B2</title>
+<meta name="description" content="Chapitre 6 du cours d’administration Linux B2 : systemctl, lecture des états, processus et zombies, kill, cron et journaux. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/linux/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Services, processus et planification | Administration Linux B2">
+<meta property="og:description" content="Chapitre 6 du cours d’administration Linux B2 : systemctl, lecture des états, processus et zombies, kill, cron et journaux. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="linuxnav"><div class="linuxnav__in">
+  <a class="linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="linuxnav__sep" aria-hidden="true">/</span>
+  <a class="linuxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Administration Linux B2</a>
+  <div class="linuxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="linuxwrap">
+<p class="crumb"><a href="../index.html">Administration Linux B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Services, processus et planification</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un serveur passe sa vie à exécuter des services. L’administrateur doit savoir lequel tourne, lequel est tombé, quel processus consomme tout, et programmer les tâches récurrentes — sans oublier de surveiller ce qui se passe dans les journaux.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>lire et changer l’état d’un service systemd ;</li>
+      <li>interpréter les états d’un processus et repérer un zombie ;</li>
+      <li>programmer une tâche récurrente avec cron ;</li>
+      <li>consulter les journaux pour diagnostiquer.</li>
+    </ol>
+  </div>
+
+<h2>1. systemctl : piloter un service</h2>
+
+<p>Sous Debian moderne, les services sont gérés par <strong>systemd</strong> via <code>systemctl</code>. Un service est <code>active</code>, <code>inactive</code> ou <code>failed</code>. Selon l’état, l’action diffère : démarrer, redémarrer ou ne rien faire.</p>
+<pre><code>systemctl status nginx        # état détaillé
+systemctl start nginx         # démarrer (inactive)
+systemctl restart nginx       # redémarrer (failed)
+systemctl enable nginx        # activer au démarrage</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> État vers action</div>
+    <p>active → rien à faire ; inactive → <code>start</code> ; failed → <code>restart</code>. Le choix de l’action selon l’état est exactement ce que code l’exercice 1 de ce chapitre.</p>
+  </div>
+
+<h2>2. Processus et zombies</h2>
+
+<p><code>ps</code> et <code>top</code> listent les processus. Un processus <code>running</code> s’exécute, <code>sleeping</code> attend, <code>zombie</code> est terminé mais non récupéré par son parent : il ne consomme plus de ressources mais occupe une entrée de la table des processus.</p>
+<pre><code>ps aux            # tous les processus
+top               # tri par consommation, en direct
+kill PID          # demander l’arrêt d’un processus
+kill -9 PID       # forcer (dernier recours)</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — kill -9 en premier recours</div>
+    <p><code>kill</code> envoie un signal d’arrêt propre ; <code>kill -9</code> ne laisse aucune chance au processus de fermer ses fichiers. On le réserve au processus réellement bloqué.</p>
+  </div>
+
+<h2>3. Planifier avec cron</h2>
+
+<p><code>cron</code> exécute des commandes à heure fixe. Une entrée <code>crontab</code> a cinq champs — minute, heure, jour du mois, mois, jour de la semaine — suivis de la commande.</p>
+<pre><code>crontab -e                     # éditer ses tâches
+# minute heure jour mois jour-semaine  commande
+  0      6     *    *    *             /root/backup.sh
+ 30     23     *    *    *             /root/nettoyage.sh</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Classer une tâche</div>
+    <p>On distingue les tâches du <strong>matin</strong> (heure &lt; 12) de celles de l’<strong>après-midi</strong>. Cette règle simple structure l’exercice 3 : lire heure, minute et nom de tâche, classer, puis compter.</p>
+  </div>
+
+<h2>4. Lire les journaux</h2>
+
+<p>Tout service écrit dans le journal de systemd, consultable avec <code>journalctl</code>. On filtre par service, par priorité ou par heure.</p>
+<pre><code>journalctl -u nginx        # journal d’un service
+journalctl -p err -b       # erreurs depuis le dernier démarrage
+tail -f /var/log/syslog    # suivre un fichier en direct</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Diagnostiquer dans l’ordre</div>
+    <p>Un service ne répond plus ? 1) <code>systemctl status</code> ; 2) <code>journalctl -u</code> ; 3) <code>ps</code> pour vérifier le processus ; 4) décider de l’action. Le réflexe d’ordre évite de redémarrer à l’aveugle.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx2-c6-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;ssh active&#10;nginx inactive&#10;mysql failed&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+a=0
+for ((i=0; i<n; i++)); do
+  read -r service etat
+  # À compléter : choisir la bonne action et compter les alertes.
+done
+# À compléter : le total des alertes.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Superviser un service</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décider de l’action à mener selon l’état d’un service systemd.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « service etat » où <code>etat</code> vaut <code>active</code>, <code>inactive</code> ou <code>failed</code>. Il affiche pour chacun <code>service : rien a faire</code> (active), <code>service : demarrer</code> (inactive) ou <code>service : redemarrer</code> (failed). Il termine par <code>alertes : X</code>, le nombre de services non actifs.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+ssh active
+nginx inactive
+mysql failed
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ssh : rien a faire
+nginx : demarrer
+mysql : redemarrer
+alertes : 2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trois cas : active, inactive (démarrer), failed (redémarrer).</li>
+        <li>Une alerte est comptée pour tout service qui n’est pas active.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx2-c6-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;101 running&#10;205 sleeping&#10;309 zombie&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+z=0
+for ((i=0; i<n; i++)); do
+  read -r pid etat
+  # À compléter : traiter les trois états et compter les zombies.
+done
+# À compléter : le total des zombies.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Détecter un processus anormal</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Repérer les processus zombies et dresser la liste des actifs.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « pid etat » où <code>etat</code> vaut <code>running</code>, <code>sleeping</code> ou <code>zombie</code>. Il affiche <code>pid : actif</code>, <code>pid : en attente</code> ou <code>pid : a nettoyer</code>, puis termine par <code>zombies : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+101 running
+205 sleeping
+309 zombie
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>101 : actif
+205 : en attente
+309 : a nettoyer
+zombies : 1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trois états possibles : running, sleeping, zombie.</li>
+        <li>Seuls les zombies alimentent le compteur final.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx2-c6-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;6 30 sauvegarde&#10;23 0 nettoyage&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+m=0
+for ((i=0; i<n; i++)); do
+  read -r heure minute tache
+  # À compléter : comparer heure à 12, afficher et compter.
+done
+# À compléter : le total des tâches du matin.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Vérifier une tâche planifiée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les tâches cron selon qu’elles s’exécutent le matin ou l’après-midi.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « heure minute tache ». Une tâche dont <code>heure</code> est strictement inférieure à 12 s’exécute <strong>le matin</strong> ; sinon elle s’exécute <strong>l’après-midi</strong>. Il affiche <code>tache : matin</code> ou <code>tache : apres-midi</code>, puis termine par <code>matin : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+6 30 sauvegarde
+23 0 nettoyage
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>sauvegarde : matin
+nettoyage : apres-midi
+matin : 1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La comparaison se fait sur l’heure seule : [ "$heure" -lt 12 ].</li>
+        <li>Midi (12) et au-delà sont considérés comme l’après-midi.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que fait systemctl restart nginx ?</p>
+      <div class="opts">
+        <button class="opt">arrête le service</button>
+        <button class="opt" data-correct="1">redémarre le service</button>
+        <button class="opt">désactive le service</button>
+      </div>
+      <div class="q__exp">restart relance le service, utile quand son état est failed.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">État d’un service arrêté mais installé ?</p>
+      <div class="opts">
+        <button class="opt">active</button>
+        <button class="opt" data-correct="1">inactive</button>
+        <button class="opt">failed</button>
+      </div>
+      <div class="q__exp">inactive signifie arrêté ; failed signifie en échec après une tentative.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un processus zombie…</p>
+      <div class="opts">
+        <button class="opt">consomme le processeur</button>
+        <button class="opt" data-correct="1">est terminé mais non récupéré</button>
+        <button class="opt">est un virus</button>
+      </div>
+      <div class="q__exp">Il est fini mais son parent n’a pas récupéré son code de retour.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait kill -9 ?</p>
+      <div class="opts">
+        <button class="opt">arrête proprement</button>
+        <button class="opt" data-correct="1">force l’arrêt immédiat</button>
+        <button class="opt">redémarre</button>
+      </div>
+      <div class="q__exp">-9 envoie SIGKILL : arrêt forcé, sans nettoyage, en dernier recours.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de champs dans une entrée crontab ?</p>
+      <div class="opts">
+        <button class="opt">3</button>
+        <button class="opt" data-correct="1">5</button>
+        <button class="opt">7</button>
+      </div>
+      <div class="q__exp">Cinq champs de temps, puis la commande.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">0 6 * * * s’exécute…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">tous les jours à 6 h</button>
+        <button class="opt">à 6 h le 1er</button>
+        <button class="opt">chaque minute</button>
+      </div>
+      <div class="q__exp">minute 0, heure 6, tous les jours : chaque matin à 6 h.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande lit le journal d’un service ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">journalctl -u nginx</button>
+        <button class="opt">ls -l</button>
+        <button class="opt">crontab -e</button>
+      </div>
+      <div class="q__exp">journalctl -u filtre le journal par unité de service.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle action pour un service failed ?</p>
+      <div class="opts">
+        <button class="opt">rien</button>
+        <button class="opt">start</button>
+        <button class="opt" data-correct="1">restart</button>
+      </div>
+      <div class="q__exp">Un service en échec se redémarre (restart) ; inactive se démarre (start).</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Redémarrer un service « à l’aveugle » sans avoir lu son <code>status</code> ni son journal.</li>
+      <li>Utiliser <code>kill -9</code> en premier recours au lieu de <code>kill</code>.</li>
+      <li>Confondre <code>start</code> (inactive) et <code>restart</code> (failed).</li>
+      <li>Écrire une entrée crontab avec le mauvais nombre de champs.</li>
+      <li>Oublier d’activer le service au démarrage (<code>enable</code>).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Diagnostiquer puis agir</div>
+    <ol>
+      <li><strong>Constater</strong> l’état avec <code>systemctl status</code>.</li>
+      <li><strong>Lire</strong> le journal du service avant toute action.</li>
+      <li><strong>Choisir</strong> l’action : rien, start ou restart, selon l’état.</li>
+      <li><strong>Vérifier</strong> les processus avec <code>ps</code> et repérer les zombies.</li>
+      <li><strong>Automatiser</strong> le contrôle récurrent avec une tâche cron.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>systemd gère les services : active, inactive, failed → rien, start, restart.</li>
+      <li>ps et top listent les processus ; un zombie est terminé mais non récupéré.</li>
+      <li>kill demande un arrêt propre ; kill -9 force, en dernier recours.</li>
+      <li>cron planifie : cinq champs de temps puis la commande.</li>
+      <li>journalctl -u lit le journal d’un service, journalctl -p err les erreurs.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je lis l’état d’un service et en déduis l’action.</li>
+      <li>Je repère un processus zombie dans une liste.</li>
+      <li>J’écris une entrée crontab correcte.</li>
+      <li>Je consulte le journal d’un service avant d’agir.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>systemd</li><li>systemctl</li><li>service</li><li>active/inactive/failed</li><li>ps</li><li>top</li><li>zombie</li><li>kill</li><li>cron</li><li>crontab</li><li>journalctl</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les trois états d’un service et l’action associée.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à lire ps aux et à repérer les zombies.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : écris trois entrées crontab correctes.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : le cours est acquis, place au projet intégrateur.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de scripts <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique d’administration Linux (Debian) : terminal, fichiers, droits, réseau, scripts et services.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

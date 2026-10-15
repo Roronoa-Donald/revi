@@ -1,0 +1,12 @@
+UPDATE voiture SET codemarque = 'BNZ' WHERE marque = 'MERCEDES BENZ';
+UPDATE voiture SET codemarque = 'TOY' WHERE marque = 'TOYOTA';
+UPDATE voiture SET codemarque = 'SUZ' WHERE marque = 'SUZUKI';
+UPDATE voiture SET codemarque = 'HYU' WHERE marque = 'HYUNDAI';
+UPDATE voiture SET codemarque = 'BMW' WHERE marque = 'BMW';
+UPDATE voiture SET codemarque = 'MIT' WHERE marque = 'MITSUBISHI';
+UPDATE voiture SET codemarque = 'MAZ' WHERE marque = 'MAZDA';
+UPDATE voiture SET codemarque = 'KIA' WHERE marque = 'KIA';
+UPDATE voiture SET codemarque = 'NIS' WHERE marque = 'NISSAN';
+UPDATE voiture SET codemarque = 'REN' WHERE marque = 'RENAULT';
+UPDATE voiture SET codemarque = 'PEU' WHERE marque = 'PEUGEOT';
+UPDATE voiture SET codemarque = 'MG'  WHERE marque = 'MG';

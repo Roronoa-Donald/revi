@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mémento technique — Git &amp; GitHub B3</title>
+<meta name="description" content="Mémento et fiches mémo des syntaxes Git, modèles objets, reflog et workflows GitHub Actions du cours Git B3.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-github/chapitres/formules.html">
+<meta property="og:title" content="Mémento technique — Git &amp; GitHub B3">
+<meta property="og:description" content="Mémento et fiches mémo des syntaxes Git, modèles objets, reflog et workflows GitHub Actions du cours Git B3.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-githubnav"><div class="b3-githubnav__in">
+  <a class="b3-githubnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-githubnav__sep" aria-hidden="true">/</span>
+  <a class="b3-githubnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git &amp; GitHub B3</a>
+  <div class="b3-githubnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html" class="is-active">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-githubnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-githubwrap">
+<p class="crumb"><a href="../index.html">Accueil</a> › <a href="../sommaire.html">Sommaire</a> › Formules &amp; Mémento</p>
+
+  <h1>Mémento Technique &amp; Aide-Mémoire — Git &amp; GitHub</h1>
+
+  <p class="lead">Guide de référence opérationnelle pour ingénieurs logiciels et DevOps : modèle objet DAG, commandes de plomberie, résolution de conflits, reflog, workflows GitHub Actions et sécurité des dépôts.</p>
+
+
+
+  <h2>1. Modèle Objet Interne &amp; Commandes de Plomberie Git</h2>
+
+  <table class="table">
+
+    <thead>
+
+      <tr><th>Type d’Objet Git</th><th>Structure du Stockage</th><th>Rôle &amp; Métadonnées Associées</th><th>Commande d’Inspection</th></tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr><td><code>blob</code></td><td><code>blob &lt;taille&gt;\0&lt;contenu&gt;</code></td><td>Stocke le contenu brut d’un fichier sans nom ni permissions.</td><td><code>git cat-file -p &lt;hash&gt;</code></td></tr>
+
+      <tr><td><code>tree</code></td><td><code>tree &lt;taille&gt;\0[mode nom\0hash...]</code></td><td>Représente un répertoire, associe noms de fichiers et hashes.</td><td><code>git ls-tree -r &lt;tree-ish&gt;</code></td></tr>
+
+      <tr><td><code>commit</code></td><td><code>commit &lt;taille&gt;\0tree, parent, author, committer, msg</code></td><td>Capture un état instantané de l’arborescence avec ancêtres.</td><td><code>git cat-file -p HEAD</code></td></tr>
+
+      <tr><td><code>tag</code></td><td><code>tag &lt;taille&gt;\0object, type, tag, tagger, msg</code></td><td>Étiquette annotée immuable pointant vers un commit précis.</td><td><code>git cat-file -p v1.0.0</code></td></tr>
+
+    </tbody>
+
+  </table>
+
+
+
+  <h2>2. Stratégies de Fusion &amp; Réécriture d’Historique</h2>
+
+  <table class="table">
+
+    <thead>
+
+      <tr><th>Opération Git</th><th>Mécanique Topologique</th><th>Modifie les SHA-1 ?</th><th>Cas d’Usage Recommandé</th></tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr><td><code>Fast-Forward</code></td><td>Déplace simplement le pointeur de branche cible vers l’amont.</td><td>Non</td><td>Branches de travail strictement linéaires sans divergence.</td></tr>
+
+      <tr><td><code>3-Way Merge (ORT)</code></td><td>Calcule le LCA (Lowest Common Ancestor) et crée un commit à 2 parents.</td><td>Non (nouveau commit créé)</td><td>Fusion de branches de fonctionnalités (Feature Branches).</td></tr>
+
+      <tr><td><code>Rebase Interactif</code></td><td>Rejoue les commits un par un sur une nouvelle base (LCA modifié).</td><td>Oui (nouveaux hashes)</td><td>Nettoyage d’historique local avant soumission de Pull Request.</td></tr>
+
+      <tr><td><code>Squash &amp; Merge</code></td><td>Condense tous les commits d’une PR en un seul commit linéaire.</td><td>Oui (nouvel historique)</td><td>Maintien d’une branche principale compacte et lisible.</td></tr>
+
+    </tbody>
+
+  </table>
+
+
+
+  <h2>3. Sauvetage de Données, Reflog &amp; Diagnostic d’Anomalies</h2>
+
+  <table class="table">
+
+    <thead>
+
+      <tr><th>Commande de Diagnostic</th><th>Description &amp; Action Opérationnelle</th><th>Syntaxe Typique</th></tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr><td><code>git reflog</code></td><td>Affiche l’historique des mouvements du pointeur HEAD (même après reset dur).</td><td><code>git reflog show HEAD</code></td></tr>
+
+      <tr><td>Sauvetage d’un commit perdu</td><td>Recrée une branche pointant sur le commit orphelin repéré dans le reflog.</td><td><code>git checkout -b rescue HEAD@{3}</code></td></tr>
+
+      <tr><td><code>git bisect</code></td><td>Effectue une recherche binaire dans l’historique pour identifier un commit fautif.</td><td><code>git bisect start HEAD v1.2.0</code></td></tr>
+
+      <tr><td><code>git stash</code></td><td>Empile les modifications non validées pour nettoyer temporairement la copie de travail.</td><td><code>git stash push -m "wip" &amp;&amp; git stash pop</code></td></tr>
+
+      <tr><td><code>git fsck</code></td><td>Vérifie l’intégrité de la base d’objets et liste les objets inaccessibles (dangling).</td><td><code>git fsck --lost-found</code></td></tr>
+
+    </tbody>
+
+  </table>
+
+
+
+  <h2>4. Spécification Conventional Commits 1.0.0 &amp; SemVer</h2>
+
+  <table class="table">
+
+    <thead>
+
+      <tr><th>Préfixe de Commit</th><th>Signification Sémantique</th><th>Impact SemVer (X.Y.Z)</th><th>Exemple Conforme</th></tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr><td><code>feat:</code></td><td>Nouvelle fonctionnalité pour l’utilisateur.</td><td>MINOR (+0.1.0)</td><td><code>feat(auth): ajout support OAuth2 GitHub</code></td></tr>
+
+      <tr><td><code>fix:</code></td><td>Correction d’un bogue en production.</td><td>PATCH (+0.0.1)</td><td><code>fix(api): resolution fuite memoire sur stream</code></td></tr>
+
+      <tr><td><code>docs:, chore:, test:</code></td><td>Documentation, maintenance ou tests sans code applicatif.</td><td>Aucun incrément</td><td><code>docs: mise a jour du guide de deploiement</code></td></tr>
+
+      <tr><td><code>feat!:</code> ou <code>BREAKING CHANGE</code></td><td>Rupture de compatibilité ascendante dans l’API publique.</td><td>MAJOR (+1.0.0)</td><td><code>feat(v2)!: suppression endpoints depreciees</code></td></tr>
+
+    </tbody>
+
+  </table>
+
+
+
+  <h2>5. GitHub Actions : Syntaxe de Workflow &amp; Bonnes Pratiques de Sécurité</h2>
+
+  <table class="table">
+
+    <thead>
+
+      <tr><th>Élément de Workflow</th><th>Rôle &amp; Syntaxe</th><th>Recommandation de Sécurité</th></tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr><td><code>on: [push, pull_request]</code></td><td>Événements déclencheurs du pipeline CI/CD.</td><td>Filtrer par branches cibles précises (ex: <code>main</code>).</td></tr>
+
+      <tr><td><code>permissions:</code></td><td>Droit accordé au token <code>GITHUB_TOKEN</code> du job.</td><td>Toujours appliquer le principe du moindre privilège (ex: <code>contents: read</code>).</td></tr>
+
+      <tr><td><code>strategy.matrix:</code></td><td>Exécute le job sur plusieurs versions/OS en parallèle.</td><td>Définir <code>fail-fast: false</code> pour observer toutes les plateformes.</td></tr>
+
+      <tr><td><code>steps.env:</code></td><td>Injection de variables d’environnement.</td><td>Ne JAMAIS injecter <code>${{ github.event... }}</code> directement dans <code>run:</code> bash !</td></tr>
+
+    </tbody>
+
+  </table>
+
+
+
+  <h2>6. Hygiène de Dépôt, Git LFS &amp; Purge d’Historique</h2>
+
+  <table class="table">
+
+    <thead>
+
+      <tr><th>Problématique</th><th>Outil Recommandé</th><th>Commande Opérationnelle</th></tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr><td>Fichiers volumineux (&gt; 50 Mo)</td><td>Git LFS (Large File Storage)</td><td><code>git lfs track "*.psd" &amp;&amp; git add .gitattributes</code></td></tr>
+
+      <tr><td>Validation de règles avant commit</td><td>Hooks pre-commit (framework)</td><td><code>pre-commit run --all-files</code></td></tr>
+
+      <tr><td>Fuite de token ou secret API</td><td><code>git-filter-repo</code></td><td><code>git-filter-repo --replace-text expressions.txt --force</code></td></tr>
+
+      <tr><td>Suppression d’un dossier lourd historique</td><td><code>git-filter-repo</code></td><td><code>git-filter-repo --path backup/ --invert-paths</code></td></tr>
+
+    </tbody>
+
+  </table>
+
+
+
+  <div class="chnav">
+    <a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Revenir aux cartes de révision</a>
+    <a class="btn btn--primary" href="examens.html">Passer aux épreuves d’examen <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail personnel.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

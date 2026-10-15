@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Démarrage avec Flask &amp; Routage | API REST avec Flask B2</title>
+<meta name="description" content="Chapitre 3 du cours API REST avec Flask B2 : Micro-framework Flask, objet d’application WSGI, décorateurs de routage, variables dynamiques et objet request. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/api-rest-flask/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Démarrage avec Flask &amp; Routage | API REST avec Flask B2">
+<meta property="og:description" content="Chapitre 3 du cours API REST avec Flask B2 : Micro-framework Flask, objet d’application WSGI, décorateurs de routage, variables dynamiques et objet request. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="api-rest-flasknav"><div class="api-rest-flasknav__in">
+  <a class="api-rest-flasknav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="api-rest-flasknav__sep" aria-hidden="true">/</span>
+  <a class="api-rest-flasknav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> API REST avec Flask B2</a>
+  <div class="api-rest-flasknav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="api-rest-flasknav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="api-rest-flaskwrap">
+<p class="crumb"><a href="../index.html">API REST avec Flask B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Démarrage avec Flask & Routage</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Après avoir modélisé les ressources et les routes théoriques, il est temps de leur donner vie en Python. Flask est un micro-framework minimaliste, rapide et flexible qui permet de déployer une API web en quelques lignes de code sans imposer une structure de projet lourde.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>installer et initialiser une application Flask avec Flask(__name__) ;</li>
+      <li>déclarer des routes avec le décorateur @app.route et spécifier les verbes acceptés ;</li>
+      <li>capturer et convertir des paramètres dynamiques d’URL (&lt;int:id&gt;, &lt;string:slug&gt;) ;</li>
+      <li>exploiter l’objet global contextuel request (query string, headers, corps JSON) ;</li>
+      <li>exécuter et tester le serveur localement avec le CLI Flask ou en script Python.</li>
+    </ol>
+  </div>
+
+<h2>1. Introduction à Flask et installation</h2>
+
+<p>Créé par <strong>Armin Ronacher</strong> en 2010, <strong>Flask</strong> est qualifié de <em>micro-framework</em> car il fournit uniquement le cœur indispensable : le routage HTTP (via <strong>Werkzeug</strong>) et le moteur de gabarits (<strong>Jinja2</strong>). Contrairement à des frameworks complets comme Django, Flask ne force aucun ORM ni structure de base de données prédéfinie.</p>
+<p>L’installation s’effectue simplement dans un environnement virtuel Python dédié :</p>
+<pre><code>python3 -m venv .venv
+source .venv/bin/activate
+pip install flask</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> L’application Flask minimale</div>
+    <pre><code>from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def accueil():
+    return {"message": "Bienvenue sur l'API REST"}
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)</code></pre>
+  </div>
+
+<h2>2. Le système de routage et les convertisseurs de variables</h2>
+
+<p>Le routage associe une URL à une fonction Python dite <em>fonction vue</em> (view function) à l’aide du décorateur <code>@app.route('/chemin')</code>.</p>
+<p>Flask permet d’extraire des portions dynamiques de l’URL en utilisant des balises typées :</p>
+<table class="data-table">
+  <thead>
+    <tr><th>Convertisseur</th><th>Syntaxe</th><th>Comportement</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>string</code> (défaut)</td><td><code>&lt;nom&gt;</code> ou <code>&lt;string:nom&gt;</code></td><td>Accepte n’importe quelle chaîne sans slash.</td></tr>
+    <tr><td><code>int</code></td><td><code>&lt;int:id&gt;</code></td><td>Accepte uniquement des entiers positifs et convertit la valeur en <code>int</code> Python.</td></tr>
+    <tr><td><code>float</code></td><td><code>&lt;float:val&gt;</code></td><td>Convertit les nombres décimaux à virgule en <code>float</code>.</td></tr>
+    <tr><td><code>path</code></td><td><code>&lt;path:chemin&gt;</code></td><td>Accepte une chaîne textuelle pouvant contenir des slashes.</td></tr>
+    <tr><td><code>uuid</code></td><td><code>&lt;uuid:identifiant&gt;</code></td><td>Valide et convertit un identifiant UUID v4.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--warn">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Rejet automatique 404 sur type invalide</div>
+    <p>Si une route attend <code>&lt;int:article_id&gt;</code> et qu’un client appelle <code>/articles/abc</code>, Flask rejette automatiquement la requête avec une erreur <code>404 Not Found</code> sans même exécuter le corps de votre fonction.</p>
+  </div>
+
+<h2>3. Filtrer les méthodes HTTP avec le paramètre methods</h2>
+
+<p>Par défaut, une route Flask ne répond qu’aux requêtes <code>GET</code>. Pour autoriser des verbes supplémentaires comme <code>POST</code>, <code>PUT</code> ou <code>DELETE</code>, on renseigne le paramètre <code>methods</code> du décorateur :</p>
+<pre><code>@app.route("/articles", methods=["GET", "POST"])
+def gerer_articles():
+    if request.method == "POST":
+        # Création d’un nouvel article
+        donnees = request.get_json()
+        return {"statut": "cree", "titre": donnees.get("titre")}, 201
+    # Sinon, retour de la liste (GET)
+    return {"articles": []}, 200</code></pre>
+<p>Si un client effectue une requête avec un verbe non listé (par exemple <code>DELETE</code> sur cette route), Flask interrompt l’échange avec le code d’état <code>405 Method Not Allowed</code>.</p>
+
+<h2>4. Inspecter les données avec l’objet request</h2>
+
+<p>Flask met à disposition l’objet global contextuel <code>request</code> (importé depuis <code>flask</code>). Cet objet encapsule toutes les informations envoyées par le client pour la requête en cours de traitement :</p>
+<ul>
+  <li><code>request.method</code> : chaîne contenant la méthode HTTP (ex. <code>"GET"</code>, <code>"POST"</code>).</li>
+  <li><code>request.args</code> : dictionnaire immuable (<code>MultiDict</code>) contenant les paramètres de la Query String. Ex. : <code>page = request.args.get("page", 1, type=int)</code>.</li>
+  <li><code>request.headers</code> : dictionnaire insensible à la casse des en-têtes HTTP (ex. <code>request.headers.get("Authorization")</code>).</li>
+  <li><code>request.get_json()</code> : désérialise le corps de la requête en dictionnaire ou liste Python. Renvoie <code>None</code> si le <code>Content-Type</code> n’est pas <code>application/json</code>.</li>
+</ul>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="fl2-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="42&#10;user_id">
+  <script type="text/plain" data-lab-starter>valeur = input().strip()
+nom_var = input().strip()
+
+# À compléter : déduire le type de convertisseur et afficher <type:nom_var>.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Convertisseurs de route Flask</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer le type de convertisseur Flask adapté à une valeur reçue.</p>
+    <div class="lab__brief"><p>Dans Flask, les variables de routes acceptent des convertisseurs pour typer les paramètres :<br>- <code>int</code> pour les entiers positifs (ex: <code>42</code>)<br>- <code>float</code> pour les nombres décimaux à virgule (ex: <code>19.99</code>)<br>- <code>path</code> pour les chaînes contenant au moins un slash <code>/</code> (ex: <code>docs/api/v1</code>)<br>- <code>string</code> pour toute autre chaîne de caractères standard sans slash.<br><p>Lit une valeur textuelle et le nom de variable souhaité (deux lignes en entrée). Affiche la syntaxe de route Flask correspondante sous la forme <code>&lt;type:nom_variable&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>42
+user_id</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>&lt;int:user_id&gt;</pre></div>
+    </div>
+    <p class="lab__note">42 est un entier.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifie d’abord si la chaîne contient un slash avec "/" in valeur.</li>
+        <li>Pour tester un entier : valeur.isdigit().</li>
+        <li>Pour tester un float : essaye de convertir avec float() dans un bloc try/except.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fl2-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="/articles/&lt;int:id&gt;&#10;/articles/73">
+  <script type="text/plain" data-lab-starter>modele = input().strip()
+url = input().strip()
+
+# À compléter : vérifier la correspondance et extraire la variable.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur de dispatch de route</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la correspondance entre une URL demandée et un modèle de route avec paramètre.</p>
+    <div class="lab__brief"><p>Flask associe chaque requête entrante au pattern de route correspondant. Par exemple, la route <code>/livres/&lt;int:id&gt;</code> doit capturer <code>/livres/15</code> et extraire <code>id=15</code>.</p><p>Le programme reçoit deux lignes :<br>1. Le modèle de route avec une variable au format <code>&lt;type:nom&gt;</code> (ex: <code>/articles/&lt;int:id&gt;</code>)<br>2. L’URL demandée (ex: <code>/articles/73</code>)<br>Si l’URL correspond au modèle et que le type est valide (par exemple <code>int</code> ne contient que des chiffres), affiche <code>Match: &lt;nom&gt;=&lt;valeur&gt;</code>.<br>Sinon, affiche <code>404 Not Found</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>/articles/&lt;int:id&gt;
+/articles/73</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Match: id=73</pre></div>
+    </div>
+    <p class="lab__note">Correspondance exacte et valeur 73 entière.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe le modèle et l’URL en segments avec .split("/").</li>
+        <li>Compare le nombre de segments : s’ils diffèrent, c’est 404 Not Found.</li>
+        <li>Repère le segment contenant "&lt;" et "&gt;", extrais le type et le nom, puis valide la valeur reçue.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fl2-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="GET,POST&#10;DELETE">
+  <script type="text/plain" data-lab-starter>autorisees = input().strip().split(',')
+methode = input().strip().upper()
+
+# À compléter : valider la méthode et afficher la réponse.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Filtrage de méthodes HTTP Flask</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le contrôle des méthodes autorisées sur un endpoint Flask (@app.route(..., methods=[...])).</p>
+    <div class="lab__brief"><p>Par défaut, une route Flask n’accepte que la méthode <code>GET</code>. Pour autoriser d’autres verbes, on fournit le paramètre <code>methods=['GET', 'POST']</code>. Si un client sollicite l’endpoint avec une méthode non autorisée, Flask renvoie automatiquement le code d’état <code>405 Method Not Allowed</code>.</p><p>Lit deux lignes sur l’entrée standard :<br>1. La liste des méthodes autorisées séparées par des virgules (ex: <code>GET,POST</code>)<br>2. La méthode utilisée par la requête entrante (ex: <code>DELETE</code>)<br>Si la méthode est autorisée, affiche <code>200 OK: Traitement &lt;METHODE&gt;</code>.<br>Sinon, affiche <code>405 Method Not Allowed: Verbes autorises: &lt;liste triee separee par des virgules&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>GET,POST
+DELETE</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>405 Method Not Allowed: Verbes autorises: GET,POST</pre></div>
+    </div>
+    <p class="lab__note">DELETE non autorisé sur cette route.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Nettoie et passe toutes les méthodes en majuscules avec [m.strip().upper() for m in autorisees].</li>
+        <li>Si methode in autorisees, le code est 200.</li>
+        <li>Sinon, trie la liste des verbes autorisés avec sorted() et joins-les avec ",".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel micro-framework Python est réputé pour sa simplicité et sa flexibilité ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Flask</button>
+        <button class="opt">Django</button>
+        <button class="opt">Spring Boot</button>
+      </div>
+      <div class="q__exp">Flask est un micro-framework minimaliste très populaire en Python.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel décorateur associe une URL à une fonction dans Flask ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">@app.route()</button>
+        <button class="opt">@app.endpoint()</button>
+        <button class="opt">@app.listen()</button>
+      </div>
+      <div class="q__exp">@app.route("/chemin") enregistre l’association URL-fonction dans l’application.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel convertisseur de route Flask garantit que l’argument reçu est un entier positif ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">&lt;int:id&gt;</button>
+        <button class="opt">&lt;number:id&gt;</button>
+        <button class="opt">&lt;integer:id&gt;</button>
+      </div>
+      <div class="q__exp">&lt;int:...&gt; valide et caste directement la portion d’URL en entier.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Par défaut, quelle méthode HTTP une route Flask accepte-t-elle sans configuration ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">GET uniquement</button>
+        <button class="opt">GET et POST</button>
+        <button class="opt">Toutes les méthodes HTTP</button>
+      </div>
+      <div class="q__exp">Par défaut, une route Flask ne répond qu’aux requêtes GET.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code d’état HTTP Flask renvoie-t-il si la méthode utilisée n’est pas autorisée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">405 Method Not Allowed</button>
+        <button class="opt">404 Not Found</button>
+        <button class="opt">400 Bad Request</button>
+      </div>
+      <div class="q__exp">Le code 405 signale que la méthode demandée n’est pas supportée par l’endpoint.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment récupère-t-on un paramètre passé dans la query string avec Flask ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">request.args.get("cle")</button>
+        <button class="opt">request.query["cle"]</button>
+        <button class="opt">request.params("cle")</button>
+      </div>
+      <div class="q__exp">request.args est le conteneur MultiDict dédié aux paramètres d’URL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle méthode de l’objet request extrait et décode le corps JSON d’une requête ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">request.get_json()</button>
+        <button class="opt">request.json_decode()</button>
+        <button class="opt">request.parse_body()</button>
+      </div>
+      <div class="q__exp">request.get_json() parse le corps de la requête en objet Python.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut __name__ passé au constructeur Flask(__name__) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le nom du module Python courant</button>
+        <button class="opt">Le nom d’utilisateur de la machine</button>
+        <button class="opt">L’adresse IP du serveur</button>
+      </div>
+      <div class="q__exp">__name__ permet à Flask de localiser les ressources et modules du projet.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de spécifier methods=["POST"] et recevoir une erreur 405 Method Not Allowed.</li>
+      <li>Appeler request.get_json() sans vérifier si le retour est None (absence de corps ou Content-Type invalide).</li>
+      <li>Tenter de convertir un paramètre request.args.get() en int sans valeur de repli ni gestion d’exception.</li>
+      <li>Confondre request.args (paramètres d’URL ?page=2) et les variables de route dynamiques (/utilisateurs/&lt;int:id&gt;).</li>
+      <li>Laisser le mode debug=True actif en environnement de production (faille de sécurité critique avec console interactive).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Déclarer un point d’entrée REST avec Flask</div>
+    <ol>
+      <li><strong>Définir l’URI et la méthode</strong> : choisir l’URI canonique et la liste methods=[...].</li>
+      <li><strong>Déclarer le décorateur</strong> : placer @app.route("/...", methods=[...]) au-dessus de la fonction vue.</li>
+      <li><strong>Typer les variables dynamiques</strong> : utiliser les convertisseurs appropriés (&lt;int:id&gt;).</li>
+      <li><strong>Extraire les données</strong> : lire request.args pour les filtres et request.get_json() pour le body.</li>
+      <li><strong>Renvoyer la réponse</strong> : retourner un dictionnaire et le code de statut HTTP adapté.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Flask est un micro-framework Python léger s’appuyant sur Werkzeug pour le routage HTTP.</li>
+      <li>Le décorateur @app.route() lie une URL à une fonction vue Python.</li>
+      <li>Les convertisseurs de paramètres (&lt;int:...&gt;, &lt;string:...&gt;) valident les types d’URL automatiquement.</li>
+      <li>Le paramètre methods=["GET", "POST", ...] filtre rigoureusement les verbes HTTP acceptés.</li>
+      <li>L’objet contextuel request donne un accès direct aux en-têtes, à la query string et au corps JSON.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais instancier une application Flask avec Flask(__name__).</li>
+      <li>Je maîtrise la déclaration de routes simples et de routes à paramètres dynamiques.</li>
+      <li>Je sais autoriser plusieurs verbes HTTP sur un même endpoint.</li>
+      <li>Je sais extraire des paramètres de recherche depuis request.args.</li>
+      <li>Je sais parser un payload JSON avec request.get_json().</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Flask</li><li>Micro-framework</li><li>WSGI</li><li>@app.route</li><li>Convertisseur de route</li><li>methods</li><li>405 Method Not Allowed</li><li>request</li><li>request.args</li><li>request.get_json</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise l’instanciation de Flask et la syntaxe @app.route.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur l’utilisation de request et les convertisseurs dynamiques.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises le routage et le filtrage des méthodes.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux codes d’état et à la sérialisation au chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Codes d’état HTTP & réponses JSON <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel API REST B2, la spécification RFC 9110 (HTTP Semantics), la documentation officielle Flask (palletsprojects.com) et le recueil de questions interactives.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

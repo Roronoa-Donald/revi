@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mémo de l’administrateur — Linux B1</title>
+<meta name="description" content="Mémo du cours de Linux B1 : arborescence, commandes de base, find, comptes et groupes, droits d’accès et squelette de script Bash sur une page.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-linux/chapitres/formules.html">
+<meta property="og:title" content="Mémo de l’administrateur — Linux B1">
+<meta property="og:description" content="Mémo du cours de Linux B1 : arborescence, commandes de base, find, comptes et groupes, droits d’accès et squelette de script Bash sur une page.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="lxnav"><div class="lxnav__in">
+  <a class="lxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="lxnav__sep" aria-hidden="true">/</span>
+  <a class="lxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux B1</a>
+  <div class="lxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html" class="is-active">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="lxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="lxwrap">
+<p class="crumb"><a href="../index.html">Linux B1</a> › <a href="../sommaire.html">Sommaire</a> › Mémo</p>
+
+  <h1>Mémo de l’administrateur</h1>
+
+  <p class="lead">Arborescence, commandes, comptes, droits et squelettes de scripts du cours sur une page. À garder ouvert pendant les exercices et l’atelier.</p>
+
+  <h2>L’arborescence en une image</h2>
+<pre><code>/          racine : origine de tout
+
+etc        configuration (à sauvegarder)      home   répertoires des utilisateurs
+
+tmp        temporaires, vidés au reboot        var    journaux des démons, spools
+
+root       maison du super-utilisateur         dev    fichiers des périphériques
+
+usr        applications, manuels, librairies   bin/sbin  binaires essentiels
+
+boot       noyau et démarrage                  proc   arborescence virtuelle du noyau</code></pre>
+<p>Tout chemin absolu commence par / ; /root n’est pas /.</p>
+
+  <h2>Commandes de base</h2>
+<pre><code>où suis-je        pwd            changer      cd chemin
+
+lister            ls [-a cachés]  créer rep   mkdir
+
+créer fichier     touch           copier      cp source cible
+
+renommer/déplacer mv              supprimer   rm (danger : -f, -rf)
+
+afficher          cat, more, head, tail        manuel      man cmd
+
+écrire            echo "x" &gt; f (écrase) ; echo "x" &gt;&gt; f (ajoute)</code></pre>
+<p>Syntaxe immuable : COMMANDE OPTIONS ARGUMENTS — ls -a /home.</p>
+
+  <h2>find : chercher</h2>
+<pre><code>find répertoire critères
+
+  -name "motif"      nom (ex. "fich*")     -type f | d   fichier | répertoire
+
+  -size +10M         taille                -user login   propriétaire
+
+  -ctime, -atime, -mtime                  -group, -perm</code></pre>
+<p>Ex. du TP : find /tmp -name "fich*" ; find /tmp -type f.</p>
+
+  <h2>Comptes et groupes</h2>
+<pre><code>/etc/passwd  login:mot-de-passe:UID:GID:info:maison:shell
+
+             * = authentification impossible ; !! = désactivé
+
+             x/! = mot de passe dans shadow ; vide = sans mot de passe
+
+/etc/shadow  mots de passe chiffrés (root seul)
+
+/etc/group   groupe:*:GID:utilisateurs
+
+commandes    useradd, userdel [-r], usermod, passwd, groupadd, groupdel
+
+qui          whoami (moi) ; who, users, w (connectés)
+
+UID          root = 0 ; &lt; 1000 = système ; ≥ 1000 = humains</code></pre>
+<p>usermod -d /home/toto -m tutu change la maison et recopie le contenu.</p>
+
+  <h2>Droits d’accès</h2>
+<pre><code>-rwxr-x---     type(-,d) + u:rwx  g:r-x  o:---
+
+poids          r=4  w=2  x=1  →  rwx=7  r-x=5  rw-=6  ---=0
+
+octal          rwxr-x--- = 750 ; rw-r--r-- = 644 ; 770 = rwxrwx---
+
+chmod          symbolique (u/g/o/a + - = lettres) ou octal ; -R récursif
+
+chown          propriétaire (utilisateur:groupe en une fois) ; chgrp groupe
+
+vérifier       ls -l, ls -Rl</code></pre>
+<p>+ ajoute, - retire, = fixe exactement : ug=rwx efface ce qui dépassait rwx.</p>
+
+  <h2>Squelette d’un script Bash</h2>
+<pre><code>#!/bin/bash
+
+read -r n                    # premier : le compteur d’entrées
+
+compteur=0                   # initialisation AVANT la boucle
+
+for ((i=0; i&lt;n; i++)); do
+
+  read -r valeur             # une lecture par ligne d’entrée
+
+  if [ "$valeur" = "OK" ]; then compteur=$((compteur + 1)); fi
+
+done
+
+echo "compteur : $compteur"  # bilan APRÈS la boucle</code></pre>
+<p>Découper par champs : IFS=":" read -r login uid gid shell &lt;&lt;&lt; "$ligne".</p>
+
+  <h2>Erreurs fréquentes à éviter</h2>
+<ul>
+    <li>Confondre / (racine) et /root (maison de root).</li>
+    <li>Mettre les journaux dans /etc au lieu de /var.</li>
+    <li>Un seul chevron &gt; qui écrase un fichier de configuration.</li>
+    <li>Additionner les classes au lieu de convertir triplet par triplet (750, pas 12).</li>
+    <li>Confondre chown (propriétaire) et chgrp (groupe).</li>
+    <li>Lire le seuil après n, ou oublier le \n final sur l’entrée du dernier read.</li>
+  </ul>
+
+  <div class="chnav">
+    <a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Cartes</a>
+    <a class="btn btn--primary" href="simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

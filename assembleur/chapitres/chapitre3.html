@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Mémoires, Bus &amp;amp; Architectures (Von Neumann vs Harvard, AVR / x86) | Assembleur B2</title>
+<meta name="description" content="Chapitre 3 du cours Architecture &amp; Programmation en Assembleur B2 : Architectures Von Neumann et Harvard, mémoires Flash, SRAM et EEPROM des microcontrôleurs AVR, bus matériels, Little vs Big-Endian, GPIO et mode segmenté x86. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/assembleur/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Mémoires, Bus &amp;amp; Architectures (Von Neumann vs Harvard, AVR / x86) | Assembleur B2">
+<meta property="og:description" content="Chapitre 3 du cours Architecture &amp; Programmation en Assembleur B2 : Architectures Von Neumann et Harvard, mémoires Flash, SRAM et EEPROM des microcontrôleurs AVR, bus matériels, Little vs Big-Endian, GPIO et mode segmenté x86. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="assembleurnav"><div class="assembleurnav__in">
+  <a class="assembleurnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="assembleurnav__sep" aria-hidden="true">/</span>
+  <a class="assembleurnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Assembleur B2</a>
+  <div class="assembleurnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="assembleurnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="assembleurwrap">
+<p class="crumb"><a href="../index.html">Assembleur B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Mémoires, Bus &amp; Architectures (Von Neumann vs Harvard, AVR / x86)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un électronicien conçoit un système embarqué communicant avec un serveur PC. Sur le microcontrôleur AVR (ATmega328P), le programme est figé en mémoire Flash tandis que les variables volatiles résident en SRAM, avec des bus d’adresses totalement séparés (architecture Harvard). Sur le PC x86 hôte, code et données se partagent la même mémoire vive (Von Neumann). Lorsque le serveur transmet l’entier 32 bits 0x12345678 par le port série, pourquoi les octets arrivent-ils inversés si les deux machines n’appliquent pas les mêmes conventions d’endianness ? Ce module détaille l’organisation physique de la mémoire et les interactions avec les bus matériels.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>distinguer avec rigueur l’architecture de Von Neumann (bus partagé) de l’architecture Harvard (bus code/données séparés) ;</li>
+      <li>comprendre les caractéristiques et les rôles des mémoires Flash (programme), SRAM (variables, pile) et EEPROM (persistance non volatile) ;</li>
+      <li>configurer sans erreur les registres de ports numériques GPIO sur microcontrôleur : DDRx, PORTx et PINx ;</li>
+      <li>ordonner et reconstruire les mots multi-octets selon les formats Little-Endian et Big-Endian ;</li>
+      <li>calculer les adresses physiques réelles en mode segmenté x86 (formule Segment &times; 16 + Offset).</li>
+    </ol>
+  </div>
+
+<h2>1. Von Neumann vs Harvard &amp; le goulot d’étranglement mémoire</h2>
+
+<p>L’organisation des flux de données et d’instructions divise le monde des processeurs en deux grandes écoles d’architecture :</p>
+<table class="table">
+  <thead><tr><th>Critère</th><th>Architecture de Von Neumann (PC, Serveurs, x86)</th><th>Architecture Harvard (AVR, Microcontrôleurs, DSP)</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Organisation mémoire</strong></td><td>Espace d’adressage <strong>unifié</strong> : le code et les données se partagent la même RAM.</td><td>Espaces d’adressage <strong>strictement séparés</strong> : une mémoire Flash pour le code, une SRAM pour les données.</td></tr>
+    <tr><td><strong>Bus physiques</strong></td><td>Un seul bus d’adresses et un seul bus de données partagés.</td><td>Deux jeux de bus indépendants (bus instruction et bus données).</td></tr>
+    <tr><td><strong>Performances</strong></td><td>Sujette au <strong>goulot d’étranglement de Von Neumann</strong> (on ne peut pas lire une donnée et une instruction simultanément).</td><td>Accès simultané en un seul cycle d’horloge à l’instruction suivante et à une variable en SRAM.</td></tr>
+    <tr><td><strong>Sécurité matérielle</strong></td><td>Vulnérable aux attaques par injection de code (le processeur peut exécuter des octets situés dans la pile ou le tas).</td><td>Immunité matérielle naturelle contre l’exécution de données (le processeur ne peut pas exécuter la SRAM).</td></tr>
+  </tbody>
+</table>
+
+<h2>2. Les trois mémoires du microcontrôleur AVR (ATmega328P)</h2>
+
+<p>Un microcontrôleur intègre sur une seule puce de silicium le processeur, les horloges, les périphériques et trois technologies de mémoire distinctes :</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Cartographie des mémoires de l’ATmega328P (Arduino Uno)</div>
+<ul>
+  <li><strong>Mémoire Flash (32 Ko)</strong> : mémoire <strong>non volatile</strong> où réside le code compilé du programme. Elle est programmée via le bootloader ou un programmateur ISP et ne peut pas être modifiée à la volée comme de la RAM classique.</li>
+  <li><strong>SRAM (Static RAM, 2 Ko)</strong> : mémoire <strong>volatile</strong> ultra-rapide hébergeant les 32 registres généraux ($R0..R31$), les registres d’E/S, les variables globales, le tas (heap) et la pile d’exécution (stack). Tout s’efface lors d’une coupure d’alimentation.</li>
+  <li><strong>EEPROM (1 Ko)</strong> : mémoire <strong>non volatile modifiable octet par octet</strong>. Idéale pour stocker des paramètres de configuration persistants (identifiants réseau, compteurs d’allumage, seuils de calibration).</li>
+</ul>
+  </div>
+
+<h2>3. Contrôle des broches matérielles GPIO (DDR, PORT, PIN)</h2>
+
+<p>Pour interagir avec le monde extérieur (allumer une LED, lire un capteur, commander un relais), le microcontrôleur dispose de ports d’entrées/sorties généralistes (GPIO). Chaque port (ex. Port B) est piloté par 3 registres 8 bits :</p>
+<pre><code>// Les 3 registres de pilotage du Port B (broches PB0 à PB7) :
+
+1. DDRB (Data Direction Register B) :
+   - Bit = 1 &rarr; la broche correspondante est configurée en SORTIE (Output)
+   - Bit = 0 &rarr; la broche correspondante est configurée en ENTRÉE (Input)
+
+2. PORTB (Data Register B) :
+   - Si la broche est en SORTIE : 1 = état HAUT (5V), 0 = état BAS (0V)
+   - Si la broche est en ENTRÉE : 1 = active la résistance de rappel (Pull-up interne), 0 = haute impédance
+
+3. PINB (Input Pins Address B) :
+   - Registre en lecture seule reflétant le niveau logique physique présent sur la broche (0 ou 1)
+   - Astuce AVR : écrire un 1 dans PINB bascule (toggle) l’état de la broche de sortie !</code></pre>
+
+<h2>4. Little-Endian vs Big-Endian &amp; Mode Segmenté x86</h2>
+
+<p>Lorsqu’une donnée s’étend sur plusieurs octets (ex. entier 32 bits <code>0x12345678</code>), l’architecture choisit dans quel ordre placer les octets en mémoire :</p>
+<table class="table">
+  <thead><tr><th>Format</th><th>Adresse $A$</th><th>Adresse $A+1$</th><th>Adresse $A+2$</th><th>Adresse $A+3$</th><th>Architectures typiques</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Little-Endian</strong> (octet faible d’abord)</td><td><code>0x78</code></td><td><code>0x56</code></td><td><code>0x34</code></td><td><code>0x12</code></td><td>x86, x86_64, ARM (par défaut), AVR</td></tr>
+    <tr><td><strong>Big-Endian</strong> (octet fort d’abord)</td><td><code>0x12</code></td><td><code>0x34</code></td><td><code>0x56</code></td><td><code>0x78</code></td><td>Mainframes IBM, SPARC, Protocoles réseau IP</td></tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le calcul d’adresse en mode réel x86 (Segment:Offset)</div>
+<p>Le processeur Intel 8086 ne disposait que de registres 16 bits mais d’un bus d’adresses 20 bits ($2^{20} = 1\text{ Mo}$). Il combine deux registres selon la formule universelle :</p><pre><code>Adresse_Physique = (Segment &times; 16) + Offset = (Segment &lt;&lt; 4) + Offset</code></pre><p>Exemple : pour le segment <code>0x07C0</code> et l’offset <code>0x0000</code>, l’adresse physique vaut :<br>$0\text{x07C0} \times 16 + 0 = 0\text{x07C00}$ (l’adresse standard de démarrage du MBR).</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="asm2-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="0xFF;0x20;5">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : extraire les bits correspondants dans DDRB et PORTB et déterminer le mode
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Configuration des broches GPIO AVR (DDRB &amp; PORTB)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer l’état électrique d’une broche de microcontrôleur AVR selon les registres DDR et PORT.</p>
+    <div class="lab__brief"><p>Sur un microcontrôleur d’architecture Harvard tel que l’ATmega328P (Arduino), la configuration d’une broche d’E/S dépend de deux registres 8 bits :</p><ul>  <li><code>DDRx (Data Direction Register)</code> : bit à 1 = broche en SORTIE, bit à 0 = broche en ENTRÉE ;</li>  <li>Si la broche est en <strong>SORTIE</strong> : bit PORTx à 1 = <code>SORTIE_HAUT</code>, bit PORTx à 0 = <code>SORTIE_BAS</code> ;</li>  <li>Si la broche est en <strong>ENTRÉE</strong> : bit PORTx à 1 = <code>ENTREE_PULLUP</code> (résistance de rappel interne active), bit PORTx à 0 = <code>ENTREE_FLOTTANTE</code> (haute impédance).</li></ul><p>Lit sur l’entrée standard <code>DDRB_HEX;PORTB_HEX;BROCHE</code> (broche de 0 à 7). Affiche :<br><code>BROCHE=X MODE=&lt;SORTIE_HAUT|SORTIE_BAS|ENTREE_PULLUP|ENTREE_FLOTTANTE&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>0xFF;0x20;5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BROCHE=5 MODE=SORTIE_HAUT</pre></div>
+    </div>
+    <p class="lab__note">DDRB=0xFF (toutes broches en sortie). Sur broche 5, 0x20 a le bit 5 à 1 -&gt; SORTIE_HAUT.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Isole le bit de la broche k avec : bit_ddr = (ddr &gt;&gt; k) &amp; 1, bit_port = (port &gt;&gt; k) &amp; 1.</li>
+        <li>Si bit_ddr == 1 : SORTIE_HAUT si bit_port == 1 sinon SORTIE_BAS.</li>
+        <li>Si bit_ddr == 0 : ENTREE_PULLUP si bit_port == 1 sinon ENTREE_FLOTTANTE.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="0x12345678;LITTLE">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : décomposer l'entier 32 bits en 4 octets et ordonner selon l'endianness
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Gestion de l’Endianness (Little-Endian vs Big-Endian)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comprendre l’ordonnancement des octets en mémoire vive selon l’architecture matérielle.</p>
+    <div class="lab__brief"><p>L’architecture <strong>x86</strong> utilise l’ordre <strong>Little-Endian</strong> (l’octet de poids faible est placé à l’adresse la plus basse en mémoire), tandis que les protocoles réseau et certains processeurs RISC utilisent le <strong>Big-Endian</strong>.</p><p>Lit sur l’entrée standard une valeur 32 bits et le format demandé : <code>VAL_HEX32;FORMAT</code> où :</p><ul>  <li><code>VAL_HEX32</code> est une valeur 32 bits (ex. <code>0x12345678</code>) ;</li>  <li><code>FORMAT</code> est <code>LITTLE</code> ou <code>BIG</code>.</li></ul><p>Affiche la séquence des 4 octets en mémoire au format :<br><code>FORMAT=&lt;LITTLE|BIG&gt; OCTETS=&lt;XX XX XX XX&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>0x12345678;LITTLE</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>FORMAT=LITTLE OCTETS=78 56 34 12</pre></div>
+    </div>
+    <p class="lab__note">En Little-Endian, l’octet de poids faible 0x78 est stocké en premier.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un entier 32 bits 0x12345678 contient les octets b0=0x78 (faible), b1=0x56, b2=0x34, b3=0x12 (fort).</li>
+        <li>En LITTLE-ENDIAN : b0, b1, b2, b3 (78 56 34 12).</li>
+        <li>En BIG-ENDIAN : b3, b2, b1, b0 (12 34 56 78).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="0x07C0;0x0000">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : appliquer la formule de translation d'adresse physique x86 20 bits
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Calcul d’adresse physique en mode réel x86 (Segment:Offset)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l’adresse physique 20 bits à partir d’une paire Segment:Offset en mode réel x86.</p>
+    <div class="lab__brief"><p>En mode réel (processeur 8086 et phase d’amorçage du BIOS PC), le processeur accède à 1 Mo de mémoire sur un bus 20 bits en combinant deux registres 16 bits :</p><pre><code>Adresse_Physique = (Segment &lt;&lt; 4) + Offset</code></pre><p>Lit sur l’entrée standard <code>SEGMENT;OFFSET</code> (en hexadécimal 16 bits, ex. <code>0x07C0;0x0000</code>). Affiche l’adresse physique 20 bits en hexadécimal et en décimal au format :<br><code>PHY=0xXXXXX DEC=&lt;valeur&gt;</code> (où XXXXX est formaté sur 5 chiffres hexadécimaux majuscules).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>0x07C0;0x0000</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PHY=0x07C00 DEC=31744</pre></div>
+    </div>
+    <p class="lab__note">0x07C0 * 16 + 0x0000 = 0x07C00 (adresse standard de chargement du secteur d’amorce MBR).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Multiplie le segment par 16 (équivalent à segment &lt;&lt; 4), puis ajoute l’offset.</li>
+        <li>Formate avec f"PHY=0x{phy:05X} DEC={phy}".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la caractéristique fondamentale de l’architecture Harvard par rapport à celle de Von Neumann ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La mémoire des instructions et la mémoire des données sont physiquement séparées avec des bus distincts</button>
+        <button class="opt">Elle n’utilise aucun signal d’horloge</button>
+        <button class="opt">Elle ne possède aucun registre général</button>
+        <button class="opt">Elle ne permet pas d’exécuter de boucles</button>
+      </div>
+      <div class="q__exp">Harvard sépare physiquement le code et les données, permettant un chargement simultané sans goulot d’étranglement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un microcontrôleur ATmega328P, où le code exécutable du programme est-il stocké de façon permanente ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Dans la mémoire Flash (32 Ko non volatile)</button>
+        <button class="opt">Dans la SRAM (2 Ko)</button>
+        <button class="opt">Dans l’accumulateur EAX</button>
+        <button class="opt">Dans le cache L2</button>
+      </div>
+      <div class="q__exp">La mémoire Flash est non volatile et conserve le firmware même hors tension.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur microcontrôleur AVR, comment configure-t-on la broche PB5 en SORTIE ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En mettant le bit 5 du registre DDRB à 1</button>
+        <button class="opt">En mettant le bit 5 du registre DDRB à 0</button>
+        <button class="opt">En lisant le registre PINB</button>
+        <button class="opt">En désactivant les interruptions globales</button>
+      </div>
+      <div class="q__exp">DDR (Data Direction Register) : 1 = Sortie, 0 = Entrée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une architecture Little-Endian (comme x86), où l’octet de poids faible (LSB) est-il stocké ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">À l’adresse mémoire la plus basse</button>
+        <button class="opt">À l’adresse mémoire la plus haute</button>
+        <button class="opt">Toujours dans le registre RIP</button>
+        <button class="opt">Dans la mémoire EEPROM</button>
+      </div>
+      <div class="q__exp">Little-Endian (« petit bout d’abord ») stocke l’octet le moins significatif à la première adresse mémoire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Soit la valeur 32 bits 0x12345678 stockée à l’adresse 0x1000 en Little-Endian. Quel octet se trouve à l’adresse 0x1000 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0x78</button>
+        <button class="opt">0x12</button>
+        <button class="opt">0x34</button>
+        <button class="opt">0x56</button>
+      </div>
+      <div class="q__exp">L’octet de poids faible est 0x78 : en Little-Endian, il est situé à l’adresse de base 0x1000.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En mode réel x86, quelle est l’adresse physique 20 bits correspondant à Segment = 0x1000 et Offset = 0x0250 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0x10250</button>
+        <button class="opt">0x12500</button>
+        <button class="opt">0x01250</button>
+        <button class="opt">0x1000250</button>
+      </div>
+      <div class="q__exp">Adresse = (Segment << 4) + Offset = 0x10000 + 0x0250 = 0x10250.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert le registre PINx sur microcontrôleur AVR ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">À lire l’état logique présent sur les broches matérielles du port</button>
+        <button class="opt">À changer la fréquence de l’horloge quartz</button>
+        <button class="opt">À configurer le sens d’entrée/sortie</button>
+        <button class="opt">À allouer la pile d’exécution</button>
+      </div>
+      <div class="q__exp">PIN (Port Input Pins) est le registre en lecture seule qui reflète la tension réelle appliquée sur les broches.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la taille maximale de l’espace mémoire adressable directement par un bus d’adresses 20 bits ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">1 Mo (1 048 576 octets)</button>
+        <button class="opt">64 Ko</button>
+        <button class="opt">4 Go</button>
+        <button class="opt">16 Mo</button>
+      </div>
+      <div class="q__exp">2^20 octets = 1 048 576 octets = exactement 1 Mo.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre le registre DDR (direction : entrée ou sortie) et le registre PORT (valeur : haut ou bas).</li>
+      <li>Inverser l’ordre des octets lors de la lecture d’une trame réseau (Big-Endian) sur une machine x86 (Little-Endian).</li>
+      <li>Croire que la SRAM conserve ses données après une coupure d’alimentation : seule l’EEPROM ou la Flash est non volatile.</li>
+      <li>Oublier de décaler le segment de 4 bits vers la gauche (multiplier par 16) dans la formule de calcul en mode réel 8086.</li>
+      <li>Tenter d’écrire dynamiquement dans la mémoire Flash comme si c’était de la RAM pendant l’exécution normale du code.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour cartographier un accès mémoire bas niveau</div>
+    <ol>
+      <li>Identifier l’architecture du processeur : Von Neumann (espace unique) ou Harvard (code et données séparés).</li>
+      <li>Déterminer le type de mémoire cible : Flash (statique/lecture), SRAM (volatile/lecture-écriture) ou EEPROM.</li>
+      <li>Vérifier la convention d’Endianness du système : Little-Endian pour x86/AVR, Big-Endian pour le réseau et certains RISC.</li>
+      <li>Calculer l’adresse effective : appliquer le décalage de segment (mode réel) ou l’offset de structure avant d’émettre la requête sur le bus.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Von Neumann partage le bus code et données ; Harvard sépare physiquement la Flash (programme) et la SRAM (données).</li>
+      <li>L’ATmega328P dispose de 32 Ko de Flash, 2 Ko de SRAM volatile et 1 Ko d’EEPROM non volatile.</li>
+      <li>Les broches GPIO sont pilotées par DDR (direction 1=sortie, 0=entrée), PORT (état haut/bas/pull-up) et PIN (lecture physique).</li>
+      <li>Little-Endian stocke l’octet de poids faible à l’adresse basse ; Big-Endian stocke l’octet de poids fort en premier.</li>
+      <li>En mode réel x86 20 bits : $\text{Adresse Physique} = (\text{Segment} \times 16) + \text{Offset}$.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer la différence entre Von Neumann et Harvard et nommer leurs avantages respectifs.</li>
+      <li>Je connais la répartition et le rôle de la Flash, de la SRAM et de l’EEPROM sur microcontrôleur.</li>
+      <li>Je sais configurer une broche en sortie ou en entrée avec résistance de pull-up via DDR et PORT.</li>
+      <li>Je sais convertir un entier 32 bits en séquence d’octets Little-Endian et Big-Endian.</li>
+      <li>Je sais calculer l’adresse physique 20 bits d’une paire Segment:Offset en mode réel x86.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Architecture de Von Neumann</li><li>Architecture Harvard</li><li>Mémoire Flash (Firmware)</li><li>SRAM (Données volatiles)</li><li>EEPROM (Persistance)</li><li>Registres GPIO (DDR, PORT, PIN)</li><li>Résistance de rappel (Pull-up)</li><li>Little-Endian & Big-Endian</li><li>Mode réel x86 (8086)</li><li>Calcul Segment:Offset</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les différences Von Neumann / Harvard et les trois registres GPIO (DDR, PORT, PIN).</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur l’ordonnancement Little-Endian et le calcul Segment:Offset.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les bus matériels, les mémoires et les broches d’E/S.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe à la chaîne d’outils logicielle (Assembleur, ELF, Linker) au chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Chaîne de Production Logicielle (Assembleur, ELF, Linker &amp; Débogueur) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours d’Architecture et Programmation en Assembleur B2, les manuels d’architecture logicielle Intel 64 et IA-32, la documentation NASM et la spécification System V AMD64 ABI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

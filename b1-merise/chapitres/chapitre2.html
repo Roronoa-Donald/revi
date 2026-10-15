@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — La méthode MERISE : niveaux et étapes | Modélisation (MERISE) B1</title>
+<meta name="description" content="Chapitre 2 du cours de Modélisation (MERISE) B1 : Double démarche par niveaux et par étapes ; les modèles MCD/MLD/MPD et MCT/MOT/MOpT ; données contre traitements. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-merise/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — La méthode MERISE : niveaux et étapes | Modélisation (MERISE) B1">
+<meta property="og:description" content="Chapitre 2 du cours de Modélisation (MERISE) B1 : Double démarche par niveaux et par étapes ; les modèles MCD/MLD/MPD et MCT/MOT/MOpT ; données contre traitements. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="mrnav"><div class="mrnav__in">
+  <a class="mrnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="mrnav__sep" aria-hidden="true">/</span>
+  <a class="mrnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> Modélisation (MERISE) B1</a>
+  <div class="mrnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="mrnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="mrwrap">
+<p class="crumb"><a href="../index.html">Modélisation (MERISE) B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — La méthode MERISE : niveaux et étapes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un projet part dans tous les sens : le développeur crée des tables avant de savoir ce qu'il modélise, le client change les règles chaque semaine. MERISE impose un ordre : comprendre le métier (conceptuel), organiser (logique/organisationnel), réaliser (physique) — et séparer ce qui est enregistré (données) de ce qui est fait (traitements).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>énoncer la double démarche de MERISE : par niveaux et par étapes ;</li>
+      <li>associer chaque modèle (MCD, MLD, MPD, MCT, MOT, MOpT) à son niveau et à sa question ;</li>
+      <li>justifier la séparation données/traitements par l'exemple du taux de TVA ;</li>
+      <li>remettre dans l'ordre les étapes d'un projet informatique.</li>
+    </ol>
+  </div>
+
+<h2>1. La double démarche et les six modèles</h2>
+
+<p>MERISE est une méthode d'analyse et de conception des systèmes d'information. Elle se caractérise par une <strong>double démarche</strong> : par <strong>niveaux</strong> (conceptuel, logique/organisationnel, physique) et par <strong>étapes</strong> (cycle de vie du projet). L'analyse des données donne une vision <strong>statique</strong> ; l'analyse des traitements, une vision <strong>dynamique</strong>.</p>
+<pre><code>              DONNEES              TRAITEMENTS
+
+conceptuel    MCD (quoi ?)         MCT (quoi ?)
+
+logique       MLD (comment organiser ?)   MOT (comment organiser ?)
+
+physique      MPD (comment realiser ?)    MOpT (comment realiser ?)</code></pre>
+<p>Au niveau <strong>conceptuel</strong>, on décrit le système indépendamment de tout outil : quoi ? Au niveau <strong>logique/organisationnel</strong>, on adapte aux contraintes techniques et d'organisation : qui fait quoi, quand, avec quel outil ? Au niveau <strong>physique</strong>, on sort de l'analyse : fichiers, bases de données, programmes.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « C-L-P : quoi, comment organiser, comment réaliser »</div>
+    <p>Conceptuel = <strong>quoi</strong> (le métier). Logique/organisationnel = <strong>comment organiser</strong> (l'adaptation). Physique = <strong>comment réaliser</strong> (l'implémentation). Six modèles : trois pour les données (MCD, MLD, MPD), trois pour les traitements (MCT, MOT, MOpT).</p>
+  </div>
+
+<h2>2. Séparer données et traitements</h2>
+
+<p>La séparation entre données et traitements assure <strong>cohérence</strong> (le système est étudié dans sa globalité) et <strong>pérennité</strong> (un nouveau besoin de traitement ne remet pas en cause l'organisation des données).</p>
+<p>L'exemple du support : pour calculer un prix TTC, il faut le taux de TVA. Si ce taux est mémorisé dans le <strong>programme</strong> (traitement), tout changement de taux impose de modifier le programme. Si le taux est une <strong>donnée</strong> mémorisée dans le système d'information, il suffit de mettre à jour la donnée : les programmes restent. Une analyse des données avisée mémorise le taux sans tenir compte des traitements.</p>
+<p>La démarche va du <strong>théorique vers la pratique</strong> : d'abord un modèle idéal (conceptuel), puis l'adaptation aux contraintes (environnement disponible, temps de réponse, espace de stockage), enfin la mise en place effective. Chaque niveau produit des documents qui soutiennent la concertation entre acteurs du projet — c'est l'un des rôles majeurs de la méthode.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>Le MCD répond à « quoi ? » : jamais de choix technique à ce niveau.</li>
+      <li>MLD est au niveau <strong>logique</strong> : ne pas le confondre avec le MPD (physique).</li>
+      <li>Le taux de TVA est une <strong>donnée</strong>, pas un traitement codé en dur.</li>
+      <li>La démarche par étapes complète la démarche par niveaux : les deux coexistent.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="mr-c2-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;MCD c&#10;MLD l&#10;MPD p&#10;MCT c&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r modele niveau
+  # À compléter : afficher la question, puis compter les conceptuels.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Les trois niveaux</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer des modèles MERISE à leur niveau : conceptuel, logique/organisationnel ou physique.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « modele niveau » : niveau vaut <code>c</code> (conceptuel), <code>l</code> (logique/organisationnel) ou <code>p</code> (physique). Pour chaque ligne il affiche <code>modele : question</code>, où question vaut <code>quoi</code> (conceptuel), <code>comment organiser</code> (logique/organisationnel) ou <code>comment realiser</code> (physique). Il termine par <code>conceptuel : X/n</code>, X étant le nombre de modèles conceptuels.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+MCD c
+MLD l
+MPD p
+MCT c
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MCD : quoi
+MLD : comment organiser
+MPD : comment realiser
+MCT : quoi
+conceptuel : 2/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case à trois branches traduit la lettre en question.</li>
+        <li>Comptez seulement la branche c ; le format final est « conceptuel : X/n ».</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="mr-c2-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="5&#10;1 etude existant&#10;2 conception&#10;3 organisation&#10;4 realisation&#10;5 maintenance&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+precedent=0
+for ((i=0; i<n; i++)); do
+  read -r rang etape
+  # À compléter : comparer au rang précédent, afficher le verdict de la ligne.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Ordre des étapes du projet</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier qu'une liste d'étapes suit l'ordre canonique du cycle MERISE et localiser la première inversion.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « rang etape » : rang est un entier 1 à 5 et l'étape appartient à la séquence <code>etude existant</code> (1), <code>conception</code> (2), <code>organisation</code> (3), <code>realisation</code> (4), <code>maintenance</code> (5). Le script vérifie que les rangs arrivent en ordre strictement croissant. Pour chaque ligne il affiche <code>etape : ok</code> ou <code>etape : hors ordre</code> (première ligne qui rompt la croissance et toutes les suivantes). Il termine par <code>verdict : X/n valides</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+1 etude existant
+2 conception
+3 organisation
+4 realisation
+5 maintenance
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>etude existant : ok
+conception : ok
+organisation : ok
+realisation : ok
+maintenance : ok
+verdict : 5/5 valides</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un drapeau « rompu » passé à 1 à la première inversion : les lignes suivantes sont toutes hors ordre, même si leur rang repart à la hausse.</li>
+        <li>Comparez chaque rang au précédent avec -gt ; mettez à jour precedent seulement tant que la séquence est encore valide.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="mr-c2-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="18&#10;2&#10;1000&#10;2500&#10;20&#10;">
+  <script type="text/plain" data-lab-starter>read -r taux
+read -r n
+for ((i=0; i<n; i++)); do
+  read -r montant
+  # À compléter : afficher le TTC de chaque montant.
+done
+echo "nouveau taux ?"
+read -r taux2
+# À compléter : afficher le TTC du premier montant avec le nouveau taux.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — TVA : donnée ou traitement</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Illustrer la séparation données/traitements : mémoriser un taux, recalculer, vérifier la pérennité.</p>
+    <div class="lab__brief"><p>Le script lit d'abord <code>taux</code> (entier, pourcentage). Puis il lit <strong>n lignes</strong> « montant » (entiers). Pour chaque montant il affiche <code>montant HT → TTC X</code> où X = montant + montant × taux / 100 (division entière). Il termine par <code>nouveau taux ?</code> puis lit <code>taux2</code> et affiche à nouveau le TTC du <strong>premier</strong> montant avec taux2 : la donnée a changé, aucun programme à réécrire.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>18
+2
+1000
+2500
+20
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1000 HT → TTC 1180
+2500 HT → TTC 2950
+nouveau taux ?
+1000 HT → TTC 1200</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Retenez le premier montant dans une variable au premier tour de boucle (test sur la variable vide).</li>
+        <li>Le calcul est ttc = montant + montant * taux / 100 en une seule expression $(( )).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">une démarche unique par essais-erreurs</button>
+        <button class="opt" data-correct="1">une double démarche par niveaux et par étapes</button>
+        <button class="opt">une démarche uniquement physique</button>
+      </div>
+      <div class="q__exp">Par niveaux (conceptuel, logique, physique) et par étapes (cycle de vie du projet).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">comment réaliser ?</button>
+        <button class="opt">comment organiser ?</button>
+        <button class="opt" data-correct="1">quoi ?</button>
+      </div>
+      <div class="q__exp">Le conceptuel décrit le système indépendamment de toute contrainte technique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">conceptuel</button>
+        <button class="opt" data-correct="1">logique/organisationnel</button>
+        <button class="opt">physique</button>
+      </div>
+      <div class="q__exp">Le MLD organise le stockage : c'est la forme machinale du MCD, niveau logique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">les traitements fondamentaux, sans organisation</button>
+        <button class="opt">les programmes</button>
+        <button class="opt">les tables SQL</button>
+      </div>
+      <div class="q__exp">Le MCT représente les règles de traitement fondamentales et leurs enchaînements.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">physique</button>
+        <button class="opt">logique</button>
+        <button class="opt">conceptuel</button>
+      </div>
+      <div class="q__exp">Le MOpT (opérationnel) décrit comment réaliser les traitements : niveau physique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">rien ne change quand le taux bouge</button>
+        <button class="opt" data-correct="1">le programme doit être modifié à chaque changement</button>
+        <button class="opt">les données deviennent inutiles</button>
+      </div>
+      <div class="q__exp">Traitement codé en dur = réécriture à chaque changement ; donnée mémorisée = simple mise à jour.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">cohérence et pérennité</button>
+        <button class="opt">rapidité et prix</button>
+        <button class="opt">sécurité et mot de passe</button>
+      </div>
+      <div class="q__exp">Cohérence (étude globale) et pérennité (les traitements évoluent sans casser les données).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">du pratique vers le théorique</button>
+        <button class="opt" data-correct="1">du théorique vers la pratique</button>
+        <button class="opt">du hasard</button>
+      </div>
+      <div class="q__exp">Modèle idéal au conceptuel, adaptation au logique, mise en place au physique.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Placer le MLD au niveau conceptuel : le MCD décrit, le MLD organise.</li>
+      <li>Mettre le taux de TVA dans les traitements : c'est une donnée, la pérennité l'exige.</li>
+      <li>Confondre vision statique (données) et vision dynamique (traitements).</li>
+      <li>Réduire MERISE au seul MCD : la méthode couvre six modèles et un cycle de projet.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — placer un modèle en trois gestes</div>
+    <ol>
+      <li>Le modèle parle de données (M*D) ou de traitements (M*T) ?</li>
+      <li>Sa question est quoi, comment organiser ou comment réaliser ? Le niveau en découle.</li>
+      <li>Vérifier la cohérence : « comment réaliser » ne peut pas être conceptuel.</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>MERISE : double démarche, par niveaux (conceptuel, logique/organisationnel, physique) et par étapes.</li>
+      <li>Données : MCD, MLD, MPD. Traitements : MCT, MOT, MOpT.</li>
+      <li>Conceptuel = quoi ; logique = comment organiser ; physique = comment réaliser.</li>
+      <li>La séparation données/traitements assure cohérence et pérennité (exemple du taux de TVA).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais réciter les six modèles avec leur niveau et leur question.</li>
+      <li>Je sais expliquer l'exemple TVA avec mes propres mots.</li>
+      <li>Je sais ordonner les étapes d'un projet MERISE.</li>
+      <li>Je sais dire quelle vision (statique ou dynamique) chaque analyse donne.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>MERISE</strong> : méthode d'analyse et de conception des SI.</li><li><strong>Niveau conceptuel</strong> : le quoi, sans contrainte technique.</li><li><strong>Niveau logique/organisationnel</strong> : l'adaptation aux contraintes.</li><li><strong>Niveau physique</strong> : la réalisation effective.</li><li><strong>MCD/MLD/MPD</strong> : les trois modèles de données.</li><li><strong>MCT/MOT/MOpT</strong> : les trois modèles de traitements.</li><li><strong>Cohérence</strong> : le système étudié dans sa globalité.</li><li><strong>Pérennité</strong> : les traitements évoluent sans invalider les données.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — reprends le tableau des six modèles.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais le classement modèle/niveau sur des exemples neufs.</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, cible l'argumentation TVA.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Dictionnaire de données et dépendances fonctionnelles <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Conception et modélisation des systèmes d'information » (B1 IT, S. P. EDOH) et l'outil AnalyseSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

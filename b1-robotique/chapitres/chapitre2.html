@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Boucles et temporisations | Robotique B1</title>
+<meta name="description" content="Chapitre 2 du club de robotique B1 : Répéter exactement k fois, réagir à une série d’états, cadencer une séquence, compter les événements. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-robotique/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Boucles et temporisations | Robotique B1">
+<meta property="og:description" content="Chapitre 2 du club de robotique B1 : Répéter exactement k fois, réagir à une série d’états, cadencer une séquence, compter les événements. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rbnav"><div class="rbnav__in">
+  <a class="rbnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rbnav__sep" aria-hidden="true">/</span>
+  <a class="rbnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Robotique B1</a>
+  <div class="rbnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rbnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rbwrap">
+<p class="crumb"><a href="../index.html">Robotique B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Boucles et temporisations</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>La LED clignote : allumée une seconde, éteinte une seconde, cinq fois, puis le programme rend la main. Ce « cinq fois » est toute une théorie : combien de répétitions, comment compter les allumages, comment cadencer une séquence de feux qui n’est pas une simple répétition mais un enchaînement. La simulation remplace la seconde d’attente par une ligne d’affichage — la structure du programme, elle, est exactement celle de la carte.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>répéter un bloc exactement k fois avec for et range ;</li>
+      <li>réagir à chaque valeur d’une série tout en tenant un compteur ;</li>
+      <li>répéter une séquence de plusieurs étapes et annoncer le bilan ;</li>
+      <li>traiter le cas limite k = 0 sans qu’il casse le programme.</li>
+    </ol>
+  </div>
+
+<h2>1. Répéter exactement k fois</h2>
+
+<p>La boucle <code>for</code> exécute un bloc un nombre connu de fois. <code>range(k)</code> produit les entiers de 0 à k − 1 : exactement k passages.</p>\n<pre><code>for _ in range(5):
+    print("LED ON")
+    print("LED OFF")
+print("Fin.")</code></pre>\n<p>L’<strong>indentation</strong> dessine le bloc : les deux print font partie de la boucle, le <code>print("Fin.")</code> — aligné au même niveau que le <code>for</code> — s’exécute une seule fois, après la boucle. C’est la première cause de bug du débutant : une ligne mal alignée sort de la boucle ou y entre par erreur.</p>\n  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le trait de soulignement</div>
+    <p><code>for _ in range(k)</code> : la variable de boucle existe mais on ne l’utilise pas — le trait bas la nomme « sans importance ». Dès que tu comptes quelque chose ou que le numéro du passage sert, donne-lui un vrai nom : <code>for tour in range(k)</code>.</p>
+  </div>
+
+<h2>2. Réagir à une série et compter</h2>
+
+<p>La carte ne répète pas aveuglément : elle réagit à ce qu’elle lit. La boucle parcours alors <strong>une série de valeurs</strong>, et une décision s’invite dans chaque passage.</p>\n<pre><code>allumages = 0
+for etat in etats:
+    if etat == 1:
+        print("LED ON")
+        allumages += 1
+    else:
+        print("LED OFF")
+print(f"allumee : {allumages}")</code></pre>\n<p>Trois règles de position : le compteur s’<strong>initialise avant</strong> la boucle, il s’<strong>incrémente dans</strong> le test qui compte, le <strong>bilan s’affiche après</strong> la boucle. Un compteur initialisé dans la boucle repart à zéro à chaque passage — il ne compte jamais rien.</p>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Avant, dans, après »</div>
+    <p>Un compteur de boucle vit en trois temps : <strong>avant</strong> (initialisation), <strong>dans</strong> (mise à jour), <strong>après</strong> (exploitation). Vérifier ces trois emplacements élimine la moitié des bugs de boucle.</p>
+  </div>
+
+<h2>3. Cadencer une séquence</h2>
+
+<p>Le feu tricolore ne fait pas cinq fois la même chose : il enchaîne rouge 3 s, orange 1 s, verte 3 s, orange 1 s. La <strong>séquence</strong> tient dans le corps de la boucle ; la boucle ne fait que la rejouer.</p>\n<pre><code>for _ in range(cycles):
+    print("rouge (3 s)")
+    print("orange (1 s)")
+    print("verte (3 s)")
+    print("orange (1 s)")</code></pre>\n<p>Une seule LED à la fois : la séquence le garantit par construction, puisqu’aucune instruction n’allume deux états. C’est exactement le raisonnement qu’on tient sur la carte, où un état bas doit être écrit explicitement pour éteindre la LED précédente.</p>\n  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Attention au cas zéro</div>
+    <p><code>range(0)</code> ne produit rien : la boucle ne s’exécute pas, et le programme saute directement au bilan. C’est le comportement correct — « terminé après 0 cycle » — et il tombe gratis si le bilan est écrit après la boucle, jamais dedans.</p>
+  </div>
+
+<h2>4. Accorder le pluriel du bilan</h2>
+
+<p>Le bilan « terminé après X cycle(s) » demande un détail : le <strong>s</strong> n’apparaît que si X dépasse 1. La f-string le décide à la volée.</p>\n<pre><code>print(f"termine apres {c} cycle{'s' if c &gt; 1 else ''}")
+
+c = 1  →  termine apres 1 cycle
+c = 3  →  termine apres 3 cycles</code></pre>\n<p>L’expression conditionnelle <code>A if condition else B</code> choisit le texte sans écrire de bloc if complet. C’est le détail qui distingue un rapport soigné d’un rapport approximatif — et les tests le vérifient au caractère près.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="rb-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="2">
+  <script type="text/plain" data-lab-starter>k = int(input())
+
+# À compléter : répéter k fois la paire ON / OFF, puis afficher Fin.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — LED clignotante simulée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Répéter une paire d’instructions k fois avec une boucle for, puis afficher l’état final.</p>
+    <div class="lab__brief"><p>La carte clignote : allumée puis éteinte, c’est <strong>un clignotement</strong>. Le programme lit le nombre de clignotements <strong>k</strong> et affiche, pour chacun, la ligne <code>LED ON</code> puis la ligne <code>LED OFF</code> (la simulation remplace la pause d’une seconde : ce qui compte est la répétition). À la fin, affichez <code>Fin.</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LED ON
+LED OFF
+LED ON
+LED OFF
+Fin.</pre></div>
+    </div>
+    <p class="lab__note">Deux clignotements, puis la fin.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>range(k) produit les entiers de 0 à k − 1 : la boucle s’exécute exactement k fois.</li>
+        <li>Le message final sort de la boucle : il doit être aligné au même niveau que le for, pas dedans.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rb-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="4&#10;1&#10;0&#10;1&#10;1">
+  <script type="text/plain" data-lab-starter>n = int(input())
+etats = [int(input()) for _ in range(n)]
+
+# À compléter : afficher chaque état, puis le compteur d’allumages.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Clignotement dirigé</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Réagir à chaque valeur d’une série dans une boucle et tenir un compteur en parallel.</p>
+    <div class="lab__brief"><p>Le programme lit <strong>n</strong>, puis <strong>n états</strong> (un par ligne, 0 ou 1). Pour chaque état il affiche <code>LED ON</code> (si 1) ou <code>LED OFF</code> (si 0). En dernier, il affiche le nombre d’allumages : <code>allumee : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+1
+0
+1
+1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LED ON
+LED OFF
+LED ON
+LED ON
+allumee : 3</pre></div>
+    </div>
+    <p class="lab__note">Trois allumages sur quatre états.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un compteur s’initialise à 0 avant la boucle et s’incrémente d’un cran seulement quand la LED s’allume.</li>
+        <li>Un if / else dans la boucle décide de la ligne à afficher ; le compteur vit après le test.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rb-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="1">
+  <script type="text/plain" data-lab-starter>c = int(input())
+
+# À compléter : répéter la séquence de quatre étapes, puis le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Séquence de feux tricolores</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Répéter une séquence fixe de plusieurs étapes, avec minutages simulés et message final accordé.</p>
+    <div class="lab__brief"><p>Le carrefour du robot : rouge 3 s, orange 1 s, verte 3 s, orange 1 s. Le programme lit le nombre de <strong>cycles c</strong> et, pour chaque cycle, affiche les quatre étapes sous la forme <code>rouge (3 s)</code>, <code>orange (1 s)</code>, <code>verte (3 s)</code>, <code>orange (1 s)</code>. Il termine par <code>termine apres X cycle(s)</code> — le mot prend un <strong>s</strong> seulement si c dépasse 1.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>rouge (3 s)
+orange (1 s)
+verte (3 s)
+orange (1 s)
+termine apres 1 cycle</pre></div>
+    </div>
+    <p class="lab__note">Un cycle complet, sans pluriel.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La séquence est identique à chaque cycle : une boucle externe contient les quatre print dans l’ordre.</li>
+        <li>Pour l’accord du pluriel : "s" if c &gt; 1 else "" dans une f-string fait le travail en une ligne.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien de fois s’exécute le corps de for _ in range(k) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">k fois</button>
+        <button class="opt">k + 1 fois</button>
+        <button class="opt">k − 1 fois</button>
+      </div>
+      <div class="q__exp">range(k) produit exactement k entiers, de 0 à k − 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où initialiser un compteur utilisé dans une boucle ?</p>
+      <div class="opts">
+        <button class="opt">Dans la boucle</button>
+        <button class="opt" data-correct="1">Avant la boucle</button>
+        <button class="opt">Après la boucle</button>
+      </div>
+      <div class="q__exp">Avant : sinon il repart à zéro à chaque passage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait le programme si k vaut 0 dans for _ in range(k) ?</p>
+      <div class="opts">
+        <button class="opt">Une erreur</button>
+        <button class="opt" data-correct="1">Il passe au bilan sans exécuter le corps</button>
+        <button class="opt">Il boucle indéfiniment</button>
+      </div>
+      <div class="q__exp">range(0) est vide : aucun passage, le bilan s’affiche.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la séquence de feux, comment garantir une seule LED allumée ?</p>
+      <div class="opts">
+        <button class="opt">En testant un drapeau</button>
+        <button class="opt" data-correct="1">Par construction : la séquence n’allume qu’un état à la fois</button>
+        <button class="opt">Avec un compteur d’allumages</button>
+      </div>
+      <div class="q__exp">La séquence écrite n’allume qu’un état par étape : la contrainte est structurelle.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut "s" if c > 1 else "" pour c = 1 ?</p>
+      <div class="opts">
+        <button class="opt">"s"</button>
+        <button class="opt" data-correct="1">""</button>
+        <button class="opt">Une erreur</button>
+      </div>
+      <div class="q__exp">La condition est fausse : c’est la chaîne vide qui est choisie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un print aligné au même niveau que le for s’exécute…</p>
+      <div class="opts">
+        <button class="opt">À chaque passage</button>
+        <button class="opt" data-correct="1">Une seule fois, après la boucle</button>
+        <button class="opt">Jamais</button>
+      </div>
+      <div class="q__exp">Hors indentation de la boucle : une seule fois, après le dernier passage.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Indentation décalée</strong> : le bilan s’affiche à chaque passage au lieu d’une seule fois.</li>
+      <li><strong>Compteur réinitialisé dans la boucle</strong> : allumee : 1 quelle que soit la série.</li>
+      <li><strong>Pluriel ignoré</strong> : « 2 cycle » au lieu de « 2 cycles ».</li>
+      <li><strong>range(k + 1)</strong> par excès de zèle : un passage de trop.</li>
+      <li><strong>Corps vide oublié</strong> : une boucle qui ne fait rien parce que le bloc n’a pas été écrit.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Écrire une boucle de contrôle</div>
+    <ol>
+      <li><strong>Identifier ce qui se répète</strong> : une paire d’instructions, une décision, une séquence entière.</li>
+      <li><strong>Choisir le conducteur</strong> : range(k) pour k passages, une série pour réagir aux données.</li>
+      <li><strong>Placer les trois temps du compteur</strong> : initialisation avant, mise à jour dans le test, bilan après.</li>
+      <li><strong>Vérifier l’indentation</strong> ligne par ligne : qui est dans la boucle, qui en sort.</li>
+      <li><strong>Jouer le cas limite</strong> k = 0 mentalement avant d’exécuter.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>for _ in range(k) répète exactement k fois ; range(0) ne répète rien et saute au bilan.</li>
+      <li>L’indentation définit le corps de la boucle : un print dé-indenté ne s’exécute qu’une fois, après.</li>
+      <li>Un compteur s’initialise avant la boucle, s’incrémente dans la bonne branche, s’exploite après.</li>
+      <li>Une séquence de feux est un corps de boucle : la rejouer, c’est garantir une LED à la fois.</li>
+      <li>L’expression A if condition else B accorde le pluriel du bilan sans bloc if.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je répète un bloc exactement k fois et j’annonce la fin hors de la boucle.</li>
+      <li>Je compte des événements d’une série sans réinitialiser mon compteur.</li>
+      <li>Je cadence une séquence de plusieurs étapes dans l’ordre imposé.</li>
+      <li>Je traite k = 0 et j’accorde le pluriel du bilan.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>for</li><li>range</li><li>indentation</li><li>compteur</li><li>séquence</li><li>cas limite</li><li>expression conditionnelle</li><li>bilan</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Écris la boucle LED dix fois sur papier avant l’atelier.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais le clignotement dirigé en comptant aussi les extinctions.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : ajoute le compte des oranges au carrefour.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 3, les conditions et fonctions.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Conditions et fonctions <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support du club « Séance TP — Club Robotique & Électronique » (programmation, CircuitVerse, Tinkercad) et le cours de logique fourni.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

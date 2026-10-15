@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Fonctions : modularité et réutilisabilité | Python B1</title>
+<meta name="description" content="Chapitre 3 du cours Python B1 : définition et appel de fonctions, return, paramètres, portée des variables, fonctions intégrées, lambda, docstrings. Théorie, exemples, exercices 5 niveaux, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="3">
+
+<nav class="pynav"><div class="pynav__in">
+  <a class="pynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="pynav__sep" aria-hidden="true">/</span>
+  <a class="pynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Python B1</a>
+  <div class="pynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html">Ch. 2</a>
+    <a href="chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="pywrap">
+  <p class="crumb"><a href="../index.html">Python B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+  <h1>Chapitre 3 — Fonctions : modularité et réutilisabilité</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30</span>
+    <span class="tag tag--time">Contenu protégé</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Ton script de gestion de notes fonctionne… mais tu as copié-collé le calcul de moyenne <strong>quatre fois</strong>.
+    Une règle change ? Tu dois corriger quatre endroits, et tu oublies le quatrième. Ton chef te dit :
+    « fais-en une <em>fonction</em> ». Une fonction, c'est ce que tu écris <strong>une fois</strong> et appelles
+    <strong>partout</strong>. Ce chapitre t'apprend à décomposer un problème en fonctions testables — la
+    compétence n°1 attendue en examen et en entreprise.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <ol>
+      <li>Définir et appeler une fonction avec <code>def</code> ;</li>
+      <li>distinguer <code>return</code> et <code>print</code> ;</li>
+      <li>utiliser paramètres positionnels, par défaut, et <code>*args</code>/<code>**kwargs</code> ;</li>
+      <li>expliquer la portée locale/globale et l'erreur <code>UnboundLocalError</code> ;</li>
+      <li>utiliser des fonctions intégrées (<code>len</code>, <code>sum</code>, <code>sorted</code>, <code>max</code>) et un module (<code>math</code>, <code>random</code>) ;</li>
+      <li>écrire une docstring et une lambda simple.</li>
+    </ol>
+  </div>
+
+  <h2>1. Définir et appeler</h2>
+  <pre><code>def moyenne(notes):
+    """Retourne la moyenne d'une liste de notes."""
+    return sum(notes) / len(notes)
+
+resultat = moyenne([12, 15, 9])
+print(resultat)         # 12.0</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p>Une fonction est une <em>recette nommée</em>. Les <strong>paramètres</strong> sont les ingrédients,
+    <code>return</code> est le plat servi. Tu peux réutiliser la recette autant de fois que tu veux,
+    avec d'autres ingrédients.</p>
+  </div>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Niveau 2 — Technique</div>
+    <p><code>def</code> crée un objet fonction et lie le nom. L'appel <code>moyenne([12,15,9])</code> crée
+    une <strong>portée locale</strong> où <code>notes</code> existe le temps de l'exécution. À la fin, la portée
+    est détruite : <code>notes</code> n'est pas visible à l'extérieur.</p>
+  </div>
+
+  <h2>2. return vs print</h2>
+  <table>
+    <tr><th></th><th><code>return</code></th><th><code>print</code></th></tr>
+    <tr><td>Rôle</td><td>Renvoie une valeur au code appelant</td><td>Affiche du texte à l'écran</td></tr>
+    <tr><td>Réutilisable ?</td><td>Oui : <code>x = f()</code></td><td>Non : on ne récupère rien</td></tr>
+    <tr><td>Sans instruction</td><td>Renvoie <code>None</code></td><td>—</td></tr>
+  </table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège d'examen n°1</div>
+    <p>Une fonction qui <em>affiche</em> au lieu de <em>retourner</em> est un piège classique. Si l'énoncé dit
+    « écrire une fonction qui <strong>calcule</strong> la moyenne », elle doit <code>return</code>, pas <code>print</code>.
+    <code>x = f()</code> avec <code>f</code> qui fait seulement <code>print</code> donne <code>x = None</code>.</p>
+  </div>
+
+  <h2>3. Types de paramètres</h2>
+  <pre><code>def saluer(nom, salutation="Bonjour"):   # valeur par défaut
+    return f"{salutation}, {nom} !"
+
+saluer("Ali")              # "Bonjour, Ali !"
+saluer("Ali", "Salut")     # "Salut, Ali !"   (positionnel)
+saluer(salutation="Hey", nom="Ali")  # (nommé)
+
+def total(*args):          # nombre variable d'arguments
+    return sum(args)
+total(1, 2, 3)             # 6</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Valeur par défaut mutable</div>
+    <p>N'utilise <strong>jamais</strong> une liste comme valeur par défaut :
+    <code>def f(items=[])</code> conserve la même liste entre les appels. Écris <code>def f(items=None): items = items or []</code>.</p>
+  </div>
+
+  <h2>4. Portée des variables</h2>
+  <pre><code>x = 10                     # globale
+
+def f():
+    x = 3                  # LOCALE : masque la globale
+    return x
+
+print(f(), x)              # 3 10</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Règle LEGB</div>
+    <p>Python cherche un nom dans l'ordre : <strong>L</strong>ocal <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <strong>E</strong>nclosing <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <strong>G</strong>lobal <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <strong>B</strong>uilt-in.
+    Pour modifier une globale depuis une fonction, on utilisait <code>global</code> — à éviter : une fonction qui
+    ne communique que par <code>return</code> est plus testable.</p>
+  </div>
+
+  <h2>5. Modules standards et fonctions intégrées</h2>
+  <pre><code>import math
+import random
+
+print(math.sqrt(16))          # 4.0
+print(math.floor(3.7))        # 3
+print(random.randint(1, 6))   # un dé 1..6
+
+nombres = [3, 1, 2]
+print(len(nombres), sum(nombres), max(nombres), sorted(nombres))</code></pre>
+  <div class="out">4.0
+3
+4
+3 6 3 [1, 2, 3]</div>
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Utilité IT</div>
+    <p>Ne réinvente pas : <code>statistics.mean</code>, <code>math</code>, <code>random</code>, <code>json</code>
+    font partie de la bibliothèque standard. Un bon développeur connaît l'existant avant d'écrire son propre code.</p>
+  </div>
+
+  <h2>6. Lambda et docstrings</h2>
+  <pre><code>carre = lambda x: x * x
+print(carre(5))               # 25
+
+def tva(prix):
+    """Retourne le prix TTC (TVA 18 %)."""
+    return prix * 1.18</code></pre>
+
+  <h2>7. Exemples travaillés</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple A</span><span class="badge badge--n1">Très simple</span></div>
+    <p>Fonction qui retourne le carré.</p>
+    <pre><code>def carre(n):
+    return n * n
+print(carre(7))   # 49</code></pre>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple B</span><span class="badge badge--n2">Intermédiaire</span></div>
+    <p><strong>Énoncé.</strong> Fonction qui retourne moyenne ET maximum d'une liste.</p>
+    <pre><code>def stats(notes):
+    return sum(notes) / len(notes), max(notes)
+
+moy, top = stats([12, 15, 14, 9, 18])
+print("Moyenne :", moy, "Max :", top)</code></pre>
+    <div class="out">Moyenne : 13.6 Max : 18</div>
+    <p><strong>Analyse.</strong> <code>return a, b</code> renvoie en réalité un <em>tuple</em>, déballé à l'appel.
+    C'est le motif utilisé dans l'exercice 1 du sujet d'examen final.</p>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple C</span><span class="badge badge--n3">Difficile</span></div>
+    <p><strong>Énoncé.</strong> Fonction <code>est_premier(n)</code> sans liste ni import.</p>
+    <pre><code>def est_premier(n):
+    if n < 2:
+        return False
+    for d in range(2, int(n ** 0.5) + 1):
+        if n % d == 0:
+            return False
+    return True
+
+print([x for x in range(2, 20) if est_premier(x)])</code></pre>
+    <div class="out">[2, 3, 5, 7, 11, 13, 17, 19]</div>
+    <p><strong>Pourquoi s'arrêter à √n ?</strong> Si n = a × b, l'un des deux facteurs est ≤ √n. Inutile de tester
+    au-delà. Le <code>return False</code> interne sort dès qu'un diviseur est trouvé (efficacité).</p>
+  </div>
+
+  <h2>8. Exercices (5 niveaux)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Niveau 1 — Acquisition</span></div>
+    <p><strong>1.</strong> Quelle valeur retourne une fonction sans <code>return</code> ?
+    <strong>2.</strong> Corrige : <code>def f(x) return x+1</code>.</p>
+    <details><summary>Correction</summary><div class="sol">1. <code>None</code>.
+    2. Il manque deux-points et indentation : <code>def f(x):</code> puis ligne indentée <code>return x + 1</code>.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Niveau 2 — Application</span></div>
+    <p><strong>3.</strong> Écris <code>convertir_temperature(c)</code> retournant la valeur Fahrenheit (<code>F = C × 9/5 + 32</code>).</p>
+    <details><summary>Correction</summary><div class="sol"><pre><code>def convertir_temperature(c):
+    return c * 9 / 5 + 32
+print(convertir_temperature(25))   # 77.0</code></pre></div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Niveau 3 — Raisonnement</span></div>
+    <p><strong>4.</strong> Explique pourquoi <code>x = f()</code> vaut <code>None</code> si <code>f</code> ne contient qu'un <code>print</code>.</p>
+    <p><strong>5.</strong> Que vaut <code>total(1, 2, 3)</code> avec <code>def total(*args): return sum(args)</code> ?</p>
+    <details><summary>Correction</summary><div class="sol">4. <code>print</code> affiche mais ne <em>renvoie</em> rien : toute fonction sans <code>return</code> renvoie <code>None</code>.
+    5. <code>args</code> = (1, 2, 3), <code>sum</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 6.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n4">Niveau 4 — Examen</span></div>
+    <p><strong>6.</strong> (type sujet final) Complète une fonction <code>calcul_statistiques(liste_notes)</code> qui retourne
+    <code>(moyenne, max_note)</code>. Donne aussi le résultat pour <code>[12, 15, 14, 9, 18]</code>.</p>
+    <details><summary>Correction détaillée</summary><div class="sol"><pre><code>def calcul_statistiques(liste_notes):
+    total = 0
+    for note in liste_notes:
+        total += note
+    moyenne = total / len(liste_notes)
+    max_note = max(liste_notes)
+    return moyenne, max_note
+
+# bonus : une seule boucle, sans sum() ni max()
+</code></pre>
+    Résultat : moyenne = 13.6, max = 18. Barème : boucle/bon accumulateur, division par <code>len</code>,
+    recherche du max, retour de couple.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n5">Niveau 5 — Challenge</span></div>
+    <p><strong>7.</strong> Écris <code>compte_mots(texte)</code> qui retourne un dictionnaire <code>{mot: fréquence}</code>.</p>
+    <details><summary>Correction</summary><div class="sol"><pre><code>def compte_mots(texte):
+    frequences = {}
+    for mot in texte.lower().split():
+        frequences[mot] = frequences.get(mot, 0) + 1
+    return frequences
+print(compte_mots("le chat le chien le rat"))
+# {'le': 3, 'chat': 1, 'chien': 1, 'rat': 1}</code></pre></div></details>
+  </div>
+<!-- code-labs:start -->
+  <h2>9. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="py-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;12&#10;15&#10;14&#10;9&#10;18">
+  <script type="text/plain" data-lab-starter>def calcul_statistiques(liste_notes):
+    # Version de départ volontairement fausse : elle doit renvoyer
+    # le couple (moyenne, max_note). Remplacez les valeurs ci-dessous.
+    return 0, 0
+
+
+n = int(input())
+notes = []
+for i in range(n):
+    notes.append(int(input()))
+
+moyenne, maximum = calcul_statistiques(notes)
+print(f"{moyenne:.2f} {maximum}")
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — calcul_statistiques — sujet d’examen</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction qui renvoie plusieurs valeurs et la consommer depuis le programme principal.</p>
+    <div class="lab__brief"><p>Écrivez <code>calcul_statistiques(liste_notes)</code> qui renvoie un couple <code>(moyenne, max_note)</code> en parcourant la liste une seule fois, sans utiliser <code>sum()</code> ni <code>max()</code>.</p><p>Le programme lit un entier n, puis n notes, et affiche la moyenne avec deux décimales suivie du maximum, séparés par un espace.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+12
+15
+14
+9
+18</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>13.60 18</pre></div>
+    </div>
+    <p class="lab__note">Moyenne 13.60 et maximum 18.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une fonction ne renvoie qu’une seule chose : pour en faire passer deux, il faut les grouper dans un couple, en les séparant par une virgule.</li>
+        <li>Le maximum se cherche en mémorisant un candidat, puis en le remplaçant dès qu’un élément le dépasse : le premier élément de la liste est un bon point de départ.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="10&#10;2">
+  <script type="text/plain" data-lab-starter>def diviser(a, b):
+    # À compléter : gérer proprement le cas où b vaut zéro.
+    return a / b
+
+
+a = int(input())
+b = int(input())
+print(diviser(a, b))
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Division qui ne plante pas</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Empêcher une exception de faire planter le programme.</p>
+    <div class="lab__brief"><p>Écrivez <code>diviser(a, b)</code> qui renvoie le résultat de <code>a / b</code>, ou la chaîne <code>erreur</code> si b vaut 0. Aucune exception ne doit remonter : le programme doit se terminer normalement dans tous les cas.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10
+2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>5.0</pre></div>
+    </div>
+    <p class="lab__note">Division normale : 5.0.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une division par zéro n’est pas une valeur : l’interpréteur interrompt le programme. Il faut donc empêcher l’opération d’être tentée.</li>
+        <li>Deux stratégies existent : vérifier avant de calculer, ou tenter le calcul et rattraper l’erreur. Dans les deux cas, la valeur renvoyée doit être la même.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="17">
+  <script type="text/plain" data-lab-starter>def est_premier(n):
+    # À compléter : renvoyer True si n est premier, False sinon.
+    pass
+
+
+n = int(input())
+print("oui" if est_premier(n) else "non")
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — est_premier — sujet d’examen</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction booléenne avec sortie anticipée.</p>
+    <div class="lab__brief"><p>Écrivez <code>est_premier(n)</code> qui renvoie <code>True</code> ou <code>False</code>. Le programme lit un entier et affiche <code>oui</code> ou <code>non</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>17</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>oui</pre></div>
+    </div>
+    <p class="lab__note">17 n’a aucun diviseur autre que 1 et lui-même.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>1 n’est pas premier : c’est le premier cas particulier à traiter avant même de chercher un diviseur.</li>
+        <li>Un nombre premier n’a aucun diviseur autre que 1 et lui-même : dès qu’un diviseur est trouvé, la réponse est fixée et le parcours peut s’arrêter là.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>10. QCM — niveau examen</h2>
+  <div class="qcm" data-mastery="1">
+    <div class="q">
+      <p class="q__stem">Que renvoie une fonction sans <code>return</code> ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">None</button>
+        <button class="opt">Erreur</button>
+      </div>
+      <div class="q__exp">Toute fonction sans <code>return</code> explicite renvoie <code>None</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Avec <code>def f(x=2): return x*3</code>, que vaut <code>f()</code> ?</p>
+      <div class="opts">
+        <button class="opt">Erreur : argument manquant</button>
+        <button class="opt" data-correct="1">6</button>
+        <button class="opt">0</button>
+      </div>
+      <div class="q__exp">La valeur par défaut <code>x=2</code> s'applique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 2 × 3 = 6. Aucune erreur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Avec la même fonction, que vaut <code>f(4)</code> ?</p>
+      <div class="opts">
+        <button class="opt">6</button>
+        <button class="opt" data-correct="1">12</button>
+        <button class="opt">Erreur</button>
+      </div>
+      <div class="q__exp">L'argument fourni remplace le défaut : 4 × 3 = 12.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>x</code> après <code>def f(): x = 5</code> puis <code>f()</code>, si <code>x</code> n'existait pas avant ?</p>
+      <div class="opts">
+        <button class="opt">5</button>
+        <button class="opt" data-correct="1">NameError</button>
+        <button class="opt">None</button>
+      </div>
+      <div class="q__exp"><code>x</code> est local à <code>f</code> : il n'existe pas à l'extérieur <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>NameError</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle affirmation est vraie ?</p>
+      <div class="opts">
+        <button class="opt"><code>print</code> et <code>return</code> sont interchangeables</button>
+        <button class="opt" data-correct="1"><code>return</code> renvoie une valeur réutilisable, <code>print</code> non</button>
+        <button class="opt"><code>return</code> affiche à l'écran</button>
+      </div>
+      <div class="q__exp"><code>return</code> transmet la valeur au code appelant ; <code>print</code> ne fait qu'afficher.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Résultat de <code>def g(*a): return len(a)</code> puis <code>g(1,2,3,4)</code> ?</p>
+      <div class="opts">
+        <button class="opt">1</button>
+        <button class="opt" data-correct="1">4</button>
+        <button class="opt">Erreur</button>
+      </div>
+      <div class="q__exp"><code>*a</code> capture les 4 arguments dans un tuple <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>len</code> = 4.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>math.floor(3.9)</code> ?</p>
+      <div class="opts">
+        <button class="opt">4</button>
+        <button class="opt" data-correct="1">3</button>
+        <button class="opt">3.9</button>
+      </div>
+      <div class="q__exp"><code>floor</code> arrondit <em>vers le bas</em> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 3 (≠ <code>round</code> qui donnerait 4).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code est correct pour une fonction à valeur par défaut ?</p>
+      <div class="opts">
+        <button class="opt"><code>def f(x = None, y):</code></button>
+        <button class="opt" data-correct="1"><code>def f(x, y=0):</code></button>
+        <button class="opt"><code>def f(x=0, y):</code></button>
+      </div>
+      <div class="q__exp">Les paramètres avec valeur par défaut doivent venir <em>après</em> ceux sans défaut.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>stats([2,4,6])</code> si <code>stats</code> fait <code>return min(l), max(l)</code> ?</p>
+      <div class="opts">
+        <button class="opt">(6, 2)</button>
+        <button class="opt" data-correct="1">(2, 6)</button>
+        <button class="opt">Erreur</button>
+      </div>
+      <div class="q__exp">L'ordre du <code>return</code> est respecté : d'abord <code>min</code>, puis <code>max</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la bonne façon d'obtenir un entier aléatoire entre 1 et 6 ?</p>
+      <div class="opts">
+        <button class="opt"><code>random.random() * 6</code></button>
+        <button class="opt" data-correct="1"><code>random.randint(1, 6)</code></button>
+        <button class="opt"><code>math.randint(1, 6)</code></button>
+      </div>
+      <div class="q__exp"><code>random.randint(a, b)</code> inclut les deux bornes. <code>math</code> n'a pas de <code>randint</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi éviter <code>def f(items=[])</code> ?</p>
+      <div class="opts">
+        <button class="opt">C'est une erreur de syntaxe</button>
+        <button class="opt" data-correct="1">La liste par défaut est partagée entre les appels</button>
+        <button class="opt">Cela ralentit Python</button>
+      </div>
+      <div class="q__exp">La valeur par défaut n'est créée qu'une fois : les modifications persistent entre les appels. Préférer <code>None</code>.</div>
+    </div>
+  </div>
+
+  <h2>11. Erreurs classiques</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre <code>return</code> et <code>print</code> (le plus fréquent).</li>
+      <li>Oublier les deux-points ou l'indentation après <code>def</code>.</li>
+      <li>Paramètre avec défaut placé avant un paramètre requis.</li>
+      <li>Vouloir lire une variable locale hors de la fonction (<code>NameError</code>).</li>
+      <li>Défaut mutable <code>items=[]</code>.</li>
+    </ul>
+  </div>
+
+  <h2>12. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Décomposer un énoncé en fonctions</div>
+    <ol>
+      <li>Repère les <strong>verbes</strong> de l'énoncé : « calculer », « afficher », « vérifier » <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> une fonction chacun.</li>
+      <li>Une fonction = <em>une responsabilité</em>. Si tu écris « et », coupe en deux.</li>
+      <li>Chaque fonction : entrées (paramètres) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> traitement <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> sortie (<code>return</code>).</li>
+      <li>Teste chaque fonction isolément sur un exemple simple avant de les assembler.</li>
+    </ol>
+  </div>
+
+  <h2>13. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li><code>def nom(paramètres): return valeur</code>.</li>
+      <li><code>return</code> ≠ <code>print</code> ; sans <code>return</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>None</code>.</li>
+      <li>Paramètres : positionnels, nommés, par défaut, <code>*args</code>.</li>
+      <li>Portée : une variable locale n'existe pas dehors (LEGB).</li>
+      <li>Bibliothèque standard : <code>math</code>, <code>random</code>, <code>sum</code>, <code>sorted</code>…</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais écrire une fonction qui <em>retourne</em> (pas qui affiche).</li>
+      <li>Je sais retourner plusieurs valeurs (tuple).</li>
+      <li>Je sais expliquer la portée locale.</li>
+      <li>Je sais décomposer un problème en fonctions à responsabilité unique.</li>
+      <li>Je sais importer et utiliser un module standard.</li>
+    </ul>
+    <h3>Les 10 notions à connaître absolument</h3>
+    <ol>
+      <li><code>def</code> / appel</li><li><code>return</code></li><li><code>None</code></li><li>paramètre par défaut</li>
+      <li>arguments nommés</li><li><code>*args</code></li><li>portée locale/globale</li><li>LEGB</li>
+      <li>modules standards</li><li>docstring</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Flashcards</a> <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo</a></p>
+  </div>
+
+  <h2>14. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Lecture du score</div>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 2 et 4.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exemples A/B et les niveaux 1-2.</div>
+      <div class="bandrow bandrow--good">70–89 % — Travaille <code>return</code> vs <code>print</code> et la portée.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Passe au chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Chapitre 3 maîtrisé (≥ 95 %).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre2.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 2</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Structures de données <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail. Sources :
+  supports B1 INF-1001 (module 3) et sujets d'examen 2024-2025 (exercice « calcul_statistiques »).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

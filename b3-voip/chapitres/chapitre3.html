@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3 — Architecture &amp; Déploiement d'un IPBX Asterisk | Téléphonie VoIP B3</title>
+<meta name="description" content="Module 3 du cours Téléphonie VoIP B3 : Histoire et architecture d'Asterisk (PABX/IPBX open source), modules de canaux chan_sip et chan_pjsip, installation et structure de /etc/asterisk, déclaration des comptes utilisateurs dans sip.conf et users.conf, gestion des boîtes vocales dans voicemail.conf, installation des packs sonores français et paramétrage des softphones clients. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-voip/chapitres/chapitre3.html">
+<meta property="og:title" content="Module 3 — Architecture &amp; Déploiement d'un IPBX Asterisk | Téléphonie VoIP B3">
+<meta property="og:description" content="Module 3 du cours Téléphonie VoIP B3 : Histoire et architecture d'Asterisk (PABX/IPBX open source), modules de canaux chan_sip et chan_pjsip, installation et structure de /etc/asterisk, déclaration des comptes utilisateurs dans sip.conf et users.conf, gestion des boîtes vocales dans voicemail.conf, installation des packs sonores français et paramétrage des softphones clients. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-voipnav"><div class="b3-voipnav__in">
+  <a class="b3-voipnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-voipnav__sep" aria-hidden="true">/</span>
+  <a class="b3-voipnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-phone"></use></svg> Téléphonie VoIP B3</a>
+  <div class="b3-voipnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-voipnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-voipwrap">
+<p class="crumb"><a href="../index.html">Téléphonie VoIP B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Architecture & Déploiement d'un IPBX Asterisk</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Votre entreprise déploie un serveur IPBX Asterisk sous Linux Debian pour remplacer son ancien autocommutateur propriétaire. Vous avez la responsabilité d'installer et d'administrer la plateforme : configurer l'arborescence /etc/asterisk/, déclarer les comptes utilisateurs et terminaux SIP dans sip.conf avec des règles d'authentification et de filtrage de codecs rigoureuses, mettre en service le serveur de messagerie vocale voicemail.conf avec notification par email et pièces jointes audio, et provisionner les softphones clients (Linphone, Zoiper, MicroSIP) sur les postes des collaborateurs.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Comprendre l'architecture interne modulaire d'Asterisk : noyau PBX Core, pilotes de canaux (chan_sip, chan_pjsip, chan_dahdi) et traducteurs de codecs.</li>
+      <li>Structurer l'arborescence de configuration sous /etc/asterisk/ et maîtriser la console CLI interactive (asterisk -rvvv).</li>
+      <li>Déclarer et sécuriser des comptes utilisateurs SIP dans sip.conf (types friend/peer/user, host=dynamic, secret, context, allow/disallow).</li>
+      <li>Configurer le service de messagerie vocale dans voicemail.conf (boîtes vocales, codes PIN, notification email et envoi de pièces jointes WAV).</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture Interne & Installation du Serveur Asterisk</h2>
+
+<p>Créé en 1999 par <strong>Mark Spencer</strong> (Digium), le projet <strong>Asterisk</strong> est un commutateur téléphonique logiciel (PABX / IPBX) complet, libre et modulaire fonctionnant principalement sous Linux. Capable d'interfacer la téléphonie analogique, les liaisons numériques RNIS (via cartes matérielles PCIe) et surtout la voix sur IP, Asterisk s'est imposé comme le cœur logiciel de référence des télécommunications d'entreprise.</p>
+<p>L'architecture d'Asterisk repose sur un noyau central (Core) hautement optimisé découplé de ses modules périphériques par des APIs internes :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Modules de Canaux (Channel Drivers)</h4>
+    <ul>
+      <li><code>chan_sip :</code> Pilote de canal SIP historique d'Asterisk (fichier de configuration <code>sip.conf</code>).</li>
+      <li><code>chan_pjsip :</code> Pile SIP moderne d'Asterisk basée sur la bibliothèque PJSIP, gérant nativement le multi-endpoint, l'IPv6 et WebRTC (fichier <code>pjsip.conf</code>).</li>
+      <li><code>chan_iax2 :</code> Pilote du protocole propriétaire Inter-Asterisk eXchange pour les liaisons inter-serveurs.</li>
+      <li><code>chan_dahdi :</code> Pilote d'interfaçage matériel pour les cartes téléphoniques analogiques (FXS/FXO) et numériques RNIS (T0/T2 / E1/T1).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Noyau &amp; Sous-Systèmes Clés</h4>
+    <ul>
+      <li><strong>Moteur de commutation (PBX Core) :</strong> Connecte et achemine les canaux audio entre appelants et appelés.</li>
+      <li><strong>Traducteur de codecs (Codec Translators) :</strong> Convertit à la volée les flux audio entre codecs incompatibles (transcodage G.711 &harr; G.729).</li>
+      <li><strong>Moteur de Dialplan :</strong> Évalue et exécute séquentiellement les règles d'acheminement du fichier <code>extensions.conf</code>.</li>
+      <li><strong>Console d'administration :</strong> Interface CLI interactive accessible par <code>asterisk -rvvv</code> pour le débogage temps réel.</li>
+    </ul>
+  </div>
+</div>
+<div class="card">
+  <h4>Installation &amp; Structure des Fichiers de Configuration</h4>
+  <p>Sous Debian / Ubuntu, Asterisk s'installe via le gestionnaire de paquets ou par compilation des sources officielles. Tous les fichiers de configuration résident dans <code>/etc/asterisk/</code> :</p>
+  <ul>
+    <li><code>asterisk.conf :</code> Paramètres généraux, répertoires de stockage des sons et des journaux.</li>
+    <li><code>sip.conf / pjsip.conf :</code> Définition des comptes d'utilisateurs, des postes SIP et des trunks opérateurs.</li>
+    <li><code>extensions.conf :</code> Plan d'appel (Dialplan) dictant la logique de routage des communications.</li>
+    <li><code>voicemail.conf :</code> Configuration des boîtes vocales et des notifications email.</li>
+  </ul>
+</div>
+
+<h2>2. Configuration des Postes & Comptes SIP (sip.conf & users.conf)</h2>
+
+<p>Pour qu'un utilisateur puisse émettre et recevoir des appels, son compte doit être formellement déclaré dans le fichier <code>/etc/asterisk/sip.conf</code> (ou <code>users.conf</code> sous les versions simplifiées). Chaque poste est défini par une section entre crochets correspondant à son identifiant ou numéro de téléphone :</p>
+<div class="card">
+  <h4>Exemple de Déclaration d'un Compte Utilisateur SIP Standard</h4>
+  <pre><code>[706438029]
+type=friend
+host=dynamic
+dtmfmode=rfc2833
+disallow=all
+allow=ulaw
+allow=alaw
+fullname=Pape Moussa SONKO
+username=moussa
+secret=PassSecret8190
+context=work</code></pre>
+  <p>Explications détaillées des directives :</p>
+  <ul>
+    <li><code>[706438029] :</code> Nom de la section, faisant office de numéro SIP ou d'extension de l'utilisateur.</li>
+    <li><code>type=friend :</code> Autorise l'utilisateur à la fois à émettre (peer) et recevoir (user) des appels téléphoniques.</li>
+    <li><code>host=dynamic :</code> Spécifie que le poste n'a pas d'adresse IP fixe sur le réseau ; il doit impérativement s'enregistrer auprès du serveur Asterisk via une requête <code>REGISTER</code>.</li>
+    <li><code>secret=... :</code> Mot de passe d'authentification exigé par Asterisk lors de la réponse au challenge HTTP <code>401 Unauthorized</code>.</li>
+    <li><code>context=work :</code> Raccroche l'utilisateur au contexte d'acheminement <code>[work]</code> défini dans le Dialplan (extensions.conf), délimitant strictement les numéros que cet utilisateur a le droit de composer.</li>
+    <li><code>disallow=all / allow=alaw,ulaw :</code> Désactive tous les codecs par mesure de sécurité, puis active explicitement les codecs autorisés par ordre de préférence.</li>
+  </ul>
+</div>
+
+<h2>3. Messagerie Vocale (voicemail.conf) & Configuration des Softphones Clients</h2>
+
+<p>La messagerie vocale est l'un des services à valeur ajoutée fondamentaux d'un IPBX d'entreprise. Elle permet à un correspondant de laisser un message audio enregistré en cas d'absence ou d'occupation de la ligne.</p>
+<div class="card">
+  <h4>Déclaration des Boîtes Vocales dans voicemail.conf</h4>
+  <p>Les boîtes vocales sont organisées par contextes (ex: <code>[default]</code> ou <code>[work]</code>) avec la syntaxe suivante :</p>
+  <pre><code>[work]
+706438029 => 8190,Pape Moussa SONKO,assoum1024@gmail.com,,attach=yes</code></pre>
+  <ul>
+    <li><code>706438029 :</code> Numéro d'extension de la boîte vocale.</li>
+    <li><code>8190 :</code> Code PIN secret à 4 chiffres exigé lors de la consultation téléphonique via <code>VoiceMailMain()</code>.</li>
+    <li><code>Pape Moussa SONKO :</code> Nom du propriétaire de la boîte vocale.</li>
+    <li><code>assoum1024@gmail.com :</code> Adresse électronique de notification recevant automatiquement le fichier audio du message enregistré en pièce jointe WAV (si <code>attach=yes</code>).</li>
+  </ul>
+</div>
+<div class="card">
+  <h4>Fichiers Sonores &amp; Paramétrage des Softphones Clients (3CXPhone, Linphone, Zoiper)</h4>
+  <p>Par défaut, les invites vocales d'Asterisk sont diffusées en langue anglaise. Pour basculer en français :</p>
+  <ul>
+    <li>Installer les packs sonores français dans le répertoire <code>/usr/share/asterisk/sounds/fr/</code>.</li>
+    <li>Ajouter la directive <code>language=fr</code> dans la section <code>[general]</code> de <code>sip.conf</code>.</li>
+    <li>Sur le client softphone (ex: 3CXPhone), configurer : l'adresse IP du serveur Asterisk (PBX / SIP Server), l'extension (ex: 706438029), le nom d'utilisateur (moussa) et le secret. Dès que le statut affiche <strong>On Hook</strong>, le téléphone est enregistré et opérationnel pour émettre et recevoir des appels.</li>
+  </ul>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vo3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="NUM=706438029 TYPE=friend HOST=dynamic SECRET=PassSecret8190 CONTEXT=work CODECS=ulaw,alaw&#10;NUM=10 TYPE=friend HOST=dynamic SECRET=secret CONTEXT=work CODECS=alaw&#10;NUM=785446979 TYPE=friend HOST=dynamic SECRET=123 CONTEXT=work CODECS=ulaw">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : valider les paramètres du compte SIP et générer le profil sip.conf
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur &amp; Générateur de Profils SIP Asterisk</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider la conformité d'une déclaration de compte utilisateur Asterisk dans sip.conf et générer la configuration normalisée.</p>
+    <div class="lab__brief"><p>Dans Asterisk (fichiers sip.conf ou pjsip.conf), chaque utilisateur ou téléphone IP est modélisé par une section déclarative. Pour un compte SIP standard dans sip.conf, les directives clés sont :</p><ul><li><code>[numero_extension]</code> : en-tête identifiant le numéro (ex: [706438029])</li><li><code>type</code> : friend (émet et reçoit), peer (poste appelant ou trunk externe), user (uniquement entrant)</li><li><code>host</code> : dynamic (nécessite un enregistrement SIP REGISTER) ou IP statique</li><li><code>secret</code> : mot de passe d'authentification SIP (doit comporter au moins 6 caractères)</li><li><code>context</code> : contexte du dialplan dans lequel l'utilisateur évolue (ex: work, interne)</li><li><code>dtmfmode</code> : mode de transmission DTMF (rfc2833 obligatoire pour la ToIP moderne)</li><li><code>disallow</code> : all (désactive tous les codecs)</li><li><code>allow</code> : codecs autorisés (ex: ulaw, alaw, g729)</li></ul>
+<p>Format d'entrée :<br>Lignes décrivant un compte SIP sous forme :<br>NUM=<ext> TYPE=<friend|peer|user> HOST=<dynamic|ip> SECRET=<pass> CONTEXT=<nom> CODECS=<c1,c2,...></p>
+<p>Pour chaque compte, vérifier :<br>1. NUM doit être composé de 3 à 10 chiffres.<br>2. TYPE doit appartenir à {friend, peer, user}.<br>3. SECRET doit faire au moins 6 caractères.<br>4. CODECS ne doit pas être vide.<br>Si tout est valide, générer le bloc de configuration compact formaté pour Asterisk. Sinon afficher ERREUR avec le motif du refus.</p>
+<p>Format de sortie :<br>Si valide :<br>[<ext>] | type=<type> | host=<host> | secret=*** | context=<context> | dtmfmode=rfc2833 | disallow=all | allow=<codecs><br>Si invalide :<br>REJET:<ext> | MOTIF:<NUM_INVALIDE|SECRET_TROP_COURT|TYPE_INCONNU|CODECS_VIDES></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NUM=706438029 TYPE=friend HOST=dynamic SECRET=PassSecret8190 CONTEXT=work CODECS=ulaw,alaw
+NUM=10 TYPE=friend HOST=dynamic SECRET=secret CONTEXT=work CODECS=alaw
+NUM=785446979 TYPE=friend HOST=dynamic SECRET=123 CONTEXT=work CODECS=ulaw</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[706438029] | type=friend | host=dynamic | secret=*** | context=work | dtmfmode=rfc2833 | disallow=all | allow=ulaw,alaw
+REJET:10 | MOTIF:NUM_INVALIDE
+REJET:785446979 | MOTIF:SECRET_TROP_COURT
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez que toutes les directives obligatoires (type, host, secret, context) sont présentes.</li>
+        <li>Assurez-vous que disallow=all précède les directives allow autorisant les codecs.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vo3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="BOX=706438029 PIN=8190 NAME=Pape Moussa SONKO EMAIL=assoum1024@gmail.com MSG_COUNT=12&#10;BOX=101 PIN=12 EMAIL=test@corp.fr NAME=Alice MSG_COUNT=5&#10;BOX=2001 PIN=4321 NAME=Bob Smith EMAIL=bob.smith MSG_COUNT=45">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : parser et valider les boîtes vocales Asterisk
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Gestionnaire de Boîtes Vocales Asterisk (voicemail.conf)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parser la configuration des boîtes vocales voicemail.conf et calculer l'espace de stockage des messages audio.</p>
+    <div class="lab__brief"><p>Dans Asterisk, la messagerie vocale est configurée dans le fichier <code>voicemail.conf</code> sous des contextes dédiés.<br>Chaque boîte vocale est déclarée sur une ligne au format :<br><code><mailbox_num> => <pin_code>,<nom_utilisateur>,<email_notification>,<options></code></p>
+<p>Exemple :<br><code>706438029 => 8190,Pape Moussa SONKO,assoum1024@gmail.com,attach=yes</code></p>
+<p>Règles de validation :</p><ul><li><code>mailbox_num</code> : entier de 3 à 10 chiffres</li><li><code>pin_code</code> : code PIN secret à 4 chiffres (ex: 8190)</li><li><code>nom_utilisateur</code> : chaîne non vide</li><li><code>email_notification</code> : doit contenir un '@' et un '.' valide</li><li><code>quota_messages</code> : seuil maximal de messages (défaut 50)</li></ul>
+<p>Format d'entrée :<br>Lignes de la forme :<br>BOX=<num> PIN=<pin> NAME=<nom> EMAIL=<email> MSG_COUNT=<nb_messages_actuels></p>
+<p>Format de sortie :<br>Pour chaque boîte vocale :<br>1. Valider le format (numéro, PIN à 4 chiffres, email).<br>2. Si invalide, afficher : <code>VOICEMAIL_REJET:<num> | MOTIF:<PIN_INVALIDE|EMAIL_INVALIDE|NUM_INVALIDE></code>.<br>3. Si valide :<br>   Calculer le statut :<br>   - Si <code>MSG_COUNT >= 50</code> : <code>STATUT:PLEINE</code><br>   - Si <code>MSG_COUNT >= 40</code> : <code>STATUT:AVERTISSEMENT</code><br>   - Sinon : <code>STATUT:OK</code><br>   Afficher :<br>   <code>VM:<num> | NOM:<nom> | PIN:**** | EMAIL:<email> | STOCKAGE:<msg>/50 | STATUT:<statut></code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BOX=706438029 PIN=8190 NAME=Pape Moussa SONKO EMAIL=assoum1024@gmail.com MSG_COUNT=12
+BOX=101 PIN=12 EMAIL=test@corp.fr NAME=Alice MSG_COUNT=5
+BOX=2001 PIN=4321 NAME=Bob Smith EMAIL=bob.smith MSG_COUNT=45</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VM:706438029 | NOM:Pape Moussa SONKO | PIN:**** | EMAIL:assoum1024@gmail.com | STOCKAGE:12/50 | STATUT:OK
+VOICEMAIL_REJET:101 | MOTIF:PIN_INVALIDE
+VOICEMAIL_REJET:2001 | MOTIF:EMAIL_INVALIDE
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpez chaque ligne de boîte vocale par les séparateurs =&gt; et les virgules.</li>
+        <li>Calculez le volume audio en multipliant la durée par le débit G.711 de 8 000 octets/seconde.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vo3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="EXTENSION=701 IP_CONTACT=192.168.1.50:5060 LAST_SEEN_SEC=120 EXPIRES=3600 RTT_MS=15&#10;EXTENSION=702 IP_CONTACT=192.168.1.51:5060 LAST_SEEN_SEC=3700 EXPIRES=3600 RTT_MS=20&#10;EXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS=195">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser l'état des enregistrements SIP et leur joignabilité
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyseur de Télémétrie SIP Registrar &amp; Expiration de Baux</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Gérer les baux d'enregistrement SIP auprès du Registrar et détecter les expirations de contacts.</p>
+    <div class="lab__brief"><p>Le serveur SIP Registrar maintient la base des associations entre l'adresse logique (Address of Record, AOR: ex: sip:701@voip.lan) et l'adresse IP de contact réelle.<br>Chaque requête <code>REGISTER</code> comporte un en-tête <code>Expires: <secondes></code> (typiquement 3 600 s) renouvelant le bail de l'équipement.<br>Si aucun REGISTER n'est reçu avant expiration du délai (avec une tolérance de 60 s), le poste bascule en état <code>UNREACHABLE</code> (hors-ligne).<br>De plus, si la latence réseau (RTT en ms mesuré par paquets OPTIONS périodiques) dépasse 150 ms, le poste est qualifié de <code>LAGGED</code> (gigue/délai excessif).</p>
+<p>Format d'entrée :<br>Lignes au format :<br>EXTENSION=<num> IP_CONTACT=<ip:port> LAST_SEEN_SEC=<secondes_depuis_dernier_register> EXPIRES=<duree_bail> RTT_MS=<latence></p>
+<p>Règles de qualification :<br>1. Calculer le temps restant du bail : <code>REMAINING = EXPIRES - LAST_SEEN_SEC</code>.<br>2. Déterminer l'état de joignabilité :<br>   - Si <code>LAST_SEEN_SEC > EXPIRES + 60</code> : <code>STATUT = EXPIRED</code><br>   - Sinon si <code>RTT_MS < 0</code> ou <code>RTT_MS > 300</code> : <code>STATUT = UNREACHABLE</code><br>   - Sinon si <code>RTT_MS > 150</code> : <code>STATUT = LAGGED</code><br>   - Sinon : <code>STATUT = REACHABLE</code></p>
+<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>EXT:<num> | IP:<ip:port> | BAIL_RESTANT:<REMAINING>s | LATENCE:<RTT_MS>ms | STATUT:<statut></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>EXTENSION=701 IP_CONTACT=192.168.1.50:5060 LAST_SEEN_SEC=120 EXPIRES=3600 RTT_MS=15
+EXTENSION=702 IP_CONTACT=192.168.1.51:5060 LAST_SEEN_SEC=3700 EXPIRES=3600 RTT_MS=20
+EXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS=195</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EXT:701 | IP:192.168.1.50:5060 | BAIL_RESTANT:3480s | LATENCE:15ms | STATUT:REACHABLE
+EXT:702 | IP:192.168.1.51:5060 | BAIL_RESTANT:-100s | LATENCE:20ms | STATUT:EXPIRED
+EXT:703 | IP:192.168.1.52:5060 | BAIL_RESTANT:1600s | LATENCE:195ms | STATUT:LAGGED
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparez le temps écoulé depuis le dernier contact avec le paramètre expires.</li>
+        <li>Marquez le statut comme ACTIF si le bail est valide, sinon EXPIRE.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans le fichier de configuration /etc/asterisk/sip.conf, quelle valeur de la directive type permet à un poste d'émettre ET de recevoir des communications téléphoniques ?</p>
+      <div class="opts">
+        <button class="opt">type=peer</button>
+        <button class="opt">type=user</button>
+        <button class="opt" data-correct="1">type=friend</button>
+        <button class="opt">type=trunk</button>
+      </div>
+      <div class="q__exp">type=friend combine les prérogatives de peer (émission) et user (réception), permettant les communications bidirectionnelles au sein de l'entreprise.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande CLI permet de se connecter à la console interactive d'un serveur Asterisk en cours d'exécution avec un niveau de verbosité élevé ?</p>
+      <div class="opts">
+        <button class="opt">asterisk -start</button>
+        <button class="opt" data-correct="1">asterisk -rvvv</button>
+        <button class="opt">service asterisk debug</button>
+        <button class="opt">asterisk --console-only</button>
+      </div>
+      <div class="q__exp">La commande asterisk -r (reconnect) associée à -vvv (très verbeux) connecte l'administrateur au démon Asterisk avec affichage temps réel des événements.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie la directive host=dynamic dans la déclaration d'un compte utilisateur SIP dans Asterisk ?</p>
+      <div class="opts">
+        <button class="opt">L'adresse IP du poste change toutes les minutes</button>
+        <button class="opt">Le poste utilise DHCP sur le LAN</button>
+        <button class="opt" data-correct="1">L'adresse IP du poste n'est pas pré-configurée : Asterisk enregistre l'adresse IP transmise par le client lors de sa requête REGISTER</button>
+        <button class="opt">Le poste est connecté en fibre optique</button>
+      </div>
+      <div class="q__exp">host=dynamic indique qu'Asterisk doit mémoriser l'adresse IP et le port transmis lors de l'enregistrement périodique SIP REGISTER du softphone.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel répertoire standard du système Linux sont stockés l'ensemble des fichiers de configuration d'un serveur Asterisk ?</p>
+      <div class="opts">
+        <button class="opt">/var/lib/asterisk/</button>
+        <button class="opt" data-correct="1">/etc/asterisk/</button>
+        <button class="opt">/usr/share/asterisk/</button>
+        <button class="opt">/etc/telephony/</button>
+      </div>
+      <div class="q__exp">L'intégralité des fichiers de configuration (.conf) d'Asterisk réside sous /etc/asterisk/.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il impératif de configurer la directive dtmfmode=rfc2833 sur les comptes SIP Asterisk ?</p>
+      <div class="opts">
+        <button class="opt">Pour chiffrer les communications en AES-256</button>
+        <button class="opt" data-correct="1">Pour transmettre les touches DTMF dans des trames RTP distinctes afin qu'elles ne soient pas altérées par les algorithmes de compression vocale</button>
+        <button class="opt">Pour interdire les appels vers les numéros surtaxés</button>
+        <button class="opt">Pour activer la vidéo HD</button>
+      </div>
+      <div class="q__exp">Les codecs vocaux compressent la voix mais déforment les tonalités acoustiques DTMF. La norme RFC 2833 transmet les touches dans des paquets d'événements RTP dédiés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le fichier voicemail.conf, quelle information précède immédiatement la virgule et le nom de l'utilisateur sur la ligne de déclaration d'une boîte vocale ?</p>
+      <div class="opts">
+        <button class="opt">L'adresse email</button>
+        <button class="opt" data-correct="1">Le code PIN secret d'accès</button>
+        <button class="opt">Le numéro de fax</button>
+        <button class="opt">Le type de combiné</button>
+      </div>
+      <div class="q__exp">La syntaxe est : mailbox => pin,nom,email (ex: 706438029 => 8190,Pape Moussa SONKO,assoum1024@gmail.com).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande CLI Asterisk permet d'afficher en temps réel la liste de tous les postes SIP configurés ainsi que leur état d'enregistrement et leur adresse IP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">sip show peers</button>
+        <button class="opt">sip show users</button>
+        <button class="opt">asterisk list all</button>
+        <button class="opt">show channels</button>
+      </div>
+      <div class="q__exp">sip show peers liste l'ensemble des pairs déclarés, leur adresse IP de contact actuelle, leur statut (OK, UNREACHABLE, LAGGED) et leur latence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle pile SIP moderne a été intégrée dans les versions récentes d'Asterisk pour remplacer le pilote historique chan_sip ?</p>
+      <div class="opts">
+        <button class="opt">chan_h323</button>
+        <button class="opt">chan_skinny</button>
+        <button class="opt" data-correct="1">chan_pjsip</button>
+        <button class="opt">chan_mgcp</button>
+      </div>
+      <div class="q__exp">chan_pjsip est le pilote moderne d'Asterisk basé sur la bibliothèque PJSIP, offrant une architecture multi-threads plus modulaire et performante.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser des mots de passe SIP triviaux identiques au numéro de poste (ex: secret=101 pour [101]) : cible n°1 des robots de piratage téléphonique.</li>
+      <li>Oublier de recharger la configuration dans la console Asterisk (sip reload ou dialplan reload) après avoir édité un fichier de configuration.</li>
+      <li>Ne pas attribuer les droits de lecture au groupe asterisk sur les fichiers sonores personnalisés dans /usr/share/asterisk/sounds/.</li>
+      <li>Oublier la directive dtmfmode=rfc2833, provoquant l'impossibilité pour les utilisateurs d'interagir avec les menus vocaux et répondeurs.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie : Déploiement & Recette d’un Serveur Asterisk</div>
+    <ol>
+      <li>Sauvegarder les fichiers originaux : créer systématiquement des copies de sauvegarde (.bkp) des fichiers sip.conf, extensions.conf et voicemail.conf avant modification.</li>
+      <li>Déclarer les profils utilisateurs : définir les extensions dans sip.conf avec type=friend, host=dynamic, secret robuste et dtmfmode=rfc2833.</li>
+      <li>Configurer la messagerie vocale : associer une boîte vocale par poste dans voicemail.conf avec code PIN à 4 chiffres et notification email.</li>
+      <li>Tester l'enregistrement et l'état des pairs : vérifier dans la console CLI Asterisk (sip show peers) l'adresse IP de contact et la latence du terminal.</li>
+      <li>Valider la communication de bout en bout : émettre un appel entre deux softphones, vérifier la sonnerie, le décroché, la clarté acoustique et la bascule sur messagerie.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Asterisk est un IPBX logiciel modulaire open source articulé autour d'un cœur de commutation, de pilotes de canaux (chan_sip, chan_pjsip, chan_iax2) et d'un dialplan.</li>
+      <li>Les fichiers de configuration résident dans /etc/asterisk/, notamment sip.conf (postes SIP), extensions.conf (logique d'appel) et voicemail.conf (boîtes vocales).</li>
+      <li>La directive type=friend autorise un compte SIP à la fois à émettre et recevoir des communications, tandis que host=dynamic exige une requête REGISTER préalable.</li>
+      <li>La directive dtmfmode=rfc2833 transporte les touches du clavier téléphonique sous forme d'événements RTP hors-bande insensibles à la compression audio.</li>
+      <li>L'application de messagerie voicemail.conf permet la consultation sécurisée par code PIN (VoiceMailMain) et l'envoi automatique des enregistrements par email.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous accéder à la console interactive d'Asterisk avec la commande asterisk -rvvv ?</li>
+      <li>Comprenez-vous la différence entre type=friend, type=peer et type=user dans sip.conf ?</li>
+      <li>Pourquoi la directive host=dynamic est-elle indispensable pour les postes de travail nomades et les softphones ?</li>
+      <li>Comment configure-t-on une boîte vocale avec notification email dans voicemail.conf ?</li>
+      <li>Savez-vous diagnostiquer l'enregistrement d'un téléphone avec la commande sip show peers dans la console Asterisk ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>IPBX :</strong> Private Automatic Branch eXchange IP : commutateur téléphonique privé d'entreprise routant les appels sur réseau informatique.</li><li><strong>chan_sip / chan_pjsip :</strong> Modules d'Asterisk assurant la prise en charge de la pile protocolaire SIP.</li><li><strong>type=friend :</strong> Type de compte SIP permettant au poste d'émettre et de recevoir des appels en interne.</li><li><strong>host=dynamic :</strong> Configuration d'un compte SIP dont l'IP est apprise dynamiquement lors de la réception d'un paquet REGISTER.</li><li><strong>dtmfmode=rfc2833 :</strong> Mode d'acheminement des touches téléphoniques DTMF dans des paquets RTP distincts pour éviter leur déformation.</li><li><strong>Softphone :</strong> Logiciel émulant un combiné téléphonique sur un ordinateur ou smartphone (ex: 3CXPhone, Linphone, Zoiper).</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Architecture Asterisk et paramètres sip.conf incertains. Relisez les sections et refaites le QCM.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Notions de base comprises. Entraînez-vous à déclarer des comptes et boîtes vocales dans les ateliers.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise pratique. Approfondissez les commandes CLI de diagnostic et les options de voicemail.conf.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez le déploiement d'Asterisk et l'administration des postes SIP.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'administrateur ToIP. Prêt pour la programmation avancée du Dialplan du Module 4 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Programmation du Plan d'Appel (Dialplan & SVI/IVR) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels B3-IT / B3-RSI Téléphonie Voix sur IP (Auteur : M. Pape Moussa SONKO, Élève Ingénieur en Systèmes et Réseaux), Normes IETF RFC 3261 (SIP), RFC 4566 (SDP), RFC 3550 (RTP), RFC 5389 (STUN), Recommandations ITU-T G.107, G.711, G.729, Documentation officielle Asterisk.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

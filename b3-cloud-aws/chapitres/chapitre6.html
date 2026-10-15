@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 6 — Serverless, Observabilité, Supervision &amp; Automatisation (Lambda, CloudWatch, SQS, SNS) | Services Cloud AWS B3</title>
+<meta name="description" content="Module 6 du cours Services Cloud AWS B3 : AWS Lambda, files SQS et Dead-Letter Queue, modèle Pub/Sub SNS, métriques &amp; alarmes CloudWatch, audit CloudTrail et IaC CloudFormation. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-aws/chapitres/chapitre6.html">
+<meta property="og:title" content="Module 6 — Serverless, Observabilité, Supervision &amp; Automatisation (Lambda, CloudWatch, SQS, SNS) | Services Cloud AWS B3">
+<meta property="og:description" content="Module 6 du cours Services Cloud AWS B3 : AWS Lambda, files SQS et Dead-Letter Queue, modèle Pub/Sub SNS, métriques &amp; alarmes CloudWatch, audit CloudTrail et IaC CloudFormation. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-awsnav"><div class="b3-cloud-awsnav__in">
+  <a class="b3-cloud-awsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-awsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-awsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Services Cloud AWS B3</a>
+  <div class="b3-cloud-awsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-awsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-awswrap">
+<p class="crumb"><a href="../index.html">Services Cloud AWS B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Serverless, Observabilité, Supervision & Automatisation (Lambda, CloudWatch, SQS, SNS)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Pour achever la modernisation du système d'information de votre entreprise, vous devez concevoir une architecture pilotée par les événements (Event-Driven) hautement scalable et découplée. Vous allez orchestrer des fonctions serverless AWS Lambda connectées à des files d'attente Amazon SQS protégées par Dead-Letter Queue, diffuser des notifications multi-abonnés via Amazon SNS, centraliser les métriques et alertes critiques sous Amazon CloudWatch, et auditer l'activité avec AWS CloudTrail.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Maîtriser le fonctionnement et la tarification à l'usage d'AWS Lambda (exécution pilotée par événements, mémoire, durée max de 15 min, cold start).</li>
+      <li>Concevoir des architectures asynchrones découplées et tolérantes aux pannes avec Amazon SQS (Standard, FIFO, Dead-Letter Queue) et Amazon SNS (Pub/Sub fan-out).</li>
+      <li>Superviser les charges de travail avec Amazon CloudWatch (métriques, logs, alarmes composites) et tracer l'activité API avec AWS CloudTrail.</li>
+      <li>Automatiser le déploiement d'infrastructures cloud via l'Infrastructure as Code (IaC) avec AWS CloudFormation et le Cloud Development Kit (CDK).</li>
+    </ol>
+  </div>
+
+<h2>1. AWS Lambda &amp; l'Architecture Serverless Événementielle</h2>
+
+<p>AWS Lambda est le service de calcul serverless phare d'AWS permettant d'exécuter du code sans provisionner ni administrer de serveurs :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Principes de Fonctionnement</h4>
+    <ul>
+      <li><strong>Piloté par les événements (Event-driven) :</strong> déclenché automatiquement par des sources d'événements (dépose de fichier dans S3, requête HTTP via API Gateway, message SQS, modification de table DynamoDB).</li>
+      <li><strong>Scalabilité instantanée :</strong> passe automatiquement de 0 à des milliers d'exécutions concurrentes en quelques fractions de seconde.</li>
+      <li><strong>Durée maximale d'exécution :</strong> <strong>15 minutes (900 secondes)</strong> au maximum par invocation.</li>
+      <li><strong>Allocation proportionnelle :</strong> la puissance CPU et la bande passante réseau sont allouées proportionnellement à la quantité de mémoire RAM configurée (de 128 MB à 10 240 MB).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Cold Start &amp; Provisioned Concurrency</h4>
+    <ul>
+      <li><strong>Cold Start (Démarrage à froid) :</strong> latence initiale lors de la création d'un nouvel environnement d'exécution (initialisation du runtime Python/Node/Java et chargement du code).</li>
+      <li><strong>Provisioned Concurrency :</strong> préchauffe un nombre défini d'environnements d'exécution pour garantir une latence de démarrage à deux chiffres en millisecondes pour les APIs critiques.</li>
+      <li><strong>Facturation à la milliseconde :</strong> coût basé uniquement sur le nombre d'invocations et la consommation de calcul en Go-secondes (GB-seconds).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Découplage Asynchrone : Amazon SQS &amp; Amazon SNS</h2>
+
+<p>Pour éviter les pannes en cascade et absorber les pics de charge, les composants applicatifs doivent être découplés de manière asynchrone :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Amazon SQS (Simple Queue Service) — Modèle Pull</h4>
+    <ul>
+      <li>File d'attente de messages distribuée hautement disponible. Les consommateurs interrogent la file (Pull).</li>
+      <li><strong>Files Standard :</strong> débit quasi illimité, garantie de distribution au moins une fois (at-least-once), ordre des messages non garanti.</li>
+      <li><strong>Files FIFO (First-In-First-Out) :</strong> ordre de distribution strictement préservé, traitement unique sans doublon (exactly-once), débit limité à 300 msg/s (ou 3 000 avec batching).</li>
+      <li><strong>Dead-Letter Queue (DLQ) :</strong> file de rebut isolant automatiquement les messages toxiques ayant échoué après un nombre maximal de tentatives (MaxReceiveCount) pour analyse ultérieure.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Amazon SNS (Simple Notification Service) — Modèle Push</h4>
+    <ul>
+      <li>Service de messagerie Pub/Sub (Publication / Abonnement) basé sur des sujets (Topics).</li>
+      <li>Lorsqu'un message est publié sur un Topic, SNS le pousse (Push) instantanément à tous les abonnés enregistrés.</li>
+      <li>Abonnés hétérogènes : files SQS, fonctions Lambda, adresses e-mail, numéros SMS, webhooks HTTP/S.</li>
+      <li><strong>Fan-out Pattern :</strong> un événement unique publié dans SNS est dupliqué vers plusieurs files SQS distinctes pour être traité en parallèle par différents services métiers.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Observabilité &amp; Surveillance : Amazon CloudWatch</h2>
+
+<p>Amazon CloudWatch est la suite centralisée de supervision des ressources et applications hébergées sur AWS et sur site :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>CloudWatch Metrics</h4>
+    <p>Collecte des séries temporelles de performances générées automatiquement par tous les services AWS (CPUUtilization, NetworkIn, DiskReadBytes, Invocations Lambda, SQS ApproximateNumberOfMessagesVisible).</p>
+    <p>Résolution standard de 1 minute ou détaillée de 1 seconde.</p>
+  </div>
+  <div class="card">
+    <h4>CloudWatch Logs</h4>
+    <p>Centralisation, indexation et analyse en temps réel des journaux applicatifs et système (fichiers logs d'OS via CloudWatch Agent, sorties stdout/stderr des Lambdas, logs d'accès VPC Flow Logs).</p>
+  </div>
+  <div class="card">
+    <h4>CloudWatch Alarms</h4>
+    <p>Déclenche automatiquement des actions lorsque des seuils définis sont dépassés sur N périodes consécutives.</p>
+    <p>Actions possibles : envoi d'une notification SNS, déclenchement d'une politique d'auto-scaling EC2, ou redémarrage/arrêt automatique d'une VM défaillante.</p>
+  </div>
+</div>
+
+<h2>4. Traçabilité &amp; Audit des Accès : AWS CloudTrail</h2>
+
+<p>Alors que CloudWatch surveille <em>les performances et l'état</em> des ressources, <strong>AWS CloudTrail surveille les actions et les personnes</strong> :</p>
+<ul>
+  <li><strong>Historique complet des appels API :</strong> enregistre chaque interaction avec la plateforme AWS (actions émises via la Console, l'AWS CLI, les SDKs ou les services automatisés).</li>
+  <li><strong>Métadonnées d'audit détaillées :</strong> consigne QUI a fait la demande (utilisateur IAM, rôle STS), QUAND (horodatage précis UTC), DEPUIS OÙ (adresse IP source), QUEL SERVICE a été appelé et QUELLE A ÉTÉ la réponse (succès ou code d'erreur AccessDenied).</li>
+  <li><strong>Intégrité et sécurité :</strong> activation recommandée sur toutes les régions (multi-region trail), chiffrement des journaux avec AWS KMS et validation d'intégrité cryptographique des fichiers de log (Digest files) pour empêcher toute altération malveillante.</li>
+</ul>
+
+<h2>5. Infrastructure as Code (IaC) : CloudFormation &amp; AWS CDK</h2>
+
+<p>L'automatisation déclarative d'infrastructures élimine les erreurs humaines et garantit la reproductibilité des environnements :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>AWS CloudFormation</h4>
+    <ul>
+      <li>Définit l'infrastructure sous forme de templates déclaratifs au format JSON ou YAML.</li>
+      <li>Regroupe les ressources dans une <strong>pile (Stack)</strong> gérée comme une unité atomique (création, mise à jour, suppression ordonnée).</li>
+      <li>Détection des dérives (Drift Detection) pour identifier les modifications manuelles effectuées hors template.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>AWS Cloud Development Kit (CDK)</h4>
+    <ul>
+      <li>Framework de développement logiciel permettant de modéliser l'infrastructure avec des langages de programmation modernes (Python, TypeScript, Java, C#).</li>
+      <li>Compile le code impératif en templates CloudFormation déclaratifs tout en fournissant des composants de haut niveau (Constructs) intégrant les meilleures pratiques de sécurité.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="aws3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="LAMBDA_COST REQS=5000000 DURATION_MS=200 MEM_MB=512 FREE_TIER=NO">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer la facturation AWS Lambda
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de Coûts Serverless AWS Lambda (Go-secondes &amp; Requêtes)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la facture mensuelle d'une fonction AWS Lambda selon sa mémoire allouée, sa durée d'exécution et le nombre d'invocations.</p>
+    <div class="lab__brief"><p>Le modèle de tarification d'<strong>AWS Lambda</strong> repose sur deux axes :<br><br>
+1. <strong>Coût des requêtes</strong> : 0.20 $ par million de requêtes (soit <code>0.0000002 $</code> par requête).<br>
+2. <strong>Coût de calcul (Go-secondes)</strong> :<br>
+La mémoire (ex: 512 MB) est convertie en Go : <code>Go = Memory_MB / 1024.0</code>.<br>
+La durée en ms est convertie en secondes : <code>Secondes = Duration_MS / 1000.0</code>.<br>
+<code>Go_Secondes = Requetes * Go * Secondes</code>.<br>
+Tarif unitaire de calcul : <code>0.0000166667 $</code> par Go-seconde (architecture x86).<br><br>
+3. <strong>AWS Free Tier (Optionnel)</strong> :<br>
+Si <code>FREE_TIER=YES</code>, déduire chaque mois :<br>
+- 1 000 000 de requêtes gratuites (minimum facturé 0).<br>
+- 400 000 Go-secondes gratuites (minimum facturé 0).<br><br>
+Entrée STDIN :<br>
+<code>LAMBDA_COST REQS=&lt;n&gt; DURATION_MS=&lt;ms&gt; MEM_MB=&lt;mb&gt; FREE_TIER=&lt;YES|NO&gt;</code>.<br><br>
+Sortie :<br>
+<code>LAMBDA_BILL: gb_seconds=&lt;gbs:.2f&gt; req_cost=&lt;rc:.4f&gt;$ compute_cost=&lt;cc:.4f&gt;$ total_cost=&lt;tot:.2f&gt;$</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>LAMBDA_COST REQS=5000000 DURATION_MS=200 MEM_MB=512 FREE_TIER=NO</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LAMBDA_BILL: gb_seconds=500000.00 req_cost=1.0000$ compute_cost=8.3334$ total_cost=9.33$</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="CW_ALARM METRIC=CPUUtilization THRESHOLD=80.0 OP=GREATER_EQUAL PERIODS=3 POINTS=45.0,78.0,85.0,88.0,92.0">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : évaluer l'état de l'alarme CloudWatch
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Analyseur de Métriques &amp; Détecteur d'Alarmes Amazon CloudWatch</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer l'état d'une alarme CloudWatch (OK, ALARM, INSUFFICIENT_DATA) selon la règle des N points de données consécutifs.</p>
+    <div class="lab__brief"><p>Une <strong>alarme Amazon CloudWatch</strong> surveille une métrique (ex: CPUUtilization) :<br><br>
+Règles d'évaluation :<br>
+1. <code>OPERATOR</code> :<br>
+- <code>GREATER_EQUAL</code> : un point est en infraction si <code>valeur &gt;= THRESHOLD</code>.<br>
+- <code>LESS_EQUAL</code> : un point est en infraction si <code>valeur &lt;= THRESHOLD</code>.<br>
+2. <code>PERIODS</code> : Nombre de points consécutifs récents nécessaires pour déclencher l'alarme.<br>
+3. États de l'alarme :<br>
+- Si le nombre de points disponibles est inférieur à <code>PERIODS</code> -> <code>INSUFFICIENT_DATA</code>.<br>
+- Si les <code>PERIODS</code> derniers points sont TOUS en infraction -> <code>ALARM</code>.<br>
+- Sinon -> <code>OK</code>.<br><br>
+Entrée STDIN :<br>
+<code>CW_ALARM METRIC=&lt;nom&gt; THRESHOLD=&lt;t&gt; OP=&lt;GREATER_EQUAL|LESS_EQUAL&gt; PERIODS=&lt;n&gt; POINTS=&lt;p1,p2,...&gt;</code>.<br><br>
+Sortie : <code>ALARM_VERDICT: metric=&lt;nom&gt; state=&lt;OK|ALARM|INSUFFICIENT_DATA&gt; evaluated_points=&lt;pts&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CW_ALARM METRIC=CPUUtilization THRESHOLD=80.0 OP=GREATER_EQUAL PERIODS=3 POINTS=45.0,78.0,85.0,88.0,92.0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ALARM_VERDICT: metric=CPUUtilization state=ALARM evaluated_points=85.0,88.0,92.0</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aws3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="SQS_PROCESS MAX_RECEIVES=3 MSGS=m1:1:SUCCESS;m2:1:ERROR;m3:2:ERROR">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler le traitement SQS et le routage DLQ
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de File d'Attente Amazon SQS &amp; Dead-Letter Queue (DLQ)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le traitement de messages SQS et l'isolation des messages en échec vers une Dead-Letter Queue (DLQ).</p>
+    <div class="lab__brief"><p>Amazon SQS permet de découpler les architectures asynchrones et gère les pannes avec une <strong>Dead-Letter Queue (DLQ)</strong> :<br><br>
+Règles de cycle de vie d'un message :<br>
+1. Chaque message possède un identifiant <code>id</code>, un compteur de tentatives <code>receive_count</code> et un statut de tentative de traitement <code>SUCCESS</code> ou <code>ERROR</code>.<br>
+2. Si le traitement est <code>SUCCESS</code> : le message est traité avec succès et supprimé de la file (<code>PROCESSED</code>).<br>
+3. Si le traitement est <code>ERROR</code> : le compteur <code>receive_count</code> est incrémenté de 1.<br>
+- Si le nouveau <code>receive_count &gt;= MAX_RECEIVES</code> : le message est transféré vers la Dead-Letter Queue (<code>SENT_TO_DLQ</code>).<br>
+- Sinon : le message reste dans la file principale pour une nouvelle tentative (<code>RETRY_IN_FLIGHT</code>).<br><br>
+Entrée STDIN :<br>
+<code>SQS_PROCESS MAX_RECEIVES=&lt;n&gt; MSGS=&lt;id:rec_count:status;...&gt;</code>.<br><br>
+Sortie :<br>
+<code>SQS_SUMMARY: processed=&lt;p&gt; retry_in_flight=&lt;r&gt; dlq_count=&lt;d&gt; dlq_ids=&lt;id1,id2,...|NONE&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SQS_PROCESS MAX_RECEIVES=3 MSGS=m1:1:SUCCESS;m2:1:ERROR;m3:2:ERROR</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SQS_SUMMARY: processed=1 retry_in_flight=1 dlq_count=1 dlq_ids=m3</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Analysez scrupuleusement le format d'entrée STDIN.</li>
+        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la durée maximale d'exécution (timeout limite) autorisée pour une fonction AWS Lambda avant interruption forcée ?</p>
+      <div class="opts">
+        <button class="opt">5 minutes</button>
+        <button class="opt" data-correct="1">15 minutes</button>
+        <button class="opt">1 heure</button>
+        <button class="opt">Illimitée</button>
+      </div>
+      <div class="q__exp">Une fonction AWS Lambda peut s'exécuter pendant une durée maximale de 15 minutes (900 secondes). Au-delà, l'exécution est interrompue et il convient d'employer AWS Batch, ECS ou EC2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans Amazon SQS, quel mécanisme permet d'isoler automatiquement les messages ayant échoué à être traités après N tentatives infructueuses ?</p>
+      <div class="opts">
+        <button class="opt">Auto-scaling Queue</button>
+        <button class="opt" data-correct="1">Dead-Letter Queue (DLQ)</button>
+        <button class="opt">Visibility Timeout infini</button>
+        <button class="opt">S3 Glacier Archive</button>
+      </div>
+      <div class="q__exp">Une Dead-Letter Queue (DLQ) reçoit automatiquement les messages dont le compteur ReceiveCount atteint ou dépasse le seuil MaxReceiveCount configuré, isolant ainsi les messages toxiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre Amazon CloudWatch et AWS CloudTrail ?</p>
+      <div class="opts">
+        <button class="opt">CloudWatch est payant alors que CloudTrail est gratuit</button>
+        <button class="opt" data-correct="1">CloudWatch surveille les métriques de performance et les logs ; CloudTrail enregistre l'historique d'audit de tous les appels API (qui a fait quoi)</button>
+        <button class="opt">CloudTrail ne fonctionne qu'avec S3</button>
+        <button class="opt">Il n'y a aucune différence</button>
+      </div>
+      <div class="q__exp">CloudWatch monitore l'état opérationnel et les métriques des ressources (CPU, mémoire, requêtes). CloudTrail est un outil d'audit de gouvernance qui trace l'identité de l'appelant et chaque requête API.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel patron d'architecture permet de dupliquer un message unique vers plusieurs files d'attente SQS traitées en parallèle par différents services ?</p>
+      <div class="opts">
+        <button class="opt">Le patron Scatter-Gather</button>
+        <button class="opt" data-correct="1">Le patron Fan-out (Amazon SNS vers plusieurs Amazon SQS)</button>
+        <button class="opt">Le patron Single Point of Failure</button>
+        <button class="opt">Le patron Round-Robin DNS</button>
+      </div>
+      <div class="q__exp">Le pattern Fan-out consiste à publier un message sur un topic Amazon SNS, auquel sont abonnées plusieurs files SQS distinctes. SNS duplique et pousse le message vers chaque file en parallèle.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment la puissance de calcul CPU et la bande passante réseau sont-elles allouées à une fonction AWS Lambda ?</p>
+      <div class="opts">
+        <button class="opt">Elles doivent être achetées sur une console dédiée</button>
+        <button class="opt" data-correct="1">Elles sont allouées proportionnellement à la quantité de mémoire RAM configurée pour la fonction</button>
+        <button class="opt">Elles sont toujours plafonnées à 1 vCPU</button>
+        <button class="opt">Elles dépendent de la région uniquement</button>
+      </div>
+      <div class="q__exp">Dans AWS Lambda, l'unique curseur de performance est la mémoire RAM (128 MB à 10 GB). AWS alloue automatiquement la puissance CPU et le réseau de façon strictement proportionnelle à la RAM allouée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle caractéristique technique distingue formellement une file Amazon SQS FIFO d'une file SQS Standard ?</p>
+      <div class="opts">
+        <button class="opt">Les files FIFO ne supportent pas le format JSON</button>
+        <button class="opt" data-correct="1">Les files FIFO garantissent un ordre de traitement strict (premier entré, premier sorti) et une livraison exactement une fois sans doublon</button>
+        <button class="opt">Les files FIFO sont gratuites sans limite</button>
+        <button class="opt">Les files FIFO ne peuvent contenir que 10 messages</button>
+      </div>
+      <div class="q__exp">Les files SQS FIFO (First-In-First-Out) garantissent que les messages sont remis strictement dans l'ordre de leur émission et éliminent les doublons (exactly-once processing).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans AWS CloudFormation, quel mécanisme permet d'inspecter les modifications qui seront apportées à l'infrastructure avant de les appliquer réellement ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Change Sets (Jeux de modifications)</button>
+        <button class="opt">Stack Drift</button>
+        <button class="opt">Rollback manuel</button>
+        <button class="opt">CloudTrail Digest</button>
+      </div>
+      <div class="q__exp">Les Change Sets permettent de prévisualiser l'impact d'une mise à jour de template CloudFormation (ressources créées, modifiées ou supprimées avec ou sans interruption) avant validation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel paramètre d'une file Amazon SQS définit la durée pendant laquelle un message retiré par un consommateur reste invisible pour les autres consommateurs ?</p>
+      <div class="opts">
+        <button class="opt">MessageRetentionPeriod</button>
+        <button class="opt" data-correct="1">VisibilityTimeout</button>
+        <button class="opt">DelaySeconds</button>
+        <button class="opt">WaitTimeSeconds</button>
+      </div>
+      <div class="q__exp">Le VisibilityTimeout définit la fenêtre de temps pendant laquelle un message en cours de traitement est masqué pour éviter que d'autres consommateurs ne le traitent en parallèle.</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Tenter d'exécuter des traitements batch continus dépassant 15 minutes dans AWS Lambda au lieu d'utiliser AWS Batch ou des instances EC2.</li>
+      <li>Oublier de configurer une Dead-Letter Queue sur une file SQS, provoquant le blocage de consommateurs par des messages corrompus réexécutés indéfiniment.</li>
+      <li>Confondre CloudWatch (monitoring des performances et métriques) avec CloudTrail (journalisation d'audit des appels API de sécurité).</li>
+      <li>Modifier manuellement des ressources déployées par CloudFormation dans la console, ce qui crée des dérives d'état (Stack Drift).</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie Serverless & Observabilité</div>
+    <ol>
+      <li>Conception découplée Event-Driven : utiliser Amazon SNS pour diffuser les événements métiers à plusieurs consommateurs, et intercaler des files Amazon SQS devant chaque worker pour amortir la charge.</li>
+      <li>Sécurisation des files avec Dead-Letter Queue : fixer un MaxReceiveCount (ex: 3 tentatives) pour isoler les messages malformés et éviter les boucles d'échec infinies.</li>
+      <li>Optimisation des coûts et de la latence Lambda : dimensionner la mémoire RAM pour trouver le compromis optimal durée/coût, et réserver de la Provisioned Concurrency uniquement sur les chemins critiques utilisateurs.</li>
+      <li>Surveillance proactive et audit d'infrastructure : configurer des alarmes CloudWatch sur les taux d'erreur HTTP 5xx et la taille des files SQS, et activer un trail CloudTrail global consigné dans un bucket S3 verrouillé.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>AWS Lambda exécute du code piloté par événements avec montée en charge instantanée, sans gestion de serveurs, avec une durée maximale de 15 minutes et facturation aux Go-secondes.</li>
+      <li>Amazon SQS offre des files d'attente fiables (Standard ou FIFO) avec isolation des messages toxiques via Dead-Letter Queue (DLQ).</li>
+      <li>Amazon SNS permet de diffuser des notifications en temps réel selon le patron Pub/Sub et d'alimenter plusieurs files SQS en parallèle (Fan-out).</li>
+      <li>Amazon CloudWatch centralise les métriques de performances, les logs applicatifs et déclenche des alarmes sur franchissement de seuils.</li>
+      <li>AWS CloudTrail audite l'intégralité des appels d'API (qui, quand, où, quelle action), et AWS CloudFormation automatise le déploiement de piles déclaratives complètes.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Connaissez-vous la durée maximale d'exécution autorisée pour une fonction AWS Lambda (15 minutes) ?</li>
+      <li>Savez-vous comment fonctionne une Dead-Letter Queue (DLQ) dans Amazon SQS et quel paramètre déclenche le transfert ?</li>
+      <li>Distinguez-vous parfaitement le rôle d'Amazon CloudWatch (métriques et performances) de celui d'AWS CloudTrail (audit des appels d'API) ?</li>
+      <li>Pouvez-vous expliquer le patron d'architecture Fan-out combinant Amazon SNS et plusieurs files Amazon SQS ?</li>
+      <li>Comprenez-vous le fonctionnement des piles (Stacks) et la détection de dérive dans AWS CloudFormation ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>AWS Lambda :</strong> Service de calcul serverless exécutant du code en réponse à des événements avec facturation à la milliseconde.</li><li><strong>Cold Start :</strong> Temps d'initialisation du conteneur et du runtime lors de la première invocation d'une fonction serverless.</li><li><strong>Amazon SQS :</strong> Simple Queue Service : files d'attente managées de messages permettant de découpler des architectures distribuées.</li><li><strong>Dead-Letter Queue (DLQ) :</strong> File de rebut SQS recevant les messages ayant dépassé le nombre maximal de tentatives de traitement infructueuses.</li><li><strong>Amazon SNS :</strong> Simple Notification Service : service de messagerie Pub/Sub envoyant des notifications en mode push à de multiples abonnés.</li><li><strong>Fan-out Pattern :</strong> Patron d'architecture publiant un message dans un topic SNS qui le duplique vers plusieurs files SQS en parallèle.</li><li><strong>Amazon CloudWatch :</strong> Plateforme centralisée de surveillance collectant métriques, logs et pilotant des alarmes opérationnelles.</li><li><strong>AWS CloudTrail :</strong> Service d'audit et de traçabilité consignant l'historique complet de tous les appels API émis sur un compte AWS.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Concepts serverless et messagerie fragiles. Révisez les limites Lambda et le fonctionnement des files SQS.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Connaissances de base acquises. Approfondissez la différence entre CloudWatch et CloudTrail.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à simuler le routage vers une DLQ dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez le patron Fan-out et les automatisations CloudFormation.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte serverless AWS. Félicitations pour l'achèvement du cursus Cloud AWS B3 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AWS L3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja, 2025/2026), Documentation officielle Amazon Web Services (AWS Architecture Center), Référentiels des certifications AWS Certified Cloud Practitioner (CLF-C02) et Solutions Architect - Associate (SAA-C03).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Diagramme de Classes, Visibilités, Multiplicités &amp;amp; Relations Fortes | UML B2</title>
+<meta name="description" content="Chapitre 3 du cours UML B2 : Structure des classes à 3 compartiments, visibilités (+, -, #, ~), signatures d’attributs et méthodes, multiplicités d’association, navigabilité, distinction stricte agrégation faible vs composition forte, classes d’association et héritage. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/uml/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Diagramme de Classes, Visibilités, Multiplicités &amp;amp; Relations Fortes | UML B2">
+<meta property="og:description" content="Chapitre 3 du cours UML B2 : Structure des classes à 3 compartiments, visibilités (+, -, #, ~), signatures d’attributs et méthodes, multiplicités d’association, navigabilité, distinction stricte agrégation faible vs composition forte, classes d’association et héritage. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="umlnav"><div class="umlnav__in">
+  <a class="umlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="umlnav__sep" aria-hidden="true">/</span>
+  <a class="umlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> UML B2</a>
+  <div class="umlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="umlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="umlwrap">
+<p class="crumb"><a href="../index.html">UML B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Diagramme de Classes, Visibilités, Multiplicités &amp; Relations Fortes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lors de la conception du cœur transactionnel d’un système d’information bancaire, des failles d’encapsulation et des fuites de mémoire critiques apparaissent en production : des objets orphelins persistent en base après la suppression de leurs entités parentes, et des attributs internes sensibles sont modifiés directement par d’autres classes. Ces défaillances proviennent d’une mauvaise modélisation structurelle : ignorance des visibilités de membres, confusion entre agrégation libre et composition stricte, et multiplicités erronées. Ce module dote les ingénieurs logiciels de la rigueur requise pour concevoir des diagrammes de classes infaillibles, directement transposables en code orienté objet propre (Java, C#, C++, Python).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>détailler l’anatomie d’une classe en 3 compartiments normalisés OMG (Nom, Attributs, Opérations) ;</li>
+      <li>maîtriser et appliquer les 4 niveaux de visibilité (+ public, - privé, # protégé, ~ paquetage) ;</li>
+      <li>rédiger des signatures complètes d’attributs et d’opérations selon la grammaire officielle UML 2.5 ;</li>
+      <li>définir avec exactitude les multiplicités d’association (0..1, 1, 0..*, 1..*, m..n) et la navigabilité ;</li>
+      <li>distinguer conceptuellement et techniquement l’agrégation faible (losange creux) de la composition forte (losange plein) ;</li>
+      <li>modéliser les classes d’association, les classes abstraites, les interfaces et les hiérarchies d’héritage.</li>
+    </ol>
+  </div>
+
+<h2>1. Anatomie d’une Classe et Syntaxe des Signatures</h2>
+
+<p>Une <strong>classe</strong> est représentée par un rectangle divisé en trois compartiments verticaux superposés :</p>
+<ol>
+  <li><strong>Compartiment supérieur (Nom) :</strong> Nom de la classe en gras et centré (en italique ou avec <code>{abstract}</code> s’il s’agit d’une classe abstraite). Peut comporter un stéréotype (ex: <code>&laquo;interface&raquo;</code>, <code>&laquo;entity&raquo;</code>).</li>
+  <li><strong>Compartiment intermédiaire (Attributs) :</strong> Liste des propriétés décrivant l’état structurel des instances.</li>
+  <li><strong>Compartiment inférieur (Opérations) :</strong> Liste des méthodes et comportements offerts par la classe.</li>
+</ol>
+<p>La syntaxe formelle d’un attribut selon la norme OMG UML 2.5 est la suivante :</p>
+<pre><code>visibilité nom : type [multiplicité] = valeurParDéfaut {propriétés}</code></pre>
+<p>Exemple : <code>- solde : float = 0.0 {readOnly}</code></p>
+<p>La syntaxe formelle d’une opération est :</p>
+<pre><code>visibilité nom(nomParam : typeParam = valeurDéfaut) : typeRetour</code></pre>
+<p>Exemple : <code>+ crediter(montant : float) : bool</code></p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Symboles de Visibilité Standard</h4>
+    <ul>
+      <li><code>+</code> (Public) : Accessible depuis n’importe quel module ou classe externe.</li>
+      <li><code>-</code> (Privé) : Strictement encapsulé, accessible uniquement à l’intérieur de la classe.</li>
+      <li><code>#</code> (Protégé) : Accessible à la classe et à l’ensemble de ses sous-classes dérivées.</li>
+      <li><code>~</code> (Package) : Accessible par toutes les classes du même paquetage d’appartenance.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Membres Statiques et Abstraits</h4>
+    <ul>
+      <li><strong>Membre Statique (de classe) :</strong> Son nom est <u>souligné</u> (ex: <u>- nbComptes : int</u>). Il appartient à la classe et non aux instances.</li>
+      <li><strong>Méthode Abstraite :</strong> Son nom est écrit en <em>italique</em>. Elle ne possède pas de corps et oblige les sous-classes concrètes à l’implémenter.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Associations, Multiplicités et Classes d’Association</h2>
+
+<p>Une <strong>association</strong> matérialise une relation sémantique durable entre deux classes. Chaque extrémité d’une association possède un nom de rôle optionnel et une <strong>multiplicité</strong> impérative :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Multiplicité</th>
+      <th>Signification mathématique</th>
+      <th>Traduction dans le code (ex: Java / C#)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>1</code> ou <code>1..1</code></td>
+      <td>Exactement un (obligatoire, non nul)</td>
+      <td>Référence directe obligatoire non nulle (pointeur garanti).</td>
+    </tr>
+    <tr>
+      <td><code>0..1</code></td>
+      <td>Zéro ou un (optionnel)</td>
+      <td>Référence nullable ou <code>Optional&lt;T&gt;</code>.</td>
+    </tr>
+    <tr>
+      <td><code>*</code> ou <code>0..*</code></td>
+      <td>Zéro à plusieurs (collection potentiellement vide)</td>
+      <td>Collection dynamique (<code>List&lt;T&gt;</code>, <code>Set&lt;T&gt;</code>).</td>
+    </tr>
+    <tr>
+      <td><code>1..*</code></td>
+      <td>Un à plusieurs (collection avec au moins un élément)</td>
+      <td>Collection avec invariant de taille non vide vérifié au constructeur.</td>
+    </tr>
+    <tr>
+      <td><code>n..m</code></td>
+      <td>Intervalle fixe compris entre n et m (ex: <code>2..4</code>)</td>
+      <td>Collection dimensionnée avec contrôle de bornes strict.</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Classe d’Association :</strong> Lorsqu’une relation porte elle-même des attributs qui n’appartiennent en propre à aucune des deux classes participantes (ex: la <em>note</em> d’un <em>Étudiant</em> dans un <em>Cours</em>), on adjoint une classe d’association reliée par un trait tireté au milieu de la ligne d’association.</p>
+
+<h2>3. Agrégation Faible vs Composition Forte : La Règle du Cycle de Vie</h2>
+
+<p>La distinction entre l’agrégation et la composition est l’un des piliers de l’architecture orientée objet. Toutes deux expriment une relation <em>« tout-partie »</em>, mais diffèrent radicalement par la gestion du cycle de vie :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Agrégation Faible (&loz; Losange creux blanc)</h4>
+    <ul>
+      <li><strong>Cycle de vie indépendant :</strong> Les parties existent avant le tout et peuvent lui survivre.</li>
+      <li><strong>Partageable :</strong> Une même partie peut être agrégée simultanément par plusieurs contenants.</li>
+      <li><strong>Destruction :</strong> La destruction du contenant <em>ne détruit pas</em> les composants agrégés.</li>
+      <li><strong>Exemple canonique :</strong> Une <em>Université</em> et un <em>Professeur</em>. Si l’université ferme, le professeur conserve son existence autonome.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Composition Forte (&diams; Losange plein noir)</h4>
+    <ul>
+      <li><strong>Cycle de vie exclusif &amp; lié :</strong> Les composants naissent et meurent impérativement avec le composite.</li>
+      <li><strong>Non partageable :</strong> Une partie appartient à un seul et unique composite à la fois (multiplicité 1 ou 0..1 côté composite).</li>
+      <li><strong>Destruction en cascade :</strong> La destruction du composite entraîne la destruction physique immédiate de toutes ses parties.</li>
+      <li><strong>Exemple canonique :</strong> Une <em>Facture</em> et ses <em>LignesFacture</em>. Une ligne n’a aucun sens hors de sa facture.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="um2-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="+ id : Integer&#10;- solde : Decimal = 0.0&#10;# verifierPlafond(m: Decimal): Boolean">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : décoder les membres de classe UML
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Décodeur de signatures UML (attributs et méthodes)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parser la syntaxe formelle d'un membre de classe UML : visibilité, nom, type de retour, paramètres et valeur par défaut.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une suite de signatures textuelles de classes UML (une par ligne).<br>
+Symboles de visibilité standard :<br>
+- <code>+</code> : Public<br>
+- <code>-</code> : Private<br>
+- <code>#</code> : Protected<br>
+- <code>~</code> : Package<br>
+Deux formats possibles :<br>
+1. <strong>Attribut :</strong> <code>&lt;visibilite&gt; &lt;nom&gt; : &lt;type&gt; [= &lt;valeur_defaut&gt;]</code><br>
+   Exemple : <code>- solde : Decimal = 0.0</code><br>
+   Sortie : <code>[ATTRIBUT] &lt;nom&gt; | Visibilite: &lt;Vis&gt; | Type: &lt;type&gt; [| Defaut: &lt;val&gt;]</code><br>
+2. <strong>Opération / Méthode :</strong> <code>&lt;visibilite&gt; &lt;nom&gt;(&lt;param1&gt;: &lt;t1&gt;, ...): &lt;type_retour&gt;</code><br>
+   Exemple : <code>+ crediter(montant: Decimal): Void</code><br>
+   Sortie : <code>[METHODE] &lt;nom&gt; | Visibilite: &lt;Vis&gt; | Params: &lt;nb&gt; | Retour: &lt;type_retour&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>+ id : Integer
+- solde : Decimal = 0.0
+# verifierPlafond(m: Decimal): Boolean</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[ATTRIBUT] id | Visibilite: Public | Type: Integer
+[ATTRIBUT] solde | Visibilite: Private | Type: Decimal | Defaut: 0.0
+[METHODE] verifierPlafond | Visibilite: Protected | Params: 1 | Retour: Boolean</pre></div>
+    </div>
+    <p class="lab__note">Attribut simple, attribut avec valeur initiale et méthode à 1 paramètre.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La présence de parenthèses ( ) distingue une méthode d'un attribut.</li>
+        <li>Les symboles +, -, #, ~ déterminent la visibilité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="ASSOC Client 1 ---- 1..* Commande&#10;LINK c1 cmd1&#10;LINK c1 cmd2&#10;LINK c2 cmd3&#10;LINK c3 cmd3">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : vérifier les contraintes de multiplicités d'association
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Analyseur de multiplicités et cardinalités d'associations</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité d'une association binaire entre deux classes selon leurs contraintes de multiplicité (0..1, 1..1, 0..*, 1..*).</p>
+    <div class="lab__brief"><p>Le script lit sur la première ligne la spécification de l'association :<br>
+<code>ASSOC &lt;ClasseA&gt; &lt;MultA&gt; ---- &lt;MultB&gt; &lt;ClasseB&gt;</code><br>
+Multiplicités gérées : <code>1</code> (ou <code>1..1</code>), <code>0..1</code>, <code>*</code> (ou <code>0..*</code>), <code>1..*</code>, ou borne exacte <code>min..max</code>.<br>
+Les lignes suivantes décrivent les liens réels instanciés :<br>
+<code>LINK &lt;InstanceA&gt; &lt;InstanceB&gt;</code>.<br>
+Le script doit vérifier pour chaque instance si le nombre d'objets associés respecte sa borne autorisée :<br>
+- Si une instance viole sa multiplicité :<br>
+  <code>[VIOLATION] &lt;Instance&gt; (&lt;Classe&gt;) associee a &lt;N&gt; &lt;Cible&gt; (attendu &lt;Mult&gt;)</code><br>
+Si toutes les instances respectent leurs contraintes :<br>
+<code>CARDINALITES CONFORMES</code>.<br>
+Terminer par le nombre d'instances en anomalie : <code>ANOMALIES: &lt;X&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ASSOC Client 1 ---- 1..* Commande
+LINK c1 cmd1
+LINK c1 cmd2
+LINK c2 cmd3
+LINK c3 cmd3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[VIOLATION] cmd3 (Commande) associee a 2 Client (attendu 1)
+ANOMALIES: 1</pre></div>
+    </div>
+    <p class="lab__note">Une commande est raccordée à 2 clients alors que la multiplicité côté Client est 1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Attention à la lecture de la multiplicité : la multiplicité MultB située côté ClasseB indique combien d'instances de B sont liées à UNE instance de A.</li>
+        <li>La multiplicité MultA située côté ClasseA indique combien d'instances de A sont liées à UNE instance de B.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="COMPOSITION Facture *-- LigneFacture&#10;INSTANCE fact1 L1,L2&#10;DELETE fact1&#10;STATUT">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : modéliser le cycle de vie selon la composition ou agrégation
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Différenciateur d'agrégation faible vs composition forte</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la gestion du cycle de vie des objets : survie des composants en agrégation faible (losange blanc) vs destruction en cascade en composition forte (losange noir).</p>
+    <div class="lab__brief"><p>Le script lit :<br>
+- La déclaration de relation :<br>
+  * <code>COMPOSITION &lt;Composite&gt; *-- &lt;Composant&gt;</code> (losange plein : couplage fort, cycle de vie lié)<br>
+  * <code>AGREGATION &lt;Aggregat&gt; o-- &lt;Composant&gt;</code> (losange vide : couplage faible, cycle de vie indépendant)<br>
+- Les instances initiales : <code>INSTANCE &lt;Conteneur&gt; &lt;Element1&gt;,&lt;Element2&gt;...</code><br>
+- L'ordre de suppression : <code>DELETE &lt;Conteneur&gt;</code>.<br>
+Pour chaque suppression, le script détermine l'impact :<br>
+- Si <code>COMPOSITION</code> : Le conteneur et tous ses composants enfants sont détruits.<br>
+  Afficher : <code>[CASCADE] Destruction de &lt;Conteneur&gt; et de ses composants : &lt;liste_enfants&gt;</code>.<br>
+- Si <code>AGREGATION</code> : Seul le conteneur est détruit, ses éléments composants survivent dans le système.<br>
+  Afficher : <code>[SURVIE] Destruction de &lt;Conteneur&gt; seule ; les composants survivent : &lt;liste_enfants&gt;</code>.<br>
+À la commande finale <code>STATUT</code>, afficher la liste des objets encore vivants triés :<br>
+<code>OBJETS VIVANTS: &lt;liste_triee&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>COMPOSITION Facture *-- LigneFacture
+INSTANCE fact1 L1,L2
+DELETE fact1
+STATUT</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[CASCADE] Destruction de fact1 et de ses composants : L1, L2
+OBJETS VIVANTS: AUCUN</pre></div>
+    </div>
+    <p class="lab__note">Composition : la suppression de la facture supprime toutes ses lignes en cascade.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En composition forte, un composant ne peut appartenir qu'à un seul composite à la fois et disparaît avec lui.</li>
+        <li>En agrégation, les éléments peuvent exister indépendamment de l'agrégat.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel symbole représente la visibilité «protégée» (protected) d’un attribut ou d’une méthode dans une classe UML ?</p>
+      <div class="opts">
+        <button class="opt">+</button>
+        <button class="opt">-</button>
+        <button class="opt" data-correct="1">#</button>
+        <button class="opt">~</button>
+      </div>
+      <div class="q__exp">En UML, le dièse «#» désigne la visibilité protégée (accessible par la classe elle-même et ses sous-classes dérivées).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment indique-t-on graphiquement qu’un attribut ou une méthode est «statique» (static / lié à la classe et non à l’instance) ?</p>
+      <div class="opts">
+        <button class="opt">En écrivant son nom en lettres capitales</button>
+        <button class="opt" data-correct="1">En soulignant son nom</button>
+        <button class="opt">En préfixant son nom par une astérisque (*)</button>
+        <button class="opt">En l’écrivant en rouge</button>
+      </div>
+      <div class="q__exp">Selon la norme OMG, les caractéristiques statiques (attributs de classe ou méthodes de classe) sont formellement soulignées dans le compartiment.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle multiplicité représente une relation où l’élément est facultatif ou peut être présent au plus une fois ?</p>
+      <div class="opts">
+        <button class="opt">1</button>
+        <button class="opt" data-correct="1">0..1</button>
+        <button class="opt">0..*</button>
+        <button class="opt">1..*</button>
+      </div>
+      <div class="q__exp">La multiplicité «0..1» signifie zéro ou un élément (présence optionnelle, souvent représentée par un type nullable ou Optional).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre une agrégation faible (losange creux) et une composition forte (losange plein) ?</p>
+      <div class="opts">
+        <button class="opt">L’agrégation utilise des bases de données SQL et la composition des bases NoSQL</button>
+        <button class="opt" data-correct="1">En composition, la partie ne peut appartenir qu’à un seul composite et est détruite avec lui, alors qu’en agrégation les parties ont un cycle de vie indépendant</button>
+        <button class="opt">L’agrégation est réservée aux entités graphiques et la composition aux services réseau</button>
+        <button class="opt">Il n’y a aucune différence, ce sont deux variantes graphiques équivalentes</button>
+      </div>
+      <div class="q__exp">La composition impose un cycle de vie exclusif et lié : si le composite est détruit, ses parties composantes sont obligatoirement détruites en cascade. L’agrégation permet la survie autonome des parties.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">De quel côté de la ligne de relation doit-on obligatoirement placer le losange (d’agrégation ou de composition) ?</p>
+      <div class="opts">
+        <button class="opt">Du côté du composant (la partie)</button>
+        <button class="opt" data-correct="1">Du côté du contenant / composite (le tout)</button>
+        <button class="opt">Au milieu exact de la ligne</button>
+        <button class="opt">Aux deux extrémités à la fois</button>
+      </div>
+      <div class="q__exp">La norme OMG stipule que le losange (creux ou plein) est impérativement rattaché à l’extrémité de la classe qui joue le rôle de contenant (le tout).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la multiplicité maximale possible du côté du composite dans une relation de composition forte ?</p>
+      <div class="opts">
+        <button class="opt">*</button>
+        <button class="opt" data-correct="1">1 ou 0..1 (au maximum 1)</button>
+        <button class="opt">Autant qu’on veut</button>
+        <button class="opt">Exactement 2</button>
+      </div>
+      <div class="q__exp">Puisqu’une partie appartient exclusivement à un seul composite à la fois en composition forte, la multiplicité du côté composite ne peut jamais dépasser 1 (elle est typiquement 1, ou 0..1 avant attachement).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand doit-on recourir à une «classe d’association» au lieu d’une simple association entre deux classes ?</p>
+      <div class="opts">
+        <button class="opt">Quand la relation est sécurisée par mot de passe</button>
+        <button class="opt" data-correct="1">Quand l’association possède elle-même des attributs qui dépendent de la combinaison des deux classes participantes</button>
+        <button class="opt">Quand les deux classes sont situées sur deux serveurs différents</button>
+        <button class="opt">Quand il y a plus de 1000 objets créés en mémoire</button>
+      </div>
+      <div class="q__exp">Une classe d’association modélise des informations relatives à la relation elle-même (ex: dateInscription, noteExamen) qui n’appartiennent ni à l’une ni à l’autre des entités prises isolément.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment est représentée graphiquement la relation d’héritage (généralisation) entre deux classes en UML ?</p>
+      <div class="opts">
+        <button class="opt">Un trait plein avec une flèche ouverte simple vers la classe fille</button>
+        <button class="opt" data-correct="1">Un trait plein terminé par un triangle blanc fermé pointant vers la classe mère</button>
+        <button class="opt">Un trait tireté avec une croix</button>
+        <button class="opt">Un losange noir des deux côtés</button>
+      </div>
+      <div class="q__exp">L’héritage est matérialisé par un trait plein muni d’une tête de flèche en triangle fermé creux (blanc) dirigé vers la classe mère (le généralisateur).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Mettre des visibilités publiques (+) sur tous les attributs : viole le principe fondamental d’encapsulation.</li>
+      <li>Inverser le côté du losange : le losange d’agrégation ou de composition se dessine TOUJOURS du côté du contenant/composite.</li>
+      <li>Utiliser la composition (losange plein) alors que les composants doivent survivre au contenant (ex: supprimer une voiture ne doit pas détruire son conducteur).</li>
+      <li>Oublier les multiplicités aux extrémités : une association sans multiplicité est ambiguë et non professionnelle.</li>
+      <li>Confondre la flèche d’héritage (triangle blanc fermé) avec une simple flèche de navigabilité ou de dépendance.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Construction d’un Modèle de Domaine de Classes</div>
+    <ol>
+      <li>Étape 1 — Extraire les concepts métier nominatifs : Analyser les besoins pour isoler les substantifs candidats à devenir des classes.</li>
+      <li>Étape 2 — Filtrer les classes et les attributs simples : Si un concept ne possède qu’une seule valeur sans comportement propre, en faire un attribut plutôt qu’une classe.</li>
+      <li>Étape 3 — Définir les attributs et protéger l’encapsulation : Passer par défaut tous les attributs en privé (-) et créer des accesseurs/méthodes publiques (+).</li>
+      <li>Étape 4 — Relier les classes par des associations : Nommer les rôles et spécifier systématiquement les multiplicités aux deux extrémités.</li>
+      <li>Étape 5 — Qualifier le couplage (Agrégation vs Composition) : Poser la question clé : « Si l’objet parent est détruit, ses éléments composants doivent-ils disparaître avec lui ? ». Si OUI, utiliser la composition (losange noir) ; si NON, l’agrégation (losange blanc).</li>
+      <li>Étape 6 — Factoriser par généralisation/héritage : Regrouper les propriétés communes dans une classe mère abstraite ({abstract}) avec triangle blanc fermé vers la mère.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une classe UML se compose de 3 compartiments : Nom, Attributs et Opérations.</li>
+      <li>Les visibilités standard sont le public (+), le privé (-), le protégé (#) et le paquetage (~).</li>
+      <li>Les membres statiques sont obligatoirement soulignés, et les éléments abstraits écrits en italique.</li>
+      <li>Les multiplicités bornent le nombre d’instances pouvant participer à une association (1, 0..1, *, 1..*, m..n).</li>
+      <li>L’agrégation faible (losange creux) lie des objets ayant des cycles de vie autonomes.</li>
+      <li>La composition forte (losange plein) impose une appartenance exclusive et une destruction en cascade des parties avec le composite.</li>
+      <li>L’héritage est représenté par un trait plein terminé par un triangle blanc fermé dirigé vers la classe mère.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais par cœur les symboles des 4 visibilités (+, -, #, ~).</li>
+      <li>Je sais rédiger la signature normalisée complète d’un attribut et d’une méthode.</li>
+      <li>Je sais représenter un membre statique (souligné) et une classe abstraite (italique ou {abstract}).</li>
+      <li>Je sais lire et attribuer des multiplicités aux deux extrémités d’une association.</li>
+      <li>Je sais choisir entre agrégation faible et composition forte selon le critère de co-destruction du cycle de vie.</li>
+      <li>Je sais quand introduire une classe d’association pour porter des attributs de relation.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Compartiments de classe UML</li><li>4 visibilités (+, -, #, ~)</li><li>Signatures d’attributs et méthodes</li><li>Multiplicités d’association</li><li>Navigabilité et rôles</li><li>Agrégation faible (&loz; creux)</li><li>Composition forte (&diams; plein)</li><li>Classes d’association et héritage</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez les symboles de visibilité, les multiplicités et la distinction agrégation vs composition.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bon niveau d’ensemble. Approfondissez les classes d’association et les subtilités du cycle de vie lié.</div>
+      <div class="bandrow bandrow--good">7/8 : Excellente maîtrise de la modélisation statique orientée objet en diagramme de classes.</div>
+      <div class="bandrow bandrow--top">8/8 : Parfait ! Vous maîtrisez les diagrammes de classes au niveau d’un architecte logiciel confirmé.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Diagramme de Séquence, Lignes de Vie &amp; Fragments Combinés <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la spécification officielle OMG UML 2.5.1, le standard OCL 2.4, les ouvrages de référence des trois amigos (Booch, Rumbaugh, Jacobson) et les patrons de conception GoF.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

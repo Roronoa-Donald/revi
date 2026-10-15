@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration Linux B2 — fichiers, droits, réseau et services | Cours Interactif</title>
+<meta name="description" content="Cours complet d’administration Linux niveau B2 : terminal et arborescence FHS, manipulation de fichiers, droits et comptes, configuration réseau statique et SSH, scripts Bash, puis supervision des services, des processus et des tâches planifiées. Chaque mécanisme du serveur est scripté en Bash et réellement exécuté dans la page.">
+<link rel="canonical" href="https://revi-mu.vercel.app/linux/index.html">
+<meta property="og:title" content="Administration Linux B2 — fichiers, droits, réseau et services | Cours Interactif">
+<meta property="og:description" content="Cours complet d’administration Linux niveau B2 : terminal et arborescence FHS, manipulation de fichiers, droits et comptes, configuration réseau statique et SSH, scripts Bash, puis supervision des services, des processus et des tâches planifiées. Chaque mécanisme du serveur est scripté en Bash et réellement exécuté dans la page.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="linuxnav"><div class="linuxnav__in">
+  <a class="linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="linuxnav__sep" aria-hidden="true">/</span>
+  <a class="linuxnav__brand" href="index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Administration Linux B2</a>
+  <div class="linuxnav__links">
+    <a href="sommaire.html">Sommaire</a>
+    <a href="chapitres/chapitre1.html">Ch. 1</a>
+    <a href="chapitres/chapitre2.html">Ch. 2</a>
+    <a href="chapitres/chapitre3.html">Ch. 3</a>
+    <a href="chapitres/chapitre4.html">Ch. 4</a>
+    <a href="chapitres/chapitre5.html">Ch. 5</a>
+    <a href="chapitres/chapitre6.html">Ch. 6</a>
+    <a href="chapitres/cartes.html">Cartes</a>
+    <a href="chapitres/formules.html">Mémo</a>
+    <a href="exercices/exercices.html">Exercices</a>
+    <a href="atelier.html">Atelier</a>
+    <a href="chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="linuxwrap">
+<p class="crumb"><a href="/index.html">Portail des cours</a> › Administration Linux B2</p>
+
+  <div class="chapmeta">
+
+    <span class="tag">Licence 2 · B2</span>
+
+    <span class="tag tag--time">Administration système</span>
+
+    <span class="tag tag--time">6 chapitres</span>
+
+  </div>
+
+  <h1>Administration Linux B2 — fichiers, droits, réseau et services</h1>
+
+  <p class="lead">Administrer un serveur, c’est piloter un système en ligne de commande. Six chapitres pour maîtriser l’arborescence, manipuler fichiers et liens, calculer des droits justes, gérer les comptes, configurer le réseau et SSH, écrire des scripts Bash, puis superviser services et processus — chaque mécanisme étant d’abord programmé et vérifié dans l’atelier, exactement comme sur une vraie machine.</p>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Ce que tu sauras faire à la fin du cours</div>
+    <ul>
+      <li>te déplacer dans l’arborescence FHS et bâtir des chemins absolus ou relatifs ;</li>
+      <li>manipuler fichiers et liens, et retrouver une information avec find et grep ;</li>
+      <li>lire, calculer et poser des droits justes (chmod, chown, chgrp) ;</li>
+      <li>gérer les comptes et groupes en lisant /etc/passwd, /etc/shadow, /etc/group ;</li>
+      <li>valider une adresse IPv4, la classer, et décoder une cible SSH ;</li>
+      <li>écrire des scripts Bash qui lisent, décident et rapportent ;</li>
+      <li>piloter un service systemd, repérer un zombie et planifier une tâche cron.</li>
+    </ul>
+  </div>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Comment ce cours s’articule</div>
+    <p>Le cours historique d’administration Linux couvre le terminal, les fichiers, les droits, le réseau, les scripts et les services. Ce cours en garde le plan et fait manipuler chaque mécanisme <strong>en Bash</strong> : le même langage que le terminal d’administration, exécuté dans la page.</p>
+    <p>Chaque chapitre se termine par <strong>trois exercices de code</strong> : tu écris vraiment le script, il est réellement exécuté, puis corrigé par des tests que tu ne vois pas. La logique écrite ici se rejoue telle quelle sur un serveur.</p>
+  </div>
+
+  <h2>Programme du cours</h2>
+
+  <div class="toc">
+
+    <a class="toc__item" href="chapitres/chapitre1.html"><span class="toc__n">1</span><span><span class="toc__t">Commandes de base et arborescence</span><br><span class="toc__d">La ligne de commande, l’arborescence FHS, chemins absolus et relatifs, création et navigation.</span></span></a>
+    <a class="toc__item" href="chapitres/chapitre2.html"><span class="toc__n">2</span><span><span class="toc__t">Manipulation de fichiers et recherche</span><br><span class="toc__d">Copier, déplacer, supprimer, liens symboliques, find par nom/type/taille, grep dans les journaux.</span></span></a>
+    <a class="toc__item" href="chapitres/chapitre3.html"><span class="toc__n">3</span><span><span class="toc__t">Droits, permissions, utilisateurs et groupes</span><br><span class="toc__d">Lire les permissions, chmod symbolique et octal, chown/chgrp, /etc/passwd, users et groupes.</span></span></a>
+    <a class="toc__item" href="chapitres/chapitre4.html"><span class="toc__n">4</span><span><span class="toc__t">Réseau statique et SSH</span><br><span class="toc__d">Configuration IP d’un serveur, adresses privées et publiques, connexion distante SSH.</span></span></a>
+    <a class="toc__item" href="chapitres/chapitre5.html"><span class="toc__n">5</span><span><span class="toc__t">Scripts Bash : lire, décider, rapporter</span><br><span class="toc__d">Variables, paramètres, read, tests, boucles, case, fonctions et code de retour.</span></span></a>
+    <a class="toc__item" href="chapitres/chapitre6.html"><span class="toc__n">6</span><span><span class="toc__t">Services, processus et planification</span><br><span class="toc__d">systemctl, lecture des états, processus et zombies, kill, cron et journaux.</span></span></a>
+
+  </div>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Ressources du cours</div>
+    <p>
+      <a class="btn" href="chapitres/chapitre1.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-rocket"></use></svg> Commencer le chapitre 1</a>
+      <a class="btn" href="chapitres/cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Flashcards</a>
+      <a class="btn" href="chapitres/formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo de l’administrateur</a>
+      <a class="btn" href="atelier.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Atelier de scripts</a>
+      <a class="btn" href="exercices/exercices.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Exercices &amp; projet</a>
+      <a class="btn" href="chapitres/simulateur-examen.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clipboard"></use></svg> Examens blancs</a>
+    </p>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique d’administration Linux (Debian) : terminal, fichiers, droits, réseau, scripts et services.</p>
+</main>
+
+<script src="assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

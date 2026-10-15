@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preparation Web - HTML & JavaScript</title>
+  <meta name="description" content="Atelier B2 pour apprendre HTML et JavaScript en codant directement 12 projets courts avec validation automatique, quiz, XP et classement.">
+  <link rel="icon" href="data:;base64,iVBwR0KGgo=">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260524">
+  <script src="../assets/js/theme.js"></script>
+  <style>
+    :root { --course-accent: var(--course-preparation-web); }
+    [data-theme="dark"] .theme-toggle__sun { display: none; }
+    [data-theme="light"] .theme-toggle__moon { display: none; }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link" style="position:absolute;top:-100px;left:var(--space-4);z-index:1000;padding:var(--space-2) var(--space-4);background:var(--color-primary);color:#fff;text-decoration:none;border-radius:var(--radius-md);">Aller au contenu</a>
+  <header class="topbar" role="banner" style="position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 var(--space-6);background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);border-bottom:1px solid var(--color-border);">
+    <a href="../index.html" style="display:flex;align-items:center;gap:var(--space-2);font-family:var(--font-display);font-size:var(--text-sm);font-weight:700;color:var(--color-text);text-decoration:none;letter-spacing:-0.02em;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 10 3 12 0v-5"/></svg>
+      <span>cours.interactifs</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:var(--space-3);">
+      <a href="../preparation-cheatsheet.html" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--color-text-muted);text-decoration:none;padding:var(--space-1) var(--space-2);">Cheatsheet</a>
+      <a href="../preparation-progression.html" style="font-size:var(--text-xs);color:var(--color-text-muted);text-decoration:none;padding:var(--space-1) var(--space-2);">Progression</a>
+      <a href="../preparation-classement.html" style="font-size:var(--text-xs);color:var(--color-text-muted);text-decoration:none;padding:var(--space-1) var(--space-2);">Classement</a>
+      <button type="button" id="themeToggle" class="theme-toggle" aria-label="Mode sombre" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:transparent;border:1px solid transparent;border-radius:var(--radius-md);color:var(--color-text-muted);cursor:pointer;">
+        <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93-1.41 1.41"/></svg>
+        <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </div>
+  </header>
+  <div class="app-shell rail-collapsed">
+    <aside class="project-rail" id="projectRail">
+      <div class="rail-brand">
+        <span class="brand-mark">PW</span>
+        <div>
+          <strong>Preparation Web</strong>
+          <small>HTML + JavaScript</small>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <span class="profile-label">Apprenant</span>
+        <strong id="studentName">Chargement...</strong>
+        <div class="rank-line">
+          <span id="studentRank">Rang --</span>
+          <span id="studentXp">0 XP</span>
+        </div>
+        <div class="progress-track">
+          <span id="globalProgressBar"></span>
+        </div>
+        <small id="globalProgressText">0/12 projets valides</small>
+      </div>
+
+      <nav class="project-list" id="projectList" aria-label="Liste des projets"></nav>
+
+      <div class="rail-actions">
+        <a href="../preparation-cheatsheet.html" target="_blank" rel="noopener">Cheatsheet generale</a>
+        <a href="../preparation-progression.html">Progression detaillee</a>
+        <a href="../preparation-classement.html">Classement B2</a>
+        <a href="../index.html">Retour au portail</a>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <button class="ghost-button rail-toggle" id="toggleRail" type="button">Projets</button>
+        <div>
+          <span class="eyebrow" id="trackLabel">HTML</span>
+          <h1 id="projectTitle">Chargement du projet...</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-button" id="toggleLesson" type="button">Cours</button>
+          <button class="ghost-button" id="toggleFocus" type="button">Focus code</button>
+          <button class="primary-button" id="validateBtn" type="button">Valider</button>
+        </div>
+      </header>
+
+      <section class="stats-strip" aria-label="Progression et score">
+        <div>
+          <span>XP total</span>
+          <strong id="statXp">0</strong>
+        </div>
+        <div>
+          <span>Progression</span>
+          <button class="progress-pill" id="progressTrigger" type="button" aria-haspopup="dialog">0/12</button>
+        </div>
+        <div>
+          <span>Badges</span>
+          <strong id="statBadges">0</strong>
+        </div>
+        <div>
+          <span>Etat sauvegarde</span>
+          <strong id="saveState">Local</strong>
+        </div>
+      </section>
+
+      <section class="workbench">
+        <aside class="lesson-panel" id="lessonPanel">
+          <div class="lesson-header">
+            <div>
+              <span class="eyebrow">Memo + consignes</span>
+              <h2 id="lessonTitle">Cours</h2>
+            </div>
+            <button class="icon-button" id="collapseLesson" type="button" aria-label="Replier le cours">×</button>
+          </div>
+          <div id="lessonContent" class="lesson-content">
+            <section class="lesson-stage">
+              <div class="lesson-mini" id="lessonMiniCourse"></div>
+              <div class="lesson-exercise" id="lessonExercise"></div>
+              <div class="lesson-nav">
+                <button class="ghost-button" id="prevStep" type="button">Precedent</button>
+                <span class="step-indicator" id="stepIndicator">Etape 1/1</span>
+                <button class="primary-button" id="nextStep" type="button">Suivant</button>
+              </div>
+            </section>
+          </div>
+        </aside>
+
+        <div class="resizer" id="resizerLeft"></div>
+
+        <section class="editor-pane">
+          <div class="editor-toolbar">
+            <div class="tabs">
+              <button class="tab is-active" data-editor-tab="html" type="button">HTML</button>
+              <button class="tab" data-editor-tab="css" type="button">CSS fourni</button>
+              <button class="tab" data-editor-tab="js" type="button">JavaScript</button>
+            </div>
+            <div class="toolbar-actions">
+              <button class="mini-button" id="hintBtn" type="button">Indice</button>
+              <button class="mini-button is-hidden" id="solutionBtn" type="button">Solution</button>
+              <button class="mini-button danger" id="resetBtn" type="button">Reinitialiser</button>
+            </div>
+          </div>
+
+          <div class="editor-card" data-panel="html">
+            <div class="editor-label">
+              <span>index.html</span>
+              <small id="htmlLockLabel">editable</small>
+            </div>
+            <textarea id="htmlEditor" spellcheck="false" autocomplete="off"></textarea>
+          </div>
+          <div class="editor-card is-hidden" data-panel="css">
+            <div class="editor-label">
+              <span>style.css</span>
+              <small>verrouille</small>
+            </div>
+            <textarea id="cssEditor" spellcheck="false" readonly></textarea>
+          </div>
+          <div class="editor-card is-hidden" data-panel="js">
+            <div class="editor-label">
+              <span>script.js</span>
+              <small id="jsLockLabel">verrouille</small>
+            </div>
+            <textarea id="jsEditor" spellcheck="false" autocomplete="off"></textarea>
+          </div>
+        </section>
+
+        <div class="resizer" id="resizerRight"></div>
+
+        <section class="preview-pane">
+          <div class="preview-header">
+            <div>
+              <span class="eyebrow">Apercu temps reel</span>
+              <strong id="previewTitle">Resultat</strong>
+            </div>
+            <div class="preview-actions">
+              <label class="toggle" for="cssToggle">
+                <input type="checkbox" id="cssToggle" checked>
+                <span class="toggle-track"></span>
+                <span class="toggle-label" id="cssToggleLabel">Structure + CSS</span>
+              </label>
+              <button class="mini-button" id="refreshPreview" type="button">Rafraichir</button>
+            </div>
+          </div>
+          <iframe id="previewFrame" title="Apercu du projet" sandbox="allow-scripts"></iframe>
+          <div class="feedback-card" id="feedbackCard">
+            <strong>Validation</strong>
+            <div id="feedbackList">Ecris le code demande puis clique sur Valider.</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="quiz-section" id="quizSection" aria-live="polite">
+        <div class="section-heading">
+          <span class="eyebrow">Quiz bonus</span>
+          <h2>Gagne des XP apres validation</h2>
+        </div>
+        <div id="quizContent" class="quiz-content"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="modal-backdrop is-hidden" id="progressModal" role="dialog" aria-modal="true" aria-labelledby="progressTitle">
+    <div class="modal">
+      <button class="icon-button modal-close" id="closeProgress" type="button" aria-label="Fermer">×</button>
+      <span class="eyebrow">Progression</span>
+      <h2 id="progressTitle">Tes 12 projets</h2>
+      <div id="progressTimeline" class="progress-timeline"></div>
+      <div id="progressList" class="progress-list"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop is-hidden" id="solutionModal" role="dialog" aria-modal="true" aria-labelledby="solutionTitle">
+    <div class="modal">
+      <button class="icon-button modal-close" id="closeSolution" type="button" aria-label="Fermer">×</button>
+      <span class="eyebrow">Solution bloquee contre le copier-coller</span>
+      <h2 id="solutionTitle">Observe, comprends, puis reecris</h2>
+      <p>La solution apparait apres au moins deux echecs. Elle est volontairement difficile a copier pour t'aider a vraiment retenir.</p>
+      <pre id="solutionContent" class="solution-box" aria-label="Solution a reecrire"></pre>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="autocomplete is-hidden" id="autocompleteBox" role="listbox" aria-label="Autocompletion"></div>
+
+  <button class="ai-fab" id="aiFab" type="button" aria-label="Ouvrir l aide IA">IA</button>
+  <div class="ai-panel is-hidden" id="aiPanel" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+    <div class="ai-header">
+      <div>
+        <span class="eyebrow">Assistant indices</span>
+        <h3 id="aiTitle">Besoin d un indice ?</h3>
+      </div>
+      <button class="icon-button" id="aiClose" type="button" aria-label="Fermer">×</button>
+    </div>
+    <div class="ai-body">
+      <p class="ai-note">Je donne des indices textuels uniquement, sans code.</p>
+      <div id="aiMessages" class="ai-messages"></div>
+      <div class="ai-input">
+        <input id="aiInput" type="text" placeholder="Explique ma difficulte...">
+        <button class="primary-button" id="aiSend" type="button">Demander</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/xml-fold.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchtags.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="assets/js/projects.js?v=20260524"></script>
+  <script src="assets/js/app.js?v=20260524"></script>
+  <script>document.getElementById('themeToggle')?.addEventListener('click', window.toggleTheme);</script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Conditions | PHP B1</title>
+<meta name="description" content="Chapitre 3 du cours PHP B1 : if / elseif / else, comparaisons, ET et OU logiques, cascade ordonnée, piège de l'affectation dans un test. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="3">
+
+<nav class="phnav"><div class="phnav__in">
+  <a class="phnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phnav__sep" aria-hidden="true">/</span>
+  <a class="phnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP B1</a>
+  <div class="phnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html">Ch. 2</a>
+    <a href="chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="phwrap">
+  <p class="crumb"><a href="../index.html">PHP B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+  <h1>Chapitre 3 — Conditions</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un site de vente applique la livraison offerte à partir de 50 EUR, refuse les mots de passe trop courts
+    et classe les étudiants par mention. Dans les trois cas, le programme <em>choisit</em> : il compare des
+    valeurs et exécute la branche correspondante. C'est le test alternatif — la première structure de contrôle
+    d'un programme.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>écrire un test simple et un test double (<code>if / else</code>) ;</li>
+      <li>construire une cascade <code>if / elseif / else</code> dans le bon ordre ;</li>
+      <li>combiner des conditions avec <code>&amp;&amp;</code> et <code>||</code> ;</li>
+      <li>choisir entre <code>==</code> et <code>===</code>, et éviter le piège de <code>=</code> dans un test.</li>
+    </ol>
+  </div>
+
+  <h2>1. Test simple et test double</h2>
+  <p><strong>Définition.</strong> Le test alternatif exécute un bloc d'instructions seulement si une condition
+  est vraie. La version double ajoute une branche par défaut, exécutée quand la condition est fausse.</p>
+  <pre><code><span class="c">// test simple</span>
+<span class="k">if</span> ($note &gt;= 10) {
+    echo "Admis\n";
+}
+
+<span class="c">// test double</span>
+<span class="k">if</span> ($note &gt;= 10) {
+    echo "Admis\n";
+} <span class="k">else</span> {
+    echo "Ajourne\n";
+}</code></pre>
+  <p>La condition est une expression booléenne : le résultat d'une comparaison. Les opérateurs de comparaison :
+  <code>==</code> (égal), <code>!=</code> (différent), <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>,
+  <code>&gt;=</code>. Attention : en PHP, l'égalité de <em>valeur</em> s'écrit avec deux signes
+  <code>==</code> — un seul <code>=</code> est une affectation.</p>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — = au lieu de ==</div>
+    <p><code>if ($nom = "admin")</code> <em>affecte</em> "admin" à $nom puis évalue le résultat (une chaîne non
+    vide : toujours vrai). La branche s'exécute donc à chaque fois, et la variable est écrasée. Le test voulu
+    est <code>if ($nom === "admin")</code>. PHP ne le signale pas : c'est au lecteur de le repérer.</p>
+  </div>
+
+  <h2>2. La cascade if / elseif / else</h2>
+  <p>Quand plusieurs cas s'excluent mutuellement, on enchaîne : <code>if</code>, puis autant de
+  <code>elseif</code> que nécessaire, puis un <code>else</code> final. Le mot est unique :
+  <code>elseif</code>.</p>
+  <pre><code><span class="k">if</span> ($note &gt;= 16) {
+    echo "Tres bien\n";
+} <span class="k">elseif</span> ($note &gt;= 14) {
+    echo "Bien\n";
+} <span class="k">elseif</span> ($note &gt;= 10) {
+    echo "Passable\n";
+} <span class="k">else</span> {
+    echo "Ajourne\n";
+}</code></pre>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Intuition : la première vraie gagne</div>
+    <p>PHP évalue les conditions de haut en bas ; dès qu'une est vraie, il exécute son bloc et saute tout le
+    reste. D'où la règle d'or : <strong>ordonner du cas le plus exigeant au plus général</strong>. Si la
+    cascade commence par <code>$note &gt;= 10</code>, la note 17 est attrapée par cette branche et ne voit
+    jamais « Tres bien ».</p>
+  </div>
+
+  <h2>3. Combiner des conditions</h2>
+  <table>
+    <tr><th>Logique</th><th>PHP</th><th>Vrai si…</th></tr>
+    <tr><td>ET</td><td><code>&amp;&amp;</code></td><td>les deux conditions sont vraies</td></tr>
+    <tr><td>OU</td><td><code>||</code></td><td>au moins une est vraie</td></tr>
+    <tr><td>NON</td><td><code>!</code></td><td>la condition est fausse</td></tr>
+  </table>
+  <pre><code><span class="c">// gratuit : moins de 12 ans OU 65 ans et plus</span>
+<span class="k">if</span> ($age &lt; 12 || $age &gt;= 65) {
+    echo "Gratuit\n";
+}
+
+<span class="c">// réduit : entre 12 et 17 inclus</span>
+<span class="k">if</span> ($age &gt;= 12 &amp;&amp; $age &lt;= 17) {
+    echo "Reduit\n";
+}</code></pre>
+  <p>Les parenthèses du <code>if</code> délimitent la condition entière ; à l'intérieur, <code>&amp;&amp;</code>
+  est évalué avant <code>||</code>. Ajouter des parenthèses explicites rend la lecture sûre quand les deux se
+  mélangent.</p>
+
+  <h2>4. == ou === ?</h2>
+  <p>PHP compare de deux façons :</p>
+  <table>
+    <tr><th>Opérateur</th><th>Comparaison</th><th>Exemple</th></tr>
+    <tr><td><code>==</code></td><td>Valeurs, après conversion de type</td><td><code>"42" == 42</code> → vrai</td></tr>
+    <tr><td><code>===</code></td><td>Valeurs <strong>et</strong> types</td><td><code>"42" === 42</code> → faux</td></tr>
+  </table>
+  <p>La version stricte évite les surprises de conversion (<code>0 == "texte"</code> valait vrai dans d'anciennes
+  versions, par exemple). La règle du cours : <strong>utiliser <code>===</code> et <code>!==</code> par
+  défaut</strong>, et réserver <code>==</code> aux cas où la conversion est voulue.</p>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> La ternaire : un if d'expression</div>
+    <p><code>echo ($note &gt;= 10 ? "Admis" : "Ajourne") . "\n";</code> — la condition ternaire renvoie l'une des
+    deux valeurs selon le test. Pratique pour choisir un texte ou une valeur ; à éviter pour des blocs
+    d'instructions longs.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php-c3-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="17">
+  <script type="text/plain" data-lab-starter><?php
+$note = (int)trim(fgets(STDIN));
+
+// À compléter : la cascade de mentions.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Mention du semestre</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une cascade if / elseif / else dans le bon ordre.</p>
+    <div class="lab__brief"><p>Le programme reçoit une note entière. Affichez la mention : <code>Tres bien</code> à partir de 16, <code>Bien</code> à partir de 14, <code>Assez bien</code> à partir de 12, <code>Passable</code> à partir de 10, sinon <code>Ajourne</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>17</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Tres bien</pre></div>
+    </div>
+    <p class="lab__note">17 ≥ 16 : mention maximale.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Dans une cascade, la première condition satisfaite gagne : testez les mentions de la plus haute à la plus basse.</li>
+        <li>Un seul affichage doit se produire : les branches s’excluent mutuellement.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c3-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="75">
+  <script type="text/plain" data-lab-starter><?php
+$panier = (int)trim(fgets(STDIN));
+
+// À compléter : livraison puis total.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Frais de livraison</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Combiner une condition et un calcul de total.</p>
+    <div class="lab__brief"><p>Le programme reçoit le montant d’un panier (entier). La livraison est offerte à partir de 50 EUR, sinon elle coûte 5 EUR. Affichez <code>Livraison : offerte</code> ou <code>Livraison : 5 EUR</code>, puis <code>Total : &lt;montant à payer&gt; EUR</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>75</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Livraison : offerte
+Total : 75 EUR</pre></div>
+    </div>
+    <p class="lab__note">75 ≥ 50 : livraison offerte.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le seuil fait partie de l’énoncé : un panier de 50 EUR exactement bénéficie de l’offre.</li>
+        <li>Le total à payer ajoute la livraison au panier seulement quand elle est payante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c3-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="15">
+  <script type="text/plain" data-lab-starter><?php
+$age = (int)trim(fgets(STDIN));
+
+// À compléter : les trois tarifs.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Tarif du tramway</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Combiner plusieurs conditions avec ET et OU.</p>
+    <div class="lab__brief"><p>Le programme reçoit un âge (entier). Affichez <code>Gratuit</code> si l’âge est strictement inférieur à 12 ou à partir de 65, <code>Reduit</code> entre 12 et 17 inclus, sinon <code>Plein</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>15</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Reduit</pre></div>
+    </div>
+    <p class="lab__note">Entre 12 et 17 : tarif réduit.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Deux tranches donnent la gratuité : elles se combinent avec le OU logique.</li>
+        <li>La tranche réduite a deux bornes : les deux doivent être vérifiées en même temps.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que fait <code>if ($x = 5)</code> ?</p>
+      <div class="opts">
+        <button class="opt">Il teste si $x vaut 5</button>
+        <button class="opt" data-correct="1">Il affecte 5 à $x et la condition est vraie</button>
+        <button class="opt">Il provoque une erreur de syntaxe</button>
+      </div>
+      <div class="q__exp">Un seul = est une affectation ; le test d'égalité s'écrit == ou ===.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une cascade if / elseif / else, quelle branche s'exécute ?</p>
+      <div class="opts">
+        <button class="opt">Toutes celles dont la condition est vraie</button>
+        <button class="opt" data-correct="1">La première dont la condition est vraie</button>
+        <button class="opt">Toujours la dernière</button>
+      </div>
+      <div class="q__exp">Dès qu'une condition est satisfaite, les suivantes sont ignorées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment écrire « âge entre 12 et 17 inclus » ?</p>
+      <div class="opts">
+        <button class="opt">$age &gt;= 12 || $age &lt;= 17</button>
+        <button class="opt" data-correct="1">$age &gt;= 12 &amp;&amp; $age &lt;= 17</button>
+        <button class="opt">12 &lt;= $age &lt;= 17</button>
+      </div>
+      <div class="q__exp">Les deux bornes doivent être vraies ensemble : ET logique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>"42" === 42</code> ?</p>
+      <div class="opts">
+        <button class="opt">Vrai : les valeurs sont égales</button>
+        <button class="opt" data-correct="1">Faux : les types diffèrent</button>
+        <button class="opt">Une erreur de type</button>
+      </div>
+      <div class="q__exp">=== exige même valeur et même type.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une cascade de mentions doit commencer par…</p>
+      <div class="opts">
+        <button class="opt">Le cas le plus général</button>
+        <button class="opt" data-correct="1">Le cas le plus exigeant</button>
+        <button class="opt">L'ordre n'a pas d'importance</button>
+      </div>
+      <div class="q__exp">La première condition vraie gagne : le général attraperait tout.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le mot correct pour enchaîner un second test en PHP ?</p>
+      <div class="opts">
+        <button class="opt">else if (deux mots obligatoires)</button>
+        <button class="opt" data-correct="1">elseif (un seul mot)</button>
+        <button class="opt">elif</button>
+      </div>
+      <div class="q__exp">elseif s'écrit en un mot ; elif est du Python.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>= au lieu de ==</strong> : affectation silencieuse, branche toujours exécutée.</li>
+      <li><strong>Cascade mal ordonnée</strong> : le cas général attrape les cas particuliers.</li>
+      <li><strong>|| là où && est voulu</strong> : « entre 12 et 17 » avec OU est toujours vrai.</li>
+      <li><strong>elseif écrit elif</strong> : erreur de syntaxe.</li>
+      <li><strong>Borne oubliée</strong> : tester le seuil exact (≥ 10 avec 10, pas 9).</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire une cascade fiable</div>
+    <ol>
+      <li><strong>Lister les cas</strong> de l'énoncé avec leurs bornes exactes.</li>
+      <li><strong>Ordonner</strong> du plus exigeant au plus général.</li>
+      <li><strong>Écrire les conditions</strong> avec les bons opérateurs (&& pour un intervalle).</li>
+      <li><strong>Prévoir le else</strong> final : le cas « tout le reste ».</li>
+      <li><strong>Tester les bornes</strong> : une valeur sur chaque seuil, une au-dessus, une en dessous.</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>if / else : exécuter selon une condition ; comparaisons avec &lt;, &gt;=, ===…</li>
+      <li>Cascade if / elseif / else : la première condition vraie gagne.</li>
+      <li>Ordre de la cascade : du plus exigeant au plus général.</li>
+      <li>&amp;&amp; exige les deux, || en suffit une, ! inverse.</li>
+      <li>=== compare valeur et type ; = affecte et n'est jamais un test.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J'écris une cascade de mentions dans le bon ordre.</li>
+      <li>Je combine ET et OU sans ambiguïté.</li>
+      <li>Je repère le piège = / === dans un code lu.</li>
+      <li>Je teste chaque borne de mes conditions.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>if / else</li><li>elseif</li><li>comparaisons</li><li>&amp;&amp;</li>
+      <li>||</li><li>!</li><li>== vs ===</li><li>ternaire</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 2, refais les exemples.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 2-3 de l'atelier.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible l'ordre de la cascade.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 4, les boucles.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre2.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 2</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Boucles <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (Cours-PHP-PDO, CoursPHP, TP1) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

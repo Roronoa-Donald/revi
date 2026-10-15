@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Programmation Asynchrone (TAP) &amp;amp; Gestion des Ressources | C# B2</title>
+<meta name="description" content="Chapitre 6 du cours C# B2 : Modèle asynchrone basé sur les tâches (TAP), mots-clés async et await, décomposition en machine à états par Roslyn, Task.WhenAll et AggregateException, patron IDisposable, blocs using déterministes et libération mémoire. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/csharp/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Programmation Asynchrone (TAP) &amp;amp; Gestion des Ressources | C# B2">
+<meta property="og:description" content="Chapitre 6 du cours C# B2 : Modèle asynchrone basé sur les tâches (TAP), mots-clés async et await, décomposition en machine à états par Roslyn, Task.WhenAll et AggregateException, patron IDisposable, blocs using déterministes et libération mémoire. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="csharpnav"><div class="csharpnav__in">
+  <a class="csharpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="csharpnav__sep" aria-hidden="true">/</span>
+  <a class="csharpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> C# B2</a>
+  <div class="csharpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="csharpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="csharpwrap">
+<p class="crumb"><a href="../index.html">C# B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Programmation Asynchrone (TAP) &amp; Gestion des Ressources</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un service de traitement de documents dématérialisés subit des ralentissements catastrophiques et des pannes régulières sous forte charge : des appels bloquants .Result et .Wait() sur des tâches asynchrones provoquent des interblocages (deadlocks) massifs de threads, tandis que des descripteurs de fichiers et connexions réseau restent ouverts indéfiniment parce que le Garbage Collector tarde à passer. L’architecte logiciel ordonne une refonte immédiate : bannir tout blocage de thread en adoptant le modèle Task-based Asynchronous Pattern (TAP) avec async et await de bout en bout, orchestrer la concurrence propre avec Task.WhenAll et la capture structurée des AggregateException, et garantir la libération immédiate et déterministe des ressources non managées via l’instruction using et le patron IDisposable. Ce dernier module parachève la formation en bâtissant des applications hautement scalables et exemptes de fuites de ressources.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le fonctionnement interne de async/await et la transformation en machine à états générée par Roslyn ;</li>
+      <li>éliminer les anti-patterns bloquants (.Result, .Wait()) responsables des deadlocks de ThreadPool ;</li>
+      <li>exécuter des flux concurrents en parallèle avec Task.WhenAll et extraire la totalité des causes d’échec via AggregateException ;</li>
+      <li>appliquer le modèle d’annulation coopérative grâce à CancellationToken et CancellationTokenSource ;</li>
+      <li>implémenter rigoureusement le patron de conception IDisposable et maîtriser la syntaxe modernisée de l’instruction using.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Modèle Asynchrone TAP &amp; La Machine à États Roslyn</h2>
+
+<p>En C#, la programmation asynchrone repose sur le <strong>Task-based Asynchronous Pattern (TAP)</strong> et les types <code>Task</code> et <code>Task&lt;TResult&gt;</code>. Contrairement au multi-threading classique qui bloque un thread lourd du système d’exploitation en attente d’I/O, le mot-clé <code>await</code> <strong>libère le thread courant</strong> pour qu’il traite d’autres requêtes :</p>
+<pre><code class="language-csharp">public async Task&lt;DonneesClient&gt; ObtenirProfilAsync(int idClient)
+{
+    // Le thread appelant est libéré pendant l’attente réseau du SGBD
+    string json = await _clientHttp.GetStringAsync($"https://api.interne/clients/{idClient}");
+    
+    // À la fin de l’I/O, un thread disponible de la ThreadPool reprend l’exécution
+    return JsonSerializer.Deserialize&lt;DonneesClient&gt;(json)!;
+}</code></pre>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">En coulisses : la Machine à États Roslyn</h4>
+    <p>À la compilation, Roslyn transforme la méthode <code>async</code> en une structure implémentant <code>IAsyncStateMachine</code>. Chaque <code>await</code> représente un point de suspension : un continuateur (<em>callback</em>) est enregistré et l’état courant de la méthode est sauvegardé sans bloquer le système.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Règle fondamentale : "Async all the way"</h4>
+    <p>L’asynchronisme doit se propager sur l’intégralité de la chaîne d’appels, du contrôleur API jusqu’à l’accès disque ou base de données. Ne convertissez jamais du code asynchrone en synchrone avec <code>.Result</code> ou <code>.Wait()</code> au risque de provoquer un interblocage (<em>deadlock</em>).</p>
+  </div>
+</div>
+
+<h2>2. Concurrence avec Task.WhenAll &amp; Gestion des AggregateException</h2>
+
+<p>Pour exécuter plusieurs tâches indépendantes en parallèle sans attendre qu’elles se terminent séquentiellement, C# propose <code>Task.WhenAll</code> :</p>
+<pre><code class="language-csharp">Task&lt;RapportVentes&gt; taskVentes = ChargerVentesAsync();
+Task&lt;RapportStock&gt; taskStock = ChargerStockAsync();
+Task&lt;RapportClients&gt; taskClients = ChargerClientsAsync();
+
+try {
+    // Attend la complétion simultanée des trois tâches
+    await Task.WhenAll(taskVentes, taskStock, taskClients);
+} catch (Exception ex) {
+    // Attention : await ne propage que la première exception rencontrée !
+    // Pour inspecter toutes les erreurs simultanées, examiner task.Exception
+}</code></pre>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Le piège de la perte d’erreurs dans Task.WhenAll</div>
+<p>Lorsqu’on utilise <code>await Task.WhenAll(...)</code>, si plusieurs tâches échouent, le mot-clé <code>await</code> ne relance que la première exception survenue.<br>Pour capturer <strong>la totalité des erreurs survenues</strong>, il faut stocker la tâche combinée et examiner sa propriété <code>Exception</code> qui contient une instance de <code>AggregateException</code> avec la collection <code>InnerExceptions</code> :</p><pre><code class="language-csharp">Task allTasks = Task.WhenAll(t1, t2, t3);
+try {
+    await allTasks;
+} catch {
+    foreach (var err in allTasks.Exception!.InnerExceptions) {
+        Console.WriteLine($"Erreur interceptée : {err.Message}");
+    }
+}</code></pre>
+  </div>
+
+<h2>3. Libération Déterministe des Ressources : IDisposable &amp; using</h2>
+
+<p>Le Garbage Collector de .NET gère remarquablement la mémoire managée (Gen 0, Gen 1, Gen 2). Cependant, il <strong>ignore quand libérer les ressources non managées du système d’exploitation</strong> : descripteurs de fichiers natifs, connexions TCP, verrous d’OS ou contextes GPU.<br>Pour ces ressources, .NET impose l’interface <code>IDisposable</code> et son unique méthode <code>void Dispose()</code>.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Syntaxe de déclaration using moderne (C# 8+)</h4>
+    <pre><code class="language-csharp">public void TraiterFichier(string chemin)
+{
+    // Libération garantie à la sortie du bloc de méthode
+    using var stream = new FileStream(chemin, FileMode.Open);
+    using var reader = new StreamReader(stream);
+    
+    string contenu = reader.ReadToEnd();
+    Console.WriteLine($"Taille : {contenu.Length}");
+} // stream.Dispose() et reader.Dispose() appelés automatiquement ici !</code></pre>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Code équivalent généré par le compilateur</h4>
+    <pre><code class="language-csharp">FileStream stream = new FileStream(chemin, FileMode.Open);
+try {
+    // Corps du traitement
+} finally {
+    if (stream != null) {
+        ((IDisposable)stream).Dispose();
+    }
+}</code></pre>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Garantie absolue du bloc finally</div>
+<p>Même si une exception non gérée survient à l’intérieur du bloc d’utilisation (par exemple une rupture de connexion ou une mémoire saturée), la méthode <code>Dispose()</code> est inconditionnellement appelée grâce au bloc <code>finally</code> généré par Roslyn, bannissant tout risque de verrou orphelin sur les fichiers ou sockets.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="csb2-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="TASK TelechargerFichier Duree=30ms&#10;TASK TraiterDonnees Duree=20ms&#10;TASK SauvegarderBD Duree=15ms">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler la machine à états async/await
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de Machine à États Async/Await (TAP Pattern)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Tracer l'exécution d'un workflow asynchrone C# modélisé par la machine à états de Roslyn.</p>
+    <div class="lab__brief"><p>En C#, les méthodes asynchrones (<code>async Task</code>) sont compilées en machines à états qui libèrent le thread appelant lors d'un <code>await</code> et reprennent leur exécution au signal de fin de tâche I/O.<br>
+Le script lit sur l'entrée standard une série de tâches asynchrones séquentielles : <code>TASK &lt;Nom&gt; Duree=&lt;N&gt;ms</code>.<br>
+Il doit simuler la progression temporelle à partir de <code>T=0ms</code>, tracer chaque démarrage avec suspension (<code>Await</code>), chaque reprise de contexte (<code>Reprise contexte</code>), et afficher la durée totale cumulée.</p>
+<p>Format de sortie :<br><code>[T=&lt;T&gt;ms] Demarrage &lt;Nom&gt; -&gt; Await (suspension thread)</code><br><code>[T=&lt;T&gt;ms] Reprise contexte -&gt; Demarrage &lt;NomSuivant&gt; -&gt; Await</code><br>...<br><code>[T=&lt;Total&gt;ms] Tache completee avec succes. Duree totale=&lt;Total&gt;ms</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TASK TelechargerFichier Duree=30ms
+TASK TraiterDonnees Duree=20ms
+TASK SauvegarderBD Duree=15ms</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[T=0ms] Demarrage TelechargerFichier -&gt; Await (suspension thread)
+[T=30ms] Reprise contexte -&gt; Demarrage TraiterDonnees -&gt; Await
+[T=50ms] Reprise contexte -&gt; Demarrage SauvegarderBD -&gt; Await
+[T=65ms] Tache completee avec succes. Duree totale=65ms</pre></div>
+    </div>
+    <p class="lab__note">Tracé temporel précis des suspensions et reprises de la machine à états C#.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La première tâche démarre à T=0ms.</li>
+        <li>Chaque reprise de contexte se produit au temps T cumulé des tâches précédentes.</li>
+        <li>La durée totale est la somme exacte des durées de chaque étape.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="TASK T1 Status=OK&#10;TASK T2 Status=FAIL Error=&quot;SocketException: Connexion refusee&quot;&#10;TASK T3 Status=OK&#10;TASK T4 Status=FAIL Error=&quot;SqlException: Timeout expire&quot;">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler Task.WhenAll et le regroupement d'exceptions AggregateException
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Orchestrateur concurrent avec Task.WhenAll et AggregateException</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la synchronisation de tâches concurrentes via Task.WhenAll et la capture d'erreurs groupées.</p>
+    <div class="lab__brief"><p>En C#, <code>await Task.WhenAll(t1, t2, ...)</code> attend l'achèvement simultané de plusieurs tâches.<br>
+Si au moins une tâche échoue avec une exception, le runtime regroupe toutes les exceptions survenues dans une <code>AggregateException</code> (contrairement au premier échec qui masquerait les autres).<br>
+Le script lit une liste de tâches :<br>
+- <code>TASK &lt;Nom&gt; Status=OK</code> : tâche réussie ;<br>
+- <code>TASK &lt;Nom&gt; Status=FAIL Error="&lt;Message&gt;"</code> : tâche en échec.<br>
+Il doit compter les succès et échecs, puis formater l'éventuelle <code>AggregateException</code> avec la liste ordonnée des erreurs.</p>
+<p>Format de sortie :<br><code>WHENALL: &lt;NbreSucces&gt; succes, &lt;NbreEchecs&gt; echecs</code><br>Si échecs &gt; 0 :<br><code>AggregateException levee (&lt;N&gt; erreurs):</code><br><code>- Erreur 1: &lt;Message&gt;</code><br>...<br>Sinon :<br><code>Execution terminee sans exception</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TASK T1 Status=OK
+TASK T2 Status=FAIL Error="SocketException: Connexion refusee"
+TASK T3 Status=OK
+TASK T4 Status=FAIL Error="SqlException: Timeout expire"</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>WHENALL: 2 succes, 2 echecs
+AggregateException levee (2 erreurs):
+- Erreur 1: SocketException: Connexion refusee
+- Erreur 2: SqlException: Timeout expire</pre></div>
+    </div>
+    <p class="lab__note">Task.WhenAll agrège les deux exceptions sans perdre la seconde.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Compte les statuts OK et extrait les messages d'erreur des statuts FAIL.</li>
+        <li>Si le nombre d'échecs est supérieur à zéro, affiche le bloc AggregateException.</li>
+        <li>Numérote les erreurs de 1 à N dans l'ordre de lecture.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="RESOURCE FichierLogs ALLOCATE=Handle0x10A&#10;OP EcritureLigne &quot;Demarrage&quot;&#10;THROW DiskFullException">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler le cycle de vie IDisposable avec instruction using
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Gestion déterministe des ressources non managées (IDisposable et using)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le pattern IDisposable et l'instruction using C# garantissant la libération des ressources en toutes circonstances.</p>
+    <div class="lab__brief"><p>En C#, l'instruction <code>using (var res = new Ressource()) { ... }</code> se traduit par un bloc <code>try / finally</code> où <code>res.Dispose()</code> est obligatoirement exécuté pour libérer les handles natifs (fichiers, sockets, curseurs BD), même en cas de crash non géré.<br>
+Le script lit une suite d'actions :<br>
+- <code>RESOURCE &lt;Nom&gt; ALLOCATE=&lt;Handle&gt;</code> : instanciation de la ressource non managée ;<br>
+- <code>OP &lt;NomOp&gt; &lt;Params&gt;</code> : exécution d'une opération métier au sein du scope <code>using</code> ;<br>
+- <code>THROW &lt;TypeException&gt;</code> : survenue d'une exception non capturée à l'intérieur du scope ;<br>
+- <code>EXIT</code> : sortie normale du bloc <code>using</code>.<br>
+Le script doit tracer les étapes et garantir l'appel inconditionnel de <code>[DISPOSE]</code> à la fin.</p>
+<p>Format de sortie :<br><code>[ALLOC] &lt;Nom&gt; alloue (Handle=&lt;Handle&gt;)</code><br><code>[EXEC] Op &lt;NomOp&gt; &lt;Params&gt;</code><br><code>[CRASH] Exception &lt;Type&gt; interceptee</code> (si applicable)<br><code>[DISPOSE] &lt;Nom&gt; libere via IDisposable</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RESOURCE FichierLogs ALLOCATE=Handle0x10A
+OP EcritureLigne "Demarrage"
+THROW DiskFullException</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[ALLOC] FichierLogs alloue (Handle=Handle0x10A)
+[EXEC] Op EcritureLigne "Demarrage"
+[CRASH] Exception DiskFullException intercepte
+[DISPOSE] FichierLogs libere via IDisposable</pre></div>
+    </div>
+    <p class="lab__note">Malgré le crash DiskFullException, la ressource est immédiatement libérée via le finally de using.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garde une référence vers la ressource allouée au début.</li>
+        <li>Affiche chaque opération OP exécutée.</li>
+        <li>Si une exception THROW survient, intercepte-la et appelle quand même le bloc finally [DISPOSE].</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l’effet de l’opérateur await sur le thread appelant lors d’une opération d’E/S asynchrone ?</p>
+      <div class="opts">
+        <button class="opt">Le thread est bloqué en sommeil actif jusqu’à ce que l’E/S soit achevée.</button>
+        <button class="opt" data-correct="1">Le thread est immédiatement libéré et renvoyé à la ThreadPool pour traiter d’autres requêtes en parallèle.</button>
+        <button class="opt">Le thread est détruit définitivement par le Garbage Collector.</button>
+        <button class="opt">Le thread bascule en mode d’exécution synchrone prioritaire.</button>
+      </div>
+      <div class="q__exp">L’opérateur await suspend l’exécution logique de la méthode asynchrone et libère immédiatement le thread d’exécution appelant, maximisant le débit et la scalabilité du système sans saturer la ThreadPool.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi la signature "async void" est-elle formellement déconseillée en dehors des gestionnaires d’événements d’interface graphique ?</p>
+      <div class="opts">
+        <button class="opt">Parce que le compilateur refuse catégoriquement d’exécuter le code.</button>
+        <button class="opt" data-correct="1">Parce que l’appelant ne peut pas attendre (await) la fin de la méthode et que toute exception non interceptée fait crasher le processus entier.</button>
+        <button class="opt">Parce qu’elle alloue trop de mémoire sur la pile d’exécution.</button>
+        <button class="opt">Parce qu’elle empêche l’utilisation de variables locales.</button>
+      </div>
+      <div class="q__exp">Une méthode async void est du type "fire-and-forget" : elle ne renvoie aucun objet Task. L’appelant ne peut ni l’attendre ni capturer ses exceptions, lesquelles sont envoyées directement au SynchronizationContext et provoquent l’arrêt brutal du processus applicatif.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Lorsqu’on attend plusieurs tâches avec Task.WhenAll(t1, t2), si t1 et t2 échouent toutes les deux, où sont conservées les deux exceptions ?</p>
+      <div class="opts">
+        <button class="opt">Dans le fichier de logs du système d’exploitation.</button>
+        <button class="opt" data-correct="1">Dans l’instance de AggregateException associée à la tâche globale renvoyée par WhenAll (propriété InnerExceptions).</button>
+        <button class="opt">La deuxième exception est définitivement supprimée par le compilateur.</button>
+        <button class="opt">Dans la pile d’appels de la méthode Main.</button>
+      </div>
+      <div class="q__exp">Task.WhenAll rassemble toutes les erreurs survenues dans une AggregateException accessible via la propriété Exception de la tâche combinée, garantissant qu’aucune cause de défaillance ne soit perdue.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code de bas niveau le compilateur Roslyn génère-t-il automatiquement lorsqu’on utilise l’instruction "using var res = new MonObjet();" ?</p>
+      <div class="opts">
+        <button class="opt">Une boucle while avec appel du Garbage Collector à chaque tour.</button>
+        <button class="opt" data-correct="1">Un bloc try / finally garantissant l’appel inconditionnel de res.Dispose() dans la section finally.</button>
+        <button class="opt">Une allocation de mémoire non managée protégée par un mutex global.</button>
+        <button class="opt">Une sérialisation binaire de l’objet vers le disque.</button>
+      </div>
+      <div class="q__exp">L’instruction using est un sucre syntaxique traduisant le code en une structure try / finally où res.Dispose() est invoqué dans le bloc finally, assurant la libération déterministe même en cas de crash dans le try.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Bloquer un thread avec .Result ou .Wait() au lieu d’utiliser await, créant des risques majeurs d’interblocage (deadlock) de ThreadPool.</li>
+      <li>Utiliser async void au lieu de async Task pour une méthode asynchrone (les exceptions levées dans async void ne peuvent pas être interceptées et font crasher le processus entier ; exception réservée uniquement aux gestionnaires d’événements d’interface graphique).</li>
+      <li>Oublier de capturer AggregateException lors d’échecs multiples avec Task.WhenAll, masquant des pannes critiques survenues sur les tâches secondaires.</li>
+      <li>Ne pas utiliser l’instruction using sur un objet implémentant IDisposable, provoquant l’épuisement des handles de fichiers sous charge soutenue.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour orchestrer l’asynchronisme et la libération mémoire</div>
+    <ol>
+      <li>Propager async/await de bout en bout ("async all the way") sans jamais bloquer avec .Result ou .Wait().</li>
+      <li>Utiliser async Task plutôt que async void pour permettre l’attente et la capture des exceptions.</li>
+      <li>Orchestrer les traitements parallèles indépendants avec Task.WhenAll et inspecter allTasks.Exception.</li>
+      <li>Envelopper toute ressource non managée (fichiers, sockets) dans une instruction using ou implémenter IDisposable.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le modèle TAP s’appuie sur Task et libère le thread appelant pendant les opérations d’E/S via await.</li>
+      <li>Roslyn décompose toute méthode async en une machine à états managée (IAsyncStateMachine).</li>
+      <li>Task.WhenAll exécute des tâches en concurrence et rassemble toutes les erreurs dans une AggregateException.</li>
+      <li>CancellationToken propage l’annulation coopérative propre à travers les tâches asynchrones.</li>
+      <li>IDisposable et using garantissent la libération déterministe des ressources natives via un bloc finally sous-jacent.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je ne bloque jamais de thread avec .Result ou .Wait().</li>
+      <li>Je n’écris jamais async void sauf pour les événements graphiques.</li>
+      <li>Je sais exécuter plusieurs tâches en parallèle avec Task.WhenAll.</li>
+      <li>Je sais inspecter toutes les erreurs d’une AggregateException.</li>
+      <li>Je libère systématiquement mes objets IDisposable avec l’instruction using.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Modèle Asynchrone basé sur les Tâches (TAP)</li><li>Mots-clés async et await et non-blocage de thread</li><li>Machine à états Roslyn et interface IAsyncStateMachine</li><li>Anti-pattern bloquant .Result/.Wait() et risque de deadlock</li><li>Synchronisation concurrente avec Task.WhenAll et Task.WhenAny</li><li>Capture d’erreurs multiples avec AggregateException</li><li>Annulation coopérative avec CancellationToken</li><li>Patron de libération déterministe IDisposable et instruction using</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise les bases de async/await et l’interdiction formelle de .Result.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur Task.WhenAll et l’instruction using.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises l’annulation CancellationToken et le pattern IDisposable.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : tu possèdes toutes les compétences d’ingénierie logicielle C# niveau B2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Microsoft Learn .NET / C#, les spécifications du standard ECMA-334 (C# Language Specification) et les ouvrages de référence de Jon Skeet et Jeffrey Richter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

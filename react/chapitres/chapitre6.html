@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Navigation avec React Router &amp; architecture globale | React B2</title>
+<meta name="description" content="Chapitre 6 du cours React B2 : Single Page Application, BrowserRouter, Routes, Link, useParams, Outlet, useReducer et structuration d’un projet complet. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/react/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Navigation avec React Router &amp; architecture globale | React B2">
+<meta property="og:description" content="Chapitre 6 du cours React B2 : Single Page Application, BrowserRouter, Routes, Link, useParams, Outlet, useReducer et structuration d’un projet complet. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="reactnav"><div class="reactnav__in">
+  <a class="reactnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="reactnav__sep" aria-hidden="true">/</span>
+  <a class="reactnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> React B2</a>
+  <div class="reactnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="reactnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="reactwrap">
+<p class="crumb"><a href="../index.html">React B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Navigation avec React Router & architecture globale</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 3 h 15 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une application web d’envergure ne se résume pas à un écran unique : elle comprend des pages de profil, un tableau de bord, des formulaires et des vues détaillées. React Router permet de créer une navigation fluide sans rechargement de page tout en conservant les URLs et l’historique du navigateur.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le fonctionnement d’une Single Page Application (SPA) et l’API History du navigateur ;</li>
+      <li>configurer React Router v6 (BrowserRouter, Routes, Route, Link) ;</li>
+      <li>extraire des paramètres dynamiques d’URL avec le Hook useParams ;</li>
+      <li>concevoir des routes imbriquées à l’aide du composant Outlet ;</li>
+      <li>gérer des flux d’état globaux avec useReducer et structurer une base de code professionnelle.</li>
+    </ol>
+  </div>
+
+<h2>1. Le concept de Single Page Application (SPA)</h2>
+
+<p>Dans une application web traditionnelle, chaque clic sur un lien <code>&lt;a href="..."&gt;</code> envoie une requête au serveur qui renvoie une nouvelle page HTML complète, provoquant un clignotement blanc.</p>
+<p>Dans une <strong>SPA</strong> (Single Page Application), une seule page HTML est chargée au départ. Le routeur intercepte les clics sur les liens, modifie l’URL dans la barre d’adresse avec l’API <code>window.history.pushState()</code>, et met à jour uniquement les composants correspondant à la nouvelle route.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Navigation instantanée</div>
+    <p>La navigation devient instantanée car le navigateur n’a plus besoin de re-télécharger ni de re-parser les feuilles de style et les bundles JavaScript à chaque changement de page.</p>
+  </div>
+
+<h2>2. Configuration de React Router v6</h2>
+
+<p>Pour intégrer le routage dans un projet React, on installe <code>react-router-dom</code> :</p>
+<pre><code>import { BrowserRouter, Routes, Route, Link, NavLink } from 'react-router-dom';
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;nav&gt;
+        &lt;NavLink to="/" end&gt;Accueil&lt;/NavLink&gt;
+        &lt;NavLink to="/cours"&gt;Cours&lt;/NavLink&gt;
+        &lt;NavLink to="/contact"&gt;Contact&lt;/NavLink&gt;
+      &lt;/nav&gt;
+
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Accueil /&gt;} /&gt;
+        &lt;Route path="/cours" element={&lt;ListeCours /&gt;} /&gt;
+        &lt;Route path="/cours/:slug" element={&lt;DetailCours /&gt;} /&gt;
+        &lt;Route path="*" element={&lt;PageIntrouvable /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Link vs balise a standard</div>
+    <p>N’utilisez jamais <code>&lt;a href="..."&gt;</code> pour la navigation interne : cela recharge la page entière et réinitialise tout le state React ! Utilisez systématiquement <code>&lt;Link to="..."&gt;</code> ou <code>&lt;NavLink to="..."&gt;</code>.</p>
+  </div>
+
+<h2>3. Paramètres dynamiques et useParams</h2>
+
+<p>Pour créer des pages dynamiques (ex. <code>/cours/react</code> ou <code>/utilisateurs/42</code>), on déclare un paramètre préfixé par <code>:</code> dans le chemin de la route. Dans le composant cible, le Hook <code>useParams()</code> récupère ces valeurs :</p>
+<pre><code>import { useParams } from 'react-router-dom';
+
+function DetailCours() {
+  const { slug } = useParams();
+  return &lt;h1&gt;Consultation du cours : {slug}&lt;/h1&gt;;
+}</code></pre>
+
+<h2>4. Architecture professionnelle et gestion d’état par Reducer</h2>
+
+<p>Lorsque la complexité augmente, regrouper les données dans de multiples <code>useState</code> devient confus. Le Hook <code>useReducer</code> offre une architecture prédictible inspirée du pattern Redux :</p>
+<pre><code>function panierReducer(state, action) {
+  switch (action.type) {
+    case 'AJOUT':
+      return { ...state, total: state.total + action.prix };
+    case 'REMISE':
+      return { ...state, total: Math.max(0, state.total - action.valeur) };
+    default:
+      return state;
+  }
+}</code></pre>
+  <div class="box box--warn">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Organisation recommandée d’un projet React</div>
+    <ul>
+      <li><code>src/components/</code> : composants UI réutilisables (boutons, cartes, modales).</li>
+      <li><code>src/pages/</code> : composants représentant les pages de l’application.</li>
+      <li><code>src/hooks/</code> : Hooks personnalisés (ex. useAuth, useFetch).</li>
+      <li><code>src/services/</code> : fonctions d’appel aux APIs backend.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="rx2-c6-e1"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="/users/:id/profile&#10;/users/42/profile&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const pattern = (lignes[0] || '').trim().split('/').filter(Boolean);
+const url = (lignes[1] || '').trim().split('/').filter(Boolean);
+
+// À compléter : extraire les paramètres dynamiques
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Paramètres de route dynamiques (useParams)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Extraire les paramètres d'URL définis avec la notation :param de React Router.</p>
+    <div class="lab__brief"><p>Le hook <code>useParams</code> extrait les paramètres dynamiques de l'URL. Le script lit sur la ligne 1 le modèle de route (ex. <code>/users/:id/profile</code>) et sur la ligne 2 l'URL courante (ex. <code>/users/42/profile</code>). Affichez les paramètres extraits au format JSON : <code>{"id":"42"}</code>. Si les segments ne correspondent pas en nombre, affichez <code>{}</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>/users/:id/profile
+/users/42/profile
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>{"id":"42"}</pre></div>
+    </div>
+    <p class="lab__note">Paramètre id extrait avec succès.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparez pattern.length et url.length.</li>
+        <li>Si un segment de pattern commence par ":", stockez url[i] avec la clé sans le deux-points.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c6-e2"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="1 Dashboard&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const [auth, composant] = lignes[0].split(' ');
+
+// À compléter : autoriser ou rediriger vers /login
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Route protégée et composant Navigate</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Rediriger un utilisateur non connecté avec le composant Navigate de React Router.</p>
+    <div class="lab__brief"><p>Pour sécuriser une route privée, on teste l'authentification : si l'utilisateur est connecté, le composant enfant s'affiche ; sinon, une redirection s'opère. Le script lit une ligne <code>auth composant</code> où auth vaut <code>1</code> ou <code>0</code>. Si 1, affichez <code>&lt;COMPOSANT /&gt;</code> ; si 0, affichez <code>&lt;Navigate to="/login" replace /&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1 Dashboard
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>&lt;Dashboard /&gt;</pre></div>
+    </div>
+    <p class="lab__note">Accès autorisé au tableau de bord.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Si auth === "1", affichez le composant cible avec des balises auto-fermantes.</li>
+        <li>Si auth === "0", affichez la balise Navigate avec to="/login" et replace.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c6-e3"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="50&#10;AJOUT:20 REMISE:10&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+let total = parseInt(lignes[0], 10);
+const actions = (lignes[1] || '').split(' ');
+
+// À compléter : appliquer le reducer sur la séquence d'actions
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Architecture d'état par Reducer (useReducer)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter une fonction réductrice pure (state, action) =&gt; newState pour gérer un panier d'achats.</p>
+    <div class="lab__brief"><p>Pour des états complexes, le hook <code>useReducer</code> découple les transitions dans une fonction pure. Le script lit sur la ligne 1 le total initial (entier), et sur la ligne 2 une suite d'actions séparées par des espaces : <code>AJOUT:X</code> (ajoute X) ou <code>REMISE:X</code> (retire X, minimum 0). Affichez <code>Total panier : TOTAL</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>50
+AJOUT:20 REMISE:10
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Total panier : 60</pre></div>
+    </div>
+    <p class="lab__note">50 + 20 - 10 = 60</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpez chaque action sur le deux-points pour séparer le type et le montant.</li>
+        <li>Utilisez Math.max(0, total - val) pour éviter un panier négatif.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pour naviguer sans rechargement de page dans React Router, on utilise…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le composant &lt;Link to="..."&gt;</button>
+        <button class="opt">La balise HTML standard &lt;a href="..."&gt;</button>
+        <button class="opt">La méthode window.reload()</button>
+      </div>
+      <div class="q__exp">Link intercepte le clic et utilise pushState pour une navigation SPA fluide.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le Hook pour extraire les paramètres d’URL (ex. :id) s’appelle…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">useParams()</button>
+        <button class="opt">useRouteQuery()</button>
+        <button class="opt">useURL()</button>
+      </div>
+      <div class="q__exp">useParams renvoie un objet avec les segments dynamiques de la route.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le composant servant d’emplacement pour les sous-routes est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">&lt;Outlet /&gt;</button>
+        <button class="opt">&lt;Placeholder /&gt;</button>
+        <button class="opt">&lt;RouteSlot /&gt;</button>
+      </div>
+      <div class="q__exp">Outlet permet à un layout parent de rendre le composant de la sous-route active.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le hook useReducer est particulièrement recommandé lorsque…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’état est complexe et implique de multiples sous-valeurs interdépendantes</button>
+        <button class="opt">L’application ne comporte aucun composant</button>
+        <button class="opt">On veut bloquer le rendu du DOM</button>
+      </div>
+      <div class="q__exp">useReducer centralise les règles de transition d’état dans une fonction pure.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une route 404 « introuvable » est configurée avec le chemin…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">path="*"', 'path="404"', 'path="none"</button>
+      </div>
+      <div class="q__exp">L’astérisque (*) capture toutes les URLs ne correspondant à aucune route précédente.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour rediriger automatiquement un utilisateur non authentifié, on rend…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">&lt;Navigate to="/login" replace /&gt;</button>
+        <button class="opt">&lt;RedirectPermanent /&gt;</button>
+        <button class="opt">&lt;window.forward /&gt;</button>
+      </div>
+      <div class="q__exp">Navigate permet des redirections déclaratives en JSX.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La navigation programmatique (ex. après validation d’un formulaire) s’effectue avec…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">const navigate = useNavigate()</button>
+        <button class="opt">history.jump()</button>
+        <button class="opt">router.forward()</button>
+      </div>
+      <div class="q__exp">useNavigate fournit une fonction impérative de changement de route.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel dossier place-t-on habituellement les appels aux APIs distantes ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">src/services/</button>
+        <button class="opt">src/styles/</button>
+        <button class="opt">public/assets/</button>
+      </div>
+      <div class="q__exp">Isoler les services réseau découple la logique métier de la vue UI.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser des balises &lt;a&gt; au lieu de &lt;Link&gt; dans une SPA React.</li>
+      <li>Oublier d’envelopper l’arborescence des routes dans un &lt;BrowserRouter&gt;.</li>
+      <li>Omettre le composant &lt;Outlet /&gt; dans un composant de Layout contenant des sous-routes.</li>
+      <li>Muter l’état à l’intérieur d’un reducer au lieu de renvoyer un nouvel objet { ...state }.</li>
+      <li>Mélanger les responsabilités en plaçant des requêtes HTTP directes dans des composants UI de bas niveau.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Structurer et sécuriser la navigation d’une application React</div>
+    <ol>
+      <li><strong>Définir</strong> l’arborescence des URLs (publiques, privées, introuvables).</li>
+      <li><strong>Configurer</strong> le BrowserRouter au niveau le plus haut de l’application.</li>
+      <li><strong>Organiser</strong> les composants dans des dossiers dédiés (pages, components, services).</li>
+      <li><strong>Protéger</strong> les routes sensibles à l’aide d’un composant PrivateRoute vérifiant la session.</li>
+      <li><strong>Gérer</strong> les paramètres d’URL avec useParams pour les vues de détail dynamiques.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>React Router transforme une application React en Single Page Application navigable et rapide.</li>
+      <li>BrowserRouter synchronise l’UI avec l’URL du navigateur via l’History API.</li>
+      <li>Les composants Link et NavLink évitent le rechargement de page natif.</li>
+      <li>useParams et Outlet permettent des routes dynamiques et des layouts imbriqués modulaires.</li>
+      <li>useReducer apporte une architecture prévisible pour les états complexes et volumineux.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais configurer BrowserRouter, Routes et Route.</li>
+      <li>J’utilise Link ou NavLink pour tous mes liens internes.</li>
+      <li>J’extrais des identifiants dynamiques avec useParams.</li>
+      <li>J’utilise Outlet pour composer des pages avec barre de navigation ou sidebar.</li>
+      <li>Je structure mes projets React selon les standards professionnels de l’industrie.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>React Router</li><li>SPA</li><li>BrowserRouter</li><li>Routes / Route</li><li>Link / NavLink</li><li>useParams</li><li>Outlet</li><li>Navigate</li><li>useReducer</li><li>Architecture frontend</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise les bases du routage déclaratif et la différence avec les balises &lt;a&gt;.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les paramètres dynamiques et les layouts imbriqués.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises le routage avancé et l’architecture SPA.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise complète : félicitations, passe aux ateliers et examens blancs !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel React B2, le recueil de questions interactives (scripts/questions-react.js) et la documentation de référence react.dev.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

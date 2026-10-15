@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Protocoles de Redondance de Passerelle FHRP (HSRP, VRRP &amp;amp; GLBP) | Réseau LAN Avancé B3</title>
+<meta name="description" content="Chapitre 3 du cours Réseau LAN Avancé B3 : Point de défaillance unique (SPOF) de passerelle, HSRP v1/v2 de Cisco, standard ouvert VRRP v2/v3 (RFC 5798), adresses IP et MAC virtuelles, préemption, suivi d’objets (Object Tracking IP SLA) et équilibrage multi-actif GLBP. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-reseau-lan/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Protocoles de Redondance de Passerelle FHRP (HSRP, VRRP &amp;amp; GLBP) | Réseau LAN Avancé B3">
+<meta property="og:description" content="Chapitre 3 du cours Réseau LAN Avancé B3 : Point de défaillance unique (SPOF) de passerelle, HSRP v1/v2 de Cisco, standard ouvert VRRP v2/v3 (RFC 5798), adresses IP et MAC virtuelles, préemption, suivi d’objets (Object Tracking IP SLA) et équilibrage multi-actif GLBP. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-reseau-lannav"><div class="b3-reseau-lannav__in">
+  <a class="b3-reseau-lannav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-reseau-lannav__sep" aria-hidden="true">/</span>
+  <a class="b3-reseau-lannav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-network"></use></svg> Réseau LAN Avancé B3</a>
+  <div class="b3-reseau-lannav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-reseau-lannav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-reseau-lanwrap">
+<p class="crumb"><a href="../index.html">Réseau LAN Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Protocoles de Redondance de Passerelle FHRP (HSRP, VRRP &amp; GLBP)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Sur un réseau local d’entreprise, les postes clients, serveurs et équipements terminaux sont configurés avec une unique adresse IP de passerelle par défaut (Default Gateway) statique ou attribuée par DHCP. Si le routeur ou le commutateur de niveau 3 hébergeant cette passerelle subit une panne matérielle ou une coupure de liaison amont, l’ensemble des communications vers les autres sous-réseaux et Internet s’interrompt immédiatement : c’est le problème classique du point unique de défaillance (Single Point of Failure - SPOF). Les protocoles de redondance de premier saut (First Hop Redundancy Protocols - FHRP) permettent à plusieurs routeurs physiques de partager une adresse IP et une adresse MAC virtuelles uniques. L’ingénieur réseau de niveau Bachelor 3 doit maîtriser le protocole propriétaire Cisco HSRP, le standard universel VRRP (RFC 5798), concevoir des mécanismes de basculement transparents grâce au suivi d’objets (Object Tracking) et déployer GLBP pour distribuer activement la charge sur plusieurs passerelles.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre la problématique du Single Point of Failure (SPOF) pour la passerelle par défaut ;</li>
+      <li>analyser le principe de fonctionnement d’un routeur virtuel (VIP, VMAC, messages d’état Hello) ;</li>
+      <li>comparer en détail Cisco HSRP (v1 et v2) et le standard universel VRRP (v2 et v3, RFC 5798) ;</li>
+      <li>configurer et auditer les mécanismes d’élection de priorité et de préemption (preempt) ;</li>
+      <li>déployer l’Object Tracking (IP SLA et interface) pour déclencher un basculement dynamique sur rupture de lien WAN ;</li>
+      <li>développer en Python 3 des simulateurs d’élection VRRP, des moteurs de suivi d’objets et des répartiteurs GLBP.</li>
+    </ol>
+  </div>
+
+<h2>1. Problématique du Single Point of Failure (SPOF) & Modèle du Routeur Virtuel</h2>
+
+<p>Dans une pile TCP/IP standard, un hôte terminal ne peut acheminer du trafic hors de son sous-réseau local que s’il dispose d’une passerelle par défaut. Les mécanismes de routage dynamique (comme OSPF ou BGP) ne s’exécutent pas sur les postes de travail utilisateurs pour des raisons de sécurité et de complexité. La défaillance de la passerelle isole donc totalement l’hôte.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Concept de Routeur Virtuel (Virtual Router)</h4>
+    <p>Les protocoles FHRP regroupent deux ou plusieurs routeurs physiques au sein d’un <strong>groupe de redondance virtuel</strong> :</p>
+    <ul>
+      <li><strong>Adresse IP Virtuelle (VIP) :</strong> Adresse IP unique configurée comme passerelle par défaut sur tous les clients du LAN.</li>
+      <li><strong>Adresse MAC Virtuelle (VMAC) :</strong> Adresse MAC standardisée générée par le protocole et associée à la VIP lors des réponses ARP.</li>
+      <li><strong>Rôle Actif / Maître :</strong> Un seul routeur physique traite et achemine le trafic à un instant donné.</li>
+      <li><strong>Rôle Veille / Secours :</strong> Les autres routeurs surveillent la santé du maître et reprennent instantanément la VIP et la VMAC en cas de panne.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>La Transparence Totale pour les Postes Clients</h4>
+    <p>Lors d’un basculement, le routeur de secours émet une trame <strong>Gratuitous ARP (GARP)</strong> sur le réseau local. Les commutateurs d’accès mettent à jour leur table CAM pour rediriger les trames destinées à la VMAC vers le nouveau port physique, <em>sans que les ordinateurs clients n’aient besoin de modifier leur cache ARP ni de redémarrer</em>.</p>
+  </div>
+</div>
+
+<h2>2. Comparatif Rigoureux : HSRP (Cisco) vs VRRP (RFC 5798)</h2>
+
+<p>Bien que reposant sur une philosophie similaire, HSRP et VRRP présentent des différences techniques substantielles en termes d’encapsulation, d’adresses MAC et de standardisation :</p>
+<table class="table">
+  <thead>
+    <tr><th>Caractéristique</th><th>HSRP v1 (Cisco)</th><th>HSRP v2 (Cisco)</th><th>VRRP v2 (RFC 3768)</th><th>VRRP v3 (RFC 5798)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Statut</td><td>Propriétaire Cisco</td><td>Propriétaire Cisco</td><td>Standard IETF ouvert</td><td>Standard IETF ouvert</td></tr>
+    <tr><td>Support IP</td><td>IPv4 uniquement</td><td>IPv4 et IPv6</td><td>IPv4 uniquement</td><td>IPv4 et IPv6</td></tr>
+    <tr><td>Rôles</td><td>Active / Standby</td><td>Active / Standby</td><td>Master / Backup</td><td>Master / Backup</td></tr>
+    <tr><td>Format MAC Virtuelle</td><td><code>0000.0c07.acXX</code></td><td><code>0000.0c9f.fXXX</code></td><td><code>0000.5e00.01XX</code></td><td><code>0000.5e00.01XX</code> (v4) / <code>0000.5e00.02XX</code> (v6)</td></tr>
+    <tr><td>Transport / Multicast</td><td>UDP 1985 / <code>224.0.0.2</code></td><td>UDP 1985 / <code>224.0.0.102</code></td><td>Protocole IP 112 / <code>224.0.0.18</code></td><td>Protocole IP 112 / <code>224.0.0.18</code> / <code>FF02::12</code></td></tr>
+    <tr><td>Timers par Défaut</td><td>Hello : 3 s, Hold : 10 s</td><td>Hello : 3 s, Hold : 10 s</td><td>Advertisement : 1 s, Master Down : ~3.6 s</td><td>Advertisement : 1 s (ou sub-seconde)</td></tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Règle Fondamentale de la Préemption (Preemption)</div>
+<p>Par défaut dans HSRP, la préemption est <strong>désactivée</strong> : si le routeur primaire redémarre après une panne, il reste en état Standby même avec une priorité supérieure. Dans VRRP, la préemption est <strong>activée par défaut</strong>. Pour garantir qu’un équipement de cœur surdimensionné reprenne son rôle de passerelle nominale dès son rétablissement, il est impératif de configurer la directive <code>standby preempt</code> ou <code>vrrp preempt</code>.</p>
+  </div>
+
+<h2>3. Object Tracking & Équilibrage Actif-Actif GLBP</h2>
+
+<p>Pour que la haute disponibilité ne soit pas tributaire de la seule panne matérielle du routeur mais tienne compte de l’état réel de la connectivité réseau globale :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Suivi d'Objets (Object Tracking)</h4>
+    <p>Un routeur peut être parfaitement allumé sur le LAN tout en ayant son interface WAN coupée (problème du « black hole »). Le suivi d’objets surveille :</p>
+    <ul>
+      <li>L’état physique et protocolaire de l’interface montante (ex: <code>track 10 interface Gi0/0 line-protocol</code>).</li>
+      <li>Une sonde <strong>IP SLA</strong> mesurant la connectivité réelle (ping ICMP régulier vers <code>8.8.8.8</code> ou la passerelle du FAI).</li>
+      <li><strong>Action :</strong> Décrémentation automatique de la priorité locale (ex: de 110 à 90) pour permettre au Backup de préempter immédiatement.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Gateway Load Balancing Protocol (GLBP)</h4>
+    <p>Contrairement à HSRP/VRRP où le routeur secondaire reste inactif, GLBP (Cisco) permet à tous les routeurs d’acheminer simultanément du trafic :</p>
+    <ul>
+      <li>Un <strong>AVG (Active Virtual Gateway)</strong> répond à toutes les requêtes ARP des clients.</li>
+      <li>Plusieurs <strong>AVF (Active Virtual Forwarders)</strong> possèdent chacun leur propre adresse MAC virtuelle.</li>
+      <li>L’AVG distribue les requêtes ARP selon une politique au choix : <em>Round-Robin</em> (chacun son tour), <em>Host-Dependent</em> (même AVF pour un client donné) ou <em>Weighted</em> (selon la puissance respective des routeurs).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lan3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="VRRP_ROUTER name=R1 vrid=10 prio=150 ip=192.168.10.2 alive=YES&#10;VRRP_ROUTER name=R2 vrid=10 prio=100 ip=192.168.10.3 alive=YES&#10;VRRP_ROUTER name=R3 vrid=10 prio=200 ip=192.168.10.4 alive=NO">
+  <script type="text/plain" data-lab-starter>import sys
+import ipaddress
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : grouper par VRID et élire le MASTER selon la priorité et l'IP
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur d'élection de routeur maître VRRP v2/v3 (RFC 5798)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'élection du routeur MASTER dans un groupe de redondance VRRP.</p>
+    <div class="lab__brief"><p>Le protocole <strong>VRRP (Virtual Router Redundancy Protocol - RFC 5798)</strong> permet à plusieurs routeurs ou commutateurs de niveau 3 de partager une passerelle virtuelle (VIP) pour éliminer le point unique de défaillance (SPOF).<br><br>
+Règles d'élection VRRP par groupe VRID :<br>
+- Si <code>alive == 'NO'</code> : le routeur est hors service &rarr; <code>role=INIT</code>.<br>
+- Parmi les routeurs actifs (<code>alive == 'YES'</code>) :<br>
+  1. Le routeur ayant la plus forte priorité (<code>prio</code>, valeur de 1 à 254) est élu <strong>MASTER</strong>.<br>
+  2. En cas d'égalité sur la priorité, le routeur ayant la plus grande adresse IP physique (comparaison numérique IPv4) devient <strong>MASTER</strong>.<br>
+  3. Tous les autres routeurs actifs prennent le rôle <strong>BACKUP</strong>.<br><br>
+Le script lit sur l'entrée standard des déclarations de routeurs VRRP :<br>
+<code>VRRP_ROUTER name=&lt;nom&gt; vrid=&lt;int&gt; prio=&lt;int&gt; ip=&lt;ip&gt; alive=&lt;YES|NO&gt;</code><br><br>
+Pour chaque routeur (triés par VRID puis par nom alphabétique), afficher :<br>
+<code>VRRP_STATUS vrid={vrid} router={name} role={role} prio={prio} ip={ip}</code><br>
+Et pour chaque groupe VRID, la ligne de synthèse :<br>
+<code>VRRP_MASTER vrid={vrid} router={master_name} ip={master_ip}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VRRP_ROUTER name=R1 vrid=10 prio=150 ip=192.168.10.2 alive=YES
+VRRP_ROUTER name=R2 vrid=10 prio=100 ip=192.168.10.3 alive=YES
+VRRP_ROUTER name=R3 vrid=10 prio=200 ip=192.168.10.4 alive=NO</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VRRP_STATUS vrid=10 router=R1 role=MASTER prio=150 ip=192.168.10.2
+VRRP_STATUS vrid=10 router=R2 role=BACKUP prio=100 ip=192.168.10.3
+VRRP_STATUS vrid=10 router=R3 role=INIT prio=200 ip=192.168.10.4
+VRRP_MASTER vrid=10 router=R1 ip=192.168.10.2</pre></div>
+    </div>
+    <p class="lab__note">R3 est tombé (alive=NO). R1 a la plus forte priorité parmi les vivants (150 vs 100) et devient MASTER.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Regrouper les routeurs par VRID dans un dictionnaire.</li>
+        <li>Comparer les routeurs actifs avec la clé : (prio, ipaddress.ip_address(ip)).</li>
+        <li>Le maximum de cette clé est le MASTER.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="TRACKED_ROUTER name=R1 init_role=ACTIVE base_prio=110 preempt=YES track_if=Gi0/0 decrement=20 if_state=DOWN&#10;TRACKED_ROUTER name=R2 init_role=STANDBY base_prio=100 preempt=YES track_if=Gi0/0 decrement=20 if_state=UP">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer les priorités effectives et évaluer le basculement
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Détecteur de basculement FHRP par suivi d'interface (Object Tracking)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la priorité effective d'un routeur HSRP/VRRP en cas de panne de lien montant et déterminer le basculement.</p>
+    <div class="lab__brief"><p>Le mécanisme d'<strong>Object Tracking</strong> permet à un routeur FHRP actif de surveiller l'état de son interface WAN vers le FAI. Si cette liaison tombe, sa priorité est décrémentée (<code>effective_prio = base_prio - decrement</code>). Si sa priorité devient inférieure à celle du routeur Standby et que la préemption (preempt) est activée, le Standby prend le relais immédiatement.<br><br>
+Le script lit sur l'entrée standard les paramètres d'un cluster à deux routeurs (Routeur 1 Actif initial et Routeur 2 Standby initial) :<br>
+<code>TRACKED_ROUTER name=&lt;nom&gt; init_role=&lt;ACTIVE|STANDBY&gt; base_prio=&lt;int&gt; preempt=&lt;YES|NO&gt; track_if=&lt;iface&gt; decrement=&lt;int&gt; if_state=&lt;UP|DOWN&gt;</code><br><br>
+Règles de calcul et de basculement :<br>
+1. Calcul de la priorité effective pour chaque routeur :<br>
+   - Si <code>if_state == 'DOWN'</code> : <code>eff_prio = base_prio - decrement</code>.<br>
+   - Si <code>if_state == 'UP'</code> : <code>eff_prio = base_prio</code>.<br>
+2. Évaluation de la préemption :<br>
+   - Le routeur initialement <code>STANDBY</code> devient <code>ACTIVE</code> (Failover) SI et SEULEMENT SI :<br>
+     <code>standby.eff_prio &gt; active.eff_prio</code> ET <code>standby.preempt == 'YES'</code>.<br>
+   - Dans ce cas, l'ancien actif devient <code>STANDBY</code>.<br>
+   - Sinon, les rôles initiaux sont conservés.<br><br>
+Pour chaque routeur (triés par nom alphabétique), afficher :<br>
+<code>TRACK_REPORT router={name} track_if={track_if} if_state={if_state} eff_prio={eff_prio} final_role={final_role} failover={YES|NO}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TRACKED_ROUTER name=R1 init_role=ACTIVE base_prio=110 preempt=YES track_if=Gi0/0 decrement=20 if_state=DOWN
+TRACKED_ROUTER name=R2 init_role=STANDBY base_prio=100 preempt=YES track_if=Gi0/0 decrement=20 if_state=UP</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TRACK_REPORT router=R1 track_if=Gi0/0 if_state=DOWN eff_prio=90 final_role=STANDBY failover=YES
+TRACK_REPORT router=R2 track_if=Gi0/0 if_state=UP eff_prio=100 final_role=ACTIVE failover=YES</pre></div>
+    </div>
+    <p class="lab__note">La panne WAN fait chuter la priorité de R1 à 90 (110 - 20). R2 (priorité 100 avec preempt=YES) prend le rôle ACTIVE.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer eff_prio pour les deux routeurs.</li>
+        <li>Vérifier si le Standby surpasse l'Actif et possède preempt == "YES".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="GLBP_CONFIG group=1 mode=round-robin&#10;AVF id=1 name=AVF1 vmac=00:07:b4:00:01:01 weight=100&#10;AVF id=2 name=AVF2 vmac=00:07:b4:00:01:02 weight=100&#10;ARP_REQ client_id=PC1 client_mac=00:11:22:33:44:01&#10;ARP_REQ client_id=PC2 client_mac=00:11:22:33:44:02&#10;ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03">
+  <script type="text/plain" data-lab-starter>import sys
+import re
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : lire les AVFs et attribuer la MAC virtuelle selon le mode GLBP
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Répartiteur de charge GLBP (Gateway Load Balancing Protocol)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'assignation dynamique des adresses MAC virtuelles (AVF) par l'AVG selon les algorithmes GLBP.</p>
+    <div class="lab__brief"><p>Contrairement à HSRP/VRRP où un seul équipement route le trafic pendant que les autres dorment, le protocole <strong>GLBP (Gateway Load Balancing Protocol)</strong> permet à tous les routeurs membres de router le trafic simultanément.<br>
+L'<strong>AVG (Active Virtual Gateway)</strong> répond aux requêtes ARP des clients en distribuant différentes adresses MAC virtuelles associées aux <strong>AVF (Active Virtual Forwarders)</strong>.<br><br>
+Le script lit sur l'entrée standard :<br>
+- La configuration de l'algorithme GLBP :<br>
+  <code>GLBP_CONFIG group=&lt;int&gt; mode=&lt;round-robin|host-dependent|weighted&gt;</code><br>
+- Les AVFs membres déclarés :<br>
+  <code>AVF id=&lt;int&gt; name=&lt;nom&gt; vmac=&lt;mac&gt; weight=&lt;int&gt;</code><br>
+- Les requêtes ARP formulées par les postes clients du LAN :<br>
+  <code>ARP_REQ client_id=&lt;nom&gt; client_mac=&lt;mac&gt;</code><br><br>
+Algorithmes d'assignation :<br>
+1. <strong>round-robin :</strong> Les AVFs sont assignés cycliquement selon leur <code>id</code> croissant (requête 0 &rarr; 1er AVF, requête 1 &rarr; 2e AVF, etc.).<br>
+2. <strong>host-dependent :</strong> L'AVF est sélectionné selon le hachage de l'adresse MAC du client (dernier octet décimal de client_mac modulo le nombre d'AVFs). Un client reçoit toujours la même MAC.<br>
+3. <strong>weighted :</strong> Chaque AVF est répété proportionnellement à son <code>weight</code> (ex: AVF1 weight=2, AVF2 weight=1 donne la séquence <code>[AVF1, AVF1, AVF2]</code> déroulée cycliquement au fil des requêtes).<br><br>
+Pour chaque requête ARP client, afficher :<br>
+<code>GLBP_REPLY client={client_id} assigned_avf={avf_name} vmac={avf_vmac} mode={mode}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>GLBP_CONFIG group=1 mode=round-robin
+AVF id=1 name=AVF1 vmac=00:07:b4:00:01:01 weight=100
+AVF id=2 name=AVF2 vmac=00:07:b4:00:01:02 weight=100
+ARP_REQ client_id=PC1 client_mac=00:11:22:33:44:01
+ARP_REQ client_id=PC2 client_mac=00:11:22:33:44:02
+ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>GLBP_REPLY client=PC1 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin
+GLBP_REPLY client=PC2 assigned_avf=AVF2 vmac=00:07:b4:00:01:02 mode=round-robin
+GLBP_REPLY client=PC3 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin</pre></div>
+    </div>
+    <p class="lab__note">Distribution cyclique en Round-Robin : AVF1, AVF2, puis AVF1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trier les AVFs par ID croissant.</li>
+        <li>Pour round-robin : compteur global modulo nombre d'AVFs.</li>
+        <li>Pour host-dependent : dernier octet de client_mac modulo nombre d'AVFs.</li>
+        <li>Pour weighted : construire la liste pondérée et la dérouler cycliquement.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le rôle fondamental d’un protocole FHRP sur un réseau local ?</p>
+      <div class="opts">
+        <button class="opt">Attribuer dynamiquement des adresses IP par DHCP</button>
+        <button class="opt" data-correct="1">Fournir une passerelle par défaut redondante et hautement disponible pour les postes clients</button>
+        <button class="opt">Chiffrer les trames Ethernet avec WPA3</button>
+        <button class="opt">Accélérer la vitesse des ventilateurs des commutateurs</button>
+      </div>
+      <div class="q__exp">Les FHRP éliminent le point unique de défaillance de la passerelle en partageant une IP virtuelle entre plusieurs routeurs physiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la norme standard internationale ouverte régissant le protocole VRRP ?</p>
+      <div class="opts">
+        <button class="opt">IEEE 802.1Q</button>
+        <button class="opt" data-correct="1">RFC 5798</button>
+        <button class="opt">RFC 1918</button>
+        <button class="opt">IEEE 802.3ad</button>
+      </div>
+      <div class="q__exp">VRRP v3 (supportant IPv4 et IPv6) est spécifié par la RFC 5798 de l’IETF (succédant à la RFC 3768 pour VRRP v2).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est l’adresse MAC virtuelle IPv4 générée par un groupe VRRP ayant le Virtual Router ID (VRID) 10 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">00:00:5E:00:01:0A</button>
+        <button class="opt">00:00:0C:07:AC:0A</button>
+        <button class="opt">FF:FF:FF:00:01:10</button>
+        <button class="opt">00:00:5E:00:02:10</button>
+      </div>
+      <div class="q__exp">Le préfixe standard VRRP IPv4 est 00:00:5E:00:01:XX où XX est le VRID en hexadécimal (10 en décimal = 0A en hexadécimal).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un groupe VRRP, que se produit-il si un routeur de priorité 120 redémarre alors qu’un routeur de priorité 100 est actuellement Master ?</p>
+      <div class="opts">
+        <button class="opt">Le routeur 120 reste en veille car la préemption est désactivée par défaut dans VRRP</button>
+        <button class="opt" data-correct="1">Le routeur 120 reprend immédiatement le rôle de Master car la préemption est activée par défaut dans VRRP</button>
+        <button class="opt">Le routeur 120 s’éteint automatiquement</button>
+        <button class="opt">Le réseau est bloqué pendant 10 minutes</button>
+      </div>
+      <div class="q__exp">Contrairement à HSRP, VRRP active la préemption par défaut : le routeur ayant la priorité la plus élevée redevient Master dès qu’il est en ligne.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’objectif principal de l’Object Tracking associé à un protocole FHRP ?</p>
+      <div class="opts">
+        <button class="opt">Compter le nombre de paquets vidéo en transit</button>
+        <button class="opt" data-correct="1">Surveiller l’état d’une interface amont ou d’une sonde IP SLA pour décrémenter la priorité en cas de coupure externe</button>
+        <button class="opt">Synchroniser les mots de passe des utilisateurs</button>
+        <button class="opt">Enregistrer les adresses MAC dans une base SQL</button>
+      </div>
+      <div class="q__exp">L’Object Tracking surveille les liaisons externes pour abaisser dynamiquement la priorité locale et transférer le rôle Master au routeur de secours.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle trame spéciale le nouveau routeur Master émet-il sur le LAN lors d’un basculement pour actualiser les tables CAM des commutateurs ?</p>
+      <div class="opts">
+        <button class="opt">Une trame BPDU RSTP</button>
+        <button class="opt" data-correct="1">Une trame Gratuitous ARP (GARP)</button>
+        <button class="opt">Un paquet ICMP Redirect</button>
+        <button class="opt">Une trame LLDP</button>
+      </div>
+      <div class="q__exp">Le Gratuitous ARP permet à tous les commutateurs d’apprendre immédiatement que la MAC virtuelle est désormais joignable sur le nouveau port.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le protocole GLBP de Cisco, quel rôle est chargé de répondre aux requêtes ARP des clients pour répartir la charge ?</p>
+      <div class="opts">
+        <button class="opt">L’Active Virtual Forwarder (AVF)</button>
+        <button class="opt" data-correct="1">L’Active Virtual Gateway (AVG)</button>
+        <button class="opt">Le Root Bridge Spanning Tree</button>
+        <button class="opt">Le serveur DHCP local</button>
+      </div>
+      <div class="q__exp">L’AVG (Active Virtual Gateway) intercepte les requêtes ARP des clients et distribue à tour de rôle les adresses MAC virtuelles des différents AVF.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole de couche réseau transport et adresse multicast VRRP utilise-t-il pour ses annonces d’état en IPv4 ?</p>
+      <div class="opts">
+        <button class="opt">UDP port 1985 sur 224.0.0.2</button>
+        <button class="opt" data-correct="1">Protocole IP 112 sur l’adresse multicast 224.0.0.18</button>
+        <button class="opt">TCP port 80 sur 224.0.0.1</button>
+        <button class="opt">ICMP sur l’adresse de diffusion 255.255.255.255</button>
+      </div>
+      <div class="q__exp">VRRP encapsule ses paquets directement dans IP avec le numéro de protocole 112 et émet vers l’adresse de multicast réservée 224.0.0.18.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier d’activer la préemption sur le routeur primaire sous HSRP, laissant le secondaire moins puissant gérer tout le trafic indéfiniment.</li>
+      <li>Définir une valeur de décrémentation dans l’Object Tracking insuffisante (ex: décrémenter de 5 alors que l’écart de priorité est de 10), empêchant le basculement.</li>
+      <li>Configurer deux groupes FHRP différents sur le même VLAN avec le même Virtual Router ID, créant un conflit d’adresse MAC virtuelle.</li>
+      <li>Bloquer le trafic multicast (224.0.0.18 pour VRRP ou 224.0.0.102 pour HSRP v2) par une règle d’ACL sur les interfaces d’interconnexion.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Définir le schéma d’adressage du groupe FHRP en choisissant l’adresse IP virtuelle (VIP) dans le sous-réseau du VLAN.</li>
+      <li>Étape 2 : Configurer le routeur primaire avec une priorité élevée (ex: priority 110) et activer la préemption (preempt).</li>
+      <li>Étape 3 : Configurer le routeur secondaire avec une priorité inférieure (ex: priority 100) et la même IP virtuelle.</li>
+      <li>Étape 4 : Définir un objet de suivi (Object Tracking) lié à l’interface WAN montante avec une décrémentation de priorité suffisante (ex: decrement 20).</li>
+      <li>Étape 5 : Réduire les minuteries Hello/Hold pour obtenir une convergence rapide en moins d’une seconde (sub-second timers).</li>
+      <li>Étape 6 : Tester la simulation de panne en coupant l’interface WAN du primaire et vérifier la transition immédiate de l’état Backup à Master.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les protocoles FHRP éliminent le SPOF de la passerelle par défaut en créant un routeur virtuel partagé.</li>
+      <li>HSRP est le protocole historique propriétaire Cisco alors que VRRP (RFC 5798) est le standard ouvert multi-constructeurs.</li>
+      <li>L’adresse MAC virtuelle VRRP suit le format 00:00:5E:00:01:XX où XX est le Virtual Router ID en hexadécimal.</li>
+      <li>La préemption est nécessaire pour qu’un routeur primaire reprenne son rôle de passerelle après redémarrage.</li>
+      <li>L’Object Tracking décrémente la priorité locale en cas de perte de liaison WAN pour déclencher un basculement préventif.</li>
+      <li>GLBP réalise un équilibrage de charge actif-actif natif en distribuant différentes adresses MAC virtuelles via l’AVG.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends pourquoi un poste client ne peut pas router sans passerelle par défaut fonctionnelle.</li>
+      <li>Je sais calculer l’adresse MAC virtuelle exacte générée par un groupe VRRP IPv4 ou IPv6.</li>
+      <li>Je maîtrise l’effet de la commande preempt lors du rétablissement d’un équipement primaire.</li>
+      <li>Je sais concevoir un scénario de suivi d’objet (Object Tracking) avec sonde IP SLA pour prévenir les black holes.</li>
+      <li>Je connais les différences clés entre le rôle AVG (contrôle ARP) et les rôles AVF (acheminement) dans GLBP.</li>
+      <li>Je sais diagnostiquer l’état d’un groupe FHRP via les commandes CLI show standby ou show vrrp.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Point Unique de Défaillance (SPOF)</li><li>Routeur Virtuel (VIP & VMAC)</li><li>Cisco HSRP (Hot Standby Router Protocol)</li><li>Standard VRRP v2 / v3 (RFC 5798)</li><li>Mécanisme de Préemption (Preemption)</li><li>Object Tracking & Sondes IP SLA</li><li>Basculement Transparent via Gratuitous ARP</li><li>Cisco GLBP (Active Virtual Forwarders)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à identifier le rôle d’un routeur virtuel ou calcul erroné de l’adresse MAC virtuelle VRRP.</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension des mécanismes d’élection HSRP/VRRP, de la préemption et configuration opérationnelle d’un groupe de redondance.</div>
+      <div class="bandrow bandrow--high">Conception avancée d’architectures haute disponibilité avec Object Tracking, sondes IP SLA et équilibrage multi-actif GLBP.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Routage Intra-Domaine OSPFv2 Avancé, Aires Spéciales &amp; Analyse des LSAs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards IEEE 802.1D, 802.1w, 802.1s, 802.3ad, 802.1AX, 802.1AB, RFC 2328 (OSPFv2), RFC 5798 (VRRPv3) et Guides de conception Cisco Campus LAN & ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

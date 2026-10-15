@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 — Protocoles de Signalisation &amp; Médias (SIP, SDP, RTP) | Téléphonie VoIP B3</title>
+<meta name="description" content="Module 2 du cours Téléphonie VoIP B3 : Architecture et messages du protocole SIP (RFC 3261), entités UAC/UAS, serveurs proxy et registrar, négociation multimédia avec SDP (RFC 4566), transport temps réel avec RTP et RTCP (RFC 3550), horodatage et calcul mathématique de la gigue inter-paquets. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-voip/chapitres/chapitre2.html">
+<meta property="og:title" content="Module 2 — Protocoles de Signalisation &amp; Médias (SIP, SDP, RTP) | Téléphonie VoIP B3">
+<meta property="og:description" content="Module 2 du cours Téléphonie VoIP B3 : Architecture et messages du protocole SIP (RFC 3261), entités UAC/UAS, serveurs proxy et registrar, négociation multimédia avec SDP (RFC 4566), transport temps réel avec RTP et RTCP (RFC 3550), horodatage et calcul mathématique de la gigue inter-paquets. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-voipnav"><div class="b3-voipnav__in">
+  <a class="b3-voipnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-voipnav__sep" aria-hidden="true">/</span>
+  <a class="b3-voipnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-phone"></use></svg> Téléphonie VoIP B3</a>
+  <div class="b3-voipnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-voipnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-voipwrap">
+<p class="crumb"><a href="../index.html">Téléphonie VoIP B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Protocoles de Signalisation & Médias (SIP, SDP, RTP)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Des anomalies intermittentes surviennent sur le réseau ToIP de l'entreprise : des utilisateurs signalent des appels qui sonnent dans le vide, des communications silencieuses dans un seul sens (One-Way Audio) et une voix robotique lors des heures de pointe. En tant qu'ingénieur VoIP, vous êtes chargé d'analyser les captures réseau Wireshark et sngrep : vous devez inspecter la signalisation SIP (RFC 3261), décortiquer la négociation de médias SDP (RFC 4566) pour identifier les désaccords de codecs et de ports, et analyser les flux RTP/RTCP (RFC 3550) afin de calculer précisément la gigue inter-paquets et éliminer les pertes de trames.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Maîtriser l'architecture client-serveur du protocole SIP (RFC 3261), les rôles UAC/UAS, serveurs proxy et registrar, ainsi que les méthodes fondamentales (INVITE, ACK, BYE, CANCEL, REGISTER, OPTIONS).</li>
+      <li>Interpréter les codes d'état SIP (classes 1xx, 2xx, 3xx, 4xx, 5xx, 6xx) et diagnostiquer les échecs de signalisation d'appels.</li>
+      <li>Analyser la structure des messages SDP (RFC 4566) décrivant les flux médias : adresses IP de connexion (c=), ports UDP et profil de codecs (m=audio, a=rtpmap).</li>
+      <li>Comprendre le transport temps réel par RTP et RTCP (RFC 3550) : rôle des numéros de séquence, calcul des timestamps et formule de gigue inter-paquets.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Protocole SIP (Session Initiation Protocol, RFC 3261)</h2>
+
+<p>Normalisé par l'IETF dans la <strong>RFC 3261</strong>, le protocole <strong>SIP (Session Initiation Protocol)</strong> est le protocole de signalisation universel de la téléphonie sur IP. Inspiré directement d'HTTP et de SMTP, il s'agit d'un protocole en mode texte basé sur une architecture transactionnelle client-serveur.</p>
+<p>SIP ne transporte jamais lui-même la voix ni la vidéo : son rôle exclusif consiste à <strong>initialiser</strong>, <strong>modifier</strong> et <strong>terminer</strong> les sessions multimédias bidirectionnelles entre deux ou plusieurs participants.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Entités Fondamentales du Réseau SIP</h4>
+    <ul>
+      <li><strong>User Agent (UA) :</strong> Terminal terminal d'extrémité (poste IP ou softphone). Il se compose d'un <em>UAC (User Agent Client)</em> qui émet les requêtes et d'un <em>UAS (User Agent Server)</em> qui y répond.</li>
+      <li><strong>Serveur Proxy :</strong> Routeur applicatif SIP qui achemine les requêtes d'appel vers la localisation actuelle du destinataire.</li>
+      <li><strong>Serveur Registrar :</strong> Serveur de localisation recevant les requêtes <code>REGISTER</code> des terminaux pour associer leur URI logique (AOR) à leur adresse IP dynamique temporaire.</li>
+      <li><strong>Redirect Server :</strong> Serveur informant le client de la nouvelle adresse à joindre sans relayer lui-même la communication.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Les Méthodes (Verbes) SIP Fondamentales</h4>
+    <ul>
+      <li><code>INVITE</code> : Demande d'établissement de session avec proposition de médias SDP.</li>
+      <li><code>ACK</code> : Accusé de réception final confirmant la réponse à un INVITE.</li>
+      <li><code>BYE</code> : Raccrochage mettant fin à une session établie.</li>
+      <li><code>CANCEL</code> : Annule un appel en cours d'établissement avant que le correspondant n'ait décroché.</li>
+      <li><code>REGISTER</code> : Enregistre l'adresse de contact d'un utilisateur auprès du Registrar.</li>
+      <li><code>OPTIONS</code> : Sonde les capacités techniques et la disponibilité d'un équipement.</li>
+    </ul>
+  </div>
+</div>
+<div class="card">
+  <h4>Familles de Codes de Réponse SIP</h4>
+  <p>Les codes de réponse SIP reprennent la structure d'HTTP sur trois chiffres décimaux :</p>
+  <ul>
+    <li><strong>1xx (Provisoire / En cours) :</strong> <code>100 Trying</code> (serveur traite la requête), <code>180 Ringing</code> (le combiné sonne), <code>183 Session Progress</code> (sonnerie précoce ou tonalité réseau).</li>
+    <li><strong>2xx (Succès final) :</strong> <code>200 OK</code> (la requête a réussi, le correspondant a décroché ou l'enregistrement est validé).</li>
+    <li><strong>3xx (Redirection) :</strong> <code>301 Moved Permanently</code>, <code>302 Moved Temporarily</code>.</li>
+    <li><strong>4xx (Erreur Client) :</strong> <code>401 Unauthorized</code> (mot de passe exigé), <code>403 Forbidden</code>, <code>404 Not Found</code> (numéro inconnu), <code>486 Busy Here</code> (occupé).</li>
+    <li><strong>5xx (Erreur Serveur) :</strong> <code>500 Server Internal Error</code>, <code>503 Service Unavailable</code> (IPBX surchargé).</li>
+    <li><strong>6xx (Échec Global) :</strong> <code>600 Busy Everywhere</code>, <code>603 Decline</code> (appel explicitement rejeté).</li>
+  </ul>
+</div>
+
+<h2>2. Négociation de Session avec SDP (Session Description Protocol, RFC 4566)</h2>
+
+<p>Pour que deux téléphones IP puissent communiquer, ils doivent s'accorder sur les caractéristiques du flux voix : adresse IP de réception, port d'écoute, codecs acceptés et paramètres temporels. Cette négociation est assurée par le protocole <strong>SDP (RFC 4566)</strong>, transporté dans le corps (body) des messages SIP <code>INVITE</code> et <code>200 OK</code> sous le type MIME <code>application/sdp</code>.</p>
+<div class="card">
+  <h4>Structure d'un Message SDP Standard</h4>
+  <pre><code>v=0
+o=Alice 2890844526 2890844526 IN IP4 192.168.1.50
+s=-
+c=IN IP4 192.168.1.50
+t=0 0
+m=audio 16384 RTP/AVP 8 0 101
+a=rtpmap:8 PCMA/8000
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000
+a=sendrecv</code></pre>
+  <p>Décryptage ligne par ligne des directives clés :</p>
+  <ul>
+    <li><code>c=IN IP4 &lt;IP&gt;</code> : Déclare l'adresse IP de réception du flux média audio (Connection Data).</li>
+    <li><code>m=audio &lt;port&gt; RTP/AVP &lt;pt1 pt2...&gt;</code> : Déclare le flux média audio, le port UDP d'écoute (ex: 16384), le protocole de transport (RTP/AVP) et les types de charges utiles acceptés par ordre de préférence.</li>
+    <li><code>a=rtpmap:&lt;pt&gt; &lt;codec&gt;/&lt;rate&gt;</code> : Associe un numéro de charge utile à un algorithme de compression (ex: <code>8 -> PCMA/8000</code> pour G.711 A-law, <code>101 -> telephone-event/8000</code> pour les touches DTMF).</li>
+    <li><code>a=sendrecv / sendonly / recvonly / inactive</code> : Définit la directionnalité du flux (bidirectionnel normal, mise en attente musicale ou silence).</li>
+  </ul>
+</div>
+
+<h2>3. Transport Temps Réel avec RTP & RTCP (RFC 3550)</h2>
+
+<p>Une fois la signalisation SIP et la négociation SDP achevées, le flux audio réel ne passe plus par le serveur SIP (sauf relais NAT ou passerelle). Il circule directement de poste à poste (Peer-to-Peer) en utilisant le protocole <strong>RTP (Real-time Transport Protocol, RFC 3550)</strong> au-dessus d'UDP.</p>
+<div class="card">
+  <h4>Structure de l'En-tête RTP (12 octets fixes)</h4>
+  <p>L'en-tête RTP apporte les métadonnées indispensables pour compenser les aléas du réseau IP :</p>
+  <ul>
+    <li><strong>Sequence Number (16 bits) :</strong> Compteur incrémenté de 1 à chaque paquet envoyé. Il permet au récepteur de réordonner les paquets arrivés dans le désordre et de détecter les paquets perdus.</li>
+    <li><strong>Timestamp (32 bits) :</strong> Horodatage exprimé en ticks d'horloge d'échantillonnage (pour du G.711 à 8 kHz, 20 ms de voix correspondent à un incrément exact de <code>8 000 * 0.02 = 160 ticks</code>). Il permet au buffer de gigue (Jitter Buffer) de restituer le signal à un rythme acoustique régulier.</li>
+    <li><strong>SSRC (Synchronization Source, 32 bits) :</strong> Identifiant aléatoire unique de la source émettrice pour distinguer plusieurs flux mélangés sur un même port.</li>
+  </ul>
+</div>
+<div class="card">
+  <h4>Le Protocole de Supervision RTCP &amp; Calcul de la Gigue (Jitter)</h4>
+  <p>Le protocole <strong>RTCP (RTP Control Protocol)</strong> fonctionne en tandem avec RTP (sur le port UDP immédiatement supérieur impair, ex: port 16385 pour RTP 16384). Il échange périodiquement des paquets de diagnostic (Sender Reports / Receiver Reports) informant sur le nombre de paquets perdus, le délai d'aller-retour (RTT) et la <strong>gigue (Jitter)</strong>.</p>
+  <p>Selon l'algorithme normalisé de la RFC 3550, la gigue inter-paquets <code>J</code> est calculée à partir de la variation de temps de transit relatif <code>D</code> entre deux paquets consécutifs :</p>
+  <pre><code>D_i = (R_i - S_i) - (R_{i-1} - S_{i-1})
+J_i = J_{i-1} + (|D_i| - J_{i-1}) / 16.0</code></pre>
+  <p>Ce filtre passe-bas permet d'adapter dynamiquement la taille du tampon de gigue (Jitter Buffer) du terminal pour éliminer les micro-saccades sans introduire de latence excessive.</p>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vo3-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="INVITE sip:bob@biloxi.com SIP/2.0&#10;Via: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds&#10;Max-Forwards: 70&#10;To: Bob &lt;sip:bob@biloxi.com&gt;&#10;From: Alice &lt;sip:alice@atlanta.com&gt;;tag=1928301774&#10;Call-ID: a84b4c76e66710@pc33.atlanta.com&#10;CSeq: 314159 INVITE&#10;Contact: &lt;sip:alice@pc33.atlanta.com&gt;&#10;Content-Type: application/sdp">
+  <script type="text/plain" data-lab-starter>import sys
+
+texte = sys.stdin.read()
+
+# À compléter : parser le message SIP et extraire les champs normalisés
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur d'En-têtes de Messages SIP RFC 3261</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser la structure syntaxique d'une trame SIP RFC 3261 et extraire les en-têtes fondamentaux (Call-ID, CSeq, From, To).</p>
+    <div class="lab__brief"><p>Le protocole SIP (Session Initiation Protocol, RFC 3261) est un protocole textuel de signalisation inspiré d'HTTP. Un message SIP débute par :</p><ul><li>Une ligne de requête (Request-Line) : <code><METHODE> <SIP-URI> SIP/2.0</code> (ex: <code>INVITE sip:bob@biloxi.com SIP/2.0</code>), OU</li><li>Une ligne d'état (Status-Line) : <code>SIP/2.0 <STATUS_CODE> <REASON_PHRASE></code> (ex: <code>SIP/2.0 200 OK</code>).</li></ul>
+<p>Suivent les en-têtes obligatoires :</p><ul><li><code>Call-ID</code>: identifiant unique et aléatoire de l'appel</li><li><code>CSeq</code>: numéro de séquence entier suivi de la méthode (ex: <code>1 INVITE</code>)</li><li><code>From</code>: identité de l'émetteur avec URI et tag optionnel (ex: <code><sip:alice@atlanta.com>;tag=1928301774</code>)</li><li><code>To</code>: identité du destinataire (ex: <code><sip:bob@biloxi.com></code>)</li><li><code>Contact</code>: adresse directe pour acheminer les requêtes ultérieures</li></ul>
+<p>Format d'entrée :<br>Un bloc de message SIP sur STDIN (en-têtes séparés par des retours à la ligne).<br>Le bloc se termine par une ligne vide ou la fin du flux.</p>
+<p>Format de sortie :<br>Extraire et afficher :<br>TYPE:<REQUEST|RESPONSE><br>ACTION_OR_STATUS:<METHODE ou CODE_STATUS><br>CALL_ID:<valeur de Call-ID><br>CSEQ_NUM:<entier><br>CSEQ_METHOD:<nom de méthode><br>FROM_URI:<uri nettoyée sans chevrons ni paramètres><br>TO_URI:<uri nettoyée sans chevrons ni paramètres></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>INVITE sip:bob@biloxi.com SIP/2.0
+Via: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds
+Max-Forwards: 70
+To: Bob &lt;sip:bob@biloxi.com&gt;
+From: Alice &lt;sip:alice@atlanta.com&gt;;tag=1928301774
+Call-ID: a84b4c76e66710@pc33.atlanta.com
+CSeq: 314159 INVITE
+Contact: &lt;sip:alice@pc33.atlanta.com&gt;
+Content-Type: application/sdp</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TYPE:REQUEST
+ACTION_OR_STATUS:INVITE
+CALL_ID:a84b4c76e66710@pc33.atlanta.com
+CSEQ_NUM:314159
+CSEQ_METHOD:INVITE
+FROM_URI:sip:alice@atlanta.com
+TO_URI:sip:bob@biloxi.com
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Distinguez la ligne de requête de la ligne de statut pour qualifier TYPE en REQUEST ou RESPONSE.</li>
+        <li>Nettoyez les URIs SIP pour retirer les chevrons et les tags.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vo3-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="v=0&#10;o=Alice 2890844526 2890844526 IN IP4 192.168.1.50&#10;s=-&#10;c=IN IP4 192.168.1.50&#10;t=0 0&#10;m=audio 16384 RTP/AVP 0 8 101&#10;a=rtpmap:0 PCMU/8000&#10;a=rtpmap:8 PCMA/8000&#10;a=rtpmap:101 telephone-event/8000&#10;a=sendrecv">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la description de session SDP et extraire les paramètres médias
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Analyseur de Négociation de Session SDP RFC 4566</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décoder un corps de message SDP RFC 4566 pour extraire l'adresse IP média, le port RTP et les codecs audio négociés.</p>
+    <div class="lab__brief"><p>Le protocole SDP (Session Description Protocol, RFC 4566) transporte la description des flux multimédias négociés lors de l'établissement d'un appel SIP. Un corps SDP typique contient :   - <code>0</code> : PCMU/8000 (G.711 µ-law)   - <code>8</code> : PCMA/8000 (G.711 A-law)   - <code>9</code> : G722/8000   - <code>18</code> : G729/8000   - <code>101</code> : telephone-event/8000 (DTMF RFC 2833 / 4733)</p><ul><li><code>v=0</code> : version SDP</li><li><code>o=<username> <sess-id> <sess-version> IN IP4 <ip></code> : origine</li><li><code>c=IN IP4 <ip_media></code> : adresse IP de réception du média RTP</li><li><code>m=audio <port_rtp> RTP/AVP <payload_types...></code> : description du média (ex: audio sur port 10000 avec codecs 0, 8, 18, 101)</li><li>Lignes d'attributs <code>a=rtpmap:<pt> <encoding_name>/<clock_rate></code> :</li><li>Ligne de direction <code>a=<sendrecv|sendonly|recvonly|inactive></code></li></ul>
+<p>Format d'entrée :<br>Un corps SDP sur STDIN.</p>
+<p>Format de sortie :<br>Extraire et afficher :<br>IP_MEDIA:<adresse_ip_media><br>PORT_RTP:<port_entier><br>DIRECTION:<sendrecv|sendonly|recvonly|inactive><br>CODECS:<liste ordonnée des noms de codecs mappés avec leur payload type, format pt:NOM/RATE séparés par virgule></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>v=0
+o=Alice 2890844526 2890844526 IN IP4 192.168.1.50
+s=-
+c=IN IP4 192.168.1.50
+t=0 0
+m=audio 16384 RTP/AVP 0 8 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:101 telephone-event/8000
+a=sendrecv</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IP_MEDIA:192.168.1.50
+PORT_RTP:16384
+DIRECTION:sendrecv
+CODECS:0:PCMU/8000,8:PCMA/8000,101:telephone-event/8000
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Isolez la ligne c= pour l'adresse IP et m=audio pour le port de réception.</li>
+        <li>Associez les numéros de payload types aux noms de codecs déclarés dans les lignes a=rtpmap.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vo3-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="CLOCK_RATE=8000&#10;SEQ=100 SEND_TS=10000 RECV_TS=10200&#10;SEQ=101 SEND_TS=10160 RECV_TS=10370&#10;SEQ=102 SEND_TS=10320 RECV_TS=10510">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer la différence de transit et la gigue RFC 3550
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Décodeur d'En-tête RTP &amp; Calculateur de Gigue (RFC 3550)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la gigue inter-paquets lissée selon la RFC 3550 à partir des timestamps de transmission et de réception.</p>
+    <div class="lab__brief"><p>Le protocole RTP (Real-time Transport Protocol, RFC 3550) transporte les trames audio numérisées. Chaque paquet RTP comporte un en-tête fixe de 12 octets contenant :</p><ul><li>Numéro de séquence (Sequence Number, 16 bits) : incrémenté de 1 à chaque paquet.</li><li>Timestamp (32 bits) : échantillon temporel d'horloge (pour G.711 à 8 kHz et 20 ms, l'incrément théorique est de 160 ticks).</li><li>SSRC (Synchronization Source, 32 bits) : identifiant unique de la source.</li></ul>
+<p>Calcul de la gigue inter-paquets (Jitter <code>J</code> en millisecondes) selon l'algorithme RFC 3550 : Soient :   <code>J_i = J_{i-1} + (|D_i| - J_{i-1}) / 16.0</code> (avec <code>J_0 = 0.0</code>).</p><ul><li><code>S_i</code> : timestamp d'émission du paquet i en ticks d'horloge.</li><li><code>R_i</code> : timestamp d'arrivée du paquet i en ticks d'horloge (exprimé à la même échelle d'échantillonnage, ex: 8 000 ticks/sec).</li><li>Différence relative de transit pour le paquet i : <code>D_i = (R_i - S_i) - (R_{i-1} - S_{i-1})</code></li><li>La gigue estimée <code>J_i</code> est lissée selon un filtre passe-bas :</li><li>Conversion de la gigue en millisecondes (pour horloge 8 kHz) : <code>J_ms = (J_i / 8000.0) * 1000.0</code>.</li></ul>
+<p>Format d'entrée :<br>Première ligne : <code>CLOCK_RATE=<fréquence_en_Hz></code> (ex: 8000)<br>Lignes suivantes : paquets reçus ordonnés sous la forme :<br><code>SEQ=<seq> SEND_TS=<ts_emission> RECV_TS=<ts_reception></code></p>
+<p>Format de sortie :<br>Pour chaque paquet à partir du 2e, afficher :<br><code>SEQ:<seq> | DIFF_TRANSIT:<D_i> | JITTER_TICKS:<J_i:.2f> | JITTER_MS:<J_ms:.2f>ms</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CLOCK_RATE=8000
+SEQ=100 SEND_TS=10000 RECV_TS=10200
+SEQ=101 SEND_TS=10160 RECV_TS=10370
+SEQ=102 SEND_TS=10320 RECV_TS=10510</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SEQ:101 | DIFF_TRANSIT:10 | JITTER_TICKS:0.62 | JITTER_MS:0.08ms
+SEQ:102 | DIFF_TRANSIT:-20 | JITTER_TICKS:1.84 | JITTER_MS:0.23ms
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculez l'écart de transit relatif Di = (Ri - Si) - (Ri-1 - Si-1).</li>
+        <li>Appliquez le filtre passe-bas du 1er ordre : Ji = Ji-1 + (|Di| - Ji-1) / 16.0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel protocole est responsable de la description des paramètres multimédias (codecs audio, adresses IP et ports) échangés dans le corps d'un message SIP INVITE ?</p>
+      <div class="opts">
+        <button class="opt">RTP</button>
+        <button class="opt">RTCP</button>
+        <button class="opt" data-correct="1">SDP</button>
+        <button class="opt">DNS</button>
+      </div>
+      <div class="q__exp">SDP (Session Description Protocol, RFC 4566) transporte la négociation des capacités médias dans le corps des requêtes et réponses SIP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle méthode SIP est utilisée par un terminal pour notifier périodiquement le serveur Registrar de son adresse IP et de son port d'écoute ?</p>
+      <div class="opts">
+        <button class="opt">INVITE</button>
+        <button class="opt" data-correct="1">REGISTER</button>
+        <button class="opt">SUBSCRIBE</button>
+        <button class="opt">NOTIFY</button>
+      </div>
+      <div class="q__exp">La méthode REGISTER permet à l'User Agent d'enregistrer son adresse de contact dynamique auprès de la table de localisation du Registrar.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le protocole SIP, à quelle catégorie de réponse appartient le code d'état 180 Ringing ?</p>
+      <div class="opts">
+        <button class="opt">Réponse définitive de succès</button>
+        <button class="opt" data-correct="1">Réponse provisoire</button>
+        <button class="opt">Erreur client</button>
+        <button class="opt">Redirection</button>
+      </div>
+      <div class="q__exp">Les codes 1xx sont des réponses informatives provisoires indiquant que le traitement est en cours (ici, le poste distant sonne).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle information contenue dans l'en-tête fixe de 12 octets du protocole RTP permet au récepteur de reconstituer l'ordre exact des paquets audio arrivés désordonnés ?</p>
+      <div class="opts">
+        <button class="opt">Le champ Version</button>
+        <button class="opt">Le champ Payload Type</button>
+        <button class="opt" data-correct="1">Le champ Sequence Number</button>
+        <button class="opt">Le champ SSRC</button>
+      </div>
+      <div class="q__exp">Le numéro de séquence (Sequence Number sur 16 bits), incrémenté de 1 par paquet, permet au récepteur de réordonner les trames audio et de détecter les pertes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur quel port UDP le protocole de supervision RTCP émet-il ses rapports de diagnostic si le flux audio RTP utilise le port 10000/UDP ?</p>
+      <div class="opts">
+        <button class="opt">Port 5060</button>
+        <button class="opt">Port 10000</button>
+        <button class="opt" data-correct="1">Port 10001</button>
+        <button class="opt">Port 20000</button>
+      </div>
+      <div class="q__exp">Par convention RFC 3550, RTP utilise un port UDP pair (ex: 10000), et RTCP utilise le port impair immédiatement consécutif (10001/UDP).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une négociation SDP, que signifie la directive m=audio 16384 RTP/AVP 8 ?</p>
+      <div class="opts">
+        <button class="opt">L'audio est diffusé en multicast</button>
+        <button class="opt" data-correct="1">Le terminal recevra le flux voix sur le port 16384/UDP avec le codec PCMA (G.711 A-law)</button>
+        <button class="opt">L'audio est chiffré avec une clé RSA 16384 bits</button>
+        <button class="opt">Le fichier audio pèse 16 384 octets</button>
+      </div>
+      <div class="q__exp">La ligne m=audio spécifie le port UDP de réception (16384), le profil de transport RTP/AVP et le type de charge utile 8 (correspondant à PCMA / G.711 A-law).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle méthode SIP permet à un appelant d'annuler une tentative d'appel en cours alors que le destinataire n'a pas encore décroché (avant l'émission du 200 OK) ?</p>
+      <div class="opts">
+        <button class="opt">BYE</button>
+        <button class="opt" data-correct="1">CANCEL</button>
+        <button class="opt">HANGUP</button>
+        <button class="opt">DISCONNECT</button>
+      </div>
+      <div class="q__exp">La méthode CANCEL interrompt un appel en cours d'établissement. La méthode BYE ne peut être émise que pour terminer une session déjà établie après 200 OK.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle formule caractérise le calcul de la gigue (Jitter RFC 3550) lissée à partir de la différence de transit relative Di entre deux paquets ?</p>
+      <div class="opts">
+        <button class="opt">Ji = |Di|</button>
+        <button class="opt" data-correct="1">Ji = Ji-1 + (|Di| - Ji-1) / 16</button>
+        <button class="opt">Ji = (Di + Ji-1) / 2</button>
+        <button class="opt">Ji = Di * 1000 / 8000</button>
+      </div>
+      <div class="q__exp">La RFC 3550 définit un filtre passe-bas du 1er ordre avec coefficient 1/16 : Ji = Ji-1 + (|Di| - Ji-1) / 16.0.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Croire que le serveur SIP proxy achemine la voix : le flux voix RTP circule directement de poste à poste sans transiter par le proxy (hors NAT ou serveur d'enregistrement d'appels).</li>
+      <li>Confondre la méthode CANCEL (annule un appel avant décroché) et la méthode BYE (met fin à un appel déjà établi après 200 OK).</li>
+      <li>Oublier d'autoriser la plage de ports dynamiques RTP (ex: 10000-20000/UDP) sur les pare-feux, causant des communications silencieuses (One-Way Audio ou Dead Air).</li>
+      <li>Négliger l'attribut telephone-event/8000 dans le SDP, provoquant l'échec de transmission des touches DTMF dans les répondeurs et SVI.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie : Diagnostic des Protocoles SIP & Médias</div>
+    <ol>
+      <li>Capturer et analyser les trames SIP : utiliser Wireshark / sngrep pour isoler les requêtes INVITE, vérifier la présence des en-têtes obligatoires (Call-ID, CSeq, From, To, Contact).</li>
+      <li>Auditer le corps SDP : vérifier la concordance de l'adresse IP déclarée (c=) avec l'adresse réelle et valider la liste des codecs supportés (m=audio, a=rtpmap).</li>
+      <li>Contrôler le flux RTP : vérifier la symétrie des ports UDP négociés et surveiller l'incrémentation continue du Sequence Number et du Timestamp.</li>
+      <li>Mesurer les métriques RTCP : extraire la gigue inter-paquets et les pertes cumulées pour ajuster les politiques de qualité de service (QoS).</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>SIP (RFC 3261) est le protocole de signalisation en mode texte contrôlant l'établissement, la modification et la rupture des sessions multimédias.</li>
+      <li>Les terminaux User Agents (UAC/UAS) s'enregistrent auprès du Registrar (REGISTER) et communiquent via des serveurs Proxies en relayant requêtes et réponses numérotées (1xx à 6xx).</li>
+      <li>SDP (RFC 4566) décrit les flux médias au sein des corps de messages SIP : adresses IP (c=), ports d'écoute et codecs acceptés (m=audio, a=rtpmap).</li>
+      <li>RTP (RFC 3550) transporte la voix numérisée sur UDP de terminal à terminal, avec numéros de séquence pour le réordonnancement et timestamps pour la restitution acoustique.</li>
+      <li>RTCP surveille la qualité de la liaison sur un port UDP impair associé, fournissant les métriques de RTT, pertes de paquets et gigue RFC 3550.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous expliquer la différence de rôle entre SIP, SDP et RTP dans une communication ToIP ?</li>
+      <li>Connaissez-vous les 6 méthodes SIP fondamentales (INVITE, ACK, BYE, CANCEL, REGISTER, OPTIONS) ?</li>
+      <li>Pouvez-vous citer la signification des codes de réponse SIP 180 Ringing, 200 OK, 401 Unauthorized et 486 Busy ?</li>
+      <li>Savez-vous décoder une ligne SDP telle que m=audio 16384 RTP/AVP 8 101 ?</li>
+      <li>Comment l'en-tête RTP à 12 octets permet-il de détecter les paquets perdus et de compenser la gigue réseau ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>SIP (RFC 3261) :</strong> Protocole de signalisation textuel régissant l'initiation, la modification et la libération des sessions multimédias.</li><li><strong>SDP (RFC 4566) :</strong> Protocole de description de session négociant les adresses IP, ports RTP et formats de codecs audio.</li><li><strong>RTP (RFC 3550) :</strong> Protocole de transport temps réel délivrant la voix sur UDP avec horodatage et séquencement.</li><li><strong>RTCP :</strong> Protocole de contrôle RTP échangeant des statistiques de transmission (pertes, gigue, latence RTT).</li><li><strong>Gigue (Jitter) :</strong> Variation temporelle indésirable du délai de transmission entre paquets consécutifs d'un même flux.</li><li><strong>Jitter Buffer :</strong> Mémoire tampon sur le terminal de réception régularisant le flux audio pour restituer un son continu.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions de SIP, SDP et RTP confuses. Relisez le diagramme d'échange d'appel et refaites le test.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Méthodes SIP comprises. Entraînez-vous à décoder les lignes SDP (m=, c=, rtpmap).</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise technique. Approfondissez le calcul de gigue RTP RFC 3550 et le rôle de RTCP.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez la signalisation textuelle et l'encapsulation des flux multimédias.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte réseaux. Prêt pour l'administration de l'IPBX Asterisk du Module 3 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Module 3 — Architecture & Déploiement d'un IPBX Asterisk <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels B3-IT / B3-RSI Téléphonie Voix sur IP (Auteur : M. Pape Moussa SONKO, Élève Ingénieur en Systèmes et Réseaux), Normes IETF RFC 3261 (SIP), RFC 4566 (SDP), RFC 3550 (RTP), RFC 5389 (STUN), Recommandations ITU-T G.107, G.711, G.729, Documentation officielle Asterisk.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

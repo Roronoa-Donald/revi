@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Diagnostic, Reflog &amp;amp; Sauvetage de Données | Git &amp; GitHub B3</title>
+<meta name="description" content="Chapitre 3 du cours Git &amp; GitHub B3 : Journal de références git reflog, sauvetage de commits orphelins (dangling), recherche dichotomique de régressions avec git bisect, gestion de la pile LIFO git stash et intégrité avec git fsck. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-github/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Diagnostic, Reflog &amp;amp; Sauvetage de Données | Git &amp; GitHub B3">
+<meta property="og:description" content="Chapitre 3 du cours Git &amp; GitHub B3 : Journal de références git reflog, sauvetage de commits orphelins (dangling), recherche dichotomique de régressions avec git bisect, gestion de la pile LIFO git stash et intégrité avec git fsck. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-githubnav"><div class="b3-githubnav__in">
+  <a class="b3-githubnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-githubnav__sep" aria-hidden="true">/</span>
+  <a class="b3-githubnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git &amp; GitHub B3</a>
+  <div class="b3-githubnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-githubnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-githubwrap">
+<p class="crumb"><a href="../index.html">Git & GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Diagnostic, Reflog &amp; Sauvetage de Données</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans le cycle de vie d’un projet logiciel, l’erreur humaine est inévitable : une commande destructive exécutée par inadvertance (git reset --hard, suppression accidentelle d’une branche non fusionnée), ou l’apparition d’un bogue silencieux introduit il y a plusieurs mois parmi des centaines de commits. L’ingénieur de niveau Bachelor 3 ne panique pas face à ces incidents : il sait que Git ne détruit presque jamais immédiatement les données. Grâce au journal de références (git reflog) et aux outils d’inspection d’intégrité (git fsck), chaque état passé reste récupérable. De plus, la recherche dichotomique automatisée (git bisect) permet d’identifier le commit exact responsable d’une régression en un temps logarithmique O(log2 N). Maîtriser ces outils de sauvetage et de diagnostic fait la différence entre des journées de travail perdues et une remédiation en quelques secondes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le fonctionnement interne du journal de références local (git reflog) et son cycle de rétention ;</li>
+      <li>restaurer des commits orphelins (dangling commits) et des branches supprimées par erreur après un reset destructif ;</li>
+      <li>analyser l’intégrité du magasin d’objets avec la commande de bas niveau git fsck ;</li>
+      <li>maîtriser la recherche dichotomique binaire de régressions avec git bisect en mode interactif et automatisé (git bisect run) ;</li>
+      <li>manipuler la pile de remisage LIFO git stash (push, pop, apply, drop, list) et inspecter ses commits internes ;</li>
+      <li>développer en Python 3 des analyseurs de reflog, des moteurs de bisect binaire et des gestionnaires de pile stash.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Journal de Références : git reflog &amp; le Filet de Sécurité Ultime</h2>
+
+<p>Alors que <code>git log</code> parcourt l’arbre des commits accessibles depuis la référence active en suivant les liens parents, <strong><code>git reflog</code> (Reference Log)</strong> consigne l’historique chronologique de tous les déplacements du pointeur <code>HEAD</code> et des références de branches sur la machine locale.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Fonctionnement &amp; Localisation</h4>
+    <p>Chaque fois que HEAD se déplace (création d’un commit, changement de branche, rebase, merge, reset), une entrée est inscrite dans <code>.git/logs/HEAD</code>.</p>
+    <p>La syntaxe de navigation temporelle est redoutable :</p>
+    <ul>
+      <li><code>HEAD@{0}</code> : Position actuelle de HEAD.</li>
+      <li><code>HEAD@{1}</code> : Position de HEAD juste avant la dernière commande.</li>
+      <li><code>HEAD@{5}</code> : Position il y a 5 opérations.</li>
+      <li><code>main@{yesterday}</code> : État de la branche main hier.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Procédure de Sauvetage après « reset --hard »</h4>
+    <p>Scénario critique : un développeur exécute par erreur <code>git reset --hard HEAD~3</code>.</p>
+    <ol>
+      <li>Exécuter <code>git reflog show HEAD</code> pour identifier l’entrée juste avant le reset (ex: <code>HEAD@{1}</code> avec son SHA).</li>
+      <li>Restaurer immédiatement l’état :<br><code>git checkout -b rescue HEAD@{1}</code><br>ou remettre la branche courante à niveau :<br><code>git reset --hard HEAD@{1}</code>.</li>
+    </ol>
+    <p>Le travail est intégralement restauré, sans aucune perte de code !</p>
+  </div>
+</div>
+
+<h2>2. Objets Orphelins (Dangling) &amp; Nettoyage Garbaged avec git fsck</h2>
+
+<p>Dans Git, lorsqu’une branche est supprimée ou qu’un commit est écrasé lors d’un reset, les objets commits et blobs ne sont <strong>pas effacés physiquement</strong> de <code>.git/objects/</code>. Ils deviennent simplement inaccessibles depuis les branches actives (objets orphelins ou <em>dangling objects</em>).</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Cycle de Vie des Objets &amp; Garbage Collector (git gc)</div>
+<p>Git conserve les objets orphelins par défaut pendant un délai de grâce configurable :</p>,<ul>,  <li>Les entrées du reflog sont conservées pendant <strong>90 jours</strong> pour les objets accessibles et <strong>30 jours</strong> pour les objets inaccessibles (<code>gc.reflogExpireUnreachable</code>).</li>,  <li>Tant que ce délai n’est pas écoulé, le ramasse-miettes (<code>git gc</code>) ne supprime pas les données.</li>,  <li>La commande de plomberie <code>git fsck --lost-found</code> scanne la base d’objets, identifie tous les commits orphelins et les exporte dans <code>.git/lost-found/commit/</code> pour inspection.</li>,</ul>
+  </div>
+
+<h2>3. Isolation Dichotomique de Régressions : La Puissance de git bisect</h2>
+
+<p>Lorsqu’une régression apparaît en production dans une application composée de centaines de commits, inspecter manuellement chaque commit est fastidieux et inefficace. <strong><code>git bisect</code></strong> applique l’algorithme de recherche binaire (dichotomie) pour diviser l’espace de recherche par deux à chaque itération.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Complexité Algorithmique</h4>
+    <p>Pour un historique de $N$ commits, le nombre maximal d’étapes d’évaluation nécessaires est borné par :</p>
+    <p style="font-size:1.15rem;font-weight:bold;text-align:center;">$\lceil \log_2(N) \rceil$</p>
+    <p>Exemple : pour 1 024 commits, <strong>10 tests seulement</strong> suffisent pour désigner de façon certaine le commit fautif !</p>
+  </div>
+  <div class="card">
+    <h4>Workflow Interactif &amp; Automatisé</h4>
+    <pre><code># 1. Démarrer la session
+git bisect start
+git bisect bad HEAD        # Le bogue est présent ici
+git bisect good v2.1.0      # Ici tout fonctionnait
+
+# 2. Mode automatique avec script de test
+git bisect run npm test</code></pre>
+    <p>Si le script retourne le code de sortie <code>0</code>, Git marque le commit comme <code>good</code> ; s’il retourne <code>1..127</code>, il le marque <code>bad</code>. Dès l’isolation terminée, <code>git bisect reset</code> remet la copie de travail à son état initial.</p>
+  </div>
+</div>
+
+<h2>4. Gestion Avancée de la Pile de Remisage : L’Anatomie de git stash</h2>
+
+<p>Le remisage (<code>git stash</code>) permet de mettre de côté des modifications non terminées dans la copie de travail et l’index pour basculer sur une urgence (hotfix) sans créer de commit provisoire « wip » polluant l’arbre.</p>
+<table class="table">
+  <thead>
+    <tr><th>Commande</th><th>Rôle Technique &amp; Comportement</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>git stash push -m "msg"</code></td><td>Empile l’état actuel de l’index et de la copie de travail avec un libellé clair.</td></tr>
+    <tr><td><code>git stash list</code></td><td>Affiche la pile LIFO des remises stockées (<code>stash@{0}</code>, <code>stash@{1}</code>, ...).</td></tr>
+    <tr><td><code>git stash apply stash@{N}</code></td><td>Réapplique les modifications de la remise sans la supprimer de la pile.</td></tr>
+    <tr><td><code>git stash pop</code></td><td>Réapplique la remise la plus récente (<code>stash@{0}</code>) et la dépile immédiatement.</td></tr>
+    <tr><td><code>git stash drop stash@{N}</code></td><td>Supprime définitivement une remise spécifique de la pile.</td></tr>
+  </tbody>
+</table>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gh3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="ACTIVE_BRANCH name=main tip=C1 ancestors=NONE&#10;REFLOG_ENTRY id=HEAD@{0} commit=C1 action=reset desc=moving to C1&#10;REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser le reflog et retrouver les commits orphelins
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser le journal des mouvements de têtes (reflog) pour identifier et sauver un commit devenu orphelin après un reset accidentel.</p>
+    <div class="lab__brief"><p>Lorsqu'un développeur exécute par erreur <code>git reset --hard HEAD~3</code> ou supprime une branche locale avant d'avoir poussé, les commits semblent perdus.<br>
+En réalité, Git ne supprime jamais immédiatement les objets : ils restent référencés dans le <strong>Reflog (Reference Log)</strong> jusqu'à la collecte des déchets (Garbage Collection <code>git gc</code>).<br><br>
+Le script lit sur l'entrée standard :<br>
+1. La liste des commits actuellement accessibles par les branches actives :<br>
+   <code>ACTIVE_BRANCH name=&lt;nom&gt; tip=&lt;hash&gt; ancestors=&lt;h1,h2...|NONE&gt;</code>.<br>
+2. Les entrées chronologiques du reflog de HEAD (du plus récent au plus ancien) :<br>
+   <code>REFLOG_ENTRY id=&lt;HEAD@{n}&gt; commit=&lt;hash&gt; action=&lt;action&gt; desc=&lt;message&gt;</code>.<br><br>
+Un commit est considéré comme <strong>orphelin (Dangling)</strong> s'il figure dans le reflog mais n'apparaît ni comme tête (tip) ni comme ancêtre d'aucune branche active.<br><br>
+Pour chaque commit orphelin identifié dans le reflog (dans l'ordre d'apparition), afficher :<br>
+<code>RESCUE_CANDIDATE reflog={id} commit={hash} action="{action}" desc="{desc}" status=DANGLING</code><br>
+Si aucun commit orphelin n'est trouvé :<br>
+<code>RESCUE_SUMMARY: ALL_COMMITS_REFERENCED</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ACTIVE_BRANCH name=main tip=C1 ancestors=NONE
+REFLOG_ENTRY id=HEAD@{0} commit=C1 action=reset desc=moving to C1
+REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RESCUE_CANDIDATE reflog=HEAD@{1} commit=C3 action="commit" desc="Feature perdue" status=DANGLING</pre></div>
+    </div>
+    <p class="lab__note">C3 a été abandonné par le reset to C1 et n’est plus dans main.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Constituer un ensemble (set) de tous les commits accessibles par les branches actives.</li>
+        <li>Parcourir les entrées de reflog et vérifier l’appartenance au set.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gh3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="HISTORY commits=C1,C2,C3,C4,C5&#10;STATUSES C1=GOOD C2=GOOD C3=BAD C4=BAD C5=BAD">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la dichotomie git bisect
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Détecteur de régression dichotomique automatique (git bisect)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la recherche dichotomique de Git Bisect pour identifier le premier commit ayant introduit un bogue.</p>
+    <div class="lab__brief"><p>L'outil <code>git bisect</code> effectue une recherche binaire (dichotomie) dans l'historique des commits pour trouver la régression en un minimum de tests ($O(\log N)$).<br><br>
+Algorithme :<br>
+1. On dispose d'une liste ordonnée chronologiquement de $N$ commits : <code>[c_0, c_1, ..., c_{N-1}]</code>.<br>
+   Le commit initial $c_0$ est certifié <code>GOOD</code> (sain), et le commit final $c_{N-1}$ est <code>BAD</code> (défaillant).<br>
+2. Tant que l'intervalle <code>[low, high]</code> contient plus d'un commit suspect :<br>
+   On choisit le commit médian : <code>mid = (low + high) // 2</code>.<br>
+   On évalue l'état du commit <code>mid</code> (fourni par la table des statuts) :<br>
+   - Si <code>mid == BAD</code> : la régression a eu lieu à <code>mid</code> ou avant -> <code>high = mid</code>.<br>
+   - Si <code>mid == GOOD</code> : la régression a eu lieu après <code>mid</code> -> <code>low = mid + 1</code>.<br>
+   On affiche chaque étape : <code>BISECT_STEP step={k} testing={commit_id} verdict={GOOD|BAD} remaining={high - low + 1}</code>.<br>
+3. Dès que <code>low == high</code>, le premier commit défaillant est identifié :<br>
+   <code>FIRST_BAD_COMMIT id={commit_id}</code>.<br><br>
+Le script lit la liste chronologique des commits et leur statut réel :<br>
+<code>HISTORY commits=&lt;c1,c2,c3...&gt;</code><br>
+<code>STATUSES &lt;c_id&gt;=&lt;GOOD|BAD&gt; ...</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HISTORY commits=C1,C2,C3,C4,C5
+STATUSES C1=GOOD C2=GOOD C3=BAD C4=BAD C5=BAD</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BISECT_STEP step=1 testing=C3 verdict=BAD remaining=3
+BISECT_STEP step=2 testing=C2 verdict=GOOD remaining=1
+FIRST_BAD_COMMIT id=C3</pre></div>
+    </div>
+    <p class="lab__note">C3 est identifié comme le premier commit ayant introduit le bogue en 2 étapes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Initialiser low = 0 et high = len(commits) - 1.</li>
+        <li>Calculer mid = (low + high) // 2 à chaque étape.</li>
+        <li>S’arrêter quand low == high.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gh3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="STASH_CMD action=push arg=WIP sur formulaire&#10;STASH_CMD action=pop">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la pile LIFO de git stash
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Gestionnaire de pile de remisage (git stash LIFO stack)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le comportement en pile LIFO (Last-In, First-Out) des commandes git stash.</p>
+    <div class="lab__brief"><p>La commande <code>git stash</code> enregistre temporairement les modifications en cours sur une pile LIFO sans créer de commit formel.<br><br>
+Commandes à exécuter :<br>
+- <code>push &lt;message&gt;</code> : empile une nouvelle entrée au sommet <code>stash@{0}</code>. Les entrées existantes sont décalées : <code>stash@{k} -> stash@{k+1}</code>.<br>
+- <code>pop</code> : extrait et supprime l'entrée la plus récente <code>stash@{0}</code>.<br>
+- <code>apply &lt;idx&gt;</code> : applique l'entrée <code>stash@{idx}</code> sans la supprimer de la pile.<br>
+- <code>drop &lt;idx&gt;</code> : supprime l'entrée <code>stash@{idx}</code> de la pile (les entrées d'indice supérieur sont décrémentées d'une unité).<br><br>
+Le script lit les commandes sur l'entrée standard :<br>
+<code>STASH_CMD action=&lt;push|pop|apply|drop&gt; [arg=&lt;val&gt;]</code>.<br><br>
+Pour chaque action, afficher :<br>
+<code>STASH_OP action={action} result={OK|STACK_EMPTY|INDEX_OUT_OF_BOUNDS} current_size={taille} top="{msg_du_sommet|EMPTY}"</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STASH_CMD action=push arg=WIP sur formulaire
+STASH_CMD action=pop</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STASH_OP action=push result=OK current_size=1 top="WIP sur formulaire"
+STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
+    </div>
+    <p class="lab__note">Empilement puis dépilement immédiat de la réserve.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer une liste Python où l’indice 0 représente stash@{0}.</li>
+        <li>Lors d’un push, insérer à l’indice 0 avec stack.insert(0, msg).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle information capitale le journal « git reflog » enregistre-t-il que « git log » n’affiche pas ?</p>
+      <div class="opts">
+        <button class="opt">Les mots de passe saisis lors du push distant</button>
+        <button class="opt" data-correct="1">L’historique chronologique local de tous les mouvements du pointeur HEAD, y compris les commits orphelins</button>
+        <button class="opt">Les adresses IP des serveurs distants connectés</button>
+        <button class="opt">Les signatures cryptographiques GPG des tags annotés</button>
+      </div>
+      <div class="q__exp">git log ne parcourt que les commits connectés à la branche courante. git reflog enregistre chronologiquement chaque déplacement de HEAD sur la machine locale, permettant de retrouver les commits détachés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où les entrées du reflog pour le pointeur HEAD sont-elles physiquement stockées sur le disque ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Dans le fichier .git/logs/HEAD</button>
+        <button class="opt">Dans .git/objects/reflog.db</button>
+        <button class="opt">Sur le serveur distant GitHub dans l’API GraphQL</button>
+        <button class="opt">Dans le fichier binaire .git/index</button>
+      </div>
+      <div class="q__exp">Git écrit chaque transition dans des fichiers texte situés dans le sous-dossier masqué .git/logs/ (notamment .git/logs/HEAD et .git/logs/refs/heads/).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d’étapes de test au maximum sont nécessaires avec « git bisect » pour localiser une régression parmi 500 commits ?</p>
+      <div class="opts">
+        <button class="opt">500 étapes</button>
+        <button class="opt">250 étapes</button>
+        <button class="opt" data-correct="1">9 étapes</button>
+        <button class="opt">50 étapes</button>
+      </div>
+      <div class="q__exp">La recherche dichotomique a une complexité logarithmique en ceil(log2(500)) = ceil(8.96) = 9 étapes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code de sortie doit renvoyer un script de test exécuté par « git bisect run » pour indiquer que le commit actuel est sain (sans bogue) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le code 0</button>
+        <button class="opt">Le code 1</button>
+        <button class="opt">Le code 128</button>
+        <button class="opt">Le code -1</button>
+      </div>
+      <div class="q__exp">Selon la convention Unix standard et la spécification de git bisect run, le code de sortie 0 signifie que le test réussit (commit « good ») ; un code entre 1 et 127 indique un échec (commit « bad »).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Par défaut, pendant combien de temps Git conserve-t-il les objets inaccessibles (unreachable/dangling) avant que « git gc » ne les purge définitivement ?</p>
+      <div class="opts">
+        <button class="opt">24 heures</button>
+        <button class="opt" data-correct="1">30 jours</button>
+        <button class="opt">1 an</button>
+        <button class="opt">Ils ne sont jamais purgés</button>
+      </div>
+      <div class="q__exp">Par défaut, la directive gc.reflogExpireUnreachable conserve les objets orphelins pendant 30 jours, offrant une marge de sécurité confortable pour récupérer une fausse manipulation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande permet de restaurer la dernière remise enregistrée tout en la supprimant de la pile de remisage ?</p>
+      <div class="opts">
+        <button class="opt">git stash apply</button>
+        <button class="opt" data-correct="1">git stash pop</button>
+        <button class="opt">git stash restore</button>
+        <button class="opt">git stash pull</button>
+      </div>
+      <div class="q__exp">git stash pop réapplique les modifications du stash supérieur (stash@{0}) et l’élimine immédiatement de la pile s’il n’y a pas eu de conflit lors de l’application.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert la commande de plomberie « git fsck --lost-found » ?</p>
+      <div class="opts">
+        <button class="opt">À supprimer tous les fichiers non suivis de la copie de travail</button>
+        <button class="opt" data-correct="1">À vérifier l’intégrité de la base d’objets et copier les commits orphelins dans .git/lost-found/</button>
+        <button class="opt">À réparer les dépendances corrompues dans package.json</button>
+        <button class="opt">À synchroniser les commits orphelins avec le miroir GitHub</button>
+      </div>
+      <div class="q__exp">git fsck (File System Check) contrôle la cohérence du magasin d’objets et l’option --lost-found extrait tous les objets orphelins inaccessibles pour permettre leur analyse.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si vous avez exécuté par erreur « git reset --hard HEAD~2 », quelle commande permet de revenir immédiatement à l’état antérieur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">git reset --hard HEAD@{1}</button>
+        <button class="opt">git revert HEAD</button>
+        <button class="opt">git checkout --undo</button>
+        <button class="opt">git clean -fd</button>
+      </div>
+      <div class="q__exp">HEAD@{1} correspond à la position de HEAD juste avant l’exécution du reset. Faire un git reset --hard HEAD@{1} réaligne instantanément la branche sur son état précédent.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Croire que git reflog est partagé sur GitHub (le reflog est strictement local à la machine du développeur).</li>
+      <li>Penser qu’un git reset --hard supprime immédiatement et définitivement les commits du disque.</li>
+      <li>Fournir un script pour git bisect run qui ne retourne pas 0 en cas de succès (cela fausserait tout l’aiguillage binaire).</li>
+      <li>Confondre git stash pop (qui supprime la remise) et git stash apply (qui la laisse dans la pile).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Traque d’un Bogue Fantôme via git bisect automatisé</div>
+    <ol>
+      <li>Étape 1 : Écrire un script de test unitaire déterministe (test.sh ou pytest) qui retourne 0 quand le code est sain et 1 en cas de bogue.</li>
+      <li>Étape 2 : Identifier le dernier tag de version ou commit réputé 100% fonctionnel (ex: v1.0.0).</li>
+      <li>Étape 3 : Initialiser bisect avec git bisect start HEAD v1.0.0 (HEAD étant défaillant et v1.0.0 fonctionnel).</li>
+      <li>Étape 4 : Lancer l’automatisation : git bisect run bash ./test.sh.</li>
+      <li>Étape 5 : Noter le SHA et l’auteur du premier commit fautif affiché par Git.</li>
+      <li>Étape 6 : Clôturer la session de recherche avec git bisect reset et rédiger le correctif ciblé.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>git reflog enregistre localement chaque mouvement de HEAD dans .git/logs/HEAD.</li>
+      <li>Après un reset --hard malencontreux, le reflog permet de restaurer le travail en quelques secondes.</li>
+      <li>Les objets orphelins (dangling) restent stockés sur disque pendant 30 à 90 jours avant purge par git gc.</li>
+      <li>git fsck inspecte l’intégrité du graphe et répertorie les commits détachés dans lost-found.</li>
+      <li>git bisect divise l’espace de recherche par 2 à chaque étape (complexité en O(log2 N)).</li>
+      <li>git bisect run automatise la détection grâce au code retour d’un script de test (0 = good, non-zéro = bad).</li>
+      <li>git stash gère une pile LIFO de remises pour mettre de côté le travail en cours sans commit prématuré.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais consulter et interpréter la sortie chronologique de git reflog show HEAD.</li>
+      <li>Je suis capable de récupérer une branche supprimée par erreur à l’aide du reflog.</li>
+      <li>Je comprends la différence de rétention entre objets accessibles et objets orphelins (dangling).</li>
+      <li>Je maîtrise la syntaxe et les arguments de git bisect (start, bad, good, reset).</li>
+      <li>Je sais automatiser git bisect avec un script de test retournant des codes de sortie standard.</li>
+      <li>Je sais manipuler la pile git stash (push, list, pop, apply, drop).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Journal de références (git reflog)</li><li>Objets orphelins (Dangling commits)</li><li>Intégrité de dépôt (git fsck)</li><li>Recherche dichotomique (git bisect)</li><li>Automatisation via git bisect run</li><li>Pile de remisage LIFO (git stash)</li><li>Garbage Collector Git (git gc)</li><li>Délai de grâce de rétention des objets</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Panique face à un reset dur ou méconnaissance du reflog et du fonctionnement de git bisect.</div>
+      <div class="bandrow bandrow--medium">Bonne utilisation du reflog pour récupérer des commits perdus et manipulation de base de git stash et git bisect interactif.</div>
+      <div class="bandrow bandrow--high">Maîtrise complète de git fsck, automatisation experte de git bisect run avec scripts de test et compréhension approfondie du ramasse-miettes git gc.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Workflows d’Équipe, Gouvernance &amp; Protection de Branches <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Git Pro (Scott Chacon & Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

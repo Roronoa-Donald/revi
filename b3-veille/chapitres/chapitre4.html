@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Traitement, Qualification de l’Information, Indexation TF-IDF &amp;amp; Filtrage Algorithmique | Veille Technologique &amp; Innovation B3</title>
+<meta name="description" content="Chapitre 4 du cours Veille Technologique B3 : Chaîne de traitement textuel NLP (tokenisation, normalisation, suppression des stopwords, lemmatisation), modèle vectoriel et indexation TF-IDF (Term Frequency - Inverse Document Frequency), classification bayésienne naïve pour le filtrage anti-bruit et anti-spam, et détection d’entités nommées (NER). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-veille/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Traitement, Qualification de l’Information, Indexation TF-IDF &amp;amp; Filtrage Algorithmique | Veille Technologique &amp; Innovation B3">
+<meta property="og:description" content="Chapitre 4 du cours Veille Technologique B3 : Chaîne de traitement textuel NLP (tokenisation, normalisation, suppression des stopwords, lemmatisation), modèle vectoriel et indexation TF-IDF (Term Frequency - Inverse Document Frequency), classification bayésienne naïve pour le filtrage anti-bruit et anti-spam, et détection d’entités nommées (NER). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-veillenav"><div class="b3-veillenav__in">
+  <a class="b3-veillenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-veillenav__sep" aria-hidden="true">/</span>
+  <a class="b3-veillenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-search"></use></svg> Veille Technologique &amp; Innovation B3</a>
+  <div class="b3-veillenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-veillenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-veillewrap">
+<p class="crumb"><a href="../index.html">Veille Technologique & Innovation B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Traitement, Qualification de l’Information, Indexation TF-IDF &amp; Filtrage Algorithmique</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Après la phase de collecte, une cellule de veille fait face à des flux textuels massifs contenant des milliers d’articles hétérogènes. Si l’on se contente d’une recherche par mots-clés basique, les ingénieurs sont submergés par des faux positifs et des communications promotionnelles de faible intérêt technique. Pour transformer ces données brutes en renseignements qualifiés, l’ingénieur de niveau B3 doit déployer des algorithmes de traitement automatique du langage naturel (NLP). Il doit savoir nettoyer et normaliser un corpus multilingue, calculer les scores de pertinence documentaire via l’algorithme vectoriel TF-IDF pour faire ressortir les termes discriminants d’une technologie de pointe, et implémenter des classificateurs probabilistes bayésiens (Naive Bayes) pour séparer automatiquement les véritables alertes du bruit informationnel.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la chaîne de prétraitement textuel NLP pour la veille documentaire ;</li>
+      <li>comprendre et appliquer le filtrage des mots vides (stopwords) et la tokenisation normalisée ;</li>
+      <li>assimiler les fondements mathématiques du modèle vectoriel d’information spatiale ;</li>
+      <li>calculer manuellement et algorithmiquement les métriques TF, IDF et TF-IDF lissées ;</li>
+      <li>implémenter un classificateur bayésien naïf (Naive Bayes) pour discriminer alertes critiques et bruits de fond ;</li>
+      <li>développer en Python 3 des nettoyeurs de corpus, des moteurs d’indexation TF-IDF et des filtres bayésiens.</li>
+    </ol>
+  </div>
+
+<h2>1. Prétraitement Textuel NLP : Tokenisation, Normalisation & Stopwords</h2>
+
+<p>Le texte brut issu du web est bruité et redondant. Avant d’effectuer la moindre analyse sémantique, la chaîne de traitement NLP (<em>Natural Language Processing</em>) normalise les données :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Étapes de la Chaîne de Traitement Textuel</h4>
+    <ol>
+      <li><strong>Nettoyage structurel :</strong> Suppression des balises HTML/XML, décodage des entités numériques et conversion en minuscules (<em>lowercasing</em>).</li>
+      <li><strong>Ponctuation &amp; Séparateurs :</strong> Remplacement des signes de ponctuation, guillemets et tirets par des espaces pour isoler les unités lexicales.</li>
+      <li><strong>Tokenisation :</strong> Découpage de la chaîne en une liste ordonnée de mots ou symboles atomiques (<em>tokens</em>).</li>
+      <li><strong>Filtrage des Stopwords :</strong> Élimination des mots grammaticaux vides de sens technique (articles, prépositions, pronoms : <em>le, la, des, dans, avec, the, for</em>).</li>
+      <li><strong>Réduction morphologique :</strong> Racinisation (<em>stemming</em>) ou lemmatisation ramenant les mots à leur forme canonique (ex: <em>serveurs → serveur</em>).</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Gain de Réduction &amp; Vocabulaire Saillant</h4>
+    <p>Sur un article technique typique, la suppression des stopwords et des termes de moins de 3 lettres réduit la taille du vocabulaire actif de <strong>40 % à 60 %</strong> sans aucune perte de sens sémantique.</p>
+    <p>Cette condensation lexicale optimise drastiquement le temps d’indexation et la mémoire requise par les moteurs de recherche de veille.</p>
+  </div>
+</div>
+
+<h2>2. Modèle Vectoriel & Pondération TF-IDF (Term Frequency - Inverse Document Frequency)</h2>
+
+<p>L’algorithme <strong>TF-IDF</strong> est le pilier des systèmes d’information documentaire. Il permet de mesurer l’importance relative d’un terme dans un document par rapport à un ensemble global de documents (corpus) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Fréquence du Terme : TF(t, d)</h4>
+    <p>Mesure la fréquence locale d’apparition du terme $t$ dans le document $d$ :</p>
+    <pre><code>TF(t, d) = count(t dans d) / total_mots(d)</code></pre>
+    <p>Plus un mot apparaît souvent dans le document, plus son TF est élevé.</p>
+  </div>
+  <div class="card">
+    <h4>2. Fréquence Inverse de Document : IDF(t)</h4>
+    <p>Mesure la rareté globale du terme $t$ à l’échelle du corpus de $N$ documents :</p>
+    <pre><code>IDF(t) = ln((N + 1) / (DF(t) + 1)) + 1</code></pre>
+    <p>où $\text{DF}(t)$ est le nombre de documents contenant le terme $t$. Un mot présent dans tous les documents aura un IDF proche de 1 (pénalisé), tandis qu’un terme rare aura un IDF très élevé.</p>
+  </div>
+</div>
+<div class="card">
+  <h4>Score de Pertinence Documentaire Global</h4>
+  <p>Pour une requête composée de plusieurs mots-clés, le score global du document $d$ est la somme pondérée :</p>
+  <pre><code>Score(d) = ∑ [TF(q, d) × IDF(q)] pour chaque q de la requête</code></pre>
+  <p>Les documents sont ensuite classés par score décroissant. Cela garantit que les articles traitant précisément d’une innovation rare remontent en tête du classement.</p>
+</div>
+
+<h2>3. Classification Probabiliste Naive Bayes pour le Filtrage Anti-Bruit</h2>
+
+<p>Pour trier automatiquement les alertes entrantes sans dépendre de règles rigides d’expressions régulières, le classificateur probabiliste <strong>Naive Bayes</strong> applique le théorème de Bayes sous l’hypothèse d’indépendance conditionnelle des mots :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Théorème de Bayes Appliqué au Filtrage</h4>
+    <p>Pour un document $d$ composé des mots $w_1, \dots, w_k$, on compare la probabilité a posteriori d’appartenir à la classe <code>PERTINENT</code> vs <code>BRUIT</code> :</p>
+    <pre><code>ln P(Pertinent|d) = ln P(Pertinent) + ∑ ln P(w_i|Pertinent)
+ln P(Bruit|d)     = ln P(Bruit)     + ∑ ln P(w_i|Bruit)</code></pre>
+    <p>L’utilisation des logarithmes népériens transforme le produit de probabilités en une somme arithmétique simple, éliminant tout risque de sous-dépassement numérique (<em>arithmetic underflow</em>).</p>
+  </div>
+  <div class="card">
+    <h4>Décision &amp; Routage d’Alerte</h4>
+    <ul>
+      <li>Si $\ln P(\text{Pertinent}|d) \ge \ln P(\text{Bruit}|d)$ : l’alerte est qualifiée de <code>PERTINENT</code> et transmise aux ingénieurs ou intégrée au livret.</li>
+      <li>Sinon : l’alerte est classifiée en <code>BRUIT</code> et archivée silencieusement sans notification.</li>
+      <li>La différence logarithmique quantifie la marge de confiance de la décision de classification.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Apprentissage continu du classificateur :</strong> En intégrant une action utilisateur « Marquer comme non pertinent » dans le tableau de bord de veille, le modèle réajuste dynamiquement les probabilités conditionnelles $P(w_i|\text{Bruit})$, améliorant continuellement la précision du filtrage sans intervention manuelle.</div>
+
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vt3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="DOC id=1 text=Le cloud et les micro-services dans le datacenter avec Docker.">
+  <script type="text/plain" data-lab-starter>import sys
+import re
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : normaliser, filtrer les stopwords et calculer la réduction
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Tokeniseur et filtre de mots vides (Stopwords &amp; Normalisation)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Nettoyer un corpus textuel de veille, supprimer la ponctuation, éliminer les mots vides (stopwords) et extraire le vocabulaire technique saillant.</p>
+    <div class="lab__brief">Dans la chaîne de traitement NLP d’un système de veille, le texte brut doit être normalisé avant indexation :
+1. Convertir l’ensemble des caractères en minuscules.
+2. Remplacer la ponctuation et caractères spéciaux par des espaces : `.,;:!?'"()[]{}<>-/\\_`
+3. Extraire tous les tokens (mots) composés de caractères alphanumériques.
+4. Filtrer les mots de longueur $\le 2$ lettres ainsi que les mots vides (stopwords) de la liste de référence :
+   `le, la, les, de, du, des, un, une, et, en, pour, sur, par, dans, avec, ce, qui, que, the, a, an, and, of, in, to, for, on, with, is, at, as`
+5. Trier les tokens uniques conservés par ordre alphabétique.
+6. Calculer le taux de réduction de taille : $\text{reduction} = (1 - \frac{\text{tokens retenus}}{\text{total tokens initiaux}}) \times 100$ (en %, arrondi à 1 décimale).
+
+Entrée :
+`DOC id=<ID> text=<TEXTE>`
+
+Sortie :
+- Pour chaque document :
+  `TOKENS id=<ID> count=<N> words=<w1,w2,...> reduction=<R>%`
+- Bilan :
+  `SUMMARY total_docs=<N> total_tokens=<T>` (somme des tokens retenus)</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DOC id=1 text=Le cloud et les micro-services dans le datacenter avec Docker.</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TOKENS id=1 count=5 words=cloud,datacenter,docker,micro,services reduction=54.5%
+SUMMARY total_docs=1 total_tokens=5</pre></div>
+    </div>
+    <p class="lab__note">Tokens initiaux: 11 mots. Retenus: cloud, micro, services, datacenter, docker (5 mots). Réduction de 54.5%.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser re.sub pour nettoyer la ponctuation avant de faire split().</li>
+        <li>Créer un ensemble (set) de stopwords pour une vérification en O(1).</li>
+        <li>Attention : le taux de réduction se calcule sur le nombre de tokens retenus divisé par le total des tokens initiaux.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="QUERY words=quantique,securite&#10;CORPUS_DOC id=D1 text=ordinateur quantique et cryptographie quantique securite absolue&#10;CORPUS_DOC id=D2 text=securite des serveurs cloud linux et pare-feu&#10;CORPUS_DOC id=D3 text=intelligence artificielle et vision par ordinateur">
+  <script type="text/plain" data-lab-starter>import sys
+import math
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer TF-IDF et ordonner les documents
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de score de pertinence TF-IDF sur un corpus de veille</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer un corpus de documents selon leur score de pertinence TF-IDF pour une requête de veille ciblée.</p>
+    <div class="lab__brief">L’algorithme TF-IDF (Term Frequency - Inverse Document Frequency) quantifie l’importance relative d’un mot par rapport à un corpus documentaire :
+- Pour un document $d$ et un mot-clé $q$ :
+  $$\text{TF}(q, d) = \frac{\text{occurrences de } q \text{ dans } d}{\text{nombre total de mots dans } d}$$
+- Fréquence inverse de document sur le corpus de $N$ documents :
+  $$\text{IDF}(q) = \ln\left(\frac{N + 1}{\text{DF}(q) + 1}\right) + 1$$
+  où $\text{DF}(q)$ est le nombre de documents du corpus contenant au moins une fois le terme $q$.
+- Score total d’un document $d$ pour la requête :
+  $$\text{Score}(d) = \sum_{q \in \text{requête}} \text{TF}(q, d) \times \text{IDF}(q)$$
+(le score est arrondi à 4 décimales)
+
+Entrée :
+`QUERY words=<q1,q2,...>`
+`CORPUS_DOC id=<ID> text=<mots séparés par des espaces>`
+
+Sortie :
+- Documents triés par score décroissant (en cas d’égalité de score, trier par id alphabétique croissant) :
+  `RANK id=<ID> score=<SCORE>`
+- Bilan :
+  `SUMMARY top_doc=<ID> top_score=<SCORE>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>QUERY words=quantique,securite
+CORPUS_DOC id=D1 text=ordinateur quantique et cryptographie quantique securite absolue
+CORPUS_DOC id=D2 text=securite des serveurs cloud linux et pare-feu
+CORPUS_DOC id=D3 text=intelligence artificielle et vision par ordinateur</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RANK id=D1 score=0.6677
+RANK id=D2 score=0.1840
+RANK id=D3 score=0.0000
+SUMMARY top_doc=D1 top_score=0.6677</pre></div>
+    </div>
+    <p class="lab__note">D1 contient 2 fois "quantique" et 1 fois "securite", obtenant le score maximal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extraire d’abord les termes de la requête en minuscules.</li>
+        <li>Parcourir le corpus pour compter le nombre total de documents N et le DF de chaque terme de requête.</li>
+        <li>Calculer pour chaque document la somme des TF * IDF pour les termes de la requête.</li>
+        <li>Utiliser math.log() pour le logarithme népérien.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="PRIOR pertinent=0.5 bruit=0.5&#10;PROB word=faille p_pert=0.20 p_bruit=0.01&#10;PROB word=zero-day p_pert=0.15 p_bruit=0.001&#10;PROB word=promo p_pert=0.005 p_bruit=0.30&#10;PROB word=gratuit p_pert=0.01 p_bruit=0.25&#10;ALERT id=A1 text=decouverte d une faille critique zero-day&#10;ALERT id=A2 text=super promo webinaire gratuit pour tous">
+  <script type="text/plain" data-lab-starter>import sys
+import math
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer les log-vraisemblances Naive Bayes et classifier
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Classificateur bayésien naïf d’alertes de veille (Pertinent vs Bruit)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer le modèle probabiliste de Naive Bayes pour filtrer automatiquement les alertes entrantes en éliminant le bruit informationnel.</p>
+    <div class="lab__brief">Dans la surveillance temps réel, les flux génèrent une surcharge cognitive de notifications parasites. Un filtre probabiliste Naive Bayes calcule la log-vraisemblance d’appartenance aux classes `PERTINENT` et `BRUIT` :
+
+Pour une alerte composée des mots $w_1, w_2, \dots, w_k$ :
+$$\ln P(\text{Pertinent}|d) = \ln P_0(\text{pertinent}) + \sum_{i=1}^k \ln P(w_i | \text{pertinent})$$
+$$\ln P(\text{Bruit}|d) = \ln P_0(\text{bruit}) + \sum_{i=1}^k \ln P(w_i | \text{bruit})$$
+(les mots inconnus non présents dans la table de probabilités sont ignorés)
+
+Règle de décision :
+- Si $\ln P(\text{Pertinent}|d) \ge \ln P(\text{Bruit}|d)$ : `decision = PERTINENT`
+- Sinon : `decision = BRUIT`
+- Différence logarithmique : $\text{diff} = \ln P(\text{Pertinent}|d) - \ln P(\text{Bruit}|d)$ (arrondie à 2 décimales)
+
+Entrée :
+`PRIOR pertinent=<P1> bruit=<P2>`
+`PROB word=<W> p_pert=<PP> p_bruit=<PB>`
+`ALERT id=<ID> text=<mots séparés par des espaces>`
+
+Sortie :
+- Pour chaque alerte :
+  `CLASSIFICATION id=<ID> decision=<DECISION> diff=<DIFF>`
+- Bilan :
+  `SUMMARY total_alertes=<N> retenues=<R> rejetees=<J>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRIOR pertinent=0.5 bruit=0.5
+PROB word=faille p_pert=0.20 p_bruit=0.01
+PROB word=zero-day p_pert=0.15 p_bruit=0.001
+PROB word=promo p_pert=0.005 p_bruit=0.30
+PROB word=gratuit p_pert=0.01 p_bruit=0.25
+ALERT id=A1 text=decouverte d une faille critique zero-day
+ALERT id=A2 text=super promo webinaire gratuit pour tous</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CLASSIFICATION id=A1 decision=PERTINENT diff=8.01
+CLASSIFICATION id=A2 decision=BRUIT diff=-7.31
+SUMMARY total_alertes=2 retenues=1 rejetees=1</pre></div>
+    </div>
+    <p class="lab__note">L’alerte A1 a une log-différence largement positive (+8.01) et est retenue.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertir les probabilités P_pert et P_bruit avec math.log().</li>
+        <li>Additionner les logs pour chaque mot de l’alerte présent dans la table.</li>
+        <li>Comparer les sommes cumulées pour statuer sur la décision.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans la chaîne de traitement NLP, quel est le rôle principal de l’étape de tokenisation ?</p>
+      <div class="opts">
+        <button class="opt">Chiffrer le document avec une clé RSA</button>
+        <button class="opt" data-correct="1">Découper la chaîne de caractères brute en une séquence d’unités lexicales distinctes (tokens ou mots)</button>
+        <button class="opt">Traduire le texte en espagnol</button>
+        <button class="opt">Compacter le fichier au format ZIP</button>
+      </div>
+      <div class="q__exp">La tokenisation segmente le flux textuel continu en éléments lexicaux indépendants appelés tokens.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne le terme « stopword » en ingénierie documentaire ?</p>
+      <div class="opts">
+        <button class="opt">Un virus informatique bloquant le processeur</button>
+        <button class="opt" data-correct="1">Un mot grammatical vide de sens sémantique spécifique (articles, conjonctions) filtré avant analyse</button>
+        <button class="opt">Le mot le plus long du dictionnaire</button>
+        <button class="opt">Une commande d’arrêt du serveur Linux</button>
+      </div>
+      <div class="q__exp">Les stopwords sont les mots très fréquents (le, la, de, et, the, with) qui n’apportent aucune information discriminante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un terme technique apparaît dans un seul document sur un corpus de 100 documents, sa valeur IDF sera :</p>
+      <div class="opts">
+        <button class="opt">Nulle (égale à 0)</button>
+        <button class="opt">Très faible</button>
+        <button class="opt" data-correct="1">Maximale (fortement valorisée)</button>
+        <button class="opt">Négative</button>
+      </div>
+      <div class="q__exp">L’IDF mesure la rareté : plus un terme est rare à l’échelle du corpus, plus sa valeur IDF est grande, signalant un contenu spécifique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle formule correspond au calcul du Term Frequency (TF) d’un mot q dans un document d ?</p>
+      <div class="opts">
+        <button class="opt">TF = nombre de documents dans le corpus</button>
+        <button class="opt" data-correct="1">TF = occurrences(q, d) / nombre total de mots dans d</button>
+        <button class="opt">TF = log(occurrences) * 100</button>
+        <button class="opt">TF = longueur du mot en caractères</button>
+      </div>
+      <div class="q__exp">Le TF normalise le nombre d’occurrences d’un terme par la longueur totale en mots du document.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi utilise-t-on la somme des logarithmes népériens plutôt que le produit direct des probabilités en Naive Bayes ?</p>
+      <div class="opts">
+        <button class="opt">Parce que les ordinateurs ne savent pas multiplier</button>
+        <button class="opt" data-correct="1">Pour éviter le sous-dépassement arithmétique (underflow) lors de la multiplication de probabilités très proches de zéro</button>
+        <button class="opt">Pour rendre le calcul payant</button>
+        <button class="opt">Pour supprimer la ponctuation</button>
+      </div>
+      <div class="q__exp">Multiplier des dizaines de probabilités très faibles produit un nombre inférieur à la précision machine (0.0). Sommer leurs logs évite ce problème.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’algorithme TF-IDF lissé standard, pourquoi ajoute-t-on 1 au numérateur et au dénominateur de l’IDF ?</p>
+      <div class="opts">
+        <button class="opt">Pour arrondir le résultat à l’entier supérieur</button>
+        <button class="opt" data-correct="1">Pour éviter la division par zéro si DF=0 et éviter un log nul si N=DF</button>
+        <button class="opt">C’est une constante universelle de Planck</button>
+        <button class="opt">Pour doubler la vitesse d’exécution</button>
+      </div>
+      <div class="q__exp">L’ajout de constantes de lissage (+1) empêche les divisions par zéro et garantit la stabilité mathématique du logarithme.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle hypothèse fondatrice est qualifiée de « naïve » dans le classificateur Naive Bayes ?</p>
+      <div class="opts">
+        <button class="opt">L’hypothèse que tous les textes sont écrits en anglais</button>
+        <button class="opt" data-correct="1">L’hypothèse d’indépendance conditionnelle des mots sachant la classe</button>
+        <button class="opt">L’hypothèse que tous les articles sont vrais</button>
+        <button class="opt">L’hypothèse que la base de données est vide</button>
+      </div>
+      <div class="q__exp">Le modèle est dit « naïf » car il postule que chaque mot apparaît indépendamment des autres dans une classe donnée, ce qui simplifie le calcul.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’impact de la suppression des stopwords sur un corpus d’ingénierie de 10 000 articles ?</p>
+      <div class="opts">
+        <button class="opt">Aucun impact mesurable</button>
+        <button class="opt" data-correct="1">Une réduction de 40 à 60 % du nombre de tokens sans dégrader la précision de recherche</button>
+        <button class="opt">La destruction irrémédiable de la base de données</button>
+        <button class="opt">Un blocage du réseau local</button>
+      </div>
+      <div class="q__exp">Éliminer les mots vides allège le corpus de 40 à 60 % de sa masse textuelle tout en conservant l’intégralité des concepts techniques.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Calculer l’IDF sans formule lissée (+1) et provoquer une division par zéro si un mot est absent de la base.</li>
+      <li>Conserver les stopwords dans le calcul TF-IDF, ce qui donne des scores élevés à des mots sans intérêt comme « pour » ou « dans ».</li>
+      <li>Multiplier directement des probabilités flottantes très faibles en Naive Bayes au lieu de sommer les logarithmes (risque d’underflow à 0.0).</li>
+      <li>Oublier de convertir l’ensemble du texte en minuscules, créant des doublons lexicaux entre « Cloud », « cloud » et « CLOUD ».</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>1. Collecter le texte brut des flux et dépêches techniques.</li>
+      <li>2. Appliquer la chaîne de prétraitement NLP (minuscules, ponctuation, découpage en tokens).</li>
+      <li>3. Filtrer les mots vides (stopwords bilingues) et les tokens de longueur inférieure ou égale à 2 caractères.</li>
+      <li>4. Calculer les fréquences TF locales de chaque mot dans les documents du corpus.</li>
+      <li>5. Calculer les valeurs IDF lissées sur le corpus pour mesurer la rareté relative des termes techniques.</li>
+      <li>6. Associer un classificateur bayésien naïf pour router automatiquement les alertes critiques et neutraliser le bruit.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le prétraitement NLP transforme le texte brut en un vecteur de tokens normalisés exploitables par les algorithmes.</li>
+      <li>La suppression des stopwords réduit la volumétrie textuelle de 40 à 60 % sans altérer la portée sémantique.</li>
+      <li>TF mesure l’abondance locale d’un terme dans un document ; IDF pénalise les termes banals omniprésents dans le corpus.</li>
+      <li>Le score TF-IDF permet de trier mathématiquement les documents par ordre de pertinence vis-à-vis d’une requête ciblée.</li>
+      <li>Naive Bayes calcule la log-vraisemblance d’appartenance aux classes Pertinent et Bruit pour chaque alerte entrante.</li>
+      <li>L’utilisation des logarithmes prévient les erreurs d’underflow lors de la multiplication de faibles probabilités.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>La ponctuation et les balises HTML sont-elles complètement purgées avant la tokenisation ?</li>
+      <li>La liste des stopwords inclut-elle les mots grammaticaux français et anglais les plus fréquents ?</li>
+      <li>La formule IDF utilise-t-elle un lissage (+1) pour éviter toute division par zéro ?</li>
+      <li>Le tri des documents TF-IDF départage-t-il les ex-æquo par un identifiant déterministe ?</li>
+      <li>Les probabilités du modèle Naive Bayes sont-elles manipulées sous forme logarithmique ?</li>
+      <li>Les mots inconnus absents du dictionnaire d’apprentissage sont-ils ignorés sans faire planter le calcul ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Traitement automatique du langage naturel (NLP)</li><li>Tokenisation & Normalisation</li><li>Mots vides (Stopwords)</li><li>Term Frequency (TF)</li><li>Inverse Document Frequency (IDF lissé)</li><li>Score de pertinence vectoriel TF-IDF</li><li>Classificateur bayésien naïf (Naive Bayes)</li><li>Log-vraisemblance & Log-cotes (Log-odds)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à comprendre les concepts de tokenisation ou la formule de base de TF-IDF.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise du prétraitement textuel, calcul de scores TF-IDF et classification automatique simple.</div>
+      <div class="bandrow bandrow--high">Pipeline NLP de veille complet : normalisation multilingue, indexation vectorielle haute performance et filtrage bayésien temps réel.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Analyse Prospective, Échelle TRL 1 à 9 &amp; Modèle Gartner Hype Cycle <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Norme AFNOR XP Z74-501, Documentation W3C RSS/Atom, Framework ThoughtWorks Tech Radar, Référentiel NASA / Horizon Europe TRL, Cours Veille Technologique B3 (Yan Nyaku, Collège de Paris).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

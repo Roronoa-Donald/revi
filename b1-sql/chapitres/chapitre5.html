@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Agrégation : compter, regrouper, filtrer les groupes | SQL B1</title>
+<meta name="description" content="Chapitre 5 du cours de bases de données et SQL B1 : COUNT, MIN, MAX, SUM, AVG, GROUP BY, HAVING, ordre complet d’une requête. Théorie, requêtes commentées, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-sql/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Agrégation : compter, regrouper, filtrer les groupes | SQL B1">
+<meta property="og:description" content="Chapitre 5 du cours de bases de données et SQL B1 : COUNT, MIN, MAX, SUM, AVG, GROUP BY, HAVING, ordre complet d’une requête. Théorie, requêtes commentées, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="sqlnav"><div class="sqlnav__in">
+  <a class="sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="sqlnav__sep" aria-hidden="true">/</span>
+  <a class="sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL B1</a>
+  <div class="sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="sqlwrap">
+<p class="crumb"><a href="../index.html">SQL B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Agrégation : compter, regrouper, filtrer les groupes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>« Combien de voitures par marque ? Quel budget total du parc ? Quelle marque domine ? » — aucune de ces réponses n’est une ligne de la table : ce sont des <strong>calculs sur des groupes de lignes</strong>. Les fonctions d’agrégation réduisent des colonnes à une valeur, et GROUP BY découpe la table en groupes avant le calcul. C’est le cœur de l’analyse de données en SQL.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>calculer des totaux avec COUNT, MIN, MAX, SUM et AVG ;</li>
+      <li>distinguer COUNT(*), COUNT(colonne) et COUNT(DISTINCT colonne) ;</li>
+      <li>regrouper les lignes avec GROUP BY et lire le résultat ;</li>
+      <li>filtrer les groupes avec HAVING, et le placer après WHERE.</li>
+    </ol>
+  </div>
+
+<h2>1. Les cinq fonctions d’agrégation</h2>
+
+<p>Une fonction d’agrégation agit sur une colonne et renvoie <strong>une seule valeur</strong> pour toutes les lignes sélectionnées :</p>\n<table>
+    <tr><th>Fonction</th><th>Résultat</th><th>Exemple sur le parc</th></tr>
+    <tr><td>COUNT(*)</td><td>nombre de lignes</td><td>23 voitures</td></tr>
+    <tr><td>COUNT(colonne)</td><td>lignes où la colonne n’est pas NULL</td><td>immatriculées : 23</td></tr>
+    <tr><td>MIN / MAX</td><td>plus petite / plus grande valeur</td><td>prix de 6 M à 50 M</td></tr>
+    <tr><td>SUM</td><td>somme des valeurs</td><td>budget total : 613,8 M</td></tr>
+    <tr><td>AVG</td><td>moyenne des valeurs</td><td>kilométrage moyen : 1 840,65</td></tr>
+  </table>\n<p><code>MIN</code> et <code>MAX</code> ne sont pas réservés aux nombres : sur des chaînes ils renvoient la première et la dernière dans l’ordre alphabétique, sur des dates la plus ancienne et la plus récente — <code>MIN(immat), MAX(datecirc)</code> sont des requêtes légales.</p>\n  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — COUNT(*) vs COUNT(colonne)</div>
+    <p><code>COUNT(*)</code> compte <strong>toutes</strong> les lignes ; <code>COUNT(colonne)</code> saute celles où la colonne vaut NULL. Sur le support : « 25 voitures immatriculées sur 34 » — les 9 sans immatriculation existent dans COUNT(*) et disparaissent de COUNT(immat). Choisir l’un ou l’autre, c’est répondre à deux questions différentes.</p>
+  </div>
+
+<h2>2. GROUP BY : calculer par groupe</h2>
+
+<p>Pour savoir combien de Toyota, de BMW, de Kia en une seule requête, on regroupe les lignes par marque : <code>GROUP BY</code> réaménage le résultat en groupes où la colonne de regroupement a la même valeur, et l’agrégat se calcule <strong>pour chaque groupe</strong>.</p>\n<pre><code>SELECT marque, COUNT(*) AS nb
+FROM Voiture
+GROUP BY marque;
+
+-- avec un filtre sur les lignes, avant le regroupement :
+SELECT moteur, COUNT(*), AVG(pxachat)
+FROM Voiture
+WHERE marque = 'TOYOTA'
+GROUP BY moteur;</code></pre>\n<p>Lecture du premier exemple : une ligne par marque présente dans le parc, avec son effectif — et rien d’autre. C’est la règle qui surprend : <strong>toute colonne du SELECT doit être dans le GROUP BY ou dans un agrégat</strong>. <code>SELECT marque, immat … GROUP BY marque</code> est rejeté : quelle immatriculation choisir pour le groupe ?</p>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « GROUP BY découpe, l’agrégat résume »</div>
+    <p>Chaque groupe devient <strong>une ligne du résultat</strong>. Si le résultat paraît étrange (trop de lignes, valeurs incohérentes), vérifier deux choses : la colonne de regroupement est-elle la bonne ? Chaque colonne affichée est-elle regroupée ou agrégée ?</p>
+  </div>
+
+<h2>3. HAVING : filtrer les groupes</h2>
+
+<p>« Quelles marques ont plus de deux voitures ? » : la condition porte sur le <strong>résultat du regroupement</strong>, pas sur les lignes. C’est le rôle de <code>HAVING</code> — l’équivalent de WHERE appliqué aux groupes :</p>\n<pre><code>SELECT marque, COUNT(*) AS nb
+FROM Voiture
+GROUP BY marque
+HAVING COUNT(*) &gt; 2;
+
+-- WHERE filtre les lignes AVANT le regroupement,
+-- HAVING filtre les groupes APRÈS :
+SELECT moteur, COUNT(*)
+FROM Voiture
+WHERE marque = 'TOYOTA'
+GROUP BY moteur
+HAVING COUNT(*) &gt;= 1;</code></pre>\n<p>HAVING ne peut exister qu’après un GROUP BY, et son critère porte sur une fonction d’agrégation. La séquence d’exécution du SGBD l’explique : lignes filtrées (WHERE), puis regroupées (GROUP BY), puis groupes filtrés (HAVING), puis tri (ORDER BY).</p>\n  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> WHERE ou HAVING : la question à se poser</div>
+    <p>« Seulement les diesels » parle des <strong>lignes</strong> : WHERE. « Seulement les marques avec au moins 3 voitures » parle des <strong>groupes</strong> : HAVING. Une condition qui contient un agrégat (COUNT, AVG…) ne peut jamais vivre dans WHERE.</p>
+  </div>
+
+<h2>4. L’ordre complet, une dernière fois</h2>
+
+<p>Toutes les clauses du cours se combinent dans cet ordre — qui est aussi l’ordre d’exécution du SGBD :</p>\n<pre><code>SELECT   colonnes, agrégats
+FROM     tables (jointures éventuelles)
+WHERE    filtre les LIGNES
+GROUP BY découpe en GROUPES
+HAVING   filtre les GROUPES
+ORDER BY trie le résultat
+LIMIT    borne le nombre de lignes</code></pre>\n<p>Exemple récapitulatif du parc : « les deux moteurs les plus répandus parmi les voitures de moins de 30 millions, avec leur prix moyen » :</p>\n<pre><code>SELECT moteur, COUNT(*) AS nb, AVG(pxachat) AS prix_moyen
+FROM Voiture
+WHERE pxachat &lt; 30000000
+GROUP BY moteur
+ORDER BY nb DESC
+LIMIT 2;</code></pre>\n  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier dans le simulateur</div>
+    <p>Chaque requête de ce chapitre s’exécute dans la page <a href="../atelier.html">atelier — simulateur SQL</a> : le jeu de données parc_auto y est chargé, et le résultat s’affiche en tableau. Déformer volontairement une clause (WHERE après GROUP BY, colonne hors GROUP BY) pour lire le message d’erreur est un excellent exercice.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="sq-c5-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;count compte&#10;sum somme&#10;max max&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r agregat role
+  # À compléter : le rôle attendu, la comparaison, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Les cinq agrégats</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer chaque agrégat à son rôle.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « agrégat role » : role est un code parmi <code>compte</code>, <code>somme</code>, <code>moyenne</code>, <code>min</code> ou <code>max</code>. Rôles du cours : COUNT compte les lignes → <code>compte</code> ; SUM additionne → <code>somme</code> ; AVG fait la moyenne → <code>moyenne</code> ; MIN donne la plus petite valeur → <code>min</code> ; MAX la plus grande → <code>max</code>. Pour chaque ligne il affiche <code>agrégat : OK</code> ou <code>agrégat : ERREUR</code>, puis <code>corrects : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+count compte
+sum somme
+max max
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>count : OK
+sum : OK
+max : OK
+corrects : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur l’agrégat : count → compte, sum → somme, avg → moyenne, min → min, max → max.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sq-c5-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;TG-3733-AC TOY&#10;TG-5420-AL BMW&#10;TG-9420-AF TOY&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+declare -A compte
+declare -A ordre
+g=0
+for ((i=0; i<n; i++)); do
+  read -r immat marque
+  echo "$immat : $marque"
+  # À compléter : nouvelle marque → enregistrer l'ordre ; compteur incrémenté.
+done
+# À compléter : bilans dans l'ordre d'apparition, puis nombre de groupes.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Comptage par marque : GROUP BY</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Reproduire COUNT(*) GROUP BY marque avec les bilans du cours.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « immat marque » (23 voitures au support). Pour chaque ligne il affiche <code>immat : marque</code>, puis une ligne <code>marque : X</code> par marque présente <strong>dans l’ordre de première apparition</strong> avec son compte — c’est <code>SELECT marque, COUNT(*) GROUP BY marque</code> — et enfin <code>marques : X</code> (nombre de groupes).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+TG-3733-AC TOY
+TG-5420-AL BMW
+TG-9420-AF TOY
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TG-3733-AC : TOY
+TG-5420-AL : BMW
+TG-9420-AF : TOY
+TOY : 2
+BMW : 1
+marques : 2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Nouvelle marque : [ -z "${compte[$marque]+x}" ] → ordre[$g]=$marque et g=$((g+1)).</li>
+        <li>Les bilans sortent après la boucle : marques dans l’ordre du tableau ordre, puis g.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sq-c5-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;TG-0001-AA DIESEL 15000000&#10;TG-0002-AA DIESEL 25000000&#10;TG-0003-AA ESSENCE 10000000&#10;40000000&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+declare -A somme
+declare -A nb
+declare -A ordre
+g=0
+for ((i=0; i<n; i++)); do
+  read -r immat moteur prix
+  # À compléter : groupe nouveau → ordre ; somme et effectif incrémentés.
+done
+read -r seuil
+# À compléter : affichage des groupes filtrés par HAVING, moyenne entière.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyse complète du parc : HAVING</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Grouper par moteur, appliquer SUM et AVG, puis filtrer les groupes avec HAVING.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « immat moteur prix » puis une ligne <code>seuil</code>. Il rejoue <code>SELECT moteur, SUM(pxachat), AVG(pxachat) GROUP BY moteur HAVING SUM(pxachat) &gt;= seuil</code> : après les lignes, il affiche pour chaque moteur <strong>dans l’ordre de première apparition</strong> et dont la somme des prix atteint le seuil <code>moteur : somme=X moyenne=Y</code> (moyenne arrondie à l’entier inférieur), puis <code>groupes : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+TG-0001-AA DIESEL 15000000
+TG-0002-AA DIESEL 25000000
+TG-0003-AA ESSENCE 10000000
+40000000
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DIESEL : somme=40000000 moyenne=20000000
+groupes : 1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Division entière bash : $(( somme / nb )) tronque déjà vers zéro — pas d’outil externe.</li>
+        <li>Le filtre HAVING porte sur la somme : sommer d’abord, afficher seulement les groupes à somme &gt;= seuil.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que renvoie une fonction d’agrégation ?</p>
+      <div class="opts">
+        <button class="opt">Une colonne</button>
+        <button class="opt" data-correct="1">Une seule valeur (ou une par groupe)</button>
+        <button class="opt">Une table</button>
+      </div>
+      <div class="q__exp">Elle résume une colonne : une valeur totale, ou une par groupe avec GROUP BY.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">COUNT(immat) sur 34 lignes dont 9 immat NULL vaut…</p>
+      <div class="opts">
+        <button class="opt">34</button>
+        <button class="opt" data-correct="1">25</button>
+        <button class="opt">9</button>
+      </div>
+      <div class="q__exp">COUNT(colonne) ignore les NULL : 34 − 9 = 25.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que compte COUNT(DISTINCT marque) ?</p>
+      <div class="opts">
+        <button class="opt">Toutes les lignes</button>
+        <button class="opt" data-correct="1">Les marques distinctes</button>
+        <button class="opt">Les marques NULL</button>
+      </div>
+      <div class="q__exp">DISTINCT élimine les doublons avant le comptage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans SELECT marque, immat … GROUP BY marque, que se passe-t-il ?</p>
+      <div class="opts">
+        <button class="opt">Tout marche</button>
+        <button class="opt" data-correct="1">Erreur : immat n’est ni regroupé ni agrégé</button>
+        <button class="opt">immat prend la première valeur</button>
+      </div>
+      <div class="q__exp">Toute colonne du SELECT doit être dans le GROUP BY ou agrégée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">HAVING filtre…</p>
+      <div class="opts">
+        <button class="opt">les lignes avant regroupement</button>
+        <button class="opt" data-correct="1">les groupes après regroupement</button>
+        <button class="opt">les colonnes</button>
+      </div>
+      <div class="q__exp">WHERE filtre les lignes, HAVING filtre les groupes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une condition avec COUNT(*) peut-elle vivre dans WHERE ?</p>
+      <div class="opts">
+        <button class="opt">Oui</button>
+        <button class="opt" data-correct="1">Non, seulement dans HAVING</button>
+        <button class="opt">Seulement avec LIMIT</button>
+      </div>
+      <div class="q__exp">Les agrégats ne sont calculés qu’au regroupement : HAVING uniquement.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Colonne affichée hors GROUP BY</strong> : erreur immédiate du SGBD.</li>
+      <li><strong>HAVING sans GROUP BY</strong> : la clause est rejetée.</li>
+      <li><strong>COUNT(*) à la place de COUNT(colonne)</strong> : les NULL sont comptés à tort.</li>
+      <li><strong>Filtre de groupe mis dans WHERE</strong> : « HAVING COUNT(*) > 2 » ne s’écrit pas « WHERE COUNT(*) > 2 ».</li>
+      <li><strong>AVG sur une colonne textuelle</strong> : résultat sans sens — la moyenne d’un prix, oui ; d’une immatriculation, non.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Analyser une table par groupes</div>
+    <ol>
+      <li><strong>Traduire la question</strong> : quelle unité de compte (par marque, par moteur, par pays) ?</li>
+      <li><strong>Choisir l’agrégat</strong> : combien (COUNT), extrêmes (MIN/MAX), total (SUM), moyenne (AVG).</li>
+      <li><strong>Regrouper</strong> sur la colonne d’unité et n’afficher que regroupé ou agrégé.</li>
+      <li><strong>Filtrer au bon endroit</strong> : lignes dans WHERE, groupes dans HAVING.</li>
+      <li><strong>Présenter</strong> avec ORDER BY et LIMIT, puis contrôler les effectifs sur un cas connu.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Cinq agrégats : COUNT, MIN, MAX, SUM, AVG — une valeur par table ou par groupe.</li>
+      <li>COUNT(*) compte les lignes ; COUNT(colonne) ignore les NULL ; COUNT(DISTINCT …) dédoublonne.</li>
+      <li>GROUP BY découpe en groupes ; toute colonne affichée y figure ou est agrégée.</li>
+      <li>HAVING filtre les groupes (condition avec agrégat) ; WHERE filtre les lignes avant.</li>
+      <li>Ordre d’exécution : FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je choisis le bon agrégat pour une question donnée.</li>
+      <li>Je distingue COUNT(*), COUNT(colonne) et COUNT(DISTINCT colonne).</li>
+      <li>J’écris un GROUP BY complet sans colonne hors regroupement.</li>
+      <li>Je place WHERE et HAVING conformément à ce qu’ils filtrent.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>agrégation</li><li>COUNT</li><li>SUM</li><li>AVG</li><li>MIN</li><li>MAX</li><li>GROUP BY</li><li>HAVING</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais les cinq agrégats sur Voiture dans le simulateur.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Écris « nombre de voitures par moteur avec prix moyen » sans aide.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : ajoute « seulement les moteurs avec au moins 2 voitures ».</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 6, mises à jour et droits.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Modifier les données et gérer les droits <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support B1 « Base de données & SQL » (IT-B1) et le jeu de données parc_auto du support (Marque, Voiture).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

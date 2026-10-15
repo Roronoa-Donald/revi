@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Spécification Agile &amp;amp; Estimation : User Stories, INVEST &amp;amp; Planning Poker | Méthodes Agiles B3</title>
+<meta name="description" content="Chapitre 4 du cours Méthodes Agiles B3 : Format narratif des User Stories (3C), critères de qualité INVEST, critères d’acceptation BDD/Gherkin, Planning Poker, suite de Fibonacci et complexité relative. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-agile/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Spécification Agile &amp;amp; Estimation : User Stories, INVEST &amp;amp; Planning Poker | Méthodes Agiles B3">
+<meta property="og:description" content="Chapitre 4 du cours Méthodes Agiles B3 : Format narratif des User Stories (3C), critères de qualité INVEST, critères d’acceptation BDD/Gherkin, Planning Poker, suite de Fibonacci et complexité relative. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-agilenav"><div class="b3-agilenav__in">
+  <a class="b3-agilenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-agilenav__sep" aria-hidden="true">/</span>
+  <a class="b3-agilenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> Méthodes Agiles B3</a>
+  <div class="b3-agilenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-agilenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-agilewrap">
+<p class="crumb"><a href="../index.html">Méthodes Agiles B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Spécification Agile &amp; Estimation : User Stories, INVEST &amp; Planning Poker</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans les démarches traditionnelles, la spécification des besoins prenait la forme de cahiers des charges fonctionnels de plusieurs centaines de pages, obsolètes avant même la première ligne de code. L’agilité a révolutionné l’ingénierie des exigences grâce aux User Stories, formalisées par le modèle des 3C de Ron Jeffries (Card, Conversation, Confirmation). Une User Story n’est pas une spécification exhaustive, mais une promesse de conversation entre le Product Owner et l’équipe technique. Parallèlement, l’estimation en heures ou jours-hommes a été abandonnée au profit de l’estimation relative en Story Points : estimer la taille et la complexité d’une tâche par comparaison avec une tâche de référence est scientifiquement plus précis et reproductible que prédire une durée absolue. En troisième année de Bachelor, l’ingénieur doit maîtriser la validation formelle INVEST, la rédaction de critères d’acceptation en syntaxe Gherkin (BDD) et l’animation du Planning Poker selon la suite de Fibonacci modifiée.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser le modèle des 3C (Card, Conversation, Confirmation) et le canevas narratif d’une User Story ;</li>
+      <li>appliquer rigoureusement la grille d’évaluation INVEST (Bill Wake) pour qualifier une story ;</li>
+      <li>maîtriser les techniques de découpage vertical des Epics volumineux (Workflow, Règles métier, Données) ;</li>
+      <li>rédiger des critères d’acceptation vérifiables selon la syntaxe formelle BDD / Gherkin (Given, When, Then) ;</li>
+      <li>comprendre le principe de l’estimation relative en Story Points et son découplage de la durée calendaire ;</li>
+      <li>développer en Python 3 des validateurs syntaxiques INVEST, des moteurs de consensus Planning Poker et des analyseurs séquentiels Gherkin.</li>
+    </ol>
+  </div>
+
+<h2>1. L’Anatomie d’une User Story : Le Modèle des 3C et le Canevas Narratif</h2>
+
+<p>Popularisé par Ron Jeffries, le modèle des <strong>3C</strong> définit la nature triadique d’une exigence agile :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Les Trois Piliers « 3C »</h4>
+    <ul>
+      <li><strong>Card (La Carte)</strong> : L’invitation physique ou digitale résumant le besoin selon le canevas standard.</li>
+      <li><strong>Conversation (Le Dialogue)</strong> : L’échange verbal continu entre le PO, les développeurs, le designer et les testeurs pour explorer les cas limites, les maquettes et l’architecture.</li>
+      <li><strong>Confirmation (Les Critères)</strong> : Les critères d’acceptation formels définissant les conditions de succès vérifiables par des tests.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Le Canevas Standard de Mike Cohn</h4>
+    <p>Une User Story s’énonce toujours du point de vue de l’utilisateur final :</p>
+    <p><strong>En tant que</strong> <code>[persona / rôle utilisateur ciblé]</code>,<br>    <strong>Je veux</strong> <code>[action / capacité logicielle attendue]</code>,<br>    <strong>Afin de</strong> <code>[bénéfice métier / valeur ajoutée concrète]</code>.</p>
+    <p><em>Exemple :</em> En tant qu’abonné premium, je veux télécharger mes factures au format PDF en un clic, afin de simplifier ma déclaration fiscale.</p>
+  </div>
+</div>
+
+<h2>2. Les Critères de Qualité INVEST (Bill Wake) &amp; Découpage des Epics</h2>
+
+<p>Pour être qualifiée de prête à être développée (<em>Ready</em>), une User Story doit respecter les 6 critères de l’acronyme <strong>INVEST</strong> :</p>
+<table class="table">
+  <thead>
+    <tr><th>Critère</th><th>Exigence Méthodologique</th><th>Risque en cas de non-respect</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>I - Independent</strong></td><td>La story doit pouvoir être développée et livrée sans bloquer ni être bloquée par une autre.</td><td>Création de cascades de dépendances bloquantes dans le sprint.</td></tr>
+    <tr><td><strong>N - Negotiable</strong></td><td>La story n’est pas un contrat figé ; les détails techniques sont ajustables en équipe.</td><td>Perte d’innovation et rigidité contractuelle.</td></tr>
+    <tr><td><strong>V - Valuable</strong></td><td>Elle apporte une valeur perceptible directe à l’utilisateur ou au métier (pas de pure story technique invisible).</td><td>Développement de fonctionnalités inutiles ou orphelines.</td></tr>
+    <tr><td><strong>E - Estimable</strong></td><td>L’équipe comprend le besoin suffisamment pour évaluer son effort en Story Points.</td><td>Impossibilité d’anticiper la vélocité et la charge de sprint.</td></tr>
+    <tr><td><strong>S - Small</strong></td><td>Elle doit être réalisable facilement au cours d’un seul Sprint (idéalement 1 à 3 jours de dev).</td><td>Tâches non terminées (Not Done) qui polluent les fins de sprint.</td></tr>
+    <tr><td><strong>T - Testable</strong></td><td>Elle possède des critères d’acceptation clairs permettant de vérifier automatiquement son succès.</td><td>Subjectivité lors de la recette et régressions en chaîne.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Critères d’Acceptation et Spécification par l’Exemple (BDD / Gherkin)</h2>
+
+<p>Le développement guidé par le comportement (<strong>Behavior-Driven Development - BDD</strong>) formalise les critères d’acceptation sous forme de scénarios compréhensibles à la fois par le métier et directement exécutables par des frameworks d’automatisation (ex: Cucumber, Behave) grâce à la syntaxe <strong>Gherkin</strong> :</p>
+<div class="card">
+  <h4>Structure Séquentielle Gherkin</h4>
+  <pre><code>SCÉNARIO: Connexion réussie avec mot de passe valide
+  ÉTANT DONNÉ (GIVEN) un utilisateur enregistré avec l'adresse "alice@domain.com"
+  ET (AND) un mot de passe configuré "Secret123!"
+  QUAND (WHEN) l'utilisateur saisit ses identifiants et clique sur "Se connecter"
+  ALORS (THEN) la session est ouverte avec succès
+  ET (AND) l'utilisateur est redirigé vers son tableau de bord personnel</code></pre>
+  <p><strong>Règle de rigueur :</strong> Le contexte initial (GIVEN) prépare l’état du système ; l’action déclenchante (WHEN) simule l’interaction de l’utilisateur ; le résultat attendu (THEN) formule l’assertion observable. L’enchaînement séquentiel doit être strictement respecté.</p>
+</div>
+
+<h2>4. L’Estimation Relative : Story Points, Planning Poker et Suite de Fibonacci</h2>
+
+<p>Estimer une tâche logicielle en heures absolues est notoirement imprécis : deux développeurs (junior et senior) ne mettront jamais le même temps, mais ils s’accorderont sur le fait que la fonctionnalité B est deux fois plus complexe que la fonctionnalité A. L’agilité utilise l’<strong>effort relatif en Story Points</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. La Suite de Fibonacci Modifiée</h4>
+    <p>L’échelle de référence universelle est : <code>[0, 1, 2, 3, 5, 8, 13, 20, 40, 100]</code>.</p>
+    <p>Cette progression non linéaire reflète la <em>loi de Weber-Fechner</em> en psychophysique : plus un objet est grand, plus l’incertitude augmente. Discuter pour savoir si une tâche vaut 20 ou 21 points est une perte de temps stérile ; passer de 13 à 20 exprime un saut réel d’inconnu.</p>
+  </div>
+  <div class="card">
+    <h4>2. Le Déroulement du Planning Poker</h4>
+    <ul>
+      <li>1. Le PO présente la User Story et répond aux questions techniques.</li>
+      <li>2. Chaque développeur choisit une carte secrète face cachée.</li>
+      <li>3. Révélation simultanée pour éviter tout biais d’ancrage ou influence hiérarchique.</li>
+      <li>4. Si consensus : la note est validée.</li>
+      <li>5. Si grand écart : le plus bas et le plus haut expliquent leurs arguments respectifs, puis un nouveau vote intervient.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ag3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="STORY_DEF id=US-1 persona=Client action=Payer_en_1_clic benefit=Gagner_du_temps ac_count=3">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : valider la structure de la User Story et le critère INVEST
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur syntaxique de User Story et conformité INVEST</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la structure narrative formelle d’une User Story (En tant que, Je veux, Afin de) et la présence de critères d’acceptation.</p>
+    <div class="lab__brief"><p>Une User Story bien formée suit le canevas de Mike Cohn : <em>« En tant que [persona], je veux [action], afin de [bénéfice métier] »</em>, complétée par des critères d'acceptation (Testable selon l'acronyme <strong>INVEST</strong>).<br><br>
+Le script lit sur l'entrée standard des définitions de stories au format :<br>
+<code>STORY_DEF id=&lt;nom&gt; persona=&lt;texte&gt; action=&lt;texte&gt; benefit=&lt;texte&gt; ac_count=&lt;int&gt;</code>.<br><br>
+Règles de validation :<br>
+1. <code>persona</code> ne doit pas valoir <code>NONE</code> ou être vide.<br>
+2. <code>action</code> ne doit pas valoir <code>NONE</code> ou être vide.<br>
+3. <code>benefit</code> ne doit pas valoir <code>NONE</code> ou être vide.<br>
+4. Le nombre de critères d'acceptation (<code>ac_count</code>) doit être supérieur ou égal à 1 (garantissant la testabilité).<br><br>
+Si toutes les conditions sont remplies : <code>status=VALID_STORY flaw=NONE</code>.<br>
+Sinon : <code>status=INVALID_STORY</code> avec le premier défaut rencontré parmi : <code>MISSING_PERSONA</code>, <code>MISSING_ACTION</code>, <code>MISSING_BENEFIT</code>, <code>UNTESTABLE_ZERO_AC</code>.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>STORY_AUDIT id={id} status={status} flaw={flaw}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STORY_DEF id=US-1 persona=Client action=Payer_en_1_clic benefit=Gagner_du_temps ac_count=3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STORY_AUDIT id=US-1 status=VALID_STORY flaw=NONE</pre></div>
+    </div>
+    <p class="lab__note">User story complète avec 3 critères d’acceptation : valide.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tester dans l’ordre : persona == "NONE" ou vide, action == "NONE", benefit == "NONE", puis ac_count &lt; 1.</li>
+        <li>Afficher VALID_STORY si aucune erreur n’a été détectée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ag3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="POKER_VOTE id=US-SEARCH votes=3,3,5,5,5">
+  <script type="text/plain" data-lab-starter>import sys
+
+FIBONACCI = [1, 2, 3, 5, 8, 13, 20, 40]
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser les votes du Planning Poker et déterminer l'estimation
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Consensus de Planning Poker et Suite de Fibonacci Modifiée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser un tour de vote de Planning Poker, détecter la divergence et projeter l’estimation sur la suite de Fibonacci.</p>
+    <div class="lab__brief"><p>Lors d'une session de <strong>Planning Poker</strong>, l'équipe estime l'effort relatif en Story Points selon la suite de Fibonacci modifiée standard : <code>[1, 2, 3, 5, 8, 13, 20, 40]</code>.<br><br>
+Le script lit sur l'entrée standard des tours de vote au format :<br>
+<code>POKER_VOTE id=&lt;nom&gt; votes=&lt;v1,v2,v3,...&gt;</code>.<br><br>
+Règles d'évaluation :<br>
+- <code>min_v = min(votes)</code>, <code>max_v = max(votes)</code>, <code>avg_v = sum(votes) / len(votes)</code>.<br>
+- Si l'écart relatif <code>max_v - min_v &gt;= 8</code> ou si le ratio <code>max_v / min_v &gt;= 3.0</code> :<br>
+  Le consensus est impossible sans débat : <code>decision=DEBATE_REQUIRED estimate=NONE</code>.<br>
+- Sinon : consensus obtenu. L'estimation retenue est la valeur de Fibonacci <strong>la plus proche</strong> de <code>avg_v</code> (en cas d'équidistance parfaite, choisir la valeur supérieure).<br>
+  <code>decision=CONSENSUS estimate={fib_valeur}</code>.<br><br>
+Pour chaque vote, afficher :<br>
+<code>POKER_RESULT id={id} min={min_v} max={max_v} avg={avg_rounded} decision={decision} estimate={estimate}</code><br>
+(avec <code>avg_rounded = round(avg_v, 1)</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POKER_VOTE id=US-SEARCH votes=3,3,5,5,5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>POKER_RESULT id=US-SEARCH min=3 max=5 avg=4.2 decision=CONSENSUS estimate=5</pre></div>
+    </div>
+    <p class="lab__note">Écart faible (5 - 3 = 2), moyenne 4.2 proche de 5 : consensus validé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertir la chaîne de votes en liste d’entiers.</li>
+        <li>Tester la condition de débat : (max_v - min_v &gt;= 8) ou (max_v / min_v &gt;= 3.0).</li>
+        <li>Pour trouver le nombre de Fibonacci le plus proche, minimiser abs(f - avg_v).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ag3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="SCENARIO id=LOGIN_SUCCESS steps=GIVEN,AND,WHEN,THEN">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : vérifier la validité séquentielle des étapes Gherkin
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Parseur de Scénarios Gherkin / BDD (Given - When - Then)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider la structure séquentielle d’un scénario de comportement Gherkin (Étant donné, Quand, Alors).</p>
+    <div class="lab__brief"><p>Dans le développement guidé par le comportement (<strong>Behavior-Driven Development - BDD</strong>), les critères d'acceptation sont formalisés sous la syntaxe Gherkin :<br>
+- <code>GIVEN</code> (Contexte initial)<br>
+- <code>WHEN</code> (Action déclenchante)<br>
+- <code>THEN</code> (Résultat observable attendu)<br>
+- <code>AND</code> (Extension d'une clause précédente).<br><br>
+Règles de conformité séquentielle :<br>
+1. Un scénario valide doit comporter <strong>au moins un GIVEN, au moins un WHEN, et au moins un THEN</strong>.<br>
+2. La séquence doit respecter l'ordre chronologique : aucun <code>WHEN</code> ne peut apparaître avant le premier <code>GIVEN</code>, et aucun <code>THEN</code> ne peut apparaître avant le premier <code>WHEN</code>.<br>
+3. Un mot-clé <code>AND</code> ne peut jamais être la toute première directive d'un scénario.<br><br>
+Le script lit sur l'entrée standard des scénarios au format :<br>
+<code>SCENARIO id=&lt;nom&gt; steps=&lt;STEP1,STEP2,STEP3,...&gt;</code>.<br><br>
+Pour chaque scénario, afficher :<br>
+<code>GHERKIN_AUDIT id={id} total_steps={count} status={VALID_BDD|INVALID_SEQUENCE}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SCENARIO id=LOGIN_SUCCESS steps=GIVEN,AND,WHEN,THEN</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>GHERKIN_AUDIT id=LOGIN_SUCCESS total_steps=4 status=VALID_BDD</pre></div>
+    </div>
+    <p class="lab__note">GIVEN suivi de AND, puis WHEN, puis THEN : séquence parfaitement conforme.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Suivre l’état courant : avant_given, dans_given, dans_when, dans_then.</li>
+        <li>S’assurer que l’on ne revient pas en arrière (ex: pas de GIVEN après WHEN ou THEN).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans le modèle des 3C de Ron Jeffries, que représente le « C » de « Confirmation » ?</p>
+      <div class="opts">
+        <button class="opt">La signature d’un bon de commande par la direction</button>
+        <button class="opt" data-correct="1">Les critères d’acceptation formels permettant de vérifier objectivement si la story est achevée et conforme</button>
+        <button class="opt">Un e-mail de félicitations envoyé aux développeurs</button>
+        <button class="opt">La confirmation de présence à la réunion</button>
+      </div>
+      <div class="q__exp">Confirmation désigne les critères d’acceptation (critères de validation) vérifiant que le besoin exprimé fonctionne comme attendu.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la grille d’évaluation INVEST, que signifie le critère « Small » ?</p>
+      <div class="opts">
+        <button class="opt">Le texte de la story ne doit pas dépasser 5 mots</button>
+        <button class="opt" data-correct="1">La story doit pouvoir être facilement conçue, codée et testée au cours d’un seul Sprint</button>
+        <button class="opt">Elle doit être confiée au développeur le plus jeune</button>
+        <button class="opt">Elle ne doit nécessiter aucune base de données</button>
+      </div>
+      <div class="q__exp">Une story Small est suffisamment réduite pour être achevée intégralement dans le cadre d’un sprint sans déborder sur le suivant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la syntaxe BDD / Gherkin, quel mot-clé introduit l’action déclenchante réalisée par l’utilisateur ?</p>
+      <div class="opts">
+        <button class="opt">GIVEN (Étant donné)</button>
+        <button class="opt" data-correct="1">WHEN (Quand / Lorsque)</button>
+        <button class="opt">THEN (Alors)</button>
+        <button class="opt">AND (Et)</button>
+      </div>
+      <div class="q__exp">WHEN décrit l’événement ou l’action stimulatrice (ex: « Quand l’utilisateur clique sur Valider »).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi le vote du Planning Poker est-il obligatoirement réalisé face cachée et révélé simultanément ?</p>
+      <div class="opts">
+        <button class="opt">Pour éviter que les développeurs ne copient sur leurs voisins pendant l’examen</button>
+        <button class="opt" data-correct="1">Pour neutraliser les biais cognitifs d’ancrage et empêcher les développeurs expérimentés d’influencer les autres</button>
+        <button class="opt">Parce que les cartes sont magiques</button>
+        <button class="opt">Pour accélérer la réunion en interdisant toute discussion</button>
+      </div>
+      <div class="q__exp">Le vote simultané élimine le biais d’ancrage psychologique : chacun exprime son estimation authentique sans autocensure.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi la suite de Fibonacci (1, 2, 3, 5, 8, 13, 20...) est-elle utilisée pour calibrer les Story Points plutôt qu’une échelle linéaire (1, 2, 3, 4, 5, 6...) ?</p>
+      <div class="opts">
+        <button class="opt">Parce que Fibonacci était un grand informaticien</button>
+        <button class="opt" data-correct="1">Parce que l’incertitude grandit proportionnellement à la taille de la tâche, rendant illusoire toute précision fine sur les gros volumes</button>
+        <button class="opt">Pour limiter le nombre de réunions</button>
+        <button class="opt">Parce que les nombres pairs sont interdits en agile</button>
+      </div>
+      <div class="q__exp">Les écarts exponentiels reflètent l’augmentation de l’incertitude : plus une tâche est volumineuse, plus les détails cachés sont imprévisibles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle formulation est un exemple parfait d’anti-pattern dans la rédaction d’une User Story ?</p>
+      <div class="opts">
+        <button class="opt">En tant que client, je veux consulter mon historique d’achats afin de retrouver mes factures passées</button>
+        <button class="opt" data-correct="1">En tant que développeur backend, je veux créer la table Postgres users afin d’avoir des colonnes en base</button>
+        <button class="opt">En tant que gestionnaire de stock, je veux recevoir une alerte SMS en cas de rupture afin de réapprovisionner à temps</button>
+        <button class="opt">En tant que visiteur anonyme, je veux réinitialiser mon mot de passe afin de récupérer l’accès à mon compte</button>
+      </div>
+      <div class="q__exp">Une story technique centrée sur l’implémentation interne sans valeur métier ni persona utilisateur réel est un anti-pattern.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Lors d’un tour de Planning Poker, deux développeurs votent 2 points et deux autres votent 13 points. Que doit faire le Scrum Master ?</p>
+      <div class="opts">
+        <button class="opt">Calculer la moyenne : (2 + 2 + 13 + 13) / 4 = 7.5 et arrondir à 8 points</button>
+        <button class="opt" data-correct="1">Inviter le vote le plus bas et le vote le plus haut à expliquer leurs visions techniques respectives pour partager l’information avant un second vote</button>
+        <button class="opt">Imposer la décision du Product Owner</button>
+        <button class="opt">Annuler le projet</button>
+      </div>
+      <div class="q__exp">L’intérêt du Planning Poker réside dans le débat : le vote bas a peut-être trouvé une bibliothèque existante, tandis que le vote haut a vu un piège architectural.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne le terme « Epic » dans la hiérarchie du Product Backlog ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une grande User Story trop volumineuse pour être réalisée en un seul sprint et qui doit être découpée en stories plus petites</button>
+        <button class="opt">Un bug critique ayant causé une panne de serveur</button>
+        <button class="opt">Un développeur d’élite ayant 20 ans d’expérience</button>
+        <button class="opt">Le document d’architecture système</button>
+      </div>
+      <div class="q__exp">Un Epic est un macro-besoin ou thème de haut niveau nécessitant d’être décomposé verticalement en plusieurs User Stories INVEST.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Rédiger des User Stories purement techniques sans bénéfice métier (ex: « En tant que dev, je veux créer la table SQL »).</li>
+      <li>Convertir directement et mathématiquement 1 Story Point en un nombre fixe d’heures (ex: « 1 point = 1 jour »).</li>
+      <li>Faire la moyenne arithmétique mathématique lors d’un désaccord majeur au Planning Poker au lieu de faire débattre.</li>
+      <li>Considérer la User Story comme un document contractuel figé sans avoir de conversation approfondie avec l’équipe.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Raffinement de Backlog et Estimation Collective en Planning Poker</div>
+    <ol>
+      <li>Étape 1 : Préparer la session de Backlog Refinement avec le PO en sélectionnant les 5 à 10 stories prioritaires.</li>
+      <li>Étape 2 : Pour chaque story, lire la description narrative et examiner les critères d’acceptation Gherkin.</li>
+      <li>Étape 3 : Vérifier la conformité de la story aux critères INVEST ; si elle est trop volumineuse (Epics), la découper immédiatement.</li>
+      <li>Étape 4 : Choisir ou rappeler une User Story de référence (Golden Story) valant 2 ou 3 Story Points.</li>
+      <li>Étape 5 : Lancer le vote de Planning Poker à cartes cachées, révéler les cartes simultanément et analyser les écarts.</li>
+      <li>Étape 6 : Faire débattre les estimations extrêmes pour révéler les risques ou simplifications, revoter et enregistrer le consensus final.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le modèle des 3C de Ron Jeffries réunit Card (résumé), Conversation (dialogue) et Confirmation (critères d’acceptation).</li>
+      <li>Le canevas narratif s’articule toujours autour de : En tant que (persona), Je veux (action), Afin de (valeur).</li>
+      <li>La grille INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable) garantit la qualité d’une story.</li>
+      <li>Le BDD et la syntaxe Gherkin (Given, When, Then) transforment les critères d’acceptation en tests automatisables.</li>
+      <li>L’estimation en Story Points est relative et découplée des heures réelles de chaque développeur.</li>
+      <li>Le Planning Poker utilise la suite de Fibonacci modifiée et évite les biais cognitifs grâce au vote secret simultané.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais rédiger une User Story conforme au canevas des 3C et de Mike Cohn.</li>
+      <li>Je maîtrise les 6 critères INVEST et sais diagnostiquer une story défaillante.</li>
+      <li>Je sais formuler des critères d’acceptation en syntaxe Gherkin (Given - When - Then).</li>
+      <li>Je comprends l’intérêt de l’estimation relative en Story Points par rapport aux heures absolues.</li>
+      <li>Je connais la suite de Fibonacci modifiée et la justification cognitive de ses écarts croissants.</li>
+      <li>Je sais animer une session de Planning Poker et gérer les divergences d’estimations.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Modèle des 3C (Card, Conversation, Confirmation)</li><li>Canevas narratif User Story (En tant que, Je veux, Afin de)</li><li>Critères INVEST de Bill Wake</li><li>Spécification par l’Exemple & BDD</li><li>Syntaxe formelle Gherkin (Given, When, Then, And)</li><li>Estimation relative en Story Points</li><li>Planning Poker & Vote simultané sans ancrage</li><li>Suite de Fibonacci modifiée</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Rédaction de stories purement techniques sans bénéfice métier ou assimilation des Story Points à des jours-hommes fixes.</div>
+      <div class="bandrow bandrow--medium">Bonne application de la grille INVEST, critères d’acceptation Gherkin clairs et facilitation efficace du Planning Poker.</div>
+      <div class="bandrow bandrow--high">Maîtrise experte du découpage vertical d’Epics complexes, déploiement du BDD à l’échelle et calibration fine de la complexité relative.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Planification de Release, Vélocité &amp; Suivi de Projet : Burn-down / Burn-up <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Guide officiel Scrum (Ken Schwaber & Jeff Sutherland), Manifeste Agile (2001), Kanban Guide (David J. Anderson), User Stories Applied (Mike Cohn) et Scaled Agile Framework (SAFe).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

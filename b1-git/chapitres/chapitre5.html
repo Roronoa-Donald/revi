@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Dépôt distant : clone, push, pull, fetch | Git B1</title>
+<meta name="description" content="Chapitre 5 du cours de Git B1 : origin et les liens distants, pousser ses commits, récupérer avec pull (fetch + merge), gérer un rejet. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-git/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Dépôt distant : clone, push, pull, fetch | Git B1">
+<meta property="og:description" content="Chapitre 5 du cours de Git B1 : origin et les liens distants, pousser ses commits, récupérer avec pull (fetch + merge), gérer un rejet. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="gtnav"><div class="gtnav__in">
+  <a class="gtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="gtnav__sep" aria-hidden="true">/</span>
+  <a class="gtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git B1</a>
+  <div class="gtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="gtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="gtwrap">
+<p class="crumb"><a href="../index.html">Git B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Dépôt distant : clone, push, pull, fetch</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le TP2 passe en binôme : le dépôt de l'étudiant A part sur GitHub, l'étudiant B clone, et les deux modifient le même fichier. Premier push refusé, premier pull, premier conflit — le cycle complet de la collaboration. Ce chapitre explique ce que chaque commande déplace entre les deux dépôts.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>lier un dépôt local à un dépôt distant avec git remote add origin ;</li>
+      <li>pousser ses commits avec git push et comprendre un rejet ;</li>
+      <li>décomposer git pull en fetch + merge et voir ce que chacun met à jour ;</li>
+      <li>rejouer le scénario du TP2 : deux développeurs, un conflit, une résolution.</li>
+    </ol>
+  </div>
+
+<h2>1. origin : le lien vers le distant</h2>
+
+<p>Le dépôt local se lie au dépôt distant par une adresse. Le TP2 la pose ainsi :</p>
+<pre><code>git remote add origin https://github.com/&lt;user&gt;/gestion_taches.git
+git branch -M main
+git push -u origin main</code></pre>
+<p>Le nom <strong>origin</strong> est purement conventionnel : c'est le nom par défaut du lien vers le dépôt distant, il peut être changé. La vérification : <code>git remote -v</code> liste les liens avec leurs URL. <code>git branch -M main</code> renomme la branche principale en main, et <code>push -u origin main</code> pousse en liant la branche locale à sa jumelle distante.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « origin = l'origine du clonage »</div>
+    <p>Un dépôt cloné connaît déjà son origin : le clone crée le lien automatiquement. Un dépôt initialisé en local doit se lier à la main avec remote add — c'est l'étape que le TP1 n'a pas, et le TP2 oui.</p>
+  </div>
+
+<h2>2. push : envoyer, et se faire refuser</h2>
+
+<p><code>git push</code> envoie tous les commits de la branche locale vers le dépôt distant. Sous une forme complète : <code>git push origin main</code>.</p>
+<p>Mais le push a une règle : <strong>on ne pousse que si l'on a tout ce que le distant contient</strong>. Si un tiers a poussé entre-temps (l'étudiant A dans le TP2), le push est <strong>rejeté</strong> : le distant refuse qu'on écrive par-dessus des commits que notre local ne connaît pas. La séquence du TP2 est formelle :</p>
+<pre><code>git push                    → rejeté (l'autre a poussé)
+git pull origin main        → récupère et fusionne
+git push                    → accepté</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le push sans pull</div>
+    <p>Le rejet n'est pas une panne : c'est la protection qui empêche d'écraser le travail des autres. L'exercice « push refusé » de l'atelier rejoue exactement ce scénario et montre que le pull remet tout le monde d'accord.</p>
+  </div>
+
+<h2>3. fetch et pull : deux façons de ramener</h2>
+
+<p>Les deux commandes écoutent le distant, mais ne vont pas aussi loin l'une que l'autre :</p>
+<table>
+    <tr><th>Commande</th><th>Effet</th></tr>
+    <tr><td><code>git fetch origin</code></td><td>récupère tout l'historique du dépôt distant et actualise les références locales — sans fusionner, sans toucher à la copie de travail</td></tr>
+    <tr><td><code>git pull</code></td><td>fetch puis merge : ramène ET incorpore les modifications dans la branche courante</td></tr>
+  </table>
+<p>Un git pull correspond donc exactement à :</p>
+<pre><code>git fetch origin
+git merge origin/main</code></pre>
+<p>La nuance compte : après un fetch, on peut <strong>examiner</strong> ce qui est arrivé (git log origin/main, git diff) avant de décider de fusionner. Après un pull, la fusion a déjà eu lieu — conflits compris. Pour éviter les dérivations d'historique, le vade-mecum propose aussi un pull avec rebase : <code>git pull --rebase=preserve origin main</code>.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « fetch écoute, pull obéit »</div>
+    <p>fetch ramène les nouvelles sans toucher à votre travail : il met à jour les références distantes locales (origin/main). pull = fetch + merge : il avance aussi votre branche. En cas de doute, fetch d'abord, on merge ensuite en connaissance de cause.</p>
+  </div>
+
+<h2>4. Le scénario complet du TP2</h2>
+
+<p>Rejouons le fil du TP2, la scène de conflit la plus fréquente du travail en binôme :</p>
+<pre><code># Étudiant A (propriétaire) : init, commit, push initial
+git init ; git add . ; git commit -m "Initialisation du projet"
+git remote add origin ...
+git branch -M main ; git push -u origin main
+
+# Étudiant B : clone
+git clone ...
+
+# Les deux modifient main.py, chacun son côté :
+A : add + commit + push          → accepté
+B : add + commit + push          → REJETÉ (A a poussé avant)
+B : git pull origin main         → CONFLIT sur main.py
+# B résout les marqueurs, puis :
+B : add + commit + push          → accepté</code></pre>
+<p>La leçon : le rejet et le conflit ne sont pas des accidents, ce sont les gardiens de la collaboration. On les rencontre chaque fois que deux personnes modifient la même zone — et la résolution se fait toujours de la même façon : lire les deux versions, décider, add, commit.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Aller plus loin : la distribution des sources</div>
+    <p>Pour livrer une archive propre de la version courante sans le dossier .git : git archive --format=tar --prefix=dossier/ HEAD | gzip &gt; v1.4.0.tar.gz. L'archive se décompresse dans un dossier nommé, avec tous les fichiers du dépôt.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gt-c5-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;commit&#10;commit&#10;push&#10;distant&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op
+  # À compléter : deux compteurs, un drapeau de fraîcheur.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — push refusé : repartir du pull</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Rejouer le scénario du TP2 : un push sans pull préalable est rejeté par le dépôt distant.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit</code> (commit local), <code>pull</code> (récupère l’état du distant : le compteur local s’aligne sur le plus grand des deux compteurs), <code>push</code> — accepté seulement si le local contient tout le distant, c’est-à-dire si aucun commit distant n’a été « appris » après le dernier pull et qu’il y a au moins un commit local à envoyer. Simplification du TP : le push réussit si aucun autre développeur n’a poussé depuis (drapeau <code>distants</code> incrémenté par chaque <code>pull</code> d’un tiers, opération <code>tierce</code>) ; sinon il affiche <code>rejeté</code> et il faut pull puis recommencer. Après chaque push réussi ou refusé, afficher <code>local : K</code> et <code>distant : K</code> (K = commits du dépôt distant).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+commit
+commit
+push
+distant
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>local : 2
+distant : 2
+local : 2
+distant : 2</pre></div>
+    </div>
+    <p class="lab__note">Le push affiche l'état, puis l'opération distant le redonne.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le push n’est jamais possible sans pull si un tiers a poussé entre-temps : le drapeau le retient.</li>
+        <li>Après un push réussi, local et distant sont égaux : le drapeau de fraîcheur repart à zéro.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c5-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;commit 5&#10;clone&#10;etat&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op k
+  # À compléter : le clone copie tout, les commits distants ne touchent pas le local.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — clone et origin</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler clone : le dépôt local démarre avec tout l’historique du distant.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit k</code> (k commits poussés sur le dépôt distant par d’autres), <code>clone</code> (crée le local avec tout le distant), ou <code>etat</code> (affiche <code>local : K</code> / <code>distant : K</code>, ou <code>local : aucun</code> si pas de clone). Un commit après clone reste local jusqu’au push (traité au chapitre 6 — ici, les commits d’un tiers s’ajoutent directement au distant).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+commit 5
+clone
+etat
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>local : 5
+distant : 5</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un drapeau cloné vaut mieux qu’un test de nil : etat sait quoi répondre.</li>
+        <li>commit k pendant le clone n’existe pas : k n’arrive qu’avec l’opération commit.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c5-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="5&#10;commit&#10;tierce main&#10;fetch&#10;etat&#10;commit&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op a
+  # À compléter : trois compteurs de trois espaces différents.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — fetch puis merge : le vrai pull</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décomposer git pull en fetch + merge et montrer ce que chacun met à jour.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit</code> (commit local, la copie avance), <code>tierce branche</code> (un tiers pousse k=1 commit sur la branche distante nommée), <code>fetch</code> (copie l’état distant dans les références locales, sans toucher à la branche locale), ou <code>etat</code>. L’état affiche trois lignes : <code>local : K</code>, <code>remote-suivi : K</code> (dernière valeur vue par fetch), <code>distant : K</code>. Après un fetch, remote-suivi rattrape distant ; la branche locale, elle, ne bouge pas.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+commit
+tierce main
+fetch
+etat
+commit
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>local : 1
+remote-suivi : 1
+distant : 1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>fetch met à jour remote-suivi mais jamais local : c’est toute la différence avec pull.</li>
+        <li>tierce fait avancer distant ; fetch rattrape ensuite remote-suivi sur distant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Le nom origin désigne…</p>
+      <div class="opts">
+        <button class="opt">le dépôt local</button>
+        <button class="opt" data-correct="1">le lien conventionnel vers le dépôt distant</button>
+        <button class="opt">la branche principale</button>
+      </div>
+      <div class="q__exp">origin est le nom par défaut du lien distant ; il peut être changé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande liste les liens distants ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">git remote -v</button>
+        <button class="opt">git branch -r</button>
+        <button class="opt">git log origin</button>
+      </div>
+      <div class="q__exp">remote -v montre les liens et leurs URL ; branch -r liste les branches distantes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un push est rejeté quand…</p>
+      <div class="opts">
+        <button class="opt">le dépôt distant est plein</button>
+        <button class="opt" data-correct="1">le distant contient des commits que le local n'a pas</button>
+        <button class="opt">le message est trop long</button>
+      </div>
+      <div class="q__exp">Le distant refuse qu'on écrive par-dessus ce que notre local ne connaît pas : pull d'abord.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait git fetch ?</p>
+      <div class="opts">
+        <button class="opt">Il fusionne le distant dans le local</button>
+        <button class="opt" data-correct="1">Il actualise les références distantes sans fusionner</button>
+        <button class="opt">Il pousse les commits</button>
+      </div>
+      <div class="q__exp">fetch ramène l'historique distant et met à jour origin/main, sans toucher à la copie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">git pull équivaut à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">fetch puis merge</button>
+        <button class="opt">push puis fetch</button>
+        <button class="opt">clone puis merge</button>
+      </div>
+      <div class="q__exp">pull = fetch + merge : il ramène ET incorpore dans la branche courante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Après un fetch, la copie de travail est…</p>
+      <div class="opts">
+        <button class="opt">mise à jour</button>
+        <button class="opt" data-correct="1">inchangée</button>
+        <button class="opt">supprimée</button>
+      </div>
+      <div class="q__exp">fetch ne touche ni à la copie de travail ni à la branche courante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait git push -u origin main ?</p>
+      <div class="opts">
+        <button class="opt">Renomme main</button>
+        <button class="opt" data-correct="1">Pousse main et la lie à sa jumelle distante</button>
+        <button class="opt">Crée origin</button>
+      </div>
+      <div class="q__exp">-u (upstream) lie la branche locale à la branche distante pour les push/pull suivants.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le TP2, le conflit survient parce que…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">les deux ont modifié le même fichier</button>
+        <button class="opt">le dépôt est public</button>
+        <button class="opt">B a cloné</button>
+      </div>
+      <div class="q__exp">Deux modifications de la même zone : la fusion demande un arbitrage humain.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Pusher sans pull après un rejet</strong> : le rejet se lève par un pull, pas par l'insistance.</li>
+      <li><strong>Confondre fetch et pull</strong> : l'un écoute, l'autre fusionne déjà.</li>
+      <li><strong>Croire que clone lie origin automatiquement mais pas remote add</strong> : le lien se crée dans les deux cas, manuellement ou non.</li>
+      <li><strong>Forcer un push (--force) pour passer</strong> : le travail des autres disparaît.</li>
+      <li><strong>Oublier branch -M main</strong> : le push vise main, le local s'appelle peut-être master.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Synchroniser sans écraser personne</div>
+    <ol>
+      <li><strong>Lier correctement</strong> : remote add origin + branch -M main + push -u.</li>
+      <li><strong>Pousser tôt et souvent</strong> : moins de divergence, moins de conflits.</li>
+      <li><strong>Lire un rejet</strong> : il signifie « le distant avance, rattrape-le ».</li>
+      <li><strong>Fetch pour observer</strong>, pull pour incorporer : choisir en connaissance de cause.</li>
+      <li><strong>Résoudre les conflits</strong> comme au chapitre 4 : lire, décider, add, commit.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>remote add origin lie le local au distant ; remote -v vérifie ; clone crée le lien tout seul.</li>
+      <li>push -u origin main pousse et lie la branche pour les échanges suivants.</li>
+      <li>Un push est rejeté si le distant contient du travail inconnu du local : pull d'abord.</li>
+      <li>fetch actualise les références sans fusionner ; pull = fetch + merge.</li>
+      <li>Rejet et conflit sont les protections de la collaboration : on les résout, jamais on ne les contourne.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je lie un dépôt local à un distant et je vérifie avec remote -v.</li>
+      <li>Je prédis l'issue d'un push d'après l'état des deux dépôts.</li>
+      <li>Je décompose pull en fetch + merge et montre ce que chacun change.</li>
+      <li>Je rejoue le scénario A/B du TP2 avec conflit et résolution.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>dépôt distant</li><li>origin</li><li>remote add</li><li>push</li><li>-u</li><li>rejet</li><li>fetch</li><li>pull</li><li>upstream</li><li>collaboration</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le TP2 en binôme (ou en simulant les deux postes).</div>
+      <div class="bandrow bandrow--mid">50–69 % — Explique la différence fetch/pull avec un scénario chacune.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : prédis l'issue de chaque push du scénario A/B.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 6, stash, gitignore et archive.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Stash, gitignore et publication <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : l'« Aide-mémoire GitHub Git », le vade-mecum « Travailler avec Git au quotidien » (ENSICAEN) et les TP 1 à 5 du module Git.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

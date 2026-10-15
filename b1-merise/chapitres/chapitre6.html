@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — La normalisation du MLD : 1FN, 2FN, 3FN | Modélisation (MERISE) B1</title>
+<meta name="description" content="Chapitre 6 du cours de Modélisation (MERISE) B1 : Anomalies d'une base non normalisée ; formes normales 1FN, 2FN, 3FN ; dépendances partielles et transitives. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-merise/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — La normalisation du MLD : 1FN, 2FN, 3FN | Modélisation (MERISE) B1">
+<meta property="og:description" content="Chapitre 6 du cours de Modélisation (MERISE) B1 : Anomalies d'une base non normalisée ; formes normales 1FN, 2FN, 3FN ; dépendances partielles et transitives. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="mrnav"><div class="mrnav__in">
+  <a class="mrnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="mrnav__sep" aria-hidden="true">/</span>
+  <a class="mrnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> Modélisation (MERISE) B1</a>
+  <div class="mrnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="mrnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="mrwrap">
+<p class="crumb"><a href="../index.html">Modélisation (MERISE) B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — La normalisation du MLD : 1FN, 2FN, 3FN</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le schéma est écrit, mais une même adresse se répète dix fois et une modification en oublie la moitié. La normalisation vérifie le MLD avec trois formes normales fondées sur les dépendances fonctionnelles : éliminer les redondances, donc les anomalies de mise à jour, d'insertion et de suppression.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>citer les anomalies d'un schéma non normalisé (redondance, mise à jour, insertion, suppression) ;</li>
+      <li>vérifier la 1FN : clé, attributs monovalués, non décomposables ;</li>
+      <li>détecter une dépendance partielle (2FN) et une dépendance transitive (3FN) ;</li>
+      <li>normaliser un schéma en décomposant les tables fautives.</li>
+    </ol>
+  </div>
+
+<h2>1. Pourquoi normaliser</h2>
+
+<p>Le support le montre avec FOURNISSEUR (NomFournisseur, AdresseFournisseur, Produits, Prix) : pas de clé primaire (deux « Dupont » : même personne ou pas ?), adresse non décomposée (impossible de chercher par ville), plusieurs produits par fournisseur — donc adresse dupliquée dans chaque ligne.</p>
+<p>Résultat : <strong>redondance</strong> (la même adresse mille fois), <strong>anomalie de mise à jour</strong> (changer l'adresse oblige à retoucher toutes les lignes), <strong>anomalie d'insertion</strong> (ajouter un produit force à ressaisir l'adresse), <strong>anomalie de suppression</strong> (supprimer le dernier produit efface le fournisseur).</p>
+<p>La normalisation élimine les redondances : base plus petite, moins de risques d'incohérence, pas de mise à jour multiple des mêmes données. Les formes normales s'appuient sur les <strong>dépendances fonctionnelles</strong> établies au chapitre 3.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « la clé, toute la clé, rien que la clé »</div>
+    <p>1FN : des attributs atomiques sous une vraie clé. 2FN : tout dépend de <strong>toute la clé</strong> (pas de partie). 3FN : rien que la clé — aucune dépendance transitive vers un attribut non clé.</p>
+  </div>
+
+<h2>2. Les trois formes normales</h2>
+
+<p><strong>1FN</strong> : la relation possède une clé identifiant chaque ligne de manière unique et stable ; chaque attribut est <strong>monovalué</strong> ; aucun attribut n'est décomposable en plusieurs attributs significatifs. Contre-exemple du support : EMPLOYE (Nom, Prénom, Enfants, Diplômes) — plusieurs enfants, plusieurs diplômes, et Enfants décomposable en Prénom + Année.</p>
+<p><strong>2FN</strong> : être en 1FN et tout attribut non clé <strong>totalement dépendant de toute la clé</strong>. Elle ne se vérifie que pour les clés composées : une relation en 1FN à clé simple est toujours en 2FN. Contre-exemple : LIGNE_CDE (#NumCde, #RefPdt, DesignationPdt, Quantite) — DesignationPdt ne dépend que de RefPdt, pas de toute la clé : dépendance <strong>partielle</strong>. Correction : sortir (RefPdt, DesignationPdt) dans une table PRODUIT.</p>
+<p><strong>3FN</strong> : être en 2FN et tout attribut dépendre <strong>directement de la clé</strong> — aucune dépendance par <strong>transitivité</strong>. Contre-exemple : CLIENT (Num_client, Nom_client, code_categ, nom_categ) — Num_client → code_categ → nom_categ : nom_categ dépend d'un attribut non clé. Correction : sortir (code_categ, nom_categ) dans une table CATEGORIE.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>La 2FN ne concerne que les clés composées : à clé simple, 1FN implique 2FN.</li>
+      <li>Dépendance partielle ≠ transitive : partielle = une partie de la clé ; transitive = un attribut non clé qui en détermine un autre.</li>
+      <li>Normaliser ne supprime pas l'information : ça la déplace dans une autre table (avec sa clé).</li>
+      <li>Une propriété calculée (TTC) dans une table viole l'esprit des formes normales : elle se recalcule.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="mr-c6-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;Nom 1&#10;Prenom 1&#10;Diplomes 3&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+violee=0
+for ((i=0; i<n; i++)); do
+  read -r attribut k
+  # À compléter : classer l'attribut, lever le drapeau si multivalué.
+done
+# À compléter : verdict final.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Première forme normale</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la 1FN : chaque attribut doit être monovalué et non décomposable.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « attribut k » : k est le nombre de valeurs prises par l'attribut sur une ligne (1 = monovalué). Un attribut est <code>1FN ok</code> si k vaut exactement 1, sinon <code>multivalue</code>. Il termine par <code>1FN : verdict</code> où verdict vaut <code>respectee</code> si tous les attributs sont ok, <code>violee</code> sinon.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+Nom 1
+Prenom 1
+Diplomes 3
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Nom : 1FN ok
+Prenom : 1FN ok
+Diplomes : multivalue
+1FN : violee</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un drapeau violee=0 posé avant la boucle, passé à 1 au premier attribut multivalué.</li>
+        <li>Le verdict se décide après la boucle, sur l'état du drapeau.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="mr-c6-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="NumCde RefPdt&#10;3&#10;Quantite cle&#10;DesignationPdt c1&#10;Remise cle&#10;">
+  <script type="text/plain" data-lab-starter>read -r cle1 cle2
+read -r n
+violee=0
+for ((i=0; i<n; i++)); do
+  read -r attribut partie
+  # À compléter : classer la dépendance, lever le drapeau si partielle.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Dépendance partielle : la 2FN</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter les dépendances partielles sur clé composée : un attribut qui ne dépend que d'une partie.</p>
+    <div class="lab__brief"><p>Le script lit d'abord <code>cle1 cle2</code> (clé composée de deux parties). Puis il lit <strong>n lignes</strong> « attribut partie » : partie vaut <code>c1</code>, <code>c2</code> ou <code>cle</code>. Une dépendance sur <code>cle</code> (toute la clé) est <code>totale</code> ; une dépendance sur <code>c1</code> ou <code>c2</code> seule est <code>partielle</code>. Pour chaque ligne il affiche <code>attribut : type</code>. Il termine par <code>2FN : verdict</code> où verdict vaut <code>respectee</code> si aucune dépendance partielle, <code>violee</code> sinon.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NumCde RefPdt
+3
+Quantite cle
+DesignationPdt c1
+Remise cle
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Quantite : totale
+DesignationPdt : partielle
+Remise : totale
+2FN : violee</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Seule la ligne entière « cle » déclenche « totale » : c1 et c2 seules sont partielles.</li>
+        <li>Même mécanique de drapeau que la 1FN : violee passe à 1 au premier attribut partiel.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="mr-c6-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;NumClt NomClt&#10;NumClt AdrClt&#10;CodeCateg LibCateg&#10;CodeCateg Remise&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+declare -A vues
+transitive=0
+for ((i=0; i<n; i++)); do
+  read -r source cible
+  # À compléter : afficher la DF, détecter la source multi-cible.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Dépendance transitive : la 3FN</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter la dépendance transitive : un attribut non clé qui en détermine un autre.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « source cible » où la source est un attribut non clé. Une même source qui détermine deux cibles différentes crée une dépendance transitive (l'attribut source joue le rôle d'une seconde clé cachée). Pour chaque ligne il affiche <code>source → cible</code>. À la première transitive il affiche en plus <code>3FN : transitive par source</code>. Il termine par <code>3FN : verdict</code> où verdict vaut <code>respectee</code> (aucune transitive) ou <code>violee</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+NumClt NomClt
+NumClt AdrClt
+CodeCateg LibCateg
+CodeCateg Remise
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>NumClt → NomClt
+NumClt → AdrClt
+3FN : transitive par NumClt
+CodeCateg → LibCateg
+CodeCateg → Remise
+3FN : violee</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Même détection que les DF élémentaires du chapitre 3 : un tableau vues[source] retient la première cible.</li>
+        <li>Le message « transitive par source » n'apparaît qu'une fois (drapeau) ; le verdict final tient compte du drapeau.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">redondances et anomalies de mise à jour</button>
+        <button class="opt">trop de tables</button>
+        <button class="opt">manque de utilisateurs</button>
+      </div>
+      <div class="q__exp">Redondance, anomalies d'insertion, de mise à jour et de suppression.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">une clé et des attributs monovalués non décomposables</button>
+        <button class="opt">trois tables minimum</button>
+        <button class="opt">des clés étrangères</button>
+      </div>
+      <div class="q__exp">Clé unique et stable, attributs atomiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la 1FN</button>
+        <button class="opt">la 2FN seulement</button>
+        <button class="opt">rien</button>
+      </div>
+      <div class="q__exp">Enfants et Diplômes sont multivalués et décomposables : pas en 1FN.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la clé est composée</button>
+        <button class="opt">la table a des fk</button>
+        <button class="opt">la base est petite</button>
+      </div>
+      <div class="q__exp">À clé simple, la 1FN implique déjà la 2FN.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">une dépendance partielle</button>
+        <button class="opt">une dépendance transitive</button>
+        <button class="opt">une CIF</button>
+      </div>
+      <div class="q__exp">Un attribut dépend d'une partie de la clé composée : 2FN violée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">une dépendance transitive</button>
+        <button class="opt">une dépendance partielle</button>
+        <button class="opt">une intégrité de domaine</button>
+      </div>
+      <div class="q__exp">nom_categ dépend d'un attribut non clé (code_categ) : 3FN violée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">sortir l'attribut transitif dans sa table</button>
+        <button class="opt">dupliquer la colonne</button>
+        <button class="opt">supprimer la clé</button>
+      </div>
+      <div class="q__exp">Décomposer : (code_categ, nom_categ) devient une table CATEGORIE.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">1FN, 2FN, 3FN</button>
+        <button class="opt">les trois intégrités</button>
+        <button class="opt">les trois sous-systèmes</button>
+      </div>
+      <div class="q__exp">Clé (1FN), toute la clé (2FN, pas de dépendance partielle), rien que la clé (3FN, pas de transitive).</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Vérifier la 2FN sur une clé simple : inutile, la 1FN la donne déjà.</li>
+      <li>Confondre partielle (partie de clé) et transitive (attribut non clé).</li>
+      <li>Garder une propriété calculée dans la table : le TTC se recalcule.</li>
+      <li>Normaliser sans conserver les liens : la table sortie garde sa clé, référencée par la table d'origine.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — vérifier un schéma en trois passes</div>
+    <ol>
+      <li>1FN : y a-t-il une clé ? Des attributs multivalués ou décomposables ?</li>
+      <li>2FN (clé composée) : chaque attribut non clé dépend-il de toute la clé ?</li>
+      <li>3FN : chaque attribut non clé dépend-il directement de la clé (pas via un autre attribut) ?</li>
+      <li>Décomposer les tables fautives en reportant la clé dans les tables créées.</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Anomalies d'un schéma non normalisé : redondance, mise à jour multiple, insertion, suppression.</li>
+      <li>1FN : clé unique et stable, attributs monovalués, non décomposables.</li>
+      <li>2FN : tout attribut non clé dépend de toute la clé (à vérifier sur clé composée).</li>
+      <li>3FN : aucun attribut ne dépend d'un attribut non clé (pas de transitivité).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais citer les quatre anomalies avec un exemple.</li>
+      <li>Je sais vérifier 1FN, 2FN, 3FN sur un schéma donné.</li>
+      <li>Je sais normaliser LIGNE_CDE et CLIENT (code_categ).</li>
+      <li>Je sais réciter « la clé, toute la clé, rien que la clé ».</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Redondance</strong> : même information répétée dans plusieurs lignes.</li><li><strong>Anomalie de mise à jour</strong> : modifier une donnée en plusieurs endroits.</li><li><strong>1FN</strong> : clé + attributs monovalués et non décomposables.</li><li><strong>2FN</strong> : 1FN + pas de dépendance partielle (clé composée).</li><li><strong>3FN</strong> : 2FN + pas de dépendance transitive.</li><li><strong>Dépendance partielle</strong> : attribut dépendant d'une partie de la clé.</li><li><strong>Dépendance transitive</strong> : clé → A → B, B dépend d'un non-clé.</li><li><strong>Décomposition</strong> : sortir les attributs fautifs dans une nouvelle table.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — reprends les anomalies et la 1FN.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais les contre-exemples du support (EMPLOYE, LIGNE_CDE, CLIENT).</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, cible la distinction partielle/transitive.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de scripts <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Conception et modélisation des systèmes d'information » (B1 IT, S. P. EDOH) et l'outil AnalyseSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

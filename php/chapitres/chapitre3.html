@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Héritage, classes abstraites et interfaces | PHP POO B2</title>
+<meta name="description" content="Chapitre 3 du cours de PHP objet B2 : Étendre une classe, appeler parent, classes abstraites, polymorphisme et contrats d’interface. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/php/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Héritage, classes abstraites et interfaces | PHP POO B2">
+<meta property="og:description" content="Chapitre 3 du cours de PHP objet B2 : Étendre une classe, appeler parent, classes abstraites, polymorphisme et contrats d’interface. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="phpnav"><div class="phpnav__in">
+  <a class="phpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phpnav__sep" aria-hidden="true">/</span>
+  <a class="phpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP POO B2</a>
+  <div class="phpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="phpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="phpwrap">
+<p class="crumb"><a href="../index.html">PHP POO B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Héritage, classes abstraites et interfaces</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Plusieurs objets partagent des comportements : un cercle et un carré ont tous deux une aire et un périmètre. Plutôt que de recopier, on factorise dans une classe mère, et on impose un contrat commun à toutes les formes avec une interface. C’est ce qui permet d’écrire du code qui traite « n’importe quelle forme » sans connaître les détails.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>étendre une classe et réutiliser son code avec extends ;</li>
+      <li>appeler le constructeur parent avec parent::__construct() ;</li>
+      <li>déclarer une classe abstraite et des méthodes abstraites ;</li>
+      <li>imposer un contrat avec une interface et l’implémenter.</li>
+    </ol>
+  </div>
+
+<h2>1. Hériter d’une classe</h2>
+
+<p>Le mot-clé <code>extends</code> fait hériter une classe (la <strong>fille</strong>) d’une autre (la <strong>mère</strong>). La fille reçoit les propriétés et méthodes accessibles du parent, et peut les <strong>redéfinir</strong> pour les spécialiser.</p>
+<pre><code>class Animal {
+    protected $nom;
+
+    public function __construct(string $nom) {
+        $this-&gt;nom = $nom;
+    }
+
+    public function crier(): string {
+        return $this-&gt;nom . " fait un bruit";
+    }
+}
+
+class Chien extends Animal {
+    public function crier(): string {
+        return $this-&gt;nom . " aboie";
+    }
+}</code></pre>
+<p>La visibilité <code>protected</code> est faite pour cela : la propriété <code>$nom</code> est accessible depuis la classe et ses filles, mais reste fermée à l’extérieur.</p>
+
+<h2>2. Redéfinir et appeler le parent</h2>
+
+<p>Quand la fille a besoin du comportement du parent, elle l’appelle avec <code>parent::</code>. Typiquement, la fille appelle <code>parent::__construct()</code> pour ne pas réécrire l’initialisation.</p>
+<pre><code>class Chat extends Animal {
+    public function __construct(string $nom) {
+        parent::__construct($nom);   // hérite de l’initialisation
+    }
+}</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — oublier le constructeur parent</div>
+    <p>Si la fille définit son propre <code>__construct()</code> sans appeler <code>parent::__construct()</code>, le parent n’est plus jamais initialisé : les propriétés du parent restent vides. On appelle explicitement le parent quand on veut son travail.</p>
+  </div>
+
+<h2>3. Classes abstraites</h2>
+
+<p>Une <strong>classe abstraite</strong> (<code>abstract</code>) ne s’instancie pas : elle sert de base commune. Elle peut déclarer des <strong>méthodes abstraites</strong> — sans corps — que chaque fille devra obligatoirement implémenter.</p>
+<pre><code>abstract class Forme {
+    abstract public function aire(): float;
+
+    public function decrire(): string {
+        return "forme d’aire " . $this->aire();
+    }
+}</code></pre>
+<p>Impossible de faire <code>new Forme()</code> : une classe abstraite est un squelette. En revanche, elle peut déjà coder les méthodes communes, comme <code>decrire()</code>.</p>
+
+<h2>4. Polymorphisme et interfaces</h2>
+
+<p>Le <strong>polymorphisme</strong> est la conséquence de l’abstraction : on appelle <code>aire()</code> sur un objet dont on ne connaît que le type de base, et chaque classe exécute sa version. Une <strong>interface</strong> pousse l’idée plus loin : elle ne décrit qu’un contrat de méthodes, sans aucun code, et une classe peut en implémenter plusieurs.</p>
+<pre><code>interface Affichable {
+    public function afficher(): string;
+}
+
+class Cercle extends Forme implements Affichable {
+    public function aire(): float { return 3.14 * $this->r * $this->r; }
+    public function afficher(): string { return "cercle"; }
+}</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> Interface contre classe abstraite</div>
+    <p>Une classe abstraite peut contenir du code et n’en hérite qu’une seule (héritage simple). Une interface ne contient <strong>que des signatures</strong> et on peut en implémenter autant qu’on veut : elle sert à décrire une capacité (« est affichable », « est comparable »).</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php2-c3-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="4">
+  <script type="text/plain" data-lab-starter><?php
+abstract class Forme {
+    // À compléter : declarer la methode abstraite aire().
+}
+
+class Carre extends Forme {
+    // À compléter : constructeur, propriete privee, methode aire().
+}
+
+$c = (int) trim(fgets(STDIN));
+// À compléter : afficher "aire : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Héritage et classe abstraite</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter une méthode abstraite dans une classe fille.</p>
+    <div class="lab__brief"><p>Le programme reçoit le côté d’un carré (entier). Écris une classe <strong>abstraite</strong> <code>Forme</code> déclarant <code>aire()</code>, puis <code>Carre</code> qui hérite de <code>Forme</code> et calcule <code>côté × côté</code>. Affiche <code>aire : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>aire : 16</pre></div>
+    </div>
+    <p class="lab__note">4 × 4 = 16.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une méthode abstraite s’écrit abstract public function aire(): int; sans corps.</li>
+        <li>La classe fille doit définir aire() avec la même signature, sinon PHP refuse.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c3-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="3&#10;carre 3&#10;rectangle 2 5&#10;carre 2">
+  <script type="text/plain" data-lab-starter><?php
+// À compléter : Forme abstraite, Carre (a*a), Rectangle (l*h).
+
+$n = (int) trim(fgets(STDIN));
+// À compléter : lire chaque forme, additionner les aires, afficher "total : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Polymorphisme</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Traiter des objets de types différents derrière une même méthode.</p>
+    <div class="lab__brief"><p>Le programme reçoit <code>n</code>, puis <code>n</code> lignes « type a [b] » : <code>carre a</code> ou <code>rectangle l h</code>. Écris <code>Forme</code> (abstraite), <code>Carre</code> et <code>Rectangle</code>, puis calcule la somme des aires. Affiche <code>total : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+carre 3
+rectangle 2 5
+carre 2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>total : 23</pre></div>
+    </div>
+    <p class="lab__note">9 + 10 + 4 = 23.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe chaque ligne avec explode(' ', trim(fgets(STDIN))).</li>
+        <li>Les deux classes exposent aire() : la somme s’écrit sans connaître leur type.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c3-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="Clavier&#10;29">
+  <script type="text/plain" data-lab-starter><?php
+// À compléter : interface Affichable, puis classe Produit implements Affichable.
+
+$nom = trim(fgets(STDIN));
+$prix = (int) trim(fgets(STDIN));
+// À compléter : afficher le produit.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Implémenter une interface</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Garantir un contrat commun avec une interface.</p>
+    <div class="lab__brief"><p>Le programme reçoit un nom d’article puis son prix (entier). Écris une interface <code>Affichable</code> déclarant <code>afficher(): string</code>, puis <code>Produit</code> qui l’implémente et renvoie <code>nom (prix EUR)</code>. Affiche le résultat.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Clavier
+29</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Clavier (29 EUR)</pre></div>
+    </div>
+    <p class="lab__note">Nom et prix mis en forme.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une interface déclare des signatures ; une classe l’implémente avec implements.</li>
+        <li>La chaîne attendue se construit par concaténation : nom . ' (' . prix . ' EUR)'.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel mot-clé fait hériter une classe ?</p>
+      <div class="opts">
+        <button class="opt">implements</button>
+        <button class="opt" data-correct="1">extends</button>
+        <button class="opt">parent</button>
+      </div>
+      <div class="q__exp">extends établit l’héritage simple entre deux classes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment appelle-t-on le constructeur du parent ?</p>
+      <div class="opts">
+        <button class="opt">self::__construct()</button>
+        <button class="opt" data-correct="1">parent::__construct()</button>
+        <button class="opt">super()</button>
+      </div>
+      <div class="q__exp">parent::__construct() exécute le constructeur de la classe mère.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une classe abstraite…</p>
+      <div class="opts">
+        <button class="opt">s’instancie</button>
+        <button class="opt" data-correct="1">ne s’instancie pas</button>
+        <button class="opt">est une interface</button>
+      </div>
+      <div class="q__exp">abstract interdit new : elle sert de base à des filles concrètes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une méthode abstraite…</p>
+      <div class="opts">
+        <button class="opt">a un corps</button>
+        <button class="opt" data-correct="1">n’a pas de corps</button>
+        <button class="opt">est statique</button>
+      </div>
+      <div class="q__exp">Elle déclare la signature ; chaque fille doit la définir.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">protected est visible…</p>
+      <div class="opts">
+        <button class="opt">partout</button>
+        <button class="opt" data-correct="1">dans la classe et ses filles</button>
+        <button class="opt">nulle part</button>
+      </div>
+      <div class="q__exp">protected ouvre l’accès à la classe et à ses descendantes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d’interfaces peut implémenter une classe ?</p>
+      <div class="opts">
+        <button class="opt">Une seule</button>
+        <button class="opt" data-correct="1">Autant qu’on veut</button>
+        <button class="opt">Zéro</button>
+      </div>
+      <div class="q__exp">On peut implémenter plusieurs interfaces, séparées par des virgules.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une interface contient…</p>
+      <div class="opts">
+        <button class="opt">du code</button>
+        <button class="opt" data-correct="1">des signatures de méthodes</button>
+        <button class="opt">des propriétés</button>
+      </div>
+      <div class="q__exp">L’interface n’est qu’un contrat : des signatures sans implémentation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le polymorphisme permet…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">d’appeler la même méthode sur des types différents</button>
+        <button class="opt">de copier une classe</button>
+        <button class="opt">d’interdire l’héritage</button>
+      </div>
+      <div class="q__exp">Chaque objet répond à la même méthode selon sa propre implémentation.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Redéfinir <code>__construct()</code> sans appeler <code>parent::__construct()</code>.</li>
+      <li>Vouloir instancier une classe <code>abstract</code> ou une <code>interface</code>.</li>
+      <li>Oublier d’implémenter une méthode abstraite ou une méthode d’interface.</li>
+      <li>Mettre du code dans une interface : elle ne porte que des signatures.</li>
+      <li>Confondre héritage (« est un ») et simple factorisation de code.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Factoriser sans se tromper</div>
+    <ol>
+      <li><strong>Identifier</strong> ce qui est commun : propriétés et méthodes partagées.</li>
+      <li><strong>Remonter</strong> le commun dans une classe mère (concrète ou abstraite).</li>
+      <li><strong>Déclarer abstrait</strong> ce que chaque fille doit absolument fournir.</li>
+      <li><strong>Choisir le contrat</strong> : interface pour une capacité, classe abstraite pour un squelette.</li>
+      <li><strong>Appeler parent</strong> quand la fille a besoin du comportement hérité.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li><code>extends</code> établit l’héritage simple ; la fille redéfinit ce qu’elle spécialise.</li>
+      <li><code>parent::__construct()</code> réutilise l’initialisation du parent.</li>
+      <li>Une classe <code>abstract</code> ne s’instancie pas et peut imposer des méthodes abstraites.</li>
+      <li>Le polymorphisme : une méthode appelée s’exécute selon le type réel de l’objet.</li>
+      <li>Une interface est un contrat de signatures ; une classe peut en implémenter plusieurs.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je fais hériter une classe et je redéfinis une méthode.</li>
+      <li>J’appelle parent::__construct() quand la fille a son propre constructeur.</li>
+      <li>Je déclare et implémente une méthode abstraite.</li>
+      <li>Je distingue interface (contrat) et classe abstraite (squelette).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>héritage</li><li>extends</li><li>parent::</li><li>redéfinition</li><li>protected</li><li>abstract</li><li>méthode abstraite</li><li>polymorphisme</li><li>interface</li><li>implements</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois extends, parent:: et la visibilité protected.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à redéfinir une méthode sans casser le parent.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu distingues abstract et interface.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe aux traits et namespaces, chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Traits, namespaces et chargement des classes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de PHP objet (classes, héritage, namespaces, PDO, projet ToDo List).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

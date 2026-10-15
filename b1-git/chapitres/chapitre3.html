@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Historique et annulations : log, reset, revert | Git B1</title>
+<meta name="description" content="Chapitre 3 du cours de Git B1 : Lire git log, revenir en arrière avec reset (soft, mixed, hard), annuler avec trace via revert. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-git/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Historique et annulations : log, reset, revert | Git B1">
+<meta property="og:description" content="Chapitre 3 du cours de Git B1 : Lire git log, revenir en arrière avec reset (soft, mixed, hard), annuler avec trace via revert. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="gtnav"><div class="gtnav__in">
+  <a class="gtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="gtnav__sep" aria-hidden="true">/</span>
+  <a class="gtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git B1</a>
+  <div class="gtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="gtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="gtwrap">
+<p class="crumb"><a href="../index.html">Git B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Historique et annulations : log, reset, revert</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un commit part trop tôt, une modification casse tout, un message est faux. Git sait revenir en arrière — mais chaque méthode laisse une trace différente. Savoir choisir entre reset et revert, entre soft, mixed et hard, c'est ce qui distingue un utilisateur d'un administrateur de dépôt.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>lire l'historique avec git log et ses formats d'affichage ;</li>
+      <li>distinguer les trois options de git reset et leurs effets sur les trois espaces ;</li>
+      <li>annuler un commit avec trace grâce à git revert ;</li>
+      <li>comparer deux états avec git diff.</li>
+    </ol>
+  </div>
+
+<h2>1. Lire l'historique</h2>
+
+<p><code>git log</code> montre l'historique des versions pour la branche courante : du plus récent au plus ancien, chaque entrée porte son SHA-1, son auteur, sa date et son message. Quelques formats utiles :</p>
+<pre><code>git log                      l'historique complet
+git log --oneline            une ligne par commit (SHA abrégé + message)
+git log --oneline --graph --all   avec le graphe des branches
+git log --follow fichier     l'historique d'un fichier, renommages compris
+git show SHA                 le contenu exact d'un commit</code></pre>
+<p>C'est le format <code>--oneline</code> que le TP1 utilise pour vérifier la propreté de l'historique : une ligne, un commit, un message qui raconte quelque chose.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « le log lit, le show montre »</div>
+    <p>log liste les états dans le temps ; show détaille <strong>un</strong> état : ses modifications de métadonnées et de contenu. Pour inspecter une régression, on log pour trouver le SHA suspect, puis show pour voir exactement ce qu'il a changé.</p>
+  </div>
+
+<h2>2. reset : les trois options</h2>
+
+<p><code>git reset</code> ramène les trois espaces vers un état passé. Avec une référence (HEAD~3 = trois commits en arrière), il déplace la tête du dépôt :</p>
+<table>
+    <tr><th>Option</th><th>Dépôt (HEAD)</th><th>Index</th><th>Copie de travail</th></tr>
+    <tr><td><code>--soft</code></td><td>revient</td><td>les commits annulés y remontent</td><td>inchangée</td></tr>
+    <tr><td><code>--mixed</code> (défaut)</td><td>revient</td><td>vidé</td><td>les modifications restent</td></tr>
+    <tr><td><code>--hard</code></td><td>revient</td><td>vidé</td><td>effacée</td></tr>
+  </table>
+<p>Exemples du vade-mecum : <code>git reset --soft HEAD^</code> (revenir à l'avant-dernier commit), <code>git reset --soft HEAD~3</code> (trois commits en arrière), <code>git reset --hard SHA</code> (tout effacer après ce commit — les trois espaces deviennent identiques).</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — hard ne pardonne pas</div>
+    <p>reset --hard détruit les modifications de la copie de travail, sans confirmation. C'est l'option la plus utile et la plus dangereuse : en cas de doute, remiser avec git stash (chapitre 6) avant de reset — les modifications restent récupérables.</p>
+  </div>
+
+<h2>3. revert : annuler avec trace</h2>
+
+<p>Comme reset, <code>git revert</code> revient en arrière — mais il <strong>ajoute un commit</strong> à l'historique pour signaler cette réversion. Rien ne disparaît : l'erreur et son annulation restent toutes deux visibles.</p>
+<pre><code>git revert HEAD^      annule le commit d'avant-dernier par un nouveau commit</code></pre>
+<p>Le choix entre les deux : <strong>reset</strong> quand l'historique n'a pas été partagé (le commit est local et frais), <strong>revert</strong> quand il a été poussé — les autres collaborateurs conservent un historique cohérent, et l'annulation se propage proprement.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « reset efface, revert écrit l'inverse »</div>
+    <p>reset réécrit le passé (avant push) ; revert écrit une page de plus : « voici l'annulation de ce commit ». Sur un dépôt partagé, l'historique est un contrat — revert le respecte.</p>
+  </div>
+
+<h2>4. comparer : git diff</h2>
+
+<p><code>git diff</code> compare les espaces entre eux. Les variantes du vade-mecum :</p>
+<pre><code>git diff                    copie de travail ↔ index
+git diff --cached           index ↔ dépôt local
+git diff --staged           index ↔ dernier commit
+git diff fichier            copie de travail ↔ index, pour un fichier
+git diff HEAD^              copie de travail ↔ commit précédent
+git diff master..feature1   deux branches</code></pre>
+<p>En guise de discipline : avant chaque commit, un <code>git diff --staged</code> relit ce qui part vraiment. C'est le réflexe qui évite les « modifications » comme message de commit.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Ce que diff ne montre pas</div>
+    <p>diff ne montre que les fichiers modifiés : les fichiers non suivis (jamais ajoutés) n'apparaissent pas. C'est git status qui les liste — les deux commandes se complètent.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gt-c3-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="5&#10;commit init&#10;commit ajout&#10;log&#10;commit fix&#10;log&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op reste
+  # À compléter : empiler les commits, afficher en sens inverse.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — log --oneline simulé</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Produire un historique numéroté de commits, comme git log --oneline.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit msg</code> (ajoute un commit avec un SHA croissant : a1, a2, a3…), ou <code>log</code> (affiche l’historique, du plus récent au plus ancien, sous la forme <code>SHA msg</code> ; rien si aucun commit).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+commit init
+commit ajout
+log
+commit fix
+log
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>a2 ajout
+a1 init
+a3 fix
+a2 ajout
+a1 init</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Empiler dans l’ordre d’arrivée puis parcourir le tableau à l’envers affiche du plus récent au plus ancien.</li>
+        <li>Un compteur de commits construit les SHA : a$numero.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c3-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;commit&#10;commit&#10;reset soft 1&#10;etat&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op a b
+  # À compléter : trois comptes, un par espace Git.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — reset --soft / --mixed / --hard</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Rejouer les trois options de git reset et leurs effets sur dépôt, index et copie de travail.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit</code> (ajoute un commit : l’index se vide et la copie redevient propre), <code>fichier</code> (une modification apparaît sur la copie de travail), <code>reset option k</code> où option vaut <code>soft</code>, <code>mixed</code> ou <code>hard</code> et k le nombre de commits à annuler (0 = ne traite que les modifications non commitées), ou <code>etat</code> (affiche <code>commits : K</code>, <code>index : vide|plein</code> et <code>copie : propre|modifiée</code>). Effets de reset : <code>soft</code> remonte les commits annulés dans l’index ; <code>mixed</code> les laisse dans la copie de travail ; <code>hard</code> efface aussi les modifications de la copie.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+commit
+commit
+reset soft 1
+etat
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>commits : 1
+index : plein
+copie : propre</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>soft : les commits annulés remontent dans l’index — l’index redevient plein.</li>
+        <li>hard efface aussi les modifications de la copie de travail ; soft et mixed les laissent.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gt-c3-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;commit init&#10;commit ajout&#10;revert 1&#10;log&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op reste
+  # À compléter : revert empile un commit de plus.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — revert : annuler avec trace</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler git revert : l’annulation devient un nouveau commit visible dans l’historique.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit msg</code>, <code>revert k</code> (annule le k-ième commit le plus récent — k=1 le dernier — en ajoutant un commit <code>Revert: msg</code> ; si l’historique a moins de k commits, affiche <code>inaccessible</code>), ou <code>log</code> (comme au chapitre : du plus récent au plus ancien, <code>SHA msg</code>, SHA a1, a2… par ordre de création).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+commit init
+commit ajout
+revert 1
+log
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>a3 Revert: ajout
+a2 ajout
+a1 init</pre></div>
+    </div>
+    <p class="lab__note">Revert garde la trace : a2 reste dans l'historique, l'annulation s'empile au-dessus.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>revert k : l’index du commit visé est total - k dans le tableau (k=1 → dernier).</li>
+        <li>Le commit de revert porte le message Revert: suivi du message annulé, et consomme un SHA.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle commande montre une ligne par commit ?</p>
+      <div class="opts">
+        <button class="opt">git show</button>
+        <button class="opt" data-correct="1">git log --oneline</button>
+        <button class="opt">git diff</button>
+      </div>
+      <div class="q__exp">log --oneline : SHA abrégé + message, du plus récent au plus ancien.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Avec reset --soft, où remontent les commits annulés ?</p>
+      <div class="opts">
+        <button class="opt">Dans la corbeille</button>
+        <button class="opt" data-correct="1">Dans l'index</button>
+        <button class="opt">Nulle part</button>
+      </div>
+      <div class="q__exp">soft ramène les modifications dans l'index : prêtes à être re-commitées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle option de reset efface aussi la copie de travail ?</p>
+      <div class="opts">
+        <button class="opt">--soft</button>
+        <button class="opt">--mixed</button>
+        <button class="opt" data-correct="1">--hard</button>
+      </div>
+      <div class="q__exp">hard aligne les trois espaces sur le commit visé — les modifications locales sont perdues.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est l'option par défaut de git reset ?</p>
+      <div class="opts">
+        <button class="opt">--soft</button>
+        <button class="opt" data-correct="1">--mixed</button>
+        <button class="opt">--hard</button>
+      </div>
+      <div class="q__exp">Sans option, reset agit comme --mixed : index vidé, copie conservée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait git revert ?</p>
+      <div class="opts">
+        <button class="opt">Il supprime un commit de l'historique</button>
+        <button class="opt" data-correct="1">Il ajoute un commit qui annule un commit existant</button>
+        <button class="opt">Il remet le dépôt à zéro</button>
+      </div>
+      <div class="q__exp">revert annule avec trace : l'historique gagne un commit de réversion.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un dépôt partagé, quelle annulation privilégier ?</p>
+      <div class="opts">
+        <button class="opt">reset --hard</button>
+        <button class="opt" data-correct="1">revert</button>
+        <button class="opt">git rm</button>
+      </div>
+      <div class="q__exp">revert préserve l'historique partagé ; reset réécrirait le passé des autres.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">git diff --cached compare…</p>
+      <div class="opts">
+        <button class="opt">copie ↔ index</button>
+        <button class="opt" data-correct="1">index ↔ dépôt local</button>
+        <button class="opt">deux branches</button>
+      </div>
+      <div class="q__exp">--cached (comme --staged) montre ce que l'index contient par rapport au dépôt.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que ne montre pas git diff ?</p>
+      <div class="opts">
+        <button class="opt">Les fichiers modifiés</button>
+        <button class="opt" data-correct="1">Les fichiers non suivis</button>
+        <button class="opt">Les branches</button>
+      </div>
+      <div class="q__exp">diff ne voit que le suivi : les non suivis apparaissent dans git status.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>reset --hard par réflexe</strong> : les modifications locales disparaissent sans retour.</li>
+      <li><strong>reset sur un dépôt partagé</strong> : les autres subissent un historique réécrit.</li>
+      <li><strong>Confondre revert et reset</strong> : revert ajoute une trace, reset efface.</li>
+      <li><strong>HEAD~1 et HEAD^ confondus</strong> : les deux notent le parent, mais HEAD~n compte n génération.</li>
+      <li><strong>Se fier à diff seul</strong> : les fichiers non suivis n'y figurent pas.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Revenir en arrière proprement</div>
+    <ol>
+      <li><strong>Identifier l'état à rejoindre</strong> : SHA, HEAD~n, ou HEAD^.</li>
+      <li><strong>Se demander qui voit l'historique</strong> : seul (reset possible) ou partagé (revert).</li>
+      <li><strong>Choisir l'option de reset</strong> selon ce qu'on garde : soft (index), mixed (copie), hard (rien).</li>
+      <li><strong>Sécuriser avant hard</strong> : stash ou copie de sauvegarde.</li>
+      <li><strong>Vérifier après</strong> : git log puis git status pour l'état des trois espaces.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>git log liste les commits du plus récent au plus ancien ; --oneline une ligne par commit.</li>
+      <li>reset déplace HEAD vers le passé : soft (index plein), mixed (défaut, index vide), hard (copie effacée).</li>
+      <li>revert annule en ajoutant un commit de réversion : la méthode des dépôts partagés.</li>
+      <li>git diff compare copie ↔ index (--cached : index ↔ dépôt) ; les non suivis restent dans status.</li>
+      <li>Avant un reset --hard, stash : la récupération reste possible.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je lis un git log --oneline et j'identifie le commit cible.</li>
+      <li>Je prédis l'état des trois espaces après chaque option de reset.</li>
+      <li>Je choisis reset ou revert selon que l'historique est partagé ou non.</li>
+      <li>Je compare deux états avec la bonne variante de git diff.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>git log</li><li>oneline</li><li>SHA-1</li><li>reset</li><li>soft</li><li>mixed</li><li>hard</li><li>revert</li><li>git diff</li><li>staged</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le tableau des trois reset avec un scénario chacun.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Simule un mauvais commit et corrige-le de deux façons.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : prédis la sortie de git log après deux reverts.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 4, les branches et les fusions.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Branches : isoler, fusionner, supprimer <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : l'« Aide-mémoire GitHub Git », le vade-mecum « Travailler avec Git au quotidien » (ENSICAEN) et les TP 1 à 5 du module Git.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

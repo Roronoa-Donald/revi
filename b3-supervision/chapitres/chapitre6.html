@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 6 — Stratégies d'Alerting, Capacity Planning &amp; Auto-Remédiation SRE | Supervision &amp;amp; Observabilité B3</title>
+<meta name="description" content="Module 6 du cours Supervision &amp; Observabilité B3 : Prévention de la fatigue d'alerte, détection de flapping, modélisation de capacité par régression linéaire et runbooks d'auto-remédiation. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-supervision/chapitres/chapitre6.html">
+<meta property="og:title" content="Module 6 — Stratégies d'Alerting, Capacity Planning &amp; Auto-Remédiation SRE | Supervision &amp;amp; Observabilité B3">
+<meta property="og:description" content="Module 6 du cours Supervision &amp; Observabilité B3 : Prévention de la fatigue d'alerte, détection de flapping, modélisation de capacité par régression linéaire et runbooks d'auto-remédiation. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-supervisionnav"><div class="b3-supervisionnav__in">
+  <a class="b3-supervisionnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-supervisionnav__sep" aria-hidden="true">/</span>
+  <a class="b3-supervisionnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Supervision &amp;amp; Observabilité B3</a>
+  <div class="b3-supervisionnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-supervisionnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-supervisionwrap">
+<p class="crumb"><a href="../index.html">Supervision &amp; Observabilité B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Stratégies d'Alerting, Capacity Planning & Auto-Remédiation SRE</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>L'équipe d'astreinte de votre organisation subit une surcharge d'alertes nocturnes (plus de 150 notifications par garde), dont 80% sont des fausses alertes ou des services qui oscillent. Les ingénieurs sont épuisés et risquent de manquer une véritable panne critique. En tant qu'Ingénieur SRE / Supervision Senior, vous prenez la responsabilité de refondre la politique d'alerte : implémenter un algorithme anti-flapping pour bloquer le déluge de notifications sur les services instables, déployer une sonde prédictive de Capacity Planning pour anticiper la saturation des volumes de stockage plusieurs semaines à l'avance, et automatiser les interventions récurrentes grâce à un moteur d'auto-remédiation par runbooks sécurisé par des quotas de réessais.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Concevoir une stratégie d'alerte moderne réduisant la fatigue d'alerte (Alert Fatigue) grâce aux seuils amortis, à l'hystérésis et au groupement contextuel.</li>
+      <li>Implémenter un algorithme mathématique de détection de flapping pour suspendre automatiquement les alertes des services oscillants.</li>
+      <li>Construire un modèle de prédiction linéaire de capacité (Capacity Planning) pour estimer le nombre de jours restants avant la saturation d'une ressource.</li>
+      <li>Structurer et exécuter des runbooks d'auto-remédiation (Event-Driven Automation) avec garde-fous de tentatives et basculement vers l'opérateur humain.</li>
+    </ol>
+  </div>
+
+<h2>1. La Fatigue d'Alerte &amp; les Techniques d'Amortissement (Hystérésis)</h2>
+
+<p>La <strong>fatigue d'alerte (Alert Fatigue)</strong> est le piège le plus destructeur pour un centre d'exploitation : lorsqu'un exploitant reçoit des centaines de notifications inutiles, il finit par ignorer ou désactiver les alertes, passant à côté d'un sinistre majeur :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les 3 Principes d'une Alerte de Qualité</h4>
+    <ul>
+      <li><strong>Actionnable :</strong> Une alerte ne doit se déclencher que si elle exige une action humaine immédiate. Si aucune action n'est requise, c'est une métrique de tableau de bord, pas une alerte.</li>
+      <li><strong>Symptôme plutôt que cause :</strong> Alerter d'abord sur l'impact utilisateur (ex: « Le taux d'erreur sur le panier est de 15% ») plutôt que sur un micro-indicateur interne (« Le thread 4 est à 90% »).</li>
+      <li><strong>Priorisation rigoureuse :</strong> Réserver les sonneries d'astreinte nocturnes (SMS, appel PagerDuty) aux pannes P1 avec rupture de service.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>L'Hystérésis des Seuils</h4>
+    <p>Pour éviter qu'un service ne bascule continuellement entre OK et CRITICAL lorsque sa valeur oscille autour de la limite (ex: 80% de RAM), on introduit deux seuils disjoints :</p>
+    <ul>
+      <li><strong>Seuil de déclenchement (Trigger) :</strong> L'alerte se déclenche lorsque la ressource dépasse <strong>85%</strong>.</li>
+      <li><strong>Seuil de rétablissement (Recovery) :</strong> L'état ne redevient nominal que lorsque la ressource redescend sous <strong>75%</strong>.</li>
+    </ul>
+    <p>Cette marge empêche le bombardement d'alertes en cas d'ondulation autour du seuil.</p>
+  </div>
+</div>
+
+<h2>2. Détection Mathématique du Flapping &amp; Suspension Temporaire</h2>
+
+<p>Le <strong>Flapping</strong> survient lorsqu'une interface réseau instable (câble mal enfiché) ou un processus redémarrant en boucle génère une série de transitions rapides :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Algorithme de Détection</h4>
+    <p>Soit une suite chronologique de $N$ états successifs :</p>
+    <p><code>[OK, CRITICAL, OK, CRITICAL, OK, CRITICAL]</code></p>
+    <ol>
+      <li>On dénombre les transitions où <code>state[i] != state[i-1]</code>.</li>
+      <li>On calcule le taux d'oscillation :<br><code>Taux = (Transitions / (N - 1)) * 100.0</code></li>
+      <li>Si le taux dépasse le seuil configuré (ex: 25%), le service est basculé en état spécial <strong>FLAPPING</strong>.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>Politique de Suspension des Notifications</h4>
+    <p>Dès l'activation du mode FLAPPING :</p>
+    <ul>
+      <li>L'émission des notifications unitaires à chaque basculement est <strong>immédiatement suspendue</strong>.</li>
+      <li>Un unique message d'information est transmis : « Le service est instable et entre en mode flapping. Notifications gelées. »</li>
+      <li>Le mode flapping n'est désactivé que lorsque le service reste stable dans le même état pendant une durée minimale consécutive.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Capacity Planning Linéaire &amp; Auto-Remédiation par Runbooks</h2>
+
+<p>Le passage d'une supervision réactive à une posture proactive repose sur l'anticipation et l'automatisation :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Capacity Planning par Régression Linéaire</h4>
+    <p>Au lieu d'attendre qu'un disque dur soit plein à 95% pour sonner l'alerte en pleine nuit, la métrologie calcule la pente d'accroissement journalier :</p>
+    <p><code>a = Σ(x - x̄)(y - ȳ) / Σ(x - x̄)²</code> (où $a$ est la vitesse de consommation en Go/jour).</p>
+    <p>Le système peut alors prédire mathématiquement :<br>« Au rythme actuel (+10 Go/jour), le volume <code>/data</code> atteindra le seuil d'alerte dans 16 jours et sera saturé à 100% dans 26 jours. »</p>
+  </div>
+  <div class="card">
+    <h4>Auto-Remédiation (Event-Driven Automation)</h4>
+    <p>Pour les pannes bien documentées, un moteur automatisé déclenche une action pré-approuvée (Runbook) :</p>
+    <ul>
+      <li>Service figé -&gt; <code>restart_service</code></li>
+      <li>Disque temporaire saturé -&gt; <code>purge_tmp_logs</code></li>
+      <li>File de messages pleine -&gt; <code>scale_worker_pool</code></li>
+    </ul>
+    <p><strong>Garde-fou indispensable :</strong> Limiter à <code>max_retries</code> tentatives (ex: 3). Si l'action échoue 3 fois, l'auto-remédiation s'arrête et déclenche une alerte prioritaire vers l'ingénieur d'astreinte pour empêcher les boucles infinies destructrices.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="sup3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="FLAP_CHECK SERVICE=api-gateway THRESHOLD=25.0 STATES=OK,CRITICAL,OK,CRITICAL,OK,CRITICAL">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : compter les transitions d'état et déterminer le mode flapping
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Détecteur de Flapping et Filtrage Anti-Fatigue d’Alertes</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le taux d'oscillation d'un état de service pour suspendre les alertes intempestives en cas de flapping.</p>
+    <div class="lab__brief"><p>Le flapping se produit lorsqu'un service bascule à répétition entre les états <code>OK</code> et <code>CRITICAL</code>.<br><br>
+Calcul du taux d'oscillation sur $N$ observations ($N &gt;= 2$) :<br>
+- <code>transitions</code> : nombre de changements d'état entre observations consécutives (<code>state[i] != state[i-1]</code>).<br>
+- <code>oscillation_pct = (transitions / (N - 1)) * 100.0</code>.<br><br>
+Règles :<br>
+- Si <code>oscillation_pct &gt;= THRESHOLD</code> : <code>flapping=YES suppress=YES</code>.<br>
+- Sinon : <code>flapping=NO suppress=NO</code>.<br><br>
+Entrée STDIN : <code>FLAP_CHECK SERVICE=&lt;nom&gt; THRESHOLD=&lt;pct&gt; STATES=&lt;s1,s2,...&gt;</code>.<br>
+Sortie : <code>FLAP_STATUS: service=&lt;nom&gt; checks=&lt;N&gt; transitions=&lt;t&gt; oscillation=&lt;osc_pct:.1f&gt;% flapping=&lt;YES|NO&gt; suppress=&lt;YES|NO&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FLAP_CHECK SERVICE=api-gateway THRESHOLD=25.0 STATES=OK,CRITICAL,OK,CRITICAL,OK,CRITICAL</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>FLAP_STATUS: service=api-gateway checks=6 transitions=5 oscillation=100.0% flapping=YES suppress=YES</pre></div>
+    </div>
+    <p class="lab__note">5 transitions sur 5 intervalles possibles : 100% d'oscillation (flapping actif).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parcourez la liste des états de 1 à N-1 pour dénombrer les basculements.</li>
+        <li>Divisez par (N - 1) pour obtenir le pourcentage d'oscillation.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="CAPACITY_PREDICT CAPACITY_GB=1000.0 WARN_PCT=90.0 USAGE_GB=700.0,710.0,720.0,730.0,740.0">
+  <script type="text/plain" data-lab-starter>import sys
+import math
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer la régression linéaire et estimer le délai de saturation
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Capacity Planning et Prédiction Linéaire de Saturation Disque</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Prédire par régression linéaire le nombre de jours restants avant saturation d'un volume de stockage.</p>
+    <div class="lab__brief"><p>La métrologie prédictive calcule la vitesse d'accroissement journalier d'une ressource :<br><br>
+Pour $N$ mesures journalières $y_i$ aux indices $x_i = 0, 1, dots, N-1$ :<br>
+- <code>Pente a = Somme((x_i - x_mean) * (y_i - y_mean)) / Somme((x_i - x_mean)^2)</code>.<br>
+- Si <code>a &gt; 0.0001</code> :<br>
+  - <code>days_to_warn = ceil(max(0, (CAPACITY * WARN_PCT / 100.0) - current) / a)</code>.<br>
+  - <code>days_to_full = ceil(max(0, CAPACITY - current) / a)</code>.<br>
+- Sinon (croissance nulle ou décroissance) :<br>
+  - <code>days_to_warn = NONE</code> et <code>days_to_full = NONE</code>.<br><br>
+Entrée STDIN : <code>CAPACITY_PREDICT CAPACITY_GB=&lt;cap&gt; WARN_PCT=&lt;warn&gt; USAGE_GB=&lt;u1,u2,...&gt;</code>.<br>
+Sortie : <code>CAPACITY: growth_gb_day=&lt;a:.2f&gt; current_gb=&lt;curr:.1f&gt; usage=&lt;curr_pct:.1f&gt;% days_to_warn=&lt;days_warn&gt; days_to_full=&lt;days_full&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CAPACITY_PREDICT CAPACITY_GB=1000.0 WARN_PCT=90.0 USAGE_GB=700.0,710.0,720.0,730.0,740.0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CAPACITY: growth_gb_day=10.00 current_gb=740.0 usage=74.0% days_to_warn=16 days_to_full=26</pre></div>
+    </div>
+    <p class="lab__note">Croissance de 10 Go/jour : alerte 900 Go dans 16 jours, plein dans 26 jours.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculez la moyenne des x (indices 0 à N-1) et la moyenne des y (valeurs d'usage).</li>
+        <li>Utilisez math.ceil pour arrondir les jours restants vers l'entier supérieur.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="REMEDIATE INCIDENT=REM-401 ALERT=SERVICE_DEAD HOST=srv-web02 ATTEMPTS=0 MAX_RETRIES=3">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : associer le runbook adéquat et vérifier les limites de tentatives
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur d’Auto-Remédiation et Exécution de Runbooks</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déclencher automatiquement une action corrective de runbook selon l'incident tout en appliquant les garde-fous de réessais.</p>
+    <div class="lab__brief"><p>L'auto-remédiation (*Event-Driven Automation*) automatise la résolution d'incidents récurrents :<br><br>
+Matrice des Runbooks :<br>
+- <code>SERVICE_DEAD</code> : <code>action=restart_service</code>.<br>
+- <code>DISK_SPACE_LOW</code> : <code>action=purge_tmp_logs</code>.<br>
+- <code>HIGH_QUEUE_BACKLOG</code> : <code>action=scale_worker_pool</code>.<br>
+- Toute autre alerte : <code>action=NONE</code>.<br><br>
+Garde-fous opérationnels :<br>
+- Si <code>action == NONE</code> : <code>dispatched=NO escalate=YES reason=NO_RUNBOOK</code>.<br>
+- Sinon si <code>ATTEMPTS &gt;= MAX_RETRIES</code> : <code>dispatched=NO escalate=YES reason=MAX_RETRIES_EXCEEDED</code>.<br>
+- Sinon : <code>dispatched=YES escalate=NO reason=RUNBOOK_DISPATCHED</code>.<br><br>
+Entrée STDIN : <code>REMEDIATE INCIDENT=&lt;id&gt; ALERT=&lt;type&gt; HOST=&lt;host&gt; ATTEMPTS=&lt;n&gt; MAX_RETRIES=&lt;m&gt;</code>.<br>
+Sortie : <code>REMEDIATION: incident=&lt;id&gt; action=&lt;action&gt; host=&lt;host&gt; dispatched=&lt;YES|NO&gt; escalate=&lt;YES|NO&gt; reason=&lt;reason&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>REMEDIATE INCIDENT=REM-401 ALERT=SERVICE_DEAD HOST=srv-web02 ATTEMPTS=0 MAX_RETRIES=3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>REMEDIATION: incident=REM-401 action=restart_service host=srv-web02 dispatched=YES escalate=NO reason=RUNBOOK_DISPATCHED</pre></div>
+    </div>
+    <p class="lab__note">Première tentative : le redémarrage du service est déclenché.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez d'abord si l'alerte a un runbook associé.</li>
+        <li>Si le nombre de tentatives ATTEMPTS est &gt;= MAX_RETRIES, déclenchez l'escalade humaine.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l'objectif premier de l'intégration du principe d'hystérésis dans la configuration d'un seuil de supervision ?</p>
+      <div class="opts">
+        <button class="opt">Augmenter le nombre d'emails envoyés</button>
+        <button class="opt" data-correct="1">Empêcher les alertes en rafale lorsqu'une valeur oscille légèrement autour de la frontière d'alerte</button>
+        <button class="opt">Chiffrer les données de télémétrie</button>
+        <button class="opt">Remplacer l'agent SNMP</button>
+      </div>
+      <div class="q__exp">En fixant un seuil de déclenchement plus haut que le seuil de rétablissement (ex: alerte à 85%, retour à 75%), on élimine les alertes répétées dues aux oscillations mineures.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un algorithme de détection de flapping, que fait le système de supervision lorsque le pourcentage d'oscillation d'un service dépasse le seuil critique ?</p>
+      <div class="opts">
+        <button class="opt">Il supprime définitivement le serveur du réseau</button>
+        <button class="opt" data-correct="1">Il bascule le service en état FLAPPING et gèle temporairement l'envoi des alertes individuelles</button>
+        <button class="opt">Il formate le disque dur</button>
+        <button class="opt">Il désactive les pare-feux</button>
+      </div>
+      <div class="q__exp">Le mode FLAPPING bloque le déluge de notifications individuelles pour protéger l'attention des opérateurs d'exploitation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un volume de stockage de 1 000 Go contient actuellement 700 Go de données. La pente journalière de consommation est de 10 Go/jour. Dans combien de jours atteindra-t-il le seuil de 900 Go (90%) ?</p>
+      <div class="opts">
+        <button class="opt">10 jours</button>
+        <button class="opt" data-correct="1">20 jours</button>
+        <button class="opt">30 jours</button>
+        <button class="opt">100 jours</button>
+      </div>
+      <div class="q__exp">Espace restant avant 900 Go = 900 - 700 = 200 Go. Au rythme de 10 Go/jour : 200 / 10 = 20 jours.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il vital d'instaurer une limite stricte de réessais (max_retries) dans un mécanisme d'auto-remédiation exécutant un runbook ?</p>
+      <div class="opts">
+        <button class="opt">Pour économiser le papier d'impression</button>
+        <button class="opt" data-correct="1">Pour éviter qu'un service défaillant ne boucle indéfiniment en redémarrant en continu et pour forcer l'escalade humaine si la cause est profonde</button>
+        <button class="opt">Car Linux interdit plus de 3 commandes par heure</button>
+        <button class="opt">Pour accélérer le processeur</button>
+      </div>
+      <div class="q__exp">Si un script redémarre un service qui crash immédiatement à cause d'une corruption de base, relancer en boucle masque le problème et peut aggraver la corruption. L'intervention humaine devient alors indispensable.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon les meilleures pratiques de supervision, quelle caractéristique définit une alerte pertinente ?</p>
+      <div class="opts">
+        <button class="opt">Elle doit contenir au moins 500 lignes de texte</button>
+        <button class="opt" data-correct="1">Elle doit être immédiatement actionnable par la personne qui la reçoit</button>
+        <button class="opt">Elle doit être envoyée à l'ensemble des employés de l'entreprise</button>
+        <button class="opt">Elle doit être planifiée à heure fixe</button>
+      </div>
+      <div class="q__exp">Une alerte qui ne nécessite aucune intervention humaine n'a pas lieu d'exister en tant qu'alerte : elle génère de la pollution mentale et de la fatigue d'alerte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une régression linéaire simple pour le Capacity Planning (y = a*x + b), que représente la variable « a » ?</p>
+      <div class="opts">
+        <button class="opt">La capacité totale du serveur</button>
+        <button class="opt" data-correct="1">La pente de croissance, c'est-à-dire le volume moyen de ressource consommée par unité de temps (Go/jour)</button>
+        <button class="opt">Le pourcentage d'erreurs HTTP</button>
+        <button class="opt">L'adresse IP de la sonde</button>
+      </div>
+      <div class="q__exp">La pente a quantifie le rythme journalier d'accroissement de la consommation, permettant d'extrapoler la date de saturation future.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle action est typiquement automatisée par un runbook de remédiation lorsque le volume /tmp est saturé ?</p>
+      <div class="opts">
+        <button class="opt">L'achat de nouveaux disques sur internet</button>
+        <button class="opt" data-correct="1">La purge des fichiers temporaires et archives de logs obsolètes</button>
+        <button class="opt">L'extinction complète du centre de données</button>
+        <button class="opt">La réinstallation du système d'exploitation</button>
+      </div>
+      <div class="q__exp">La suppression des fichiers temporaires plus anciens qu'un certain nombre de jours (purge /tmp) est un cas d'école classique de remédiation automatisée sûre.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment appelle-t-on le document opérationnel décrivant les procédures pas-à-pas pour diagnostiquer et rétablir un service lors d'un incident précis ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un Runbook (ou Playbook)</button>
+        <button class="opt">Un devis commercial</button>
+        <button class="opt">Une RFC</button>
+        <button class="opt">Un brevet logiciel</button>
+      </div>
+      <div class="q__exp">Un Runbook consigne les commandes précises, vérifications et actions correctives à dérouler pour résoudre rapidement un dysfonctionnement spécifique.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Envoyer des alertes nocturnes sur des notifications non urgentes qui pourraient attendre le lendemain matin.</li>
+      <li>Implémenter un script d'auto-remédiation sans compteur de tentatives maximales : risque de redémarrer en boucle infinie et d'effacer les traces de diagnostic.</li>
+      <li>Baser la prédiction de capacité sur un historique trop court (ex: 2 heures), faussant la pente journalière en raison d'une sauvegarde ponctuelle.</li>
+      <li>Désactiver la détection de flapping pour forcer les alertes : saturation garantie des boîtes de messagerie et abandon des outils par les équipes.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Optimisation : Alerting, Capacity Planning & Auto-Remédiation</div>
+    <ol>
+      <li>Éradiquer la fatigue d'alerte : appliquer les techniques d'hystérésis, de fenêtres glissantes et de détection de flapping pour ne notifier que sur des incidents réels.</li>
+      <li>Automatiser le Capacity Planning : ajuster des régressions linéaires sur les métriques de stockage et de mémoire afin de prédire la date d'épuisement des ressources (Time to Saturation).</li>
+      <li>Structurer les runbooks opérationnels : formaliser des procédures pas-à-pas intégrant conditions de diagnostic, commandes d'atténuation et critères de résolution.</li>
+      <li>Mettre en œuvre l'auto-remédiation sécurisée : programmer l'exécution automatique d'actions correctives (restart_service, scale_up) avec garde-fous stricts de réessais maximaux.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La fatigue d'alerte est l'ennemi n°1 de l'astreinte : un flot excessif d'alertes non actionnables conduit inévitablement à ignorer les incidents critiques réels.</li>
+      <li>L'hystérésis et la détection d'état battant (flapping) suppriment les notifications en rafale issues d'oscillations légères autour des seuils.</li>
+      <li>Le Capacity Planning transforme la métrologie passive en anticipation proactive grâce aux modèles statistiques de régression linéaire.</li>
+      <li>L'automatisation des runbooks permet une résolution en quelques secondes des incidents récurrents à faible valeur ajoutée humaine.</li>
+      <li>Tout moteur d'auto-remédiation doit impérativement plafonner ses tentatives pour prévenir les tempêtes de redémarrages et escalader vers l'humain en cas d'échec.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Quelles mesures concrètes mettez-vous en place pour prévenir l'engourdissement et la fatigue d'alerte du NOC ?</li>
+      <li>Comment le mécanisme d'hystérésis protège-t-il les opérateurs contre les alertes oscillantes ?</li>
+      <li>Savez-vous calculer la date prévisionnelle de saturation d'un disque à partir d'une régression linéaire y = ax + b ?</li>
+      <li>Quels sont les composants indispensables d'un runbook de remédiation d'incident ?</li>
+      <li>Pourquoi un système d'auto-remédiation sans seuil d'échec maximal est-il une vulnérabilité majeure en production ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Fatigue d'Alerte :</strong> État d'usure et de désensibilisation des équipes opérationnelles provoqué par un volume excessif de faux positifs.</li><li><strong>Hystérésis :</strong> Principe consistant à utiliser deux seuils distincts (alerte et rétablissement) pour stabiliser un service oscillant.</li><li><strong>Flapping :</strong> Changements d'état trop fréquents et répétés d'un service entre OK et CRITICAL sur une courte période.</li><li><strong>Capacity Planning :</strong> Modélisation et projection statistique de la consommation des ressources pour anticiper les besoins d'extension.</li><li><strong>Auto-Remédiation :</strong> Exécution automatique d'actions correctives pré-programmées dès la détection d'un incident standardisé.</li><li><strong>Runbook :</strong> Procédure opérationnelle standardisée décrivant pas à pas les actions à mener pour résoudre un incident spécifique.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions de fatigue d'alerte et flapping à revoir. Révisez l'hystérésis et la gestion des seuils.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Principes d'alerting compris. Approfondissez les calculs de Capacity Planning et l'auto-remédiation.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à implémenter les algorithmes anti-flapping dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Très bon niveau SRE. Vous maîtrisez la régression linéaire et la résilience opérationnelle.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte. Vous avez complété avec brio l'ensemble du cursus Supervision B3 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels B3-IT / B3-RSI Supervision Système et Réseaux (Enseignant : Essowaba AHOULOUMI, Ingénieur en Informatique et Réseaux, 2024/2025), Référentiels RFC 1157/1213/3414 (SNMP), RFC 5424 (Syslog), Documentations officielles Prometheus, Grafana, Zabbix et Elastic.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

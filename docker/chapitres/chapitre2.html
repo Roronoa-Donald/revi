@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Images, Layers &amp;amp; Registres Docker | Docker B2</title>
+<meta name="description" content="Chapitre 2 du cours Docker B2 : Anatomie d’une image Docker, empilement de couches en lecture seule (Layers), pilote de stockage Overlay2 (lowerdir, upperdir, merged), mécanisme de Copy-On-Write (CoW), registres d’images (Docker Hub, Harbor, GHCR) et digests immuables SHA256. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/docker/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Images, Layers &amp;amp; Registres Docker | Docker B2">
+<meta property="og:description" content="Chapitre 2 du cours Docker B2 : Anatomie d’une image Docker, empilement de couches en lecture seule (Layers), pilote de stockage Overlay2 (lowerdir, upperdir, merged), mécanisme de Copy-On-Write (CoW), registres d’images (Docker Hub, Harbor, GHCR) et digests immuables SHA256. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="dockernav"><div class="dockernav__in">
+  <a class="dockernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="dockernav__sep" aria-hidden="true">/</span>
+  <a class="dockernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Docker B2</a>
+  <div class="dockernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="dockernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="dockerwrap">
+<p class="crumb"><a href="../index.html">Docker B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Images, Layers &amp; Registres Docker</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une entreprise déploie 80 conteneurs sur un serveur de production dont le disque dur s’est soudainement saturé. En examinant le stockage, l’administrateur découvre que chaque développeur a packagé une image de 1,2 Go basée sur une distribution Linux lourde sans mutualisation, consommant près de 100 Go de disque inutilement. Pire encore : un déploiement récent utilisant le tag flottant « :latest » a brisé l’application en production car l’image distante avait été mise à jour à l’insu de l’équipe. Pour maîtriser le stockage, la reproductibilité et la sécurité des déploiements, les ingénieurs doivent comprendre intimement comment fonctionne le système de fichiers en couches OverlayFS, comment les couches sont dédupliquées sur l’hôte et comment épingler rigoureusement les images par leurs digests cryptographiques SHA256.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre la structure interne d’une image Docker (empilement de couches immuables Read-Only) ;</li>
+      <li>analyser le fonctionnement du pilote de stockage Overlay2 (dossiers lowerdir, upperdir, merged) ;</li>
+      <li>maîtriser le principe de Copy-On-Write (CoW) lors des opérations d’écriture et de suppression (Whiteout) ;</li>
+      <li>calculer les gains d’espace disque réels issus de la déduplication des couches partagées ;</li>
+      <li>décomposer une référence d’image selon la norme OCI (registre, namespace, repository, tag, digest) ;</li>
+      <li>comprendre pourquoi l’usage du tag « latest » en production est un anti-pattern dangereux.</li>
+    </ol>
+  </div>
+
+<h2>1. Anatomie d’une Image et Empilement de Couches (Layers)</h2>
+
+<p>Une image Docker n’est pas un fichier monolithique, mais une <strong>pile ordonnée de couches immuables (tarballs d’arborescences de fichiers)</strong> identifiées par un hachage cryptographique SHA256 :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Couches d’Image (Image Layers — Read-Only)</h4>
+    <ul>
+      <li>Chaque instruction d’un Dockerfile (<code>FROM</code>, <code>RUN</code>, <code>COPY</code>) crée une nouvelle couche sur le disque.</li>
+      <li>Ces couches sont strictement <strong>en lecture seule (immuables)</strong> : une fois forgées, elles ne peuvent jamais être altérées.</li>
+      <li>Elles sont partagées universellement entre toutes les images et conteneurs du serveur qui s’appuient dessus.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Couche Conteneur (Container Layer — Read-Write)</h4>
+    <ul>
+      <li>Lorsqu’un conteneur est instancié à partir d’une image, Docker ajoute une couche mince en lecture-écriture au sommet de la pile.</li>
+      <li>Toutes les modifications du conteneur (création de fichiers temporaires, journaux, base de données locale) sont consignées dans cette couche.</li>
+      <li>Elle est détruite automatiquement lors de la suppression du conteneur (<code>docker rm</code>).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Le Pilote de Stockage Overlay2 et la Mécanique Copy-On-Write (CoW)</h2>
+
+<p>Le pilote de stockage standard sous Linux est <strong>OverlayFS (overlay2)</strong>. Il fusionne virtuellement plusieurs répertoires en un point de montage unifié sans dupliquer les fichiers :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Composant OverlayFS</th>
+      <th>Nature &amp; Rôle</th>
+      <th>Équivalent Docker</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>lowerdir</strong></td>
+      <td>Ensemble des répertoires inférieurs en lecture seule.</td>
+      <td>Les couches immuables de l’image Docker.</td>
+    </tr>
+    <tr>
+      <td><strong>upperdir</strong></td>
+      <td>Répertoire supérieur unique en lecture-écriture.</td>
+      <td>La couche volatile du conteneur (Container Writable Layer).</td>
+    </tr>
+    <tr>
+      <td><strong>workdir</strong></td>
+      <td>Répertoire interne de préparation pour les opérations atomiques.</td>
+      <td>Espace de travail interne géré par le noyau Linux.</td>
+    </tr>
+    <tr>
+      <td><strong>merged</strong></td>
+      <td>Point de montage résultant visible par le conteneur.</td>
+      <td>La racine du conteneur (ce que le processus voit dans son arborescence).</td>
+    </tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Comment Fonctionne le Copy-On-Write (CoW) ?</div>
+<p>Tant qu’un conteneur lit un fichier existant dans l’image, il accède directement à la couche inférieure sans aucune copie mémoire ni disque. Dès que le conteneur tente de <strong>modifier</strong> ce fichier, le noyau le copie d’abord instantanément dans le répertoire supérieur (<em>upperdir</em>) avant d’y appliquer les modifications. Si un conteneur tente de <strong>supprimer</strong> un fichier d’image, le noyau ne peut pas toucher à la couche Read-Only : il crée alors un fichier spécial nommé <strong>whiteout</strong> (nœud de périphérique avec majeur/mineur 0/0) dans l’upperdir, masquant le fichier aux yeux du conteneur.</p>
+  </div>
+
+<h2>3. Registres d’Images, Tags Flottants vs Digests SHA256</h2>
+
+<p>Les images sont hébergées sur des registres distants (Docker Hub, GitHub Container Registry ghcr.io, Quay.io, ou registries privées auto-hébergées comme Harbor). Une référence d’image complète répond à la nomenclature formelle suivante :</p>
+<pre><code>[REGISTRE/][NAMESPACE/]REPOSITORY[:TAG][@sha256:DIGEST]\n\nExemples :\n- nginx                                 -&gt; docker.io/library/nginx:latest\n- monorg/backend:v1.2.0                  -&gt; docker.io/monorg/backend:v1.2.0\n- ghcr.io/equipe/service:2.1.0           -&gt; ghcr.io/equipe/service:2.1.0\n- redis@sha256:4b912a...                -&gt; Version cryptographiquement immuable</code></pre>
+  <div class="box box--important">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le Piège Mortel du Tag « :latest » en Production</div>
+<p>Le tag <code>latest</code> n’offre <strong>aucune garantie de stabilité</strong> : il s’agit d’un simple pointeur symbolique flottant qui est réassigné chaque fois qu’une nouvelle image est poussée sans tag spécifique. En production, l’usage de <code>:latest</code> expose à des pannes imprévisibles, à l’impossibilité de reproduire un bogue, et à des attaques par empoisonnement de dépendance (Supply Chain Attack). Exigence de production : toujours utiliser un tag sémantique explicite (ex: <code>node:18.19.0-alpine</code>) ou mieux encore, le digest SHA256 complet de l’image.</p>
+  </div>
+
+<h2>4. Commandes de Gestion et Distribution d’Images</h2>
+
+<p>Pour manipuler efficacement les images dans son flux de travail quotidien :</p>
+<ul>
+  <li><code>docker pull &lt;image&gt;:&lt;tag&gt;</code> : télécharge l’image depuis le registre distant couche par couche (en ignorant les couches déjà présentes en cache local).</li>
+  <li><code>docker tag &lt;source&gt; &lt;cible&gt;</code> : crée un alias symbolique vers une image existante sans dupliquer les couches.</li>
+  <li><code>docker push &lt;image&gt;</code> : publie une image forgée localement vers un registre distant après authentification (<code>docker login</code>).</li>
+  <li><code>docker history &lt;image&gt;</code> : inspecte l’historique des couches de l’image, affichant la taille et la commande Dockerfile à l’origine de chaque layer.</li>
+  <li><code>docker rmi &lt;image&gt;</code> : supprime la référence locale et libère les couches de stockage si aucun autre conteneur ni tag ne les utilise.</li>
+</ul>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="dk2-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="NodeApp : base_os:100 , node_runtime:80 , app_code:20&#10;PythonApp : base_os:100 , python_runtime:70 , app_code_py:15">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer les tailles apparentes, le total brut, réel et l'économie
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de taille d’image et déduplication des Layers (OverlayFS)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le stockage réel consommé sur le démon Docker grâce au partage de couches en lecture seule (UnionFS).</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des lignes au format <code>&lt;NomImage&gt; : &lt;Layer1&gt;:&lt;TailleMo&gt; , &lt;Layer2&gt;:&lt;TailleMo&gt; , ...</code>.<br>
+Dans le pilote de stockage Overlay2, chaque couche en lecture seule (identifiée par son ID unique) n'est stockée qu'une seule fois sur le disque hôte, quel que soit le nombre d'images qui s'appuient dessus.<br>
+Calculer :<br>
+1. La taille apparente de chaque image (somme de ses couches).<br>
+2. La taille brute totale cumulée (somme naïve sans partage).<br>
+3. La taille réelle stockée sur l'hôte (somme des couches uniques sans doublon).<br>
+4. L'économie d'espace réalisée (<code>TailleBrute - TailleReelle</code>).<br>
+Afficher :<br>
+<code>IMAGE: &lt;NomImage&gt; -&gt; TAILLE_APPARENTE: &lt;T&gt; Mo</code><br>
+... puis en fin d'exécution :<br>
+<code>TOTAL_BRUT: &lt;Tb&gt; Mo | TOTAL_REEL: &lt;Tr&gt; Mo | ECONOMIE_DEDUPLICATION: -&lt;Gain&gt; Mo</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NodeApp : base_os:100 , node_runtime:80 , app_code:20
+PythonApp : base_os:100 , python_runtime:70 , app_code_py:15</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IMAGE: NodeApp -&gt; TAILLE_APPARENTE: 200 Mo
+IMAGE: PythonApp -&gt; TAILLE_APPARENTE: 185 Mo
+TOTAL_BRUT: 385 Mo | TOTAL_REEL: 285 Mo | ECONOMIE_DEDUPLICATION: -100 Mo</pre></div>
+    </div>
+    <p class="lab__note">La couche commune base_os (100 Mo) n’est stockée qu’une seule fois.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garder un dictionnaire des couches uniques (id_couche -&gt; taille) pour la taille réelle.</li>
+        <li>Faire attention aux espaces autour des deux-points et des virgules.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="nginx&#10;ubuntu:22.04&#10;myorg/backend:v1.0&#10;ghcr.io/dev/api:latest@sha256:abcd1234ef">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : normaliser et décomposer chaque référence d'image Docker
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Parseur canonique de références d’images et de tags</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décomposer une référence d’image Docker en ses composantes normalisées : registre, namespace/nom, tag et digest SHA256.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des références d'images (une par ligne).<br>
+Règles de normalisation canonique :<br>
+1. <strong>Digest</strong> : si la référence contient <code>@sha256:...</code>, l'extraire (sinon <code>NONE</code>).<br>
+2. <strong>Tag</strong> : si la référence contient <code>:&lt;tag&gt;</code> (hors du digest), l'extraire (sinon valeur par défaut <code>latest</code>).<br>
+3. <strong>Registre &amp; Nom</strong> :<br>
+   - Si l'image contient un nom de domaine avec point (ex: <code>ghcr.io/org/app</code> ou <code>docker.elastic.co/...</code>), le registre est le premier segment avant le slash.<br>
+   - Si l'image est officielle sans slash (ex: <code>nginx</code>, <code>ubuntu</code>), le registre est <code>docker.io/library</code> et le nom est l'image.<br>
+   - Si l'image a un namespace simple (ex: <code>monorg/monapp</code>), le registre est <code>docker.io</code> et le nom est <code>monorg/monapp</code>.<br>
+Pour chaque référence, afficher :<br>
+<code>REF: &lt;entree&gt; -&gt; REGISTRE: &lt;reg&gt; | IMAGE: &lt;nom&gt; | TAG: &lt;tag&gt; | DIGEST: &lt;digest&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>nginx
+ubuntu:22.04
+myorg/backend:v1.0
+ghcr.io/dev/api:latest@sha256:abcd1234ef</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>REF: nginx -&gt; REGISTRE: docker.io/library | IMAGE: nginx | TAG: latest | DIGEST: NONE
+REF: ubuntu:22.04 -&gt; REGISTRE: docker.io/library | IMAGE: ubuntu | TAG: 22.04 | DIGEST: NONE
+REF: myorg/backend:v1.0 -&gt; REGISTRE: docker.io | IMAGE: myorg/backend | TAG: v1.0 | DIGEST: NONE
+REF: ghcr.io/dev/api:latest@sha256:abcd1234ef -&gt; REGISTRE: ghcr.io | IMAGE: dev/api | TAG: latest | DIGEST: sha256:abcd1234ef</pre></div>
+    </div>
+    <p class="lab__note">Normalisation canonique conforme à la spécification Docker distribution.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traiter en premier l’éventuel digest après @.</li>
+        <li>Extraire ensuite le tag après le dernier deux-points.</li>
+        <li>Déterminer le registre selon la présence d’un point ou d’un slash.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="/etc/app.conf, /usr/bin/python, /var/log/old.log&#10;READ /etc/app.conf&#10;WRITE /etc/app.conf&#10;READ /etc/app.conf&#10;DELETE /var/log/old.log&#10;READ /var/log/old.log">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler le cycle Copy-On-Write et OverlayFS
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de stratégie Copy-On-Write (CoW) et couche conteneur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le fonctionnement du pilote de stockage OverlayFS lors des opérations de lecture, écriture et suppression.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+- Première ligne : liste des fichiers existants dans l'image de base (séparés par des virgules).<br>
+- Lignes suivantes : opérations au format <code>&lt;ACTION&gt; &lt;CheminFichier&gt;</code> où ACTION vaut <code>READ</code>, <code>WRITE</code>, <code>CREATE</code> ou <code>DELETE</code>.<br>
+Comportement OverlayFS :<br>
+- <code>READ</code> :<br>
+  * Si le fichier a déjà été modifié dans le conteneur : <code>ACCES: Container Layer (Version modifiee)</code><br>
+  * Sinon s'il est dans l'image : <code>ACCES: Image Layer (Lecture directe RO sans duplication)</code><br>
+  * Sinon ou s'il est marqué supprimé : <code>ERREUR: Fichier introuvable (404 ENOENT)</code><br>
+- <code>WRITE</code> :<br>
+  * S'il est dans l'image et pas encore copié : <code>MECANISME: Copy-On-Write (Copie du fichier vers la Container Layer puis ecriture)</code><br>
+  * S'il est déjà dans la Container Layer : <code>MECANISME: Ecriture directe dans Container Layer</code><br>
+  * Sinon : <code>ERREUR: Fichier introuvable pour modification</code><br>
+- <code>CREATE</code> : <code>MECANISME: Creation directe dans Container Layer</code> (le fichier devient actif dans la couche conteneur).<br>
+- <code>DELETE</code> :<br>
+  * S'il était dans l'image : <code>MECANISME: Whiteout (Creation d'un fichier masque dans Container Layer sans toucher a l'image RO)</code><br>
+  * S'il a été créé uniquement dans le conteneur : <code>MECANISME: Suppression directe de Container Layer</code><br>
+Afficher :<br>
+<code>&lt;ACTION&gt; &lt;Chemin&gt; -&gt; &lt;RESULTAT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>/etc/app.conf, /usr/bin/python, /var/log/old.log
+READ /etc/app.conf
+WRITE /etc/app.conf
+READ /etc/app.conf
+DELETE /var/log/old.log
+READ /var/log/old.log</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>READ /etc/app.conf -&gt; ACCES: Image Layer (Lecture directe RO sans duplication)
+WRITE /etc/app.conf -&gt; MECANISME: Copy-On-Write (Copie du fichier vers la Container Layer puis ecriture)
+READ /etc/app.conf -&gt; ACCES: Container Layer (Version modifiee)
+DELETE /var/log/old.log -&gt; MECANISME: Whiteout (Creation d'un fichier masque dans Container Layer sans toucher a l'image RO)
+READ /var/log/old.log -&gt; ERREUR: Fichier introuvable (404 ENOENT)</pre></div>
+    </div>
+    <p class="lab__note">Démonstration complète de la mécanique Copy-On-Write et du masquage Whiteout.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer trois ensembles : fichiers dans l’image, fichiers copiés/créés dans le conteneur, fichiers supprimés (whiteout).</li>
+        <li>Un fichier supprimé dans le conteneur ne peut plus être lu.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il au niveau du stockage lorsque deux images distinctes s’appuient toutes les deux sur la même image de base « alpine:3.18 » (7 Mo) ?</p>
+      <div class="opts">
+        <button class="opt">Le serveur hôte télécharge et stocke deux fois les 7 Mo sur le disque</button>
+        <button class="opt" data-correct="1">La couche commune de 7 Mo n’est stockée qu’une seule fois sur l’hôte grâce au partage de couches Overlay2</button>
+        <button class="opt">Le démon Docker refuse de télécharger la seconde image</button>
+        <button class="opt">Les deux conteneurs s’exécutent obligatoirement dans la même mémoire vive</button>
+      </div>
+      <div class="q__exp">Chaque couche possède un identifiant de contenu SHA256 unique : si une couche existe déjà dans le cache du démon, elle est réutilisée sans duplication disque.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’architecture du pilote de stockage Overlay2, à quoi correspond le répertoire « upperdir » ?</p>
+      <div class="opts">
+        <button class="opt">Au noyau Linux de la machine hôte</button>
+        <button class="opt" data-correct="1">À la couche en lecture-écriture propre au conteneur (Container Writable Layer)</button>
+        <button class="opt">À l’espace de swap du processeur</button>
+        <button class="opt">Au cache DNS du réseau bridge</button>
+      </div>
+      <div class="q__exp">upperdir est la couche supérieure inscriptible du conteneur où sont enregistrées toutes les écritures et modifications de fichiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment le système de fichiers OverlayFS gère-t-il la suppression par un conteneur d’un fichier appartenant à une couche d’image inférieure en lecture seule ?</p>
+      <div class="opts">
+        <button class="opt">Il efface physiquement le fichier sur le disque dur de l’hôte</button>
+        <button class="opt" data-correct="1">Il crée un fichier spécial « whiteout » dans l’upperdir pour masquer le fichier lors de la fusion du point de montage merged</button>
+        <button class="opt">Le conteneur plante instantanément avec une erreur Kernel Panic</button>
+        <button class="opt">Le fichier est déplacé dans la corbeille de Windows</button>
+      </div>
+      <div class="q__exp">Les couches inférieures sont immuables : OverlayFS crée un fichier spécial (whiteout) dans la couche supérieure pour cacher le fichier d’image sans l’effacer physiquement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il fortement déconseillé d’utiliser le tag « :latest » pour les images de conteneurs déployées en production ?</p>
+      <div class="opts">
+        <button class="opt">Parce que le tag latest est payant sur Docker Hub</button>
+        <button class="opt" data-correct="1">Parce que c’est un tag flottant qui peut changer à tout moment sans préavis, brisant la reproductibilité et augmentant les risques de sécurité</button>
+        <button class="opt">Parce que le moteur Docker refuse d’exécuter les images taguées latest en arrière-plan</button>
+        <button class="opt">Parce que ce tag désactive automatiquement la connexion réseau</button>
+      </div>
+      <div class="q__exp">latest est un simple pointeur mutable : il ne garantit aucune version précise et peut introduire des régressions ou des failles de sécurité lors d’un redémarrage de conteneur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le moyen le plus sûr et le plus immuable pour référencer une image Docker de manière infalsifiable ?</p>
+      <div class="opts">
+        <button class="opt">Par son nom simple sans tag (ex: nginx)</button>
+        <button class="opt" data-correct="1">Par son digest cryptographique SHA256 (ex: nginx@sha256:7f9a12...)</button>
+        <button class="opt">Par le numéro de port TCP exposé</button>
+        <button class="opt">Par la date de création de l’image</button>
+      </div>
+      <div class="q__exp">Le digest SHA256 est calculé sur le manifeste exact de l’image : il garantit à 100 % que l’image exécutée correspond au binaire exact audité, sans risque de falsification.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si une instruction RUN dans un Dockerfile crée un fichier de 500 Mo puis que l’instruction RUN suivante le supprime avec « rm », quel est l’impact sur la taille finale de l’image ?</p>
+      <div class="opts">
+        <button class="opt">La taille de l’image finale est réduite de 500 Mo</button>
+        <button class="opt" data-correct="1">Le fichier de 500 Mo reste stocké dans la première couche de l’image et continue d’alourdir la taille totale de l’image téléchargée</button>
+        <button class="opt">Le Dockerfile est considéré comme invalide par le démon</button>
+        <button class="opt">La mémoire RAM de la machine hôte est vidée</button>
+      </div>
+      <div class="q__exp">Chaque ligne RUN crée une couche immuable scellée : supprimer un fichier dans une couche postérieure ne retire pas la donnée de la couche précédente dans l’historique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande Docker permet d’inspecter les couches successives d’une image et la taille ajoutée par chaque instruction ?</p>
+      <div class="opts">
+        <button class="opt">docker inspect-layers</button>
+        <button class="opt" data-correct="1">docker history</button>
+        <button class="opt">docker trace</button>
+        <button class="opt">docker audit</button>
+      </div>
+      <div class="q__exp">docker history liste l’empilement complet des layers de l’image avec la taille de chaque couche et l’instruction correspondante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où se situe le registre par défaut lorsque l’on télécharge une image officielle simple comme « redis » sans préfixe de domaine ?</p>
+      <div class="opts">
+        <button class="opt">Sur gitlab.com</button>
+        <button class="opt" data-correct="1">Sur Docker Hub (docker.io/library/redis)</button>
+        <button class="opt">Sur Google Container Registry</button>
+        <button class="opt">Directement sur le disque dur local</button>
+      </div>
+      <div class="q__exp">Les images sans préfixe de registre sont automatiquement résolues vers le registre officiel Docker Hub sous l’espace officiel docker.io/library/.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser le tag :latest en production, entraînant des déploiements non déterministes et des pannes silencieuses.</li>
+      <li>Penser que supprimer un fichier dans une commande RUN ultérieure allège l’image : le fichier reste figé dans la couche précédente.</li>
+      <li>Confondre la taille apparente cumulée (docker images) et la taille physique réelle stockée sur le disque après déduplication.</li>
+      <li>Écrire des gigaoctets de logs directement dans la couche conteneur sans volume, saturant le disque système de l’hôte.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole d’Audit et d’Optimisation du Stockage d’Images Docker</div>
+    <ol>
+      <li>Étape 1 — Inventorier l’espace disque consommé : Exécuter la commande « docker system df » pour visualiser l’espace pris par les images, conteneurs et volumes.</li>
+      <li>Étape 2 — Inspecter les couches d’une image : Lancer « docker history --no-trunc &lt;image&gt; » pour identifier les couches volumineuses et suspectes.</li>
+      <li>Étape 3 — Rapatrier uniquement par version sémantique : Remplacer systématiquement tous les tags « latest » par des versions précises dans les manifestes.</li>
+      <li>Étape 4 — Vérifier la déduplication Overlay2 : Constater dans « /var/lib/docker/overlay2/ » que les couches communes ne sont pas dupliquées.</li>
+      <li>Étape 5 — Épingler les digests critiques : Récupérer le digest cryptographique SHA256 avec « docker inspect --format="{{index .RepoDigests 0}}" &lt;image&gt; ».</li>
+      <li>Étape 6 — Purger les couches orphelines : Nettoyer les images non référencées et sans conteneur actif avec « docker image prune -a ».</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une image Docker est un assemblage immuable de couches en lecture seule (Image Layers) superposées.</li>
+      <li>Le pilote Overlay2 fusionne les lowerdir (couches d’images) et l’upperdir (couche Writable du conteneur) dans merged.</li>
+      <li>La stratégie Copy-On-Write (CoW) copie un fichier dans la couche conteneur uniquement lors de sa première tentative de modification.</li>
+      <li>La suppression d’un fichier de l’image de base crée un fichier masquant (whiteout) dans la couche conteneur sans effacer la donnée de l’image.</li>
+      <li>Les couches communes partagent le même hash SHA256 et ne sont stockées qu’une seule fois sur la machine hôte.</li>
+      <li>Le tag « latest » est flottant et imprévisible : les déploiements de production doivent privilégier des tags sémantiques ou des digests SHA256.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends pourquoi deux images partageant la même base ne consomment pas deux fois l’espace disque.</li>
+      <li>Je sais expliquer les 4 répertoires fondamentaux d’OverlayFS : lowerdir, upperdir, workdir et merged.</li>
+      <li>Je maîtrise le mécanisme de Copy-On-Write et la notion de fichier whiteout.</li>
+      <li>Je sais décomposer une référence d’image complète (registre, namespace, tag, digest).</li>
+      <li>Je sais pourquoi le tag latest est formellement banni en environnement de production.</li>
+      <li>Je sais utiliser docker history pour auditer la taille de chaque couche d’une image.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Couches immuables (Read-Only Image Layers)</li><li>Couche d’écriture du conteneur (Writable Container Layer)</li><li>Système de fichiers Overlay2 (UnionFS)</li><li>Dossiers lowerdir, upperdir, workdir, merged</li><li>Mécanisme Copy-On-Write (CoW)</li><li>Fichiers masquants Whiteout</li><li>Registres d’images (Docker Hub, Harbor, GHCR)</li><li>Digests cryptographiques SHA256</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la structure des layers, Overlay2 et les risques du tag latest.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes notions de stockage. Approfondissez le Copy-On-Write et les fichiers whiteout.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise des systèmes de fichiers en couches et des registres d’images.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous optimisez et sécurisez les images Docker selon les standards industriels les plus stricts.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Dockerfile, Directives &amp; Optimisation Multi-Stage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Docker Engine, la spécification Open Container Initiative (OCI), le standard Docker Compose et le guide de sécurité CIS Docker Benchmark.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

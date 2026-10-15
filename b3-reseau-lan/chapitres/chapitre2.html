@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Agrégation de Liaisons EtherChannel (LACP &amp;amp; PAgP) &amp;amp; Répartition de Charge | Réseau LAN Avancé B3</title>
+<meta name="description" content="Chapitre 2 du cours Réseau LAN Avancé B3 : Bundles de liens logiques Port-Channel, protocoles de négociation LACP (802.3ad/802.1AX) et PAgP, modes actif/passif, contraintes strictes de cohérence de configuration, et algorithmes de hachage de flux. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-reseau-lan/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Agrégation de Liaisons EtherChannel (LACP &amp;amp; PAgP) &amp;amp; Répartition de Charge | Réseau LAN Avancé B3">
+<meta property="og:description" content="Chapitre 2 du cours Réseau LAN Avancé B3 : Bundles de liens logiques Port-Channel, protocoles de négociation LACP (802.3ad/802.1AX) et PAgP, modes actif/passif, contraintes strictes de cohérence de configuration, et algorithmes de hachage de flux. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-reseau-lannav"><div class="b3-reseau-lannav__in">
+  <a class="b3-reseau-lannav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-reseau-lannav__sep" aria-hidden="true">/</span>
+  <a class="b3-reseau-lannav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-network"></use></svg> Réseau LAN Avancé B3</a>
+  <div class="b3-reseau-lannav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-reseau-lannav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-reseau-lanwrap">
+<p class="crumb"><a href="../index.html">Réseau LAN Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Agrégation de Liaisons EtherChannel (LACP &amp; PAgP) &amp; Répartition de Charge</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un réseau local d’entreprise, la bande passante requise entre les commutateurs d’accès, de distribution et de cœur dépasse rapidement la capacité d’une seule liaison physique. Si un administrateur câble deux liaisons physiques en parallèle sans configuration spécifique, le protocole Spanning Tree en bloque immédiatement une pour éviter une boucle, laissant 50 % de la capacité inutilisée. La technologie EtherChannel permet de regrouper jusqu’à 8 liaisons physiques parallèles en un unique canal logique (Port-Channel), augmentant la bande passante globale tout en offrant une redondance instantanée en cas de coupure de câble. L’ingénieur réseau de niveau Bachelor 3 doit maîtriser la négociation standardisée IEEE LACP (Link Aggregation Control Protocol) vs Cisco PAgP, imposer une cohérence absolue des paramètres de ports membres et comprendre les fonctions mathématiques de hachage pour garantir une répartition de charge optimale.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le principe de l’agrégation de liens Ethernet et l’interaction avec le Spanning Tree ;</li>
+      <li>comparer le protocole standard LACP (IEEE 802.3ad / 802.1AX) et le protocole propriétaire Cisco PAgP ;</li>
+      <li>analyser la matrice des modes de négociation (active, passive, desirable, auto, on) ;</li>
+      <li>identifier et auditer les exigences de compatibilité stricte des ports membres d’un bundle ;</li>
+      <li>calculer la répartition de trafic selon les algorithmes de hachage (src-mac, dst-mac, src-dst-ip, ports TCP/UDP) ;</li>
+      <li>développer en Python 3 des simulateurs de négociation EtherChannel, des répartiteurs de hachage et des auditeurs de cohérence.</li>
+    </ol>
+  </div>
+
+<h2>1. Fondements de l’Agrégation de Liaisons & Rôle du Port-Channel</h2>
+
+<p>L’agrégation de liaisons (EtherChannel) permet de regrouper de 2 à 8 liaisons Ethernet physiques en une interface logique unique désignée sous le nom de <strong>Port-Channel</strong>. Du point de vue du protocole Spanning Tree, l’ensemble du faisceau apparaît comme une seule et unique interface : <strong>aucun des liens physiques n’est bloqué</strong>, et la bande passante cumulée est immédiatement disponible.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Avantages Techniques Majeurs</h4>
+    <ul>
+      <li><strong>Augmentation de la Bande Passante :</strong> Un bundle de 4 liaisons GigabitEthernet offre une capacité agrégée de 4 Gbps en Full Duplex.</li>
+      <li><strong>Tolérance aux Pannes Instantanée :</strong> Si une fibre optique ou un port physique est coupé, le trafic est redistribué sur les liaisons restantes en moins d’une seconde sans recalcul Spanning Tree.</li>
+      <li><strong>Stabilité Topologique :</strong> Le Spanning Tree n’observe aucun changement d’état (TCN - Topology Change Notification) tant qu’au moins un lien physique du bundle reste opérationnel.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Limites Fondamentales : Ce que l'EtherChannel n'est Pas</h4>
+    <p>Il est crucial de comprendre qu’un EtherChannel ne réalise pas de fragmentation de paquets au niveau bit : <strong>un flux réseau unique entre deux stations ne peut jamais dépasser la vitesse d’un seul lien physique</strong> (ex: un téléchargement de fichier unique restera plafonné à 1 Gbps sur un bundle de 4 x 1 Gbps).</p>
+  </div>
+</div>
+
+<h2>2. Protocoles de Négociation Dynamique : LACP vs PAgP & Modes</h2>
+
+<p>Pour éviter les boucles en cas de mauvaise connectivité ou de câble croisé, les liaisons doivent négocier dynamiquement la formation du canal logique à l’aide d’un protocole d’agrégation :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. LACP (Link Aggregation Control Protocol)</h4>
+    <p>Standardisé par l’IEEE sous la norme <strong>802.3ad</strong> puis <strong>802.1AX</strong>. Utilisé dans tous les environnements hétérogènes multi-vendeurs :</p>
+    <ul>
+      <li><code>active</code> : Le port envoie activement des trames LACPDUs et sollicite l’agrégation.</li>
+      <li><code>passive</code> : Le port écoute et répond uniquement s’il reçoit des trames LACPDUs d’un voisin actif.</li>
+      <li><strong>Règle de succès :</strong> <code>active-active</code> (succès) ou <code>active-passive</code> (succès). La combinaison <code>passive-passive</code> échoue (aucun émetteur).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. PAgP (Port Aggregation Protocol)</h4>
+    <p>Protocole propriétaire historique de Cisco :</p>
+    <ul>
+      <li><code>desirable</code> : Sollicite activement la négociation PAgP avec l’autre extrémité.</li>
+      <li><code>auto</code> : Répond uniquement aux sollicitations reçues.</li>
+      <li><strong>Règle de succès :</strong> <code>desirable-desirable</code> ou <code>desirable-auto</code>. La combinaison <code>auto-auto</code> échoue.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Le Mode Statique Sans Protocole (« channel-group 1 mode on »)</div>
+<p>Le mode <code>on</code> force l’agrégation des ports sans aucune trame de négociation. <strong>Cette configuration est fortement déconseillée en production</strong> : si l’un des câbles est débranché ou relié par erreur à un port tiers, le commutateur continuera d’acheminer du trafic sur ce lien, provoquant une perte de paquets massive ou une boucle de niveau 2 incontrôlable.</p>
+  </div>
+
+<h2>3. Cohérence Strict des Membres & Algorithmes de Hachage de Flux</h2>
+
+<p>Pour qu’un port physique puisse être agrégé dans un Port-Channel, il doit respecter des critères de compatibilité stricts avec les autres membres du groupe :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Exigences de Cohérence des Membres</h4>
+    <ul>
+      <li><strong>Vitesse &amp; Duplex :</strong> Même débit physique (tous 1 Gbps ou tous 10 Gbps) et même duplex (Full obligatoire).</li>
+      <li><strong>Type de Commutation :</strong> Tous en mode <code>access</code> (sur le même VLAN) ou tous en mode <code>trunk</code>.</li>
+      <li><strong>Configuration Trunk :</strong> Même protocole d’encapsulation (802.1Q), même <strong>VLAN natif</strong> et même liste de VLANs autorisés (<code>allowed vlan</code>).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Mécanismes de Hachage et Répartition de Charge</h4>
+    <p>Le commutateur sélectionne le lien physique sur lequel émettre chaque trame en calculant une fonction de hachage mathématique (typiquement un XOR binaire) sur les champs d’en-tête configurés :</p>
+    <ul>
+      <li><code>src-mac</code> ou <code>dst-mac</code> : Hachage sur l’adresse MAC source ou destination.</li>
+      <li><code>src-dst-ip</code> : Hachage combiné sur les adresses IP source et destination.</li>
+      <li><code>src-dst-mixed-ip-port</code> : Hachage complet combinant adresses IP et ports TCP/UDP pour une granularité maximale.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lan3-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="NEGOTIATION id=LINK1 side_a_proto=LACP side_a_mode=ACTIVE side_b_proto=LACP side_b_mode=PASSIVE&#10;NEGOTIATION id=LINK2 side_a_proto=LACP side_a_mode=PASSIVE side_b_proto=LACP side_b_mode=PASSIVE&#10;NEGOTIATION id=LINK3 side_a_proto=PAGP side_a_mode=DESIRABLE side_b_proto=PAGP side_b_mode=AUTO&#10;NEGOTIATION id=LINK4 side_a_proto=LACP side_a_mode=ACTIVE side_b_proto=PAGP side_b_mode=DESIRABLE">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la compatibilité des protocoles et modes EtherChannel
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Négociateur d'agrégation EtherChannel (LACP 802.3ad vs PAgP vs ON)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer si un lien EtherChannel s'établit entre deux commutateurs selon les protocoles et modes configurés.</p>
+    <div class="lab__brief"><p>L'agrégation de liens (<strong>EtherChannel</strong>) regroupe jusqu'à 8 liaisons Ethernet physiques en un seul lien logique (Port-Channel) pour multiplier la bande passante et assurer la tolérance aux pannes.<br><br>
+Les protocoles de négociation et leurs modes associés :<br>
+- <strong>LACP (IEEE 802.3ad / 802.1AX) :</strong> modes <code>ACTIVE</code> (sollicite activement) et <code>PASSIVE</code> (attend les trames LACP).<br>
+  - <code>ACTIVE + ACTIVE</code> ou <code>ACTIVE + PASSIVE</code> &rarr; <code>CHANNEL_UP (LACP)</code>.<br>
+  - <code>PASSIVE + PASSIVE</code> &rarr; <code>NO_CHANNEL (PASSIVE_MISMATCH)</code>.<br>
+- <strong>PAgP (Cisco propriétaire) :</strong> modes <code>DESIRABLE</code> (sollicite) et <code>AUTO</code> (attend).<br>
+  - <code>DESIRABLE + DESIRABLE</code> ou <code>DESIRABLE + AUTO</code> &rarr; <code>CHANNEL_UP (PAGP)</code>.<br>
+  - <code>AUTO + AUTO</code> &rarr; <code>NO_CHANNEL (AUTO_MISMATCH)</code>.<br>
+- <strong>Statique (Mode ON forcé sans protocole) :</strong> mode <code>ON</code>.<br>
+  - <code>ON + ON</code> &rarr; <code>CHANNEL_UP (STATIC)</code>.<br>
+  - <code>ON + (LACP ou PAgP)</code> &rarr; <code>ERROR_MISMATCH</code>.<br>
+- <strong>Mélange de protocoles incompatibles (ex: LACP + PAgP) :</strong> &rarr; <code>ERROR_PROTOCOL_INCOMPATIBLE</code>.<br><br>
+Le script lit sur l'entrée standard des scénarios de négociation :<br>
+<code>NEGOTIATION id=&lt;nom&gt; side_a_proto=&lt;LACP|PAGP|STATIC&gt; side_a_mode=&lt;ACTIVE|PASSIVE|DESIRABLE|AUTO|ON&gt; side_b_proto=&lt;LACP|PAGP|STATIC&gt; side_b_mode=&lt;ACTIVE|PASSIVE|DESIRABLE|AUTO|ON&gt;</code><br><br>
+Pour chaque négociation, afficher :<br>
+<code>ETHERCHANNEL_EVAL id={id} status={status} proto={matched_proto} detail={detail}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NEGOTIATION id=LINK1 side_a_proto=LACP side_a_mode=ACTIVE side_b_proto=LACP side_b_mode=PASSIVE
+NEGOTIATION id=LINK2 side_a_proto=LACP side_a_mode=PASSIVE side_b_proto=LACP side_b_mode=PASSIVE
+NEGOTIATION id=LINK3 side_a_proto=PAGP side_a_mode=DESIRABLE side_b_proto=PAGP side_b_mode=AUTO
+NEGOTIATION id=LINK4 side_a_proto=LACP side_a_mode=ACTIVE side_b_proto=PAGP side_b_mode=DESIRABLE</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ETHERCHANNEL_EVAL id=LINK1 status=CHANNEL_UP proto=LACP detail=ACTIVE_PASSIVE_MATCH
+ETHERCHANNEL_EVAL id=LINK2 status=NO_CHANNEL proto=LACP detail=PASSIVE_MISMATCH
+ETHERCHANNEL_EVAL id=LINK3 status=CHANNEL_UP proto=PAGP detail=DESIRABLE_AUTO_MATCH
+ETHERCHANNEL_EVAL id=LINK4 status=ERROR proto=NONE detail=PROTOCOL_INCOMPATIBLE</pre></div>
+    </div>
+    <p class="lab__note">LINK1 forme un bundle LACP ; LINK2 reste inactif car les deux sont passifs ; LINK4 tente de mélanger deux protocoles incompatibles.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier d'abord si side_a_proto == side_b_proto.</li>
+        <li>Si LACP : formé sauf si les deux côtés sont PASSIVE.</li>
+        <li>Si PAGP : formé sauf si les deux côtés sont AUTO.</li>
+        <li>Si STATIC : formé uniquement si les deux côtés sont ON.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="BUNDLE name=Po1 ports=Gi0/1,Gi0/2,Gi0/3,Gi0/4 method=src-dst-ip&#10;PACKET id=PKT1 src_mac=00:11:22:33:44:01 dst_mac=00:11:22:33:44:02 src_ip=192.168.1.10 dst_ip=10.0.0.12 src_port=50000 dst_port=80&#10;PACKET id=PKT2 src_mac=00:11:22:33:44:01 dst_mac=00:11:22:33:44:02 src_ip=192.168.1.15 dst_ip=10.0.0.15 src_port=50001 dst_port=443">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : parser la méthode de hachage et calculer le port de sortie
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur de répartition de charge EtherChannel (Algorithme de Hachage)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le port physique d'émission sélectionné par la fonction de hachage du commutateur.</p>
+    <div class="lab__brief"><p>Un commutateur ne distribue pas les paquets en Round-Robin simple sur un EtherChannel car cela provoquerait des réordonnancements de paquets TCP néfastes. Il applique une fonction mathématique de <strong>hachage (Load Balancing Hash)</strong> basée sur les en-têtes réseau.<br><br>
+Le script lit sur l'entrée standard d'abord la définition du Port-Channel :<br>
+<code>BUNDLE name=&lt;nom&gt; ports=&lt;p1,p2,...&gt; method=&lt;src-mac|dst-mac|src-dst-mac|src-dst-ip|src-dst-port&gt;</code><br>
+Puis des paquets en transit :<br>
+<code>PACKET id=&lt;nom&gt; src_mac=&lt;mac&gt; dst_mac=&lt;mac&gt; src_ip=&lt;ip&gt; dst_ip=&lt;ip&gt; src_port=&lt;int&gt; dst_port=&lt;int&gt;</code><br><br>
+Algorithme de calcul de l'index de port (<code>k = len(ports)</code>) :<br>
+- <strong>src-mac :</strong> <code>hash_val = dernier_octet_hexa(src_mac)</code> &rarr; <code>idx = hash_val % k</code>.<br>
+- <strong>dst-mac :</strong> <code>hash_val = dernier_octet_hexa(dst_mac)</code> &rarr; <code>idx = hash_val % k</code>.<br>
+- <strong>src-dst-mac :</strong> <code>hash_val = dernier_octet_hexa(src_mac) ^ dernier_octet_hexa(dst_mac)</code> &rarr; <code>idx = hash_val % k</code>.<br>
+- <strong>src-dst-ip :</strong> <code>hash_val = dernier_octet_dec(src_ip) ^ dernier_octet_dec(dst_ip)</code> &rarr; <code>idx = hash_val % k</code>.<br>
+- <strong>src-dst-port :</strong> <code>hash_val = src_port ^ dst_port</code> &rarr; <code>idx = hash_val % k</code>.<br><br>
+Pour chaque paquet, afficher :<br>
+<code>LB_REPORT id={id} bundle={name} hash_idx={idx} port={ports[idx]}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BUNDLE name=Po1 ports=Gi0/1,Gi0/2,Gi0/3,Gi0/4 method=src-dst-ip
+PACKET id=PKT1 src_mac=00:11:22:33:44:01 dst_mac=00:11:22:33:44:02 src_ip=192.168.1.10 dst_ip=10.0.0.12 src_port=50000 dst_port=80
+PACKET id=PKT2 src_mac=00:11:22:33:44:01 dst_mac=00:11:22:33:44:02 src_ip=192.168.1.15 dst_ip=10.0.0.15 src_port=50001 dst_port=443</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LB_REPORT id=PKT1 bundle=Po1 hash_idx=2 port=Gi0/3
+LB_REPORT id=PKT2 bundle=Po1 hash_idx=0 port=Gi0/1</pre></div>
+    </div>
+    <p class="lab__note">PKT1: 10 ^ 12 = 6, 6 % 4 = 2 -&gt; Gi0/3. PKT2: 15 ^ 15 = 0, 0 % 4 = 0 -&gt; Gi0/1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extraire le dernier octet d'une MAC (ex: "00:11:22:33:44:5a" -&gt; 0x5a = 90).</li>
+        <li>Extraire le dernier octet d'une IP (ex: "192.168.1.15" -&gt; 15).</li>
+        <li>Appliquer l'opérateur XOR (^) puis le modulo len(ports).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="MEMBER group=Po1 port=Gi0/1 speed=1000 duplex=full mode=trunk vlan=1 native=10 allowed=10,20,30&#10;MEMBER group=Po1 port=Gi0/2 speed=1000 duplex=full mode=trunk vlan=1 native=10 allowed=10,20,30&#10;MEMBER group=Po1 port=Gi0/3 speed=100 duplex=full mode=trunk vlan=1 native=10 allowed=10,20,30">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : auditer la cohérence de chaque port par rapport à la référence
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Contrôleur de cohérence des interfaces membres EtherChannel</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la parfaite homogénéité des paramètres de configuration des ports d'un Port-Channel.</p>
+    <div class="lab__brief"><p>Pour qu'un groupe EtherChannel puisse s'activer (état <code>UP</code>), tous les ports membres physiques doivent présenter des paramètres strictement identiques.<br><br>
+Paramètres obligatoirement homogènes :<br>
+- <code>speed</code> (vitesse en Mbps, ex: 1000)<br>
+- <code>duplex</code> (ex: full)<br>
+- <code>mode</code> (<code>access</code> ou <code>trunk</code>)<br>
+- Si <code>mode == 'access'</code> : même <code>vlan</code> d'accès.<br>
+- Si <code>mode == 'trunk'</code> : même <code>native_vlan</code> ET même ensemble de <code>allowed_vlans</code>.<br><br>
+Le script lit sur l'entrée standard les déclarations de ports membres d'un groupe :<br>
+<code>MEMBER group=&lt;nom&gt; port=&lt;nom&gt; speed=&lt;int&gt; duplex=&lt;full|half&gt; mode=&lt;access|trunk&gt; vlan=&lt;int&gt; native=&lt;int&gt; allowed=&lt;vlan_list&gt;</code><br><br>
+Règles d'audit :<br>
+Le premier port déclaré définit le profil de référence du groupe.<br>
+Pour chaque port membre (triés par nom de port) :<br>
+- Si tous les paramètres concordent avec la référence :<br>
+  <code>status=COMPLIANT reason=NONE</code>.<br>
+- En cas de discordance :<br>
+  <code>status=INCOMPLIANT reason=&lt;première_discordance_parmi: SPEED_MISMATCH, DUPLEX_MISMATCH, MODE_MISMATCH, ACCESS_VLAN_MISMATCH, NATIVE_VLAN_MISMATCH, ALLOWED_VLANS_MISMATCH&gt;</code>.<br><br>
+Afficher pour chaque port :<br>
+<code>MEMBER_AUDIT group={group} port={port} status={status} reason={reason}</code><br>
+Et la synthèse finale du groupe :<br>
+<code>BUNDLE_STATUS group={group} state={UP si 100% compliant sinon SUSPENDED} compliant_count={c}/{total}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MEMBER group=Po1 port=Gi0/1 speed=1000 duplex=full mode=trunk vlan=1 native=10 allowed=10,20,30
+MEMBER group=Po1 port=Gi0/2 speed=1000 duplex=full mode=trunk vlan=1 native=10 allowed=10,20,30
+MEMBER group=Po1 port=Gi0/3 speed=100 duplex=full mode=trunk vlan=1 native=10 allowed=10,20,30</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MEMBER_AUDIT group=Po1 port=Gi0/1 status=COMPLIANT reason=NONE
+MEMBER_AUDIT group=Po1 port=Gi0/2 status=COMPLIANT reason=NONE
+MEMBER_AUDIT group=Po1 port=Gi0/3 status=INCOMPLIANT reason=SPEED_MISMATCH
+BUNDLE_STATUS group=Po1 state=SUSPENDED compliant_count=2/3</pre></div>
+    </div>
+    <p class="lab__note">Gi0/3 tourne à 100 Mbps au lieu de 1000 Mbps, ce qui suspend l'agrégation.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Prendre le premier port comme modèle.</li>
+        <li>Comparer les champs dans l'ordre : speed, duplex, mode, vlan (si access), native/allowed (si trunk).</li>
+        <li>Normaliser allowed_vlans sous forme d'un set d'entiers.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l’effet de la création d’un Port-Channel sur le comportement du protocole Spanning Tree ?</p>
+      <div class="opts">
+        <button class="opt">STP bloque tous les liens physiques du bundle sauf un</button>
+        <button class="opt" data-correct="1">STP traite le faisceau comme un unique lien logique et ne bloque aucun des liens physiques membres</button>
+        <button class="opt">STP est entièrement désactivé sur l’ensemble du commutateur</button>
+        <button class="opt">STP convertit toutes les trames en paquets UDP</button>
+      </div>
+      <div class="q__exp">Pour STP, le Port-Channel est perçu comme une seule interface logique à haut débit : aucun lien physique membre n’est bloqué.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel standard ouvert international régit le protocole LACP (Link Aggregation Control Protocol) ?</p>
+      <div class="opts">
+        <button class="opt">IEEE 802.1D</button>
+        <button class="opt">IEEE 802.11ax</button>
+        <button class="opt" data-correct="1">IEEE 802.3ad / 802.1AX</button>
+        <button class="opt">RFC 1918</button>
+      </div>
+      <div class="q__exp">LACP est défini par la norme IEEE 802.3ad, ultérieurement reprise sous la dénomination IEEE 802.1AX.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle combinaison de modes LACP entre deux commutateurs interconnectés N’ABOUTIT PAS à la création d’un canal ?</p>
+      <div class="opts">
+        <button class="opt">active et active</button>
+        <button class="opt">active et passive</button>
+        <button class="opt" data-correct="1">passive et passive</button>
+        <button class="opt">Toutes les combinaisons précédentes aboutissent</button>
+      </div>
+      <div class="q__exp">En mode passive-passive, les deux extrémités attendent passivement de recevoir un paquet LACP sans jamais en émettre. Le canal ne monte jamais.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le protocole PAgP de Cisco, quels sont les deux modes configurables ?</p>
+      <div class="opts">
+        <button class="opt">active et passive</button>
+        <button class="opt" data-correct="1">desirable et auto</button>
+        <button class="opt">master et backup</button>
+        <button class="opt">primary et secondary</button>
+      </div>
+      <div class="q__exp">PAgP utilise les modes desirable (sollicite activement) et auto (répond passivement aux sollicitations).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’utilisation du mode forcé « mode on » est-elle risquée en environnement de production ?</p>
+      <div class="opts">
+        <button class="opt">Parce qu’il consomme trop de puissance électrique</button>
+        <button class="opt" data-correct="1">Parce qu’il force l’agrégation sans vérifier la compatibilité ni le bon raccordement des câbles à l’extrémité distante</button>
+        <button class="opt">Parce qu’il limite la vitesse à 10 Mbps</button>
+        <button class="opt">Parce qu’il est incompatible avec les commutateurs modernes</button>
+      </div>
+      <div class="q__exp">Le mode on n’échange aucune trame de contrôle. Si un câble est mal raccordé ou défectueux, il peut engendrer une boucle ou une perte de trafic silencieuse.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un port membre d’un bundle présente un VLAN natif différent de celui configuré sur le Port-Channel, quelle est la conséquence ?</p>
+      <div class="opts">
+        <button class="opt">Le Port-Channel adopte immédiatement le nouveau VLAN</button>
+        <button class="opt" data-correct="1">Le port membre est suspendu et placé en anomalie (err-disable / suspended)</button>
+        <button class="opt">Le commutateur redémarre automatiquement</button>
+        <button class="opt">Les trames sont encapsulées en IPv6</button>
+      </div>
+      <div class="q__exp">La cohérence de configuration est stricte : toute discordance de VLAN natif provoque la suspension du port membre pour éviter les fuites inter-VLANs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un client effectue un transfert de fichier unique vers un serveur à travers un EtherChannel composé de 4 liens à 1 Gbps. Quel débit maximal peut-il atteindre ?</p>
+      <div class="opts">
+        <button class="opt">4 Gbps</button>
+        <button class="opt" data-correct="1">1 Gbps</button>
+        <button class="opt">2 Gbps</button>
+        <button class="opt">500 Mbps</button>
+      </div>
+      <div class="q__exp">Un flux réseau unique suit le résultat d’une fonction de hachage et emprunte un seul lien physique physique à la fois : son débit reste borné à 1 Gbps.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la sortie de la commande « show etherchannel summary », quels drapeaux indiquent un Port-Channel de niveau 2 opérationnel et ses membres actifs ?</p>
+      <div class="opts">
+        <button class="opt">D (Down) et S (Suspend)</button>
+        <button class="opt" data-correct="1">SU (Layer 2, In-use) et P (Bundled in port-channel)</button>
+        <button class="opt">RU (Layer 3, Unused) et I (Individual)</button>
+        <button class="opt">W (Waiting) et M (Master)</button>
+      </div>
+      <div class="q__exp">Le drapeau S indique un canal de niveau 2 (Layer 2), U signifie en cours d’utilisation (In-use), et le drapeau P confirme que le port physique est agrégé dans le bundle.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Configurer les deux extrémités en mode passive en LACP, laissant le Port-Channel éternellement inactif.</li>
+      <li>Avoir un VLAN natif différent entre un port membre et le Port-Channel, provoquant la suspension immédiate du membre.</li>
+      <li>Croire qu’un EtherChannel 4 x 1 Gbps permet à un client unique de télécharger un fichier à 4 Gbps.</li>
+      <li>Utiliser le hachage src-mac sur un commutateur relié à un routeur ou un pare-feu où toutes les trames entrantes partagent la même MAC source.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Vérifier la cohérence matérielle des interfaces physiques sélectionnées (même vitesse de ligne, même support cuivre ou fibre).</li>
+      <li>Étape 2 : Configurer les interfaces membres avec les paramètres de couche 2 souhaités (mode trunk, VLAN natif, VLANs autorisés).</li>
+      <li>Étape 3 : Affecter les interfaces au groupe d’agrégation en privilégiant le standard LACP avec le mode active (ex: channel-group 1 mode active).</li>
+      <li>Étape 4 : Vérifier l’état opérationnel du bundle via la commande CLI show etherchannel summary (drapeaux SU et P requis).</li>
+      <li>Étape 5 : Configurer l’algorithme d’équilibrage de charge approprié sur le commutateur (port-channel load-balance src-dst-ip).</li>
+      <li>Étape 6 : Auditer la répartition effective des flux entre les liaisons physiques pour détecter d’éventuelles asymétries de charge.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>EtherChannel agrège jusqu’à 8 liaisons physiques en un Port-Channel logique unique perçu comme une seule interface par STP.</li>
+      <li>LACP (IEEE 802.3ad / 802.1AX) est le standard ouvert universel utilisant les modes active et passive.</li>
+      <li>PAgP est le protocole propriétaire Cisco utilisant les modes de négociation desirable et auto.</li>
+      <li>Le mode forcé on est dangereux car il ne vérifie aucune cohérence de câblage à l’extrémité distante.</li>
+      <li>Toute discordance de vitesse, duplex, mode de port ou VLAN natif provoque la désactivation immédiate du port membre.</li>
+      <li>La répartition de charge s’effectue par hachage de flux (XOR) sur les adresses MAC, IP ou couples de ports TCP/UDP.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends l’intérêt d’un Port-Channel vis-à-vis du Spanning Tree pour éviter le blocage de liens redondants.</li>
+      <li>Je maîtrise les combinaisons gagnantes et perdantes des modes LACP (active / passive).</li>
+      <li>Je connais les différences fondamentales entre LACP (standard) et PAgP (propriétaire Cisco).</li>
+      <li>Je sais identifier toutes les propriétés de configuration qui doivent être rigoureusement identiques sur les ports membres.</li>
+      <li>Je sais expliquer pourquoi un transfert de fichier unique ne peut dépasser le débit d’un seul lien physique d’un bundle.</li>
+      <li>Je sais choisir la méthode d’équilibrage de charge de hachage la plus adaptée à l’environnement applicatif.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Agrégation de Liens (EtherChannel)</li><li>Interface Logique Port-Channel</li><li>Standard LACP (IEEE 802.3ad / 802.1AX)</li><li>Protocole Propriétaire Cisco PAgP</li><li>Modes Active, Passive, Desirable, Auto</li><li>Cohérence de Configuration des Membres</li><li>Algorithmes de Hachage de Flux (Load Balancing)</li><li>Vérification CLI (show etherchannel summary)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à mémoriser les modes LACP/PAgP ou confusion sur le débit atteignable par un flux unique.</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension de la négociation LACP, configuration d’un Port-Channel et audit de la cohérence des membres.</div>
+      <div class="bandrow bandrow--high">Maîtrise approfondie des algorithmes de hachage de flux, optimisation de l’équilibrage de charge et dépannage complexe d’EtherChannel multi-châssis.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Protocoles de Redondance de Passerelle FHRP (HSRP, VRRP &amp; GLBP) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards IEEE 802.1D, 802.1w, 802.1s, 802.3ad, 802.1AX, 802.1AB, RFC 2328 (OSPFv2), RFC 5798 (VRRPv3) et Guides de conception Cisco Campus LAN & ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

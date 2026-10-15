@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Rendu conditionnel, listes &amp; clés dynamiques | React B2</title>
+<meta name="description" content="Chapitre 4 du cours React B2 : Opérateurs ternaires, court-circuit logique, map(), prop key, réconciliation et filtrage de données. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/react/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Rendu conditionnel, listes &amp; clés dynamiques | React B2">
+<meta property="og:description" content="Chapitre 4 du cours React B2 : Opérateurs ternaires, court-circuit logique, map(), prop key, réconciliation et filtrage de données. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="reactnav"><div class="reactnav__in">
+  <a class="reactnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="reactnav__sep" aria-hidden="true">/</span>
+  <a class="reactnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> React B2</a>
+  <div class="reactnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="reactnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="reactwrap">
+<p class="crumb"><a href="../index.html">React B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Rendu conditionnel, listes & clés dynamiques</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>La plupart des applications manipulent des collections d’éléments : catalogues de produits, fils d’actualités ou listes de messages. Afficher ces données de manière ordonnée et conditionnelle exige de maîtriser la méthode map() et le rôle critique de la prop key.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser les différentes techniques de rendu conditionnel (if, ternaire, court-circuit) ;</li>
+      <li>éviter les pièges du court-circuit avec la valeur 0 ;</li>
+      <li>transformer un tableau de données en éléments JSX avec Array.prototype.map() ;</li>
+      <li>comprendre le rôle fondamental de la prop key pour l’algorithme de réconciliation ;</li>
+      <li>calculer des listes filtrées ou triées sans dupliquer l’état.</li>
+    </ol>
+  </div>
+
+<h2>1. Techniques de rendu conditionnel</h2>
+
+<p>En React, il n’existe pas de directive spéciale comme <code>v-if</code> ou <code>*ngIf</code> : on utilise les structures de contrôle natives de JavaScript.</p>
+<pre><code>// 1. Retour anticipé (Early return)
+if (isLoading) {
+  return &lt;p&gt;Chargement en cours...&lt;/p&gt;;
+}
+
+// 2. Opérateur ternaire
+return (
+  &lt;div&gt;
+    {isLogged ? &lt;Profil /&gt; : &lt;BoutonConnexion /&gt;}
+  &lt;/div&gt;
+);
+
+// 3. Court-circuit logique (&amp;&amp;)
+return (
+  &lt;div&gt;
+    &lt;h1&gt;Boîte de réception&lt;/h1&gt;
+    {hasUnreadMessages &amp;&amp; &lt;span className="pastille"&gt;Nouveau !&lt;/span&gt;}
+  &lt;/div&gt;
+);</code></pre>
+  <div class="box box--warn">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Le piège classique de {count &amp;&amp; &lt;Composant /&gt;}</div>
+    <p>En JavaScript, <code>0 &amp;&amp; "texte"</code> s’évalue à <code>0</code> (et non à <code>false</code>). Si votre variable vaut <code>0</code>, React affichera le chiffre <code>0</code> dans la page au lieu de ne rien rendre ! Écrivez toujours : <code>{count &gt; 0 &amp;&amp; &lt;Badge /&gt;}</code> ou <code>{Boolean(count) &amp;&amp; &lt;Badge /&gt;}</code>.</p>
+  </div>
+
+<h2>2. Rendu de listes avec map()</h2>
+
+<p>Pour afficher une liste dynamique, on transforme un tableau de données en un tableau d’éléments JSX à l’aide de la méthode fonctionnelle <code>map()</code> :</p>
+<pre><code>const fruits = [
+  { id: 'f1', nom: 'Pomme', prix: 1.2 },
+  { id: 'f2', nom: 'Banane', prix: 0.9 },
+  { id: 'f3', nom: 'Orange', prix: 1.5 }
+];
+
+function ListeFruits() {
+  return (
+    &lt;ul&gt;
+      {fruits.map(fruit =&gt; (
+        &lt;li key={fruit.id}&gt;
+          {fruit.nom} — {fruit.prix} €
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+
+<h2>3. Le rôle fondamental de la prop key</h2>
+
+<p>La prop <code>key</code> est une chaîne ou un identifiant unique qui indique à React l’identité de chaque élément d’une liste entre deux rendus. Elle permet au <strong>réconciliateur</strong> de savoir précisément quel élément a été ajouté, déplacé ou supprimé, sans devoir redessiner toute la liste.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Pourquoi éviter l’index de boucle comme clé ?</div>
+    <p>Utiliser l’index de boucle (<code>key={index}</code>) fonctionne si la liste est statique. Mais en cas d’ajout en tête, de suppression ou de tri, les index changent : React confond alors l’état interne des composants enfants (comme le contenu de champs de saisie ou des cases cochées). <strong>Utilisez toujours un identifiant stable et unique issu des données (ex. id de base de données).</strong></p>
+  </div>
+
+<h2>4. Calcul de données dérivées sans redondance d’état</h2>
+
+<p>Si une liste doit être filtrée par un champ de recherche ou triée, <strong>ne stockez pas la liste filtrée dans un second state</strong>. Calculez-la simplement à la volée pendant le rendu :</p>
+<pre><code>const [recherche, setRecherche] = useState('');
+
+// Calcul dérivé à chaque rendu :
+const produitsFiltres = produits.filter(p =&gt;
+  p.nom.toLowerCase().includes(recherche.toLowerCase())
+);</code></pre>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="rx2-c4-e1"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="1:Accueil,2:Profil,3:Contact&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const elements = (lignes[0] || '').split(',');
+
+// À compléter : générer les balises li avec l'attribut key
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Génération de liste avec la prop key</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Transformer un tableau d'objets en balises li dotées d'une clé unique pour le réconciliateur.</p>
+    <div class="lab__brief"><p>React exige une prop <code>key</code> unique et stable sur chaque élément produit par une boucle <code>map()</code>. Le script lit une série d'éléments au format <code>id:libelle</code> séparés par des virgules (ex. <code>10:Accueil,20:Profil</code>). Affichez pour chaque élément sa balise sur sa propre ligne : <code>&lt;li key="id"&gt;libelle&lt;/li&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1:Accueil,2:Profil,3:Contact
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>&lt;li key="1"&gt;Accueil&lt;/li&gt;
+&lt;li key="2"&gt;Profil&lt;/li&gt;
+&lt;li key="3"&gt;Contact&lt;/li&gt;</pre></div>
+    </div>
+    <p class="lab__note">Trois éléments avec clés numériques.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpez la chaîne sur la virgule, puis chaque couple sur les deux-points.</li>
+        <li>Affichez chaque élément avec console.log(`&lt;li key="${id}"&gt;${label}&lt;/li&gt;`).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c4-e2"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="rea&#10;React,Angular,Vue,Preact&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const query = (lignes[0] || '').trim().toLowerCase();
+const mots = (lignes[1] || '').split(',').map(m => m.trim()).filter(Boolean);
+
+// À compléter : filtrer la liste et afficher le résultat
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Filtrage dynamique de liste</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer une liste dérivée filtrée selon un critère de recherche insensible à la casse.</p>
+    <div class="lab__brief"><p>En React, un champ de recherche filtre les données à la volée. Le script lit sur la ligne 1 le <strong>mot-clé cherché</strong>, et sur la ligne 2 une <strong>liste de mots</strong> séparés par des virgules. Affichez les éléments correspondants séparés par des virgules. Si aucun élément ne correspond, affichez <code>Aucun resultat</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>rea
+React,Angular,Vue,Preact
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>React,Preact</pre></div>
+    </div>
+    <p class="lab__note">Recherche insensible à la casse.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilisez .filter(m =&gt; m.toLowerCase().includes(query)).</li>
+        <li>Testez si le tableau filtré est vide pour afficher "Aucun resultat".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c4-e3"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="1 3&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const [actif, rawNb] = lignes[0].split(' ');
+const nb = parseInt(rawNb, 10);
+
+// À compléter : appliquer la condition de court-circuit
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Opérateur court-circuit (&amp;&amp;)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Afficher un badge de notification seulement si le compteur est strictement positif.</p>
+    <div class="lab__brief"><p>Le motif JSX <code>{condition &amp;&amp; &lt;Composant /&gt;}</code> est classique pour le rendu conditionnel. Le script lit une ligne au format <code>actif nb</code> où actif vaut <code>1</code> ou <code>0</code>, et nb est un entier. Si actif vaut 1 et nb &gt; 0, affichez <code>&lt;span class="badge"&gt;NB&lt;/span&gt;</code>. Sinon, affichez <code>(aucun)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1 3
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>&lt;span class="badge"&gt;3&lt;/span&gt;</pre></div>
+    </div>
+    <p class="lab__note">Actif avec 3 alertes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez la double condition : actif === "1" et nb &gt; 0.</li>
+        <li>Si faux, affichez la chaîne littérale "(aucun)".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pour générer une liste d’éléments JSX à partir d’un tableau, on utilise…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">map()</button>
+        <button class="opt">forEach()</button>
+        <button class="opt">reduce()</button>
+      </div>
+      <div class="q__exp">map() renvoie un nouveau tableau d’éléments JSX prêts pour l’affichage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La prop « key » sur les éléments de liste sert à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Aider le réconciliateur de React à identifier les modifications</button>
+        <button class="opt">Chiffrer les données dans SQLite</button>
+        <button class="opt">Améliorer le SEO dans Google</button>
+      </div>
+      <div class="q__exp">Les clés permettent à React de recycler efficacement les nœuds du DOM.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L’index de tableau comme clé (key={index}) est déconseillé car…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il provoque des bugs visuels si la liste est réordonnée ou filtrée</button>
+        <button class="opt">Il est obligatoirement un nombre négatif</button>
+        <button class="opt">Il bloque le moteur JavaScript</button>
+      </div>
+      <div class="q__exp">L’index est lié à la position et non à l’identité stable de la donnée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que produit l’expression {nb &amp;&amp; &lt;Badge /&gt;} lorsque nb vaut 0 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle affiche le chiffre 0 dans la page</button>
+        <button class="opt">Elle n’affiche absolument rien</button>
+        <button class="opt">Elle lève une erreur TypeError</button>
+      </div>
+      <div class="q__exp">0 && expr évalue à 0, et React rend les nombres bruts. Préférer nb > 0 && ...</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où doit être positionnée la prop key ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Sur l’élément racine renvoyé par le callback de map()</button>
+        <button class="opt">Sur le conteneur parent <ul></button>
+        <button class="opt">Sur le dernier nœud enfant</button>
+      </div>
+      <div class="q__exp">La clé doit être placée sur l’élément le plus externe retourné à chaque itération.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour afficher soit une vue A soit une vue B selon une condition, on utilise…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’opérateur ternaire (condition ? &lt;A /&gt; : &lt;B /&gt;)</button>
+        <button class="opt">Une boucle while infinie</button>
+        <button class="opt">Une balise &lt;switch&gt;</button>
+      </div>
+      <div class="q__exp">L’opérateur ternaire est l’idiome standard pour les choix binaires en JSX.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une liste filtrée d’après un champ de recherche doit être…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Calculée à la volée lors du rendu à partir de l’état source</button>
+        <button class="opt">Stockée dans un second état synchronisé à la main</button>
+        <button class="opt">Écrite sur le disque dur du serveur</button>
+      </div>
+      <div class="q__exp">Calculer les valeurs dérivées évite les désynchronisations d’états.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si aucun élément ne correspond à un filtre, on peut afficher un message de repli via…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">liste.length === 0 ? &lt;p&gt;Aucun résultat&lt;/p&gt; : ...</button>
+        <button class="opt">Une alerte bloquante alert()</button>
+        <button class="opt">Un rechargement de page forcé</button>
+      </div>
+      <div class="q__exp">Tester la longueur du tableau filtré permet de gérer l’état vide proprement.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier la prop key lors de l’utilisation de map().</li>
+      <li>Utiliser l’index de boucle comme clé sur une liste sujette aux ajouts ou aux tris.</li>
+      <li>Utiliser {count &amp;&amp; &lt;Composant /&gt;} quand count peut valoir 0 (affiche "0").</li>
+      <li>Créer un state dupliqué pour une liste filtrée au lieu de la calculer à la volée.</li>
+      <li>Modifier directement le tableau d’origine avec sort() ou reverse() dans le corps du composant.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Afficher et filtrer une collection de données en React</div>
+    <ol>
+      <li><strong>Définir</strong> la structure des données avec un identifiant unique stable (id).</li>
+      <li><strong>Filtrer</strong> ou trier les données à la volée en créant une copie non mutante.</li>
+      <li><strong>Itérer</strong> sur la collection avec .map() pour produire les balises JSX.</li>
+      <li><strong>Assigner</strong> key={item.id} sur la balise parente de chaque élément de la boucle.</li>
+      <li><strong>Prévoir</strong> un affichage alternatif si la collection est vide (empty state).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le JSX utilise les structures de contrôle JavaScript pures (ternaires, court-circuit, map).</li>
+      <li>La méthode map() est l’outil de référence pour transformer des données en listes de composants.</li>
+      <li>La prop key est indispensable pour permettre au réconciliateur de traquer les nœuds du DOM.</li>
+      <li>L’index de tableau doit être évité comme clé sur les listes dynamiques.</li>
+      <li>Les données dérivées (filtres, compteurs) doivent être calculées au vol sans état redondant.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je maîtrise l’opérateur ternaire et le court-circuit && en JSX.</li>
+      <li>J’évite le piège du 0 numérique dans les expressions conditionnelles.</li>
+      <li>J’itère sur mes tableaux avec map() en retournant du JSX.</li>
+      <li>Je fournis une clé unique et stable (key) à chaque élément de liste.</li>
+      <li>Je ne duplique pas mon state pour les données filtrées ou triées.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>map()</li><li>prop key</li><li>Réconciliation</li><li>Rendu conditionnel</li><li>Opérateur ternaire</li><li>Court-circuit &&</li><li>Index de boucle</li><li>Données dérivées</li><li>Empty state</li><li>Immutabilité des tableaux</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise l’usage de map() et l’importance de la prop key.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le rendu conditionnel et le piège du 0.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu gères les listes dynamiques et le filtrage réactif.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux effets de bord et à useEffect dans le chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Effets de bord (useEffect) & requêtes asynchrones <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel React B2, le recueil de questions interactives (scripts/questions-react.js) et la documentation de référence react.dev.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

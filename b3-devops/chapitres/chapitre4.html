@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Déploiement Continu (CD), Stratégies de Release &amp;amp; Feature Flags | DevOps B3</title>
+<meta name="description" content="Chapitre 4 du cours DevOps B3 : Continuous Delivery vs Continuous Deployment, déploiements sans interruption (Rolling, Blue/Green, Canary) et découplage par Feature Flags. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-devops/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Déploiement Continu (CD), Stratégies de Release &amp;amp; Feature Flags | DevOps B3">
+<meta property="og:description" content="Chapitre 4 du cours DevOps B3 : Continuous Delivery vs Continuous Deployment, déploiements sans interruption (Rolling, Blue/Green, Canary) et découplage par Feature Flags. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-devopsnav"><div class="b3-devopsnav__in">
+  <a class="b3-devopsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-devopsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-devopsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> DevOps B3</a>
+  <div class="b3-devopsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-devopsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-devopswrap">
+<p class="crumb"><a href="../index.html">DevOps B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Déploiement Continu (CD), Stratégies de Release &amp; Feature Flags</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Déployer une application en production le vendredi soir en coupant le service pendant deux heures pour « maintenance planifiée » appartient au passé de l’informatique d’entreprise. Dans une économie numérique mondialisée fonctionnant 24h/24, toute indisponibilité programmée entraîne des pertes directes de chiffre d’affaires et dégrade la réputation de l’organisation. Les équipes DevOps modernes doivent réaliser des mises en production continues en plein milieu de journée sans aucune interruption perceptible pour les utilisateurs (Zero-Downtime Deployment). Pour parvenir à ce niveau d’excellence, l’ingénieur B3 doit concevoir des stratégies de release avancées (Blue/Green, Canary progressive) avec coupe-circuit automatisé, et maîtriser le découplage entre le déploiement technique de code et la publication métier par le biais de Feature Flags.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>distinguer avec rigueur la Livraison Continue (Continuous Delivery) du Déploiement Continu (Continuous Deployment) ;</li>
+      <li>concevoir une architecture de déploiement sans interruption (Zero Downtime) via Rolling Updates ;</li>
+      <li>implémenter la stratégie Blue/Green et piloter la bascule instantanée de routeur réseau et le retour arrière (Rollback) ;</li>
+      <li>paramétrer une Canary Release progressive avec monitoring d’erreurs HTTP 5xx et coupe-circuit automatisé ;</li>
+      <li>découpler le déploiement de code de l’activation métier via des Feature Flags (Toggles) ;</li>
+      <li>programmer en Python 3 des simulateurs de bascule Blue/Green, de routage Canary et d’évaluation de Feature Flags.</li>
+    </ol>
+  </div>
+
+<h2>1. Continuous Delivery vs Continuous Deployment : La Frontière Décisionnelle</h2>
+
+<p>Bien que regroupés sous l’acronyme commun <strong>CD</strong>, la Livraison Continue et le Déploiement Continu désignent deux niveaux d’automatisation distincts de la chaîne logicielle :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Livraison Continue (Continuous Delivery)</h4>
+    <p>Chaque modification franchissant avec succès le pipeline de CI produit un artéfact (image Docker, binaire) <strong>rigoureusement qualifié et prêt pour la production</strong>. Cependant, la mise en production finale requiert une <em>décision humaine explicite</em> (clic sur un bouton par le Release Manager ou approbation managériale).</p>
+  </div>
+  <div class="card">
+    <h4>Déploiement Continu (Continuous Deployment)</h4>
+    <p>L’automatisation est intégrale : chaque commit validé par la suite de tests et les scanners de sécurité est <strong>automatiquement déployé en production</strong> sans aucune intervention humaine. C’est le modèle adopté par des géants comme Netflix, Amazon ou Spotify (des milliers de déploiements quotidiens).</p>
+  </div>
+</div>
+
+<h2>2. Stratégies de Déploiement Sans Interruption (Zero-Downtime)</h2>
+
+<p>Pour renouveler un parc de serveurs ou de pods sans impacter les utilisateurs en session, trois architectures de référence coexistent :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th style="width:20%">Stratégie</th>
+      <th style="width:40%">Fonctionnement technique</th>
+      <th style="width:40%">Avantages &amp; Contraintes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Rolling Update (Progressif)</strong></td>
+      <td>Remplacement séquentiel des instances anciennes par les nouvelles instances une par une (ou par petits lots <code>maxSurge</code> / <code>maxUnavailable</code>).</td>
+      <td>Ne nécessite aucune surcapacité matérielle majeure. En revanche, les versions N et N+1 cohabitent temporairement en direct.</td>
+    </tr>
+    <tr>
+      <td><strong>Blue/Green (Miroir)</strong></td>
+      <td>Deux environnements de production identiques : l’un est actif (Blue), l’autre reçoit la nouvelle version (Green). Une fois les tests de fumée validés sur Green, le routeur/équilibreur bascule 100% du trafic.</td>
+      <td>Bascule instantanée et rollback immédiat en re-routant vers Blue. En contrepartie, double le coût d’infrastructure le temps du déploiement.</td>
+    </tr>
+    <tr>
+      <td><strong>Canary Release (Canari)</strong></td>
+      <td>Acheminement d’une fraction infime du trafic réel (ex. 2% ou 5%) vers la version canari. Si les métriques télémétriques (taux d’erreur, latence) restent stables, la part de trafic est augmentée progressivement (25%, 50%, 100%).</td>
+      <td>Détection immédiate des régressions sur trafic réel sans compromettre l’ensemble des utilisateurs. Nécessite un outillage de routage fin (Service Mesh, Ingress).</td>
+    </tr>
+  </tbody>
+</table>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Le Piège des Schémas de Base de Données</div>
+<p>Le déploiement sans interruption impose la règle de <strong>compatibilité bidirectionnelle de la base de données</strong> : la base de données doit supporter simultanément l’ancienne version (N) et la nouvelle version (N+1). On applique le patron <em>Expand and Contract (Parallel Run)</em> : ajouter d’abord la nouvelle colonne sans supprimer l’ancienne, déployer le code qui écrit dans les deux, migrer les données, et seulement plus tard supprimer l’ancienne colonne.</p>
+  </div>
+
+<h2>3. Feature Flags (Toggles) : Découpler Déploiement et Publication</h2>
+
+<p>L’un des axiomes les plus puissants du DevOps moderne affirme : <strong>« Deploy ≠ Release » (Déployer n’est pas Publier)</strong>.</p>
+<ul>
+  <li><strong>Le Déploiement (Deploy) :</strong> Est une opération purement technique d’acheminement de code sur les serveurs de production.</li>
+  <li><strong>La Publication (Release) :</strong> Est une décision métier rendant une fonctionnalité visible et exploitable par les utilisateurs ciblés.</li>
+</ul>
+<p>Les <strong>Feature Flags (ou basculeurs de fonctionnalités)</strong> insèrent des embranchements conditionnels dynamiques dans le code source contrôlés à chaud via une interface de pilotage centralisée (LaunchDarkly, Unleash, Flagsmith) sans recompiler ni re-déployer :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Release Flags (Gradual Rollout)</h4>
+    <p>Activation d’une nouvelle fonctionnalité pour 5% des utilisateurs, puis 20%, puis 100%, avec analyse en temps réel de l’impact sur les performances et les ventes.</p>
+  </div>
+  <div class="card">
+    <h4>Targeting Flags (Ciblage)</h4>
+    <p>Activation exclusive pour les collaborateurs internes de l’entreprise (Dogfooding), les testeurs bêta ou les clients premium ayant souscrit à une option payante.</p>
+  </div>
+  <div class="card">
+    <h4>Ops Flags (Kill Switch)</h4>
+    <p>Disjoncteur d’urgence permettant de désactiver instantanément une sous-partie coûteuse de l’application (moteur de recommandation IA) si la charge serveur menace de faire s’effondrer le site.</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Gouvernance &amp; Dette Technique des Flags</div>
+<p>Un Feature Flag temporaire doit avoir une durée de vie limitée. Une fois une fonctionnalité déployée à 100% et stabilisée, le code conditionnel doit être promptement nettoyé. Laisser des centaines de flags obsolètes crée un labyrinthe logique instable source de pannes graves (ex. faillite de Knight Capital en 2012 causée par la réactivation accidentelle d’un vieux drapeau mort).</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="do3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="ROUTER active=BLUE version=1.2.0&#10;DEPLOY target=GREEN version=1.3.0 health_check=PASS">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la logique Blue-Green
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de bascule Blue-Green sans interruption de service</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le routage du trafic réseau entre deux environnements jumeaux et automatiser la bascule ou le rollback en cas de défaillance du test de santé.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>ROUTER active=&lt;BLUE|GREEN&gt; version=&lt;ver_active&gt;</code><br>
+<code>DEPLOY target=&lt;BLUE|GREEN&gt; version=&lt;new_ver&gt; health_check=&lt;PASS|FAIL&gt;</code>.<br><br>
+Règles :<br>
+- Si <code>target == active</code> : le déploiement sur l’environnement actif est prohibé.<br>
+  <code>BLUE_GREEN: ERREUR=DEPLOIEMENT_SUR_ENV_ACTIF_INTERDIT</code><br>
+- Si <code>target != active</code> :<br>
+  - Si <code>health_check == PASS</code> : le routeur commute instantanément sur <code>target</code>.<br>
+    <code>BLUE_GREEN: STATUT=BASCULE_REUSSIE | ROUTER_ACTIF=&lt;target&gt; | VERSION_EN_LIGNE=&lt;new_ver&gt; | ANCIEN_ENV=&lt;ancien&gt; (IDLE)</code><br>
+  - Si <code>health_check == FAIL</code> : bascule avortée, rollback de sécurité.<br>
+    <code>BLUE_GREEN: STATUT=ROLLBACK_ANOMALIE | ROUTER_ACTIF=&lt;active&gt; | VERSION_EN_LIGNE=&lt;ver_active&gt; | TARGET_ABANDONNEE=&lt;target&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROUTER active=BLUE version=1.2.0
+DEPLOY target=GREEN version=1.3.0 health_check=PASS</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BLUE_GREEN: STATUT=BASCULE_REUSSIE | ROUTER_ACTIF=GREEN | VERSION_EN_LIGNE=1.3.0 | ANCIEN_ENV=BLUE (IDLE)</pre></div>
+    </div>
+    <p class="lab__note">Le test est PASS : le trafic passe sur GREEN (1.3.0), BLUE devient inactif.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le déploiement Blue-Green garantit zéro interruption car la nouvelle version est validée avant la bascule du load balancer.</li>
+        <li>En cas d’erreur, aucun utilisateur ne subit la version corrompue.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="CANARY app=payment_svc version=2.4.0 seuil_max=1.00 steps=5,25,50,100 error_rates=0.20,0.35,0.40,0.45&#10;CANARY app=reco_engine version=3.0.0 seuil_max=0.50 steps=10,30,70,100 error_rates=0.10,0.85,1.20,2.00">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la progression par paliers du Canari
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Gestionnaire de déploiement progressif en Canari (Canary Release)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Acheminer graduellement le trafic utilisateur vers une version canari tout en surveillant le taux d’erreur pour avorter automatiquement en cas de régression.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>CANARY app=&lt;nom&gt; version=&lt;ver&gt; seuil_max=&lt;pct&gt; steps=&lt;s1,s2,...&gt; error_rates=&lt;e1,e2,...&gt;</code>.<br><br>
+Déroulement des paliers :<br>
+- À chaque palier <code>steps[i]</code>, le taux d'erreur observé est <code>error_rates[i]</code>.<br>
+- Si $error\_rates[i] &gt; seuil\_max$ : le déploiement est immédiatement interrompu.<br>
+  <code>CANARY_DEPLOY: app=&lt;nom&gt; -&gt; ARRET_ANOMALIE_ETAPE=&lt;step&gt;% (erreur=&lt;e:.2f&gt;%/seuil=&lt;max:.2f&gt;%) | STATUT=ROLLBACK_AUTOMATIQUE</code><br>
+- Si toutes les étapes sont validées jusqu'au dernier palier (100%) sans dépasser le seuil :<br>
+  <code>CANARY_DEPLOY: app=&lt;nom&gt; -&gt; PROMOTION_100%_SUCCES | STATUT=DEPLOIEMENT_FINALISE | VERSION_ACTIVE=&lt;ver&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CANARY app=payment_svc version=2.4.0 seuil_max=1.00 steps=5,25,50,100 error_rates=0.20,0.35,0.40,0.45
+CANARY app=reco_engine version=3.0.0 seuil_max=0.50 steps=10,30,70,100 error_rates=0.10,0.85,1.20,2.00</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CANARY_DEPLOY: app=payment_svc -&gt; PROMOTION_100%_SUCCES | STATUT=DEPLOIEMENT_FINALISE | VERSION_ACTIVE=2.4.0
+CANARY_DEPLOY: app=reco_engine -&gt; ARRET_ANOMALIE_ETAPE=30% (erreur=0.85%/seuil=0.50%) | STATUT=ROLLBACK_AUTOMATIQUE</pre></div>
+    </div>
+    <p class="lab__note">payment_svc est promu à 100%. reco_engine est stoppé au palier 30% avec rollback.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le déploiement Canari réduit le rayon d’impact (blast radius) en exposant d’abord un petit échantillon d’utilisateurs (ex: 5%).</li>
+        <li>Interrompre la boucle dès le premier dépassement de seuil.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="ROLLING replicas=4 max_surge=1 max_unavail=0">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : dérouler le Rolling Update pas à pas
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de mise à jour progressive Kubernetes (Rolling Update)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le déroulement pas à pas d’un Rolling Update Kubernetes en garantissant les contraintes de maxSurge et maxUnavailable.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard les paramètres du déploiement :<br>
+<code>ROLLING replicas=&lt;N&gt; max_surge=&lt;S&gt; max_unavail=&lt;U&gt;</code>.<br><br>
+Paramètres :<br>
+- $N$ : nombre désiré de réplicas en régime stable.<br>
+- $S$ (maxSurge) : nombre maximal de pods supplémentaires autorisés au-delà de $N$ ($Total_{max} = N + S$).<br>
+- $U$ (maxUnavailable) : nombre maximal de pods indisponibles autorisés ($Dispo_{min} = N - U$).<br><br>
+Algorithme de déroulement par pas :<br>
+Initialement, $v1 = N, v2 = 0$.<br>
+À chaque pas :<br>
+1. On ajoute autant de pods $v2$ que possible sans dépasser $Total_{max} = N + S$ (soit $ajout = \min(S, N - v2)$ pour le premier pas ou pour compléter). Plus précisément : $v2_{cible} = \min(N, v2 + S)$.<br>
+2. Une fois les nouveaux $v2$ créés, on détruit des pods $v1$ pour ramener le total à $N$ (ou s'assurer que $v1 + v2 \ge N - U$), c’est-à-dire : supprimer des pods $v1$ jusqu’à ce que $v1 = N - v2$ (ou $v1 = 0$ quand $v2 = N$).<br>
+3. Répéter jusqu’à ce que $v1 = 0$ et $v2 = N$.<br><br>
+Afficher :<br>
+<code>ROLLING_SPEC: REPLICAS=&lt;N&gt; | MAX_TOTAL=&lt;N+S&gt; | MIN_DISPO=&lt;N-U&gt;</code><br>
+Puis chaque pas :<br>
+<code>PAS &lt;k&gt;: v1=&lt;v1&gt;, v2=&lt;v2&gt; (total=&lt;v1+v2&gt;)</code><br>
+Et la conclusion finale :<br>
+<code>ETAT_FINAL: v1=0, v2=&lt;N&gt; | SUCCES_ROLLING_UPDATE</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROLLING replicas=4 max_surge=1 max_unavail=0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ROLLING_SPEC: REPLICAS=4 | MAX_TOTAL=5 | MIN_DISPO=4
+PAS 1: v1=3, v2=1 (total=4)
+PAS 2: v1=2, v2=2 (total=4)
+PAS 3: v1=1, v2=3 (total=4)
+PAS 4: v1=0, v2=4 (total=4)
+ETAT_FINAL: v1=0, v2=4 | SUCCES_ROLLING_UPDATE</pre></div>
+    </div>
+    <p class="lab__note">Avec maxSurge=1 et maxUnavail=0, les pods se remplacent un par un sans interruption.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>À chaque itération, créer les pods v2 autorisés puis détruire les anciens pods v1 correspondants.</li>
+        <li>Le nombre de pods disponibles ne doit jamais chuter sous N - U.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle différence fondamentale sépare la Livraison Continue (Continuous Delivery) du Déploiement Continu (Continuous Deployment) ?</p>
+      <div class="opts">
+        <button class="opt">La livraison continue ne teste pas le code</button>
+        <button class="opt" data-correct="1">Le déploiement continu envoie automatiquement chaque commit validé en production sans validation humaine, tandis que la livraison continue requiert une approbation manuelle pour la mise en prod</button>
+        <button class="opt">La livraison continue est réservée aux applications mobiles</button>
+        <button class="opt">Le déploiement continu ne fonctionne que sur le cloud AWS</button>
+      </div>
+      <div class="q__exp">En Continuous Delivery, le paquet est prêt et testé, mais un humain déclenche le passage en production. En Continuous Deployment, l’ensemble de la chaîne est automatisé de bout en bout jusqu’à la prod.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une stratégie de déploiement Blue/Green, comment s’effectue la bascule vers la nouvelle version du logiciel ?</p>
+      <div class="opts">
+        <button class="opt">En réinstallant manuellement le système d’exploitation de tous les serveurs un par un</button>
+        <button class="opt" data-correct="1">En basculant instantanément l’aiguillage du trafic au niveau du routeur ou de l’équilibreur de charge vers le nouvel environnement (Green)</button>
+        <button class="opt">En coupant l’électricité du datacenter pendant 10 minutes</button>
+        <button class="opt">En demandant à chaque client de vider son cache de navigateur</button>
+      </div>
+      <div class="q__exp">L’environnement Green est déployé et vérifié à blanc à côté de l’environnement Blue actif. La bascule se fait en modifiant la cible du répartiteur de charge en une fraction de seconde.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’intérêt majeur d’une « Canary Release » (déploiement canari) par rapport à un déploiement massif classique ?</p>
+      <div class="opts">
+        <button class="opt">Elle divise par deux la facture de bande passante réseau</button>
+        <button class="opt" data-correct="1">Elle achemine d’abord un très faible pourcentage du trafic réel (ex. 5%) vers la nouvelle version pour détecter les anomalies avant de généraliser le déploiement</button>
+        <button class="opt">Elle supprime le besoin de surveiller les logs de production</button>
+        <button class="opt">Elle permet de compiler le code directement dans le navigateur du client</button>
+      </div>
+      <div class="q__exp">À l’image des canaris autrefois descendus dans les mines de charbon pour détecter le coup de grisou, la Canary Release expose un échantillon d’utilisateurs réels pour tester la fiabilité sans exposer l’ensemble du public.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi le patron de conception « Expand and Contract » est-il obligatoire pour faire du Zero-Downtime Deployment sur une base de données ?</p>
+      <div class="opts">
+        <button class="opt">Pour compresser les tables de données et libérer de l’espace disque</button>
+        <button class="opt" data-correct="1">Pour assurer que le schéma de base de données reste compatible simultanément avec l’ancienne version et la nouvelle version du code durant la phase de transition</button>
+        <button class="opt">Pour désactiver les clés primaires sur les tables transactionnelles</button>
+        <button class="opt">Pour convertir automatiquement MySQL en MongoDB</button>
+      </div>
+      <div class="q__exp">Pendant un déploiement sans coupure, des instances de l’ancienne et de la nouvelle version tournent conjointement. Le schéma de base doit donc pouvoir être lu et écrit par les deux versions sans erreur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie l’adage DevOps « Deploy is not Release » (Déployer n’est pas Publier) ?</p>
+      <div class="opts">
+        <button class="opt">Le code ne doit jamais être envoyé sur les serveurs de production</button>
+        <button class="opt" data-correct="1">L’acheminement technique du code sur l’infrastructure de production est décorrélé de son activation fonctionnelle visible par les utilisateurs finaux</button>
+        <button class="opt">Il faut deux équipes juridiques distinctes pour chaque projet</button>
+        <button class="opt">Le déploiement se fait uniquement sur support physique (DVD)</button>
+      </div>
+      <div class="q__exp">On peut déployer du code en production de manière continue tout en maintenant la fonctionnalité éteinte derrière un Feature Flag jusqu’au moment commercial ou marketing opportun.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un « Kill Switch » implémenté via un Feature Flag en exploitation ?</p>
+      <div class="opts">
+        <button class="opt">Un script qui détruit la base de données en cas d’attaque pirate</button>
+        <button class="opt" data-correct="1">Un interrupteur logiciel d’urgence permettant de désactiver instantanément une fonctionnalité défaillante ou trop lourde sans re-déployer de code</button>
+        <button class="opt">Un bouton physique situé sur la façade du serveur physique</button>
+        <button class="opt">Un protocole de déconnexion automatique des développeurs le soir</button>
+      </div>
+      <div class="q__exp">Un Kill Switch permet aux équipes d’astreinte de désactiver à chaud un composant causant une surcharge CPU ou un bogue critique par simple changement de configuration instantané.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel risque technique majeur engendre l’accumulation excessive de Feature Flags non nettoyés dans une base de code ?</p>
+      <div class="opts">
+        <button class="opt">Une saturation de l’espace disque du serveur Git</button>
+        <button class="opt" data-correct="1">Une dette technique exponentielle due à la combinatoire d’embranchements conditionnels (code spaghetti) et au risque d’activation de code mort</button>
+        <button class="opt">Une interdiction de compiler par le compilateur</button>
+        <button class="opt">Une augmentation des impôts sur les sociétés</button>
+      </div>
+      <div class="q__exp">Chaque drapeau ajoute des branches logiques if/else. Si les vieux flags ne sont pas élagués après généralisation, la combinatoire des tests devient ingérable et des comportements imprévus surviennent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une stratégie Rolling Update sous Kubernetes, que spécifie le paramètre « maxUnavailable » ?</p>
+      <div class="opts">
+        <button class="opt">La durée maximale en minutes d’un incident de production</button>
+        <button class="opt" data-correct="1">Le nombre ou pourcentage maximum de pods autorisés à être indisponibles simultanément durant la mise à jour progressive</button>
+        <button class="opt">Le nombre maximal de développeurs pouvant commiter en même temps</button>
+        <button class="opt">La mémoire vive maximale allouée au conteneur</button>
+      </div>
+      <div class="q__exp">maxUnavailable garantit qu’un pourcentage suffisant de répliques reste opérationnel en continu pour continuer à absorber le trafic usuel sans dégradation de service.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Effectuer une migration de base de données cassante en une seule passe lors d’un déploiement sans coupure, ignorant le patron Expand and Contract.</li>
+      <li>Confondre le déploiement technique (Deploy) avec la publication fonctionnelle (Release) pour les utilisateurs finaux.</li>
+      <li>Oublier d’implémenter un retour arrière automatique (Rollback) ou un coupe-circuit lors d’un déploiement Canary en cas d’explosion des erreurs HTTP 5xx.</li>
+      <li>Laisser des dizaines de Feature Flags obsolètes s’accumuler dans le code source sans jamais les décommissionner.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Déploiement Continu Sans Interruption (Zero Downtime)</div>
+    <ol>
+      <li>Valider la stratégie de packaging immuable et la traçabilité des artéfacts testés en staging.</li>
+      <li>Concevoir le schéma de base de données selon le patron Expand and Contract pour assurer la compatibilité N / N+1.</li>
+      <li>Sélectionner la stratégie d’aiguillage : Rolling Update pour l’économie de ressources, Blue/Green ou Canary pour la sécurité.</li>
+      <li>Configurer l’observation télémétrique temps réel (taux d’erreurs HTTP 5xx, latence P99) sur la version canari.</li>
+      <li>Programmer un disjoncteur automatique (Circuit Breaker) déclenchant le rollback immédiat en cas d’anomalie.</li>
+      <li>Découpler le déploiement technique de la visibilité utilisateur via une plateforme centralisée de Feature Flags.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Continuous Delivery requiert une approbation humaine, tandis que Continuous Deployment automatise la prod de bout en bout.</li>
+      <li>Le déploiement sans interruption élimine les maintenances nocturnes en faisant cohabiter temporairement deux versions.</li>
+      <li>Le Blue/Green maintient deux environnements complets et bascule le routeur instantanément avec retour arrière direct.</li>
+      <li>La Canary Release expose un faible pourcentage de trafic réel pour valider le comportement sous charge.</li>
+      <li>Le patron Expand and Contract est indispensable pour faire évoluer une base de données sans bloquer le service.</li>
+      <li>Les Feature Flags séparent le déploiement technique de la publication métier (Deploy ≠ Release).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais distinguer formellement la Livraison Continue (Delivery) du Déploiement Continu (Deployment).</li>
+      <li>Je sais dimensionner une mise à jour Rolling Update avec maxSurge et maxUnavailable.</li>
+      <li>Je maîtrise l’architecture réseau d’un basculement Blue/Green et de son rollback.</li>
+      <li>Je sais orchestrer les paliers de routage progressif d’une Canary Release.</li>
+      <li>Je sais appliquer les phases du patron Expand and Contract sur une table de base de données relationnelle.</li>
+      <li>Je sais expliquer le fonctionnement d’un Feature Flag et d’un Kill Switch opérationnel.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Continuous Delivery vs Deployment</li><li>Déploiement Zero-Downtime</li><li>Rolling Updates (maxSurge, maxUnavailable)</li><li>Blue/Green Deployment &amp; Bascule</li><li>Canary Releases &amp; Détection d’erreurs</li><li>Patron Expand and Contract pour BDD</li><li>Découplage Deploy vs Release</li><li>Feature Flags &amp; Kill Switches</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la distinction Delivery/Deployment, les concepts Blue/Green et Canary.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, approfondissez le découplage Deploy/Release et le patron Expand & Contract.</div>
+      <div class="bandrow bandrow--high">8/8 : Excellent ! Vous maîtrisez parfaitement les stratégies de déploiement continu et la gestion des releases modernes.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Métriques DORA, Fiabilité Opérationnelle &amp; Gestion des Incidents <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours CC_Devops.docx, les principes de Continuous Delivery (Jez Humble, David Farley), The Phoenix Project (Gene Kim), les recherches DORA (Accelerate) et les référentiels Site Reliability Engineering de Google.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Droits, permissions, utilisateurs et groupes | Administration Linux B2</title>
+<meta name="description" content="Chapitre 3 du cours d’administration Linux B2 : Lire les permissions, chmod symbolique et octal, chown/chgrp, /etc/passwd, users et groupes. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/linux/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Droits, permissions, utilisateurs et groupes | Administration Linux B2">
+<meta property="og:description" content="Chapitre 3 du cours d’administration Linux B2 : Lire les permissions, chmod symbolique et octal, chown/chgrp, /etc/passwd, users et groupes. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="linuxnav"><div class="linuxnav__in">
+  <a class="linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="linuxnav__sep" aria-hidden="true">/</span>
+  <a class="linuxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Administration Linux B2</a>
+  <div class="linuxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="linuxwrap">
+<p class="crumb"><a href="../index.html">Administration Linux B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Droits, permissions, utilisateurs et groupes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Sur un serveur partagé, chacun doit pouvoir travailler sans marcher sur le travail des autres. Les droits Unix décident qui peut lire, écrire et exécuter ; les comptes et les groupes décident qui est qui. Un droit mal posé ouvre une faille, un compte mal géré laisse une porte ouverte.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>lire une ligne de droits et la traduire en octal ;</li>
+      <li>modifier les droits en notation symbolique et octale ;</li>
+      <li>changer propriétaire et groupe d’un fichier ;</li>
+      <li>lire /etc/passwd, /etc/shadow et /etc/group ;</li>
+      <li>créer, modifier et supprimer comptes et groupes.</li>
+    </ol>
+  </div>
+
+<h2>1. Lire les permissions</h2>
+
+<p><code>ls -l</code> affiche une chaîne de dix caractères. Le premier est le <strong>type</strong> (<code>-</code> fichier, <code>d</code> dossier, <code>l</code> lien) ; les neuf suivants sont trois trios : <strong>u</strong> (propriétaire), <strong>g</strong> (groupe), <strong>o</strong> (autres). Dans chaque trio, <code>r</code> lit, <code>w</code> écrit, <code>x</code> exécute.</p>
+<pre><code>-rwxr-x--- 1 rd it 4096 mai 12 10:00 script.sh
+ ^^^       ^^ ^^
+ u g o     own grp
+u=rwx  g=r-x  o=---</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> La valeur des lettres</div>
+    <p>r = 4, w = 2, x = 1. Un trio se lit donc <code>rwx=7</code>, <code>r-x=5</code>, <code>rw-=6</code>, <code>r--=4</code>, <code>---=0</code>. On additionne dans chaque trio, jamais entre les trios : <code>rwxr-x---</code> = 750, pas 12.</p>
+  </div>
+
+<h2>2. chmod : modifier les droits</h2>
+
+<p>Deux notations équivalentes. <strong>Octale</strong> : trois chiffres, un par trio. <strong>Symbolique</strong> : on nomme la classe (u, g, o, a = tous) et l’opération (<code>+</code> ajoute, <code>-</code> retire, <code>=</code> fixe exactement).</p>
+<pre><code>chmod 755 script.sh        # rwxr-xr-x
+chmod 640 secret.conf      # rw-r-----
+chmod u+x script.sh        # ajoute l’exécution au propriétaire
+chmod o-rw secret.conf     # retire lecture et écriture aux autres
+chmod ug=rwx dossier       # fixe u et g exactement, o inchangé
+chmod -R 750 /srv/site     # récursif sur tout le dossier</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — 777 n’est jamais une solution</div>
+    <p>Donner <code>777</code> « pour que ça marche » ouvre le fichier au monde entier. Le bon réflexe est de chercher la <em>classe</em> qui manque (souvent le groupe) et de lui accorder le droit nécessaire, pas de tout ouvrir.</p>
+  </div>
+
+<h2>3. chown et chgrp</h2>
+
+<p><code>chown</code> change le <strong>propriétaire</strong>, <code>chgrp</code> le <strong>groupe</strong>. <code>chown</code> sait faire les deux d’un coup avec <code>utilisateur:groupe</code>, et l’option <code>-R</code> rend le changement récursif.</p>
+<pre><code>chown rd rapport.txt            # propriétaire = rd
+chgrp it rapport.txt            # groupe = it
+chown rd:it rapport.txt         # les deux à la fois
+chown -R www-data:www-data /var/www  # rendre un site au serveur web</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Après un déploiement</div>
+    <p>Copier des fichiers avec <code>cp</code> en root n’est pas suffisant : les nouveaux fichiers appartiennent à root. Un site web servi par <code>www-data</code> doit lui être restitué, sinon le serveur ne lira pas ses propres fichiers.</p>
+  </div>
+
+<h2>4. Comptes et groupes</h2>
+
+<p>Trois fichiers font foi. <code>/etc/passwd</code> décrit les comptes (lisible par tous), <code>/etc/shadow</code> contient les mots de passe chiffrés (root seul), <code>/etc/group</code> les groupes.</p>
+<pre><code>caroline:x:1002:1000:Caroline TP:/home/caroline:/bin/bash
+  ^      ^  ^    ^     ^             ^            ^
+ login mdp UID GID  info          maison       shell
+/etc/shadow : login:empreinte:dates… (root uniquement)
+/etc/group  : groupe:*:GID:utilisateurs</code></pre>
+<p>root a l’UID 0 ; les comptes système sont sous 1000 ; les comptes humains commencent à 1000. Dans <code>/etc/passwd</code>, <code>x</code> ou <code>!</code> renvoient au shadow ; <code>*</code> interdit l’authentification ; <code>!!</code> désactive le compte.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Menus de gestion des comptes</div>
+    <p><code>useradd</code> crée, <code>usermod</code> modifie, <code>userdel -r</code> supprime (avec la maison), <code>groupadd</code>/<code>groupdel</code> gèrent les groupes, <code>passwd</code> change le mot de passe, <code>id</code> affiche les appartenances.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx2-c3-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="1&#10;rwxr-xr-x&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r perm
+  # À compléter : pour chaque trio, additionner 4/2/1 et composer l’octal.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Décoder une permission</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir une permission symbolique en notation octale.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong>, chacune une permission symbolique de neuf caractères (ex. <code>rwxr-xr-x</code>). Pour chaque trio, <code>r</code> vaut 4, <code>w</code> vaut 2 et <code>x</code> vaut 1. Il affiche <code>permission : octal</code>, par exemple <code>permission : 755</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1
+rwxr-xr-x
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>permission : 755</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trois trios : les caractères 1-3, 4-6 puis 7-9 de la permission.</li>
+        <li>Un case sur le trio : *r* ajoute 4, *w* ajoute 2, *x* ajoute 1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx2-c3-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;rw-r--r-- lire&#10;rw-r--r-- executer&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r perm action
+  # À compléter : examiner le premier trio selon l’action demandée.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Interroger une permission</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si le propriétaire possède le droit demandé.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « permission action » où <code>action</code> vaut <code>lire</code>, <code>ecrire</code> ou <code>executer</code>. Il considère uniquement le <strong>premier trio</strong> (le propriétaire) : si le droit demandé est présent, il affiche <code>droit : oui</code>, sinon <code>droit : non</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+rw-r--r-- lire
+rw-r--r-- executer
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>droit : oui
+droit : non</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le premier trio correspond aux caractères 1 à 3 de la permission.</li>
+        <li>Lire cherche r, ecrire cherche w, executer cherche x.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx2-c3-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;rd it&#10;sam admin&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r user groupe
+  # À compléter : retrouver le groupe attendu et comparer.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Vérifier une appartenance</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Contrôler le groupe de chaque utilisateur contre l’annuaire du service.</p>
+    <div class="lab__brief"><p>L’annuaire du service associe un groupe à chaque compte : <code>rd</code> appartient à <code>it</code>, <code>sam</code> à <code>dev</code>, <code>ada</code> à <code>admin</code>. Le script lit <strong>n lignes</strong> « utilisateur groupe » et affiche <code>utilisateur : membre</code> si le groupe est le bon, <code>utilisateur : non membre</code> sinon.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+rd it
+sam admin
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>rd : membre
+sam : non membre</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur user : rd → it, sam → dev, ada → admin.</li>
+        <li>La comparaison se fait ensuite avec [ "$groupe" = "$attendu" ].</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">rwxr-x--- vaut en octal…</p>
+      <div class="opts">
+        <button class="opt">754</button>
+        <button class="opt" data-correct="1">750</button>
+        <button class="opt">705</button>
+      </div>
+      <div class="q__exp">rwx=7, r-x=5, ---=0 : 750, trio par trio.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait chmod o-r secret ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">retire la lecture aux autres</button>
+        <button class="opt">retire la lecture au propriétaire</button>
+        <button class="opt">ajoute la lecture</button>
+      </div>
+      <div class="q__exp">o désigne les autres, - retire : la lecture leur est enlevée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Ug=rwx…</p>
+      <div class="opts">
+        <button class="opt">ajoute rwx</button>
+        <button class="opt" data-correct="1">fixe u et g exactement à rwx, o inchangé</button>
+        <button class="opt">supprime o</button>
+      </div>
+      <div class="q__exp">= fixe exactement les classes visées ; les autres ne bougent pas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel fichier contient les mots de passe chiffrés ?</p>
+      <div class="opts">
+        <button class="opt">/etc/passwd</button>
+        <button class="opt" data-correct="1">/etc/shadow</button>
+        <button class="opt">/etc/group</button>
+      </div>
+      <div class="q__exp">/etc/shadow, lisible par root uniquement, contient les empreintes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un UID ≥ 1000 correspond à…</p>
+      <div class="opts">
+        <button class="opt">un compte système</button>
+        <button class="opt" data-correct="1">un compte humain</button>
+        <button class="opt">root</button>
+      </div>
+      <div class="q__exp">Les comptes humains commencent à 1000 ; en dessous, ce sont des comptes système.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait userdel -r ?</p>
+      <div class="opts">
+        <button class="opt">supprime le compte seul</button>
+        <button class="opt" data-correct="1">supprime le compte et sa maison</button>
+        <button class="opt">désactive le compte</button>
+      </div>
+      <div class="q__exp">-r retire aussi le répertoire personnel et la boîte aux lettres.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">chgrp agit sur…</p>
+      <div class="opts">
+        <button class="opt">le propriétaire</button>
+        <button class="opt" data-correct="1">le groupe</button>
+        <button class="opt">les droits</button>
+      </div>
+      <div class="q__exp">chgrp change le groupe propriétaire ; chown le propriétaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">groupdel échoue quand le groupe…</p>
+      <div class="opts">
+        <button class="opt">est vide</button>
+        <button class="opt" data-correct="1">sert de groupe principal à un utilisateur</button>
+        <button class="opt">a des fichiers</button>
+      </div>
+      <div class="q__exp">On ne supprime pas un groupe qui est le groupe principal d’un compte.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre <code>/</code> et <code>/root</code> dans un contexte de droits.</li>
+      <li>Additionner les trios entre eux (750, pas 12).</li>
+      <li>Ouvrir en <code>777</code> au lieu d’accorder le droit à la bonne classe.</li>
+      <li>Oublier <code>-R</code> sur <code>chown</code> après un déploiement.</li>
+      <li>Confondre <code>chown</code> (propriétaire) et <code>chgrp</code> (groupe).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Poser des droits justes</div>
+    <ol>
+      <li><strong>Lire</strong> la ligne de droits et la découper en trois trios.</li>
+      <li><strong>Convertir</strong> chaque trio en chiffre (r=4, w=2, x=1).</li>
+      <li><strong>Décider</strong> de la classe qui a besoin du droit : u, g ou o.</li>
+      <li><strong>Appliquer</strong> avec la notation la plus lisible (773 ou ug=rx).</li>
+      <li><strong>Vérifier</strong> avec <code>ls -l</code> et <code>id utilisateur</code>.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Dix caractères : type + u + g + o ; r=4, w=2, x=1 par trio.</li>
+      <li>chmod en octal (755) ou symbolique (u+x, o-rw, ug=rwx) ; -R pour récursif.</li>
+      <li>chown change le propriétaire (ou utilisateur:groupe) ; chgrp le groupe.</li>
+      <li>/etc/passwd décrit les comptes, /etc/shadow les mots de passe, /etc/group les groupes.</li>
+      <li>UID 0 = root, < 1000 = système, ≥ 1000 = humain ; useradd, usermod, userdel -r.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je convertis une ligne de droits en octal sans erreur.</li>
+      <li>Je choisis entre notation octale et symbolique selon le besoin.</li>
+      <li>Je restitue un dossier au bon propriétaire et groupe après déploiement.</li>
+      <li>Je lis une ligne de /etc/passwd champ par champ.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>permissions</li><li>trios u/g/o</li><li>r-w-x</li><li>chmod</li><li>notation octale</li><li>chown</li><li>chgrp</li><li>/etc/passwd</li><li>/etc/shadow</li><li>/etc/group</li><li>useradd</li><li>usermod</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Réentraîne la conversion octal sur dix lignes de ls -l.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Rejoue chmod symbolique et octal sur un dossier de test.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : décompose une ligne de /etc/passwd de mémoire.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 4, réseau statique et SSH.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Réseau statique et SSH <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique d’administration Linux (Debian) : terminal, fichiers, droits, réseau, scripts et services.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

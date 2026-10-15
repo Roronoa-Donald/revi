@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3 — Stockage Virtuel Datastores, VMFS-6 &amp; Architectures Hyperconvergées vSAN | Virtualisation Avancée B3</title>
+<meta name="description" content="Module 3 du cours Virtualisation Avancée B3 : Protocoles de stockage de Datacenter (iSCSI, Fibre Channel, NFS v4.1), système de fichiers clustered VMFS-6 et primitives VAAI (ATS, UNMAP), architectures hyperconvergées VMware vSAN (Disk Groups, cache NVMe), politiques SPBM (FTT, RAID-1, RAID-5/6, Slack Space 20%) et multipathing NMP. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-virtualisation/chapitres/chapitre3.html">
+<meta property="og:title" content="Module 3 — Stockage Virtuel Datastores, VMFS-6 &amp; Architectures Hyperconvergées vSAN | Virtualisation Avancée B3">
+<meta property="og:description" content="Module 3 du cours Virtualisation Avancée B3 : Protocoles de stockage de Datacenter (iSCSI, Fibre Channel, NFS v4.1), système de fichiers clustered VMFS-6 et primitives VAAI (ATS, UNMAP), architectures hyperconvergées VMware vSAN (Disk Groups, cache NVMe), politiques SPBM (FTT, RAID-1, RAID-5/6, Slack Space 20%) et multipathing NMP. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-virtualisationnav"><div class="b3-virtualisationnav__in">
+  <a class="b3-virtualisationnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-virtualisationnav__sep" aria-hidden="true">/</span>
+  <a class="b3-virtualisationnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-vm"></use></svg> Virtualisation Avancée B3</a>
+  <div class="b3-virtualisationnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-virtualisationnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-virtualisationwrap">
+<p class="crumb"><a href="../index.html">Virtualisation Avancée B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Stockage Virtuel Datastores, VMFS-6 & Architectures Hyperconvergées vSAN</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Vous êtes missionné pour concevoir l'architecture de stockage partagé d'un cluster de calcul hébergeant des bases de données de production et des centaines de serveurs virtualisés. Vous devez arbitrer entre un stockage SAN iSCSI optimisé par Jumbo Frames (MTU 9000), un système de fichiers en cluster VMFS-6 sécurisé par les primitives matérielles VAAI ATS, et un cluster hyperconvergé VMware vSAN tout-flash. Vous modélisez les politiques de stockage SPBM (FTT-1, FTT-2) et calculez rigoureusement l'espace brut requis en intégrant la réserve indispensable de Slack Space pour garantir la résilience du cluster.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Comparer les protocoles de stockage d'entreprise (iSCSI, Fibre Channel, NFS) et dimensionner les liaisons IP de stockage avec Jumbo Frames (MTU 9000).</li>
+      <li>Comprendre l'architecture distribuée de VMFS-6 et le rôle des primitives VAAI (Atomic Test and Set, XCOPY, UNMAP automatique).</li>
+      <li>Configurer le multipathing VMware NMP et optimiser le débit par agrégation de chemins avec la politique Round Robin (PSP RR).</li>
+      <li>Dimensionner une infrastructure hyperconvergée VMware vSAN, appliquer les politiques SPBM (RAID-1, RAID-5/6) et respecter le Slack Space de 20%.</li>
+    </ol>
+  </div>
+
+<h2>1. Protocoles de Stockage Datacenter : SAN Bloc (FC, iSCSI) vs NAS Fichier (NFS)</h2>
+
+<p>Dans un environnement virtualisé d'entreprise, les machines virtuelles ne résident pas sur les disques locaux isolés des serveurs, mais sur du <strong>stockage partagé</strong> accessible par l'ensemble des nœuds du cluster pour autoriser la haute disponibilité et les migrations :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Stockage Bloc : SAN Fibre Channel &amp; iSCSI</h4>
+    <ul>
+      <li><strong>Présentation :</strong> La baie de stockage expose des LUNs (Logical Unit Numbers) brutes. L'hyperviseur formate le LUN avec son propre système de fichiers clustered (VMFS).</li>
+      <li><strong>Fibre Channel (FC) :</strong> Protocole sans perte dédié sur réseau optique (8, 16, 32 Gbps) avec adaptateurs HBA matériels. Fiabilité maximale, coût élevé.</li>
+      <li><strong>iSCSI :</strong> Encapsule les commandes SCSI dans des paquets TCP/IP (port 3260). Utilise le réseau Ethernet standard avec cartes réseau 10G/25G et initiateur logiciel VMkernel.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Stockage Fichier : NAS NFS (v3 &amp; v4.1)</h4>
+    <ul>
+      <li><strong>Présentation :</strong> La baie NAS gère elle-même son système de fichiers (ZFS, WAFL) et expose des partages réseau montés par le VMkernel.</li>
+      <li><strong>Simplicité :</strong> Pas de formatage VMFS par l'hôte ; les fichiers VMDK sont stockés directement sous forme de fichiers distants.</li>
+      <li><strong>NFS v4.1 :</strong> Apporte le support du multipathing matériel (Session Trunking) et de l'authentification Kerberos sécurisée.</li>
+    </ul>
+  </div>
+</div>
+<p>Pour les réseaux de stockage IP (iSCSI et NFS), l'activation des <strong>Jumbo Frames (MTU 9000 octets au lieu de 1500)</strong> de bout en bout (carte VMkernel, vSwitch, commutateurs physiques et contrôleurs de baie) est indispensable : elle divise par six le nombre d'interruptions processeur par seconde et accroît le débit utile de 15% à 25%.</p>
+
+<h2>2. Système de Fichiers Clustered VMFS-6 & Primitives d'Accélération VAAI</h2>
+
+<p><strong>VMFS-6 (Virtual Machine File System)</strong> est un système de fichiers en cluster propriétaire développé par VMware, permettant à des dizaines de serveurs ESXi de lire et d'écrire simultanément sur le même LUN SAN sans risquer de corrompre les données :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Mécanismes Clés de VMFS-6</h4>
+    <ul>
+      <li><strong>Allocation multi-extents :</strong> Supporte des datastores massifs jusqu'à 64 To par LUN avec une taille de bloc unifiée de 1 Mo.</li>
+      <li><strong>Désallocation automatique UNMAP :</strong> Libère automatiquement les blocs d'espace disque sur la baie sous-jacente lorsqu'une VM ou un snapshot est supprimé.</li>
+      <li><strong>Snapshot SEsparse par défaut :</strong> Format de snapshot haute performance optimisé pour les disques de plus de 2 To.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Primitives Matérielles VAAI (vStorage APIs for Array Integration)</h4>
+    <ul>
+      <li><strong>ATS (Atomic Test and Set) :</strong> Remplace le verrouillage global SCSI (SCSI reservation) par un verrouillage ultra-fin bloc par bloc pour la mise à jour des métadonnées.</li>
+      <li><strong>XCOPY (Extended Copy) :</strong> Décharge le clonage et le déplacement de VMDK directement sur les contrôleurs de la baie de stockage sans solliciter le réseau ni le CPU ESXi.</li>
+      <li><strong>Write Same (Zeroing) :</strong> Ordonne à la baie d'écrire des blocs de zéros à haute vitesse lors du provisionnement Thick Eager Zeroed.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Multipathing NMP & Politiques de Sélection de Chemin (PSP)</h2>
+
+<p>Pour garantir la résilience et le débit d'accès au stockage SAN, chaque hôte ESXi est relié à la baie via au moins deux contrôleurs physiques redondants (chemins multiples). Le sous-système <strong>NMP (Native Multipathing Plugin)</strong> gère le basculement et l'équilibrage grâce aux modules <strong>PSP (Path Selection Plugin)</strong> :</p>
+<table class="table">
+  <thead><tr><th>Politique PSP</th><th>Comportement Opérationnel</th><th>Usage &amp; Recommandation</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Round Robin (VMW_PSP_RR)</strong></td><td>Distribue les commandes d'E/S successivement sur l'ensemble des chemins actifs (toutes les 1000 E/S par défaut, ou 1 E/S en mode optimisé).</td><td><strong>Recommandé :</strong> Agrège la bande passante de plusieurs liens 10G/16G et offre une tolérance de panne immédiate.</td></tr>
+    <tr><td><strong>Fixed (VMW_PSP_FIXED)</strong></td><td>Utilise un chemin primaire désigné par l'administrateur ; ne bascule sur le chemin secondaire qu'en cas de coupure physique.</td><td>Adapté aux baies Actif/Passif traditionnelles sans ALUA.</td></tr>
+    <tr><td><strong>Most Recently Used (VMW_PSP_MRU)</strong></td><td>Conserve le chemin en cours d'utilisation jusqu'à ce qu'une panne survienne, sans jamais revenir en arrière (pas de failback automatique).</td><td>Obligatoire sur les baies Actif/Passif asymétriques pour éviter le phénomène de ping-pong de LUN.</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Architectures Hyperconvergées vSAN & Politiques SPBM (FTT, RAID-1, RAID-5/6)</h2>
+
+<p><strong>VMware vSAN (Virtual SAN)</strong> remplace les baies de stockage externes traditionnelles par une architecture <strong>hyperconvergée (HCI)</strong> : les disques internes (SSD NVMe, SSD SAS) installés localement dans chaque serveur ESXi du cluster sont regroupés en un datastore partagé unique et distribué :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Structure des Disk Groups vSAN</h4>
+    <ul>
+      <li>Chaque hôte possède de 1 à 5 groupes de disques (Disk Groups).</li>
+      <li><strong>1 Disque de Cache (obligatoire) :</strong> SSD ultra-rapide ou NVMe (100% dédié aux écritures dans une architecture All-Flash).</li>
+      <li><strong>1 à 7 Disques de Capacité :</strong> Disques flash assurant la persistance des données.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Politiques SPBM &amp; Slack Space</h4>
+    <ul>
+      <li><strong>FTT=1_RAID1 (Miroir) :</strong> Multiplicateur 2.0x (min 3 hôtes). Tolère 1 panne de nœud.</li>
+      <li><strong>FTT=1_RAID5 (Erasure Coding 3+1) :</strong> Multiplicateur 1.33x (min 4 hôtes). Économise 33% d'espace.</li>
+      <li><strong>FTT=2_RAID6 (Erasure Coding 4+2) :</strong> Multiplicateur 1.50x (min 6 hôtes). Tolère 2 pannes simultanées.</li>
+      <li><strong>Réserve Slack Space (20%) :</strong> Marge brute obligatoire pour permettre à vSAN de reconstruire automatiquement les composants en cas de panne d'un disque ou d'un serveur.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vrt3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="DATASTORE=ds-san-01 DS_SIZE_GB=1000 DISKS=vm1:200:THICK_EAGER,vm2:300:THIN:30,vm3:400:THIN:20&#10;DATASTORE=ds-nfs-02 DS_SIZE_GB=500 DISKS=vm4:400:THICK_LAZY,vm5:200:THIN:50">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser le Datastore, calculer l'espace logique et physique et qualifier le statut
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Dimensionneur de Datastores VMFS &amp; Provisionnement de Disques (Thin vs Thick)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la consommation logique et physique d'un Datastore VMFS selon les types de provisionnement (Thick vs Thin).</p>
+    <div class="lab__brief"><p>Sur un Datastore VMware VMFS, les disques virtuels (.vmdk) utilisent différentes stratégies de provisionnement :<br><br>
+1. <strong>Types de disques</strong> :<br>
+- <code>THICK_EAGER</code> ou <code>THICK_LAZY</code> : L'espace est alloué à 100% dès la création (consommation physique = taille déclarée).<br>
+- <code>THIN</code> : Seul l'espace réellement écrit est consommé sur le Datastore (spécifié par <code>taille:THIN:pct</code>, où <code>pct</code> est le pourcentage consommé, ex: <code>100:THIN:25</code> consomme 25 Go physiques).<br><br>
+2. <strong>Calculs sur le Datastore</strong> :<br>
+- <code>log_gb</code> : Somme des tailles déclarées (nominales) de toutes les VMs.<br>
+- <code>phy_gb</code> : Somme de l'espace physique réellement réservé.<br>
+- <code>log_pct = (log_gb / DS_SIZE_GB) * 100.0</code>.<br>
+- <code>phy_pct = (phy_gb / DS_SIZE_GB) * 100.0</code>.<br><br>
+3. <strong>Statut de conformité du Datastore</strong> :<br>
+- Si <code>phy_gb &gt; DS_SIZE_GB</code> : <code>OVERFLOW_PHYSIQUE</code> (espace disque insuffisant).<br>
+- Si <code>phy_pct &gt; 80.0</code> : <code>ALERTE_SATURATION</code> (seuil d'alerte VMware de 80% dépassé).<br>
+- Si <code>log_gb &gt; DS_SIZE_GB</code> et <code>phy_pct &le; 80.0</code> : <code>OVERCOMMITTED_OK</code> (surallocation saine).<br>
+- Sinon : <code>NOMINAL</code>.<br><br>
+Format d'entrée (sur STDIN) :<br>
+Lignes : <code>DATASTORE=&lt;nom&gt; DS_SIZE_GB=&lt;n&gt; DISKS=&lt;vm1:taille:type[:pct],vm2:...&gt;</code>.<br><br>
+Format de sortie :<br>
+<code>DATASTORE:&lt;nom&gt; | LOGICAL:&lt;log_gb&gt;GB (&lt;log_pct:.1f&gt;%) | PHYSICAL:&lt;phy_gb:.1f&gt;GB (&lt;phy_pct:.1f&gt;%) | STATUT:&lt;statut&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DATASTORE=ds-san-01 DS_SIZE_GB=1000 DISKS=vm1:200:THICK_EAGER,vm2:300:THIN:30,vm3:400:THIN:20
+DATASTORE=ds-nfs-02 DS_SIZE_GB=500 DISKS=vm4:400:THICK_LAZY,vm5:200:THIN:50</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DATASTORE:ds-san-01 | LOGICAL:900GB (90.0%) | PHYSICAL:370.0GB (37.0%) | STATUT:NOMINAL
+DATASTORE:ds-nfs-02 | LOGICAL:600GB (120.0%) | PHYSICAL:500.0GB (100.0%) | STATUT:ALERTE_SATURATION
+</pre></div>
+    </div>
+    <p class="lab__note">Datastore nominal sous 80% vs Datastore saturé à 100% avec surallocation logique.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour les disques THIN, multipliez la taille par (pct / 100.0) pour obtenir l'espace physique.</li>
+        <li>Pour les disques THICK, l'espace physique est exactement égal à la taille déclarée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vrt3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="HOSTS=4 RAW_CAPACITY_TB=50.0 POLICY=FTT=1_RAID5 VM_DATA_TB=15.0&#10;HOSTS=3 RAW_CAPACITY_TB=60.0 POLICY=FTT=1_RAID1 VM_DATA_TB=20.0&#10;HOSTS=3 RAW_CAPACITY_TB=40.0 POLICY=FTT=1_RAID5 VM_DATA_TB=10.0">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter les multiplicateurs SPBM, le slack space 20% et le contrôle d'hôtes vSAN
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de Capacité Utile vSAN &amp; Politiques SPBM (FTT / RAID-1 / RAID-5)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la consommation brute et la capacité restante d'un cluster vSAN selon les règles SPBM (Failures to Tolerate).</p>
+    <div class="lab__brief"><p>VMware vSAN protège les machines virtuelles en appliquant des politiques de stockage SPBM avec facteurs d'amplification d'écriture :<br><br>
+1. <strong>Politiques de protection (SPBM)</strong> :<br>
+- <code>FTT=1_RAID1</code> (Miroir) : Multiplicateur = <code>2.00x</code> (min 3 hôtes).<br>
+- <code>FTT=1_RAID5</code> (Érasure Coding 3+1) : Multiplicateur = <code>1.33x</code> (min 4 hôtes).<br>
+- <code>FTT=2_RAID1</code> (Triple miroir) : Multiplicateur = <code>3.00x</code> (min 5 hôtes).<br>
+- <code>FTT=2_RAID6</code> (Érasure Coding 4+2) : Multiplicateur = <code>1.50x</code> (min 6 hôtes).<br><br>
+2. <strong>Espace de réserve opérationnelle (Slack Space)</strong> :<br>
+vSAN réserve obligatoirement 20% de la capacité brute du cluster pour les opérations internes (rebuild en cas de panne) :<br>
+<code>usable_limit_tb = RAW_CAPACITY_TB * 0.80</code>.<br><br>
+3. <strong>Consommation et capacité restante</strong> :<br>
+- <code>consumed_raw_tb = VM_DATA_TB * multiplier</code>.<br>
+- <code>remaining_tb = usable_limit_tb - consumed_raw_tb</code>.<br><br>
+4. <strong>Validation et statut</strong> :<br>
+- Si <code>CLUSTER_HOSTS &lt; min_hosts</code> : <code>ERROR:INVALID_HOST_COUNT</code>.<br>
+- Si <code>remaining_tb &lt; 0.0</code> : <code>CAPACITY_EXCEEDED</code>.<br>
+- Si <code>consumed_raw_tb &gt; usable_limit_tb * 0.85</code> : <code>WARNING_SLACK</code>.<br>
+- Sinon : <code>HEALTHY</code>.<br><br>
+Format d'entrée (sur STDIN) :<br>
+Lignes : <code>HOSTS=&lt;nb&gt; RAW_CAPACITY_TB=&lt;to&gt; POLICY=&lt;nom&gt; VM_DATA_TB=&lt;to&gt;</code>.<br><br>
+Format de sortie :<br>
+<code>POLICY:&lt;nom&gt; | MULTIPLIER:&lt;mult:.2f&gt;x | CONSUMED:&lt;consumed_raw_tb:.2f&gt;TB | REMAINING:&lt;remaining_tb:.2f&gt;TB | STATUT:&lt;statut&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HOSTS=4 RAW_CAPACITY_TB=50.0 POLICY=FTT=1_RAID5 VM_DATA_TB=15.0
+HOSTS=3 RAW_CAPACITY_TB=60.0 POLICY=FTT=1_RAID1 VM_DATA_TB=20.0
+HOSTS=3 RAW_CAPACITY_TB=40.0 POLICY=FTT=1_RAID5 VM_DATA_TB=10.0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>POLICY:FTT=1_RAID5 | MULTIPLIER:1.33x | CONSUMED:20.00TB | REMAINING:20.00TB | STATUT:HEALTHY
+POLICY:FTT=1_RAID1 | MULTIPLIER:2.00x | CONSUMED:40.00TB | REMAINING:8.00TB | STATUT:HEALTHY
+ERROR:INVALID_HOST_COUNT
+</pre></div>
+    </div>
+    <p class="lab__note">vSAN RAID-5 sain sur 4 hôtes, RAID-1 en avertissement slack space et échec d'hôtes insuffisants.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez le nombre minimal d'hôtes requis par chaque politique avant les calculs.</li>
+        <li>La réserve de Slack Space (20%) réduit la capacité utilisable à RAW_CAPACITY_TB * 0.80.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vrt3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="POLICY=RR PATHS=vmhba1:C0:T0:L0,vmhba2:C0:T0:L0 THRESHOLD=1000&#10;IO=1000&#10;IO=1000&#10;IO=500">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la distribution des I/O selon les politiques Round Robin et Fixed
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur d'Arbitrage Multipathing MPIO (Round Robin &amp; Fixed)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'acheminement des requêtes I/O disque sur les chemins SAN selon les politiques multipathing MPIO (Round Robin et Fixed).</p>
+    <div class="lab__brief"><p>Le plug-in natif de sélection de chemin VMware NMP (Native Multipathing) répartit les flux d'entrées/sorties sur les adaptateurs HBA/iSCSI :<br><br>
+1. <strong>Politique <code>VMW_PSP_RR</code> (Round Robin)</strong> :<br>
+Alterne équitablement les requêtes I/O entre tous les chemins actifs. Dès qu'un chemin traite <code>THRESHOLD</code> I/O (par défaut 1000, ou valeur configurée), le commutateur bascule sur le chemin actif suivant en anneau circulaire.<br><br>
+2. <strong>Politique <code>VMW_PSP_FIXED</code></strong> :<br>
+Envoie la totalité des I/O sur le chemin <code>PREFERRED</code>. Si ce chemin tombe en panne (événement <code>FAIL:&lt;path&gt;</code>), les I/O basculent sur le premier chemin alternatif actif. Dès que le chemin préféré se rétablit (<code>RECOVER:&lt;path&gt;</code>), le trafic y revient immédiatement (<em>Failback</em>).<br><br>
+Format d'entrée (sur STDIN) :<br>
+Ligne 1 : <code>POLICY=&lt;RR|FIXED&gt; PATHS=&lt;p1,p2,...&gt; PREFERRED=&lt;path&gt; THRESHOLD=&lt;nb&gt;</code>.<br>
+Lignes suivantes : Événements <code>IO=&lt;nb&gt;</code>, <code>FAIL=&lt;path&gt;</code> ou <code>RECOVER=&lt;path&gt;</code>.<br><br>
+Format de sortie :<br>
+Pour chaque chemin, afficher le nombre total d'I/O reçues :<br>
+<code>PATH:&lt;p1&gt;=&lt;total_io&gt; | PATH:&lt;p2&gt;=&lt;total_io&gt; | ... | CURRENT_ACTIVE:&lt;chemin_courant&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POLICY=RR PATHS=vmhba1:C0:T0:L0,vmhba2:C0:T0:L0 THRESHOLD=1000
+IO=1000
+IO=1000
+IO=500</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PATH:vmhba1:C0:T0:L0=1500 | PATH:vmhba2:C0:T0:L0=1000 | CURRENT_ACTIVE:vmhba1:C0:T0:L0
+</pre></div>
+    </div>
+    <p class="lab__note">Round Robin alternant par tranche de 1000 I/O entre deux chemins.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En Round Robin, gérez un compteur d'I/O sur le chemin courant pour basculer dès que THRESHOLD est atteint.</li>
+        <li>En cas d'événement FAIL, retirez le chemin des actifs ; s'il s'agissait du chemin courant, basculez vers le suivant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Fibre Channel (FC).</button>
+        <button class="opt">NFS v3 sur réseau Ethernet partagé.</button>
+        <button class="opt">iSCSI logiciel avec adresses IP publiques.</button>
+        <button class="opt">SMB 3.0 sur port 445.</button>
+      </div>
+      <div class="q__exp">Fibre Channel (FC) est un réseau SAN dédié à haute performance utilisant des adaptateurs de bus hôte (HBA) matériels et un protocole sans perte (Lossless) indépendant du réseau Ethernet standard.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ATS (Atomic Test and Set).</button>
+        <button class="opt">XCOPY (Extended Copy).</button>
+        <button class="opt">UNMAP (Block Space Reclamation).</button>
+        <button class="opt">Write Same (Zeroing Offload).</button>
+      </div>
+      <div class="q__exp">ATS (Atomic Test and Set) permet aux hôtes ESXi de modifier des métadonnées de datastore en verrouillant uniquement le secteur concerné plutôt que l'intégralité du LUN, évitant les blocages d'E/S.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour réduire le nombre de paquets par seconde, diminuant la charge CPU et augmentant le débit utile.</button>
+        <button class="opt">Pour crypter automatiquement les échanges de trames avec l'algorithme AES-256.</button>
+        <button class="opt">Pour empêcher les attaques par déni de service SYN flood sur le port 3260.</button>
+        <button class="opt">Pour permettre le routage des paquets sur Internet sans passerelle par défaut.</button>
+      </div>
+      <div class="q__exp">Transporter 9000 octets par trame au lieu de 1500 réduit par six le nombre d'en-têtes et d'interruptions système traitées par les processeurs, optimisant considérablement le débit d'E/S.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">4 hôtes minimum.</button>
+        <button class="opt">2 hôtes avec un disque témoin externe.</button>
+        <button class="opt">3 hôtes physiques.</button>
+        <button class="opt">6 hôtes minimum.</button>
+      </div>
+      <div class="q__exp">La règle vSAN FTT=1 RAID-5 distribue les blocs selon un schéma 3+1 (3 blocs de données et 1 bloc de parité). Chacun des 4 composants devant résider sur un hôte différent, 4 hôtes sont obligatoires.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">2.00x (soit 20 To bruts consommés).</button>
+        <button class="opt">1.33x (soit 13.3 To bruts consommés).</button>
+        <button class="opt">1.00x (aucun surcoût d'espace).</button>
+        <button class="opt">3.00x (soit 30 To bruts consommés).</button>
+      </div>
+      <div class="q__exp">La politique FTT=1 RAID-1 applique un miroir classique à deux copies identiques (plus un témoin). Le volume brut consommé sur les disques est exactement le double du volume utile (multiplicateur 2.0x).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour permettre la reconstruction automatique des données en cas de défaillance d'un hôte ou d'un disque.</button>
+        <button class="opt">Pour héberger les fichiers ISO d'installation des systèmes d'exploitation invités.</button>
+        <button class="opt">Pour stocker les logs d'audit de vCenter Server en cas de perte de connectivité.</button>
+        <button class="opt">Pour allouer la mémoire swap de l'hyperviseur sur les disques mécaniques.</button>
+      </div>
+      <div class="q__exp">Le Slack Space de 20% garantit qu'en cas de perte physique d'un serveur ou d'un disque de capacité, le cluster dispose de l'espace libre nécessaire pour resynchroniser et restaurer le niveau de protection configuré.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Round Robin (VMW_PSP_RR).</button>
+        <button class="opt">Fixed (VMW_PSP_FIXED).</button>
+        <button class="opt">Most Recently Used (VMW_PSP_MRU).</button>
+        <button class="opt">Single Path Direct.</button>
+      </div>
+      <div class="q__exp">La politique Round Robin alterne les requêtes d'E/S entre tous les chemins actifs disponibles vers la baie de stockage, assurant une répartition équitable de la charge et un basculement transparent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">À absorber 100% du tampon d'écriture (Write Buffer) avant déchargement sur les disques de capacité.</button>
+        <button class="opt">À stocker les copies de sauvegarde Veeam hebdomadaires.</button>
+        <button class="opt">À faire office de mémoire vive RAM de substitution pour les machines virtuelles.</button>
+        <button class="opt">À exécuter le micro-noyau VMkernel d'ESXi sans clé USB.</button>
+      </div>
+      <div class="q__exp">En architecture vSAN All-Flash, le cache est composé d'un SSD haute endurance ou NVMe dédié à 100% au tampon d'écriture rapide (Write Buffer), les lectures s'effectuant directement sur les disques de capacité flash.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie d'Ingénierie : Dimensionnement & Audit de Capacité vSAN</div>
+    <ol>
+      <li>Calculer la capacité brute totale du cluster vSAN en sommant la capacité des disques de persistance de tous les nœuds.</li>
+      <li>Retrancher immédiatement la réserve de Slack Space opérationnelle de 20% (Capacité_Utile = Capacité_Brute * 0.80).</li>
+      <li>Identifier la politique SPBM requise pour chaque niveau de service applicatif (RAID-1 pour performances I/O, RAID-5/6 pour optimisation d'espace).</li>
+      <li>Multiplier le volume des données des VM par le facteur SPBM et vérifier que l'espace consommé ne dépasse pas 85% de la limite utile.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le stockage partagé Datacenter repose sur les protocoles bloc (Fibre Channel, iSCSI) ou fichier (NFS v3/v4.1).</li>
+      <li>Les Jumbo Frames (MTU 9000) sont indispensables sur les réseaux de stockage IP pour réduire les interruptions CPU et maximiser le débit.</li>
+      <li>VMFS-6 permet l'accès concurrent de plusieurs dizaines d'hôtes ESXi grâce aux primitives matérielles VAAI comme ATS (verrouillage de bloc fin).</li>
+      <li>Le multipathing Round Robin (PSP RR) agrège les débits de multiples liens de stockage et assure un basculement instantané.</li>
+      <li>VMware vSAN regroupe les disques locaux en stockage distribué dont la capacité utile nette dépend des règles SPBM et du Slack Space de 20%.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>La valeur de MTU 9000 est-elle configurée de bout en bout (VMkernel, vSwitch, switchs physiques et baie iSCSI/NFS) ?</li>
+      <li>La primitive VAAI ATS est-elle prise en charge et active sur tous les LUNs de stockage VMFS-6 ?</li>
+      <li>La politique de sélection de chemin NMP est-elle définie sur Round Robin pour répartir les E/S sur tous les liens ?</li>
+      <li>Le cluster vSAN dispose-t-il du nombre minimal d'hôtes physiques requis par la politique SPBM ciblée (min 4 pour RAID-5, min 6 pour RAID-6) ?</li>
+      <li>L'espace consommé sur le datastore vSAN reste-t-il en dessous du seuil d'alerte de 80% pour préserver le Slack Space ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>VMFS-6 :</strong> Système de fichiers en cluster propriétaire VMware permettant l'accès simultané multi-hôtes à un même LUN SAN.</li><li><strong>VAAI (vStorage APIs for Array Integration) :</strong> Jeu de primitives matérielles déchargeant les opérations de verrouillage (ATS), copie (XCOPY) et mise à zéro sur la baie.</li><li><strong>ATS (Atomic Test and Set) :</strong> Primitive SCSI VAAI permettant de verrouiller un secteur individuel de métadonnées sans bloquer l'ensemble du LUN.</li><li><strong>Jumbo Frames :</strong> Trames Ethernet dont la taille de charge utile (MTU) est portée à 9000 octets pour optimiser les flux de stockage IP.</li><li><strong>Multipathing NMP :</strong> Sous-système de gestion des chemins multiples entre un hôte ESXi et une baie de stockage pour assurer redondance et débit.</li><li><strong>VMware vSAN :</strong> Solution de stockage hyperconvergé agrégeant les disques flash locaux des serveurs ESXi en un datastore distribué unique.</li><li><strong>SPBM (Storage Policy-Based Management) :</strong> Mécanisme vSphere appliquant des règles logiques de redondance (FTT, RAID) par machine virtuelle.</li><li><strong>Slack Space vSAN :</strong> Réserve obligatoire de 20% de l'espace brut d'un cluster vSAN réservée aux opérations de reconstruction interne en cas de sinistre.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow">Dimensionner et valider les liaisons de stockage SAN iSCSI et Fibre Channel avec Jumbo Frames MTU 9000.</div>
+      <div class="bandrow">Analyser le fonctionnement des primitives VAAI (ATS, XCOPY, UNMAP) sur les datastores VMFS-6.</div>
+      <div class="bandrow">Configurer le multipathing NMP avec la politique Round Robin pour maximiser le débit des contrôleurs de baie.</div>
+      <div class="bandrow">Dimensionner un cluster hyperconvergé VMware vSAN en appliquant les politiques SPBM adaptées (RAID-1 vs RAID-5/6).</div>
+      <div class="bandrow">Surveiller et maintenir la réserve opérationnelle de 20% de Slack Space pour garantir la haute résilience de vSAN.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Réseau Virtuel, Commutation Standard & Distribuée (vSwitch & VDS) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports officiels B3-ASI / L3-ASI Virtualisation (Auteur : M. Caleb AGOUTOCO-POKO, Enseignant & Spécialiste Systèmes et Réseaux), Documentation technique officielle VMware vSphere 7.0 / 8.0, Documentation Citrix Hypervisor, Guides de durcissement CIS Benchmark VMware ESXi.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 — Sécurité des Identités IAM, Comptes de Service &amp; Stratégies d'Accès | Google Cloud Platform B3</title>
+<meta name="description" content="Module 2 du cours Google Cloud Platform B3 : Gestion des identités et des accès (Cloud IAM), principe du moindre privilège (Least Privilege), typologie des membres (utilisateurs, groupes Workspace, comptes de service), taxonomie des rôles (rôles primitifs dépréciés, rôles prédéfinis recommandés, rôles personnalisés), liaisons de rôles (Role Bindings) et conditions IAM CEL, gouvernance des comptes de service, risques des clés JSON exportées et déploiement de Workload Identity Federation sans clé. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-google-cloud/chapitres/chapitre2.html">
+<meta property="og:title" content="Module 2 — Sécurité des Identités IAM, Comptes de Service &amp; Stratégies d'Accès | Google Cloud Platform B3">
+<meta property="og:description" content="Module 2 du cours Google Cloud Platform B3 : Gestion des identités et des accès (Cloud IAM), principe du moindre privilège (Least Privilege), typologie des membres (utilisateurs, groupes Workspace, comptes de service), taxonomie des rôles (rôles primitifs dépréciés, rôles prédéfinis recommandés, rôles personnalisés), liaisons de rôles (Role Bindings) et conditions IAM CEL, gouvernance des comptes de service, risques des clés JSON exportées et déploiement de Workload Identity Federation sans clé. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-google-cloudnav"><div class="b3-google-cloudnav__in">
+  <a class="b3-google-cloudnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-google-cloudnav__sep" aria-hidden="true">/</span>
+  <a class="b3-google-cloudnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Google Cloud Platform B3</a>
+  <div class="b3-google-cloudnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-google-cloudnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-google-cloudwrap">
+<p class="crumb"><a href="../index.html">Google Cloud Platform B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Sécurité des Identités IAM, Comptes de Service & Stratégies d'Accès</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un contexte d'entreprise où des centaines de collaborateurs, de pipelines CI/CD et de microservices interagissent quotidiennement avec les API de Google Cloud, une mauvaise gestion des identités constitue le vecteur d'attaque le plus critique. L'utilisation persistante de rôles primitifs comme « Editor », l'absence de révision des droits et la dissémination de clés privées JSON de comptes de service sur des dépôts de code entraînent régulièrement des fuites de données massives ou des piratages de calcul (crypto-jacking). En tant qu'ingénieur sécurité Cloud B3, vous devez maîtriser la politique IAM de Google Cloud, appliquer strictement le moindre privilège avec des rôles prédéfinis ou sur mesure, et éradiquer les clés statiques au profit de Workload Identity.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser le triptyque IAM de Google Cloud : Membres (Who), Rôles (Can do what) et Ressources (On which resource) ;</li>
+      <li>appliquer le principe du moindre privilège et bannir définitivement les rôles primitifs en production ;</li>
+      <li>concevoir, tester et valider des rôles personnalisés (Custom Roles) à base de permissions atomiques ;</li>
+      <li>configurer des liaisons de politiques IAM (Role Bindings) et des conditions d'accès basées sur CEL (Common Expression Language) ;</li>
+      <li>auditer le cycle de vie des comptes de service et mettre en place la rotation obligatoire des clés de moins de 90 jours ;</li>
+      <li>développer en Python 3 des évaluateurs de droits IAM, des linters de rôles personnalisés et des auditeurs de sécurité de comptes de service.</li>
+    </ol>
+  </div>
+
+<h2>1. Modèle Fondamental Cloud IAM &amp; Principe du Moindre Privilège</h2>
+
+<p>Cloud IAM (Identity and Access Management) est le service centralisé de Google Cloud qui contrôle les autorisations d'accès aux ressources. Il répond de manière déterministe à la question : <em>Qui</em> (identité) peut accomplir <em>quelle action</em> (rôle) sur <em>quelle ressource</em> ?</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Les Membres (Principals)</h4>
+    <ul>
+      <li><strong>Compte Google :</strong> <code>user:alice@gmail.com</code> ou compte d'entreprise Google Workspace.</li>
+      <li><strong>Groupe Google :</strong> <code>group:devops@entreprise.com</code> (recommandé pour attribuer les droits en masse).</li>
+      <li><strong>Domaine Cloud Identity :</strong> <code>domain:entreprise.com</code>.</li>
+      <li><strong>Compte de service :</strong> <code>serviceAccount:app@proj.iam.gserviceaccount.com</code>.</li>
+      <li><strong>Public :</strong> <code>allUsers</code> ou <code>allAuthenticatedUsers</code>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Les Rôles (Collections)</h4>
+    <p>Un rôle regroupe un ensemble cohérent de <strong>permissions atomiques</strong>.</p>
+    <p>Exemple : le rôle <code>roles/storage.objectViewer</code> contient les permissions <code>storage.objects.get</code> et <code>storage.objects.list</code>.</p>
+    <p>On n'attribue jamais une permission brute directement à un utilisateur : on lui attribue un rôle.</p>
+  </div>
+  <div class="card">
+    <h4>3. Les Ressources Cibles</h4>
+    <p>Le périmètre d'application de la politique IAM.</p>
+    <p>Les autorisations peuvent être attachées à l'Organisation, à un Dossier, à un Projet, ou même à une ressource spécifique (ex: un bucket Cloud Storage précis ou une table BigQuery).</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le Principe du Moindre Privilège (Principle of Least Privilege)</div>
+<p>Règle d'or de la cybersécurité : <em>chaque identité (humaine ou applicative) ne doit posséder que les autorisations strictement nécessaires à l'exécution de sa tâche légitime, et rien de plus</em>. Donner à un développeur le rôle Editor sur tout le projet alors qu'il n'a besoin que d'accéder aux logs constitue une violation grave des normes de conformité (ISO 27001, SOC 2).</p>
+  </div>
+
+<h2>2. Typologie des Rôles : Primitifs, Prédéfinis &amp; Personnalisés (Custom)</h2>
+
+<p>Google Cloud classe les rôles selon trois niveaux de granularité distincts :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Rôles Primitifs (Basiques)</h4>
+    <ul>
+      <li>Historiques : <code>Owner</code>, <code>Editor</code>, <code>Viewer</code>.</li>
+      <li>S'appliquent uniformément à tous les services du projet.</li>
+      <li><span style="color:#b91c1c;font-weight:700;">DANGEREUX :</span> accordent des privilèges démesurés. <code>Editor</code> peut modifier le réseau et supprimer des VM. À bannir en production.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Rôles Prédéfinis (Predefined)</h4>
+    <ul>
+      <li>Conçus et maintenus par les ingénieurs Google pour chaque service.</li>
+      <li>Exemples : <code>roles/compute.networkAdmin</code>, <code>roles/pubsub.publisher</code>, <code>roles/cloudsql.client</code>.</li>
+      <li><span style="color:#15803d;font-weight:700;">RECOMMANDÉS :</span> alignés sur les responsabilités métiers courantes et mis à jour automatiquement lors de l'ajout de fonctionnalités.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Rôles Personnalisés (Custom)</h4>
+    <ul>
+      <li>Créés sur mesure pour respecter un besoin chirurgical.</li>
+      <li>Composés d'une liste explicite de permissions au format <code>service.resource.action</code>.</li>
+      <li>Cycle de vie : <code>ALPHA</code>, <code>BETA</code>, <code>GA</code>, <code>DEPRECATED</code>.</li>
+      <li>Restrictions : ne peuvent pas contenir de permissions d'administration d'organisation.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Liaisons IAM (Role Bindings) &amp; Conditions d'Accès CEL</h2>
+
+<p>Une politique IAM se matérialise sous la forme d'un document JSON/YAML contenant un ensemble de liaisons (<code>bindings</code>). Chaque liaison associe un rôle à une liste de membres :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Structure d'une Liaison IAM</h4>
+    <pre><code>bindings:
+- role: "roles/storage.objectViewer"
+  members:
+  - "user:dev1@cloud.corp"
+  - "group:analystes@cloud.corp"
+- role: "roles/compute.instanceAdmin.v1"
+  members:
+  - "serviceAccount:ci-runner@prod.iam.gserviceaccount.com"</code></pre>
+    <p>Une même politique peut contenir des dizaines de liaisons réparties selon les besoins opérationnels.</p>
+  </div>
+  <div class="card">
+    <h4>Conditions IAM avec CEL (Common Expression Language)</h4>
+    <p>Les conditions IAM permettent de restreindre l'activation d'un rôle selon des critères contextuels dynamiques :</p>
+    <ul>
+      <li><strong>Plage horaire :</strong> accès valide uniquement pendant les heures ouvrées (ex: <code>request.time.getHours("Europe/Paris") &gt;= 8</code>).</li>
+      <li><strong>Date d'expiration :</strong> accès temporaire pour un prestataire révoqué automatiquement après une date.</li>
+      <li><strong>Attributs de ressources :</strong> restreindre l'accès aux seuls buckets commençant par <code>gs://finance-</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Comptes de Service, Risques des Clés &amp; Workload Identity</h2>
+
+<p>Un compte de service (Service Account) est une identité spéciale représentant une application ou une VM, et non un être humain. Son adresse se termine obligatoirement par <code>@&lt;projet&gt;.iam.gserviceaccount.com</code> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Danger Critique des Clés JSON Téléchargées</h4>
+    <ul>
+      <li>Une clé de compte de service est un fichier JSON contenant une clé privée RSA valide 10 ans par défaut.</li>
+      <li>Si ce fichier est commité dans Git, stocké sur un PC portable ou partagé sur Slack, un pirate acquiert un accès direct permanent à votre infrastructure Cloud.</li>
+      <li>Le référentiel CIS GCP Benchmark impose une <strong>rotation obligatoire tous les 90 jours</strong> pour toute clé utilisateur existante.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>La Solution Moderne : Workload Identity</h4>
+    <p>Recommandation absolue de Google pour sécuriser conteneurs et pipelines CI/CD :</p>
+    <ul>
+      <li><strong>GKE Workload Identity :</strong> lie un ServiceAccount Kubernetes standard à un compte de service GCP IAM sans aucune clé secrète dans le pod.</li>
+      <li><strong>Workload Identity Federation :</strong> permet à des services externes (GitHub Actions, AWS, Azure, GitLab) d'échanger des jetons OIDC contre des jetons d'accès Google Cloud temporaires à durée de vie courte (1 heure). <strong>Zéro clé statique à gérer !</strong></li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Impersonation de Compte de Service</div>
+<p>Au lieu de donner aux administrateurs des droits permanents sur les données, on leur accorde le rôle <code>roles/iam.serviceAccountTokenCreator</code> sur un compte de service dédié. L'administrateur « endosse » temporairement l'identité du compte via la commande <code>gcloud --impersonate-service-account</code>, garantissant une traçabilité parfaite dans les journaux d'audit.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gcp3-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="BIND role=roles/storage.objectViewer member=user:alice@cloud.corp&#10;CHECK_ROLE member=user:alice@cloud.corp role=roles/storage.objectViewer&#10;AUDIT_PRIMITIVE_ROLES">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la gestion des bindings IAM et audit de moindre privilège
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Évaluateur de Politiques et Liaisons IAM (Bindings &amp; Least Privilege)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les liaisons de rôles IAM Google Cloud, vérifier les droits des membres et auditer la présence de rôles primitifs déconseillés.</p>
+    <div class="lab__brief"><p>Google Cloud IAM associe des membres (principals) à des rôles selon des liaisons (bindings) :<br>
+Classification des rôles :<br>
+- Rôles primitifs historiques : <code>roles/viewer</code>, <code>roles/editor</code>, <code>roles/owner</code> (statut : <code>PRIMITIVE_DEPRECATED_FOR_PROD</code>).<br>
+- Rôles prédéfinis : débutent par <code>roles/</code> et comportent un point (ex: <code>roles/storage.objectViewer</code>, <code>roles/compute.instanceAdmin.v1</code>) (statut : <code>PREDEFINED_RECOMMENDED</code>).<br><br>
+Commandes lues sur STDIN :<br>
+1. <code>BIND role=&lt;role&gt; member=&lt;type:id&gt;</code> :<br>
+   Associe le membre au rôle et affiche :<br>
+   <code>BIND_OK: role=&lt;role&gt; member=&lt;member&gt; type=&lt;status&gt;</code>.<br>
+2. <code>CHECK_ROLE member=&lt;member&gt; role=&lt;role&gt;</code> :<br>
+   - Si le membre possède le rôle : <code>ACCESS: GRANTED member=&lt;member&gt; role=&lt;role&gt;</code>.<br>
+   - Sinon : <code>ACCESS: DENIED member=&lt;member&gt; role=&lt;role&gt;</code>.<br>
+3. <code>AUDIT_PRIMITIVE_ROLES</code> :<br>
+   - Si aucun membre n'a de rôle primitif : <code>AUDIT: OK (zero primitive roles in use)</code>.<br>
+   - Sinon : <code>AUDIT: WARNING primitive_count=&lt;N&gt; members=&lt;m1,m2,...&gt;</code> (liste ordonnée).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BIND role=roles/storage.objectViewer member=user:alice@cloud.corp
+CHECK_ROLE member=user:alice@cloud.corp role=roles/storage.objectViewer
+AUDIT_PRIMITIVE_ROLES</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED_RECOMMENDED
+ACCESS: GRANTED member=user:alice@cloud.corp role=roles/storage.objectViewer
+AUDIT: OK (zero primitive roles in use)</pre></div>
+    </div>
+    <p class="lab__note">Attribution conforme d un rôle prédéterminé respectant le moindre privilège.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stockez les liaisons dans un ensemble ou un dictionnaire (role, member).</li>
+        <li>Un rôle est primitif s il est exactement "roles/viewer", "roles/editor" ou "roles/owner".</li>
+        <li>Triez la liste des membres dans l audit pour garantir une sortie déterministe.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gcp3-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="CUSTOM_ROLE_LINT id=devCustomStorage stage=GA perms=storage.buckets.get,storage.objects.list,storage.objects.get">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter le linter de Custom Roles IAM
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Générateur et Linter de Rôles Personnalisés (Custom Roles)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider la structure et la liste de permissions atomiques d'un rôle IAM personnalisé Google Cloud.</p>
+    <div class="lab__brief"><p>Un rôle personnalisé (Custom Role) GCP permet d'assembler des permissions atomiques précises.<br><br>
+Règles de conformité :<br>
+- <code>stage</code> doit appartenir à <code>ALPHA</code>, <code>BETA</code>, <code>GA</code>, <code>DEPRECATED</code>.<br>
+- Chaque permission doit respecter le format standard à 3 segments : <code>&lt;service&gt;.&lt;resource&gt;.&lt;action&gt;</code> (ex: <code>compute.instances.create</code>, <code>storage.buckets.get</code>).<br>
+- Les permissions d'administration d'organisation (ex: commençant par <code>resourcemanager.organizations.</code>) sont strictement interdites dans un projet.<br><br>
+Commande STDIN :<br>
+<code>CUSTOM_ROLE_LINT id=&lt;id&gt; stage=&lt;stage&gt; perms=&lt;p1,p2,...&gt;</code>.<br>
+Sorties :<br>
+- Si valide : <code>ROLE_LINT: id=&lt;id&gt; stage=&lt;stage&gt; perms_count=&lt;N&gt; status=VALID</code><br>
+- Si stage invalide : <code>ROLE_LINT: id=&lt;id&gt; status=INVALID reason=INVALID_STAGE</code><br>
+- Si permission mal formée (ne comporte pas exactement 2 points) : <code>ROLE_LINT: id=&lt;id&gt; status=INVALID reason=MALFORMED_PERMISSION perm=&lt;p&gt;</code><br>
+- Si permission d'organisation interdite : <code>ROLE_LINT: id=&lt;id&gt; status=INVALID reason=FORBIDDEN_ORG_PERMISSION perm=&lt;p&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CUSTOM_ROLE_LINT id=devCustomStorage stage=GA perms=storage.buckets.get,storage.objects.list,storage.objects.get</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ROLE_LINT: id=devCustomStorage stage=GA perms_count=3 status=VALID</pre></div>
+    </div>
+    <p class="lab__note">Rôle personnalisé conforme avec 3 permissions atomiques Cloud Storage.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Validez d abord le stage dans ("ALPHA", "BETA", "GA", "DEPRECATED").</li>
+        <li>Découpez les permissions sur la virgule et testez p.count(".") == 2 et non p.startswith("resourcemanager.organizations.").</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gcp3-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="AUDIT_SA email=gke-app@proj-prod.iam.gserviceaccount.com auth_mode=WORKLOAD_IDENTITY&#10;AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-abc-123 age_days=45">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter l'audit de sécurité des comptes de service
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Gouvernance des Comptes de Service et Rotation de Clés</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer l'âge des clés de comptes de service Google Cloud et promouvoir les identités sans clé (Workload Identity).</p>
+    <div class="lab__brief"><p>Dans Google Cloud, les comptes de service (Service Accounts - SA) permettent aux applications d'interagir avec les API :<br>
+Nom de compte standard : <code>&lt;nom&gt;@&lt;projet&gt;.iam.gserviceaccount.com</code>.<br><br>
+Types d'authentification :<br>
+1. <code>WORKLOAD_IDENTITY</code> : identité fédérée sans clé JSON stockée (recommandation Google, risque = ZERO).<br>
+2. Clé de compte de service utilisateur (User-Managed Key) : clé au format JSON exportable.<br>
+   Règle de conformité de sécurité CIS GCP : rotation obligatoire tous les 90 jours maximum.<br>
+   - Si <code>age_days &gt; 90</code> : <code>EXPIRED_REQUIRES_ROTATION</code><br>
+   - Si <code>age_days &lt;= 90</code> : <code>ACTIVE_COMPLIANT</code><br><br>
+Commandes lues sur STDIN :<br>
+1. <code>AUDIT_SA email=&lt;sa_email&gt; auth_mode=WORKLOAD_IDENTITY</code> :<br>
+   <code>SA_AUDIT: email=&lt;email&gt; mode=WORKLOAD_IDENTITY status=HIGHLY_SECURE risk=ZERO</code><br>
+2. <code>AUDIT_SA email=&lt;sa_email&gt; auth_mode=SERVICE_ACCOUNT_KEY key_id=&lt;id&gt; age_days=&lt;N&gt;</code> :<br>
+   <code>SA_AUDIT: email=&lt;email&gt; key_id=&lt;id&gt; age_days=&lt;N&gt; status=&lt;ACTIVE_COMPLIANT|EXPIRED_REQUIRES_ROTATION&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>AUDIT_SA email=gke-app@proj-prod.iam.gserviceaccount.com auth_mode=WORKLOAD_IDENTITY
+AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-abc-123 age_days=45</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SA_AUDIT: email=gke-app@proj-prod.iam.gserviceaccount.com mode=WORKLOAD_IDENTITY status=HIGHLY_SECURE risk=ZERO
+SA_AUDIT: email=legacy-app@proj-prod.iam.gserviceaccount.com key_id=key-abc-123 age_days=45 status=ACTIVE_COMPLIANT</pre></div>
+    </div>
+    <p class="lab__note">Comparatif d un compte fédéré sans clé et d un compte avec clé conforme récente.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Branchez selon auth_mode == "WORKLOAD_IDENTITY" ou "SERVICE_ACCOUNT_KEY".</li>
+        <li>Comparez int(age_days) &lt;= 90 pour le statut de conformité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi l'attribution de rôles primitifs (comme roles/editor) est-elle proscrite dans un environnement de production ?</p>
+      <div class="opts">
+        <button class="opt">Parce qu'ils sont payants</button>
+        <button class="opt" data-correct="1">Parce qu'ils accordent des privilèges excessifs sur tous les services du projet et violent le moindre privilège</button>
+        <button class="opt">Parce qu'ils ne fonctionnent pas avec Linux</button>
+        <button class="opt">Parce qu'ils empêchent l'accès à la console</button>
+      </div>
+      <div class="q__exp">Les rôles primitifs accordent des permissions très larges sur l'ensemble des services GCP, ce qui expose l'entreprise à des erreurs catastrophiques ou à des failles de sécurité majeures.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la recommandation de sécurité officielle de Google Cloud pour authentifier des conteneurs GKE auprès des API GCP sans manipuler de clés statiques ?</p>
+      <div class="opts">
+        <button class="opt">Télécharger une clé JSON sur chaque conteneur</button>
+        <button class="opt" data-correct="1">Utiliser GKE Workload Identity pour lier le compte Kubernetes au compte IAM</button>
+        <button class="opt">Donner le rôle Owner au cluster</button>
+        <button class="opt">Désactiver l'authentification sur les API</button>
+      </div>
+      <div class="q__exp">GKE Workload Identity associe directement le ServiceAccount Kubernetes au compte de service GCP, éliminant totalement le besoin de générer ou de stocker des clés JSON privées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le format standard d'une permission atomique dans Google Cloud ?</p>
+      <div class="opts">
+        <button class="opt">action:resource:service</button>
+        <button class="opt" data-correct="1">service.resource.action (ex: compute.instances.create)</button>
+        <button class="opt">service/action/resource</button>
+        <button class="opt">permission_service_action</button>
+      </div>
+      <div class="q__exp">Les permissions atomiques GCP respectent rigoureusement la convention à trois segments « service.resource.action » (ex: storage.buckets.list ou compute.instances.start).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Selon le référentiel de conformité CIS Google Cloud Benchmark, quel est l'âge maximal autorisé pour une clé de compte de service avant rotation obligatoire ?</p>
+      <div class="opts">
+        <button class="opt">30 jours</button>
+        <button class="opt" data-correct="1">90 jours</button>
+        <button class="opt">180 jours</button>
+        <button class="opt">365 jours</button>
+      </div>
+      <div class="q__exp">Le benchmark CIS GCP impose une rotation obligatoire des clés gérées par l'utilisateur au minimum tous les 90 jours pour limiter la durée d'exposition en cas de fuite discrète.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel langage d'expression est utilisé pour définir des conditions d'accès dynamiques dans les liaisons IAM Google Cloud ?</p>
+      <div class="opts">
+        <button class="opt">SQL</button>
+        <button class="opt">JavaScript</button>
+        <button class="opt" data-correct="1">CEL (Common Expression Language)</button>
+        <button class="opt">Bash</button>
+      </div>
+      <div class="q__exp">Google Cloud utilise CEL (Common Expression Language), un langage d'expression rapide et sûr développé par Google, pour évaluer les conditions logiques et temporelles d'activation des rôles.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Attribuer le rôle Owner ou Editor à une application pour « faciliter les tests », lui ouvrant ainsi les droits de modification sur l'intégralité du projet.</li>
+      <li>Télécharger une clé JSON de compte de service et l'ajouter dans un dépôt Git public ou privé : des robots scannent en permanence le web pour exploiter ces clés.</li>
+      <li>Assigner des droits IAM directement à des comptes utilisateurs personnels sans passer par des groupes d'entreprise, rendant l'audit d'accès ingérable lors des départs de salariés.</li>
+      <li>Ignorer les clés de compte de service anciennes sans mettre en place de politique de rotation sous 90 jours.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Inventaire des besoins et cartographie des rôles : identifier les permissions réelles requises par les équipes et sélectionner systématiquement des rôles prédéfinis spécifiques plutôt que primitifs.</li>
+      <li>Structuration des affectations via des groupes Workspace : n'attribuer jamais de rôles IAM à des adresses email individuelles, mais uniquement à des groupes d'entreprise (ex: group:dev-backend@corp.com) pour faciliter le cycle de vie RH.</li>
+      <li>Gouvernance stricte des comptes de service : interdire la création de clés JSON utilisateur via les contraintes de politique d'organisation (constraints/iam.disableServiceAccountKeyCreation).</li>
+      <li>Déploiement de Workload Identity Federation : configurer l'authentification fédérée sans clé pour tous les clusters GKE et les pipelines de déploiement continu (GitHub Actions / GitLab CI).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Cloud IAM applique le principe du moindre privilège en liant des Membres à des Rôles sur des Ressources ciblées.</li>
+      <li>Les rôles primitifs (Viewer, Editor, Owner) sont trop permissifs et proscrits en production au profit des rôles prédéfinis ou sur mesure (Custom Roles).</li>
+      <li>Les rôles personnalisés se composent de permissions atomiques au format service.resource.action et suivent un cycle de vie contrôlé.</li>
+      <li>Les conditions IAM CEL permettent d'ajouter des restrictions contextuelles d'accès temporelles ou par nom de ressource.</li>
+      <li>Les clés de comptes de service statiques présentent un risque majeur de sécurité ; elles doivent être remplacées par Workload Identity Federation.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous expliquer la différence entre un membre, un rôle et une permission atomique dans GCP ?</li>
+      <li>Pouvez-vous justifier pourquoi le rôle Editor ne doit jamais être accordé en production ?</li>
+      <li>Connaissez-vous le format d'une permission Google Cloud (service.resource.action) ?</li>
+      <li>Savez-vous écrire une condition IAM CEL pour restreindre un accès dans le temps ?</li>
+      <li>Comprenez-vous le fonctionnement et les bénéfices de Workload Identity par rapport à une clé JSON ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Cloud IAM :</strong> Système d'autorisation centralisé de Google Cloud contrôlant qui peut effectuer quelles actions sur quelles ressources.</li><li><strong>Rôle Prédéfini (Predefined Role) :</strong> Rôle managé par Google offrant un ensemble précis de permissions adaptées à un métier ou un service particulier.</li><li><strong>Compte de Service (Service Account) :</strong> Identité Google Cloud non humaine utilisée par des applications et des serveurs pour interagir avec les API de façon sécurisée.</li><li><strong>Conditions IAM (CEL) :</strong> Expressions logiques basées sur Common Expression Language conditionnant l'application d'un rôle à des critères temporels ou de contexte.</li><li><strong>Workload Identity Federation :</strong> Mécanisme permettant à des charges de travail externes ou conteneurisées d'accéder aux ressources GCP sans manipuler de clés privées statiques.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Mise en œuvre du principe du moindre privilège :</strong> Remplacer méthodiquement tous les rôles primitifs par des rôles prédéfinis ciblés dans les projets d'entreprise.</div>
+      <div class="bandrow"><strong>Création et linter de rôles personnalisés en Python :</strong> Programmer des validateurs vérifiant la syntaxe atomique des permissions et l'absence de privilèges d'organisation interdits.</div>
+      <div class="bandrow"><strong>Sécurisation et gouvernance des comptes de service :</strong> Auditer l'âge des clés privées et planifier la rotation automatisée à 90 jours conformément aux règles CIS.</div>
+      <div class="bandrow"><strong>Déploiement de configurations Workload Identity :</strong> Configurer l'authentification fédérée sans clé pour les pods GKE et les pipelines d'intégration continue.</div>
+      <div class="bandrow"><strong>Rédaction de conditions d'accès dynamiques avec CEL :</strong> Restreindre les accès aux plages de travail et aux ressources labellisées via des conditions IAM avancées.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Module 3 — Calcul & Virtualisation (Compute Engine, GKE, Cloud Run & App Engine) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud (Google Cloud) B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation officielle Google Cloud Architecture Center, Référentiels d'examen Google Cloud Certified Associate Cloud Engineer (ACE) et Professional Cloud Architect (PCA).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

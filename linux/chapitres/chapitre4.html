@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Réseau statique et SSH | Administration Linux B2</title>
+<meta name="description" content="Chapitre 4 du cours d’administration Linux B2 : Configuration IP d’un serveur, adresses privées et publiques, connexion distante SSH. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/linux/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Réseau statique et SSH | Administration Linux B2">
+<meta property="og:description" content="Chapitre 4 du cours d’administration Linux B2 : Configuration IP d’un serveur, adresses privées et publiques, connexion distante SSH. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="linuxnav"><div class="linuxnav__in">
+  <a class="linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="linuxnav__sep" aria-hidden="true">/</span>
+  <a class="linuxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Administration Linux B2</a>
+  <div class="linuxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="linuxwrap">
+<p class="crumb"><a href="../index.html">Administration Linux B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Réseau statique et SSH</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un serveur qui n’est joignable que par sa console locale n’est pas un serveur. Il lui faut une adresse fixe, une passerelle, un nom résolu, et une porte d’entrée sûre : SSH. Ce chapitre relie l’adressage IP à la connexion distante.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>valider et classer une adresse IPv4 (privée ou publique) ;</li>
+      <li>lire et décrire une configuration réseau statique ;</li>
+      <li>décoder une cible SSH utilisateur@hôte:port ;</li>
+      <li>expliquer le rôle des clés SSH face au mot de passe.</li>
+    </ol>
+  </div>
+
+<h2>1. Adresser un serveur</h2>
+
+<p>Une configuration IPv4 réunit quatre éléments : l’<strong>adresse</strong>, le <strong>masque</strong> (qui délimite le réseau local), la <strong>passerelle</strong> (la sortie vers Internet) et le <strong>DNS</strong> (qui traduit les noms en adresses).</p>
+<pre><code>ip a                       # afficher adresses et interfaces
+ip route                   # afficher la passerelle (default via …)
+/etc/network/interfaces :  # configuration statique (Debian)
+  iface eth0 inet static
+  address 192.168.1.10/24
+  gateway 192.168.1.1
+  dns-nameservers 9.9.9.9</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Statique ou DHCP ?</div>
+    <p>Un poste de travail peut recevoir son adresse automatiquement (DHCP) ; un <strong>serveur</strong> doit garder une adresse fixe, sinon les clients le perdent. On le documente ensuite dans <code>/etc/hosts</code> ou auprès du DNS.</p>
+  </div>
+
+<h2>2. Privée ou publique</h2>
+
+<p>La RFC 1918 réserve trois plages d’adresses <strong>privées</strong>, non routables sur Internet : <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code> (soit 172.16 à 172.31) et <code>192.168.0.0/16</code>. Toutes les autres sont publiques.</p>
+<pre><code>10.0.0.0    – 10.255.255.255      privée (classe A)
+172.16.0.0  – 172.31.255.255      privée (classe B)
+192.168.0.0 – 192.168.255.255     privée (classe C)
+203.0.113.7, 8.8.8.8              publiques</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Reconnaître au premier octet</div>
+    <p>10.x et 192.168.x sont immédiatement privées. Le seul piège est 172 : seules les plages <strong>16 à 31</strong> sont privées ; 172.15 et 172.32 sont publiques.</p>
+  </div>
+
+<h2>3. Se connecter en SSH</h2>
+
+<p>SSH chiffre la session d’administration. Une cible se lit <code>utilisateur@hote:port</code> ; le port par défaut est 22, souvent changé pour limiter les scans automatisés.</p>
+<pre><code>ssh rd@192.168.1.10              # port 22 par défaut
+ssh sam@serveur:2222             # port personnalisé
+ssh-keygen -t ed25519            # générer une paire de clés
+ssh-copy-id rd@192.168.1.10      # installer la clé publique
+scp fichier rd@serveur:/tmp/     # copier via SSH</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Pourquoi une clé plutôt qu’un mot de passe ?</div>
+    <p>Une clé SSH résiste aux attaques par force brute, ne circule jamais sur le réseau et permet d’automatiser des tâches. On garde la <strong>clé privée</strong> secrète ; seule la <strong>publique</strong> est déposée sur le serveur.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx2-c4-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;192.168.1.1&#10;10.0.0&#10;256.1.1.1&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r ip
+  # À compléter : compter les octets et vérifier chacun entre 0 et 255.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Valider une adresse IPv4</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Contrôler qu’une adresse est bien formée avant de la configurer.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong>, chacune une adresse IPv4. Une adresse est <strong>valide</strong> si elle compte exactement quatre octets séparés par des points, chacun entre 0 et 255. Il affiche <code>ip : valide</code> ou <code>ip : invalide</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+192.168.1.1
+10.0.0
+256.1.1.1
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ip : valide
+ip : invalide
+ip : invalide</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le premier contrôle est le nombre de champs : quatre octets exactement.</li>
+        <li>Chaque octet ne doit contenir que des chiffres et rester inférieur ou égal à 255.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx2-c4-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;10.0.0.5&#10;8.8.8.8&#10;192.168.1.1&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r ip
+  # À compléter : reconnaître les préfixes privés, sinon publique.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Classer une adresse privée ou publique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Repérer les adresses réservées aux réseaux internes.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong>, chacune une adresse IPv4. Sont <strong>privées</strong> les adresses <code>10.*</code>, <code>192.168.*</code> et <code>172.16.*</code> à <code>172.31.*</code>. Les autres sont <strong>publiques</strong>. Il affiche <code>classe : privee</code> ou <code>classe : publique</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+10.0.0.5
+8.8.8.8
+192.168.1.1
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>classe : privee
+classe : publique
+classe : privee</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur le préfixe suffit : 10.* et 192.168.* sont privés.</li>
+        <li>Pour 172, seules les plages 16 à 31 sont privées ; 172.15 et 172.32 ne le sont pas.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx2-c4-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;rd@10.0.0.5:22&#10;admin@192.168.1.1:2222&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r cible
+  # À compléter : découper la chaîne sur @ puis sur :.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Décoder une cible SSH</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Extraire utilisateur, hôte et port d’une chaîne de connexion.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> au format <code>utilisateur@hote:port</code>. Pour chacune, il affiche trois lignes : <code>utilisateur : X</code>, <code>hote : Y</code>, <code>port : Z</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+rd@10.0.0.5:22
+admin@192.168.1.1:2222
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>utilisateur : rd
+hote : 10.0.0.5
+port : 22
+utilisateur : admin
+hote : 192.168.1.1
+port : 2222</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>cut -d@ sépare la partie utilisateur de la partie hôte:port.</li>
+        <li>cut -d: sépare ensuite le nom d’hôte du port.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien d’octets dans une adresse IPv4 valide ?</p>
+      <div class="opts">
+        <button class="opt">2</button>
+        <button class="opt" data-correct="1">4</button>
+        <button class="opt">6</button>
+      </div>
+      <div class="q__exp">IPv4 s’écrit en quatre octets séparés par des points, chacun de 0 à 255.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle adresse est privée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">192.168.10.20</button>
+        <button class="opt">203.0.113.7</button>
+        <button class="opt">8.8.8.8</button>
+      </div>
+      <div class="q__exp">192.168.0.0/16 est une plage privée réservée aux réseaux internes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">172.32.1.1 est-elle privée ?</p>
+      <div class="opts">
+        <button class="opt">oui</button>
+        <button class="opt" data-correct="1">non</button>
+        <button class="opt">seulement en IPv6</button>
+      </div>
+      <div class="q__exp">Seules les plages 172.16 à 172.31 sont privées ; 172.32 est publique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert la passerelle ?</p>
+      <div class="opts">
+        <button class="opt">à traduire les noms</button>
+        <button class="opt" data-correct="1">à sortir du réseau local</button>
+        <button class="opt">à chiffrer</button>
+      </div>
+      <div class="q__exp">La passerelle (default via) est la sortie vers les réseaux extérieurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Port SSH par défaut ?</p>
+      <div class="opts">
+        <button class="opt">21</button>
+        <button class="opt" data-correct="1">22</button>
+        <button class="opt">443</button>
+      </div>
+      <div class="q__exp">SSH écoute sur le port 22 par défaut ; 21 est FTP et 443 HTTPS.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que lit ssh sam@serveur:2222 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">utilisateur sam, serveur serveur, port 2222</button>
+        <button class="opt">serveur sam sur le port 2222</button>
+        <button class="opt">un fichier</button>
+      </div>
+      <div class="q__exp">Le format est utilisateur@hote:port.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait ssh-copy-id ?</p>
+      <div class="opts">
+        <button class="opt">copie un fichier</button>
+        <button class="opt" data-correct="1">installe la clé publique sur le serveur</button>
+        <button class="opt">génère une clé</button>
+      </div>
+      <div class="q__exp">Il dépose la clé publique dans le fichier authorized_keys du serveur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi un serveur en IP fixe ?</p>
+      <div class="opts">
+        <button class="opt">pour économiser</button>
+        <button class="opt" data-correct="1">pour rester joignable à la même adresse</button>
+        <button class="opt">c’est obligatoire</button>
+      </div>
+      <div class="q__exp">Les clients doivent retrouver le serveur à une adresse stable.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier qu’une adresse compte exactement quatre octets de 0 à 255.</li>
+      <li>Croire que toute adresse commençant par 172 est privée.</li>
+      <li>Confondre passerelle (sortie du réseau) et DNS (traduction des noms).</li>
+      <li>Laisser le port SSH par défaut et subir des tentatives automatisées.</li>
+      <li>Déposer sa clé privée sur un serveur au lieu de la clé publique.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Rendre un serveur joignable</div>
+    <ol>
+      <li><strong>Valider</strong> l’adresse : quatre octets, chacun entre 0 et 255.</li>
+      <li><strong>Classer</strong> : privée ou publique, selon le premier octet.</li>
+      <li><strong>Configurer</strong> : adresse, masque, passerelle, DNS.</li>
+      <li><strong>Tester</strong> : <code>ip a</code>, <code>ip route</code>, <code>ping</code>.</li>
+      <li><strong>Sécuriser l’accès</strong> : clé SSH, port dédié si besoin.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>IPv4 = quatre octets de 0 à 255 ; une adresse doit être validée avant d’être posée.</li>
+      <li>Plages privées : 10.0.0.0/8, 172.16–172.31, 192.168.0.0/16 ; le reste est public.</li>
+      <li>La configuration statique réunit adresse, masque, passerelle et DNS.</li>
+      <li>SSH se lit utilisateur@hote:port ; le port par défaut est 22.</li>
+      <li>La clé privée reste secrète, la clé publique est déposée sur le serveur.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je valide une adresse IPv4 octet par octet.</li>
+      <li>Je classe une adresse en privée ou publique, même dans la plage 172.</li>
+      <li>Je décode une cible SSH utilisateur@hote:port.</li>
+      <li>J’explique la différence entre clé publique et clé privée.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>adresse IPv4</li><li>masque</li><li>passerelle</li><li>DNS</li><li>plage privée</li><li>adresse publique</li><li>SSH</li><li>port 22</li><li>clé publique</li><li>clé privée</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois la validation octet par octet d’une adresse.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Mémorise les trois plages privées et le piège du 172.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : décode cinq cibles SSH d’affilée.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 5, scripts Bash.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Scripts Bash : lire, décider, rapporter <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique d’administration Linux (Debian) : terminal, fichiers, droits, réseau, scripts et services.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

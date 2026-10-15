@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercices SQL Server - E-commerce</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background-color: #121212; /* Thème Noir */
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 { color: #bb86fc; border-bottom: 2px solid #333; padding-bottom: 5px; }
+        .block {
+            background: #1e1e1e;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
+        pre {
+            background-color: #0b0b0b;
+            color: #a9b7c6;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #333;
+            font-family: Consolas, 'Courier New', monospace;
+        }
+        .exercise {
+            border-left: 4px solid #bb86fc;
+            padding-left: 15px;
+            margin-bottom: 30px;
+            background: #232323;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .exercise-title {
+            font-weight: bold;
+            color: #03dac6;
+            margin-bottom: 10px;
+        }
+        .solution {
+            display: none;
+            margin-top: 15px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .btn-reveal {
+            background-color: #3700b3;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        .btn-reveal:hover { background-color: #6200ee; }
+        .tag {
+            display: inline-block;
+            background: #03dac6;
+            color: #000;
+            font-size: 0.8em;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Entraînement SQL Server : Système E-commerce (Mode Sombre Avancé)</h1>
+    <p>Ce document contient un grand script de préparation suivi d'exercices progressifs ciblant spécifiquement la résolution de problèmes réels d'E-commerce. L'accent est mis sur les procédures, triggers, et de nombreux cas de transactions avancées (dirty read, non-repeatable read, phantom read).</p>
+
+    <div class="block">
+        <h2>0. Script d'initialisation de la base de données</h2>
+        <p>Exécute ce script complet dans SSMS pour créer la base et insérer le jeu de données nécessaire à tous les exercices.</p>
+        <button class="btn-reveal" onclick="toggleSolution('setup-script')">Afficher/Masquer le Script de Création</button>
+        <div id="setup-script" class="solution">
+<pre><code class="language-sql">
+-- Création de la base de données
+IF DB_ID('ECommerceDB_V2') IS NOT NULL
+BEGIN
+    ALTER DATABASE ECommerceDB_V2 SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE ECommerceDB_V2;
+END
+CREATE DATABASE ECommerceDB_V2;
+GO
+USE ECommerceDB_V2;
+GO
+
+-- 1. Table Categories
+CREATE TABLE Categories (
+    CategoryID INT IDENTITY(1,1) PRIMARY KEY,
+    CategoryName VARCHAR(100) NOT NULL,
+    Description NVARCHAR(255)
+);
+
+-- 2. Table Products
+CREATE TABLE Products (
+    ProductID INT IDENTITY(1,1) PRIMARY KEY,
+    CategoryID INT NOT NULL,
+    ProductName NVARCHAR(150) NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL,
+    StockQuantity INT NOT NULL DEFAULT 0,
+    IsActive BIT DEFAULT 1,
+    CONSTRAINT FK_Products_Categories FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+);
+
+-- 3. Table Customers
+CREATE TABLE Customers (
+    CustomerID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) UNIQUE NOT NULL,
+    RegistrationDate DATETIME DEFAULT GETDATE(),
+    Status VARCHAR(20) DEFAULT 'Active'
+);
+
+-- 4. Table Orders
+CREATE TABLE Orders (
+    OrderID INT IDENTITY(1,1) PRIMARY KEY,
+    CustomerID INT NOT NULL,
+    OrderDate DATETIME DEFAULT GETDATE(),
+    TotalAmount DECIMAL(12, 2) NOT NULL DEFAULT 0,
+    OrderStatus VARCHAR(30) DEFAULT 'Pending', -- Pending, Shipped, Cancelled
+    CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+-- 5. Table OrderItems
+CREATE TABLE OrderItems (
+    OrderItemID INT IDENTITY(1,1) PRIMARY KEY,
+    OrderID INT NOT NULL,
+    ProductID INT NOT NULL,
+    Quantity INT NOT NULL,
+    UnitPrice DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT FK_OrderItems_Orders FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    CONSTRAINT FK_OrderItems_Products FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+-- INSERTION DE DONNÉES DE BASE
+INSERT INTO Categories (CategoryName, Description) VALUES 
+('Électronique', 'Smartphones, Laptops, Gadgets'),
+('Vêtements', 'Vêtements homme et femme'),
+('Maison', 'Meubles et décoration');
+
+INSERT INTO Products (CategoryID, ProductName, Price, StockQuantity) VALUES 
+(1, 'Laptop Pro 15', 1200.00, 50),
+(1, 'Smartphone X', 800.00, 100),
+(1, 'Écouteurs sans fil', 150.00, 200),
+(2, 'T-shirt Basique', 20.00, 500),
+(2, 'Veste en cuir', 150.00, 40),
+(3, 'Canapé 3 places', 450.00, 15),
+(3, 'Lampe de bureau', 35.00, 80);
+
+INSERT INTO Customers (FirstName, LastName, Email, RegistrationDate) VALUES 
+('Jean', 'Dupont', 'jean.dupont@email.com', '2023-01-15'),
+('Marie', 'Curie', 'marie.curie@email.com', '2023-02-20'),
+('Paul', 'Martin', 'paul.martin@email.com', '2023-05-10');
+
+INSERT INTO Orders (CustomerID, OrderDate, TotalAmount, OrderStatus) VALUES 
+(1, '2024-02-01 10:30:00', 1350.00, 'Shipped'),
+(2, '2024-02-15 14:00:00', 800.00, 'Pending');
+
+INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice) VALUES 
+(1, 1, 1, 1200.00), 
+(1, 3, 1, 150.00),  
+(2, 2, 1, 800.00);  
+</code></pre>
+        </div>
+    </div>
+
+    <!-- 1. DDL -->
+    <div class="block">
+        <h2>1. Bases : Création et Modification de tables (DDL)</h2>
+        <div class="exercise">
+            <div class="exercise-title">Exercice 1.1 : Création simple <span class="tag">DDL</span></div>
+            <p>Crée une table <code>Promotions</code> avec les colonnes PromoID (PK auto), PromoCode (unique), DiscountPercentage, ExpirationDate.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol11')">Réponse</button>
+            <div id="sol11" class="solution">
+<pre><code class="language-sql">CREATE TABLE Promotions (
+    PromoID INT IDENTITY(1,1) PRIMARY KEY,
+    PromoCode VARCHAR(50) UNIQUE NOT NULL,
+    DiscountPercentage DECIMAL(5,2) NOT NULL,
+    ExpirationDate DATETIME NOT NULL
+);</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 1.2 : Création avec Clé Étrangère (FK) <span class="tag">DDL</span></div>
+            <p>Crée une table <code>Reviews</code> reliée à Products et Customers, avec une Note (1-5) et un Commentaire.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol12')">Réponse</button>
+            <div id="sol12" class="solution">
+<pre><code class="language-sql">CREATE TABLE Reviews (
+    ReviewID INT IDENTITY(1,1) PRIMARY KEY,
+    ProductID INT NOT NULL,
+    CustomerID INT NOT NULL,
+    Rating INT CHECK (Rating BETWEEN 1 AND 5),
+    Comment NVARCHAR(MAX),
+    ReviewDate DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Rev_Products FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
+    CONSTRAINT FK_Rev_Customers FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 1.3 : Création table Fournisseurs <span class="tag">DDL</span></div>
+            <p>Crée une table <code>Suppliers</code> pour gérer les fournisseurs : SupplierID (PK), SupplierName, ContactEmail.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol13')">Réponse</button>
+            <div id="sol13" class="solution">
+<pre><code class="language-sql">CREATE TABLE Suppliers (
+    SupplierID INT IDENTITY(1,1) PRIMARY KEY,
+    SupplierName NVARCHAR(100) NOT NULL,
+    ContactEmail NVARCHAR(100)
+);</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 1.4 : Modifier une table existante <span class="tag">ALTER</span></div>
+            <p>Ajoute une colonne <code>SupplierID</code> (permettant les NULL) à la table <code>Products</code>, et crée la contrainte de clé étrangère vers la table <code>Suppliers</code>.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol14')">Réponse</button>
+            <div id="sol14" class="solution">
+<pre><code class="language-sql">ALTER TABLE Products
+ADD SupplierID INT NULL;
+GO
+
+ALTER TABLE Products
+ADD CONSTRAINT FK_Products_Suppliers 
+FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID);</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. DML -->
+    <div class="block">
+        <h2>2. DML : Sélections et Manipulations de Données</h2>
+        
+        <div class="exercise">
+            <div class="exercise-title">Exercice 2.1 : SELECT & UPDATE de base <span class="tag">DML</span></div>
+            <p>A) Liste les produits de catégorie 1 coûtant plus de 200€.<br>
+            B) Augmente le prix de 10% pour la catégorie 3.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol21')">Réponse</button>
+            <div id="sol21" class="solution">
+<pre><code class="language-sql">SELECT ProductName, Price FROM Products WHERE CategoryID = 1 AND Price > 200;
+
+UPDATE Products SET Price = Price * 1.10 WHERE CategoryID = 3;</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 2.2 : INSERT & DELETE simples <span class="tag">DML</span></div>
+            <p>A) Ajoute un client : "Luc Bernard", luc.b@email.com<br>
+            B) Supprime le client "Paul Martin" (qui n'a pas de commande).</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol22')">Réponse</button>
+            <div id="sol22" class="solution">
+<pre><code class="language-sql">INSERT INTO Customers (FirstName, LastName, Email) VALUES ('Luc', 'Bernard', 'luc.b@email.com');
+
+DELETE FROM Customers WHERE Email = 'paul.martin@email.com';</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 2.3 : Scénario Métier d'annulation <span class="tag">DML</span></div>
+            <p>Annule la commande ID 2 (mets 'Cancelled') et remets son produit (ID 2, Qté 1) en stock manuellement via un UPDATE sur Products.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol23')">Réponse</button>
+            <div id="sol23" class="solution">
+<pre><code class="language-sql">UPDATE Orders SET OrderStatus = 'Cancelled' WHERE OrderID = 2;
+
+UPDATE Products SET StockQuantity = StockQuantity + 1 WHERE ProductID = 2;</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 2.4 : INSERT Multiples <span class="tag">DML</span></div>
+            <p>Insère en une seule requête 2 codes promos dans la table `Promotions` (créée à l'exo 1.1) : 'WINTER20' pour 20% expirant fin de mois, et 'SUMMER10' pour 10%.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol24')">Réponse</button>
+            <div id="sol24" class="solution">
+<pre><code class="language-sql">INSERT INTO Promotions (PromoCode, DiscountPercentage, ExpirationDate)
+VALUES 
+('WINTER20', 20.00, '2026-12-31'),
+('SUMMER10', 10.00, '2026-08-31');</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 2.5 : UPDATE Conditionnel <span class="tag">DML</span></div>
+            <p>Pour faire du déstockage, applique une réduction de 5% sur le prix de TOUS les produits dont le stock actuel est strictement supérieur à 100.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol25')">Réponse</button>
+            <div id="sol25" class="solution">
+<pre><code class="language-sql">UPDATE Products
+SET Price = Price * 0.95
+WHERE StockQuantity > 100;</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. JOINTURES -->
+    <div class="block">
+        <h2>3. Jointures (INNER, LEFT, RIGHT, AUTO)</h2>
+        
+        <div class="exercise">
+            <div class="exercise-title">Exercice 3.1 : INNER et LEFT JOIN <span class="tag">JOINS</span></div>
+            <p>A) (INNER) Affiche les clients ayant commandé avec le montant de leur commande.<br>
+            B) (LEFT) Affiche TOUS les clients, même ceux sans commande.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol31')">Réponse</button>
+            <div id="sol31" class="solution">
+<pre><code class="language-sql">-- A
+SELECT C.FirstName, C.LastName, O.TotalAmount FROM Customers C
+INNER JOIN Orders O ON C.CustomerID = O.CustomerID;
+
+-- B
+SELECT C.FirstName, C.LastName, O.OrderID FROM Customers C
+LEFT JOIN Orders O ON C.CustomerID = O.CustomerID;</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 3.2 : Jointure sur 3 tables <span class="tag">JOINS</span></div>
+            <p>Génère le détail pour OrderID = 1 (OrderID, Client Firstname, Product Name, Qté, Prix).</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol32')">Réponse</button>
+            <div id="sol32" class="solution">
+<pre><code class="language-sql">SELECT O.OrderID, C.FirstName, P.ProductName, OI.Quantity, OI.UnitPrice
+FROM Orders O
+INNER JOIN Customers C ON O.CustomerID = C.CustomerID
+INNER JOIN OrderItems OI ON O.OrderID = OI.OrderID
+INNER JOIN Products P ON OI.ProductID = P.ProductID
+WHERE O.OrderID = 1;</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 3.3 : RIGHT JOIN (Recherche d'orphelins) <span class="tag">JOINS</span></div>
+            <p>Trouve tous les produits qui n'ont <strong>jamais</strong> été commandés. Utilise OrderItems et Products avec un RIGHT JOIN ou LEFT JOIN vérifiant la nullité.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol33')">Réponse</button>
+            <div id="sol33" class="solution">
+<pre><code class="language-sql">-- En LEFT JOIN :
+SELECT P.ProductName 
+FROM Products P
+LEFT JOIN OrderItems OI ON P.ProductID = OI.ProductID
+WHERE OI.OrderItemID IS NULL;
+
+-- En RIGHT JOIN (même logique inversée) :
+SELECT P.ProductName 
+FROM OrderItems OI
+RIGHT JOIN Products P ON OI.ProductID = P.ProductID
+WHERE OI.OrderItemID IS NULL;</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 3.4 : Jointure à regroupement (CA par Catégorie) <span class="tag">JOINS</span></div>
+            <p>Affiche le nom de chaque catégorie et le montant total des ventes (Quantité * UnitPrice) pour cette catégorie, en utilisant Categories, Products et OrderItems.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol34')">Réponse</button>
+            <div id="sol34" class="solution">
+<pre><code class="language-sql">SELECT C.CategoryName, SUM(OI.Quantity * OI.UnitPrice) AS ChiffreAffaires
+FROM Categories C
+INNER JOIN Products P ON C.CategoryID = P.CategoryID
+INNER JOIN OrderItems OI ON P.ProductID = OI.ProductID
+GROUP BY C.CategoryName;</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. FONCTIONS -->
+    <div class="block">
+        <h2>4. Fonctions (Strings, Dates & Agrégations)</h2>
+        <div class="exercise">
+            <div class="exercise-title">Exercice 4.1 : Strings & Dates <span class="tag">FUNCTIONS</span></div>
+            <p>A) Affiche "NOM, Prénom" (Nom en MAJUSCULES).<br>
+            B) Affiche le nombre de jours depuis la commande ID 1 avec DATEDIFF.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol41')">Réponse</button>
+            <div id="sol41" class="solution">
+<pre><code class="language-sql">SELECT UPPER(LastName) + ', ' + FirstName FROM Customers;
+
+SELECT DATEDIFF(DAY, OrderDate, GETDATE()) AS JoursDepuis FROM Orders WHERE OrderID = 1;</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 4.2 : GROUP BY & HAVING <span class="tag">FUNCTIONS</span></div>
+            <p>Trouve l'email du client et son Chiffre d'Affaires total (Somme des TotalAmount). N'affiche que les clients ayant dépensé plus de 1000€.</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol42')">Réponse</button>
+            <div id="sol42" class="solution">
+<pre><code class="language-sql">SELECT C.Email, SUM(O.TotalAmount) AS TotalDepense
+FROM Customers C
+INNER JOIN Orders O ON C.CustomerID = O.CustomerID
+GROUP BY C.Email
+HAVING SUM(O.TotalAmount) > 1000;</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice 4.3 : Fonctions d'année (YEAR) & Condition logic <span class="tag">FUNCTIONS</span></div>
+            <p>Affiche l'ID de commande, l'Année (via fonction YEAR() sur OrderDate), et un statut textuel "Ancien" si avant l'année en cours, "Récent" sinon (Utilise un CASE WHEN).</p>
+            <button class="btn-reveal" onclick="toggleSolution('sol43')">Réponse</button>
+            <div id="sol43" class="solution">
+<pre><code class="language-sql">SELECT 
+    OrderID, 
+    YEAR(OrderDate) AS AnneeCommande,
+    CASE 
+        WHEN YEAR(OrderDate) < YEAR(GETDATE()) THEN 'Historique Ancien'
+        ELSE 'Commande Récente'
+    END AS IndicateurAge
+FROM Orders;</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. PROCEDURES -->
+    <div class="block">
+        <h2>5.1 Procédures Stockées (3 Exercices)</h2>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice P1 : Sp_UpdateOrderStatus <span class="tag">PROCEDURE</span></div>
+            <p>Crée une procédure <code>sp_UpdateOrderStatus</code> prenant en paramètre @OrderID et @NewStatus. Elle doit modifier la commande. Si l'ID n'existe pas, renvoie une erreur personnalisée avec THROW.</p>
+            <button class="btn-reveal" onclick="toggleSolution('solP1')">Réponse</button>
+            <div id="solP1" class="solution">
+<pre><code class="language-sql">CREATE PROCEDURE sp_UpdateOrderStatus
+    @OrderID INT,
+    @NewStatus VARCHAR(30)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    IF NOT EXISTS (SELECT 1 FROM Orders WHERE OrderID = @OrderID)
+    BEGIN
+        THROW 50001, 'Erreur : Commande introuvable.', 1;
+    END
+
+    UPDATE Orders
+    SET OrderStatus = @NewStatus
+    WHERE OrderID = @OrderID;
+    
+    PRINT 'Statut mis à jour.';
+END;
+GO</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice P2 : Liste de commandes d'un client <span class="tag">PROCEDURE</span></div>
+            <p>Crée une procédure <code>sp_GetCustomerHistory</code> avec comme paramètre @Email. Elle doit retourner une table listant l'ID de commande, la Date, et le Total, uniquement pour ce client.</p>
+            <button class="btn-reveal" onclick="toggleSolution('solP2')">Réponse</button>
+            <div id="solP2" class="solution">
+<pre><code class="language-sql">CREATE PROCEDURE sp_GetCustomerHistory
+    @Email NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT O.OrderID, O.OrderDate, O.TotalAmount, O.OrderStatus
+    FROM Orders O
+    INNER JOIN Customers C ON O.CustomerID = C.CustomerID
+    WHERE C.Email = @Email
+    ORDER BY O.OrderDate DESC;
+END;
+GO</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice P3 : Application de remise massive <span class="tag">PROCEDURE</span></div>
+            <p>Crée <code>sp_ApplyGlobalDiscount</code> (@CategoryID INT, @DiscountRate DECIMAL(5,2)). Elle met à jour le Price des produits de la catégorie ciblée (Ex: Price * (1 - @DiscountRate / 100)). Retourne le nombre de lignes modifiées (@@ROWCOUNT).</p>
+            <button class="btn-reveal" onclick="toggleSolution('solP3')">Réponse</button>
+            <div id="solP3" class="solution">
+<pre><code class="language-sql">CREATE PROCEDURE sp_ApplyGlobalDiscount
+    @CategoryID INT,
+    @DiscountRate DECIMAL(5,2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Products
+    SET Price = Price * (1.0 - (@DiscountRate / 100.0))
+    WHERE CategoryID = @CategoryID;
+
+    DECLARE @Lignes INT = @@ROWCOUNT;
+    PRINT Cast(@Lignes as Varchar) + ' produits mis à jour.';
+END;
+GO</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. TRIGGERS -->
+    <div class="block">
+        <h2>5.2 Triggers (3 Exercices)</h2>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice TR1 : Audit de changement de Prix <span class="tag">TRIGGER</span></div>
+            <p>Crée d'abord une table <code>PriceHistory</code>. Ensuite, associe un trigger AFTER UPDATE sur Products : S'il y a un changement de prix, on log l'ancien prix (DELETED) et le nouveau (INSERTED).</p>
+            <button class="btn-reveal" onclick="toggleSolution('solTR1')">Réponse</button>
+            <div id="solTR1" class="solution">
+<pre><code class="language-sql">CREATE TABLE PriceHistory (
+    LogID INT IDENTITY(1,1), ProductID INT, OldPrice DECIMAL(10,2), NewPrice DECIMAL(10,2), ChangeDate DATETIME DEFAULT GETDATE()
+);
+GO
+CREATE TRIGGER trg_AuditPriceChange ON Products
+AFTER UPDATE AS
+BEGIN
+    IF UPDATE(Price)
+    BEGIN
+        INSERT INTO PriceHistory (ProductID, OldPrice, NewPrice)
+        SELECT i.ProductID, d.Price, i.Price 
+        FROM inserted i INNER JOIN deleted d ON i.ProductID = d.ProductID
+        WHERE i.Price <> d.Price;
+    END
+END;
+GO</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice TR2 : Blocage de suppression <span class="tag">TRIGGER</span></div>
+            <p>Crée un trigger INSTEAD OF DELETE sur <code>Customers</code>. Si le client a le statut 'Active', bloque la suppression et lève une erreur. S'il n'est pas actif, autorise la suppression.</p>
+            <button class="btn-reveal" onclick="toggleSolution('solTR2')">Réponse</button>
+            <div id="solTR2" class="solution">
+<pre><code class="language-sql">CREATE TRIGGER trg_PreventDeleteActiveCustomer
+ON Customers
+INSTEAD OF DELETE
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM deleted WHERE Status = 'Active')
+    BEGIN
+        THROW 50000, 'Impossible de supprimer un client Actif. Passez-le d''abord en inactif.', 1;
+    END
+    ELSE
+    BEGIN
+        DELETE FROM Customers
+        WHERE CustomerID IN (SELECT CustomerID FROM deleted);
+    END
+END;
+GO</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice TR3 : Restitution de stock automatique <span class="tag">TRIGGER</span></div>
+            <p>Crée un trigger AFTER UPDATE sur <code>Orders</code>. Si le statut passe spécifiquement de n'importe quoi à 'Cancelled', va lire <code>OrderItems</code> et remets les quantités dans <code>Products</code> automatiquement.</p>
+            <button class="btn-reveal" onclick="toggleSolution('solTR3')">Réponse</button>
+            <div id="solTR3" class="solution">
+<pre><code class="language-sql">CREATE TRIGGER trg_UpdateStockOnOrderCancel
+ON Orders
+AFTER UPDATE
+AS
+BEGIN
+    -- On vérifie si la colonne OrderStatus a été modifiée
+    IF UPDATE(OrderStatus)
+    BEGIN
+        -- On boucle (via un join) sur les commandes qui Viennent de passer à "Cancelled"
+        UPDATE P
+        SET P.StockQuantity = P.StockQuantity + OI.Quantity
+        FROM Products P
+        INNER JOIN OrderItems OI ON P.ProductID = OI.ProductID
+        INNER JOIN inserted i ON OI.OrderID = i.OrderID
+        INNER JOIN deleted d ON i.OrderID = d.OrderID
+        WHERE i.OrderStatus = 'Cancelled' AND d.OrderStatus <> 'Cancelled';
+    END
+END;
+GO</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. TRANSACTIONS -->
+    <div class="block">
+        <h2>5.3 Transactions & Niveaux d'Isolation (4 Exercices)</h2>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice TX1 : Transaction Classique TRY..CATCH <span class="tag">TRANSACTION</span></div>
+            <p>Crée une procédure <code>sp_Checkout</code> qui ouvre une transaction : elle insert une Order, insert son OrderItem, et diminue le stock. Si la Qté < Stock, THROW erreur et fait un ROLLBACK.</p>
+            <button class="btn-reveal" onclick="toggleSolution('solTX1')">Réponse</button>
+            <div id="solTX1" class="solution">
+<pre><code class="language-sql">CREATE PROCEDURE sp_Checkout (@CustID INT, @ProdID INT, @Qty INT)
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRAN;
+        
+        DECLARE @Stock INT; SELECT @Stock = StockQuantity FROM Products WHERE ProductID = @ProdID;
+        IF @Stock < @Qty THROW 50000, 'Stock insuffisant', 1;
+
+        -- Insertion entete
+        INSERT INTO Orders (CustomerID, TotalAmount) VALUES (@CustID, 0);
+        DECLARE @OrdID INT = SCOPE_IDENTITY();
+        
+        -- Detaille et MAJ Stock
+        INSERT INTO OrderItems (OrderID, ProductID, Quantity, UnitPrice) VALUES (@OrdID, @ProdID, @Qty, 100);
+        UPDATE Products SET StockQuantity = StockQuantity - @Qty WHERE ProductID = @ProdID;
+
+        COMMIT TRAN;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRAN;
+        THROW;
+    END CATCH
+END;
+GO</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice TX2 : Dirty Read (Read Uncommitted) <span class="tag">ISOLATION</span></div>
+            <p><strong>Problème :</strong> Transaction A modifie un stock mais ne valide pas (WAITFOR). Transaction B vient faire un rapport financier rapide des stocks.</p>
+            <p>Montre quelles commandes tapées dans SSMS (Fenêtre 1 et Fenêtre 2) permettent à la Fenêtre 2 de lire le stock pendant la maj de la fenêtre 1 (permettant un "Dirty Read").</p>
+            <button class="btn-reveal" onclick="toggleSolution('solTX2')">Réponse</button>
+            <div id="solTX2" class="solution">
+<pre><code class="language-sql">-- FENÊTRE 1 (SSMS):
+BEGIN TRAN;
+UPDATE Products SET StockQuantity = 999 WHERE ProductID = 1;
+WAITFOR DELAY '00:00:10'; -- Simule un processus très lent
+ROLLBACK; -- Finalement, erreur on annule.
+
+-- FENÊTRE 2 (Dans un 2eme onglet, pendant les 10 secondes) :
+-- Par défaut, T-SQL (Read Committed) se bloquera. 
+-- Pour autoriser la lecture "sale", on utilise READ UNCOMMITTED (ou as (NOLOCK))
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+BEGIN TRAN;
+SELECT StockQuantity FROM Products WHERE ProductID = 1; -- Lira '999' (FAUX, puisque ça va être rollback!)
+COMMIT;</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice TX3 : Non-Repeatable Read & REPEATABLE READ <span class="tag">ISOLATION</span></div>
+            <p><strong>Problème :</strong> Un audit lit le Prix d'un Produit pour un calcul complexe (T1). Pendant son calcul (T2), un admin web update le Prix du produit. A la fin du calcul, T1 relit le Prix, mais il a changé !</p>
+            <p>Comment forcer le système (avec le niveau d'isolation) à <strong>empêcher</strong> (bloquer) l'admin T2 de modifier pendant que T1 lit le prix ?</p>
+            <button class="btn-reveal" onclick="toggleSolution('solTX3')">Réponse</button>
+            <div id="solTX3" class="solution">
+<pre><code class="language-sql">-- FENÊTRE 1 (L'audit, qui bloque pour empêcher la modification de la ligne lue) :
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN TRAN;
+SELECT Price FROM Products WHERE ProductID = 1; -- Pose un verrou de lecture persistant sur cette ligne !
+WAITFOR DELAY '00:00:10';
+SELECT Price FROM Products WHERE ProductID = 1; -- C'est garanti que c'est le même prix.
+COMMIT;
+
+-- FENÊTRE 2 (L'Admin, qui va être bloqué) :
+BEGIN TRAN;
+-- Cette requête va tourner dans le vide et attendre que FENÊTRE 1 fasse son COMMIT
+UPDATE Products SET Price = 80 WHERE ProductID = 1; 
+COMMIT;</code></pre>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <div class="exercise-title">Exercice TX4 : Phantom Read & SERIALIZABLE <span class="tag">ISOLATION</span></div>
+            <p><strong>Problème :</strong> Une comptabilité (T1) compte les produits de la catégorie 1 (Ex: trouve 3 produits). Avant de finir, un gérant (T2) <strong>rajoute</strong> un nouveau produit catégorie 1. Si T1 recompte, hop, il y en a 4 ! C'est le "Phantom Read".</p>
+            <p>Quel est le niveau de protection maximal pour geler totalement une "plage de critères de recherche" (qui bloque les INSERT pour la Catégorie 1 pendant T1) ?</p>
+            <button class="btn-reveal" onclick="toggleSolution('solTX4')">Réponse</button>
+            <div id="solTX4" class="solution">
+<pre><code class="language-sql">-- FENÊTRE 1 (Compteur strict) :
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN TRAN;
+SELECT COUNT(*) FROM Products WHERE CategoryID = 1; -- Pose un verrou de plage sur la table et les index !
+WAITFOR DELAY '00:00:10';
+SELECT COUNT(*) FROM Products WHERE CategoryID = 1;
+COMMIT;
+
+-- FENÊTRE 2 (Gérant qui veut insérer) :
+BEGIN TRAN;
+-- Bloqué ! L'insertion d'un CategoryID = 1 est interdite tant que FENETRE 1 n'est pas COMMIT.
+INSERT INTO Products (CategoryID, ProductName, Price) VALUES (1, 'Disque Dur', 50);
+COMMIT;</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de toggle -->
+    <script>
+        function toggleSolution(id) {
+            var el = document.getElementById(id);
+            if (el.style.display === "none" || el.style.display === "") {
+                el.style.display = "block";
+            } else {
+                el.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

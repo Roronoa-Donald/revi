@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Fonctions | PHP B1</title>
+<meta name="description" content="Chapitre 6 du cours PHP B1 : déclarer une fonction, paramètres, return, renvoyer plusieurs valeurs, portée des variables, décomposition d'un problème. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="6">
+
+<nav class="phnav"><div class="phnav__in">
+  <a class="phnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phnav__sep" aria-hidden="true">/</span>
+  <a class="phnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP B1</a>
+  <div class="phnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html">Ch. 2</a>
+    <a href="chapitre3.html">Ch. 3</a>
+    <a href="chapitre4.html">Ch. 4</a>
+    <a href="chapitre5.html">Ch. 5</a>
+    <a href="chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="phwrap">
+  <p class="crumb"><a href="../index.html">PHP B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+  <h1>Chapitre 6 — Fonctions</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un programme de gestion de notes, la moyenne se calcule à dix endroits différents. La recopier dix
+    fois, c'est corriger dix endroits le jour où le barème change. La <em>fonction</em> isole un calcul sous un
+    nom et le réutilise partout : c'est la brique de la décomposition, et le passage obligé vers un code
+    maintenable.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>déclarer une fonction PHP avec ses paramètres ;</li>
+      <li>renvoyer un résultat avec <code>return</code> et distinguer return de echo ;</li>
+      <li>faire renvoyer plusieurs valeurs via un tableau ;</li>
+      <li>décomposer un problème en fonctions à responsabilité unique.</li>
+    </ol>
+  </div>
+
+  <h2>1. Déclarer et appeler</h2>
+  <p><strong>Définition.</strong> Une fonction regroupe des instructions sous un nom, reçoit des données par ses
+  <em>paramètres</em> et renvoie un résultat à son appelant. Le nom d'une fonction ne porte pas de
+  <code>$</code> — contrairement aux variables.</p>
+  <pre><code><span class="k">function</span> carte($nom)
+{
+    <span class="k">return</span> "Bienvenue $nom";
+}
+
+<span class="c">// appel : le nom, les arguments entre parenthèses</span>
+echo carte("Alice") . "\n";   <span class="c">// Bienvenue Alice</span></code></pre>
+  <p>La déclaration exécute rien : le corps ne tourne que lors d'un appel. PHP n'exige pas de déclarer le type
+  des paramètres en B1 ; les noms des paramètres sont des variables locales à la fonction.</p>
+
+  <h2>2. return : transmettre, pas afficher</h2>
+  <p><code>return</code> transmet la valeur à l'appelant <strong>et termine immédiatement</strong> la fonction :
+  aucune instruction après un return atteint ne s'exécute. C'est le canal officiel de sortie d'une fonction.</p>
+  <pre><code><span class="k">function</span> ticket($age)
+{
+    <span class="k">if</span> ($age &lt; 12 || $age &gt;= 65) {
+        <span class="k">return</span> 0;      <span class="c">// la fonction se termine ici</span>
+    }
+    <span class="k">if</span> ($age &lt;= 17) {
+        <span class="k">return</span> 5;
+    }
+    <span class="k">return</span> 8;
+}
+
+$prix = ticket(30);   <span class="c">// $prix vaut 8</span></code></pre>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — echo n'est pas return</div>
+    <p>Une fonction qui <em>affiche</em> son résultat mais ne le <em>renvoie</em> pas renvoie en réalité
+    <code>null</code> : l'appelant ne peut rien en faire — ni l'additionner, ni le comparer, ni l'embarquer
+    dans un message. Renvoyer et afficher sont deux actes différents : la fonction renvoie, le programme
+    principal affiche.</p>
+  </div>
+
+  <h2>3. Renvoyer plusieurs valeurs</h2>
+  <p>Une fonction ne renvoie qu'une seule chose. Pour deux résultats (moyenne et maximum, par exemple), on les
+  regroupe dans un tableau, reçu côté appelant par décomposition :</p>
+  <pre><code><span class="k">function</span> stats($notes)
+{
+    $somme = 0;
+    $max = $notes[0];
+    <span class="k">foreach</span> ($notes <span class="k">as</span> $note) {
+        $somme += $note;
+        <span class="k">if</span> ($note &gt; $max) {
+            $max = $note;
+        }
+    }
+    <span class="k">return</span> [$somme / count($notes), $max];
+}
+
+[$moyenne, $maximum] = stats($notes);</code></pre>
+  <p>Le couple est construit dans un seul parcours : la fonction garde sa responsabilité unique
+  (« statistiques ») et l'appelant reçoit les deux valeurs en une instruction.</p>
+
+  <h2>4. Portée des variables</h2>
+  <table>
+    <tr><th>Type</th><th>Portée</th></tr>
+    <tr><td>Variable locale</td><td>Seulement dans la fonction où elle est créée.</td></tr>
+    <tr><td>Paramètre</td><td>Comme une locale de la fonction.</td></tr>
+    <tr><td>Variable globale</td><td>Déclarée hors fonction : invisible dedans (en PHP), et à éviter.</td></tr>
+  </table>
+  <p>En PHP, une fonction ne voit <strong>pas</strong> les variables extérieures : c'est une contrainte
+  salutaire. La règle du cours : <strong>toute information entre par les paramètres, toute information sort
+  par le return</strong>. Une fonction ainsi écrite se teste isolément et se réutilise partout.</p>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Le paramètre reçoit une copie</div>
+    <p>Passer un entier ou une chaîne transmet une <em>copie</em> : modifier le paramètre dans la fonction ne
+    change pas la variable de l'appelant. Pour renvoyer un résultat, utiliser return — pas une modification de
+    paramètre.</p>
+  </div>
+
+  <h2>5. Décomposer un problème</h2>
+  <p>La bonne question : « quelles sont les responsabilités de mon programme ? » Chacune devient une fonction
+  d'une seule responsabilité, testable séparément. Le programme principal se réduit alors à la lecture, aux
+  appels et aux affichages.</p>
+  <pre><code><span class="k">function</span> somme($t)
+{
+    $total = 0;
+    <span class="k">foreach</span> ($t <span class="k">as</span> $v) {
+        $total += $v;
+    }
+    <span class="k">return</span> $total;
+}
+
+<span class="k">function</span> moyenne($t)
+{
+    <span class="k">if</span> (count($t) === 0) {
+        <span class="k">return</span> 0;
+    }
+    <span class="k">return</span> somme($t) / count($t);   <span class="c">// réutilisation</span>
+}</code></pre>
+  <p><code>moyenne</code> appelle <code>somme</code> : une fonction bien découpée se réutilise dans les autres.
+  C'est le critère de notation des projets : une fonction = une responsabilité = un test facile.</p>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php-c6-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="Alice">
+  <script type="text/plain" data-lab-starter><?php
+function carte($nom)
+{
+    // À compléter : renvoyer le message de bienvenue.
+}
+
+$nom = trim(fgets(STDIN));
+echo carte($nom) . "
+";
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Une fonction de bienvenue</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déclarer une fonction qui renvoie une valeur.</p>
+    <div class="lab__brief"><p>Écrivez une fonction <code>carte($nom)</code> qui <em>renvoie</em> le message <code>Bienvenue &lt;nom&gt;</code>. Le programme lit un nom, appelle la fonction et affiche son résultat.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Alice</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Bienvenue Alice</pre></div>
+    </div>
+    <p class="lab__note">La fonction assemble le message et le renvoie.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une fonction PHP se déclare avec function, son nom et ses paramètres entre parenthèses.</li>
+        <li>return transmet la valeur à l’appelant : echo dans la fonction ne suffit pas, la valeur doit sortir.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c6-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="12">
+  <script type="text/plain" data-lab-starter><?php
+function ticket($age)
+{
+    // À compléter : renvoyer 0, 5 ou 8 selon l’âge.
+    return 0;
+}
+
+$age = (int)trim(fgets(STDIN));
+echo ticket($age) . "
+";
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Fonction tarif</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction à branches qui renvoie un calcul.</p>
+    <div class="lab__brief"><p>Écrivez une fonction <code>ticket($age)</code> qui renvoie le prix d’entrée : 0 si l’âge est inférieur à 12 ou à partir de 65, 5 entre 12 et 17 inclus, sinon 8. Le programme lit un âge et affiche le prix renvoyé.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>12</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>5</pre></div>
+    </div>
+    <p class="lab__note">Entre 12 et 17 : tarif à 5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La fonction contient la cascade de conditions ; le programme principal se limite à lire et afficher.</li>
+        <li>Chaque branche renvoie son prix : dès que return s’exécute, la fonction se termine.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c6-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="4&#10;12&#10;15&#10;14&#10;19">
+  <script type="text/plain" data-lab-starter><?php
+function stats($notes)
+{
+    // À compléter : un seul parcours, puis renvoyer le couple.
+    return [0, 0];
+}
+
+$n = (int)trim(fgets(STDIN));
+$notes = [];
+for ($i = 0; $i < $n; $i++) {
+    $notes[] = (int)trim(fgets(STDIN));
+}
+
+[$moyenne, $max] = stats($notes);
+echo number_format($moyenne, 2, '.', '') . " $max
+";
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — stats() — moyenne et maximum</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n5">Niveau 5 — Challenge</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Faire renvoyer plusieurs valeurs par une fonction.</p>
+    <div class="lab__brief"><p>Écrivez une fonction <code>stats($notes)</code> qui renvoie le couple (moyenne, maximum) en un seul parcours, sans <code>array_sum()</code> ni <code>max()</code>. Le programme lit un entier n, puis n notes, et affiche la moyenne à deux décimales suivie du maximum, séparés par une espace.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+12
+15
+14
+19</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>15.00 19</pre></div>
+    </div>
+    <p class="lab__note">Moyenne 15.00, maximum 19.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une fonction ne renvoie qu’une seule chose : groupez moyenne et maximum dans un tableau de deux éléments.</li>
+        <li>Le maximum se mémorise en partant de la première note, puis en remplaçant le candidat dès qu’une note le dépasse.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Comment écrit-on correctement l'en-tête d'une fonction PHP ?</p>
+      <div class="opts">
+        <button class="opt">function $calcul($n) { }</button>
+        <button class="opt" data-correct="1">function calcul($n) { }</button>
+        <button class="opt">def calcul($n):</button>
+      </div>
+      <div class="q__exp">Le mot-clé function, un nom sans $, les paramètres entre parenthèses.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie une fonction sans return ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">null</button>
+        <button class="opt">Une erreur</button>
+      </div>
+      <div class="q__exp">Sans return, rien d'exploitable ne sort de la fonction.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il au return dans une fonction ?</p>
+      <div class="opts">
+        <button class="opt">La boucle repart à zéro</button>
+        <button class="opt" data-correct="1">La fonction se termine immédiatement</button>
+        <button class="opt">Rien, l'exécution continue</button>
+      </div>
+      <div class="q__exp">Le return transmet la valeur et quitte la fonction sur-le-champ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment renvoyer moyenne ET maximum ?</p>
+      <div class="opts">
+        <button class="opt">Deux return successifs</button>
+        <button class="opt" data-correct="1">return [$moyenne, $maximum];</button>
+        <button class="opt">C'est impossible en PHP</button>
+      </div>
+      <div class="q__exp">Un seul return, un tableau reçu par décomposition.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une fonction PHP peut-elle lire une variable extérieure ?</p>
+      <div class="opts">
+        <button class="opt">Oui, automatiquement</button>
+        <button class="opt" data-correct="1">Non : l'information passe par les paramètres</button>
+        <button class="opt">Seulement si elle est en majuscules</button>
+      </div>
+      <div class="q__exp">Portée locale : entrées par paramètres, sorties par return.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une fonction bien découpée a…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une seule responsabilité</button>
+        <button class="opt">Le plus de paramètres possible</button>
+        <button class="opt">Toujours trois boucles</button>
+      </div>
+      <div class="q__exp">Une responsabilité = un test facile = une réutilisation possible.</div>
+    </div>
+  </div>
+
+  <h2>8. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>echo au lieu de return</strong> : l'appelant reçoit null.</li>
+      <li><strong>Oublier le return</strong> dans une branche de la fonction.</li>
+      <li><strong>$ au nom de la fonction</strong> : <code>function $f()</code> est une erreur de syntaxe.</li>
+      <li><strong>Modifier un paramètre en croyant modifier l'appelant</strong> (copie).</li>
+      <li><strong>Une fonction qui fait tout</strong> : lecture, calcul, affichage mélangés.</li>
+    </ul>
+  </div>
+
+  <h2>9. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Concevoir une fonction</div>
+    <ol>
+      <li><strong>Nommer</strong> par un verbe d'action : <code>calculerMoyenne</code>, <code>ticket</code>.</li>
+      <li><strong>Lister les entrées</strong> : ce sont les paramètres.</li>
+      <li><strong>Déterminer la sortie</strong> : la valeur renvoyée.</li>
+      <li><strong>Écrire le corps</strong> : une seule responsabilité, sans lecture ni affichage.</li>
+      <li><strong>Tester</strong> depuis le programme principal sur des cas limites.</li>
+    </ol>
+  </div>
+
+  <h2>10. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>function nom($params) { ... return $valeur; } — le nom sans $.</li>
+      <li>return transmet et termine ; echo n'affiche que.</li>
+      <li>Plusieurs résultats : un tableau, reçu par décomposition.</li>
+      <li>Portée locale : entrées par paramètres, sorties par return.</li>
+      <li>Décomposition : fonctions à responsabilité unique, réutilisables entre elles.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je déclare une fonction avec return sans modèle.</li>
+      <li>Je distingue return et echo en toutes circonstances.</li>
+      <li>Je renvoie un couple de valeurs proprement.</li>
+      <li>Je découpe un problème en fonctions testables.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>function</li><li>paramètre</li><li>return</li><li>null (sans return)</li>
+      <li>portée locale</li><li>décomposition</li><li>tableau de retour</li><li>réutilisation</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>11. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 2, refais les exemples.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 3-4 de l'atelier.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible return vs echo.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 7, les tableaux associatifs.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre5.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 5</a>
+    <a class="btn btn--primary" href="chapitre7.html">Chapitre 7 — Tableaux associatifs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (Cours-PHP-PDO, CoursPHP, TP1) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

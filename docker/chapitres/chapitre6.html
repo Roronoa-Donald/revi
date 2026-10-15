@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Sécurité, Production &amp;amp; Optimisation | Docker B2</title>
+<meta name="description" content="Chapitre 6 du cours Docker B2 : Durcissement des conteneurs selon le CIS Docker Benchmark, abandon des privilèges root (directive USER), limitation des Linux Capabilities, scans de vulnérabilités (Trivy), quotas de ressources Cgroups (RAM, CPU, PID limit), et rotation des journaux en production. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/docker/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Sécurité, Production &amp;amp; Optimisation | Docker B2">
+<meta property="og:description" content="Chapitre 6 du cours Docker B2 : Durcissement des conteneurs selon le CIS Docker Benchmark, abandon des privilèges root (directive USER), limitation des Linux Capabilities, scans de vulnérabilités (Trivy), quotas de ressources Cgroups (RAM, CPU, PID limit), et rotation des journaux en production. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="dockernav"><div class="dockernav__in">
+  <a class="dockernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="dockernav__sep" aria-hidden="true">/</span>
+  <a class="dockernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Docker B2</a>
+  <div class="dockernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="dockernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="dockerwrap">
+<p class="crumb"><a href="../index.html">Docker B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Sécurité, Production &amp; Optimisation</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un serveur de production hébergeant une dizaine d’applications conteneurisées est victime d’une intrusion majeure : un pirate a exploité une faille de type Remote Code Execution (RCE) dans une bibliothèque vulnérable d’un conteneur web. Comme le conteneur tournait avec l’utilisateur root par défaut et sans aucune restriction de capabilities Linux, l’attaquant a réussi à charger un module noyau malveillant, à s’évader du conteneur (Container Escape) et à compromettre l’intégralité de l’infrastructure physique de l’entreprise. Dans le même temps, un second conteneur victime d’une fuite mémoire a provoqué l’intervention brutale de l’OOM-Killer qui a fauché le processus de base de données principal, faute de quotas mémoire configurés. Ce dernier module d’expertise forme les ingénieurs à verrouiller intégralement leurs conteneurs en production : bannir les privilèges root, filtrer les capabilities du noyau, poser des garde-fous stricts de CPU/mémoire et intégrer l’audit continu de sécurité dans la chaîne d’intégration continue (DevSecOps).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>appliquer les recommandations essentielles du standard de sécurité CIS Docker Benchmark ;</li>
+      <li>bannir l’exécution en utilisateur root et configurer des utilisateurs dédiés non-privilégiés (USER) ;</li>
+      <li>restreindre les privilèges du noyau Linux avec la gestion fine des Capabilities (--cap-drop / --cap-add) ;</li>
+      <li>comprendre les dangers critiques du flag --privileged et les vecteurs d’évasion de conteneur ;</li>
+      <li>configurer des quotas stricts de ressources cgroups (--memory, --cpus, --pids-limit) pour immuniser l’hôte ;</li>
+      <li>automatiser la rotation des journaux de logs (logging drivers) pour empêcher la saturation du disque.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Principe du Moindre Privilège : Bannir l’Utilisateur Root</h2>
+
+<p>Par défaut, si aucune directive <code>USER</code> n’est spécifiée dans le Dockerfile, le processus s’exécute sous le compte <strong>root (UID 0)</strong>. Bien que cloisonné par les namespaces, un attaquant qui parvient à exécuter du code arbitraire en tant que root dispose d’un pouvoir bien supérieur pour tenter une évasion de conteneur :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Anti-pattern : Exécution Root</h4>
+    <pre><code>FROM node:18-alpine\nWORKDIR /app\nCOPY . .\nCMD ["node", "server.js"]  # S'execute en UID 0 (root) !</code></pre>
+    <p>Si l’application présente une faille de téléversement de fichier ou d’injection de commande,     le pirate peut modifier les fichiers système du conteneur, manipuler les interfaces réseau     et chercher une faille de noyau pour s’évader sur l’hôte.</p>
+  </div>
+  <div class="card">
+    <h4>Bonne Pratique : Utilisateur Dédié Non-Root</h4>
+    <pre><code>FROM node:18-alpine\nRUN addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup\nWORKDIR /app\nCOPY --chown=appuser:appgroup . .\nUSER appuser  # Bascule en utilisateur sans privileges\nCMD ["node", "server.js"]</code></pre>
+    <p>Même en cas de compromission totale de l’application, le pirate est confiné dans un compte     sans aucun droit d’administration, bloquant net la quasi-totalité des attaques d’évasion.</p>
+  </div>
+</div>
+
+<h2>2. Linux Capabilities et Dangers Mortels de --privileged</h2>
+
+<p>Sous Linux, les super-pouvoirs du compte root sont découpés en privilèges granulaires appelés <strong>Capabilities</strong>. Docker active par défaut un sous-ensemble restreint (comme <code>CAP_CHOWN</code>, <code>CAP_NET_BIND_SERVICE</code>) et désactive les plus dangereuses (comme <code>CAP_SYS_ADMIN</code> ou <code>CAP_SYS_MODULE</code>) :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Option Docker CLI</th>
+      <th>Action de Sécurité</th>
+      <th>Niveau de Risque / Recommandation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>--cap-drop=ALL</strong></td>
+      <td>Retire l’intégralité des privilèges noyau accordés au conteneur.</td>
+      <td><strong>Excellence sécuritaire :</strong> À appliquer par défaut sur toutes les applications de production.</td>
+    </tr>
+    <tr>
+      <td><strong>--cap-add=NET_BIND_SERVICE</strong></td>
+      <td>Accorde uniquement le droit d’écouter sur un port inférieur à 1024 (ex: port 80/443).</td>
+      <td>Recommandé : n’ajouter que le strict minimum de capabilities indispensables.</td>
+    </tr>
+    <tr>
+      <td><strong>--privileged</strong></td>
+      <td>Désactive TOUTES les barrières : accorde toutes les capabilities et l’accès direct à <code>/dev</code>.</td>
+      <td><strong>DANGER MORTEL :</strong> Équivaut à donner l’accès root physique sur l’hôte. Formellement interdit en production.</td>
+    </tr>
+    <tr>
+      <td><strong>--read-only</strong></td>
+      <td>Monte la racine du conteneur en lecture seule intégrale.</td>
+      <td>Empêche tout attaquant de déposer un script malveillant sur le système de fichiers.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Quotas de Ressources Cgroups : Prévenir le Déni de Service (DoS)</h2>
+
+<p>Sans limites explicites de ressources, un seul conteneur victime d’une boucle infinie ou d’une fuite de mémoire peut consommer 100 % du processeur et de la RAM de la machine physique, paralysant l’ensemble des autres services hébergés :</p>
+<ul>
+  <li><code>--memory="512m"</code> : plafonne la mémoire vive allouée. Si le conteneur dépasse ce seuil, le gestionnaire OOM (Out Of Memory) de son cgroup le termine immédiatement sans affecter les autres conteneurs.</li>
+  <li><code>--memory-swap="1g"</code> : limite la mémoire totale cumulée (RAM + espace de swap). Si égal à <code>--memory</code>, le conteneur n’a pas le droit d’utiliser de swap sur disque.</li>
+  <li><code>--cpus="1.5"</code> : garantit que le conteneur ne peut pas consommer plus de 150 % de temps de calcul processeur (soit l’équivalent d’un cœur et demi sur une période CFS de 100 ms).</li>
+  <li><code>--pids-limit=100</code> : plafonne le nombre total de processus simultanés dans le conteneur, immunisant l’hôte contre les attaques de type <em>Fork Bomb</em>.</li>
+</ul>
+
+<h2>4. Scans de Vulnérabilités et Rotation des Logs en Production</h2>
+
+<p>Deux mesures opérationnelles indispensables complètent le durcissement en environnement de production :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Scans de Vulnérabilités (Trivy / Docker Scout)</h4>
+    <p>Avant tout déploiement dans le registre, l’image doit être scannée par un outil de sécurité automatisé :</p>
+    <pre><code>trivy image --severity HIGH,CRITICAL mon-image:v1.0</code></pre>
+    <p>L’analyse compare les versions des bibliothèques système et paquets applicatifs contre les bases nationales de CVE     et bloque automatiquement le pipeline CI/CD si une faille critique est détectée.</p>
+  </div>
+  <div class="card">
+    <h4>Rotation des Logs (Logging Drivers)</h4>
+    <p>Par défaut, Docker stocke les journaux dans des fichiers JSON non limités qui peuvent saturer le disque en quelques semaines.     Configurez une rotation dans <code>/etc/docker/daemon.json</code> :</p>
+    <pre><code>{\n  "log-driver": "json-file",\n  "log-opts": {\n    "max-size": "10m",\n    "max-file": "3"\n  }\n}</code></pre>
+    <p>Les journaux sont ainsi bornés à 3 fichiers de 10 Mo maximum par conteneur.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="dk2-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="FROM python:3.11-slim&#10;WORKDIR /app&#10;COPY . .&#10;USER appuser&#10;CMD [&quot;python&quot;, &quot;main.py&quot;]">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : auditer l'utilisateur final du conteneur
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Auditeur de privilèges root et directive USER</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité de sécurité d’une image Docker en s’assurant qu’elle ne s’exécute pas sous le superutilisateur root.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard les instructions d'un Dockerfile (une par ligne).<br>
+Règles de sécurité CIS Docker Benchmark :<br>
+- Par défaut dans Docker, l'utilisateur actif est <code>root</code> (UID 0).<br>
+- Si une instruction <code>USER &lt;nom_ou_uid&gt;</code> est rencontrée, elle modifie l'utilisateur actif pour les étapes suivantes et le runtime final.<br>
+- À la fin du fichier :<br>
+  * Si le dernier utilisateur actif est <code>root</code> ou <code>0</code> ou si aucune directive USER n'a été définie :<br>
+    afficher <code>AUDIT_SECURITE: CRITIQUE (Le conteneur s'execute avec les privileges root - UID 0)</code><br>
+  * Si le dernier utilisateur actif est non-root (ex: <code>node</code>, <code>appuser</code>, <code>1001</code>) :<br>
+    afficher <code>AUDIT_SECURITE: CONFORME (Execution sous utilisateur non-privilegie: &lt;USER&gt;)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FROM python:3.11-slim
+WORKDIR /app
+COPY . .
+USER appuser
+CMD ["python", "main.py"]</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT_SECURITE: CONFORME (Execution sous utilisateur non-privilegie: appuser)</pre></div>
+    </div>
+    <p class="lab__note">Image conforme exécutée sous utilisateur non-privilégié.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parcourir le fichier et mettre à jour la variable utilisateur_courant à chaque instruction USER.</li>
+        <li>Ignorer les commentaires débutant par #.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="MEM=512m SWAP=1g CPUS=1.5&#10;MEM=256m SWAP=256m CPUS=0.5">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : convertir les options Docker en quotas cgroups
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de quotas cgroups (CPU &amp; Mémoire)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir les paramètres de contrainte de ressources Docker en métriques de contrôle noyau cgroups.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations de limites au format <code>MEM=&lt;valeur&gt; SWAP=&lt;valeur&gt; CPUS=&lt;valeur&gt;</code>.<br>
+Exemple : <code>MEM=512m SWAP=1g CPUS=1.5</code>.<br>
+Unités mémoire : <code>m</code> (Mo = 1024 Ko) ou <code>g</code> (Go = 1024 Mo).<br>
+Règles cgroups v2 :<br>
+- <code>RAM_MAX_MO</code> : valeur convertie en Mo entiers.<br>
+- Dans Docker, l'option <code>--memory-swap</code> représente la mémoire totale (RAM + SWAP cumulés).<br>
+  Le swap additionnel effectif est donc : <code>SWAP_EFFECTIF_MO = max(0, SWAP_TOTAL_MO - RAM_MAX_MO)</code>.<br>
+- Période CPU CFS standard = <code>100000</code> microsecondes.<br>
+  Le quota alloué par période est : <code>CPU_QUOTA_US = int(CPUS * 100000)</code>.<br>
+Afficher :<br>
+<code>CGROUPS: RAM: &lt;RAM_MAX_MO&gt; Mo | SWAP_ADDITIONNEL: &lt;SWAP_EFFECTIF_MO&gt; Mo | CPU_QUOTA: &lt;CPU_QUOTA_US&gt; us / 100000 us (&lt;CPUS&gt; cœurs)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MEM=512m SWAP=1g CPUS=1.5
+MEM=256m SWAP=256m CPUS=0.5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CGROUPS: RAM: 512 Mo | SWAP_ADDITIONNEL: 512 Mo | CPU_QUOTA: 150000 us / 100000 us (1.5 cœurs)
+CGROUPS: RAM: 256 Mo | SWAP_ADDITIONNEL: 0 Mo | CPU_QUOTA: 50000 us / 100000 us (0.5 cœurs)</pre></div>
+    </div>
+    <p class="lab__note">Si SWAP == MEM, aucun swap supplémentaire n’est autorisé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertir 1g en 1024 Mo.</li>
+        <li>Se rappeler que l’argument swap de Docker est la somme de la RAM et du swap.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="POLITIQUE=always EXIT_CODE=1 MANUEL=NON&#10;POLITIQUE=always EXIT_CODE=0 MANUEL=OUI&#10;POLITIQUE=on-failure EXIT_CODE=0 MANUEL=NON&#10;POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : évaluer la politique de redémarrage du démon Docker
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de politique de redémarrage (Restart Policy)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer si le démon Docker redémarre ou non un conteneur arrêté selon sa politique et son code de sortie.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des événements d'arrêt au format <code>POLITIQUE=&lt;pol&gt; EXIT_CODE=&lt;code&gt; MANUEL=&lt;OUI|NON&gt;</code>.<br>
+Règles du démon Docker :<br>
+1. Si <code>MANUEL=OUI</code> (ex: <code>docker stop</code> déclenché par l'admin) :<br>
+   - <code>DECISION: ARRET_DEFINITIF (Arret volontaire par l'administrateur)</code><br>
+2. Sinon :<br>
+   - <code>POLITIQUE=no</code> : <code>DECISION: ARRET_DEFINITIF (Politique "no")</code><br>
+   - <code>POLITIQUE=always</code> ou <code>POLITIQUE=unless-stopped</code> :<br>
+     <code>DECISION: REDEMARRER (Relance automatique du conteneur)</code><br>
+   - <code>POLITIQUE=on-failure</code> :<br>
+     * Si <code>EXIT_CODE == 0</code> : <code>DECISION: ARRET_DEFINITIF (Code sortie normal 0)</code><br>
+     * Si <code>EXIT_CODE != 0</code> : <code>DECISION: REDEMARRER (Echec detecte: code &lt;code&gt;)</code><br>
+Afficher :<br>
+<code>EVENEMENT: &lt;entree&gt; -&gt; &lt;DECISION&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POLITIQUE=always EXIT_CODE=1 MANUEL=NON
+POLITIQUE=always EXIT_CODE=0 MANUEL=OUI
+POLITIQUE=on-failure EXIT_CODE=0 MANUEL=NON
+POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EVENEMENT: POLITIQUE=always EXIT_CODE=1 MANUEL=NON -&gt; DECISION: REDEMARRER (Relance automatique du conteneur)
+EVENEMENT: POLITIQUE=always EXIT_CODE=0 MANUEL=OUI -&gt; DECISION: ARRET_DEFINITIF (Arret volontaire par l'administrateur)
+EVENEMENT: POLITIQUE=on-failure EXIT_CODE=0 MANUEL=NON -&gt; DECISION: ARRET_DEFINITIF (Code sortie normal 0)
+EVENEMENT: POLITIQUE=on-failure EXIT_CODE=137 MANUEL=NON -&gt; DECISION: REDEMARRER (Echec detecte: code 137)</pre></div>
+    </div>
+    <p class="lab__note">Simulation exacte des 4 comportements clés de redémarrage.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un arrêt volontaire manuel bloque tout redémarrage automatique.</li>
+        <li>on-failure ne relance le conteneur que si le code de sortie est non nul.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il impératif de déclarer un utilisateur non-root avec la directive « USER » dans un Dockerfile de production ?</p>
+      <div class="opts">
+        <button class="opt">Parce que root consomme deux fois plus de bande passante réseau</button>
+        <button class="opt" data-correct="1">Pour respecter le principe du moindre privilège : si l’application est compromise, l’attaquant n’a pas les droits d’administration nécessaires pour modifier le système ou s’évader sur l’hôte</button>
+        <button class="opt">Parce que le système de fichiers Linux interdit aux utilisateurs root d’écrire dans des fichiers</button>
+        <button class="opt">C’est une obligation technique du compilateur Go</button>
+      </div>
+      <div class="q__exp">S’exécuter en tant qu’utilisateur non-privilégié neutralise la plupart des attaques d’évasion de conteneur et restreint drastiquement le rayon d’action d’un pirate.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que produit l’utilisation du drapeau « --privileged » lors du lancement d’un conteneur avec « docker run » ?</p>
+      <div class="opts">
+        <button class="opt">Il attribue une adresse IP publique gratuite au conteneur</button>
+        <button class="opt" data-correct="1">Il désactive pratiquement toutes les barrières d’isolation du noyau, accorde toutes les Linux Capabilities et donne un accès direct à tous les périphériques de l’hôte physique</button>
+        <button class="opt">Il compresse les fichiers de l’image pour économiser de la mémoire</button>
+        <button class="opt">Il crypte le trafic TCP en HTTPS</button>
+      </div>
+      <div class="q__exp">--privileged retire toutes les protections de sécurité : un processus dans le conteneur peut charger des modules noyau et prendre le contrôle total du serveur physique en quelques secondes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle option CLI permet d’immuniser un serveur hôte contre une attaque de type « Fork Bomb » (création infinie de processus fils) lancée depuis un conteneur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">--pids-limit=100</button>
+        <button class="opt">--no-fork</button>
+        <button class="opt">--kill-process</button>
+        <button class="opt">--safe-mode</button>
+      </div>
+      <div class="q__exp">--pids-limit plafonne le nombre de threads et processus simultanés que le conteneur peut créer, empêchant la saturation de la table des processus du noyau Linux.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle combinaison d’options permet d’appliquer la stratégie de sécurité maximale concernant les Linux Capabilities d’un conteneur ?</p>
+      <div class="opts">
+        <button class="opt">--cap-add=ALL</button>
+        <button class="opt" data-correct="1">--cap-drop=ALL puis --cap-add uniquement pour le strict minimum nécessaire (ex: NET_BIND_SERVICE)</button>
+        <button class="opt">--no-capabilities</button>
+        <button class="opt">--kernel-bypass</button>
+      </div>
+      <div class="q__exp">Retirer toutes les capabilities par défaut (--cap-drop=ALL) puis réactiver uniquement le privilège indispensable applique le principe de défense en profondeur le plus strict.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il sur un serveur hôte si un conteneur sans limite de mémoire spécifiée subit une fuite de mémoire RAM massive ?</p>
+      <div class="opts">
+        <button class="opt">Le conteneur redémarre instantanément en douceur</button>
+        <button class="opt" data-correct="1">Le conteneur peut consommer toute la mémoire disponible de la machine physique jusqu’à ce que le noyau Linux invoque l’OOM-Killer, qui peut abattre d’autres processus vitaux de l’hôte</button>
+        <button class="opt">Le serveur hôte augmente automatiquement sa mémoire physique</button>
+        <button class="opt">Docker sauvegarde la mémoire sur un disque virtuel</button>
+      </div>
+      <div class="q__exp">Sans plafond cgroup (--memory), le conteneur engloutit la RAM de l’hôte physique, provoquant un arrêt d’urgence par l’OOM-Killer qui peut tuer les processus de l’OS ou d’autres conteneurs sains.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert l’option « --read-only » lors de l’exécution d’un conteneur Docker ?</p>
+      <div class="opts">
+        <button class="opt">Elle interdit aux utilisateurs de lire les fichiers</button>
+        <button class="opt" data-correct="1">Elle monte le système de fichiers racine du conteneur en lecture seule intégrale, empêchant tout attaquant d’y déposer des malwares ou des scripts malveillants</button>
+        <button class="opt">Elle désactive la webcam de la machine</button>
+        <button class="opt">Elle permet de lire les logs sans mot de passe</button>
+      </div>
+      <div class="q__exp">Un système de fichiers en lecture seule (--read-only) rend le conteneur immuable à l’exécution, bloquant le dépôt de tout binaire ou script pirate sur son arborescence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel outil open source de sécurité est couramment intégré dans les chaînes CI/CD pour scanner les images Docker à la recherche de CVE connues ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Trivy</button>
+        <button class="opt">Photoshop</button>
+        <button class="opt">VLC</button>
+        <button class="opt">Apache Benchmark</button>
+      </div>
+      <div class="q__exp">Trivy (Aqua Security) est un scanner de vulnérabilités de référence pour conteneurs, capable de détecter les failles dans les paquets OS et les dépendances applicatives.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il crucial de configurer les options « max-size » et « max-file » dans le pilote de journalisation de Docker ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour éviter que les fichiers journaux JSON ne grossissent indéfiniment jusqu’à saturer l’intégralité de la partition disque du serveur hôte</button>
+        <button class="opt">Pour accélérer la vitesse de frappe au clavier</button>
+        <button class="opt">Pour rendre les journaux anonymes au sens du RGPD</button>
+        <button class="opt">Parce que le format JSON ne supporte pas plus de 100 lignes</button>
+      </div>
+      <div class="q__exp">Par défaut, Docker ne purge pas les logs : une application bavarde peut générer des dizaines de gigaoctets de logs et bloquer totalement le serveur hôte par saturation disque.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser le drapeau --privileged en production pour résoudre un problème de droits de fichiers au lieu d’ajuster les permissions.</li>
+      <li>Ne pas fixer de limite mémoire (--memory), permettant à un conteneur défaillant de saturer la RAM et de déclencher l’OOM-Killer sur l’hôte.</li>
+      <li>Laisser le conteneur s’exécuter en root par défaut sans directive USER dans le Dockerfile.</li>
+      <li>Oublier de configurer la rotation des logs, aboutissant au blocage complet du serveur par saturation de la partition /var.</li>
+      <li>Ignorer les alertes de sécurité des scanners de vulnérabilités CVE dans les pipelines CI/CD.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Durcissement et Déploiement Sécurisé en Production</div>
+    <ol>
+      <li>Étape 1 — Scannage statique des vulnérabilités : Passer l’image au crible avec Trivy ou Docker Scout pour éliminer les failles HIGH et CRITICAL.</li>
+      <li>Étape 2 — Forcer un utilisateur non-root : Vérifier que le Dockerfile comporte une directive USER non nulle et sans droits sudo.</li>
+      <li>Étape 3 — Restreindre les Linux Capabilities : Lancer le conteneur avec « --cap-drop=ALL » et ne réactiver que les permissions indispensables.</li>
+      <li>Étape 4 — Poser des plafonds de ressources stricts : Configurer obligatoirement --memory, --cpus et --pids-limit pour prévenir tout déni de service.</li>
+      <li>Étape 5 — Activer le système de fichiers en lecture seule : Appliquer « --read-only » avec un volume tmpfs temporaire uniquement pour les répertoires d’écriture nécessaires (/tmp).</li>
+      <li>Étape 6 — Configurer la politique de redémarrage et la rotation des logs : Définir restart: unless-stopped et vérifier la rotation des fichiers de journalisation.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le principe du moindre privilège impose d’exécuter les conteneurs sous un utilisateur non-root dédié (directive USER).</li>
+      <li>Le flag --privileged désactive toutes les protections d’isolation et doit être formellement banni en production.</li>
+      <li>La stratégie --cap-drop=ALL retire l’intégralité des privilèges noyau pour ne conserver que le strict minimum.</li>
+      <li>Les quotas cgroups (--memory, --cpus, --pids-limit) protègent l’hôte contre les fuites de mémoire et les fork-bombs.</li>
+      <li>L’option --read-only fige le système de fichiers du conteneur et empêche l’injection de scripts malveillants persistants.</li>
+      <li>La rotation des logs (max-size et max-file) prévient la saturation accidentelle de l’espace disque de la machine hôte.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends pourquoi exécuter un conteneur en root est un risque de sécurité majeur.</li>
+      <li>Je sais comment créer et déclarer un utilisateur non-privilégié dans un Dockerfile.</li>
+      <li>Je sais expliquer pourquoi le drapeau --privileged est dangereux pour l’hôte physique.</li>
+      <li>Je maîtrise l’usage de --cap-drop=ALL combiné à --cap-add ciblé.</li>
+      <li>Je sais configurer des plafonds de mémoire RAM et de processeur CPU avec les cgroups.</li>
+      <li>Je sais configurer la rotation automatique des logs pour éviter la saturation du disque.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>CIS Docker Benchmark</li><li>Exécution non-root (directive USER)</li><li>Linux Capabilities (cap-drop / cap-add)</li><li>Risques du drapeau --privileged</li><li>Système de fichiers en lecture seule (--read-only)</li><li>Quotas cgroups (--memory, --cpus, --pids-limit)</li><li>Scans de vulnérabilités CVE (Trivy)</li><li>Rotation des journaux (logging drivers)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la directive USER, les risques du mode privilégié et les quotas de ressources.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes connaissances en sécurité. Approfondissez les Linux Capabilities et le durcissement Cgroups.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise des pratiques de sécurité de production selon le CIS Benchmark.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous sécurisez, monitorez et durcissez les conteneurs Docker au plus haut niveau de conformité industrielle.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Docker Engine, la spécification Open Container Initiative (OCI), le standard Docker Compose et le guide de sécurité CIS Docker Benchmark.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

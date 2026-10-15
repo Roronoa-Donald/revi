@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Branchements, Pile d’Exécution, Fonctions &amp;amp; Appels Système | Assembleur B2</title>
+<meta name="description" content="Chapitre 6 du cours Architecture &amp; Programmation en Assembleur B2 : Drapeaux et sauts conditionnels (Jcc), fonctionnement de la pile (PUSH/POP), conventions d’appel (cdecl et System V AMD64 ABI), cadre de pile et appels système (syscall / int 0x80). Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/assembleur/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Branchements, Pile d’Exécution, Fonctions &amp;amp; Appels Système | Assembleur B2">
+<meta property="og:description" content="Chapitre 6 du cours Architecture &amp; Programmation en Assembleur B2 : Drapeaux et sauts conditionnels (Jcc), fonctionnement de la pile (PUSH/POP), conventions d’appel (cdecl et System V AMD64 ABI), cadre de pile et appels système (syscall / int 0x80). Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="assembleurnav"><div class="assembleurnav__in">
+  <a class="assembleurnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="assembleurnav__sep" aria-hidden="true">/</span>
+  <a class="assembleurnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Assembleur B2</a>
+  <div class="assembleurnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="assembleurnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="assembleurwrap">
+<p class="crumb"><a href="../index.html">Assembleur B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Branchements, Pile d’Exécution, Fonctions &amp; Appels Système</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lors d’une analyse de binaire avec un désassembleur, vous observez la séquence rituelle <code>push ebp ; mov ebp, esp ; sub esp, 16</code> au tout début d’une fonction, et <code>leave ; ret</code> à la fin. Pourquoi la pile x86 grandit-elle vers les adresses basses ? Pourquoi le premier argument d’une fonction en 32 bits se trouve-t-il à <code>[ebp + 8]</code> et non à <code>[ebp + 0]</code> ? Comment le processeur fait-il le saut vers le noyau Linux pour afficher une chaîne de caractères via <code>syscall</code> ? Ce module explore l’anatomie de l’exécution, le contrôle de flux et les interfaces système.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser les sauts conditionnels et la distinction fondamentale entre comparaisons signées (JG, JL) et non-signées (JA, JB) ;</li>
+      <li>comprendre la structure et le mécanisme LIFO de la pile matérielle x86 (décrémentation de ESP/RSP) ;</li>
+      <li>construire et démonter un cadre de pile (Stack Frame) avec prologue et épilogue conformes aux conventions d’appel ;</li>
+      <li>comparer la convention 32 bits cdecl et la convention 64 bits System V AMD64 ABI ;</li>
+      <li>effectuer des appels système (syscalls) sous Linux en 32 bits (int 0x80) et en 64 bits (instruction syscall).</li>
+    </ol>
+  </div>
+
+<h2>1. Contrôle de flux : CMP et sauts conditionnels (Jcc)</h2>
+
+<p>L’instruction <code>CMP opérande1, opérande2</code> effectue une soustraction interne <code>opérande1 - opérande2</code> sans modifier la valeur de destination, mais en actualisant rigoureusement les indicateurs du registre d’état (EFLAGS : ZF, SF, CF, OF).</p>
+<p>Selon les drapeaux levés, une instruction de saut conditionnel décide ou non de modifier le pointeur d’instruction (EIP/RIP) :</p>
+<table class="table">
+  <thead><tr><th>Instruction</th><th>Condition logique</th><th>Drapeaux testés</th><th>Usage type</th></tr></thead>
+  <tbody>
+    <tr><td><code>JMP etiquette</code></td><td>Inconditionnel</td><td>Aucun</td><td>Boucle infinie, sortie de bloc.</td></tr>
+    <tr><td><code>JE / JZ</code></td><td>Égal / Zéro</td><td>ZF = 1</td><td>Test d’égalité (signé ou non).</td></tr>
+    <tr><td><code>JNE / JNZ</code></td><td>Différent / Non nul</td><td>ZF = 0</td><td>Test d’inégalité.</td></tr>
+    <tr><td><code>JA / JAE</code></td><td>Au-dessus / Sup. ou égal (non-signé)</td><td>CF = 0 (et ZF = 0 pour JA)</td><td>Comparaison d’entiers non-signés (unsigned).</td></tr>
+    <tr><td><code>JB / JBE</code></td><td>En-dessous / Inf. ou égal (non-signé)</td><td>CF = 1 (ou ZF = 1)</td><td>Comparaison d’entiers non-signés.</td></tr>
+    <tr><td><code>JG / JGE</code></td><td>Plus grand / Sup. ou égal (signé)</td><td>ZF = 0 et SF = OF</td><td>Comparaison d’entiers signés (signed int).</td></tr>
+    <tr><td><code>JL / JLE</code></td><td>Plus petit / Inf. ou égal (signé)</td><td>SF &ne; OF (ou ZF = 1)</td><td>Comparaison d’entiers signés.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège critique : confusion entre comparaison signée et non-signée</div>
+<p>Utiliser <code>JA</code> (Jump if Above) au lieu de <code>JG</code> (Jump if Greater) lorsqu’on compare des entiers signés produit des failles logiques majeures. Par exemple, si EAX vaut <code>-1</code> (0xFFFFFFFF en hexadécimal) et EBX vaut <code>5</code> :</p>
+<ul>
+  <li><code>CMP EAX, EBX</code> puis <code>JG</code> : ne saute pas, car -1 &lt; 5 (analyse signée correcte).</li>
+  <li><code>CMP EAX, EBX</code> puis <code>JA</code> : SAUTE, car 0xFFFFFFFF (4 294 967 295) &gt; 5 (analyse non-signée) !</li>
+</ul>
+  </div>
+
+<h2>2. La pile d’exécution (Stack) et les instructions PUSH / POP</h2>
+
+<p>La pile est une zone de mémoire vive organisée en structure LIFO (<i>Last In, First Out</i>). Sur l’architecture x86/x86_64, la pile <strong>croît vers les adresses basses</strong>.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Instruction PUSH opérande</h4>
+    <ol>
+      <li>Décrémente le pointeur de pile : <code>ESP &larr; ESP - 4</code> (ou <code>RSP &larr; RSP - 8</code> en 64 bits).</li>
+      <li>Écrit la valeur de l’opérande à la nouvelle adresse pointée : <code>[ESP] &larr; valeur</code>.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Instruction POP destination</h4>
+    <ol>
+      <li>Lit la valeur située au sommet de pile : <code>destination &larr; [ESP]</code>.</li>
+      <li>Incrémente le pointeur de pile : <code>ESP &larr; ESP + 4</code> (ou <code>RSP &larr; RSP + 8</code> en 64 bits).</li>
+    </ol>
+  </div>
+</div>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L’instruction CALL et la sauvegarde de l’adresse de retour</div>
+<p>Lorsque le processeur rencontre <code>CALL ma_fonction</code>, il effectue automatiquement deux actions atomiques :</p>
+<ol>
+  <li>Empilement de l’adresse de retour : <code>PUSH EIP_suivant</code> (l’adresse de l’instruction qui suit immédiatement le CALL).</li>
+  <li>Saut à la fonction : <code>EIP &larr; adresse_de(ma_fonction)</code>.</li>
+</ol>
+<p>À la fin de la fonction, l’instruction <code>RET</code> dépile l’adresse de retour : <code>POP EIP</code>, reprenant l’exécution chez l’appelant.</p>
+  </div>
+
+<h2>3. Conventions d’appel : cdecl (32 bits) vs System V AMD64 ABI (64 bits)</h2>
+
+<p>Pour que des fonctions écrites par différents compilateurs ou assembleurs puissent communiquer sans corrompre l’état de la machine, une convention d’appel (<i>calling convention</i>) formalise le passage des paramètres, la récupération du résultat et la préservation des registres.</p>
+<table class="table">
+  <thead><tr><th>Caractéristique</th><th>cdecl (x86 32 bits)</th><th>System V AMD64 ABI (Linux x86_64)</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Passage des arguments</strong></td><td>Sur la pile, de droite à gauche (PUSH argN .. PUSH arg1).</td><td>Dans 6 registres : <code>RDI, RSI, RDX, RCX, R8, R9</code>, puis le reste sur la pile.</td></tr>
+    <tr><td><strong>Valeur de retour</strong></td><td>Dans <code>EAX</code> (entiers/pointeurs) ou <code>EDX:EAX</code> (64 bits).</td><td>Dans <code>RAX</code> (entiers/pointeurs) ou <code>RDX:RAX</code> (128 bits).</td></tr>
+    <tr><td><strong>Nettoyage de la pile</strong></td><td>Par l’appelant (<i>caller clean-up</i>) via <code>ADD ESP, N</code>.</td><td>Par l’appelant pour les arguments débordant sur la pile.</td></tr>
+    <tr><td><strong>Alignement de pile</strong></td><td>Historiquement 4 octets (16 octets sous Linux moderne).</td><td>Strictement alignée sur 16 octets avant tout <code>CALL</code>.</td></tr>
+    <tr><td><strong>Registres préservés (callee-saved)</strong></td><td><code>EBX, ESI, EDI, EBP, ESP</code>.</td><td><code>RBX, RSP, RBP, R12, R13, R14, R15</code>.</td></tr>
+    <tr><td><strong>Registres modifiables (caller-saved)</strong></td><td><code>EAX, ECX, EDX</code>.</td><td><code>RAX, RCX, RDX, RSI, RDI, R8, R9, R10, R11</code>.</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Anatomie du cadre de pile (Stack Frame)</h2>
+
+<p>Le cadre de pile regroupe l’environnement complet d’une instance de fonction : adresse de retour, ancien pointeur de base, arguments reçus et variables locales.</p>
+<pre><code>; --- PROLOGUE STANDARD D’UNE FONCTION (x86 32 bits) ---
+push ebp              ; Sauvegarde l’ancien base pointer de l’appelant
+mov  ebp, esp         ; Établit le nouveau point de repère fixe
+sub  esp, 8           ; Réserve 8 octets pour 2 variables locales (2 * 4 octets)
+
+; --- CORPS DE LA FONCTION ---
+; [ebp + 0]  &rarr; Ancien EBP sauvegardé
+; [ebp + 4]  &rarr; Adresse de retour (empilée par CALL)
+; [ebp + 8]  &rarr; 1er argument passé à la fonction
+; [ebp + 12] &rarr; 2e argument passé à la fonction
+; [ebp - 4]  &rarr; 1re variable locale
+; [ebp - 8]  &rarr; 2e variable locale
+
+; --- ÉPILOGUE STANDARD ---
+mov  esp, ebp         ; Libère toutes les variables locales
+pop  ebp              ; Restaure l’ancien base pointer
+; (Note : l’instruction LEAVE résume exactement ces deux lignes)
+ret                   ; Dépile l’adresse de retour et saute chez l’appelant</code></pre>
+
+<h2>5. Appels système sous Linux (Syscalls) : 32 bits vs 64 bits</h2>
+
+<p>Un programme utilisateur en espace non-privilégié (Ring 3) ne peut pas écrire directement sur la console ou manipuler le disque dur. Il doit solliciter le noyau Linux (Ring 0) au moyen d’un appel système.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Linux x86 (32 bits) : interruption logicielle int 0x80</h4>
+    <p>Numéro de syscall dans <code>EAX</code> :</p>
+    <ul>
+      <li>1 = <code>sys_exit</code> (EBX = code de retour)</li>
+      <li>4 = <code>sys_write</code> (EBX = fd, ECX = buffer, EDX = taille)</li>
+    </ul>
+    <pre><code>mov eax, 4      ; sys_write
+mov ebx, 1      ; stdout
+mov ecx, msg    ; pointeur message
+mov edx, 13     ; longueur
+int 0x80</code></pre>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Linux x86_64 (64 bits) : instruction native SYSCALL</h4>
+    <p>Numéro de syscall dans <code>RAX</code> :</p>
+    <ul>
+      <li>1 = <code>sys_write</code> (RDI = fd, RSI = buffer, RDX = taille)</li>
+      <li>60 = <code>sys_exit</code> (RDI = code de retour)</li>
+    </ul>
+    <pre><code>mov rax, 1      ; sys_write
+mov rdi, 1      ; stdout
+mov rsi, msg    ; pointeur message
+mov rdx, 13     ; longueur
+syscall</code></pre>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="asm2-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="PUSH 10, PUSH 20, POP, PUSH 30">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : initialiser ESP à 0x1000 et simuler les PUSH et POP sur la liste
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de pile x86 (PUSH &amp; POP avec pointeur ESP)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le fonctionnement de la pile d’exécution (LIFO) et le déplacement du pointeur ESP.</p>
+    <div class="lab__brief"><p>En architecture x86, la pile grandit vers les adresses basses :</p><ul>  <li><code>PUSH valeur</code> : décrémente <code>ESP</code> de 4 octets et écrit la valeur 32 bits au sommet de la pile ;</li>  <li><code>POP</code> : lit la valeur au sommet de la pile et incrémente <code>ESP</code> de 4 octets.</li></ul><p>Le pointeur <code>ESP</code> est initialisé à <code>0x1000</code> avec une pile vide. Lit sur l’entrée standard une séquence d’instructions séparées par des virgules (ex. <code>PUSH 10, PUSH 20, POP, PUSH 30</code>). Affiche l’état final de la pile au format :<br><code>ESP=0x&lt;4 chiffres HEX&gt; SOMMET=&lt;valeur ou VIDE&gt; TAILLE=&lt;nb_elements&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PUSH 10, PUSH 20, POP, PUSH 30</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ESP=0x0FF8 SOMMET=30 TAILLE=2</pre></div>
+    </div>
+    <p class="lab__note">Après 2 push, 1 pop et 1 push, il reste 2 éléments (10 et 30). ESP = 0x1000 - 8 = 0x0FF8.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Initialise esp = 0x1000 et stack = [].</li>
+        <li>PUSH x : esp -= 4, stack.append(x).</li>
+        <li>POP : esp += 4, stack.pop().</li>
+        <li>Le sommet est stack[-1] si stack n’est pas vide, sinon "VIDE".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="10;20;JL">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : comparer A et B selon le saut conditionnel et afficher la décision
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Évaluateur de sauts conditionnels x86 (CMP &amp; Jcc)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer si un saut conditionnel x86 est franchi (pris) ou ignoré selon le résultat de CMP.</p>
+    <div class="lab__brief"><p>L’instruction <code>CMP A, B</code> compare deux opérandes en calculant $A - B$. L’instruction de branchement conditionnel suivante examine l’état des drapeaux :</p><ul>  <li><code>JE / JZ</code> : saute si $A = B$ ;</li>  <li><code>JNE / JNZ</code> : saute si $A \neq B$ ;</li>  <li><code>JG</code> : saute si $A &gt; B$ (comparaison signée) ;</li>  <li><code>JL</code> : saute si $A &lt; B$ (comparaison signée) ;</li>  <li><code>JGE</code> : saute si $A \ge B$ ;</li>  <li><code>JLE</code> : saute si $A \le B$.</li></ul><p>Lit sur l’entrée standard <code>A;B;SAUT</code> (A et B en entiers signés). Affiche :<br><code>DECISION=&lt;PRIS|IGNORE&gt; COND=&lt;condition satisfaite ou non&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10;20;JL</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DECISION=PRIS COND=10 &lt; 20</pre></div>
+    </div>
+    <p class="lab__note">10 est strictement inférieur à 20, le saut JL est franchi.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Compare A et B avec l’opérateur correspondant : JE (==), JNE (!=), JG (&gt;), JL (&lt;), JGE (&gt;=), JLE (&lt;=).</li>
+        <li>Si la condition est vraie, DECISION=PRIS, sinon DECISION=IGNORE.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="2;3">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : calculer les offsets de cadre de pile relatifs à EBP
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Modélisateur de cadre de pile (Stack Frame cdecl)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire les adresses relatives à EBP pour les arguments et variables locales selon la convention cdecl.</p>
+    <div class="lab__brief"><p>Sous la convention d’appel standard <code>cdecl</code> (32 bits), le prologue d’une fonction réserve de la place sur la pile et utilise <code>EBP</code> comme base fixe du cadre d’activation (Stack Frame) :</p><ul>  <li><code>[ebp+0]</code> : ancien EBP sauvegardé ;</li>  <li><code>[ebp+4]</code> : adresse de retour vers l’appelant ;</li>  <li><code>[ebp+8]</code>, <code>[ebp+12]</code>, etc. : arguments reçus (offset positif) ;</li>  <li><code>[ebp-4]</code>, <code>[ebp-8]</code>, etc. : variables locales allouées (offset négatif).</li></ul><p>Lit sur l’entrée standard <code>NB_ARGS;NB_LOCALES</code>. Affiche le résumé du cadre d’activation au format :<br><code>FRAME SUB_ESP=&lt;N&gt; ARG1=[ebp+8] ARGN=[ebp+&lt;offset&gt;] LOC1=[ebp-4] LOCN=[ebp-&lt;offset&gt;]</code> (si NB_ARGS ou NB_LOCALES vaut 0, indiquer <code>AUCUN</code> pour les champs correspondants).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2;3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>FRAME SUB_ESP=12 ARG1=[ebp+8] ARGN=[ebp+12] LOC1=[ebp-4] LOCN=[ebp-12]</pre></div>
+    </div>
+    <p class="lab__note">2 arguments à [ebp+8] et [ebp+12], 3 locales occupant 12 octets de [ebp-4] à [ebp-12].</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Chaque variable locale occupe 4 octets : sub_esp = nb_locales * 4.</li>
+        <li>L’argument k est à [ebp+{4 + 4*k}]. Le premier est [ebp+8], le dernier [ebp+{4 + 4*nb_args}].</li>
+        <li>La variable locale k est à [ebp-{4*k}]. La première est [ebp-4], la dernière [ebp-{4*nb_locales}].</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans la convention 32 bits cdecl, à quel offset par rapport à EBP se situe le tout premier argument de la fonction ?</p>
+      <div class="opts">
+        <button class="opt">[ebp + 0]</button>
+        <button class="opt">[ebp + 4]</button>
+        <button class="opt" data-correct="1">[ebp + 8]</button>
+        <button class="opt">[ebp - 4]</button>
+      </div>
+      <div class="q__exp">À [ebp + 0] se trouve l’ancien EBP sauvegardé par le prologue. À [ebp + 4] se trouve l’adresse de retour empilée par le CALL. Le premier argument se situe donc immédiatement au-dessus, à [ebp + 8].</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’instruction PUSH décrémente-t-elle le registre ESP au lieu de l’incrémenter ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que sur l’architecture x86, la pile croît vers les adresses mémoire décroissantes (basses).</button>
+        <button class="opt">Parce que le registre ESP contient la taille totale allouée et non une adresse.</button>
+        <button class="opt">Parce que les microprocesseurs CISC travaillent exclusivement en nombres négatifs.</button>
+        <button class="opt">Pour éviter les conflits d’alignement avec le registre de base EBP.</button>
+      </div>
+      <div class="q__exp">Sur x86, le sommet de la pile est placé en haut de la mémoire virtuelle et grandit en descendant vers les adresses basses. Chaque empilement (PUSH) décrémente donc le pointeur ESP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En assembleur 64 bits sous Linux (System V ABI), dans quel registre est transmis le premier argument entier d’une fonction ?</p>
+      <div class="opts">
+        <button class="opt">RAX</button>
+        <button class="opt" data-correct="1">RDI</button>
+        <button class="opt">RSI</button>
+        <button class="opt">Sur le sommet de la pile [RSP]</button>
+      </div>
+      <div class="q__exp">La convention System V AMD64 ABI utilise dans l’ordre les registres RDI, RSI, RDX, RCX, R8 et R9 pour passer les six premiers arguments entiers ou pointeurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre les instructions de saut JL et JB ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">JL traite des entiers signés (SF &ne; OF) tandis que JB traite des entiers non-signés (CF = 1).</button>
+        <button class="opt">JL saute vers une adresse relative courte alors que JB permet un saut vers un segment distant.</button>
+        <button class="opt">JB fonctionne uniquement sur microcontrôleur AVR alors que JL est propre à l’Intel x86.</button>
+        <button class="opt">Il n’y a aucune différence, ce sont deux alias stricts du même opcode binaire.</button>
+      </div>
+      <div class="q__exp">JL (Jump if Less) teste les drapeaux de dépassement signé (SF &ne; OF), tandis que JB (Jump if Below) teste le drapeau de retenue CF (dépassement non-signé).</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre JG/JL (comparaison signée) et JA/JB (comparaison non-signée) après une instruction CMP.</li>
+      <li>Oublier de libérer les variables locales de la pile avant d’exécuter RET, ce qui fait sauter le processeur vers une adresse erronée.</li>
+      <li>Penser que le premier argument en cdecl est à [ebp + 4] en oubliant les 4 octets de l’adresse de retour.</li>
+      <li>Modifier les registres réservés (EBX, ESI, EDI, EBP) sans les sauvegarder au préalable avec PUSH.</li>
+      <li>Utiliser l’interruption int 0x80 dans un binaire x86_64 pur au lieu de l’instruction native syscall.</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour implémenter une fonction robuste en assembleur</div>
+    <ol>
+      <li>Concevoir le prologue : sauvegarder EBP/RBP, initialiser la nouvelle base et allouer l’espace des variables locales.</li>
+      <li>Identifier les registres callee-saved : sauvegarder sur la pile tous les registres non-volatils utilisés dans le corps.</li>
+      <li>Calculer rigoureusement les offsets : utiliser [EBP + 8 + 4*i] pour les arguments et [EBP - 4 - 4*i] pour les locales.</li>
+      <li>Soigner l’épilogue : placer la valeur de retour dans EAX/RAX, restaurer les registres callee-saved, exécuter LEAVE (ou MOV ESP, EBP; POP EBP) et conclure par RET.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les sauts conditionnels reposent sur CMP : JL/JG pour les nombres signés, JB/JA pour les grandeurs non-signées.</li>
+      <li>La pile x86 croît vers le bas : PUSH décrémente ESP puis écrit, POP lit puis incrémente ESP.</li>
+      <li>CALL empile l’adresse de retour (EIP) et saute ; RET dépile cette adresse dans le pointeur d’instruction.</li>
+      <li>En cdecl 32 bits, arguments sur la pile ([ebp+8], [ebp+12]), retour dans EAX et nettoyage par l’appelant.</li>
+      <li>En Linux x86_64, les 6 premiers arguments passent par registres (RDI, RSI, RDX, RCX, R8, R9) et les syscalls s’exécutent via l’instruction SYSCALL.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je choisis toujours le saut conditionnel approprié selon le type signé ou non-signé de mes données.</li>
+      <li>Je comprends parfaitement le mouvement d’ESP lors d’un PUSH (décrémentation) et d’un POP (incrémentation).</li>
+      <li>Je sais dessiner la disposition exacte d’un cadre de pile (ancien EBP, adresse de retour, arguments, variables locales).</li>
+      <li>Je connais par cœur les registres d’arguments de l’ABI 64 bits System V (RDI, RSI, RDX, RCX, R8, R9).</li>
+      <li>Je sais exécuter un appel système Linux avec le numéro d’action dans RAX/EAX.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Instruction CMP et registre EFLAGS</li><li>Sauts conditionnels signés (JL, JG, JLE, JGE)</li><li>Sauts conditionnels non-signés (JB, JA, JBE, JAE)</li><li>Pile d’exécution LIFO (croissance vers le bas)</li><li>Instructions PUSH et POP</li><li>Instructions CALL et RET</li><li>Convention d’appel cdecl (32 bits)</li><li>Cadre de pile (Stack Frame / EBP)</li><li>Convention System V AMD64 ABI (64 bits)</li><li>Appels système Linux (syscall et int 0x80)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois le fonctionnement de la pile et la différence entre JL et JB.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le schéma du cadre de pile et les offsets [EBP + 8] / [EBP - 4].</div>
+      <div class="bandrow bandrow--good">70–89 % — Très bon niveau : tu maîtrises les conventions d’appel et les appels système Linux.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : tu as acquis l’ensemble du programme d’Architecture &amp; Assembleur B2 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours d’Architecture et Programmation en Assembleur B2, les manuels d’architecture logicielle Intel 64 et IA-32, la documentation NASM et la spécification System V AMD64 ABI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

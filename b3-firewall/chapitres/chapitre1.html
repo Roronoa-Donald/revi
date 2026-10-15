@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Fondements, Évolution des Pare-feux &amp;amp; Filtrage Sans État (Stateless) | Firewall &amp; Sécurité Réseau B3</title>
+<meta name="description" content="Chapitre 1 du cours Firewall &amp; Sécurité Réseau B3 : Concepts de sécurité périmétrique, zones de confiance, filtrage de paquets statique L3/L4, en-têtes IP/TCP, règles Default DROP et limites du filtrage sans état. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-firewall/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Fondements, Évolution des Pare-feux &amp;amp; Filtrage Sans État (Stateless) | Firewall &amp; Sécurité Réseau B3">
+<meta property="og:description" content="Chapitre 1 du cours Firewall &amp; Sécurité Réseau B3 : Concepts de sécurité périmétrique, zones de confiance, filtrage de paquets statique L3/L4, en-têtes IP/TCP, règles Default DROP et limites du filtrage sans état. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-firewallnav"><div class="b3-firewallnav__in">
+  <a class="b3-firewallnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-firewallnav__sep" aria-hidden="true">/</span>
+  <a class="b3-firewallnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Firewall &amp; Sécurité Réseau B3</a>
+  <div class="b3-firewallnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-firewallnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-firewallwrap">
+<p class="crumb"><a href="../index.html">Firewall & Sécurité Réseau B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements, Évolution des Pare-feux &amp; Filtrage Sans État (Stateless)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Au sein d’une infrastructure d’entreprise interconnectée à Internet, tout équipement non protégé est soumis à un bombardement ininterrompu de sondes automatisées, de balayages de ports et de tentatives d’exploitation de failles. L’ingénieur réseau et sécurité de niveau Bachelor 3 est chargé de concevoir le périmètre de défense. Historiquement, les premiers routeurs filtrants s’appuyaient sur un filtrage de paquets élémentaire sans état (Stateless). Cependant, examiner chaque paquet de manière isolée sans conserver l’historique des connexions crée des failles béantes : un pirate peut injecter de faux paquets de réponse (ACK) pour traverser le pare-feu et cartographier les serveurs internes. Comprendre les fondements du filtrage L3/L4, l’anatomie des en-têtes et les faiblesses inhérentes aux pare-feux de 1re génération est indispensable pour appréhender les architectures de sécurité modernes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir les concepts clés de la sécurité périmétrique, le modèle de défense en profondeur et la cartographie des zones de confiance ;</li>
+      <li>analyser la structure détaillée des en-têtes de paquets IPv4 et des segments TCP/UDP exploités lors du filtrage réseau ;</li>
+      <li>maîtriser le principe de filtrage de paquets sans état (Stateless) et la formulation de règles d’accès élémentaires ;</li>
+      <li>appliquer rigoureusement la politique de sécurité du moindre privilège et le refus implicite par défaut (Default DROP) ;</li>
+      <li>identifier les failles majeures du filtrage sans état face aux attaques par usurpation (Spoofing) et injection de paquets forgés ;</li>
+      <li>développer en Python 3 des classificateurs d’architectures pare-feu, des auditeurs d’isolation de zones et un moteur d’inspection stateless.</li>
+    </ol>
+  </div>
+
+<h2>1. Périmètre de Sécurité &amp; Cartographie des Zones de Confiance</h2>
+
+<p>Un pare-feu (Firewall) est un dispositif matériel, logiciel ou virtuel intercalé entre deux ou plusieurs réseaux, chargé de contrôler et de filtrer l’ensemble des flux entrants et sortants conformément à une <strong>politique de sécurité prédéfinie (PSSI)</strong>.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Les Zones de Confiance</h4>
+    <ul>
+      <li><strong>Zone Interne (Trust / LAN) :</strong> Réseau des collaborateurs et postes de travail d’entreprise. Niveau de confiance le plus élevé.</li>
+      <li><strong>Zone Externe (Untrust / WAN) :</strong> Internet ou réseaux tiers non maîtrisés. Niveau de confiance nul ; zone hostile par définition.</li>
+      <li><strong>Zone Démilitarisée (DMZ) :</strong> Zone tampon hébergeant les serveurs publics (Web, Mail, DNS). Niveau de confiance intermédiaire.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Les Postures de Filtrage Fondamentales</h4>
+    <ul>
+      <li><strong>Politique Exclusive (Whitelisting / Default DROP) :</strong> Tout ce qui n’est pas formellement autorisé est strictement interdit. C’est la seule approche acceptable en sécurité professionnelle.</li>
+      <li><strong>Politique Inclusive (Blacklisting / Default ACCEPT) :</strong> Tout est autorisé par défaut sauf une liste noire de services. Approche hautement risquée et proscrite en entreprise.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Les Quatre Générations Technologiques de Pare-feux</h2>
+
+<p>Depuis les années 1980, les technologies de pare-feux ont évolué en quatre ruptures majeures pour faire face à la sophistication des attaques :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Génération 1 : Filtrage de Paquets Sans État (Stateless)</h4>
+    <p>Opère en couches 3 (Réseau) et 4 (Transport) du modèle OSI. Analyse chaque paquet unitairement sans mémoire : IP source, IP destination, protocole, port source et port destination. Très rapide mais aveugle au contexte conversationnel.</p>
+  </div>
+  <div class="card">
+    <h4>Génération 2 : Inspection avec Suivi d’État (Stateful)</h4>
+    <p>Introduit la table d’état (conntrack). Surveille le cycle de vie complet des connexions TCP (SYN, SYN-ACK, ACK, FIN) et n’autorise les paquets entrants que s’ils correspondent à une session légitimement initiée.</p>
+  </div>
+  <div class="card">
+    <h4>Génération 3 : Gestion Unifiée des Menaces (UTM)</h4>
+    <p>Consolide sur une appliance unique le filtrage stateful, un proxy applicatif, un antivirus de flux, un antispam et un VPN IPSec/SSL. Idéal pour les PME mais sensible aux saturations de charge.</p>
+  </div>
+  <div class="card">
+    <h4>Génération 4 : Pare-feux Nouvelle Génération (NGFW)</h4>
+    <p>Inspection monocycle matérielle de couche 7 (DPI). Identification des applications réelles indépendamment des ports (App-ID), cartographie des identités utilisateurs (User-ID) et bac à sable (Sandboxing) anti-zero day avec IA.</p>
+  </div>
+</div>
+
+<h2>3. Mécanique du Filtrage de Paquets Stateless &amp; Anatomie des En-têtes</h2>
+
+<p>Le filtrage stateless inspecte les champs binaires standardisés des en-têtes protocolaires :</p>
+<table class="table">
+  <thead>
+    <tr><th>Champ inspecté</th><th>Couche OSI</th><th>Taille</th><th>Utilisation dans la règle de filtrage</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>IP Source (SIP)</code></td><td>Couche 3 (Réseau)</td><td>32 bits (IPv4)</td><td>Identifier l’émetteur ou restreindre à un sous-réseau autorisé (CIDR).</td></tr>
+    <tr><td><code>IP Destination (DIP)</code></td><td>Couche 3 (Réseau)</td><td>32 bits (IPv4)</td><td>Identifier l’hôte ou le serveur cible du flux.</td></tr>
+    <tr><td><code>Protocole IP (Proto)</code></td><td>Couche 3 (Réseau)</td><td>8 bits</td><td>Valeurs standard : 6 (TCP), 17 (UDP), 1 (ICMP).</td></tr>
+    <tr><td><code>Port Source (Sport)</code></td><td>Couche 4 (Transport)</td><td>16 bits</td><td>Généralement éphémère et aléatoire côté client (plage 1024-65535).</td></tr>
+    <tr><td><code>Port Destination (Dport)</code></td><td>Couche 4 (Transport)</td><td>16 bits</td><td>Identifie le service cible (22 SSH, 80 HTTP, 443 HTTPS, 53 DNS).</td></tr>
+    <tr><td><code>Drapeaux TCP (Flags)</code></td><td>Couche 4 (Transport)</td><td>6 à 9 bits</td><td>SYN, ACK, FIN, RST, PSH, URG : indicateurs d’état du protocole TCP.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La Vulnérabilité Critique du Filtrage Stateless aux Paquets ACK Forgés</div>
+<p>Pour permettre à un poste interne d’accéder au Web externe, un pare-feu stateless doit autoriser le trafic retour provenant des serveurs Internet. Comme il ne garde aucune mémoire de la session, la règle de retour autorise classiquement tout paquet externe ayant le port source 80 ou le drapeau ACK activé.</p>,<p><strong>L’attaque :</strong> Un pirate distant forge des paquets TCP personnalisés avec le drapeau ACK activé (<code>nmap -sA</code> ou <code>scapy</code>) et cible directement des serveurs internes. Le pare-feu stateless constate que le drapeau ACK est présent, déduit à tort qu’il s’agit du retour légitime d’une requête interne, et laisse passer le paquet ! C’est cette faiblesse structurelle rédhibitoire qui a imposé l’avènement du filtrage stateful.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="fw3-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="EQUIPEMENT nom=PaloAlto5200 couche_max=L7 suivi_etat=OUI utm_modules=OUI ia_zero_day=OUI">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : classifier la génération et le type de pare-feu
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Classificateur de génération et d’architecture de pare-feu</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier la génération technologique et l’architecture d’un pare-feu selon ses capacités d’inspection.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des lignes au format :<br>
+<code>EQUIPEMENT nom=&lt;nom&gt; couche_max=&lt;L3|L4|L7&gt; suivi_etat=&lt;OUI|NON&gt; utm_modules=&lt;OUI|NON&gt; ia_zero_day=&lt;OUI|NON&gt;</code>.<br><br>
+Règles de classification :<br>
+1. Si <code>ia_zero_day=OUI</code> et <code>couche_max=L7</code> :<br>
+   <code>GENERATION=GEN4_NGFW</code>, <code>TYPE=PAREFEU_NOUVELLE_GENERATION</code>.<br>
+2. Sinon si <code>utm_modules=OUI</code> et <code>couche_max=L7</code> :<br>
+   <code>GENERATION=GEN3_UTM</code>, <code>TYPE=GESTION_UNIFIEE_MENACES</code>.<br>
+3. Sinon si <code>suivi_etat=OUI</code> et (<code>couche_max=L4</code> ou <code>couche_max=L7</code>) :<br>
+   <code>GENERATION=GEN2_STATEFUL</code>, <code>TYPE=INSPECTION_AVEC_ETAT</code>.<br>
+4. Sinon si <code>suivi_etat=NON</code> et (<code>couche_max=L3</code> ou <code>couche_max=L4</code>) :<br>
+   <code>GENERATION=GEN1_STATELESS</code>, <code>TYPE=FILTRAGE_PAQUETS_STATIQUE</code>.<br>
+5. Sinon :<br>
+   <code>GENERATION=INDETERMINEE</code>, <code>TYPE=PASSERELLE_GENERIQUE</code>.<br><br>
+Afficher :<br>
+<code>FIREWALL_CLASS: {nom} -> {GENERATION} | {TYPE}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>EQUIPEMENT nom=PaloAlto5200 couche_max=L7 suivi_etat=OUI utm_modules=OUI ia_zero_day=OUI</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>FIREWALL_CLASS: PaloAlto5200 -&gt; GEN4_NGFW | PAREFEU_NOUVELLE_GENERATION</pre></div>
+    </div>
+    <p class="lab__note">Inspection L7 avec IA et détection zero-day : 4e génération NGFW.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Évaluer les critères dans l’ordre de la spécification.</li>
+        <li>Extraire les arguments par découpage ou regex.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="FLUX src_zone=DMZ dst_zone=LAN port=3306 proto=TCP">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : auditer le respect des frontières de zones de confiance
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Auditeur de séparation des zones de confiance réseau</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la légitimité des flux inter-zones selon le modèle de confiance (Trusted, Untrusted, DMZ, Management).</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>FLUX src_zone=&lt;LAN|WAN|DMZ|MGMT&gt; dst_zone=&lt;LAN|WAN|DMZ|MGMT&gt; port=&lt;N&gt; proto=&lt;TCP|UDP&gt;</code>.<br><br>
+Règles fondamentales de la matrice de confiance :<br>
+1. <code>DMZ -&gt; LAN</code> : <strong>INTERDICTION ABSOLUE</strong> (violation de la règle d'or de la DMZ).<br>
+   <code>VERDICT=REJET_CRITIQUE_VIOLATION_DMZ_VERS_LAN</code>.<br>
+2. <code>WAN -&gt; LAN</code> : <strong>INTERDICTION PAR DÉFAUT</strong>.<br>
+   <code>VERDICT=REJET_SECURITE_WAN_DIRECT_VERS_LAN</code>.<br>
+3. <code>WAN -&gt; DMZ</code> : Autorisé UNIQUEMENT si port $\in \{80, 443\}$ et proto=TCP.<br>
+   Si conforme : <code>VERDICT=AUTORISE_SERVICE_PUBLIC_DMZ</code>.<br>
+   Sinon : <code>VERDICT=REJET_PORT_NON_PUBLIC_DMZ</code>.<br>
+4. <code>LAN -&gt; WAN</code> ou <code>LAN -&gt; DMZ</code> : Toujours autorisé.<br>
+   <code>VERDICT=AUTORISE_FLUX_SORTANT_DEPUIS_LAN</code>.<br>
+5. <code>MGMT</code> : Seul le <code>LAN</code> peut accéder à <code>MGMT</code> sur le port 22 (SSH) ou 443 (HTTPS WebUI).<br>
+   Si $src=LAN$ et port $\in \{22, 443\}$ : <code>VERDICT=AUTORISE_ADMINISTRATION_MGMT</code>.<br>
+   Sinon : <code>VERDICT=REJET_ACCES_ZONE_MGMT_RESTREINTE</code>.<br><br>
+Afficher :<br>
+<code>ZONE_AUDIT: {src_zone}->{dst_zone}:{proto}/{port} -> {VERDICT}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FLUX src_zone=DMZ dst_zone=LAN port=3306 proto=TCP</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ZONE_AUDIT: DMZ-&gt;LAN:TCP/3306 -&gt; REJET_CRITIQUE_VIOLATION_DMZ_VERS_LAN</pre></div>
+    </div>
+    <p class="lab__note">Une machine de la DMZ compromise ne doit JAMAIS initier de flux vers le LAN interne.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Traiter en priorité l’interdiction absolue de DMZ vers LAN.</li>
+        <li>Valider les ports autorisés vers la DMZ et vers MGMT.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="RULE id=1 src=ANY dst=192.168.1.10 proto=TCP dport=80 action=ACCEPT&#10;RULE id=2 src=ANY dst=192.168.1.10 proto=TCP dport=443 action=ACCEPT&#10;RULE id=3 src=ANY dst=ANY proto=ANY dport=ANY action=DROP&#10;PACKET src=10.0.0.5 dst=192.168.1.10 proto=TCP dport=80">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : évaluer le paquet contre les règles stateless dans l'ordre
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur de filtrage de paquets sans état (Stateless Packet Filter)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler un pare-feu statique de première génération appliquant une liste de règles IP/Port indépendantes.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une liste de règles puis un paquet à évaluer :<br>
+Lignes de règles :<br>
+<code>RULE id=&lt;N&gt; src=&lt;IP|ANY&gt; dst=&lt;IP|ANY&gt; proto=&lt;TCP|UDP|ICMP|ANY&gt; dport=&lt;N|ANY&gt; action=&lt;ACCEPT|DROP|REJECT&gt;</code>.<br>
+Ligne finale de paquet :<br>
+<code>PACKET src=&lt;IP&gt; dst=&lt;IP&gt; proto=&lt;TCP|UDP|ICMP&gt; dport=&lt;N&gt;</code>.<br><br>
+Principe d'évaluation :<br>
+- Parcourir les règles dans l'ordre d'apparition (First Match Wins).<br>
+- Un paquet concorde avec une règle si tous les champs spécifiés correspondent (<code>ANY</code> concorde avec tout).<br>
+- Dès qu'une règle concorde, l'action de cette règle est appliquée immédiatement.<br>
+- Si aucune règle ne concorde : appliquer la politique par défaut <code>DEFAULT_DROP (AUCUNE_REGLE)</code>.<br><br>
+Afficher :<br>
+<code>PACKET_DECISION: {action} (MATCH_RULE={id_ou_NONE}) -> {src}:{proto}/{dport}->{dst}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE id=1 src=ANY dst=192.168.1.10 proto=TCP dport=80 action=ACCEPT
+RULE id=2 src=ANY dst=192.168.1.10 proto=TCP dport=443 action=ACCEPT
+RULE id=3 src=ANY dst=ANY proto=ANY dport=ANY action=DROP
+PACKET src=10.0.0.5 dst=192.168.1.10 proto=TCP dport=80</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PACKET_DECISION: ACCEPT (MATCH_RULE=1) -&gt; 10.0.0.5:TCP/80-&gt;192.168.1.10</pre></div>
+    </div>
+    <p class="lab__note">Le paquet concorde avec la règle 1 (port 80) : action ACCEPT immédiate.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer ANY comme joker universel sur chaque critère.</li>
+        <li>Arrêter l’évaluation dès la première règle correspondante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la principale caractéristique d’un pare-feu de 1re génération (Stateless Packet Filtering) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il analyse chaque paquet individuellement sans conserver d’historique ni de contexte de connexion</button>
+        <button class="opt">Il déchiffre les sessions TLS HTTPS pour inspecter le contenu des pages web</button>
+        <button class="opt">Il maintient une table des sessions actives conntrack en mémoire RAM</button>
+        <button class="opt">Il bloque automatiquement les attaques par injection SQL via un moteur d’analyse comportementale</button>
+      </div>
+      <div class="q__exp">Le pare-feu stateless filtre uniquement sur la base des en-têtes L3/L4 de chaque paquet pris isolément, sans conserver l’état des sessions.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi la politique de sécurité « Default DROP » est-elle recommandée par toutes les normes de cybersécurité ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Elle garantit que tout flux non expressément autorisé est bloqué, appliquant le principe du moindre privilège</button>
+        <button class="opt">Elle améliore le débit réseau en supprimant le besoin d’écrire des règles de filtrage</button>
+        <button class="opt">Elle autorise tous les paquets sortants sans aucune vérification d’adresse IP</button>
+        <button class="opt">Elle désactive la journalisation des paquets suspects pour économiser le stockage</button>
+      </div>
+      <div class="q__exp">La politique Default DROP (liste blanche) assure qu’aucun flux imprévu ou suspect ne peut traverser le pare-feu sans avoir été explicitement validé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment un attaquant peut-il contourner un pare-feu stateless autorisant le trafic web de retour ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En forgeant un paquet TCP avec le drapeau ACK activé pour faire croire au retour d’une session déjà établie</button>
+        <button class="opt">En envoyant des paquets ICMP Echo Request avec une charge utile vide</button>
+        <button class="opt">En modifiant l’adresse MAC de sa passerelle par défaut</button>
+        <button class="opt">En envoyant un paquet avec le drapeau SYN pour forcer le serveur à réinitialiser son horloge</button>
+      </div>
+      <div class="q__exp">Un pare-feu stateless ne sachant pas si une session a été réellement initiée, il laisse passer un paquet avec ACK actif s’il a une règle autorisant les retours.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel champ de l’en-tête IP indique si le paquet transporte des données TCP, UDP ou ICMP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le champ Protocole (Protocol, 8 bits)</button>
+        <button class="opt">Le champ Durée de vie (TTL, Time To Live)</button>
+        <button class="opt">Le champ Version (4 bits)</button>
+        <button class="opt">Le champ Somme de contrôle (Header Checksum)</button>
+      </div>
+      <div class="q__exp">Le champ Protocole de l’en-tête IPv4 indique la nature du protocole encapsulé en couche supérieure (6 pour TCP, 17 pour UDP, 1 pour ICMP).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle plage numérique se situent généralement les ports éphémères attribués dynamiquement aux clients sortants ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">1024 à 65535 (ou 49152 à 65535 selon les systèmes récents)</button>
+        <button class="opt">0 à 1023 (ports bien connus ou well-known ports)</button>
+        <button class="opt">Uniquement le port 80 et le port 443</button>
+        <button class="opt">Exactement les ports multiples de 256</button>
+      </div>
+      <div class="q__exp">Les ports 0 à 1023 sont réservés aux services système bien connus (serveurs), tandis que les clients utilisent des ports dynamiques éphémères supérieurs à 1023.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre une appliance UTM et un pare-feu NGFW ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’UTM regroupe plusieurs briques logicielles hétérogènes sur un même boîtier, tandis que le NGFW intègre nativement une inspection monocycle L7 haute performance</button>
+        <button class="opt">L’UTM opère uniquement en couche 2, alors que le NGFW ne traite que la couche 3</button>
+        <button class="opt">L’UTM est réservé aux datacenters bancaires et le NGFW aux particuliers</button>
+        <button class="opt">L’UTM ne dispose d’aucun module antivirus ni de VPN</button>
+      </div>
+      <div class="q__exp">L’UTM consolide plusieurs services de sécurité distincts (souvent juxtaposés), tandis que le NGFW dispose d’une architecture monocycle intégrée conçue pour les hauts débits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une architecture réseau standard, quel niveau de confiance est attribué à la zone DMZ ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un niveau de confiance intermédiaire entre le LAN hautement sécurisé et le WAN non sécurisé</button>
+        <button class="opt">Le même niveau de confiance absolu que le LAN interne</button>
+        <button class="opt">Un niveau de confiance nul, identique à Internet sans aucune règle de filtrage</button>
+        <button class="opt">Un niveau de confiance supérieur à celui des postes d’administration</button>
+      </div>
+      <div class="q__exp">La DMZ est une zone tampon de confiance intermédiaire hébergeant des serveurs exposés publiquement mais isolée des postes internes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un paquet entrant ne correspond à aucune règle explicite dans un pare-feu configuré en Default DROP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le paquet est rejeté silencieusement (DROP) ou avec un message d’erreur (REJECT)</button>
+        <button class="opt">Le paquet est routé par défaut vers l’interface la plus rapide</button>
+        <button class="opt">Le paquet est mis en attente indéfiniment dans une file tampon</button>
+        <button class="opt">Le paquet est transmis au contrôleur de domaine pour vérification</button>
+      </div>
+      <div class="q__exp">En politique Default DROP, l’absence de correspondance avec les règles permissives entraîne la destruction immédiate du paquet.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre politique Default DROP (fermeture par défaut) et Default ACCEPT (ouverture par défaut hautement vulnérable).</li>
+      <li>Croire qu’un pare-feu stateless peut différencier une réponse légitime d’un paquet ACK injecté par un attaquant.</li>
+      <li>Sous-estimer les limites du filtrage L4 lorsque les applications malveillantes empruntent les ports autorisés 80 et 443.</li>
+      <li>Autoriser des plages d’adresses ANY ANY sans restriction de ports sur des interfaces connectées à Internet.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Audit &amp; de Spécification d’un Périmètre Pare-feu</div>
+    <ol>
+      <li>1. Identifier et cartographier les zones réseau de l’infrastructure (LAN bureautique, DMZ publique, WAN Internet, réseau d’administration).</li>
+      <li>2. Établir l’inventaire exhaustif des flux métier légitimes nécessaires au fonctionnement des applications (IP sources, IP cibles, ports et protocoles).</li>
+      <li>3. Appliquer la politique de sécurité Default DROP sur l’ensemble des interfaces d’entrée et de sortie.</li>
+      <li>4. Spécifier les règles de filtrage autorisées (White-list) en privilégiant la granularité maximale (IP spécifiques plutôt que plages larges).</li>
+      <li>5. Vérifier que les règles de filtrage stateless ne permettent aucun contournement par injection de drapeaux TCP ou usurpation d’adresse IP source.</li>
+      <li>6. Journaliser systématiquement tous les paquets rejetés pour alimenter la surveillance de sécurité et la détection d’incidents.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le pare-feu est le pivot de la sécurité périmétrique d’entreprise, séparant les zones de confiance (LAN) des zones hostiles (WAN).</li>
+      <li>La politique de sécurité professionnelle repose impérativement sur le Default DROP : tout flux non expressément autorisé est rejeté.</li>
+      <li>Le filtrage stateless de 1re génération analyse les en-têtes L3/L4 (IP, ports, drapeaux) de chaque paquet de façon isolée.</li>
+      <li>L’absence de mémoire d’état expose les pare-feux stateless aux injections de paquets ACK forgés et à l’usurpation IP.</li>
+      <li>L’évolution vers les générations Stateful, UTM et NGFW répond à l’impératif de corrélation temporelle et d’inspection applicative L7.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Les concepts de sécurité périmétrique et de zones de confiance (LAN, DMZ, WAN) sont maîtrisés.</li>
+      <li>Les 4 générations technologiques de pare-feux (Stateless, Stateful, UTM, NGFW) sont clairement différenciées.</li>
+      <li>Les champs clés des en-têtes IPv4, TCP et UDP sont identifiés.</li>
+      <li>Le principe du Default DROP (Whitelisting) est assimilé et justifié.</li>
+      <li>La vulnérabilité des pare-feux stateless face aux paquets ACK forgés est comprise.</li>
+      <li>Les 3 ateliers de programmation interactive en Python 3 (fw3-c1-e1 à fw3-c1-e3) sont validés.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Sécurité périmétrique</li><li>Zones de confiance</li><li>Filtrage sans état (Stateless)</li><li>En-têtes IPv4 et TCP/UDP</li><li>Politique Default DROP</li><li>Générations de pare-feux</li><li>Appliance UTM vs NGFW</li><li>Drapeaux TCP (SYN, ACK, FIN)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Niveau initial : vous confondez encore filtrage avec et sans état, ou vous utilisez une politique Default ACCEPT permissive.</div>
+      <div class="bandrow bandrow--medium">Niveau opérationnel : vous formulez des règles L3/L4 cohérentes en Default DROP et comprenez les risques des paquets forgés.</div>
+      <div class="bandrow bandrow--high">Maîtrise B3 : vous concevez des architectures périmétriques étanches, auditez les zones de confiance et choisissez la génération de pare-feu adaptée.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Filtrage Dynamique avec Suivi d’État (Stateful Inspection) &amp; Table Conntrack <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours Module 1 & Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

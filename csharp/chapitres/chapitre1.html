@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Fondamentaux C# et Écosystème .NET | C# B2</title>
+<meta name="description" content="Chapitre 1 du cours C# B2 : Architecture du Common Language Runtime (CLR), compilation JIT, typage fort, types valeur vs types référence, boxing/unboxing, passage par valeur/ref/out et pattern matching moderne. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/csharp/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Fondamentaux C# et Écosystème .NET | C# B2">
+<meta property="og:description" content="Chapitre 1 du cours C# B2 : Architecture du Common Language Runtime (CLR), compilation JIT, typage fort, types valeur vs types référence, boxing/unboxing, passage par valeur/ref/out et pattern matching moderne. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="csharpnav"><div class="csharpnav__in">
+  <a class="csharpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="csharpnav__sep" aria-hidden="true">/</span>
+  <a class="csharpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> C# B2</a>
+  <div class="csharpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="csharpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="csharpwrap">
+<p class="crumb"><a href="../index.html">C# B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondamentaux C# et Écosystème .NET</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une équipe de développement refond le moteur d’un système bancaire haute fréquence sous .NET 8. Dans la version précédente, des millions de conversions implicites entre types primitifs et objets ont saturé le Garbage Collector, provoquant des micro-pauses inacceptables en production. L’équipe doit comprendre l’anatomie exacte de la mémoire CLR, distinguer la pile (Stack) du tas (Heap), éradiquer le boxing/unboxing inutile, maîtriser le passage d’arguments par référence (ref, out, in) et adopter le pattern matching moderne introduit dans les dernières versions du langage C#. Ce premier module pose les bases indispensables de l’ingénierie logicielle C# professionnelle.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le cycle de compilation C# (Roslyn, CIL/MSIL, CLR et compilation JIT) ;</li>
+      <li>distinguer la pile (Stack) du tas managé (Heap) et maîtriser les types valeur (struct) vs types référence (class) ;</li>
+      <li>identifier et prévenir les opérations coûteuses de boxing et unboxing ;</li>
+      <li>manipuler les modificateurs de paramètres de méthode : passage par valeur, ref, out et in ;</li>
+      <li>exploiter le pattern matching moderne dans les expressions switch avec gardes conditionnels when.</li>
+    </ol>
+  </div>
+
+<h2>1. L’Écosystème .NET &amp; Le Common Language Runtime (CLR)</h2>
+
+<p>Le langage C# est compilé en deux étapes distinctes :</p>
+<ol>
+  <li><strong>Compilation statique (Roslyn) :</strong> Le code source C# est transformé par le compilateur Roslyn en un langage intermédiaire standardisé appelé <strong>CIL</strong> (<em>Common Intermediate Language</em>, anciennement MSIL), encapsulé dans un assemblage (binaire portable <code>.dll</code> ou <code>.exe</code>) accompagné de métadonnées riches.</li>
+  <li><strong>Exécution &amp; Compilation JIT (CLR) :</strong> Lors de l’exécution, le <strong>Common Language Runtime (CLR)</strong> charge l’assemblage. Le compilateur JIT (<em>Just-In-Time</em>) traduit le code CIL à la volée en instructions machine natives adaptées à l’architecture matérielle cible (x86_64, ARM64).</li>
+</ol>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Responsabilités de la CLR</h4>
+    <ul>
+      <li><strong>Gestion de la mémoire :</strong> Allocation automatique et ramasse-miettes (<em>Garbage Collector</em>).</li>
+      <li><strong>Sécurité des types :</strong> Vérification stricte des conversions et prévention des dépassements de mémoire tampon.</li>
+      <li><strong>Gestion des exceptions :</strong> Routage structuré des erreurs à travers les blocs managés.</li>
+      <li><strong>Orchestration des threads :</strong> ThreadPool managé pour la concurrence légère.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Avantages du modèle managé</h4>
+    <ul>
+      <li><strong>Portabilité multiplateforme :</strong> Le même CIL s’exécute sur Linux, macOS et Windows sans recompilation.</li>
+      <li><strong>Optimisations JIT dynamiques :</strong> Profiling en cours d’exécution (Tiered Compilation) et vectorisation SIMD native.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Système de Types : Pile (Stack) vs Tas (Heap)</h2>
+
+<p>En C#, tout type dérive directement ou indirectement de <code>System.Object</code>. Cependant, la gestion mémoire divise le système de types en deux familles fondamentales :</p>
+<table class="table">
+  <thead><tr><th>Caractéristique</th><th>Types Valeur (Value Types)</th><th>Types Référence (Reference Types)</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Définition C#</strong></td><td><code>struct</code>, <code>enum</code>, primitifs (<code>int, double, bool, char</code>)</td><td><code>class</code>, <code>interface</code>, <code>delegate</code>, <code>record</code>, <code>string</code>, tableaux</td></tr>
+    <tr><td><strong>Emplacement mémoire</strong></td><td>Directement sur la <strong>Pile (Stack)</strong> (ou encapsulé dans un objet hôte)</td><td>Sur le <strong>Tas managé (Heap)</strong> ; seule la référence (adresse) est sur la pile</td></tr>
+    <tr><td><strong>Sémantique d’assignation</strong></td><td><strong>Copie par valeur :</strong> la valeur brute est clonée bit à bit</td><td><strong>Copie par référence :</strong> seul le pointeur mémoire est dupliqué vers le même objet</td></tr>
+    <tr><td><strong>Cycle de vie</strong></td><td>Détruit immédiatement à la sortie du scope d’exécution (désempilement ultra-rapide)</td><td>Géré par le Garbage Collector (GC) selon les générations d’objets (Gen 0, 1, 2)</td></tr>
+    <tr><td><strong>Support de null</strong></td><td>Non nullable par défaut (sauf <code>Nullable&lt;T&gt;</code> ou <code>int?</code>)</td><td>Nullable par défaut (supporte <code>null</code>)</td></tr>
+  </tbody>
+</table>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Le piège de performance du Boxing / Unboxing</div>
+<p>Le <strong>boxing</strong> se produit lorsqu’un type valeur est converti implicitement ou explicitement en un type référence (notamment <code>object</code> ou une interface). La CLR doit allouer un nouvel objet sur le tas, copier la valeur de la pile vers cet objet et renvoyer une référence.<br>L’<strong>unboxing</strong> extrait la valeur contenue dans cet objet vers la pile via un cast explicite (ex: <code>(int)obj</code>).<br><strong>Règle d’or :</strong> Bannissez le boxing dans les boucles critiques en exploitant systématiquement les collections génériques typées (<code>List&lt;int&gt;</code> plutôt que <code>ArrayList</code>).</p>
+  </div>
+
+<h2>3. Passage d’Arguments de Méthode : val, ref, out &amp; in</h2>
+
+<p>Par défaut, C# passe tous les arguments <strong>par valeur</strong> : une copie de la variable locale est transmise à la méthode. C# propose trois modificateurs avancés :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4 class="card-title">Le mot-clé ref</h4>
+    <p>Passe une référence directe vers la variable de l’appelant. La variable <strong>doit être initialisée avant l’appel</strong>. Toute modification au sein de la méthode altère la variable d’origine.</p>
+    <pre><code class="language-csharp">void Incrementer(ref int x) {
+    x += 1;
+}</code></pre>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Le mot-clé out</h4>
+    <p>Utilisé pour renvoyer des valeurs calculées. La variable n’a pas besoin d’être initialisée avant l’appel, mais la méthode <strong>a l’obligation absolue d’assigner une valeur</strong> avant de terminer.</p>
+    <pre><code class="language-csharp">bool Diviser(int a, int b, out int q) {
+    if (b == 0) { q = 0; return false; }
+    q = a / b;
+    return true;
+}</code></pre>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Le mot-clé in</h4>
+    <p>Passe une référence en <strong>lecture seule</strong>. Idéal pour passer de grosses structures (<code>struct</code> volumineuses) sans le coût de copie, tout en interdisant toute mutation par la méthode.</p>
+    <pre><code class="language-csharp">double Distance(in Point3D p1, in Point3D p2) {
+    // p1 et p2 ne peuvent pas être modifiés
+}</code></pre>
+  </div>
+</div>
+
+<h2>4. Pattern Matching &amp; Switch Expressions Modernes</h2>
+
+<p>Depuis C# 8, les instructions <code>switch</code> peuvent être exprimées sous forme d’<strong>expressions switch concises</strong> combinées avec un puissant moteur de filtrage par motif (<em>pattern matching</em>) :</p>
+<pre><code class="language-csharp">string resultat = forme switch {
+    Circle c when c.Radius &gt; 10 =&gt; $"Grand cercle ({c.Radius})",
+    Circle c =&gt; $"Petit cercle ({c.Radius})",
+    Rectangle r when r.Width == r.Height =&gt; $"Carré de côté {r.Width}",
+    Rectangle r =&gt; $"Rectangle {r.Width}x{r.Height}",
+    _ =&gt; "Forme inconnue" // Discard par défaut
+};</code></pre>
+<p>Cette syntaxe garantit :</p>
+<ul>
+  <li>L’exhaustivité des cas vérifiée par le compilateur (avertissement si une branche est omise) ;</li>
+  <li>L’intégration de conditions booléennes arbitraires via la clause <code>when</code> ;</li>
+  <li>L’extraction automatique (déconstruction) des variables typées sans cast manuel intermédiaire.</li>
+</ul>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="csb2-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="int a = 42; object o = a; int b = (int)o; string s = &quot;test&quot;;">
+  <script type="text/plain" data-lab-starter>import sys
+
+code = sys.stdin.read().strip()
+
+# À compléter : analyser chaque instruction C# et classifier l'allocation mémoire
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Détecteur de Boxing/Unboxing et allocation Stack vs Heap</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une suite d'instructions C# pour détecter les opérations de boxing/unboxing et localiser les données en mémoire.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une suite d'instructions C# séparées par des points-virgules de la forme <code>Type variable = expression;</code>.<br>
+Pour chaque affectation, il détermine :
+- Le <strong>nom de la variable</strong> et son <strong>type CLR</strong> ;
+- L'emplacement mémoire : <code>Stack</code> (types valeur : <code>int</code>, <code>double</code>, <code>bool</code>, <code>char</code>, <code>float</code>, <code>long</code>) ou <code>Heap</code> (types référence : <code>string</code>, <code>object</code>) ;
+- L'opération effectuée : <code>ALLOCATION</code>, <code>BOXING</code> (type valeur encapsulé dans <code>object</code>), <code>UNBOXING</code> (cast explicite d'<code>object</code> vers type valeur), ou <code>COPIE_VALEUR</code> / <code>COPIE_REF</code>.</p>
+<p>Format de sortie :<br><code>&lt;variable&gt;: Type=&lt;type&gt; | Mem=&lt;Stack|Heap&gt; | Op=&lt;Operation&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>int a = 42; object o = a; int b = (int)o; string s = "test";</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>a: Type=int | Mem=Stack | Op=ALLOCATION
+o: Type=object | Mem=Heap | Op=BOXING
+b: Type=int | Mem=Stack | Op=UNBOXING
+s: Type=string | Mem=Heap | Op=ALLOCATION</pre></div>
+    </div>
+    <p class="lab__note">Allocation primitive, puis boxing vers object, unboxing vers int, et chaîne sur le Heap.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un cast de type (int)obj vers un type valeur constitue un UNBOXING.</li>
+        <li>L'assignation d'une variable de type valeur à une variable de type object déclenche un BOXING.</li>
+        <li>Les types valeur (int, double, bool...) vivent sur la pile (Stack), tandis que les objets et chaînes vivent sur le tas (Heap).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="INIT a=10, b=20, c=0&#10;METHOD Modifier(val x, ref y, out z)&#10;BODY x=x*2; y=y+50; z=x+y&#10;CALL Modifier(a, ref b, out c)">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler le passage d'arguments par valeur, ref et out
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Passage d'arguments par valeur, référence (ref) et sortie (out)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'exécution d'une méthode C# recevant des paramètres par valeur, ref et out.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard 4 lignes décrivant l'appel d'une méthode C# :<br>
+- <code>INIT &lt;var1&gt;=&lt;val1&gt;, &lt;var2&gt;=&lt;val2&gt;...</code> : état initial des variables de l'appelant.<br>
+- <code>METHOD &lt;Nom&gt;(&lt;mod1&gt; &lt;p1&gt;, &lt;mod2&gt; &lt;p2&gt;...)</code> : signature (modificateurs : <code>val</code>, <code>ref</code> ou <code>out</code>).<br>
+- <code>BODY &lt;instr1&gt;; &lt;instr2&gt;...</code> : corps de la méthode (affectations arithmétiques).<br>
+- <code>CALL &lt;Nom&gt;(&lt;arg1&gt;, [ref|out] &lt;arg2&gt;...)</code> : instruction d'appel.<br>
+Le script doit simuler l'exécution et afficher l'état initial, la méthode exécutée et l'état final des variables après retour de la méthode (les variables passées par <code>ref</code> ou <code>out</code> voient leurs modifications propagées à l'appelant, contrairement au passage par valeur).</p>
+<p>Format de sortie :<br><code>ETAT_INITIAL: a=&lt;val&gt;, b=&lt;val&gt;...</code><br><code>METHODE: &lt;Nom&gt;</code><br><code>ETAT_FINAL: a=&lt;val&gt;, b=&lt;val&gt;...</code> (variables triées par ordre alphabétique)</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>INIT a=10, b=20, c=0
+METHOD Modifier(val x, ref y, out z)
+BODY x=x*2; y=y+50; z=x+y
+CALL Modifier(a, ref b, out c)</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ETAT_INITIAL: a=10, b=20, c=0
+METHODE: Modifier
+ETAT_FINAL: a=10, b=70, c=90</pre></div>
+    </div>
+    <p class="lab__note">x reste local (a inchangé), b est modifié par ref, et c reçoit la valeur de sortie z.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Les paramètres "val" reçoivent une copie locale qui ne modifie pas l'appelant.</li>
+        <li>Les paramètres "ref" et "out" pointent vers la variable de l'appelant : toute modification locale doit être répercutée.</li>
+        <li>Affiche les variables triées par ordre alphabétique sous le format nom=valeur.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="Circle Radius=12&#10;Circle Radius=4&#10;Rectangle Width=5 Height=5&#10;Rectangle Width=8 Height=3&#10;Triangle Base=4 Height=6">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler la switch expression C# avec clauses when
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur de Pattern Matching et Switch Expressions C#</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer une suite d'objets géométriques via une switch expression C# avec filtres conditionnels when.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une liste d'objets géométriques (une forme par ligne), par exemple <code>Circle Radius=12</code> ou <code>Rectangle Width=5 Height=5</code>.<br>
+Il doit simuler l'évaluation d'une expression <code>switch</code> C# moderne :<br>
+- <code>Circle c when c.Radius &gt; 10</code> =&gt; <code>GrandCercle</code> (Aire = <code>3.14 * r * r</code>) ;<br>
+- <code>Circle c</code> =&gt; <code>PetitCercle</code> (Aire = <code>3.14 * r * r</code>) ;<br>
+- <code>Rectangle r when r.Width == r.Height</code> =&gt; <code>Carre</code> (Aire = <code>w * h</code>) ;<br>
+- <code>Rectangle r</code> =&gt; <code>Rectangle</code> (Aire = <code>w * h</code>) ;<br>
+- Discard <code>_</code> =&gt; <code>FormeNonSupportee</code> (Aire = 0.00).</p>
+<p>Format de sortie :<br><code>&lt;DescriptionInitiale&gt; =&gt; &lt;Categorie&gt; | Aire=&lt;Valeur2Dec&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Circle Radius=12
+Circle Radius=4
+Rectangle Width=5 Height=5
+Rectangle Width=8 Height=3
+Triangle Base=4 Height=6</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Circle (r=12) =&gt; GrandCercle | Aire=452.16
+Circle (r=4) =&gt; PetitCercle | Aire=50.24
+Rectangle (5x5) =&gt; Carre | Aire=25.00
+Rectangle (8x3) =&gt; Rectangle | Aire=24.00
+Triangle =&gt; FormeNonSupportee | Aire=0.00</pre></div>
+    </div>
+    <p class="lab__note">Switch pattern matching avec filtre conditionnel when sur le rayon et égalité largeur/hauteur.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extrais le type et les propriétés clés-valeurs de chaque forme.</li>
+        <li>Dans une switch expression C#, l'ordre des branches est crucial : les gardes "when" plus spécifiques doivent précéder les cas généraux.</li>
+        <li>Formate les aires avec 2 décimales via :.2f.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Où est stockée en mémoire une variable déclarée comme "int x = 42;" à l’intérieur d’une méthode locale C# ?</p>
+      <div class="opts">
+        <button class="opt">Sur le tas managé (Heap), gérée par le Garbage Collector.</button>
+        <button class="opt" data-correct="1">Sur la pile d’exécution (Stack), détruite automatiquement au retour de la méthode.</button>
+        <button class="opt">Dans les métadonnées globales de l’assemblage CIL.</button>
+        <button class="opt">Dans le cache registre L1 du compilateur Roslyn.</button>
+      </div>
+      <div class="q__exp">Les types valeur primitifs (comme int) déclarés localement dans une méthode sont alloués directement sur la pile (Stack) et libérés immédiatement au désempilement du frame de la méthode.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle instruction C# provoque une opération de Boxing ?</p>
+      <div class="opts">
+        <button class="opt">int a = 10; int b = a;</button>
+        <button class="opt">string s = "test"; object o = s;</button>
+        <button class="opt" data-correct="1">int n = 5; object obj = n;</button>
+        <button class="opt">double d = 3.14; float f = (float)d;</button>
+      </div>
+      <div class="q__exp">Le boxing a lieu lorsqu’une variable de type valeur (comme int) est affectée à un type référence comme object ou une interface. Une boîte objet est alors allouée sur le tas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est l’obligation imposée par le compilateur C# pour un paramètre de méthode déclaré avec le mot-clé out ?</p>
+      <div class="opts">
+        <button class="opt">La variable doit être initialisée par l’appelant avant le passage de l’argument.</button>
+        <button class="opt" data-correct="1">La méthode appelée doit obligatoirement assigner une valeur au paramètre avant tout retour normal.</button>
+        <button class="opt">Le paramètre ne peut pas être modifié au sein de la méthode appelée.</button>
+        <button class="opt">Le paramètre doit impérativement être un type référence alloué sur le tas.</button>
+      </div>
+      <div class="q__exp">Avec le modificateur out, l’appelant n’a pas besoin d’initialiser la variable, mais la méthode appelée a l’obligation stricte de lui affecter une valeur avant de retourner (erreur CS0177 sinon).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une switch expression C#, que représente le symbole de soulignement _ ?</p>
+      <div class="opts">
+        <button class="opt">Une référence vers l’objet parent en cours d’évaluation.</button>
+        <button class="opt" data-correct="1">Le motif par défaut (discard) capturant toutes les valeurs non appariées par les branches précédentes.</button>
+        <button class="opt">Une directive ordonnant au compilateur de lever une NotImplementedException.</button>
+        <button class="opt">Un alias pour la valeur null.</button>
+      </div>
+      <div class="q__exp">Le symbole _ (discard pattern) fait office de branche par défaut dans une switch expression C#, équivalent au bloc default: d’une instruction switch classique.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre types valeur et types référence lors de l’assignation : copier une struct duplique ses données, copier une classe partage l’instance.</li>
+      <li>Provoquer du boxing involontaire en passant une variable primitive (int, bool) à une méthode attendant un object ou dans une concaténation non typée.</li>
+      <li>Oublier d’assigner tous les paramètres marqués out dans tous les chemins de code d’une méthode (erreur de compilation CS0177).</li>
+      <li>Ordonner incorrectement les branches d’une switch expression en plaçant un motif général avant un motif spécialisé avec clause when (code mort inatteignable).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour optimiser la mémoire et les flux d’arguments en C#</div>
+    <ol>
+      <li>Classifier les types nécessaires : struct sur la pile pour les petits agrégats immuables (<= 16 octets), class pour les entités métier.</li>
+      <li>Traquer et supprimer le boxing en privilégiant les types génériques et les conversions explicites typées.</li>
+      <li>Choisir le modificateur de paramètre approprié : par valeur pour isoler, ref pour muter l’appelant, out pour renvoyer des résultats, in pour la lecture seule sans copie.</li>
+      <li>Structurer la logique conditionnelle complexe avec des switch expressions et du pattern matching exhaustif avec gardes when.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le code C# est compilé en CIL (Roslyn) puis exécuté et traduit en code machine natif par le JIT de la CLR.</li>
+      <li>Les types valeur (struct) résident sur la pile (Stack) ; les types référence (class) résident sur le tas (Heap).</li>
+      <li>Le boxing encapsule un type valeur dans un objet sur le tas ; l’unboxing extrait la valeur par cast explicite.</li>
+      <li>Les modificateurs ref et out permettent le passage par référence directe vers la variable de l’appelant.</li>
+      <li>Les expressions switch C# modernes permettent le filtrage par type, déconstruction et gardes conditionnels when.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends le rôle de la CLR, du CIL et de la compilation JIT.</li>
+      <li>Je sais distinguer l’allocation sur la pile (Stack) de l’allocation sur le tas (Heap).</li>
+      <li>Je sais identifier et éliminer les opérations de boxing/unboxing.</li>
+      <li>Je maîtrise l’usage des modificateurs de paramètres ref, out et in.</li>
+      <li>Je sais écrire une switch expression exhaustive avec clauses when.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Architecture CLR (Common Language Runtime)</li><li>Compilation JIT (Just-In-Time) et code CIL/MSIL</li><li>Allocation mémoire : Pile (Stack) vs Tas (Heap)</li><li>Types Valeur (struct) vs Types Référence (class)</li><li>Mécanisme et coût du Boxing / Unboxing</li><li>Passage de paramètres : valeur, ref, out et in</li><li>Switch Expressions modernes (C# 8+)</li><li>Pattern Matching avec gardes conditionnels when</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise les types valeur vs référence et le mécanisme de boxing/unboxing.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les modificateurs ref et out et la pile d’exécution.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises l’architecture CLR et le pattern matching C#.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe à l’encapsulation moderne et aux records au module 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Encapsulation &amp; Programmation Orientée Objet Moderne en C# <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Microsoft Learn .NET / C#, les spécifications du standard ECMA-334 (C# Language Specification) et les ouvrages de référence de Jon Skeet et Jeffrey Richter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Encapsulation &amp;amp; Programmation Orientée Objet Moderne en C# | C# B2</title>
+<meta name="description" content="Chapitre 2 du cours C# B2 : Encapsulation stricte, propriétés auto-implémentées avec validation get/set, accesseurs init-only, constructeurs surchargés et chaînage : this(), constructeurs primaires, records immuables et expression with. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/csharp/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Encapsulation &amp;amp; Programmation Orientée Objet Moderne en C# | C# B2">
+<meta property="og:description" content="Chapitre 2 du cours C# B2 : Encapsulation stricte, propriétés auto-implémentées avec validation get/set, accesseurs init-only, constructeurs surchargés et chaînage : this(), constructeurs primaires, records immuables et expression with. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="csharpnav"><div class="csharpnav__in">
+  <a class="csharpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="csharpnav__sep" aria-hidden="true">/</span>
+  <a class="csharpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> C# B2</a>
+  <div class="csharpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="csharpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="csharpwrap">
+<p class="crumb"><a href="../index.html">C# B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Encapsulation &amp; Programmation Orientée Objet Moderne en C#</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une plateforme de commerce électronique souffre d’incohérences de données critiques en production : des soldes de clients deviennent négatifs suite à des accès directs aux champs de classe, et des objets partagés entre plusieurs threads sont mutés de façon imprévisible, corrompant les paniers d’achat. L’architecte logiciel exige une refactorisation immédiate vers les standards modernes de C# : encapsulation hermétique via des propriétés auto-implémentées validées, utilisation d’accesseurs init-only, harmonisation des constructeurs avec chaînage explicite, et adoption de records immuables manipulés par mutabilité non destructive (with). Ce module détaille la conception orientée objet robuste selon les idiomes .NET contemporains.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>concevoir des classes hermétiques respectant le principe d’encapsulation avec champs privés et accesseurs de propriété ;</li>
+      <li>exploiter les propriétés auto-implémentées avec accesseurs différenciés (get public, set ou init privé) ;</li>
+      <li>chaîner les constructeurs surchargés via l’initialiseur : this() pour éliminer la duplication de code d’initialisation ;</li>
+      <li>comprendre les constructeurs primaires introduits dans les versions modernes de C# ;</li>
+      <li>maîtriser les records C#, l’égalité structurelle par valeur et le clonage non destructif avec l’expression with.</li>
+    </ol>
+  </div>
+
+<h2>1. Encapsulation &amp; Propriétés C# Auto-implémentées</h2>
+
+<p>L’<strong>encapsulation</strong> est le pilier fondamental de la POO qui consiste à masquer l’état interne d’un objet et à n’exposer que des interfaces de contrôle strictes. En C#, on ne déclare jamais de champs publics (<em>fields</em>) : on expose des <strong>propriétés</strong> (<em>properties</em>).</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Propriété classique avec champ de soutien (Backing Field)</h4>
+    <pre><code class="language-csharp">public class Compte {
+    private decimal _solde;
+    public decimal Solde {
+        get =&gt; _solde;
+        set {
+            if (value &lt; 0) throw new ArgumentOutOfRangeException("Solde négatif refusé");
+            _solde = value;
+        }
+    }
+}</code></pre>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Propriété auto-implémentée moderne</h4>
+    <pre><code class="language-csharp">public class Utilisateur {
+    // Le compilateur génère le champ privé en coulisses
+    public string Id { get; init; }
+    public string Nom { get; set; }
+    public decimal Score { get; private set; } = 100m;
+}</code></pre>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L’accesseur init (C# 9+)</div>
+<p>L’accesseur <code>init</code> autorise la modification de la propriété <strong>uniquement lors de l’instanciation</strong> de l’objet (dans le constructeur ou via un initialiseur d’objet <code>new Utilisateur { Id = "U1" }</code>). Une fois l’objet créé, la propriété devient strictement en lecture seule, garantissant une immuabilité absolue sans boilerplate.</p>
+  </div>
+
+<h2>2. Constructeurs, Chaînage : this() &amp; Constructeurs Primaires</h2>
+
+<p>Lorsqu’une classe offre plusieurs constructeurs pour s’adapter à différents scénarios d’initialisation, la duplication de logique doit être évitée en déléguant au constructeur le plus complet grâce à l’instruction <code>: this(...)</code> :</p>
+<pre><code class="language-csharp">public class Produit {
+    public string Reference { get; }
+    public string Libelle { get; }
+    public decimal Prix { get; }
+
+    // Constructeur 1 : référence seule
+    public Produit(string reference) : this(reference, "Non renseigné", 0.0m) {}
+
+    // Constructeur 2 : référence et libellé
+    public Produit(string reference, string libelle) : this(reference, libelle, 0.0m) {}
+
+    // Constructeur principal : logique d’assignation unique
+    public Produit(string reference, string libelle, decimal prix) {
+        Reference = reference ?? throw new ArgumentNullException(nameof(reference));
+        Libelle = libelle;
+        Prix = prix;
+    }
+}</code></pre>
+<p>Depuis C# 12, les <strong>constructeurs primaires</strong> (<em>Primary Constructors</em>) permettent de déclarer les paramètres d’initialisation directement sur la ligne de déclaration de la classe :</p>
+<pre><code class="language-csharp">public class ServiceClient(string apiUrl, int timeoutSecondes = 30) {
+    public void Appeler() =&gt; Console.WriteLine($"Appel {apiUrl} avec timeout {timeoutSecondes}s");
+}</code></pre>
+
+<h2>3. Records C# &amp; Mutabilité Non Destructive (with)</h2>
+
+<p>Introduits en C# 9, les <strong>records</strong> (<code>record class</code> ou <code>record struct</code>) sont des types conçus spécifiquement pour encapsuler des données immuables. Ils se distinguent des classes classiques par deux caractéristiques majeures :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">1. Égalité structurelle par valeur</h4>
+    <p>Deux instances d’un record possédant les mêmes valeurs pour toutes leurs propriétés sont considérées comme <strong>égales</strong> (<code>Equals</code> et opérateur <code>==</code> renvoient true), même si elles occupent deux adresses mémoires distinctes sur le tas.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. Clonage non destructif avec with</h4>
+    <p>L’expression <code>with</code> crée une copie superficielle (<em>shallow copy</em>) de l’instance tout en modifiant de façon ciblée une ou plusieurs propriétés spécifiées, préservant ainsi l’objet d’origine.</p>
+  </div>
+</div>
+<pre><code class="language-csharp">// Déclaration positionnelle ultra-concise
+public record Commande(string Id, string Client, decimal Montant, string Statut);
+
+var c1 = new Commande("CMD-01", "Alice", 120.0m, "EnAttente");
+// Clonage non destructif : c1 reste inchangé, c2 reçoit le nouveau statut
+var c2 = c1 with { Statut = "Expédiée" };
+
+var c3 = new Commande("CMD-01", "Alice", 120.0m, "EnAttente");
+Console.WriteLine(c1 == c3); // Affiche "True" (égalité par valeur native)</code></pre>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="csb2-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="INIT Titulaire=&quot;Alice&quot; Solde=100.0&#10;DEPOT 50.0&#10;RETRAIT 30.0&#10;RETRAIT 200.0">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler la classe CompteBancaire avec accesseurs validés
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Propriétés auto-implémentées et validation get / set</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'encapsulation d'un compte bancaire C# avec validation stricte sur les accesseurs de propriété.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une ligne d'initialisation suivie de commandes d'opérations bancaires :<br>
+- <code>INIT Titulaire="&lt;Nom&gt;" Solde=&lt;MontantInitial&gt;</code> ;<br>
+- <code>DEPOT &lt;Montant&gt;</code> : crédite le solde si <code>montant &gt; 0</code>, sinon rejette avec <code>ArgumentException (Montant invalide)</code> ;<br>
+- <code>RETRAIT &lt;Montant&gt;</code> : débite le compte si <code>montant &gt; 0</code> et que <code>Solde - montant &gt;= 0</code>, sinon rejette avec <code>InvalidOperationException (Solde insuffisant)</code>.<br>
+Le script doit afficher le résumé initial, chaque opération avec son issue, et le solde final.</p>
+<p>Format de sortie :<br><code>Compte: &lt;Titulaire&gt; | Solde initial: &lt;Montant2Dec&gt;</code><br><code>DEPOT &lt;Montant2Dec&gt; =&gt; Succes | Nouveau solde: &lt;Montant2Dec&gt;</code><br><code>RETRAIT &lt;Montant2Dec&gt; =&gt; Rejet: &lt;TypeException&gt; (&lt;Motif&gt;)</code><br><code>SOLDE_FINAL: &lt;Montant2Dec&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>INIT Titulaire="Alice" Solde=100.0
+DEPOT 50.0
+RETRAIT 30.0
+RETRAIT 200.0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Compte: Alice | Solde initial: 100.00
+DEPOT 50.00 =&gt; Succes | Nouveau solde: 150.00
+RETRAIT 30.00 =&gt; Succes | Nouveau solde: 120.00
+RETRAIT 200.00 =&gt; Rejet: InvalidOperationException (Solde insuffisant)
+SOLDE_FINAL: 120.00</pre></div>
+    </div>
+    <p class="lab__note">Dépôt validé, premier retrait validé, second retrait rejeté car découvert non autorisé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garde une trace du titulaire et du solde courant.</li>
+        <li>Vérifie que les montants de dépôt et retrait sont strictement positifs.</li>
+        <li>Formate les montants monétaires avec deux décimales (ex: 100.00).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="NEW Article(&quot;REF01&quot;)&#10;NEW Article(&quot;REF02&quot;, &quot;Souris&quot;)&#10;NEW Article(&quot;REF03&quot;, &quot;Clavier&quot;, 49.99)">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler le chaînage de constructeurs : this() en C#
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Chaînage de constructeurs C# avec constructeur primaire et : this()</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le chaînage d'appels de constructeurs C# surchargés via l'initialiseur : this().</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des instructions d'instanciation d'une classe <code>Article</code> sous la forme :<br>
+- <code>NEW Article("&lt;Ref&gt;")</code> =&gt; délègue à <code>this(r, "Sans nom")</code> qui délègue à <code>this(r, nom, 0.0)</code> ;<br>
+- <code>NEW Article("&lt;Ref&gt;", "&lt;Nom&gt;")</code> =&gt; délègue à <code>this(r, nom, 0.0)</code> ;<br>
+- <code>NEW Article("&lt;Ref&gt;", "&lt;Nom&gt;", &lt;Prix&gt;)</code> =&gt; constructeur principal finalisant l'objet.<br>
+Pour chaque commande, le script affiche la chaîne exacte des constructeurs traversés et l'objet résultant.</p>
+<p>Format de sortie :<br><code>Article(...) =&gt; Chaine: &lt;Constructeur1&gt; -&gt; &lt;Constructeur2&gt;... | Objet: [Ref=&lt;Ref&gt;, Nom=&lt;Nom&gt;, Prix=&lt;Prix2Dec&gt;]</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NEW Article("REF01")
+NEW Article("REF02", "Souris")
+NEW Article("REF03", "Clavier", 49.99)</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Article("REF01") =&gt; Chaine: ctor(r) -&gt; ctor(r, nom) -&gt; ctor(r, nom, prix) | Objet: [Ref=REF01, Nom=Sans nom, Prix=0.00]
+Article("REF02", "Souris") =&gt; Chaine: ctor(r, nom) -&gt; ctor(r, nom, prix) | Objet: [Ref=REF02, Nom=Souris, Prix=0.00]
+Article("REF03", "Clavier", 49.99) =&gt; Chaine: ctor(r, nom, prix) | Objet: [Ref=REF03, Nom=Clavier, Prix=49.99]</pre></div>
+    </div>
+    <p class="lab__note">Démonstration du chaînage de constructeurs C# via : this().</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Identifie le nombre d'arguments passés pour déterminer quel constructeur est appelé en premier.</li>
+        <li>Le constructeur à 1 paramètre appelle celui à 2 paramètres, qui lui-même appelle celui à 3 paramètres.</li>
+        <li>Formate le prix avec deux décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="RECORD u1 Id=U101 Email=alice@corp.com Role=Lecteur&#10;WITH u2 FROM u1 Role=Admin&#10;RECORD u3 Id=U101 Email=alice@corp.com Role=Lecteur&#10;COMPARE u1 u2&#10;COMPARE u1 u3">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler les records immuables C# et l'expression with
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Records C# 9+ et mutabilité non destructive (with)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le comportement des records immuables C# et la création de copies via l'expression with.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une suite d'instructions manipulant des records C# :<br>
+- <code>RECORD &lt;nom&gt; &lt;prop1&gt;=&lt;val1&gt; &lt;prop2&gt;=&lt;val2&gt;...</code> : création d'un record immuable ;<br>
+- <code>WITH &lt;nouveau_nom&gt; FROM &lt;nom_source&gt; &lt;propModif&gt;=&lt;valModif&gt;...</code> : clonage non destructif avec l'expression C# <code>with { ... }</code> ;<br>
+- <code>COMPARE &lt;record1&gt; &lt;record2&gt;</code> : comparaison d'égalité structurelle (value-based equality native des records C#).<br>
+Le script affiche la création, la copie non destructive et le résultat des comparaisons.</p>
+<p>Format de sortie :<br><code>CREATE: &lt;nom&gt; =&gt; Record { &lt;k1&gt; = &lt;v1&gt;, ... }</code><br><code>WITH: &lt;nom&gt; =&gt; Record { &lt;k1&gt; = &lt;v1&gt;, ... }</code><br><code>EQUALS: &lt;r1&gt; == &lt;r2&gt; =&gt; True|False [ (Egalite structurelle)]</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RECORD u1 Id=U101 Email=alice@corp.com Role=Lecteur
+WITH u2 FROM u1 Role=Admin
+RECORD u3 Id=U101 Email=alice@corp.com Role=Lecteur
+COMPARE u1 u2
+COMPARE u1 u3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CREATE: u1 =&gt; Record { Id = U101, Email = alice@corp.com, Role = Lecteur }
+WITH: u2 =&gt; Record { Id = U101, Email = alice@corp.com, Role = Admin }
+CREATE: u3 =&gt; Record { Id = U101, Email = alice@corp.com, Role = Lecteur }
+EQUALS: u1 == u2 =&gt; False
+EQUALS: u1 == u3 =&gt; True (Egalite structurelle)</pre></div>
+    </div>
+    <p class="lab__note">Clonage avec with préservant l'immuabilité et égalité structurelle entre u1 et u3.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un record C# possède une égalité par valeur automatique (égalité structurelle de toutes les propriétés).</li>
+        <li>L'expression with copie toutes les propriétés du record source puis écrase celles spécifiées.</li>
+        <li>Affiche "(Egalite structurelle)" lorsque deux records distincts possèdent les mêmes valeurs.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l’effet de l’accesseur "init" sur une propriété C# ?</p>
+      <div class="opts">
+        <button class="opt">La propriété ne peut être modifiée qu’au sein d’une méthode asynchrone.</button>
+        <button class="opt" data-correct="1">La propriété ne peut être assignée que lors de la construction ou dans un initialiseur d’objet ; elle devient ensuite immuable.</button>
+        <button class="opt">La propriété est réinitialisée automatiquement à sa valeur par défaut à chaque accès.</button>
+        <button class="opt">La propriété ne peut être lue que par les classes dérivées.</button>
+      </div>
+      <div class="q__exp">L’accesseur init (C# 9) permet la mutation lors de la phase d’initialisation (constructeur ou syntaxes d’initialiseur new T { Prop = val }), puis verrouille la propriété en lecture seule.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment appelle-t-on un constructeur frère au sein de la même classe en C# ?</p>
+      <div class="opts">
+        <button class="opt">En utilisant super(...) au début du constructeur.</button>
+        <button class="opt" data-correct="1">En utilisant : this(...) immédiatement après la signature du constructeur.</button>
+        <button class="opt">En appelant explicitement this.Constructeur(...) dans le corps de la méthode.</button>
+        <button class="opt">En utilisant le mot-clé base(...) avec le préfixe self.</button>
+      </div>
+      <div class="q__exp">En C#, le chaînage vers un autre constructeur de la même classe s’effectue via la clause d’initialisation : this(arguments) placée entre la signature et le corps du constructeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre deux instances de class et deux instances de record ayant des propriétés identiques ?</p>
+      <div class="opts">
+        <button class="opt">Les classes ne supportent pas le Garbage Collector.</button>
+        <button class="opt" data-correct="1">Les instances de record sont égales via == (égalité structurelle par valeur), tandis que les classes comparent leurs références mémoire par défaut.</button>
+        <button class="opt">Les records sont stockés exclusivement sur la pile d’exécution.</button>
+        <button class="opt">Les classes ne peuvent pas contenir de méthodes d’instance.</button>
+      </div>
+      <div class="q__exp">Les records C# implémentent automatiquement l’égalité structurelle basée sur la valeur de leurs propriétés, tandis que les classes ordinaires appliquent l’égalité de référence (identité mémoire).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert l’expression "with" appliquée sur un record C# ?</p>
+      <div class="opts">
+        <button class="opt">À détruire le record pour libérer sa mémoire immédiatement.</button>
+        <button class="opt" data-correct="1">À créer une nouvelle copie du record en modifiant uniquement les propriétés spécifiées (mutabilité non destructive).</button>
+        <button class="opt">À convertir le record en un dictionnaire JSON dynamique.</button>
+        <button class="opt">À vérifier la présence d’une clé dans le record.</button>
+      </div>
+      <div class="q__exp">L’expression with réalise un clonage non destructif : elle produit une nouvelle instance du record avec les mêmes valeurs que l’original, sauf pour les propriétés expressément réassignées dans le bloc with.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Exposer des champs publics directs (public string Nom;) au lieu de propriétés (public string Nom { get; set; }), empêchant tout contrôle futur sur les mutations.</li>
+      <li>Tenter de modifier une propriété possédant un accesseur init après la fin du bloc d’initialisation (erreur de compilation CS8852).</li>
+      <li>Créer des boucles infinies de chaînage de constructeurs (ctor A appelle ctor B qui rappelle ctor A).</li>
+      <li>Confondre l’égalité de référence (classes standard où deux new donnent deux objets différents) et l’égalité de valeur des records C#.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour concevoir une classe ou un record C# robuste</div>
+    <ol>
+      <li>Masquer totalement l’état interne de la classe en interdisant les champs publics.</li>
+      <li>Définir des propriétés auto-implémentées avec les accesseurs les plus restreints possibles (private set ou init).</li>
+      <li>Centraliser l’initialisation dans un constructeur principal et chaîner les surcharges via : this().</li>
+      <li>Utiliser des records (record class ou record struct) pour les conteneurs de données immuables et le clonage avec with.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L’encapsulation protège l’état interne des objets en exposant uniquement des propriétés contrôlées.</li>
+      <li>L’accesseur init (C# 9+) verrouille la propriété en lecture seule immédiatement après l’instanciation.</li>
+      <li>Le chaînage de constructeurs : this(...) élimine la duplication de code d’initialisation entre surcharges.</li>
+      <li>Les constructeurs primaires (C# 12) simplifient la déclaration des dépendances directement sur la classe.</li>
+      <li>Les records C# fournissent l’égalité structurelle par valeur native et le clonage non destructif via l’expression with.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je n’expose aucun champ public direct dans mes classes C#.</li>
+      <li>Je sais créer des propriétés auto-implémentées avec validation ou accesseur init.</li>
+      <li>Je maîtrise le chaînage de constructeurs via : this().</li>
+      <li>Je comprends l’égalité structurelle des records par rapport aux classes classiques.</li>
+      <li>Je sais utiliser l’expression with pour dupliquer et modifier un record immuable.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Encapsulation et masquage d’information</li><li>Propriétés avec champ de soutien (Backing Field)</li><li>Propriétés auto-implémentées (Auto-Properties)</li><li>Accesseur d’initialisation init (C# 9+)</li><li>Chaînage de constructeurs surchargés : this()</li><li>Constructeurs primaires (Primary Constructors C# 12)</li><li>Records C# et égalité structurelle par valeur</li><li>Mutabilité non destructive avec l’expression with</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise l’encapsulation et les propriétés auto-implémentées.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le chaînage de constructeurs : this() et les accesseurs init.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les records C# et l’expression with.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe au polymorphisme dynamique et aux interfaces au module 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Héritage, Polymorphisme &amp; Interfaces <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Microsoft Learn .NET / C#, les spécifications du standard ECMA-334 (C# Language Specification) et les ouvrages de référence de Jon Skeet et Jeffrey Richter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Outils &amp;amp; Protocoles d’Acquisition : Mécanismes Push/Pull, RSS &amp;amp; Déduplication | Veille Technologique &amp; Innovation B3</title>
+<meta name="description" content="Chapitre 3 du cours Veille Technologique B3 : Protocoles de collecte automatisée, analyse comparative Push vs Pull, formats de syndication standardisés (RSS 2.0, Atom XML), newsletters d’ingénierie et webhooks, normalisation des URLs de tracking (UTM), algorithmes de déduplication par similarité lexicale (Jaccard), et régulation de débit (Rate Limiting). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-veille/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Outils &amp;amp; Protocoles d’Acquisition : Mécanismes Push/Pull, RSS &amp;amp; Déduplication | Veille Technologique &amp; Innovation B3">
+<meta property="og:description" content="Chapitre 3 du cours Veille Technologique B3 : Protocoles de collecte automatisée, analyse comparative Push vs Pull, formats de syndication standardisés (RSS 2.0, Atom XML), newsletters d’ingénierie et webhooks, normalisation des URLs de tracking (UTM), algorithmes de déduplication par similarité lexicale (Jaccard), et régulation de débit (Rate Limiting). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-veillenav"><div class="b3-veillenav__in">
+  <a class="b3-veillenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-veillenav__sep" aria-hidden="true">/</span>
+  <a class="b3-veillenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-search"></use></svg> Veille Technologique &amp; Innovation B3</a>
+  <div class="b3-veillenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-veillenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-veillewrap">
+<p class="crumb"><a href="../index.html">Veille Technologique & Innovation B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Outils &amp; Protocoles d’Acquisition : Mécanismes Push/Pull, RSS &amp; Déduplication</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Automatiser la collecte de données sur le web est une compétence clé de l’ingénieur système et data. Cependant, agréger des dizaines de flux d’actualités expose à deux écueils majeurs : l’aspiration de contenus redondants sous des URLs de tracking différentes et le blocage d’adresses IP par les serveurs distants pour abus de requêtes (HTTP 429 Too Many Requests). L’ingénieur de niveau B3 doit comprendre les protocoles de transport et de syndication (RSS, Atom, Webhooks), concevoir des parseurs XML robustes capables d’extraire les métadonnées normées, appliquer des algorithmes de nettoyage d’URL et de déduplication lexicale par similarité de Jaccard, et orchestrer la charge de requêtes via des ordonnanceurs respectant les quotas d’appels API.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre les mécanismes d’échange et protocoles de syndication Push et Pull ;</li>
+      <li>analyser la structure XML d’un flux RSS 2.0 (channel, item, title, link, guid, pubDate) et Atom ;</li>
+      <li>configurer des agrégateurs et des collecteurs automatisés d’ingénierie ;</li>
+      <li>nettoyer les paramètres de pistage d’URL (UTM analytics, balises ref et tracking) ;</li>
+      <li>implémenter l’algorithme de similarité de Jaccard pour éliminer les quasi-doublons de titres ;</li>
+      <li>développer en Python 3 des parseurs de flux RSS/Atom, des déduplicateurs de flux et des ordonnanceurs avec Rate Limiter.</li>
+    </ol>
+  </div>
+
+<h2>1. Mécanismes Push vs Pull & Formats de Syndication (RSS 2.0 / Atom)</h2>
+
+<p>L’acquisition automatisée de données repose sur deux paradigmes de communication client-serveur aux propriétés complémentaires :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Comparatif Push vs Pull en Veille</h4>
+    <ul>
+      <li><strong>Mécanisme Pull (Tirage) :</strong> Le client interroge périodiquement le serveur distant (polling). Utilisé pour le moissonnage web (scraping) ou la lecture d’API REST. Risque de requêtes inutiles et de décalage temporel si la période est trop longue.</li>
+      <li><strong>Mécanisme Push (Poussée) :</strong> Le serveur émetteur notifie immédiatement le client dès qu’un nouvel événement survient (Webhooks, alertes e-mail, WebSockets). Latence quasi-nulle, zéro requête polling côté client.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Anatomie d’un Flux RSS 2.0</h4>
+    <p>Le format <strong>RSS</strong> (<em>Really Simple Syndication</em>) est un document XML standardisé permettant la diffusion rapide de nouveautés :</p>
+    <pre><code>&lt;rss version="2.0"&gt;
+  &lt;channel&gt;
+    &lt;title&gt;ANSSI Alertes de Sécurité&lt;/title&gt;
+    &lt;item&gt;
+      &lt;guid&gt;cve-2025-1044&lt;/guid&gt;
+      &lt;title&gt;Vulnérabilité critique OpenSSH&lt;/title&gt;
+      &lt;link&gt;https://cert.ssi.gouv.fr/avis/1044/&lt;/link&gt;
+      &lt;pubDate&gt;2025-10-15&lt;/pubDate&gt;
+    &lt;/item&gt;
+  &lt;/channel&gt;
+&lt;/rss&gt;</code></pre>
+  </div>
+</div>
+
+<h2>2. Nettoyage des URLs & Déduplication par Similarité de Jaccard</h2>
+
+<p>Lorsqu’un robot de veille agrège de multiples sources, une même information est souvent relayée sous des URLs différentes ou avec des titres légèrement reformulés :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Normalisation et Nettoyage d’URLs (UTM Strip)</h4>
+    <p>Les liens promotionnels et newsletters contiennent des paramètres de tracking analytics :</p>
+    <pre><code>https://site.com/post?utm_source=twitter&amp;utm_medium=social&amp;ref=rss</code></pre>
+    <p>Un collecteur rigoureux extrait l’URL canonique en supprimant tous les arguments <code>utm_*</code>, <code>ref</code> et <code>source</code>. Si l’URL nettoyée est déjà enregistrée en base, l’article est rejeté comme <code>DOUBLON_URL</code>.</p>
+  </div>
+  <div class="card">
+    <h4>2. Détection de Quasi-Doublons (Indice de Jaccard)</h4>
+    <p>Deux communiqués de presse distincts traitent souvent du même fait avec des titres voisins :</p>
+    <pre><code>Titre A : "Sortie officielle de Linux 6.12"
+Titre B : "Sortie officielle et annonce de Linux 6.12"</code></pre>
+    <p>L’indice de Jaccard compare les ensembles de mots des deux titres :</p>
+    <pre><code>J(A, B) = |A ∩ B| / |A ∪ B|</code></pre>
+    <p>Pour un seuil critique $J \ge 0.60$, l’article est automatiquement identifié comme <code>DOUBLON_TITRE</code>.</p>
+  </div>
+</div>
+
+<h2>3. Ordonnancement de Collecte & Régulation de Débit (Rate Limiting)</h2>
+
+<p>Interroger des centaines de sites web sans régulation expose le robot à des bannissements IP immédiats :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Défi du Rate Limiting (HTTP 429)</h4>
+    <p>Les serveurs web modernes et plateformes de partage de code (GitHub, GitLab, ArXiv) imposent des quotas stricts d’appels (ex: 60 requêtes par heure pour les accès non authentifiés). Dépasser ce quota entraîne une réponse <code>HTTP 429 Too Many Requests</code> et un blocage temporaire ou définitif de l’adresse IP de veille.</p>
+  </div>
+  <div class="card">
+    <h4>Algorithme de Régulation par Token Bucket</h4>
+    <p>L’ordonnanceur de collecte associe à chaque source un réservoir de jetons (Token Bucket) caractérisé par :</p>
+    <ul>
+      <li>La fréquence d’interrogation minimale autorisée (<code>periode_sec</code>).</li>
+      <li>Le plafond de requêtes par minute (<code>rpm</code>).</li>
+      <li>Si la demande dépasse le quota disponible sur la fenêtre de temps, l’appel est retardé ou le statut est marqué <code>THROTTLED</code> pour protéger le dispositif.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Éthique et Déontologie du Web Scraping :</strong> Avant de concevoir un robot de collecte par scraping HTML, l’ingénieur doit impérativement consulter le fichier <code>robots.txt</code> du domaine cible, respecter la directive <code>Crawl-delay</code> et renseigner un en-tête <code>User-Agent</code> explicite mentionnant l’organisme de recherche.</div>
+
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vt3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="&lt;item&gt;&lt;guid&gt;art-101&lt;/guid&gt;&lt;title&gt;Sortie de Python 3.14&lt;/title&gt;&lt;link&gt;https://python.org/news/101&lt;/link&gt;&lt;pubDate&gt;2025-10-01&lt;/pubDate&gt;&lt;/item&gt;&#10;&lt;item&gt;&lt;guid&gt;art-102&lt;/guid&gt;&lt;title&gt;Vulnérabilité OpenSSL critique&lt;/title&gt;&lt;link&gt;https://cve.mitre.org/2025-02&lt;/link&gt;&lt;pubDate&gt;2025-10-14&lt;/pubDate&gt;&lt;/item&gt;">
+  <script type="text/plain" data-lab-starter>import sys
+import re
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : extraire les attributs de chaque item RSS
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur de flux de syndication RSS 2.0 / Atom</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Extraire et structurer les métadonnées techniques (titre, lien, date, identifiant GUID) d’un flux XML de veille.</p>
+    <div class="lab__brief">Dans la collecte automatisée en mode Push/Pull, les flux RSS 2.0 et Atom constituent le standard d’interopérabilité pour agréger les nouveautés sans polluer les serveurs cibles.
+
+Chaque élément `<item>` contient les balises :
+- `<title>` : titre de la dépêche ou publication
+- `<link>` : URL canonique de la source
+- `<pubDate>` : date de publication au format RFC 822 ou ISO (ex: `2025-10-15`)
+- `<guid>` : identifiant unique de l’élément
+
+Entrée :
+Lignes contenant des balises XML au format standardisé :
+`<item><guid>G</guid><title>T</title><link>L</link><pubDate>D</pubDate></item>`
+
+Sortie :
+- Pour chaque article :
+  `ARTICLE id=<G> title=<T> link=<L> date=<D>`
+- Bilan :
+  `SUMMARY total_articles=<N> latest_date=<D>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>&lt;item&gt;&lt;guid&gt;art-101&lt;/guid&gt;&lt;title&gt;Sortie de Python 3.14&lt;/title&gt;&lt;link&gt;https://python.org/news/101&lt;/link&gt;&lt;pubDate&gt;2025-10-01&lt;/pubDate&gt;&lt;/item&gt;
+&lt;item&gt;&lt;guid&gt;art-102&lt;/guid&gt;&lt;title&gt;Vulnérabilité OpenSSL critique&lt;/title&gt;&lt;link&gt;https://cve.mitre.org/2025-02&lt;/link&gt;&lt;pubDate&gt;2025-10-14&lt;/pubDate&gt;&lt;/item&gt;</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ARTICLE id=art-101 title=Sortie de Python 3.14 link=https://python.org/news/101 date=2025-10-01
+ARTICLE id=art-102 title=Vulnérabilité OpenSSL critique link=https://cve.mitre.org/2025-02 date=2025-10-14
+SUMMARY total_articles=2 latest_date=2025-10-14</pre></div>
+    </div>
+    <p class="lab__note">Le parseur extrait les 4 champs et repère la date la plus récente (2025-10-14).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser des expressions régulières (re.search) ou un découpage pour extraire le contenu entre balises &lt;tag&gt; et &lt;/tag&gt;.</li>
+        <li>Identifier la date la plus récente au format lexicographique YYYY-MM-DD.</li>
+        <li>Gérer les espaces superflus autour du titre et des liens.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="ITEM id=1 url=https://tech.com/news?utm_source=twitter&amp;utm_medium=social title=Sortie officielle de Linux 6.12&#10;ITEM id=2 url=https://tech.com/news?utm_source=newsletter title=Autre actu&#10;ITEM id=3 url=https://autre.com/linux title=Sortie officielle et annonce de Linux 6.12">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : nettoyer l'URL, tester Jaccard et dédupliquer
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur de déduplication multi-sources et nettoyage de liens UTM</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Éliminer les doublons stricts et quasi-doublons de flux via normalisation d’URL et similarité lexicale de Jaccard.</p>
+    <div class="lab__brief">Lorsqu’un veilleur agrège des dizaines de flux RSS et lettres d’information, une même actualité apparaît sous plusieurs URLs avec des paramètres de pistage (UTM) ou des titres légèrement reformulés.
+
+Règles de traitement séquentiel pour chaque article entrant :
+1. **Nettoyage d’URL** : Supprimer tous les paramètres commençant par `utm_` ainsi que `ref` et `source` de la chaîne de requête (séparateurs `?` et `&`).
+   Si l’URL canonique nettoyée a déjà été vue : marquer `DOUBLON_URL` et rejeter.
+2. **Similarité de Jaccard sur les titres** : Comparer l’ensemble des mots minuscules du titre avec les titres des articles *déjà conservés* :
+   $$J(A, B) = \frac{|A \cap B|}{|A \cup B|}$$
+   Si pour un article conservé $J(A, B) \ge 0.60$ : marquer `DOUBLON_TITRE` et rejeter.
+3. Sinon : marquer `CONSERVE` et enregistrer l’article.
+
+Entrée :
+`ITEM id=<ID> url=<URL> title=<TITRE>`
+
+Sortie :
+- Pour chaque élément :
+  `STATUS id=<ID> action=<CONSERVE|DOUBLON_URL|DOUBLON_TITRE>`
+- Bilan :
+  `SUMMARY recus=<N> conserves=<C> doublons=<D>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ITEM id=1 url=https://tech.com/news?utm_source=twitter&amp;utm_medium=social title=Sortie officielle de Linux 6.12
+ITEM id=2 url=https://tech.com/news?utm_source=newsletter title=Autre actu
+ITEM id=3 url=https://autre.com/linux title=Sortie officielle et annonce de Linux 6.12</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STATUS id=1 action=CONSERVE
+STATUS id=2 action=DOUBLON_URL
+STATUS id=3 action=DOUBLON_TITRE
+SUMMARY recus=3 conserves=1 doublons=2</pre></div>
+    </div>
+    <p class="lab__note">L’item 2 a la même URL nettoyée (https://tech.com/news). L’item 3 a un Jaccard de 5/7 = 0.71 avec l’item 1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour nettoyer l’URL, séparer le chemin de la query string (?) et filtrer les paires clé=valeur.</li>
+        <li>Tokeniser le titre en ensemble de mots minuscules.</li>
+        <li>Calculer l’indice de Jaccard avec len(setA &amp; setB) / len(setA | setB).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vt3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="DUREE_SIMU sec=3600&#10;FLUX id=cert_webhook type=PUSH_WEBHOOK periode_sec=0 rpm=100&#10;FLUX id=rss_github type=PULL_RSS periode_sec=600 rpm=10&#10;FLUX id=scrape_forum type=PULL_SCRAPING periode_sec=30 rpm=1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la collecte et le bridage de débit
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur d’ordonnanceur de collecte hybride Push/Pull avec Rate Limiter</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la charge de collecte sur un parc hétérogène de sources en appliquant les quotas de limitation de requêtes.</p>
+    <div class="lab__brief">Un robot de veille doit équilibrer ses requêtes sortantes pour respecter la bande passante et éviter d’être banni par les serveurs distants (Rate Limiting HTTP 429) :
+- `PUSH_WEBHOOK` : l’information est poussée par le serveur distant vers notre API. Le collecteur local émet 0 requête sortante (`requetes_emises = 0`, `statut = OPTIMAL`).
+- `PULL_RSS` ou `PULL_SCRAPING` : le collecteur interroge la source toutes les `periode_sec` secondes.
+
+Sur une durée de simulation $S$ secondes :
+- Nombre de requêtes sollicitées : $R_{\text{sollicitees}} = \lfloor S / \text{periode_sec} \rfloor$
+- Quota maximal alloué par la limite : $Q_{\text{max}} = \lfloor \text{rpm} \times (S / 60) \rfloor$
+- Requêtes effectives émises : $R_{\text{emises}} = \min(R_{\text{sollicitees}}, Q_{\text{max}})$
+- Si $R_{\text{sollicitees}} > Q_{\text{max}}$ : `statut = THROTTLED` (bridé par le rate limiter)
+- Sinon : `statut = OPTIMAL`
+
+Entrée :
+`DUREE_SIMU sec=<S>`
+`FLUX id=<ID> type=<PUSH_WEBHOOK|PULL_RSS|PULL_SCRAPING> periode_sec=<P> rpm=<RPM>`
+
+Sortie :
+- Pour chaque flux :
+  `COLLECT_JOB id=<ID> requetes_emises=<R> statut=<STATUT>`
+- Bilan :
+  `SUMMARY total_flux=<N> total_requetes=<R> flux_throttled=<T>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DUREE_SIMU sec=3600
+FLUX id=cert_webhook type=PUSH_WEBHOOK periode_sec=0 rpm=100
+FLUX id=rss_github type=PULL_RSS periode_sec=600 rpm=10
+FLUX id=scrape_forum type=PULL_SCRAPING periode_sec=30 rpm=1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>COLLECT_JOB id=cert_webhook requetes_emises=0 statut=OPTIMAL
+COLLECT_JOB id=rss_github requetes_emises=6 statut=OPTIMAL
+COLLECT_JOB id=scrape_forum requetes_emises=60 statut=THROTTLED
+SUMMARY total_flux=3 total_requetes=66 flux_throttled=1</pre></div>
+    </div>
+    <p class="lab__note">Le scrape_forum voulait 3600/30 = 120 requêtes, mais le RPM de 1 le bride à 60 requêtes (THROTTLED).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Lire d’abord la ligne DUREE_SIMU pour connaître le temps de simulation S.</li>
+        <li>Pour les flux Push, les requêtes émises sont nulles.</li>
+        <li>Comparer les requêtes théoriques avec le quota autorisé calculé sur S.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que signifie l’acronyme standard RSS ?</p>
+      <div class="opts">
+        <button class="opt">Real Security Socket</button>
+        <button class="opt" data-correct="1">Really Simple Syndication</button>
+        <button class="opt">Routing System Standard</button>
+        <button class="opt">Remote Server Script</button>
+      </div>
+      <div class="q__exp">Really Simple Syndication désigne le format de données standardisé XML utilisé pour la diffusion de contenus web.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un élément <item> d’un flux RSS 2.0, quelle balise garantit l’identifiant unique de la ressource ?</p>
+      <div class="opts">
+        <button class="opt"><title></button>
+        <button class="opt" data-correct="1"><guid></button>
+        <button class="opt"><link></button>
+        <button class="opt"><description></button>
+      </div>
+      <div class="q__exp">La balise <guid> (Globally Unique Identifier) fournit un identifiant permanent et unique pour chaque dépêche.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi servent les paramètres utm_source et utm_medium ajoutés à la fin d’une URL web ?</p>
+      <div class="opts">
+        <button class="opt">À chiffrer la page pour la sécurité</button>
+        <button class="opt" data-correct="1">À suivre et tracer l’origine du trafic marketing et analytics</button>
+        <button class="opt">À accélérer le téléchargement du document</button>
+        <button class="opt">À indiquer le format de base de données</button>
+      </div>
+      <div class="q__exp">Les balises UTM sont des variables de traçage analytique ajoutées aux URLs pour identifier le canal d’acquisition (e-mail, réseau social).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si le titre A contient 5 mots et le titre B contient 5 mots dont 4 sont communs, quel est l’indice de Jaccard J(A, B) ?</p>
+      <div class="opts">
+        <button class="opt">4 / 10 = 0.40</button>
+        <button class="opt" data-correct="1">4 / 6 ≈ 0.67</button>
+        <button class="opt">5 / 5 = 1.00</button>
+        <button class="opt">1 / 4 = 0.25</button>
+      </div>
+      <div class="q__exp">Intersection = 4 mots communs. Union = 5 + 5 - 4 = 6 mots uniques au total. Jaccard = 4/6 ≈ 0.67.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code de statut HTTP est renvoyé par un serveur web lorsqu’un collecteur dépasse le quota de requêtes autorisé ?</p>
+      <div class="opts">
+        <button class="opt">HTTP 200 OK</button>
+        <button class="opt">HTTP 404 Not Found</button>
+        <button class="opt" data-correct="1">HTTP 429 Too Many Requests</button>
+        <button class="opt">HTTP 502 Bad Gateway</button>
+      </div>
+      <div class="q__exp">Le code HTTP 429 Too Many Requests indique explicitement que le client a envoyé trop de requêtes dans un temps donné.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle technologie de collecte Push permet à un serveur de notifier instantanément notre API lors d’un commit sur GitHub ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un Webhook HTTP</button>
+        <button class="opt">Un fichier robots.txt</button>
+        <button class="opt">Un cookie de session</button>
+        <button class="opt">Une requête DNS inversée</button>
+      </div>
+      <div class="q__exp">Un Webhook est un rappel HTTP POST émis par le serveur distant vers notre endpoint dès qu’un événement survient.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel fichier situé à la racine d’un site web indique aux robots d’indexation les répertoires interdits au crawling ?</p>
+      <div class="opts">
+        <button class="opt">.htaccess</button>
+        <button class="opt" data-correct="1">robots.txt</button>
+        <button class="opt">sitemap.xml</button>
+        <button class="opt">index.html</button>
+      </div>
+      <div class="q__exp">Le fichier standard robots.txt spécifie les règles de courtoisie et les restrictions d’accès imposées aux robots et crawlers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi privilégier un flux RSS plutôt que le scraping HTML pour la collecte d’articles d’ingénierie ?</p>
+      <div class="opts">
+        <button class="opt">Parce que le RSS est payant</button>
+        <button class="opt" data-correct="1">Parce que le RSS offre une structure de données stable et légère qui ne casse pas lors des refontes graphiques du site</button>
+        <button class="opt">Parce que le scraping HTML est interdit par les lois physiques</button>
+        <button class="opt">Parce que le RSS contient des vidéos en haute définition</button>
+      </div>
+      <div class="q__exp">Le format RSS fournit une structure XML standardisée indépendante de la couche de présentation HTML, garantissant la robustesse du collecteur.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Parser du RSS avec des expressions régulières trop rigides qui échouent dès que l’ordre des balises XML change.</li>
+      <li>Oublier de nettoyer les arguments UTM, entraînant l’insertion en base de dizaines de copies du même article.</li>
+      <li>Effectuer du scraping agressif toutes les 2 secondes sans limitation de débit, provoquant le blocage IP du serveur.</li>
+      <li>Choisir un seuil de Jaccard trop bas (< 0.40) qui élimine par erreur des articles différents traitant du même domaine.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>1. Privilégier les flux Push (Webhooks, alertes directes) pour les sources critiques temps réel.</li>
+      <li>2. Exploiter les flux de syndication standardisés RSS 2.0 et Atom plutôt que le scraping HTML fragile.</li>
+      <li>3. Développer un parseur XML robuste capable d’extraire titre, lien canonique, identifiant GUID et date ISO.</li>
+      <li>4. Appliquer une fonction de nettoyage d’URL pour retirer tous les paramètres UTM de pistage analytics.</li>
+      <li>5. Calculer l’indice de Jaccard sur les ensembles de mots des titres pour filtrer les dépêches redondantes.</li>
+      <li>6. Intégrer un limiteur de débit (Rate Limiter) pour respecter les quotas de requêtes par minute des APIs tierces.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le mode Push envoie l’information dès sa création (faible latence) ; le mode Pull interroge périodiquement la source (polling).</li>
+      <li>RSS 2.0 et Atom sont des formats XML standardisés pour la diffusion et l’échange de nouveautés structurées.</li>
+      <li>La suppression des balises UTM et paramètres de tracking permet de reconstituer l’URL canonique unique d’un article.</li>
+      <li>L’indice de similarité de Jaccard (|A ∩ B| / |A ∪ B|) permet d’éliminer les quasi-doublons de titres dès le seuil de 0.60.</li>
+      <li>Le Rate Limiting protège le veilleur contre les réponses HTTP 429 et le bannissement par les serveurs cibles.</li>
+      <li>Le respect du robots.txt et des quotas d’appels fait partie intégrante de la déontologie du veilleur technologique.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Le flux RSS extrait-il correctement la balise guid pour garantir l’unicité de chaque publication ?</li>
+      <li>La date de publication est-elle normalisée au format chronologique strict (YYYY-MM-DD) ?</li>
+      <li>Les paramètres de tracking utm_source, utm_medium, utm_campaign et ref sont-ils retirés des URLs ?</li>
+      <li>Le seuil de Jaccard est-il calibré (autour de 0.60) pour ne pas éliminer des articles aux sujets distincts ?</li>
+      <li>La fréquence de polling respecte-t-elle les quotas RPM (Requests Per Minute) imposés par l’API ?</li>
+      <li>Le collecteur gère-t-il les erreurs réseau et les codes de statut HTTP 429 avec repli temporisé ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Protocoles Push vs Pull</li><li>Syndication RSS 2.0 & Atom XML</li><li>Balises XML <item>, <guid>, <title>, <link>, <pubDate></li><li>Paramètres d’URL de tracking (UTM parameters)</li><li>Similarité lexicale de Jaccard (Jaccard Index)</li><li>Déduplication stricte vs quasi-déduplication</li><li>Rate Limiting & Algorithme Token Bucket</li><li>Codes HTTP 429 (Too Many Requests) & robots.txt</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à exploiter un flux XML RSS ou méconnaissance des mécanismes de déduplication.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de l’extraction RSS, nettoyage d’URLs et calcul de Jaccard pour éliminer les doublons.</div>
+      <div class="bandrow bandrow--high">Architecture de collecte hybride complète : gestion fine des webhooks, rate limiting robuste anti-bannissement et pipeline temps réel.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Traitement, Qualification de l’Information, Indexation TF-IDF &amp; Filtrage Algorithmique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Norme AFNOR XP Z74-501, Documentation W3C RSS/Atom, Framework ThoughtWorks Tech Radar, Référentiel NASA / Horizon Europe TRL, Cours Veille Technologique B3 (Yan Nyaku, Collège de Paris).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

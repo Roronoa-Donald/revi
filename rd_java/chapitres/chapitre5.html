@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Collections, héritage et polymorphisme | Java B2</title>
+<meta name="description" content="Chapitre 5 du cours de Java B2 : List, Set et Map, extends, super, redéfinition, classes abstraites et polymorphisme. Théorie, exemples détaillés, exercices Java exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/rd_java/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Collections, héritage et polymorphisme | Java B2">
+<meta property="og:description" content="Chapitre 5 du cours de Java B2 : List, Set et Map, extends, super, redéfinition, classes abstraites et polymorphisme. Théorie, exemples détaillés, exercices Java exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rd_javanav"><div class="rd_javanav__in">
+  <a class="rd_javanav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rd_javanav__sep" aria-hidden="true">/</span>
+  <a class="rd_javanav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Java B2</a>
+  <div class="rd_javanav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rd_javanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rd_javawrap">
+<p class="crumb"><a href="../index.html">Java B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Collections, héritage et polymorphisme</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Les applications manipulent des ensembles de données et des familles d’objets qui partagent un comportement commun. Les collections rangent les données ; l’héritage factorise le code entre types proches, et le polymorphisme laisse chaque type répondre à sa manière.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>choisir entre List, Set et Map selon le besoin ;</li>
+      <li>factoriser par héritage avec extends et super ;</li>
+      <li>redéfinir une méthode et en tirer du polymorphisme ;</li>
+      <li>écrire une classe abstraite comme contrat partiel.</li>
+    </ol>
+  </div>
+
+<h2>1. List, Set et Map</h2>
+
+<p>Le <strong>framework Collections</strong> propose trois familles. <code>List</code> garde l’ordre et autorise les doublons ; <code>Set</code> élimine les doublons ; <code>Map</code> associe chaque clé à une valeur.</p>
+<pre><code>import java.util.*;
+
+List&lt;String&gt; liste = new ArrayList&lt;&gt;();
+Set&lt;Integer&gt; ensemble = new HashSet&lt;&gt;();
+Map&lt;String, Integer&gt; ages = new HashMap&lt;&gt;();
+ages.put("Ada", 36);</code></pre>
+<p>Pour compter des valeurs distinctes, un <code>Set</code> est l’outil direct : <code>ensemble.size()</code> après avoir ajouté les éléments.</p>
+
+<h2>2. Héritage : extends et super</h2>
+
+<p>Une classe fille <strong>hérite</strong> d’une classe mère avec <code>extends</code>. Elle récupère ses attributs et méthodes, et appelle son constructeur avec <code>super(...)</code>.</p>
+<pre><code>class Animal {
+    protected final String nom;
+
+    Animal(String nom) {
+        this.nom = nom;
+    }
+}
+
+class Chien extends Animal {
+    Chien(String nom) {
+        super(nom);
+    }
+}</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — super oublié</div>
+    <p>Si la classe mère n’a pas de constructeur vide, la classe fille doit appeler <code>super(...)</code> en première ligne de son propre constructeur. L’oublier casse la compilation.</p>
+  </div>
+
+<h2>3. Redéfinition et polymorphisme</h2>
+
+<p>Une fille peut <strong>redéfinir</strong> une méthode héritée avec <code>@Override</code>. Une variable de type mère peut alors référencer un objet fille : c’est le <strong>polymorphisme</strong>, la version exécutée étant celle du type réel de l’objet.</p>
+<pre><code>class Chien extends Animal {
+    @Override
+    String crier() {
+        return "Wouf";
+    }
+}
+
+Animal a = new Chien("Rex");
+a.crier();   // "Wouf", la version de Chien</code></pre>
+<p>C’est ce mécanisme qui permet de traiter une collection d’animaux différents avec un seul appel.</p>
+
+<h2>4. Classes abstraites</h2>
+
+<p>Une <strong>classe abstraite</strong> décrit un squelette incomplet : elle peut déclarer des méthodes abstraites que les filles devront implémenter. On ne peut pas l’instancier directement.</p>
+<pre><code>abstract class Forme {
+    abstract double aire();
+}
+
+class Carre extends Forme {
+    private final double cote;
+    Carre(double cote) { this.cote = cote; }
+    double aire() { return cote * cote; }
+}</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Un contrat, pas un code</div>
+    <p>Une classe abstraite dit « toute forme sait calculer son aire », sans dire comment. Chaque fille fournit sa formule. L’appelant, lui, n’a besoin que de connaître <code>Forme</code>.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="java2-c5-e1"
+     data-language="java"
+     data-height="300"
+     data-stdin="4&#10;a&#10;b&#10;a&#10;c">
+  <script type="text/plain" data-lab-starter>import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+
+        // À compléter : ranger les n mots dans un ensemble et compter les distincts.
+
+        // À compléter : afficher "mots distincts : " suivi du compte.
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Mots distincts</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser une collection pour éliminer les doublons.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> mots. Affichez <code>mots distincts : X</code> où <code>X</code> est le nombre de mots différents.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+a
+b
+a
+c</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>mots distincts : 3</pre></div>
+    </div>
+    <p class="lab__note">a, b et c : trois mots différents.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un Set ne garde qu’une copie de chaque valeur : vus.add(sc.next()) suffit.</li>
+        <li>La taille de l’ensemble (vus.size()) est exactement le nombre de mots distincts.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="java2-c5-e2"
+     data-language="java"
+     data-height="300"
+     data-stdin="carre&#10;4">
+  <script type="text/plain" data-lab-starter>import java.util.*;
+import java.util.Locale;
+
+abstract class Forme {
+    // À compléter : méthode abstraite aire().
+}
+
+class Carre extends Forme {
+    // À compléter : attribut cote, constructeur, aire().
+}
+
+class Cercle extends Forme {
+    // À compléter : attribut rayon, constructeur, aire().
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String type = sc.next();
+        double valeur = sc.nextDouble();
+
+        // À compléter : construire la bonne forme et afficher son aire sur 2 décimales.
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Formes et polymorphisme</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Définir une classe abstraite et faire varier le comportement par héritage.</p>
+    <div class="lab__brief"><p>Le programme reçoit un type (<code>carre</code> ou <code>cercle</code>) puis un nombre décimal. Écrivez une classe abstraite <code>Forme</code> avec une méthode <code>aire()</code>, puis <code>Carre</code> (côté) et <code>Cercle</code> (rayon, aire = π·r²). Affichez <code>aire : X.XX</code> avec deux décimales (séparateur point).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>carre
+4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>aire : 16.00</pre></div>
+    </div>
+    <p class="lab__note">Un carré de côté 4.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une classe abstraite déclare abstract double aire(); chaque fille l’implémente.</li>
+        <li>Choisis avec type.equals("carre") ? new Carre(valeur) : new Cercle(valeur), puis formate avec Locale.US.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="java2-c5-e3"
+     data-language="java"
+     data-height="300"
+     data-stdin="Rex">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+class Animal {
+    protected final String nom;
+
+    Animal(String nom) {
+        this.nom = nom;
+    }
+
+    String crier() {
+        return "...";
+    }
+
+    String sePresente() {
+        return nom + " dit " + crier();
+    }
+}
+
+class Chien extends Animal {
+    Chien(String nom) {
+        super(nom);
+    }
+
+    // À compléter : redéfinir crier().
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String nom = sc.next();
+
+        // À compléter : créer un Chien et afficher sePresente().
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Héritage : Animal et Chien</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser extends, super et la redéfinition de méthode.</p>
+    <div class="lab__brief"><p>Le programme reçoit un prénom. Écrivez une classe <code>Animal</code> avec un attribut <code>nom</code> et une méthode <code>crier()</code> renvoyant <code>...</code>, puis une classe <code>Chien extends Animal</code> qui redéfinit <code>crier()</code> pour renvoyer <code>Wouf</code>. Affichez <code>nom dit Wouf</code> en utilisant la méthode <code>sePresente()</code> de Animal.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Rex</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Rex dit Wouf</pre></div>
+    </div>
+    <p class="lab__note">L’animal Rex est un chien.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La redéfinition utilise @Override String crier() { return "Wouf"; }.</li>
+        <li>Le polymorphisme joue son rôle : animal.sePresente() appelle la version de Chien pour crier().</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle collection élimine les doublons ?</p>
+      <div class="opts">
+        <button class="opt">List</button>
+        <button class="opt" data-correct="1">Set</button>
+        <button class="opt">Map</button>
+      </div>
+      <div class="q__exp">Un Set ne garde qu’une copie de chaque valeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle collection associe clés et valeurs ?</p>
+      <div class="opts">
+        <button class="opt">List</button>
+        <button class="opt">Set</button>
+        <button class="opt" data-correct="1">Map</button>
+      </div>
+      <div class="q__exp">Map associe chaque clé à une valeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait extends ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Hériter d’une classe</button>
+        <button class="opt">Créer un objet</button>
+        <button class="opt">Comparer</button>
+      </div>
+      <div class="q__exp">extends établit la relation classe fille → classe mère.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert super(...) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Appeler le constructeur de la mère</button>
+        <button class="opt">Copier l’objet</button>
+        <button class="opt">Comparer</button>
+      </div>
+      <div class="q__exp">super transmet l’initialisation à la classe mère.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait @Override ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Redéfinit une méthode héritée</button>
+        <button class="opt">Supprime</button>
+        <button class="opt">Rend privé</button>
+      </div>
+      <div class="q__exp">Il redéfinit la version de la classe mère.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le polymorphisme permet…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">d’appeler la version du type réel</button>
+        <button class="opt">de copier un objet</button>
+        <button class="opt">de trier</button>
+      </div>
+      <div class="q__exp">La méthode exécutée est celle du type réel de l’objet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Peut-on instancier une classe abstraite ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Non</button>
+        <button class="opt">Oui</button>
+        <button class="opt">Seulement à midi</button>
+      </div>
+      <div class="q__exp">Une classe abstraite ne peut pas être instanciée directement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que doit fournir une classe fille d’une méthode abstraite ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Son implémentation</button>
+        <button class="opt">Rien</button>
+        <button class="opt">Un constructeur</button>
+      </div>
+      <div class="q__exp">La fille doit implémenter toute méthode abstraite.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre <code>List</code> (ordonné, doublons) et <code>Set</code> (pas de doublons).</li>
+      <li>Oublier <code>super(...)</code> dans le constructeur d’une classe fille.</li>
+      <li>Redéfinir une méthode sans l’annotation <code>@Override</code> et se tromper de signature.</li>
+      <li>Tenter <code>new</code> sur une classe abstraite.</li>
+      <li>Comparer deux chaînes avec <code>==</code> au lieu de <code>.equals()</code>.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Structurer entre collections et héritage</div>
+    <ol>
+      <li><strong>Choisir</strong> la collection : List, Set ou Map.</li>
+      <li><strong>Identifier</strong> le comportement commun à factoriser.</li>
+      <li><strong>Écrire</strong> la classe mère (ou abstraite) et ses méthodes.</li>
+      <li><strong>Redéfinir</strong> dans les filles avec @Override.</li>
+      <li><strong>Programmer</strong> contre le type mère pour bénéficier du polymorphisme.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>List garde l’ordre et les doublons ; Set les élimine ; Map associe clé et valeur.</li>
+      <li>extends hérite ; super(...) appelle le constructeur de la mère.</li>
+      <li>Une fille redéfinit une méthode avec @Override.</li>
+      <li>Le polymorphisme exécute la version du type réel de l’objet.</li>
+      <li>Une classe abstraite ne s’instancie pas : elle fixe un contrat.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je choisis la collection adaptée au besoin.</li>
+      <li>J’écris une relation d’héritage correcte avec super.</li>
+      <li>Je redéfinis une méthode et je m’appuie sur le polymorphisme.</li>
+      <li>Je déclare une classe abstraite quand elle a des méthodes à implémenter.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>List</li><li>Set</li><li>Map</li><li>ArrayList</li><li>HashSet</li><li>HashMap</li><li>extends</li><li>super</li><li>héritage</li><li>redéfinition</li><li>@Override</li><li>polymorphisme</li><li>classe abstraite</li><li>méthode abstraite</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois la différence entre List, Set et Map.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur extends, super et @Override.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu factorises et tu utilises le polymorphisme.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe aux exceptions, chapitre 6.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Exceptions et robustesse <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de Java (modules 1 à 12 : syntaxe, contrôle du flux, tableaux, objets, collections, exceptions).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

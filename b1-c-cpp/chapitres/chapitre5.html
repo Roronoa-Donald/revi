@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Fonctions | Langage C &amp; C++ B1</title>
+<meta name="description" content="Chapitre 5 du cours Langage C & C++ B1 : prototypes, définition, passage par valeur, valeur de retour, portée des variables. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="5">
+
+<nav class="cnav"><div class="cnav__in">
+  <a class="cnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="cnav__sep" aria-hidden="true">/</span>
+  <a class="cnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> C &amp; C++ B1</a>
+  <div class="cnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre4.html">Ch. 4</a>
+    <a href="chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="cwrap">
+  <p class="crumb"><a href="../index.html">C &amp; C++ B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+  <h1>Chapitre 5 — Fonctions</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un programme qui calcule des moyennes, la même formule revient dix fois. La recopier, c'est se
+    condamner à corriger dix endroits le jour où elle change. La <em>fonction</em> isole ce calcul une fois pour
+    toutes et lui donne un nom : c'est la brique de base de tout programme lisible.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Déclarer un prototype et définir une fonction ;</li>
+      <li>comprendre le passage par valeur ;</li>
+      <li>distinguer une fonction <code>void</code> d'une fonction qui renvoie une valeur ;</li>
+      <li>expliquer la portée des variables locales et globales ;</li>
+      <li>décomposer un problème en fonctions réutilisables.</li>
+    </ol>
+  </div>
+
+  <h2>1. Définir et appeler une fonction</h2>
+  <p><strong>Définition.</strong> Une fonction regroupe un bloc d'instructions sous un nom. Elle reçoit des
+  <em>paramètres</em> et renvoie une valeur d'un type donné (ou <code>void</code> si elle ne renvoie rien).</p>
+  <pre><code>int carre(int n);                <span class="c">/* prototype : annonce la signature */</span>
+
+int carre(int n) {               <span class="c">/* définition */</span>
+    return n * n;
+}
+
+void affiche_ligne(int n) {      <span class="c">/* ne renvoie rien */</span>
+    for (int i = 0; i &lt; n; i++) printf("-");
+    printf("\n");
+}
+
+int main(void) {
+    printf("%d\n", carre(5));    <span class="c">/* appel */</span>
+    affiche_ligne(10);
+    return 0;
+}</code></pre>
+
+  <table>
+    <tr><th>Partie</th><th>Rôle</th></tr>
+    <tr><td>Type de retour</td><td>Ce que la fonction renvoie (<code>int</code>, <code>double</code>, <code>void</code>…).</td></tr>
+    <tr><td>Nom</td><td>Identifiant explicite, en minuscules.</td></tr>
+    <tr><td>Paramètres</td><td>Les entrées, avec leur type.</td></tr>
+    <tr><td><code>return</code></td><td>Renvoie la valeur à l'appelant et termine la fonction.</td></tr>
+  </table>
+
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p>Une fonction est une machine à sous : tu y mets des valeurs (les paramètres), tu tires le levier (l'appel),
+    et il en sort une valeur (le retour). Ce qui se passe à l'intérieur ne regarde pas l'extérieur — c'est le
+    principe d'encapsulation.</p>
+  </div>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Niveau 2 — Technique</div>
+    <p>Le prototype (ou déclaration) annonce la signature <em>avant</em> l'usage. Sans lui, le compilateur ne
+    connaît pas le type de retour au moment de l'appel et suppose un entier par défaut : c'est un avertissement
+    fréquent. La définition, elle, contient le corps.</p>
+  </div>
+
+  <h2>2. Le passage par valeur</h2>
+  <p><strong>Définition.</strong> En C, les arguments sont passés <em>par valeur</em> : la fonction reçoit une
+  copie. Modifier un paramètre ne change donc pas la variable de l'appelant.</p>
+  <pre><code>void doubler(int n) {
+    n = n * 2;        <span class="c">/* modifie la copie locale */</span>
+}
+
+int main(void) {
+    int x = 5;
+    doubler(x);
+    printf("%d\n", x);  <span class="c">/* affiche 5 : x n'a pas changé */</span>
+    return 0;
+}</code></pre>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — « ma fonction ne modifie rien »</div>
+    <p>C'est le comportement normal du passage par valeur. Pour qu'une fonction modifie une variable de l'appelant,
+    il faut lui passer son <em>adresse</em> (chapitre 6). C'est ce mécanisme qui permet d'écrire
+    <code>scanf("%d", &amp;x)</code>.</p>
+  </div>
+
+  <h2>3. Plusieurs valeurs en retour</h2>
+  <p>Une fonction ne renvoie qu'une seule valeur. Pour en renvoyer plusieurs, deux solutions : les empaqueter
+  dans une structure (chapitre 7), ou les écrire dans des variables de l'appelant par leurs adresses (chapitre 6).</p>
+  <pre><code>int min_de_deux(int a, int b) {
+    if (a &lt; b) return a;
+    return b;
+}</code></pre>
+
+  <h2>4. Portée des variables</h2>
+  <p><strong>Définition.</strong> La <em>portée</em> est la région du programme où un nom est visible. Une variable
+  déclarée dans un bloc n'existe que dans ce bloc.</p>
+  <table>
+    <tr><th>Type</th><th>Portée</th></tr>
+    <tr><td>Locale</td><td>Du point de déclaration à la fin du bloc.</td></tr>
+    <tr><td>Paramètre</td><td>Comme une locale de la fonction.</td></tr>
+    <tr><td>Globale</td><td>Déclarée hors fonction : visible partout, à éviter.</td></tr>
+  </table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la variable globale</div>
+    <p>Une variable globale introduit une dépendance cachée entre les fonctions et rend le programme difficile
+    à tester. Préférer passer les valeurs en paramètres.</p>
+  </div>
+
+  <h2>5. Décomposer un problème</h2>
+  <p>Un bon programme est une suite de fonctions ayant chacune <em>une seule responsabilité</em>. Exemple :
+  calculer la moyenne d'un tableau et afficher un rapport.</p>
+  <pre><code>int somme(int t[], int n) {
+    int total = 0;
+    for (int i = 0; i &lt; n; i++) total += t[i];
+    return total;
+}
+
+double moyenne(int t[], int n) {
+    if (n == 0) return 0.0;
+    return (double)somme(t, n) / n;
+}</code></pre>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="c-c5-e1"
+     data-language="c"
+     data-height="300"
+     data-stdin="7">
+  <script type="text/plain" data-lab-starter>#include <stdio.h>
+
+int carre(int n) {
+    /* À compléter : renvoyer le carré de n. */
+    return 0;
+}
+
+int main(void) {
+    int valeur;
+    scanf("%d", &valeur);
+    printf("Carre : %d\n", carre(valeur));
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Une fonction qui renvoie une valeur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction avec paramètre et valeur de retour.</p>
+    <div class="lab__brief"><p>Complétez la fonction <code>carre</code> pour qu’elle renvoie le carré de son argument, puis affichez son résultat sous la forme <code>Carre : &lt;valeur&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>7</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Carre : 49</pre></div>
+    </div>
+    <p class="lab__note">7² = 49.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une fonction déclarée pour renvoyer un entier doit se terminer par l’instruction qui transmet cette valeur à l’appelant.</li>
+        <li>Le mot-clé de retour est suivi de l’expression à renvoyer, et non d’un affichage.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="c-c5-e2"
+     data-language="c"
+     data-height="300"
+     data-stdin="10">
+  <script type="text/plain" data-lab-starter>#include <stdio.h>
+
+int est_pair(int n) {
+    /* À compléter : renvoyer 1 si n est pair, 0 sinon. */
+    return 0;
+}
+
+int main(void) {
+    int valeur;
+    scanf("%d", &valeur);
+    printf("%s\n", est_pair(valeur) ? "Pair" : "Impair");
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Fonction de test booléenne</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Faire renvoyer à une fonction un résultat de type vrai/faux.</p>
+    <div class="lab__brief"><p>Complétez la fonction <code>est_pair</code> pour qu’elle renvoie vrai si son argument est pair, faux sinon. Le programme affiche <code>Pair</code> ou <code>Impair</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Pair</pre></div>
+    </div>
+    <p class="lab__note">10 est pair.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En C, il n’existe pas de type booléen d’origine : un entier nul vaut faux, tout entier non nul vaut vrai.</li>
+        <li>La parité se teste avec le reste de la division par deux : un reste nul signifie que le nombre est pair.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="c-c5-e3"
+     data-language="c"
+     data-height="300"
+     data-stdin="5">
+  <script type="text/plain" data-lab-starter>#include <stdio.h>
+
+long factorielle(int n) {
+    /* À compléter : renvoyer 1 x 2 x ... x n. */
+    return 0;
+}
+
+int main(void) {
+    int valeur;
+    scanf("%d", &valeur);
+    printf("Factorielle : %ld\n", factorielle(valeur));
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Factorielle d’un entier</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une fonction qui accumule dans une boucle.</p>
+    <div class="lab__brief"><p>Complétez la fonction <code>factorielle</code> qui renvoie le produit 1 × 2 × … × n, avec la convention 1 pour n = 0. Affichez le résultat sous la forme <code>Factorielle : &lt;valeur&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Factorielle : 120</pre></div>
+    </div>
+    <p class="lab__note">1 × 2 × 3 × 4 × 5 = 120.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un produit s’accumule comme une somme, mais l’élément neutre n’est pas zéro : multiplier par zéro effacerait tout le résultat.</li>
+        <li>Pour n = 0, la boucle ne s’exécute pas : la valeur initiale de l’accumulateur est donc déjà le bon résultat.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que fait le <code>return</code> d'une fonction ?</p>
+      <div class="opts">
+        <button class="opt">Il affiche la valeur</button>
+        <button class="opt" data-correct="1">Il renvoie la valeur à l'appelant et termine la fonction</button>
+        <button class="opt">Il déclare une variable</button>
+      </div>
+      <div class="q__exp">La valeur devient le résultat de l'appel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie une fonction <code>void</code> ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">Rien</button>
+        <button class="opt">NULL</button>
+      </div>
+      <div class="q__exp"><code>void</code> signifie « aucune valeur de retour ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait <code>doubler(x)</code> si la fonction modifie son paramètre ?</p>
+      <div class="opts">
+        <button class="opt">Elle double x dans main</button>
+        <button class="opt" data-correct="1">Elle ne change pas x : le paramètre est une copie</button>
+        <button class="opt">Elle provoque une erreur</button>
+      </div>
+      <div class="q__exp">Le passage par valeur copie l'argument.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert un prototype ?</p>
+      <div class="opts">
+        <button class="opt">À exécuter la fonction</button>
+        <button class="opt" data-correct="1">À annoncer sa signature avant son usage</button>
+        <button class="opt">À déclarer une variable globale</button>
+      </div>
+      <div class="q__exp">Le compilateur connaît ainsi le type de retour à l'appel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où une variable locale est-elle visible ?</p>
+      <div class="opts">
+        <button class="opt">Dans tout le programme</button>
+        <button class="opt" data-correct="1">Seulement dans le bloc où elle est déclarée</button>
+        <button class="opt">Dans toutes les fonctions</button>
+      </div>
+      <div class="q__exp">Sa portée est limitée au bloc.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de valeurs une fonction peut-elle renvoyer directement ?</p>
+      <div class="opts">
+        <button class="opt">Autant que voulu</button>
+        <button class="opt" data-correct="1">Une seule</button>
+        <button class="opt">Deux au maximum</button>
+      </div>
+      <div class="q__exp">Pour plusieurs valeurs, on utilise une structure ou des paramètres pointeurs.</div>
+    </div>
+  </div>
+
+  <h2>8. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Oublier <code>return</code></strong> : la valeur renvoyée est indéterminée.</li>
+      <li><strong>Type de retour incohérent</strong> avec la valeur renvoyée.</li>
+      <li><strong>Prototype absent</strong> : avertissement « implicit declaration ».</li>
+      <li><strong>Croire qu'un paramètre modifie l'appelant</strong> (passage par valeur).</li>
+      <li><strong>Variable globale</strong> là où un paramètre suffirait.</li>
+    </ul>
+  </div>
+
+  <h2>9. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Concevoir une fonction</div>
+    <ol>
+      <li><strong>Nommer</strong> par un verbe d'action : <code>calculer_moyenne</code>, <code>est_pair</code>.</li>
+      <li><strong>Lister les entrées</strong> : ce sont les paramètres, avec leur type.</li>
+      <li><strong>Déterminer la sortie</strong> : type de retour, ou <code>void</code>.</li>
+      <li><strong>Écrire le corps</strong> avec une seule responsabilité.</li>
+      <li><strong>Appeler</strong> depuis <code>main</code> et tester.</li>
+    </ol>
+  </div>
+
+  <h2>10. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Signature : type de retour, nom, paramètres typés.</li>
+      <li><code>return</code> renvoie une valeur unique et termine la fonction.</li>
+      <li><code>void</code> = aucune valeur de retour.</li>
+      <li>Passage par valeur : la fonction reçoit une copie.</li>
+      <li>Portée locale : une variable n'existe que dans son bloc.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J'écris un prototype avant usage quand c'est nécessaire.</li>
+      <li>J'explique le passage par valeur sans hésiter.</li>
+      <li>Je distingue <code>void</code> d'une fonction à retour.</li>
+      <li>Je limite la portée de mes variables.</li>
+      <li>Je découpe un problème en fonctions à responsabilité unique.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>prototype vs définition</li><li>paramètres</li><li><code>return</code></li>
+      <li><code>void</code></li><li>passage par valeur</li><li>portée locale</li>
+      <li>variable globale (à éviter)</li><li>décomposition en fonctions</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>11. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 2.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 3.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible le passage par valeur.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : tu peux passer au chapitre 6.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre4.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 4</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Pointeurs et mémoire <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports de cours B1 (INF-1003) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

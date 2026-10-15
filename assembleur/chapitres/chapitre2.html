@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Architecture du Processeur, Registres &amp;amp; Drapeaux d’État | Assembleur B2</title>
+<meta name="description" content="Chapitre 2 du cours Architecture &amp; Programmation en Assembleur B2 : Cycle Fetch-Decode-Execute, hiérarchie des registres généraux x86_64, registres de contrôle (RIP, RSP, RBP) et drapeaux EFLAGS (ZF, CF, SF, OF). Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/assembleur/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Architecture du Processeur, Registres &amp;amp; Drapeaux d’État | Assembleur B2">
+<meta property="og:description" content="Chapitre 2 du cours Architecture &amp; Programmation en Assembleur B2 : Cycle Fetch-Decode-Execute, hiérarchie des registres généraux x86_64, registres de contrôle (RIP, RSP, RBP) et drapeaux EFLAGS (ZF, CF, SF, OF). Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="assembleurnav"><div class="assembleurnav__in">
+  <a class="assembleurnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="assembleurnav__sep" aria-hidden="true">/</span>
+  <a class="assembleurnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Assembleur B2</a>
+  <div class="assembleurnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="assembleurnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="assembleurwrap">
+<p class="crumb"><a href="../index.html">Assembleur B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Architecture du Processeur, Registres &amp; Drapeaux d’État</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lorsqu’un programme plante avec une erreur de segmentation ou qu’une boucle conditionnelle tourne à l’infini, un débogueur bas niveau (GDB ou LLDB) fige l’état exact des circuits : <code>RIP=0x00401140 RAX=0x00000000 EFLAGS=[ZF IF]</code>. Comment le processeur sait-il quelle instruction exécuter ensuite ? Pourquoi modifier le registre AL peut-il altérer silencieusement la valeur de RAX ? Et comment l’Unité Arithmétique et Logique (ALU) enregistre-t-elle les retenues et les débordements signés ? Ce module explore l’anatomie interne du CPU et la mécanique des registres.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire avec précision les 4 étapes du cycle machine universel : Fetch, Decode, Execute et Writeback ;</li>
+      <li>maîtriser la nomenclature et les conventions d’usage des 16 registres généraux x86_64 (RAX à R15) ;</li>
+      <li>manipuler les sous-registres 32, 16 et 8 bits (EAX, AX, AH, AL) et anticiper les effets de masque ;</li>
+      <li>expliquer le rôle capital des registres de contrôle : RIP (Instruction Pointer), RSP (Stack Pointer) et RBP (Base Pointer) ;</li>
+      <li>calculer et justifier l’état des 4 drapeaux fondamentaux du registre EFLAGS : ZF, CF, SF et OF.</li>
+    </ol>
+  </div>
+
+<h2>1. Le modèle de Von Neumann &amp; le cycle machine fondamental</h2>
+
+<p>Dans l’<strong>architecture de Von Neumann</strong>, les instructions du programme et les données partagent le même espace mémoire et sont acheminées vers le processeur par un bus commun. Le processeur exécute une boucle matérielle infinie cadencée par le signal d’horloge :</p>
+<table class="table">
+  <thead><tr><th>Étape</th><th>Nom anglais</th><th>Opération matérielle réalisée</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. Recherche</strong></td><td>Fetch</td><td>Le processeur lit en mémoire vive (ou cache) l’instruction située à l’adresse pointée par <code>RIP</code>.</td></tr>
+    <tr><td><strong>2. Décodage</strong></td><td>Decode</td><td>L’Unité de Contrôle (Control Unit) analyse l’opcode binaire pour déterminer les circuits et registres à activer.</td></tr>
+    <tr><td><strong>3. Exécution</strong></td><td>Execute</td><td>L’ALU (Arithmetic Logic Unit) effectue le calcul arithmétique ou logique, ou calcule une adresse mémoire.</td></tr>
+    <tr><td><strong>4. Réécriture</strong></td><td>Writeback</td><td>Le résultat final est écrit dans le registre de destination ou envoyé vers la mémoire cache/RAM.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le rôle des registres dans la hiérarchie mémoire</div>
+<p>Les <strong>registres</strong> sont des mémoires ultra-rapides intégrées directement au cœur du CPU. Un accès registre prend moins de <strong>1 cycle d’horloge (≈ 0,3 ns)</strong>, contre 3 à 4 cycles pour le cache L1, 12 cycles pour le cache L2, 40 cycles pour le cache L3 et plus de <strong>150 à 200 cycles pour la RAM</strong> ! Optimiser en assembleur consiste en priorité à conserver les données de calcul dans les registres.</p>
+  </div>
+
+<h2>2. La hiérarchie des registres généraux x86_64</h2>
+
+<p>L’architecture x86_64 propose 16 registres généraux de 64 bits chacun. Par souci de rétrocompatibilité avec les processeurs 8086 (16 bits) et 80386 (32 bits), les 8 registres historiques peuvent être adressés par sous-portions :</p>
+<pre><code>// Architecture 64 bits x86_64 : découpage de RAX
+63                           31              15       7      0 (bits)
++----------------------------+---------------+--------+------+------+
+|                            |               |        |  AH  |  AL  | -> AX (16 bits)
++----------------------------+---------------+--------+------+------+
+|                            |               EAX (32 bits)   |
++----------------------------+-------------------------------+
+| RAX (64 bits complets)                                     |
++------------------------------------------------------------+</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La règle du zéro-extension sur les écritures 32 bits (EAX &rarr; RAX)</div>
+<p>Attention à cette spécificité fondamentale de l’architecture x86_64 :</p><ul>  <li>Écrire dans un registre 8 bits (<code>AL</code>) ou 16 bits (<code>AX</code>) <strong>laisse intacts les bits supérieurs</strong> de RAX ;</li>  <li>Mais écrire dans un registre 32 bits (<code>EAX</code>) <strong>met automatiquement à zéro les 32 bits supérieurs</strong> de RAX (Zero-Extension 64 bits) !</li></ul><p>Exemple : si RAX = <code>0xFFFFFFFFFFFFFFFF</code>, l’instruction <code>MOV EAX, 1</code> transforme RAX en <code>0x0000000000000001</code> !</p>
+  </div>
+
+<h2>3. Les registres de contrôle &amp; pointeurs (RIP, RSP, RBP)</h2>
+
+<p>Trois registres jouent un rôle fondamental dans la structure du flux d’exécution et la mémoire d’un processus :</p>
+<table class="table">
+  <thead><tr><th>Registre</th><th>Nom complet</th><th>Rôle fondamental</th></tr></thead>
+  <tbody>
+    <tr><td><code>RIP (EIP)</code></td><td>Instruction Pointer</td><td>Contient l’adresse mémoire de la <strong>prochaine instruction à exécuter</strong>. Incrémenté automatiquement après chaque Fetch. Modifié uniquement par les sauts (JMP, Jcc), CALL et RET.</td></tr>
+    <tr><td><code>RSP (ESP)</code></td><td>Stack Pointer</td><td>Pointe sur le <strong>sommet actuel de la pile d’exécution</strong>. Décrémenté lors des <code>PUSH</code> et incrémenté lors des <code>POP</code>.</td></tr>
+    <tr><td><code>RBP (EBP)</code></td><td>Base / Frame Pointer</td><td>Sert d’<strong>ancre de référence fixe</strong> pour le cadre d’activation d’une fonction, facilitant l’accès aux paramètres reçus et aux variables locales.</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Le registre d’état EFLAGS &amp; les drapeaux de condition</h2>
+
+<p>Le registre <code>EFLAGS / RFLAGS</code> est composé de bits individuels (flags) mis à jour par l’ALU après chaque instruction arithmétique ou logique (ADD, SUB, CMP, AND, TEST) :</p>
+<pre><code>// Les 4 drapeaux essentiels pour les branchements conditionnels :
+
+1. ZF (Zero Flag) :
+   Mis à 1 si le résultat de l’opération vaut 0 (ex. CMP A, B avec A == B &rarr; ZF=1).
+
+2. CF (Carry Flag) :
+   Mis à 1 s’il y a eu une retenue sortante ou un emprunt lors d’un calcul NON SIGNÉ
+   (ex. 255 + 1 sur 8 bits &rarr; CF=1, ou 5 - 10 &rarr; CF=1).
+
+3. SF (Sign Flag) :
+   Recopie le bit de poids fort (MSB) du résultat. Vaut 1 si le résultat est négatif.
+
+4. OF (Overflow Flag) :
+   Mis à 1 si un débordement d’entier SIGNÉ s’est produit en complément à 2
+   (ex. +100 + +50 = +150 &rarr; dépassement de la plage -128..+127 &rarr; OF=1).
+</code></pre>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="asm2-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="0x1122334455667788">
+  <script type="text/plain" data-lab-starter>val_hex = input().strip()
+
+# À compléter : extraire les sous-registres par masquage et décalage
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Décomposition des sous-registres x86_64 (RAX, EAX, AX, AH, AL)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comprendre l’emboîtement hiérarchique des registres généraux de l’architecture Intel x86.</p>
+    <div class="lab__brief"><p>En architecture x86_64, le registre 64 bits <code>RAX</code> englobe plusieurs sous-registres historiques :</p><ul>  <li><code>EAX</code> : les 32 bits de poids faible ;</li>  <li><code>AX</code> : les 16 bits de poids faible de EAX ;</li>  <li><code>AH</code> : les 8 bits de poids fort de AX ;</li>  <li><code>AL</code> : les 8 bits de poids faible de AX.</li></ul><p>Lit sur l’entrée standard une valeur hexadécimale 64 bits (ex. <code>0x1122334455667788</code>). Affiche la décomposition exacte au format :<br><code>RAX=0x... EAX=0x... AX=0x... AH=0x.. AL=0x..</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>0x1122334455667788</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RAX=0x1122334455667788 EAX=0x55667788 AX=0x7788 AH=0x77 AL=0x88</pre></div>
+    </div>
+    <p class="lab__note">AX contient 0x7788, découpé en AH=0x77 (haut) et AL=0x88 (bas).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertis avec int(val_hex, 16) pour obtenir un entier 64 bits.</li>
+        <li>EAX = val &amp; 0xFFFFFFFF, AX = val &amp; 0xFFFF, AL = val &amp; 0xFF, AH = (val &gt;&gt; 8) &amp; 0xFF.</li>
+        <li>Formate avec des longueurs fixes : {:016X}, {:08X}, {:04X}, {:02X}.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="ADD;250;10">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : calculer l'opération 8 bits et déterminer ZF, CF et SF
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur d’ALU 8 bits &amp; Drapeaux d’état (ZF, CF, SF)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la mise à jour des drapeaux du registre EFLAGS (Z, C, S) après une addition ou soustraction.</p>
+    <div class="lab__brief"><p>L’Unité Arithmétique et Logique (ALU) met à jour des indicateurs d’état après chaque calcul :</p><ul>  <li><code>ZF (Zero Flag)</code> : mis à 1 si le résultat 8 bits vaut 0, sinon 0 ;</li>  <li><code>CF (Carry Flag)</code> : retenue non signée (1 si dépassement &gt; 255 en ADD, ou emprunt A &lt; B en SUB) ;</li>  <li><code>SF (Sign Flag)</code> : bit de signe du résultat 8 bits (bit 7 à 1).</li></ul><p>Lit sur l’entrée standard <code>OP;A;B</code> (avec OP = ADD ou SUB, A et B en décimal 0..255). Affiche :<br><code>RES=0xXX ZF=&lt;0|1&gt; CF=&lt;0|1&gt; SF=&lt;0|1&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ADD;250;10</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RES=0x04 ZF=0 CF=1 SF=0</pre></div>
+    </div>
+    <p class="lab__note">250 + 10 = 260 -&gt; 260 &amp; 0xFF = 4 (0x04) avec dépassement non signé CF=1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour ADD : somme = A + B, CF = 1 si somme &gt; 255 sinon 0, res = somme &amp; 0xFF.</li>
+        <li>Pour SUB : diff = A - B, CF = 1 si A &lt; B sinon 0, res = diff &amp; 0xFF.</li>
+        <li>ZF = 1 si res == 0 sinon 0, SF = 1 si (res &amp; 0x80) != 0 sinon 0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="100;50;ADD">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : exécuter l'opération signée, détecter l'Overflow et afficher le diagnostic
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détection du débordement signé (Overflow Flag OF)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier quand une opération arithmétique dépasse la plage des entiers signés (-128 à +127).</p>
+    <div class="lab__brief"><p>Le drapeau <strong>OF (Overflow Flag)</strong> signale un dépassement de capacité lors de calculs sur des entiers signés en complément à 2 (plage 8 bits : <code>-128 .. +127</code>) :</p><ul>  <li>En addition : l’addition de deux nombres positifs donne un négatif, ou l’addition de deux négatifs donne un positif ;</li>  <li>En soustraction ($A - B$) : soustraire un négatif à un positif donne un négatif, ou soustraire un positif à un négatif donne un positif.</li></ul><p>Lit sur l’entrée standard <code>A;B;OP</code> (A et B en entiers signés décimaux, OP = ADD ou SUB). Affiche :<br><code>VAL=&lt;valeur signée 8 bits&gt; OF=&lt;0|1&gt; DIAG=&lt;OVERFLOW|NORMAL&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>100;50;ADD</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VAL=-106 OF=1 DIAG=OVERFLOW</pre></div>
+    </div>
+    <p class="lab__note">100 + 50 = 150 &gt; 127 : débordement signé OF=1. 150 &amp; 0xFF = 150 -&gt; 150 - 256 = -106.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calcule le résultat arithmétique théorique sans troncature : th = A + B (ou A - B).</li>
+        <li>Un overflow sur 8 bits signé se produit si th &lt; -128 ou th &gt; 127.</li>
+        <li>La valeur 8 bits résultante correspond à (th &amp; 0xFF), puis convertie en signé si &gt;= 128.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans quelle phase du cycle machine le processeur analyse-t-il l’opcode binaire pour activer les circuits adaptés ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Décodage (Decode)</button>
+        <button class="opt">Recherche (Fetch)</button>
+        <button class="opt">Exécution (Execute)</button>
+        <button class="opt">Réécriture (Writeback)</button>
+      </div>
+      <div class="q__exp">C’est durant la phase Decode que l’Unité de Contrôle déchiffre l’opcode binaire et prépare les opérandes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le temps d’accès typique aux données stockées dans les registres du processeur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Inférieur à 1 cycle d’horloge (< 1 ns)</button>
+        <button class="opt">Environ 100 à 200 cycles d’horloge</button>
+        <button class="opt">Environ 10 millisecondes</button>
+        <button class="opt">1 seconde</button>
+      </div>
+      <div class="q__exp">Les registres sont les mémoires les plus rapides de l’ordinateur : ils répondent en une fraction de cycle d’horloge.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En x86_64, si RAX contient 0xFFFFFFFFFFFFFFFF et qu’on exécute MOV EAX, 1, que devient RAX ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0x0000000000000001 (les 32 bits supérieurs sont mis à zéro)</button>
+        <button class="opt">0xFFFFFFFF00000001</button>
+        <button class="opt">0xFFFFFFFFFFFFFFFF</button>
+        <button class="opt">0x00000001FFFFFFFF</button>
+      </div>
+      <div class="q__exp">En x86_64, toute écriture dans un sous-registre 32 bits effectue une extension par zéro sur les 32 bits de poids fort de RAX.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel registre matériel contient l’adresse mémoire de la prochaine instruction à exécuter ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">RIP (Instruction Pointer)</button>
+        <button class="opt">RSP (Stack Pointer)</button>
+        <button class="opt">RAX (Accumulateur)</button>
+        <button class="opt">RBP (Base Pointer)</button>
+      </div>
+      <div class="q__exp">RIP pointe l’instruction courante à charger par le cycle Fetch.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand le drapeau Zero Flag (ZF) passe-t-il à 1 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Lorsque le résultat de l’opération arithmétique ou logique est strictement nul (0)</button>
+        <button class="opt">Lorsque le résultat est négatif</button>
+        <button class="opt">Lorsqu’il y a eu une division par zéro</button>
+        <button class="opt">Quand la pile est vide</button>
+      </div>
+      <div class="q__exp">ZF = 1 signale que le résultat vaut exactement zéro. C’est le test clé de l’égalité (A - B = 0).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre le Carry Flag (CF) et l’Overflow Flag (OF) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">CF signale un débordement en calcul non signé, tandis que OF signale un débordement en calcul signé</button>
+        <button class="opt">CF est pour les registres 64 bits, OF pour les registres 32 bits</button>
+        <button class="opt">CF s’applique uniquement à la multiplication, OF à l’addition</button>
+        <button class="opt">Il n’y a aucune différence</button>
+      </div>
+      <div class="q__exp">CF (retenue) gère l’arithmétique modulaire non signée, alors que OF (débordement) gère le dépassement en complément à 2 signé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une addition 8 bits signée, que vaut le drapeau OF après l’opération 100 + 50 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">OF = 1 (car 150 dépasse la borne maximale signée +127)</button>
+        <button class="opt">OF = 0</button>
+        <button class="opt">OF = -1</button>
+        <button class="opt">OF est indéfini</button>
+      </div>
+      <div class="q__exp">Deux nombres positifs dont la somme théorique (150) dépasse +127 provoquent un débordement signé (OF = 1).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel sous-registre correspond aux 8 bits de poids fort du registre AX ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">AH</button>
+        <button class="opt">AL</button>
+        <button class="opt">EAX</button>
+        <button class="opt">BL</button>
+      </div>
+      <div class="q__exp">AX est composé de AH (High, bits 15..8) et de AL (Low, bits 7..0).</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier que les écritures 32 bits (EAX) effacent silencieusement la moitié haute 64 bits (RAX) en mode x86_64.</li>
+      <li>Confondre le pointeur d’instruction RIP (qui pointe la prochaine instruction) et le pointeur de pile RSP.</li>
+      <li>Confondre CF (débordement non signé) et OF (débordement signé) lors de l’analyse d’un saut conditionnel.</li>
+      <li>Modifier manuellement le registre RIP avec une instruction MOV : RIP n’est modifiable que par JMP, CALL et RET.</li>
+      <li>Considérer que l’instruction CMP modifie les registres opérandes : elle ne fait que mettre à jour les drapeaux EFLAGS.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour analyser les drapeaux après une instruction ALU</div>
+    <ol>
+      <li>Calculer le résultat mathématique exact sans troncature (ex. $A + B$ ou $A - B$).</li>
+      <li>Déterminer le résultat tronqué à la taille du registre (8, 16, 32 ou 64 bits). Si le résultat est 0, poser ZF = 1.</li>
+      <li>Tester le débordement non signé : si le résultat mathématique déborde de $[0 \ .. \ 2^n - 1]$ ou $A < B$ en soustraction, poser CF = 1.</li>
+      <li>Tester le débordement signé : si le calcul en complément à 2 sort de $[-2^{n-1} \ .. \ 2^{n-1} - 1]$, poser OF = 1. Si le bit MSB est 1, poser SF = 1.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le cycle machine exécute en boucle : Fetch (chargement via RIP), Decode, Execute (ALU) et Writeback.</li>
+      <li>Les registres généraux x86_64 sont au nombre de 16 (RAX..R15) et offrent les sous-registres EAX, AX, AH et AL.</li>
+      <li>En x86_64, écrire dans un registre 32 bits (EAX) force les 32 bits supérieurs de RAX à zéro.</li>
+      <li>RIP pointe la prochaine instruction, RSP pointe le sommet de pile et RBP ancre le cadre d’activation.</li>
+      <li>EFLAGS contient les indicateurs d’état : ZF (nul), CF (retenue non signée), SF (signe négatif) et OF (débordement signé).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais nommer les 4 phases du cycle processeur universel.</li>
+      <li>Je sais décomposer un registre 64 bits RAX en ses portions EAX, AX, AH et AL.</li>
+      <li>Je connais la règle du zéro-extension 32 bits en x86_64.</li>
+      <li>Je comprends le rôle de RIP et RSP dans l’exécution d’un programme.</li>
+      <li>Je sais prédire l’état exact de ZF, CF, SF et OF après une opération arithmétique.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Cycle Fetch-Decode-Execute</li><li>Unité Arithmétique & Logique (ALU)</li><li>Registre 64 bits (RAX..R15)</li><li>Sous-registres (EAX, AX, AH, AL)</li><li>Zéro-extension 32 bits</li><li>Pointeur d’instruction (RIP)</li><li>Pointeur de pile (RSP)</li><li>Pointeur de base (RBP)</li><li>Drapeaux EFLAGS (ZF, CF, SF, OF)</li><li>Hiérarchie mémoire (Registres, Cache, RAM)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise les phases du cycle machine et le découpage hiérarchique des registres.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à prédire l’état des drapeaux ZF, CF, SF et OF.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises le fonctionnement du CPU et la mécanique des registres.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux architectures Harvard vs Von Neumann et aux mémoires au chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Mémoires, Bus &amp; Architectures (Von Neumann vs Harvard, AVR / x86) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours d’Architecture et Programmation en Assembleur B2, les manuels d’architecture logicielle Intel 64 et IA-32, la documentation NASM et la spécification System V AMD64 ABI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

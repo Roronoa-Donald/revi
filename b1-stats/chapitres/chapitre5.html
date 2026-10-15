@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Représentations graphiques | Statistiques B1</title>
+<meta name="description" content="Chapitre 5 du cours de statistique descriptive B1 : Diagrammes en bâtons, circulaires, histogramme, densité et boîte à moustaches. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-stats/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Représentations graphiques | Statistiques B1">
+<meta property="og:description" content="Chapitre 5 du cours de statistique descriptive B1 : Diagrammes en bâtons, circulaires, histogramme, densité et boîte à moustaches. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="stnav"><div class="stnav__in">
+  <a class="stnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="stnav__sep" aria-hidden="true">/</span>
+  <a class="stnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-i-chart"></use></svg> Statistiques B1</a>
+  <div class="stnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="stnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="stwrap">
+<p class="crumb"><a href="../index.html">Statistiques B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Représentations graphiques</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un graphique bien choisi fait comprendre en deux secondes ce qu’un tableau met deux minutes à dire. Un graphique mal choisi fait croire le contraire de la vérité : un histogramme à classes inégales lu comme un diagramme en bâtons surestime les classes larges. Choisir la bonne représentation fait partie du travail statistique.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>choisir la représentation adaptée au type du caractère ;</li>
+      <li>construire un diagramme en bâtons, en barres ou circulaire ;</li>
+      <li>construire un histogramme et calculer une densité quand les amplitudes diffèrent ;</li>
+      <li>lire et dessiner une boîte à moustaches.</li>
+    </ol>
+  </div>
+
+<h2>1. Diagrammes en bâtons et en barres</h2>
+
+<p>Pour un caractère <strong>qualitatif</strong> ou <strong>quantitatif discret</strong>, chaque modalité reçoit une barre dont la <strong>hauteur est proportionnelle à l’effectif</strong> (ou à la fréquence).</p>
+<ul>
+    <li><strong>Diagramme en bâtons</strong> : barres fines, séparées, souvent pour des valeurs numériques discrètes.</li>
+    <li><strong>Diagramme en barres</strong> : barres plus larges, fréquemment horizontales, pratique quand les libellés sont longs (noms de filières, de villes).</li>
+  </ul>
+<p>Les deux règles non négociables : <strong>une échelle commence à zéro</strong>, et les barres ont la <strong>même largeur</strong>. Tronquer l’axe vertical est la façon la plus courante de manipuler un graphique.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l’axe tronqué</div>
+    <p>Une barre de 51 % dessinée deux fois plus haute qu’une barre de 49 % parce que l’axe démarre à 45 % induit le lecteur en erreur : visuellement, l’écart paraît énorme. Sur un graphique en barres, l’axe de la grandeur mesurée commence toujours à zéro.</p>
+  </div>
+
+<h2>2. Le diagramme circulaire</h2>
+
+<p>Le <strong>diagramme circulaire</strong> (camembert, secteurs) représente des <em>parts d’un tout</em>. Chaque modalité reçoit un secteur dont l’angle est proportionnel à la fréquence :</p>
+<pre><code>angle (en degrés) = fréquence × 360</code></pre>
+<p>Un effectif n<sub>i</sub> sur N donne donc un angle de <code>360 × n<sub>i</sub>/N</code> degrés.</p>
+<p><strong>Quand l’utiliser ?</strong> Uniquement si la somme des modalités forme bien un tout (100 %), et si le nombre de secteurs reste petit — au-delà de six, le graphique devient illisible et un diagramme en barres est préférable.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Un camembert pour comparer des parts, pas des valeurs</div>
+    <p>Le camembert répond à « quelle part du total ? ». Il ne permet pas de lire des évolutions ni de comparer deux répartitions proches : deux secteurs de 24° et 27° se distinguent à peine à l’œil. Pour comparer, reviens au tableau ou aux barres.</p>
+  </div>
+
+<h2>3. L’histogramme</h2>
+
+<p>Pour un caractère <strong>continu regroupé en classes</strong>, on utilise un <strong>histogramme</strong> : des rectangles accolés, un par classe.</p>
+<p><strong>Classes de même amplitude</strong> : la hauteur du rectangle est proportionnelle à l’effectif. C’est le cas simple.</p>
+<p><strong>Classes d’amplitudes différentes</strong> : la hauteur doit alors représenter la <strong>densité</strong>, sinon les classes larges paraissent trop peuplées :</p>
+<pre><code>densité de la classe i = n<sub>i</sub> / amplitude<sub>i</sub></code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « aires égales, effectifs égaux »</div>
+    <p>Dans un histogramme, c’est <strong>l’aire</strong> du rectangle qui représente l’effectif, pas sa hauteur. Retenir « aires égales, effectifs égaux » évite l’erreur classique d’un histogramme à classes inégales lu comme un diagramme en bâtons.</p>
+  </div>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Construire un histogramme</div>
+    <pre><code>mini, maxi, k = min(serie), max(serie), 5
+largeur = (maxi - mini) / k
+
+bornes = [(mini + i * largeur, mini + (i + 1) * largeur) for i in range(k)]
+effectifs = [sum(1 for x in serie if b[0] &lt;= x &lt; b[1]) for b in bornes]</code></pre>
+    <p>La borne inférieure est incluse, la borne supérieure exclue : c’est la même convention que celle du chapitre 1, et c’est elle qui garantit que chaque valeur est comptée une seule fois.</p>
+  </div>
+
+<h2>4. La boîte à moustaches</h2>
+
+<p>La <strong>boîte à moustaches</strong> (diagramme de Tukey) résume une série en <strong>cinq valeurs</strong> :</p>
+<pre><code>moustache gauche : x<sub>min</sub>
+boîte            : Q1 —— médiane —— Q3
+moustache droite : x<sub>max</sub></code></pre>
+<p>Elle se lit d’un coup d’œil : la largeur de la boîte donne la dispersion des 50 % centraux, la position de la médiane dans la boîte indique la dissymétrie.</p>
+<ul>
+    <li>médiane au <strong>centre</strong> de la boîte → distribution à peu près symétrique ;</li>
+    <li>médiane <strong>près de Q1</strong> → étalement vers les valeurs hautes (dissymétrie à droite) ;</li>
+    <li>une moustache <strong>beaucoup plus longue</strong> que l’autre → queue de distribution de ce côté.</li>
+  </ul>
+<p><strong>Détection des valeurs aberrantes.</strong> On appelle valeur aberrante toute valeur hors de l’intervalle :</p>
+<pre><code>[Q1 − 1,5 × EI ; Q3 + 1,5 × EI]</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Les cinq valeurs, en Python</div>
+    <pre><code>def quantile(valeurs, p):
+    r = (len(valeurs) + 1) * p
+    bas = int(r)
+    if bas == r:
+        return valeurs[bas - 1]
+    return valeurs[bas - 1] + (r - bas) * (valeurs[bas] - valeurs[bas - 1])
+
+v = sorted(valeurs)
+cinq = (v[0], quantile(v, 0.25), quantile(v, 0.5), quantile(v, 0.75), v[-1])</code></pre>
+    <p>La même fonction sert pour la médiane (p = 0,5) et pour les quartiles : un seul outil, trois usages.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="st-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="150 190 4">
+  <script type="text/plain" data-lab-starter>mini, maxi, k = (float(x) for x in input().split())
+
+# À compléter : afficher les k classes de même amplitude, bornes à deux décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Classes de même amplitude</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Découper un intervalle en classes égales pour construire un histogramme.</p>
+    <div class="lab__brief"><p>Le programme reçoit une ligne <code>min max k</code> : les bornes de la série et le nombre de classes souhaité. Affichez les <code>k</code> classes de même amplitude, une par ligne, au format <code>borne_inférieure borne_supérieure</code> avec deux décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>150 190 4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>150.00 160.00
+160.00 170.00
+170.00 180.00
+180.00 190.00</pre></div>
+    </div>
+    <p class="lab__note">Amplitude 10 : quatre classes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’amplitude de chaque classe est (max − min) / k.</li>
+        <li>La classe numéro i (en partant de 0) va de min + i × amplitude à min + (i + 1) × amplitude.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="st-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="150 190 4&#10;5&#10;152&#10;161&#10;171&#10;181&#10;175">
+  <script type="text/plain" data-lab-starter>mini, maxi, k = (float(x) for x in input().split())
+n = int(input())
+serie = [float(input()) for _ in range(n)]
+
+# À compléter : afficher les k effectifs par classe, séparés par des espaces.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Effectifs par classe</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter les valeurs de chaque classe d’un histogramme, avec la convention des bornes.</p>
+    <div class="lab__brief"><p>Le programme reçoit une ligne <code>min max k</code>, puis un entier <code>n</code>, puis les <code>n</code> valeurs de la série (une par ligne). Toutes les valeurs sont dans l’intervalle <code>[min ; max]</code>. Affichez les <code>k</code> effectifs par classe, séparés par des espaces. La borne inférieure est incluse, la borne supérieure exclue.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>150 190 4
+5
+152
+161
+171
+181
+175</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1 1 2 1</pre></div>
+    </div>
+    <p class="lab__note">171 et 175 tombent dans [170 ; 180[.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour chaque valeur, calcule l’indice de sa classe puis incrémente le compteur de cette classe.</li>
+        <li>La convention « borne inférieure incluse, borne supérieure exclue » se traduit par min &lt;= x &lt; max — la dernière classe doit donc rattraper la borne maximale.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="st-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="10&#10;2&#10;4&#10;4&#10;5&#10;7&#10;8&#10;9&#10;11&#10;12&#10;15">
+  <script type="text/plain" data-lab-starter>n = int(input())
+serie = [int(input()) for _ in range(n)]
+
+# À compléter : afficher les cinq valeurs (min, Q1, médiane, Q3, max), deux décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Les cinq valeurs d’une boîte à moustaches</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Résumer une série par minimum, Q1, médiane, Q3 et maximum.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis les <code>n</code> valeurs d’une série (une par ligne). Affichez sur une seule ligne les cinq valeurs de la boîte à moustaches — minimum, Q1, médiane, Q3, maximum — chacune arrondie à deux décimales et séparées par un espace. On utilise la convention de rang <code>r = (n + 1)·p</code> avec interpolation.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10
+2
+4
+4
+5
+7
+8
+9
+11
+12
+15</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>2.00 4.00 7.50 11.25 15.00</pre></div>
+    </div>
+    <p class="lab__note">Médiane 7,5 ; Q1 = 4 ; Q3 = 11,25.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Écris une seule fonction quantile(valeurs, p) et appelle-la trois fois : p = 0,25 ; 0,5 ; 0,75.</li>
+        <li>Le minimum et le maximum sont la première et la dernière valeur de la série triée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel graphique pour un caractère qualitatif ?</p>
+      <div class="opts">
+        <button class="opt">Un histogramme</button>
+        <button class="opt" data-correct="1">Un diagramme en barres ou circulaire</button>
+        <button class="opt">Une boîte à moustaches</button>
+      </div>
+      <div class="q__exp">Un caractère qualitatif se représente par des barres ou des secteurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un diagramme en barres, l’axe de la grandeur mesurée…</p>
+      <div class="opts">
+        <button class="opt">peut être tronqué</button>
+        <button class="opt" data-correct="1">commence toujours à zéro</button>
+        <button class="opt">est toujours logarithmique</button>
+      </div>
+      <div class="q__exp">Tronquer l’axe exagère visuellement les écarts.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la règle d’un diagramme circulaire ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">angle = fréquence × 360</button>
+        <button class="opt">angle = effectif</button>
+        <button class="opt">angle = 90 × fréquence</button>
+      </div>
+      <div class="q__exp">Un tour complet est 360°, réparti selon les fréquences.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un histogramme à classes inégales, la hauteur représente…</p>
+      <div class="opts">
+        <button class="opt">l’effectif</button>
+        <button class="opt" data-correct="1">la densité n<sub>i</sub>/amplitude</button>
+        <button class="opt">la fréquence cumulée</button>
+      </div>
+      <div class="q__exp">Ce sont les aires qui sont proportionnelles aux effectifs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelles sont les cinq valeurs d’une boîte à moustaches ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">min, Q1, médiane, Q3, max</button>
+        <button class="opt">min, moyenne, max, σ, V</button>
+        <button class="opt">Q1, Q2, Q3, EI, CV</button>
+      </div>
+      <div class="q__exp">Deux moustaches et une boîte délimitée par les quartiles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une médiane située près de Q1 dans la boîte indique…</p>
+      <div class="opts">
+        <button class="opt">une distribution symétrique</button>
+        <button class="opt" data-correct="1">un étalement vers les valeurs hautes</button>
+        <button class="opt">une erreur de calcul</button>
+      </div>
+      <div class="q__exp">La masse des valeurs est basse, la queue s’étend vers le haut.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Axe tronqué</strong> sur un diagramme en barres : les écarts paraissent plus grands qu’ils ne sont.</li>
+      <li><strong>Histogramme à classes inégales sans densité</strong> : les classes larges paraissent surpeuplées.</li>
+      <li><strong>Camembert à huit secteurs</strong> : illisible ; préférer des barres.</li>
+      <li><strong>Barres de largeurs différentes</strong> : la comparaison des hauteurs devient fausse.</li>
+      <li><strong>Moustaches confondues avec les quartiles</strong> : les moustaches vont jusqu’au minimum et au maximum.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Choisir et construire la bonne représentation</div>
+    <ol>
+      <li><strong>Identifier le type du caractère</strong> : qualitatif, discret, ou continu regroupé en classes.</li>
+      <li><strong>Choisir</strong> : barres ou secteurs pour le qualitatif, histogramme pour le continu, boîte à moustaches pour résumer.</li>
+      <li><strong>Calculer</strong> les hauteurs (effectifs) ou les densités si les amplitudes diffèrent.</li>
+      <li><strong>Vérifier les conventions</strong> : axe à zéro, barres de même largeur, classes avec bornes cohérentes.</li>
+      <li><strong>Annoter</strong> le graphique : titre, unités, effectif total — un graphique sans unité n’est pas exploitable.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Barres et bâtons : hauteur proportionnelle à l’effectif, axe démarrant à zéro, barres de même largeur.</li>
+      <li>Diagramme circulaire : parts d’un tout, angle = fréquence × 360, à réserver aux petites répartitions.</li>
+      <li>Histogramme : caractère continu en classes ; les aires sont proportionnelles aux effectifs.</li>
+      <li>Amplitudes inégales : porter en hauteur la densité n<sub>i</sub>/amplitude<sub>i</sub>.</li>
+      <li>Boîte à moustaches : min, Q1, médiane, Q3, max — et valeurs aberrantes hors de [Q1 − 1,5·EI ; Q3 + 1,5·EI].</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je choisis la représentation adaptée au type du caractère.</li>
+      <li>Je construis un histogramme à classes égales ou inégales correctement.</li>
+      <li>Je calcule les cinq valeurs d’une boîte à moustaches.</li>
+      <li>Je vérifie les conventions : axes, largeurs, unités.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>diagramme en bâtons</li><li>diagramme en barres</li><li>diagramme circulaire</li><li>histogramme</li><li>densité</li><li>amplitude de classe</li><li>boîte à moustaches</li><li>valeur aberrante</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les conventions de la section 1 (axe à zéro, largeurs égales).</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices de niveau 2 de l’atelier du chapitre 5.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible la densité et les cinq valeurs.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 6, corrélation et régression.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Corrélation et régression <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support B1 de statistique descriptive et les séries d’exercices du Collège de Paris.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — L'interface en ligne de commande | CCNA 1 B1</title>
+<meta name="description" content="Chapitre 5 du cours de CCNA 1 B1 : Trois accès : console, Telnet, SSH ; modes user et enable ; mode de configuration et sous-modes ; les quatre mémoires ; running-config et startup-config, copie et effacement. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-ccna1/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — L'interface en ligne de commande | CCNA 1 B1">
+<meta property="og:description" content="Chapitre 5 du cours de CCNA 1 B1 : Trois accès : console, Telnet, SSH ; modes user et enable ; mode de configuration et sous-modes ; les quatre mémoires ; running-config et startup-config, copie et effacement. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ccnav"><div class="ccnav__in">
+  <a class="ccnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ccnav__sep" aria-hidden="true">/</span>
+  <a class="ccnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> CCNA 1 B1</a>
+  <div class="ccnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ccnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ccwrap">
+<p class="crumb"><a href="../index.html">CCNA 1 B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — L'interface en ligne de commande</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Sur un commutateur Cisco Catalyst, tout passe par la <strong>CLI</strong> (interface en ligne de commande) d'IOS : on tape une commande, on appuie sur Entrée, le commutateur fait et parfois répond. Trois accès, trois modes, quatre mémoires, deux fichiers de configuration — la grammaire complète du réseau Cisco.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>accéder à la CLI : câble console (physique), Telnet (clair), SSH (chiffré) ;</li>
+      <li>escalader les modes : user EXEC, enable (privilégié), configuration globale et sous-modes ;</li>
+      <li>placer les fichiers : running-config (RAM), startup-config (NVRAM), IOS (flash), bootstrap (ROM) ;</li>
+      <li>sauvegarder avec copy running-config startup-config et effacer avec erase startup-config.</li>
+    </ol>
+  </div>
+
+<h2>1. Accès et modes</h2>
+
+<p>Trois méthodes d'accès : la <strong>console</strong> — port physique dédié (RJ-45 ou USB mini-B), exigeant une connexion physique et un émulateur de terminal (Putty) ; <strong>Telnet</strong> et <strong>SSH</strong> — clients qui traversent le réseau IP existant. Telnet transmet <strong>en clair</strong> (mots de passe compris) : bien en laboratoire, dangereux en production. <strong>SSH chiffre tout</strong>, y compris les mots de passe : l'option sérieuse.</p>
+<p>Les modes s'escaladent : <strong>user EXEC</strong> (regarder sans rien casser — mais la commande <em>reload</em> y est refusée), <strong>enable</strong> ou mode privilégié (commandes puissantes comme reload, accessibles après la commande <em>enable</em>), puis <strong>mode de configuration</strong> (<em>configure terminal</em>) — le seul qui modifie le commutateur, avec application immédiate à chaque Entrée. Les <strong>sous-modes</strong> s'ouvrent par commandes de contexte : <em>line console 0</em>, <em>interface FastEthernet 0/1</em>… et <em>exit</em> redescend d'un cran.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « user regarde, enable ose, configure change »</div>
+    <p>Trois degrés d'audace : consulter, exécuter des commandes puissantes, modifier la configuration — et exit pour redescendre.</p>
+  </div>
+
+<h2>2. Mémoires et fichiers de configuration</h2>
+
+<p>Quatre mémoires : la <strong>RAM</strong> (DRAM) — stockage de travail, perd son contenu à l'extinction ; la <strong>flash</strong> — stocke les images IOS, emplacement par défaut du démarrage ; la <strong>ROM</strong> — programme d'amorçage (bootstrap) qui trouve et charge IOS ; la <strong>NVRAM</strong> — RAM non volatile qui conserve la configuration de démarrage.</p>
+<p>Deux fichiers de configuration : <strong>running-config</strong> (active, en RAM, modifiée dynamiquement en mode configuration) et <strong>startup-config</strong> (initiale, en NVRAM, utilisée à chaque recharge). Le réflexe : <strong>copy running-config startup-config</strong> sauvegarde la configuration — sinon une coupure d'alimentation la perd. Pour repartir de zéro en laboratoire : <strong>erase startup-config</strong> (ou write erase, ou erase nvram:), puis recharger. IOS n'a pas de commande qui efface la running-config : on efface la startup puis on recharge.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>
+      <li>SSH chiffre ; Telnet transmet en clair : la question tombe à chaque examen.</li>
+      <li>reload est refusée en mode user : le support le démontre explicitement.</li>
+      <li>startup-config vit en NVRAM, pas en flash (qui stocke IOS).</li>
+      <li>Une commande de configuration s'applique immédiatement à l'Entrée : prudence.</li>
+    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="cc-c5-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;enable enable&#10;configure config&#10;showversion enable&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r commande modeattendu
+  # À compléter : valider le couple, compter.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Les trois modes de la CLI</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider l'escalade des modes Cisco : user, enable, configuration — et le retour avec exit.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « commande modeattendu » : commande est un code parmi <code>enable</code>, <code>configure</code>, <code>exit</code> ou <code>showversion</code> ; modeattendu est un code parmi <code>user</code>, <code>enable</code> ou <code>config</code>. Règles du support : <code>enable</code> fait passer de user à enable ; <code>configure</code> (terminal) fait passer d'enable à config ; <code>exit</code> redescend d'un mode ; <code>showversion</code> s'exécute en user (non perturbant). Pour chaque ligne il affiche <code>commande : OK</code> si le mode annoncé est cohérent, sinon <code>commande : REFUSE</code>, puis <code>valides : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+enable enable
+configure config
+showversion enable
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>enable : OK
+configure : OK
+showversion : REFUSE
+valides : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>enable→enable (depuis user), configure→config, exit→tous les modes (redescend), showversion→user.</li>
+        <li>Un case par commande donne le mode attendu.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cc-c5-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;console physique&#10;telnet clair&#10;ssh clair&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r acces propriete
+  # À compléter : le couple juste ? Compter.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Console, Telnet ou SSH</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer les trois accès à la CLI : câble console (physique), Telnet (clair), SSH (chiffré).</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « acces propriete » : acces est un code parmi <code>console</code>, <code>telnet</code> ou <code>ssh</code> et propriete un code parmi <code>physique</code>, <code>clair</code> ou <code>chiffre</code>. Couples du support : la console exige une connexion <em>physique</em> ; Telnet transmet en <em>clair</em> (y compris les mots de passe) ; SSH <em>chiffre</em> toutes les données. Pour chaque ligne il affiche <code>acces : OUI</code> quand le couple est juste, sinon <code>acces : NON</code>, puis <code>justes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+console physique
+telnet clair
+ssh clair
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>console : OUI
+telnet : OUI
+ssh : NON
+justes : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Les trois couples : console-physique, telnet-clair, ssh-chiffre.</li>
+        <li>SSH est le seul accès chiffré ; Telnet le seul en clair.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cc-c5-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;running-config ram&#10;startup-config ram&#10;ios flash&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r fichier memoire
+  # À compléter : le placement est-il juste ?
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — RAM, NVRAM, flash et ROM</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Placer les fichiers et programmes du commutateur dans les quatre mémoires Cisco.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « fichier memoire » : memoire est un code parmi <code>ram</code>, <code>nvram</code>, <code>flash</code> ou <code>rom</code>. Placements du support : <strong>running-config</strong> vit en RAM (perdue à l'extinction), <strong>startup-config</strong> en NVRAM (conservée), l'<strong>IOS</strong> en flash, le <strong>bootstrap</strong> (programme d'amorçage) en ROM. Pour chaque ligne il affiche <code>fichier : OK</code> quand le placement est juste, sinon <code>fichier : KO (attendu X)</code>, puis <code>placements justes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+running-config ram
+startup-config ram
+ios flash
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>running-config : OK
+startup-config : KO (attendu nvram)
+ios : OK
+placements justes : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>running-config → ram ; startup-config → nvram ; ios → flash ; bootstrap → rom.</li>
+        <li>En cas d'erreur, affiche la mémoire attendue entre parenthèses.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">SSH</button>
+        <button class="opt" data-correct="1">console</button>
+        <button class="opt">Telnet</button>
+      </div>
+      <div class="q__exp">Câble console vers le port dédié (RJ-45 ou USB mini-B).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">chiffrées</button>
+        <button class="opt" data-correct="1">en clair</button>
+        <button class="opt">compressées</button>
+      </div>
+      <div class="q__exp">Mots de passe compris : dangereux en production.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">configure</button>
+        <button class="opt" data-correct="1">enable</button>
+        <button class="opt">login</button>
+      </div>
+      <div class="q__exp">enable ; configure terminal monte ensuite vers la configuration.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">acceptée</button>
+        <button class="opt" data-correct="1">refusée</button>
+        <button class="opt">masquée</button>
+      </div>
+      <div class="q__exp">Reload est puissante : réservée au mode enable.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">RAM</button>
+        <button class="opt">NVRAM</button>
+        <button class="opt">flash</button>
+      </div>
+      <div class="q__exp">RAM : active, dynamique, volatile.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">NVRAM</button>
+        <button class="opt">RAM</button>
+        <button class="opt">ROM</button>
+      </div>
+      <div class="q__exp">NVRAM : configuration initiale, utilisée à la recharge.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la flash</button>
+        <button class="opt">la ROM</button>
+        <button class="opt">la RAM</button>
+      </div>
+      <div class="q__exp">La flash stocke les images IOS ; la ROM n'a que le bootstrap.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">erase startup-config puis reload</button>
+        <button class="opt">clear running-config</button>
+        <button class="opt">write ram</button>
+      </div>
+      <div class="q__exp">Trois commandes possibles (write erase, erase startup-config, erase nvram:), puis recharge.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser Telnet en production : texte clair, mots de passe capturables.</li>
+      <li>Modifier la configuration sans copier : perdu à la prochaine coupure.</li>
+      <li>Placer la startup-config en flash : c'est la NVRAM.</li>
+      <li>Chercher une commande qui vide la running-config : elle n'existe pas.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — prendre la main sur un commutateur en trois gestes</div>
+    <ol>
+      <li>Se connecter : console (physique) ou SSH (chiffré) — jamais Telnet en production.</li>
+      <li>Escalader : user → enable → configure terminal → sous-mode (line, interface).</li>
+      <li>Conclure par copy running-config startup-config avant de quitter.</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Trois accès : console (physique), Telnet (clair), SSH (chiffré).</li>
+      <li>Modes : user EXEC → enable (privilégié) → configuration → sous-modes ; exit redescend.</li>
+      <li>RAM : running-config ; NVRAM : startup-config ; flash : IOS ; ROM : bootstrap.</li>
+      <li>copy running-config startup-config sauvegarde ; erase startup-config repart de zéro.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais choisir l'accès adapté et justifier.</li>
+      <li>Je sais dérouler l'escalade des modes.</li>
+      <li>Je sais placer les quatre mémoires et les deux fichiers.</li>
+      <li>Je sais sauvegarder et effacer proprement.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>CLI</strong> : interface textuelle d'IOS — commande + Entrée.</li><li><strong>Console</strong> : accès physique dédié (RJ-45 bleu ou USB mini-B).</li><li><strong>SSH</strong> : accès distant chiffré, l'option de production.</li><li><strong>Mode enable</strong> : mode privilégié — reload y est acceptée.</li><li><strong>configure terminal</strong> : passage au mode de configuration.</li><li><strong>running-config</strong> : configuration active, en RAM.</li><li><strong>startup-config</strong> : configuration initiale, en NVRAM.</li><li><strong>Bootstrap</strong> : programme d'amorçage en ROM.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis les trois accès et les quatre mémoires.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais l'escalade des modes et le placement des fichiers.</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, cible copy et erase.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Configuration de base du commutateur <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « B1-IT : CCNA 1 » (Essowaba AHOULOUMI, Collège de Paris, d'après le programme CCNA 200-301).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

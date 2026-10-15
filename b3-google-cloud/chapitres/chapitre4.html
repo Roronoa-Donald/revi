@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4 — Réseau Virtuel VPC, Routage, Sécurité &amp; Répartiteurs de Charge | Google Cloud Platform B3</title>
+<meta name="description" content="Module 4 du cours Google Cloud Platform B3 : Virtual Private Cloud (VPC) mondial et mode sous-réseaux personnalisé (Custom Subnet Mode), plan d'adressage CIDR et les 4 adresses IP réservées par Google, passerelle Cloud NAT, règles de pare-feu VPC avec état (priorités et Network Tags), interconnexions (VPC Peering, Cloud VPN, Cloud Interconnect) et répartiteurs de charge mondiaux Anycast (Global External HTTP(S) Load Balancer, URL Maps, Cloud Armor et Cloud CDN). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-google-cloud/chapitres/chapitre4.html">
+<meta property="og:title" content="Module 4 — Réseau Virtuel VPC, Routage, Sécurité &amp; Répartiteurs de Charge | Google Cloud Platform B3">
+<meta property="og:description" content="Module 4 du cours Google Cloud Platform B3 : Virtual Private Cloud (VPC) mondial et mode sous-réseaux personnalisé (Custom Subnet Mode), plan d'adressage CIDR et les 4 adresses IP réservées par Google, passerelle Cloud NAT, règles de pare-feu VPC avec état (priorités et Network Tags), interconnexions (VPC Peering, Cloud VPN, Cloud Interconnect) et répartiteurs de charge mondiaux Anycast (Global External HTTP(S) Load Balancer, URL Maps, Cloud Armor et Cloud CDN). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-google-cloudnav"><div class="b3-google-cloudnav__in">
+  <a class="b3-google-cloudnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-google-cloudnav__sep" aria-hidden="true">/</span>
+  <a class="b3-google-cloudnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Google Cloud Platform B3</a>
+  <div class="b3-google-cloudnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-google-cloudnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-google-cloudwrap">
+<p class="crumb"><a href="../index.html">Google Cloud Platform B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Réseau Virtuel VPC, Routage, Sécurité & Répartiteurs de Charge</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Contrairement aux datacenters traditionnels ou à d'autres fournisseurs de cloud où les réseaux virtuels sont cantonnés à une seule région géographique, Google Cloud repose sur un réseau logiciel mondial (SDN Andromeda). Un VPC Google Cloud s'étend nativement à travers le monde entier. Cette puissance architecturale exige cependant une rigueur absolue dans la conception des plans d'adressage CIDR, l'application des règles de pare-feu et la configuration des répartiteurs de charge Anycast. En tant qu'ingénieur réseau Cloud B3, vous devez concevoir des topologies VPC résilientes et sécurisées, calculer les plages d'adresses avec précision et acheminer le trafic mondial avec Cloud Load Balancing.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l'architecture mondiale d'un VPC Google Cloud (réseau global à sous-réseaux régionaux) ;</li>
+      <li>concevoir un plan d'adressage CIDR en mode personnalisé et calculer les 4 adresses IP réservées par sous-réseau ;</li>
+      <li>configurer la passerelle Cloud NAT pour permettre les sorties Internet des VMs privées sans IP publique ;</li>
+      <li>maîtriser les règles de pare-feu VPC avec état : priorités de 0 à 65535, protocoles, ports et ciblage par Network Tags ;</li>
+      <li>différencier les interconnexions réseau : VPC Peering, Cloud VPN IPsec et Cloud Interconnect dédié ;</li>
+      <li>développer en Python 3 des calculateurs de sous-réseaux VPC, des évaluateurs de pare-feu et des simulateurs de répartiteurs de charge Anycast.</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture du VPC Google Cloud : Réseau Global &amp; Sous-Réseaux Régionaux</h2>
+
+<p>Le réseau VPC (Virtual Private Cloud) de Google Cloud est une abstraction logicielle bâtie sur le SDN mondial de Google (Andromeda). Contrairement aux clouds traditionnels où un VPC est enfermé dans une région, <strong>un VPC Google Cloud est mondial</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Modes de Création d'un VPC</h4>
+    <ul>
+      <li><strong>Mode Automatique (Auto Mode) :</strong> crée automatiquement un sous-réseau avec un préfixe <code>/20</code> prédéfini dans chaque région du monde. Pratique pour les tests, mais <span style="color:#b91c1c;font-weight:700;">PROSCRIT EN PRODUCTION</span> en raison de chevauchements d'adresses potentiels.</li>
+      <li><strong>Mode Personnalisé (Custom Mode) :</strong> aucun sous-réseau par défaut. L'architecte contrôle totalement la création de chaque sous-réseau régional et choisit ses plages d'adresses IP privées (RFC 1918 : <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Les 4 Adresses IP Réservées par Google</h4>
+    <p>Chaque sous-réseau VPC réserve obligatoirement 4 adresses IP non attribuables aux machines :</p>
+    <ul>
+      <li><code>.0</code> : Adresse réseau (Network)</li>
+      <li><code>.1</code> : Passerelle par défaut du sous-réseau (Default Gateway)</li>
+      <li><code>.2</code> : Réservé par Google (serveur DNS interne)</li>
+      <li><code>.255</code> (dernière du bloc) : Réservé par Google (diffusion/broadcast)</li>
+    </ul>
+    <p><strong>Formule des adresses utilisables :</strong> <code>2^(32 - prefix) - 4</code>.</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Cloud NAT : Sortie Internet Sécurisée sans IP Publique</div>
+<p>Par défaut, une VM sans adresse IP externe ne peut pas accéder à Internet pour télécharger des mises à jour d'OS ou des packages. Assigner une IP publique à chaque VM expose le serveur à des scans malveillants. <strong>Cloud NAT</strong> est un service managé hautement disponible qui permet aux instances privées d'émettre du trafic vers Internet (requêtes sortantes) tout en bloquant strictement toute connexion initiée depuis l'extérieur.</p>
+  </div>
+
+<h2>2. Règles de Pare-Feu VPC (Firewall Rules) : Priorités &amp; Tags Réseau</h2>
+
+<p>Le pare-feu Google Cloud est distribué au niveau du noyau de l'hyperviseur sur chaque VM. Il est <strong>avec état (stateful)</strong> : si un paquet entrant est autorisé, le trafic de réponse retour est automatiquement autorisé quelle que soit la règle de sortie :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Composants d'une Règle de Pare-feu</h4>
+    <ul>
+      <li><strong>Direction :</strong> <code>INGRESS</code> (flux entrant) ou <code>EGRESS</code> (flux sortant).</li>
+      <li><strong>Priorité :</strong> entier de <code>0</code> à <code>65535</code>. La priorité la plus faible est évaluée en premier (la règle 100 l'emporte sur la règle 1000).</li>
+      <li><strong>Action :</strong> <code>ALLOW</code> ou <code>DENY</code>. Dès qu'une règle correspond, l'évaluation s'arrête.</li>
+      <li><strong>Cibles (Targets) :</strong> <em>Toutes les instances</em>, <em>Network Tags</em> (ex: <code>http-server</code>) ou <em>Comptes de service</em> (recommandé pour une sécurité basée sur l'identité).</li>
+      <li><strong>Filtres :</strong> plages IP sources (CIDR), protocoles (TCP, UDP, ICMP) et ports.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Règles Implicites par Défaut</h4>
+    <p>Tout VPC contient deux règles implicites immuables de priorité <code>65535</code> :</p>
+    <ul>
+      <li><strong>Allow Egress (65535) :</strong> tout le trafic sortant est autorisé par défaut vers toutes les destinations.</li>
+      <li><strong>Deny Ingress (65535) :</strong> tout le trafic entrant est bloqué par défaut.</li>
+    </ul>
+    <p>Pour autoriser un flux entrant (ex: HTTPS sur le port 443), vous devez obligatoirement créer une règle explicite de priorité &lt; 65535.</p>
+  </div>
+</div>
+
+<h2>3. Interconnexions Réseau : VPC Peering, Cloud VPN &amp; Interconnect</h2>
+
+<p>Pour interconnecter plusieurs VPC Google Cloud ou raccorder l'infrastructure Cloud aux datacenters sur site (on-premises), Google propose trois solutions :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>VPC Network Peering</h4>
+    <ul>
+      <li>Relie deux réseaux VPC (même projet ou projets différents/organisations différentes).</li>
+      <li>Trafic routé sur le réseau privé Google en gigabits sans latence de passerelle.</li>
+      <li><strong>Non transitif :</strong> si A est appairé avec B et B avec C, A ne communique pas avec C.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Cloud VPN (IPsec)</h4>
+    <ul>
+      <li>Tunnels chiffrés IPsec IKEv2 sur l'Internet public.</li>
+      <li><strong>HA VPN :</strong> haute disponibilité avec SLA 99.99%, utilise deux interfaces et <strong>Cloud Router</strong> avec le protocole dynamique BGP.</li>
+      <li>Débit jusqu'à 3 Gbps par tunnel.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Cloud Interconnect</h4>
+    <ul>
+      <li>Liaison physique filaire directe dédiée entre le datacenter de l'entreprise et un PoP Google.</li>
+      <li><strong>Dedicated :</strong> circuits 10 Gbps ou 100 Gbps.</li>
+      <li><strong>Partner :</strong> souscription via un opérateur télécom (Orange, Equinix) de 50 Mbps à 10 Gbps.</li>
+      <li>Idéal pour les transferts de téraoctets critiques sans passer par Internet.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. Cloud Load Balancing : Architecture Anycast Mondiale &amp; URL Maps</h2>
+
+<p>Le répartiteur de charge externe de Google Cloud (Global External HTTP(S) Load Balancer) est une prouesse d'ingénierie basée sur le système Maglev de Google :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Routage Mondial Anycast</h4>
+    <ul>
+      <li>Une <strong>adresse IP publique unique</strong> (IPv4 et IPv6) annoncée mondialement par BGP sur tous les PoP edge de Google.</li>
+      <li>L'utilisateur est connecté au PoP le plus proche géographiquement. Le handshake TCP et la terminaison TLS s'effectuent à la périphérie (Edge).</li>
+      <li>Le trafic est ensuite acheminé vers le backend régional le plus proche disposant de capacité disponible via la fibre privée Google.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Chaîne de Composants du Load Balancer</h4>
+    <ol>
+      <li><strong>Global Forwarding Rule :</strong> intercepte le trafic sur l'IP Anycast (ports 80 / 443).</li>
+      <li><strong>Target HTTP(S) Proxy :</strong> déchiffre le TLS avec les certificats SSL managés par Google.</li>
+      <li><strong>URL Map :</strong> table de routage qui analyse l'hôte (<code>Host</code>) et le chemin (<code>Path</code>) de la requête.</li>
+      <li><strong>Backend Service :</strong> supervise les groupes de serveurs (MIG ou NEG Cloud Run) via un Health Check et répartit les requêtes.</li>
+    </ol>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Protection Périmétrique avec Cloud Armor</div>
+<p>Directement branché sur le Global HTTP(S) Load Balancer, <strong>Google Cloud Armor</strong> protège les applications contre les attaques DDoS massives (absorbant des dizaines de millions de requêtes par seconde) et intègre un Web Application Firewall (WAF) avec les règles gérées de l'OWASP Top 10 (injections SQL, XSS, bots).</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gcp3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="SUBNET_CALC cidr=10.10.0.0/24">
+  <script type="text/plain" data-lab-starter>import sys
+import ipaddress
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter le calcul de sous-réseau VPC GCP
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de Sous-réseaux VPC et Adresses IP Réservées GCP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le nombre d'adresses IP totales et utilisables dans un sous-réseau VPC Google Cloud en tenant compte des 4 adresses réservées.</p>
+    <div class="lab__brief"><p>Dans un sous-réseau Google Cloud VPC, 4 adresses IP sont systématiquement réservées par l'infrastructure :<br>
+- <code>première (.0)</code> : Adresse réseau (Network)<br>
+- <code>seconde (.1)</code> : Passerelle par défaut du sous-réseau (Default Gateway)<br>
+- <code>troisième (.2)</code> : Réservée par Google (DNS interne)<br>
+- <code>dernière (.255 pour /24)</code> : Réservée par Google (Diffusion/Broadcast)<br><br>
+Adresses utilisables pour les instances = <code>2^(32 - prefix) - 4</code>.<br><br>
+Commande STDIN :<br>
+<code>SUBNET_CALC cidr=&lt;IP/prefix&gt;</code>.<br>
+Sortie :<br>
+<code>SUBNET: cidr=&lt;cidr&gt; total_ips=&lt;T&gt; usable_ips=&lt;U&gt; gateway=&lt;gw_ip&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SUBNET_CALC cidr=10.10.0.0/24</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SUBNET: cidr=10.10.0.0/24 total_ips=256 usable_ips=252 gateway=10.10.0.1</pre></div>
+    </div>
+    <p class="lab__note">Sous-réseau /24 standard avec 252 IP assignables à des instances.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilisez le module standard ipaddress.ip_network(cidr, strict=False).</li>
+        <li>Le total d adresses vaut 2**(32 - net.prefixlen).</li>
+        <li>L adresse de passerelle gateway est net[1].</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gcp3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="RULE priority=1000 action=ALLOW proto=tcp port=443&#10;RULE priority=1000 action=ALLOW proto=tcp port=80&#10;RULE priority=2000 action=DENY proto=tcp port=all&#10;TEST_PACKET proto=tcp port=443&#10;TEST_PACKET proto=tcp port=22">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter l'évaluateur de pare-feu VPC
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Évaluateur et Linter de Règles de Pare-feu VPC (VPC Firewall Rules)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer le filtrage de flux réseau face à une liste ordonnée de règles de pare-feu VPC Google Cloud.</p>
+    <div class="lab__brief"><p>Les règles de pare-feu VPC appliquent un filtrage avec état (stateful) ordonné par priorité (0 à 65535, la priorité la plus petite s'appliquant en premier) :<br>
+Chaque règle est définie par :<br>
+<code>RULE priority=&lt;p&gt; action=&lt;ALLOW|DENY&gt; proto=&lt;tcp|udp|icmp&gt; port=&lt;port&gt;</code>.<br>
+(port peut valoir un entier ou 'all').<br><br>
+Commande de test :<br>
+<code>TEST_PACKET proto=&lt;proto&gt; port=&lt;port&gt;</code>.<br>
+Parcourt les règles chargées dans l'ordre de priorité croissante :<br>
+- La première règle correspondante décide : <code>PACKET: proto=&lt;proto&gt; port=&lt;port&gt; action=&lt;ALLOW|DENY&gt; matched_priority=&lt;p&gt;</code>.<br>
+- Si aucune règle ne correspond, la règle implicite s'applique : <code>PACKET: proto=&lt;proto&gt; port=&lt;port&gt; action=DENY matched_priority=65535 (implicit_deny)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE priority=1000 action=ALLOW proto=tcp port=443
+RULE priority=1000 action=ALLOW proto=tcp port=80
+RULE priority=2000 action=DENY proto=tcp port=all
+TEST_PACKET proto=tcp port=443
+TEST_PACKET proto=tcp port=22</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PACKET: proto=tcp port=443 action=ALLOW matched_priority=1000
+PACKET: proto=tcp port=22 action=DENY matched_priority=2000</pre></div>
+    </div>
+    <p class="lab__note">Le port 443 est autorisé à priorité 1000, le port 22 est bloqué à priorité 2000.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stockez les règles et triez-les par priorité croissante.</li>
+        <li>Une règle correspond si rule_proto == test_proto et (rule_port == "all" ou int(rule_port) == int(test_port)).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gcp3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="ROUTE_MAP host=api.cloud.corp path_prefix=/v1/users backend=user-service-backend protocol=HTTPS&#10;ROUTE_MAP host=api.cloud.corp path_prefix=/ backend=default-api-backend protocol=HTTPS&#10;DISPATCH_REQUEST host=api.cloud.corp path=/v1/users/list&#10;DISPATCH_REQUEST host=api.cloud.corp path=/health">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter le routage URL Map Cloud Load Balancing
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de Répartiteur de Charge Global HTTP(S) et URL Maps</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le routage de requêtes Anycast d'un Global External HTTP(S) Load Balancer selon les règles d'URL Map.</p>
+    <div class="lab__brief"><p>Un répartiteur de charge mondial Cloud Load Balancing utilise une URL Map pour acheminer le trafic :<br>
+Règles de routage chargées :<br>
+<code>ROUTE_MAP host=&lt;host&gt; path_prefix=&lt;prefix&gt; backend=&lt;service&gt; protocol=&lt;HTTP|HTTPS&gt;</code>.<br>
+(host peut être un domaine exact ou wildcard <code>*</code>).<br><br>
+Commande de requête :<br>
+<code>DISPATCH_REQUEST host=&lt;host&gt; path=&lt;path&gt;</code>.<br>
+Recherche de la correspondance la plus spécifique (préfixe de chemin le plus long correspondant) :<br>
+- Si trouvé : <code>DISPATCH: host=&lt;host&gt; path=&lt;path&gt; backend=&lt;service&gt; protocol=&lt;proto&gt; status=FORWARDED</code><br>
+- Si aucun backend ne correspond : <code>DISPATCH: host=&lt;host&gt; path=&lt;path&gt; status=404_NOT_FOUND</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROUTE_MAP host=api.cloud.corp path_prefix=/v1/users backend=user-service-backend protocol=HTTPS
+ROUTE_MAP host=api.cloud.corp path_prefix=/ backend=default-api-backend protocol=HTTPS
+DISPATCH_REQUEST host=api.cloud.corp path=/v1/users/list
+DISPATCH_REQUEST host=api.cloud.corp path=/health</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DISPATCH: host=api.cloud.corp path=/v1/users/list backend=user-service-backend protocol=HTTPS status=FORWARDED
+DISPATCH: host=api.cloud.corp path=/health backend=default-api-backend protocol=HTTPS status=FORWARDED</pre></div>
+    </div>
+    <p class="lab__note">Le préfixe le plus spécifique /v1/users l emporte sur la racine /.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stockez les règles et filtrez d abord par correspondance d hôte (exact ou "*").</li>
+        <li>Sélectionnez la règle dont path_prefix correspond au début de path avec la longueur maximale.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien d'adresses IP sont utilisables pour assigner à des machines virtuelles dans un sous-réseau Google Cloud VPC avec un masque /24 (256 adresses totales) ?</p>
+      <div class="opts">
+        <button class="opt">256</button>
+        <button class="opt">254</button>
+        <button class="opt" data-correct="1">252</button>
+        <button class="opt">250</button>
+      </div>
+      <div class="q__exp">Google Cloud réserve obligatoirement 4 adresses IP par sous-réseau (.0 réseau, .1 passerelle, .2 DNS interne, .255 broadcast). Il reste donc 256 - 4 = 252 adresses IP assignables.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le pare-feu Google Cloud VPC, entre une règle A de priorité 100 qui refuse le port 22 et une règle B de priorité 1000 qui autorise tous les ports, quelle règle s'applique pour le port 22 ?</p>
+      <div class="opts">
+        <button class="opt">La règle B (1000) car elle est plus permissive</button>
+        <button class="opt" data-correct="1">La règle A (100) car les priorités les plus petites sont évaluées en premier</button>
+        <button class="opt">Les deux règles s'annulent</button>
+        <button class="opt">La règle la plus récente créée</button>
+      </div>
+      <div class="q__exp">Dans Google Cloud, les priorités de pare-feu vont de 0 à 65535, et les chiffres les plus petits sont les plus prioritaires. La règle de priorité 100 s'applique donc avant celle de priorité 1000.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel service managé permet à des machines virtuelles sans adresse IP publique d'accéder à Internet pour télécharger des mises à jour de sécurité ?</p>
+      <div class="opts">
+        <button class="opt">Cloud Interconnect</button>
+        <button class="opt" data-correct="1">Cloud NAT</button>
+        <button class="opt">Cloud CDN</button>
+        <button class="opt">Cloud Armor</button>
+      </div>
+      <div class="q__exp">Cloud NAT fournit la traduction d'adresses réseau sortante sécurisée sans attribuer d'adresses IP externes aux VMs, empêchant toute intrusion directe depuis l'extérieur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un Global External HTTP(S) Load Balancer Google Cloud, quel composant inspecte le chemin de la requête (/api/* ou /images/*) pour router vers le bon backend ?</p>
+      <div class="opts">
+        <button class="opt">La Global Forwarding Rule</button>
+        <button class="opt">Le Target HTTPS Proxy</button>
+        <button class="opt" data-correct="1">L'URL Map</button>
+        <button class="opt">Le Cloud Router</button>
+      </div>
+      <div class="q__exp">L'URL Map est la table de correspondance qui analyse les noms d'hôtes et les préfixes d'URL pour acheminer les flux vers les différents Backend Services.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Deux réseaux VPC A et B sont interconnectés par VPC Peering. B est également interconnecté par VPC Peering avec C. A peut-il communiquer avec C sans lien supplémentaire ?</p>
+      <div class="opts">
+        <button class="opt">Oui, le peering est toujours transitif</button>
+        <button class="opt" data-correct="1">Non, le VPC Peering n'est pas transitif dans Google Cloud</button>
+        <button class="opt">Oui, uniquement si le protocole BGP est activé</button>
+        <button class="opt">Oui, si les deux VPC sont dans la même région</button>
+      </div>
+      <div class="q__exp">Le VPC Network Peering dans Google Cloud est strictement non transitif : pour que A communique avec C, un lien de peering direct entre A et C doit être explicitement créé.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Créer un VPC en mode automatique en entreprise : les sous-réseaux par défaut dans toutes les régions finissent par entrer en conflit avec les réseaux sur site lors d'un VPN.</li>
+      <li>Assigner des adresses IP publiques externes à des bases de données ou des serveurs d'application internes au lieu d'utiliser des sous-réseaux privés avec Cloud NAT.</li>
+      <li>Créer une règle de pare-feu trop permissive avec source 0.0.0.0/0 sur le port SSH 22 ou RDP 3389, exposant les VMs à des attaques par force brute immédiates.</li>
+      <li>Penser que le VPC Peering est transitif (croire que si A est lié à B et B à C, alors A accède à C sans lien direct).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Conception du plan d'adressage VPC en mode personnalisé : bannir le mode automatique, définir des plages IP privées RFC 1918 non chevauchantes et intégrer les 4 adresses réservées par sous-réseau.</li>
+      <li>Sécurisation des accès Internet via Cloud NAT : déployer des VMs sans adresses IP externes et configurer Cloud NAT sur le routeur régional Cloud Router pour les sorties.</li>
+      <li>Stratégie de filtrage de pare-feu basée sur les Network Tags : créer des règles d'autorisation de priorité stricte ciblant des étiquettes sémantiques plutôt que des adresses IP individuelles volatiles.</li>
+      <li>Mise en œuvre du Load Balancing Anycast avec URL Map : configurer la terminaison TLS edge, segmenter les chemins applicatifs (/api/* vers le backend API) et activer la protection Cloud Armor.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un réseau VPC Google Cloud est mondial par défaut, composé de sous-réseaux régionaux indépendants.</li>
+      <li>Chaque sous-réseau réserve 4 adresses IP (.0, .1, .2 et .255), ramenant le nombre d'hôtes disponibles à 2^(32-prefix) - 4.</li>
+      <li>Cloud NAT permet aux instances privées d'accéder à Internet en toute sécurité sans exposer d'adresses IP publiques.</li>
+      <li>Les règles de pare-feu VPC sont avec état, ordonnées par priorité de 0 à 65535, et bloquent les entrées par défaut via la règle 65535.</li>
+      <li>Le Global External HTTP(S) Load Balancer utilise une IP Anycast mondiale pour terminer le trafic au plus près des utilisateurs et le router via une URL Map.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous calculer les adresses utilisables d'un sous-réseau en excluant les 4 IP réservées par Google ?</li>
+      <li>Comprenez-vous pourquoi le mode VPC personnalisé (Custom Mode) est obligatoire en entreprise ?</li>
+      <li>Savez-vous expliquer le fonctionnement d'une règle de pare-feu avec état (Stateful) ?</li>
+      <li>Connaissez-vous l'ordre d'évaluation des priorités de pare-feu (0 est plus prioritaire que 1000) ?</li>
+      <li>Pouvez-vous décrire le rôle de l'IP Anycast et de l'URL Map dans un répartiteur de charge Cloud Load Balancing ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Virtual Private Cloud (VPC) :</strong> Réseau virtuel privé mondial logiciel (SDN) fournissant connectivité et isolation aux ressources Google Cloud.</li><li><strong>Cloud NAT :</strong> Service managé fournissant la traduction d'adresses réseau pour permettre aux instances privées d'émettre vers Internet sans IP externe.</li><li><strong>Règle de Pare-feu VPC :</strong> Règle de filtrage distribuée avec état contrôlant le trafic entrant et sortant selon les priorités, protocoles, ports et tags.</li><li><strong>VPC Network Peering :</strong> Interconnexion privée directe et non transitive reliant deux réseaux VPC distincts à très haute vitesse sans passerelle.</li><li><strong>URL Map :</strong> Composant de routage du Load Balancer Google Cloud acheminant le trafic vers différents services backend selon l'hôte et le chemin HTTP.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Conception de topologies VPC mondiales personnalisées :</strong> Définir des plans d'adressage CIDR étanches et calculer les adresses disponibles en tenant compte des réservations.</div>
+      <div class="bandrow"><strong>Sécurisation périmétrique et pare-feu distribué :</strong> Écrire des règles de pare-feu basées sur les priorités et les Network Tags pour verrouiller les flux d'infrastructure.</div>
+      <div class="bandrow"><strong>Configuration de sorties Internet sécurisées via Cloud NAT :</strong> Déployer Cloud Router et Cloud NAT pour éliminer les IP publiques superflues sur les serveurs applicatifs.</div>
+      <div class="bandrow"><strong>Déploiement de répartiteurs de charge Anycast et URL Maps :</strong> Concevoir des architectures de routage HTTP(S) mondial avec certificats managés et dissociation des backends.</div>
+      <div class="bandrow"><strong>Interconnexion de réseaux hybrides et Cloud VPN HA :</strong> Configurer des tunnels IPsec redondants avec BGP dynamique pour garantir une connectivité d'entreprise résiliente.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Module 5 — Stockage Distribué, Bases de Données & Pipeline Big Data <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud (Google Cloud) B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation officielle Google Cloud Architecture Center, Référentiels d'examen Google Cloud Certified Associate Cloud Engineer (ACE) et Professional Cloud Architect (PCA).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Virtualisation d’Entreprise Hyper-V, Commutateurs Virtuels &amp;amp; Haute Disponibilité | Windows Server B3</title>
+<meta name="description" content="Chapitre 5 du cours Windows Server B3 : Architecture de l’hyperviseur Type 1 Microsoft Hyper-V (micro-noyau, Root Partition vs Child Partitions, VMBus et VSP/VSC), machines virtuelles Génération 1 vs Génération 2 (UEFI, Secure Boot, contrôleurs SCSI), commutation réseau virtuelle (External, Internal, Private vSwitch et mode allow_host), allocation dynamique de la mémoire (Startup RAM, min/max et Memory Buffer), gestion des disques virtuels VHDX (dynamiques, fixes, différentiels), points de contrôle (Checkpoints Standard vs Production VSS, fusion de disques), et réplication Hyper-V Replica. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-windows-server/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Virtualisation d’Entreprise Hyper-V, Commutateurs Virtuels &amp;amp; Haute Disponibilité | Windows Server B3">
+<meta property="og:description" content="Chapitre 5 du cours Windows Server B3 : Architecture de l’hyperviseur Type 1 Microsoft Hyper-V (micro-noyau, Root Partition vs Child Partitions, VMBus et VSP/VSC), machines virtuelles Génération 1 vs Génération 2 (UEFI, Secure Boot, contrôleurs SCSI), commutation réseau virtuelle (External, Internal, Private vSwitch et mode allow_host), allocation dynamique de la mémoire (Startup RAM, min/max et Memory Buffer), gestion des disques virtuels VHDX (dynamiques, fixes, différentiels), points de contrôle (Checkpoints Standard vs Production VSS, fusion de disques), et réplication Hyper-V Replica. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-windows-servernav"><div class="b3-windows-servernav__in">
+  <a class="b3-windows-servernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-windows-servernav__sep" aria-hidden="true">/</span>
+  <a class="b3-windows-servernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B3</a>
+  <div class="b3-windows-servernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-windows-servernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-windows-serverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Virtualisation d’Entreprise Hyper-V, Commutateurs Virtuels &amp; Haute Disponibilité</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>La virtualisation constitue le standard absolu de déploiement des infrastructures de serveurs modernes : elle permet d’optimiser l’empreinte matérielle, de réduire la consommation énergétique et d’isoler hermétiquement les services applicatifs. Au cœur de Windows Server, l’hyperviseur Type 1 natif Hyper-V offre des performances de niveau matériel (bare-metal) et une intégration étroite avec Active Directory et le stockage d’entreprise. Néanmoins, une mauvaise configuration de la topologie réseau des commutateurs virtuels (vSwitch), une surallocation incontrôlée de la mémoire vive ou l’accumulation désordonnée de points de contrôle (checkpoints/snapshots) non fusionnés sur des disques différentiels peuvent dégrader dramatiquement les performances d’E/S disques ou provoquer la rupture de services critiques. En niveau Bachelor 3, l’ingénieur système doit maîtriser l’architecture sous-jacente de l’hyperviseur, concevoir des réseaux virtuels étanches, régler la mémoire dynamique avec précision et assurer la résilience des disques VHDX.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>assimiler l’architecture micro-noyau Type 1 d’Hyper-V (Root Partition de gestion, Child Partitions invitées, bus VMBus et pilotes synthétiques) ;</li>
+      <li>comparer les machines virtuelles de Génération 1 (BIOS hérité, IDE) et de Génération 2 (UEFI x64, Secure Boot, démarrage PXE réseau natif, SCSI) ;</li>
+      <li>concevoir une matrice de commutation réseau avec les commutateurs virtuels External, Internal et Private vSwitch et maîtriser l’option allow_host ;</li>
+      <li>calculer et optimiser l’allocation de la mémoire dynamique (Startup RAM, seuils Min/Max, Memory Buffer en pourcentage et Smart Paging) ;</li>
+      <li>administrer le cycle de vie des disques virtuels VHDX différentiels (.avhdx) et exécuter la fusion de points de contrôle (Checkpoints) sans perte de données ;</li>
+      <li>implémenter en Python 3 des simulateurs de connectivité vSwitch, des moteurs d’allocation de mémoire dynamique et des gestionnaires d’arborescences VHDX.</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture Interne de l’Hyperviseur Microsoft Hyper-V</h2>
+
+<p>Contrairement aux hyperviseurs de Type 2 qui s’exécutent comme des applications au-dessus d’un OS hôte, Hyper-V est un <strong>hyperviseur de Type 1</strong> (bare-metal) qui s’installe directement entre le matériel physique et les systèmes d’exploitation :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Cloisonnement des Partitions et VMBus</h4>
+    <ul>
+      <li><strong>Partition Parente (Root Partition) :</strong> partition d’administration exécutant Windows Server. Elle contrôle l’hyperviseur via les APIs de virtualisation, héberge les pilotes matériels réels et instancie les fournisseurs de services virtuels (VSP - Virtualization Service Providers).</li>
+      <li><strong>Partitions Enfants (Child Partitions) :</strong> partitions isolées hébergeant les systèmes d’exploitation invités (VMs Windows, Linux). Elles accèdent aux périphériques via des clients de services virtuels (VSC - Virtualization Service Clients).</li>
+      <li><strong>Canal VMBus :</strong> bus de communication ultra-rapide en mémoire partagée reliant directement les VSC des VMs invitées aux VSP de la partition parente, évitant l’émulation matérielle lente.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>VMs Génération 1 vs Génération 2</h4>
+    <table class="table">
+      <thead><tr><th>Caractéristique</th><th>Génération 1</th><th>Génération 2</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Microprogramme</strong></td><td>BIOS hérité (MBR)</td><td>UEFI x64 (GPT)</td></tr>
+        <tr><td><strong>Sécurité</strong></td><td>Non disponible</td><td>Secure Boot &amp; TPM virtuel (vTPM)</td></tr>
+        <tr><td><strong>Disque de démarrage</strong></td><td>Contrôleur IDE émulé</td><td>Contrôleur SCSI haute performance</td></tr>
+        <tr><td><strong>Démarrage réseau (PXE)</strong></td><td>Carte réseau héritée lente</td><td>Carte réseau synthétique VMBus</td></tr>
+        <tr><td><strong>Usage cible</strong></td><td>Vieux OS (Windows 7, 32-bit)</td><td>Tous les OS modernes (Windows 10/11, Server, Linux)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h2>2. Commutateurs Réseau Virtuels (Virtual Switches)</h2>
+
+<p>Le réseau dans Hyper-V est orchestré par des commutateurs virtuels de niveau 2 (vSwitch) configurables selon trois modes de connectivité étanches :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les 3 Types de Commutateurs Virtuels</h4>
+    <ul>
+      <li><strong>Commutateur Externe (External vSwitch) :</strong> lié directement à une carte réseau physique (NIC) de l’hôte. Permet la communication entre VMs rattachées, vers le réseau physique de l’entreprise et vers Internet. L’option <em>Autoriser le système d’exploitation de gestion à partager cette carte réseau (allow_host)</em> détermine si l’hôte physique peut également utiliser ce vSwitch.</li>
+      <li><strong>Commutateur Interne (Internal vSwitch) :</strong> purement logiciel. Permet la communication entre les VMs rattachées et avec l’hôte physique via une carte virtuelle dédiée. <em>Aucun accès au réseau physique extérieur ni à Internet.</em></li>
+      <li><strong>Commutateur Privé (Private vSwitch) :</strong> strictement isolé. Permet la communication <em>uniquement entre les VMs rattachées sur ce même vSwitch</em>. Ni l’hôte physique ni le réseau extérieur n’y ont accès. Idéal pour les environnements de test malware ou DMZ étanche.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Fonctionnalités Réseau Avancées</h4>
+    <ul>
+      <li><strong>Isolation par VLANs (IEEE 802.1Q) :</strong> marquage de tags VLAN virtuels sur chaque carte réseau de VM pour segmenter les flux sans multiplier les commutateurs.</li>
+      <li><strong>Agrégation de liens (NIC Teaming / SET) :</strong> regroupement de plusieurs cartes réseau physiques en une seule interface logique pour offrir tolérance aux pannes et répartition de charge.</li>
+      <li><strong>Protection contre l’usurpation DHCP et Guard Router :</strong> blocage des baux DHCP non autorisés émis par des VMs invitées malveillantes.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Mémoire Dynamique, Disques VHDX & Points de Contrôle</h2>
+
+<p>La gestion efficace des ressources matérielles sous Hyper-V s’articule autour de trois technologies indispensables à la densité de virtualisation :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Mémoire Dynamique (Dynamic Memory)</h4>
+    <p>Ajuste en temps réel la mémoire vive allouée à chaque machine invitée selon son besoin réel :</p>
+    <ul>
+      <li><strong>RAM de démarrage (Startup RAM) :</strong> mémoire initiale allouée pour exécuter le boot de l’OS.</li>
+      <li><strong>Mémoire Minimale / Maximale :</strong> bornes contractuelles strictes que l’hyperviseur ne dépasse jamais.</li>
+      <li><strong>Tampon mémoire (Buffer %) :</strong> réserve de sécurité maintenue au-dessus de la demande courante : $\text{Target} = \text{Demand} \times (1 + \text{Buffer}\%)$. Valeur par défaut : 20 %.</li>
+      <li><strong>Poids de la mémoire (Memory Weight) :</strong> priorité d’arbitrage entre VMs lorsque la RAM physique de l’hôte est saturée.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Disques VHDX Différentiels & Checkpoints</h4>
+    <p>Les disques <strong>VHDX</strong> (jusqu’à 64 To) supportent trois formats : Fixe (taille allouée immédiatement), Dynamique (grandit avec l’usage) et <strong>Différentiel</strong> (stocke uniquement les blocs modifiés par rapport à un disque parent de base).</p>
+    <ul>
+      <li><strong>Points de contrôle Standard :</strong> capturent la mémoire vive et l’état du disque. Utilisés en laboratoire pour les tests de développement.</li>
+      <li><strong>Points de contrôle de Production :</strong> s’appuient sur VSS (Volume Shadow Copy) dans l’OS invité pour créer un snapshot cohérent au niveau applicatif (sans capturer la mémoire vive volatile). Recommandés en production.</li>
+      <li><strong>Fusion (Merge) :</strong> suppression d’un checkpoint qui réintègre définitivement les blocs différentiels (.avhdx) dans le disque VHDX parent.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ws3-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="VSWITCH name=vSwitch-LAN type=EXTERNAL allow_host=TRUE&#10;ATTACH vm=VM1 vswitch=vSwitch-LAN&#10;ATTACH vm=VM2 vswitch=vSwitch-LAN&#10;PING from=VM1 to=VM2&#10;PING from=VM1 to=EXTERNAL_NET">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la matrice de connectivité des vSwitchs Hyper-V
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de commutation réseau Hyper-V (External, Internal, Private vSwitch)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer l’accessibilité réseau entre VMs, hôte physique et réseau externe selon le type de commutateur virtuel (vSwitch).</p>
+    <div class="lab__brief">Dans Microsoft Hyper-V, les règles de connectivité pour chaque type de commutateur virtuel sont les suivantes :
+- `EXTERNAL` : permet la communication entre les VMs rattachées, vers le réseau physique extérieur (`EXTERNAL_NET`), et vers l’hôte (`HOST`) si et seulement si `allow_host=TRUE`.
+- `INTERNAL` : permet la communication entre les VMs rattachées et avec l’hôte (`HOST`). Bloqué vers `EXTERNAL_NET`.
+- `PRIVATE` : permet la communication STRICTEMENT entre les VMs rattachées au même vSwitch. Bloqué vers `HOST` et vers `EXTERNAL_NET`.
+- Deux VMs sur deux vSwitchs distincts ne peuvent jamais communiquer directement.
+
+Entrée :
+`VSWITCH name=<NOM> type=<EXTERNAL|INTERNAL|PRIVATE> allow_host=<TRUE|FALSE>`
+`ATTACH vm=<VM> vswitch=<NOM>`
+`PING from=<SRC> to=<DST>` (SRC et DST peuvent être un nom de VM, `HOST` ou `EXTERNAL_NET`)
+
+Sortie :
+- Pour chaque test PING :
+  `PING_RESULT from=<SRC> to=<DST> status=<REUSSI|BLOQUE> motif=<OK|COMMUTATEURS_DIFFERENTS|TYPE_INTERNAL|TYPE_PRIVATE|HOST_ISOLE>`
+- Bilan :
+  `SUMMARY total_pings=<N> reussis=<R> bloques=<B>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VSWITCH name=vSwitch-LAN type=EXTERNAL allow_host=TRUE
+ATTACH vm=VM1 vswitch=vSwitch-LAN
+ATTACH vm=VM2 vswitch=vSwitch-LAN
+PING from=VM1 to=VM2
+PING from=VM1 to=EXTERNAL_NET</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PING_RESULT from=VM1 to=VM2 status=REUSSI motif=OK
+PING_RESULT from=VM1 to=EXTERNAL_NET status=REUSSI motif=OK
+SUMMARY total_pings=2 reussis=2 bloques=0</pre></div>
+    </div>
+    <p class="lab__note">Le vSwitch externe avec allow_host permet la communication inter-VM et vers le réseau extérieur.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Associer chaque VM à son commutateur virtuel et stocker les propriétés du vSwitch.</li>
+        <li>Identifier si la source et la destination sont sur le même vSwitch.</li>
+        <li>Vérifier les règles spécifiques pour HOST et EXTERNAL_NET.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="HOST ram_mb=16384&#10;VM name=VM-Web min_ram_mb=2048 max_ram_mb=8192 buffer_pct=20 demand_mb=3000&#10;VM name=VM-SQL min_ram_mb=4096 max_ram_mb=12288 buffer_pct=20 demand_mb=2000">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer l'allocation dynamique de RAM
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur d’allocation de Mémoire Dynamique Hyper-V</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l’allocation de RAM par machine virtuelle en intégrant la demande courante, le tampon mémoire et la capacité physique de l’hôte.</p>
+    <div class="lab__brief">Dans Hyper-V, la mémoire dynamique ajuste la RAM de chaque VM selon la formule officielle Microsoft :
+- `target_ram = round(demand_mb * (1 + buffer_pct / 100))`
+- Bornage contractuel : `allocated_mb = max(min_ram_mb, min(max_ram_mb, target_ram))`
+
+Statuts de bornage de la VM :
+- Si `target_ram > max_ram_mb` : `statut=PLAFOND_MAX`
+- Si `target_ram < min_ram_mb` : `statut=SEUIL_MIN`
+- Sinon : `statut=OPTIMAL`
+
+Entrée :
+`HOST ram_mb=<H>`
+`VM name=<NOM> min_ram_mb=<MIN> max_ram_mb=<MAX> buffer_pct=<B> demand_mb=<D>` (1 ou plusieurs)
+
+Sortie :
+- Pour chaque VM (triée par nom alphabétique) :
+  `VM_ALLOC name=<NOM> target_mb=<TARGET> allocated_mb=<ALLOC> status=<STATUT>`
+- Bilan de l’hôte :
+  `SUMMARY host_ram_mb=<H> total_allocated_mb=<TOT> pression_pct=<PCT>% statut=<SOUS_CONTROLE|SURALLOCATION>`
+  (où pression_pct = round((total_allocated_mb / host_ram_mb) * 100, 1) ; statut=SOUS_CONTROLE si total <= host_ram_mb sinon SURALLOCATION).</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HOST ram_mb=16384
+VM name=VM-Web min_ram_mb=2048 max_ram_mb=8192 buffer_pct=20 demand_mb=3000
+VM name=VM-SQL min_ram_mb=4096 max_ram_mb=12288 buffer_pct=20 demand_mb=2000</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VM_ALLOC name=VM-SQL target_mb=2400 allocated_mb=4096 status=SEUIL_MIN
+VM_ALLOC name=VM-Web target_mb=3600 allocated_mb=3600 status=OPTIMAL
+SUMMARY host_ram_mb=16384 total_allocated_mb=7696 pression_pct=47.0% statut=SOUS_CONTROLE</pre></div>
+    </div>
+    <p class="lab__note">VM-SQL demande 2000 Mo + 20% = 2400 Mo, mais son minimum garanti est 4096 Mo (SEUIL_MIN). Total alloué = 7696 Mo sur 16384 Mo (47.0%, sous contrôle).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer target = round(demand * (1 + buffer / 100)).</li>
+        <li>Appliquer max(min, min(max, target)).</li>
+        <li>Cumuler la mémoire allouée et comparer à la RAM hôte.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="VHDX id=Base.vhdx type=BASE parent=NONE size_mb=20000&#10;VHDX id=Snap1.avhdx type=DIFF parent=Base.vhdx size_mb=5000&#10;VHDX id=Snap2.avhdx type=DIFF parent=Snap1.avhdx size_mb=2000&#10;MERGE child=Snap1.avhdx">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : gérer l'arborescence VHDX et simuler la fusion des checkpoints
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Gestionnaire d’arborescence de disques virtuels différentiels VHDX et Checkpoints</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la taille cumulée d’une chaîne de disques virtuels différentiels (.avhdx) et simuler la fusion (Merge) d’un checkpoint.</p>
+    <div class="lab__brief">Dans Hyper-V, les points de contrôle créent des disques différentiels dépendants du disque parent :
+- `VHDX id=<ID> type=<BASE|DIFF> parent=<PARENT_ID|NONE> size_mb=<S>`
+- `MERGE child=<CHILD_ID>` : opération de fusion d’un checkpoint différentiel dans son parent immédiat.
+
+Règles lors d’une opération de fusion (`MERGE child=C`) :
+1. Les données du disque différentiel `C` sont écrites dans son parent `P` : `parent.size_mb += child.size_mb`.
+2. Le disque différentiel `C` est supprimé de la chaîne.
+3. Tout éventuel disque sous-jacent qui avait `C` comme parent est rebranché pour pointer directement vers `P`.
+
+Entrée :
+`VHDX id=<ID> type=<BASE|DIFF> parent=<P|NONE> size_mb=<S>` (1 ou plusieurs)
+`MERGE child=<ID>` (0 ou plusieurs)
+
+Sortie :
+- Pour chaque commande MERGE exécutée :
+  `MERGE_EVENT child=<C> merged_into=<P> new_parent_size_mb=<S>`
+- État final de tous les disques restants (ordonnés par ID croissant) :
+  `DISK_STATE id=<ID> type=<BASE|DIFF> parent=<P|NONE> size_mb=<S>`
+- Bilan :
+  `SUMMARY total_disks=<N> total_chain_size_mb=<TOTAL>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VHDX id=Base.vhdx type=BASE parent=NONE size_mb=20000
+VHDX id=Snap1.avhdx type=DIFF parent=Base.vhdx size_mb=5000
+VHDX id=Snap2.avhdx type=DIFF parent=Snap1.avhdx size_mb=2000
+MERGE child=Snap1.avhdx</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MERGE_EVENT child=Snap1.avhdx merged_into=Base.vhdx new_parent_size_mb=25000
+DISK_STATE id=Base.vhdx type=BASE parent=NONE size_mb=25000
+DISK_STATE id=Snap2.avhdx type=DIFF parent=Base.vhdx size_mb=2000
+SUMMARY total_disks=2 total_chain_size_mb=27000</pre></div>
+    </div>
+    <p class="lab__note">Snap1 fusionne dans Base.vhdx (20000 + 5000 = 25000 Mo). Snap2 est maintenant rattaché directement à Base.vhdx.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Modéliser chaque disque avec un dictionnaire {type, parent, size_mb}.</li>
+        <li>Lors de MERGE, trouver le parent, ajouter la taille de l’enfant, supprimer l’enfant.</li>
+        <li>Rebrancher les enfants du disque supprimé sur le parent.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel type d’hyperviseur Microsoft Hyper-V représente-t-il ?</p>
+      <div class="opts">
+        <button class="opt">Un hyperviseur de Type 2 hébergé dans une application de bureau</button>
+        <button class="opt" data-correct="1">Un hyperviseur de Type 1 (bare-metal) exécuté directement sur le matériel</button>
+        <button class="opt">Un émulateur logiciel de processeur 8-bit</button>
+        <button class="opt">Une extension du navigateur Microsoft Edge</button>
+      </div>
+      <div class="q__exp">Hyper-V est un hyperviseur bare-metal de Type 1 qui gère directement les processeurs et la mémoire sous les partitions Windows et invitées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle caractéristique distingue fondamentalement une VM de Génération 2 d’une VM de Génération 1 ?</p>
+      <div class="opts">
+        <button class="opt">L’obligation d’utiliser des disques durs au format FAT16</button>
+        <button class="opt" data-correct="1">Le microprogramme UEFI x64 avec support du démarrage sécurisé Secure Boot et disques SCSI</button>
+        <button class="opt">L’absence de toute carte réseau</button>
+        <button class="opt">La limitation de la mémoire vive à 512 Mo</button>
+      </div>
+      <div class="q__exp">La Génération 2 abandonne les composants émulés (BIOS hérité, disques IDE) au profit de l’UEFI, du Secure Boot et de bus SCSI synthétiques rapides.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de commutateur virtuel (vSwitch) interdit tout échange avec l’hôte physique et avec le réseau extérieur ?</p>
+      <div class="opts">
+        <button class="opt">External vSwitch</button>
+        <button class="opt">Internal vSwitch</button>
+        <button class="opt" data-correct="1">Private vSwitch</button>
+        <button class="opt">Loopback vSwitch</button>
+      </div>
+      <div class="q__exp">Le vSwitch Privé (Private) confine strictement la communication aux seules machines virtuelles qui y sont rattachées sur l’hôte physique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la formule de calcul de la mémoire dynamique, à quoi correspond le Memory Buffer ?</p>
+      <div class="opts">
+        <button class="opt">À la mémoire réservée pour la carte graphique de la VM</button>
+        <button class="opt" data-correct="1">À un pourcentage de marge de sécurité conservé au-dessus de la demande courante de la VM</button>
+        <button class="opt">Au fichier d’échange swap sur le disque dur physique</button>
+        <button class="opt">À la taille maximale du disque virtuel VHDX</button>
+      </div>
+      <div class="q__exp">Le Memory Buffer (20 % par défaut) ajoute une marge de RAM au-dessus de la demande instantanée pour absorber les pics de charge subits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi privilégier les points de contrôle de production (Production Checkpoints) en entreprise ?</p>
+      <div class="opts">
+        <button class="opt">Parce qu’ils s’exécutent plus rapidement en mémoire vive</button>
+        <button class="opt" data-correct="1">Parce qu’ils s’appuient sur VSS dans l’invité pour garantir la cohérence applicative des bases de données</button>
+        <button class="opt">Parce qu’ils suppriment automatiquement les virus informatiques</button>
+        <button class="opt">Parce qu’ils sont gratuits contrairement aux points standards</button>
+      </div>
+      <div class="q__exp">Les checkpoints de production utilisent VSS pour créer un état cohérent des bases de données sans geler l’état de mémoire volatile.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se produit-il lors de la suppression d’un point de contrôle (checkpoint) dans Hyper-V ?</p>
+      <div class="opts">
+        <button class="opt">Le disque virtuel d’origine est immédiatement formaté</button>
+        <button class="opt" data-correct="1">Les données du disque différentiel .avhdx sont fusionnées (Merge) dans le disque VHDX parent</button>
+        <button class="opt">La machine virtuelle est déconnectée du réseau local</button>
+        <button class="opt">L’hyperviseur doit être réinstallé</button>
+      </div>
+      <div class="q__exp">La suppression d’un checkpoint déclenche une opération de fusion (Merge) qui réintègre les blocs modifiés du fichier .avhdx dans le parent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert le composant VMBus dans l’architecture Hyper-V ?</p>
+      <div class="opts">
+        <button class="opt">À alimenter électriquement le processeur de la carte mère</button>
+        <button class="opt" data-correct="1">À fournir un canal de communication haute performance en mémoire partagée entre les VSC et les VSP</button>
+        <button class="opt">À synchroniser l’heure du BIOS avec Internet</button>
+        <button class="opt">À imprimer des documents depuis la machine virtuelle</button>
+      </div>
+      <div class="q__exp">Le VMBus est le bus logiciel haute vitesse reliant les pilotes synthétiques des VMs aux pilotes physiques de la partition racine.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel format de disque virtuel permet de stocker des fichiers jusqu’à une taille maximale de 64 To avec protection contre les corruptions ?</p>
+      <div class="opts">
+        <button class="opt">VHD</button>
+        <button class="opt" data-correct="1">VHDX</button>
+        <button class="opt">VMDK</button>
+        <button class="opt">ISO</button>
+      </div>
+      <div class="q__exp">Le format VHDX introduit avec Windows Server 2012 supporte jusqu’à 64 To, des secteurs de 4 Ko et une journalisation protégée contre les coupures.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Choisir systématiquement la Génération 2 pour toute nouvelle machine virtuelle Windows Server ou Linux moderne (UEFI et Secure Boot).</li>
+      <li>Créer un commutateur virtuel Externe dédié au trafic de production et un commutateur Interne ou Privé pour les flux de gestion ou de réplication.</li>
+      <li>Désactiver l’option allow_host sur le vSwitch Externe lorsque des cartes réseau physiques indépendantes sont réservées à l’hôte d’administration.</li>
+      <li>Configurer la mémoire dynamique en fixant une RAM minimale réaliste et un tampon de 20 % pour éviter les goulots d’étranglement applicatifs.</li>
+      <li>Utiliser exclusivement des Points de contrôle de Production pour les serveurs hébergeant des bases de données SQL ou des contrôleurs Active Directory.</li>
+      <li>Surveiller l’arborescence des disques différentiels .avhdx et fusionner les checkpoints obsolètes pour prévenir la saturation du volume de stockage.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Hyper-V est un hyperviseur bare-metal de Type 1 isolant la partition de gestion parente (Root) des partitions invitées (Child) via le bus VMBus.</li>
+      <li>Les VMs Génération 2 apportent l’UEFI x64, le démarrage sécurisé Secure Boot, le TPM virtuel et des contrôleurs SCSI synthétiques performants.</li>
+      <li>Les 3 types de vSwitchs offrent des niveaux d’isolation stricts : Externe (LAN/Internet), Interne (VMs + hôte) et Privé (VMs uniquement).</li>
+      <li>La mémoire dynamique régule la RAM allouée selon la formule officielle : $\text{Target} = \text{Demande} \times (1 + \text{Buffer}\%)$ bornée par Min/Max.</li>
+      <li>Les disques VHDX différentiels (.avhdx) enregistrent les deltas de modifications pour chaque point de contrôle créé.</li>
+      <li>Les checkpoints de production exploitent VSS pour garantir la cohérence transactionnelle des bases de données lors des instantanés.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>L’hôte physique supporte-t-il la virtualisation matérielle (Intel VT-x ou AMD-V) et SLAT validé dans le BIOS/UEFI ?</li>
+      <li>Les machines virtuelles critiques de production sont-elles configurées en Génération 2 avec Secure Boot activé ?</li>
+      <li>Le vSwitch de production est-il configuré selon la politique d’isolation requise (allow_host contrôlé) ?</li>
+      <li>La mémoire dynamique possède-t-elle des plafonds Maximum RAM réalistes empêchant une VM de monopoliser toute la RAM physique ?</li>
+      <li>Le type de checkpoint est-il configuré sur « Points de contrôle de production » dans les paramètres de la machine virtuelle ?</li>
+      <li>Les disques virtuels sont-ils stockés sur un volume ReFS pour bénéficier de la vitesse de clonage de blocs (Block Cloning) ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong> :</strong> Logiciel de virtualisation s’exécutant directement sur le matériel physique (bare-metal) sans nécessiter de système d’exploitation hôte sous-jacent.</li><li><strong> :</strong> Canal de communication inter-partitions haute performance en mémoire partagée reliant les composants VSC invités aux VSP de l’hôte.</li><li><strong> :</strong> Architecture de machine virtuelle moderne utilisant l’UEFI, le Secure Boot et des contrôleurs SCSI synthétiques sans émulation de composants hérités.</li><li><strong> :</strong> Commutateur virtuel Hyper-V relié à un adaptateur réseau physique permettant aux machines virtuelles d’accéder au réseau externe et à Internet.</li><li><strong> :</strong> Commutateur virtuel totalement isolé autorisant la communication uniquement entre les machines virtuelles qui lui sont rattachées sur l’hôte.</li><li><strong> :</strong> Fonctionnalité régulant dynamiquement la mémoire RAM fournie à une VM entre une valeur minimale et maximale selon sa charge courante.</li><li><strong> :</strong> Disque virtuel contenant uniquement les blocs de données modifiés par rapport à un disque virtuel parent de référence.</li><li><strong> :</strong> Instantané de machine virtuelle exploitant la technologie VSS dans l’OS invité pour capturer un état cohérent des données sans figer la mémoire vive.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à différencier les commutateurs virtuels ou incompréhension du fonctionnement des disques différentiels.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise d’Hyper-V : déploiement de VMs Génération 2, réglage fin de la mémoire dynamique et gestion propre des checkpoints.</div>
+      <div class="bandrow bandrow--high">Excellence en virtualisation d’entreprise : architecture réseau résiliente (SET Teaming), stockage ReFS optimisé et haute disponibilité Replica.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Administration Avancée PowerShell, Sauvegardes VSS &amp; Tolérance aux Pannes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Microsoft Learn Windows Server 2022/2025, Standards RFC 2131 (DHCP), RFC 2782 (DNS SRV), Guide d’administration L3-IT (Caleb AGOUTOCO-POKO, Collège de Paris).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

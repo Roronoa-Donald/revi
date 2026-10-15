@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Qualité, Validation Automatisée &amp;amp; Cycle de Vie du Document Technique | Document Technique B3</title>
+<meta name="description" content="Chapitre 6 du cours Document Technique B3 : Métriques de lisibilité (ASL, Flesch), link checking automatisé, détection d’obsolescence (stale docs), gouvernance et intégration dans la Definition of Done. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-document-technique/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Qualité, Validation Automatisée &amp;amp; Cycle de Vie du Document Technique | Document Technique B3">
+<meta property="og:description" content="Chapitre 6 du cours Document Technique B3 : Métriques de lisibilité (ASL, Flesch), link checking automatisé, détection d’obsolescence (stale docs), gouvernance et intégration dans la Definition of Done. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-document-techniquenav"><div class="b3-document-techniquenav__in">
+  <a class="b3-document-techniquenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-document-techniquenav__sep" aria-hidden="true">/</span>
+  <a class="b3-document-techniquenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Document Technique B3</a>
+  <div class="b3-document-techniquenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-document-techniquenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-document-techniquewrap">
+<p class="crumb"><a href="../index.html">Document Technique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Qualité, Validation Automatisée &amp; Cycle de Vie du Document Technique</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Rédiger une documentation technique de qualité n’est pas un acte ponctuel isolé, mais un engagement d’ingénierie continu. Une documentation non maintenue se dégrade inévitablement : des liens internes ou externes se brisent, des procédures d’exploitation décrivent des versions logicielles disparues depuis des mois, et des phrases excessivement alambiquées sèment la confusion lors d’incidents critiques en production. L’obsolescence documentaire (« Stale Documentation ») est l’une des principales causes d’erreurs humaines en exploitation informatique. Pour garantir la fiabilité des livrables, l’ingénieur de Bachelor 3 doit savoir instrumenter la qualité documentaire : mesurer la clarté rédactionnelle via des métriques scientifiques (ASL, scores de lisibilité), automatiser la vérification des liens en pipeline CI, détecter algorithmiquement les documents périmés et ancrer la révision documentaire dans la Definition of Done (DoD) des sprints d’ingénierie.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>évaluer objectivement la lisibilité d’un texte technique via les métriques de lisibilité (Average Sentence Length - ASL, indice de Flesch) ;</li>
+      <li>appliquer les règles de rédaction technique épurée : phrases courtes (&lt; 25 mots), voix active, suppression des ambiguïtés ;</li>
+      <li>automatiser la détection des liens rompus (liens HTTP 404, ancres d’en-tête internes inexistantes) dans les pipelines d’intégration continue ;</li>
+      <li>structurer les métadonnées de gouvernance documentaire via les en-têtes YAML frontmatter (`last_reviewed_date`, `owner`, `review_cycle`) ;</li>
+      <li>mettre en place une politique d’archivage, de décommissionnement et d’intégration de la documentation dans la Definition of Done (DoD) ;</li>
+      <li>concevoir en Python 3 des analyseurs d’ASL, des vérificateurs de liens d’ancres Markdown et des détecteurs automatisés de documents périmés.</li>
+    </ol>
+  </div>
+
+<h2>1. Métriques de Lisibilité &amp; Règles de Clarté Rédactionnelle</h2>
+
+<p>En ingénierie technique, la clarté n’est pas une affaire de style littéraire ou d’éloquence, mais une exigence de précision opérationnelle. Un lecteur pressé ou stressé par un incident en astreinte doit comprendre l’instruction du premier coup.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>L’Indicateur ASL (Average Sentence Length)</h4>
+    <p>L’<strong>ASL</strong> mesure le nombre moyen de mots par phrase dans un document. Les études ergonomiques et cognitives établissent les seuils suivants pour la documentation technique :</p>
+    <ul>
+      <li><strong>Idéal :</strong> 12 à 18 mots par phrase.</li>
+      <li><strong>Acceptable :</strong> 18 à 22 mots par phrase.</li>
+      <li><strong>Zone critique :</strong> Au-delà de 25 mots, la charge cognitive s’effondre et le taux d’erreur d’interprétation triple.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Scores de Flesch &amp; Flesch-Kincaid</h4>
+    <p>Le test de lisibilité de <strong>Flesch Reading Ease</strong> combine le nombre de mots par phrase et le nombre de syllabes par mot pour calculer un score sur 100 :</p>
+    <ul>
+      <li><strong>60 - 70 :</strong> Langage standard clair et fluide.</li>
+      <li><strong>30 - 50 :</strong> Texte technique exigeant mais accessible aux professionnels formés.</li>
+      <li><strong>&lt; 30 :</strong> Texte excessivement dense, jargonnant ou inutilement complexe, à simplifier d’urgence.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Vérification Automatisée des Liens &amp; Cohérence des Ancres</h2>
+
+<p>L’apparition de liens morts (hyperlink rot) est le premier signe visible de la dégradation d’un portail technique. Deux types d’erreurs doivent être traqués en continu :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Liens Externes &amp; Ressources HTTP</h4>
+    <p>Les URLs externes vers des documentations tierces, des bibliothèques ou des dépôts GitHub sont régulièrement déplacées ou supprimées. Des outils comme <strong>lychee</strong> ou <strong>markdown-link-check</strong> testent les requêtes HTTP (méthode HEAD ou GET) et alertent sur les codes 404 Not Found ou 410 Gone.</p>
+  </div>
+  <div class="card">
+    <h4>2. Ancres d’En-Têtes Internes (Slugs)</h4>
+    <p>Dans un document Markdown, un lien interne de la forme <code>[Consulter la configuration](#configuration-reseau)</code> pointe vers un titre <code>## Configuration Réseau</code>. Si un rédacteur renomme le titre en <code>## Configuration de l’Interface Réseau</code> sans mettre à jour l’ancre, le lien devient silencieusement inopérant.</p>
+  </div>
+</div>
+
+<h2>3. Le Fléau des « Stale Docs » : Détection &amp; Algorithmes d’Alerte</h2>
+
+<p>Un document obsolète est souvent plus dangereux que l’absence totale de documentation : il instille une fausse confiance et conduit à appliquer des commandes inadaptées en production.</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Métadonnées Frontmatter</h4>
+    <p>Chaque fichier technique doit comporter en en-tête des métadonnées normalisées (YAML Frontmatter) renseignant la propriété et le calendrier de révision :</p>
+    <pre><code>---
+title: Procédure Failover DB
+owner: equipe-dba@societe.fr
+last_reviewed: 2025-08-15
+review_interval_days: 90
+status: active
+---</code></pre>
+  </div>
+  <div class="card">
+    <h4>Algorithme de Détection Stale</h4>
+    <p>Un script Python ou un job CI quotidien compare la date du jour avec la date <code>last_reviewed</code>. Si l’écart dépasse le seuil défini (ex. 90 jours pour un Runbook critique, 180 jours pour une SFD), une alerte est déclenchée (ticket Jira automatique ou notification Slack à l’équipe propriétaire).</p>
+  </div>
+  <div class="card">
+    <h4>Historique Git &amp; Commits</h4>
+    <p>Si un fichier ne possède pas de frontmatter explicite, l’algorithme extrait la date du dernier commit Git ayant touché le fichier via <code>git log -1 --format=%cd &lt;fichier&gt;</code> pour calculer son ancienneté brute.</p>
+  </div>
+</div>
+
+<h2>4. Gouvernance, Definition of Done (DoD) &amp; Cycle de Vie Documentaire</h2>
+
+<p>Pour que la documentation reste vivante et fiable, elle doit être intégrée dans les rituels de gouvernance de l’ingénierie logicielle :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>La Documentation dans la « Definition of Done »</h4>
+    <p>Dans un sprint Scrum ou un workflow Kanban, aucune fonctionnalité logicielle n’est considérée comme terminée (« Done ») tant que :</p>
+    <ul>
+      <li>La spécification OpenAPI a été mise à jour et validée.</li>
+      <li>Le Runbook d’exploitation intègre les nouveaux paramètres de configuration d’environnement.</li>
+      <li>Les tests de linters et de build documentaire passent au vert dans le pipeline CI.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Cycle de Vie : Décommissionnement &amp; Archivage</h4>
+    <p>Lorsqu’un service ou une architecture devient obsolète :</p>
+    <ul>
+      <li><strong>Ne jamais supprimer brutalement l’URL :</strong> Cela briserait les favoris et historiques des utilisateurs.</li>
+      <li><strong>Ajouter un bandeau d’avertissement :</strong> Indiquer que le document est archivé et fournir le lien vers la nouvelle référence active.</li>
+      <li><strong>Redirections HTTP 301 :</strong> Si le contenu est complètement remplacé, configurer une redirection permanente dans le serveur web.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="dt3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="READABILITY_INPUT texte=Cliquez sur le bouton. Saisissez votre mot de passe. Validez.">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer l'ASL et classifier la lisibilité
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de longueur moyenne de phrase et de clarté documentaire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Mesurer la longueur moyenne des phrases d’un texte pour alerter sur la complexité cognitive excessive.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>READABILITY_INPUT texte=&lt;texte_sur_une_ligne&gt;</code>.<br><br>
+Calculs :<br>
+- Phrases : séparer le texte selon la ponctuation forte (<code>.</code>, <code>!</code>, <code>?</code>). Ne conserver que les phrases contenant au moins un mot.<br>
+- Nombre de phrases : $S$. Si $S = 0$, $S = 1$.<br>
+- Mots : découper l'ensemble du texte nettoyé en mots alphanumériques. Nombre total de mots : $W$.<br>
+- Longueur moyenne de phrase (Average Sentence Length) :<br>
+  $ASL = W / S$ (arrondie à 1 décimale).<br><br>
+Verdict de clarté technique :<br>
+- Si $ASL \le 15.0$ : <code>VERDICT=EXCELLENTE_CONCISE</code><br>
+- Sinon si $ASL \le 25.0$ : <code>VERDICT=ACCEPTABLE_STANDARD</code><br>
+- Sinon : <code>VERDICT=TROP_COMPLEXE_PHRASES_TROP_LONGUES (SCINDER_REQUIS)</code><br><br>
+Afficher :<br>
+<code>READABILITY_METRIC: MOTS=&lt;W&gt; PHRASES=&lt;S&gt; -&gt; ASL=&lt;ASL:.1f&gt; mots/phrase | VERDICT=&lt;VERDICT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>READABILITY_INPUT texte=Cliquez sur le bouton. Saisissez votre mot de passe. Validez.</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>READABILITY_METRIC: MOTS=10 PHRASES=3 -&gt; ASL=3.3 mots/phrase | VERDICT=EXCELLENTE_CONCISE</pre></div>
+    </div>
+    <p class="lab__note">Phrases très courtes et directes : lisibilité excellente.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser re.split(r"[.!?]+", texte) pour découper les phrases.</li>
+        <li>Ne compter que les segments de phrase contenant des mots.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="LINK_AUDIT ancres_dispos=intro,archi,install lien=[Installation](#install)">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : auditer chaque lien face aux ancres disponibles
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Vérificateur automatisé de liens et d’ancres Markdown (Link Checker)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer les liens hypertextes d’un document Markdown et détecter les protocoles non sécurisés ou les ancres internes inexistantes.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>LINK_AUDIT ancres_dispos=&lt;a1,a2,...&gt; lien=[&lt;texte&gt;](&lt;cible&gt;)</code>.<br><br>
+Règles de validation selon <code>cible</code> :<br>
+- Si <code>cible</code> commence par <code>http://</code> :<br>
+  <code>VERDICT=ALERTE_INSECURISE_HTTP (MIGRER_VERS_HTTPS)</code><br>
+- Si <code>cible</code> commence par <code>https://</code> :<br>
+  <code>VERDICT=LIEN_EXTERNE_SECURISE</code><br>
+- Si <code>cible</code> commence par <code>#</code> (ancre interne, ex. <code>#section-1</code>) :<br>
+  Retirer le <code>#</code> initial. Vérifier si l'ancre figure dans la liste <code>ancres_dispos</code> (insensible à la casse) :<br>
+  - Si présente : <code>VERDICT=ANCRE_INTERNE_VALIDE</code><br>
+  - Si absente : <code>VERDICT=ERREUR_ANCRE_CASSEE_INTROUVABLE</code><br>
+- Si <code>cible</code> se termine par <code>.md</code> ou commence par <code>/</code> :<br>
+  <code>VERDICT=LIEN_DOCUMENTAIRE_RELATIF</code><br>
+- Sinon : <code>VERDICT=CIBLE_NON_RECONNUE</code><br><br>
+Afficher :<br>
+<code>LINK_CHECK: [&lt;texte&gt;](&lt;cible&gt;) -&gt; VERDICT=&lt;VERDICT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>LINK_AUDIT ancres_dispos=intro,archi,install lien=[Installation](#install)</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LINK_CHECK: [Installation](#install) -&gt; VERDICT=ANCRE_INTERNE_VALIDE</pre></div>
+    </div>
+    <p class="lab__note">L’ancre #install existe dans ancres_dispos.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extraire le texte et la cible entre crochets et parenthèses.</li>
+        <li>Comparer les ancres internes en minuscules.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="STALE_CHECK doc=api.md code_jours=2 doc_jours=5">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer l'écart en jours et qualifier la dette
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur de dette documentaire et de désynchronisation (Stale Docs)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer l’horodatage de modification du code à celui de la documentation pour détecter l’obsolescence documentaire.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>STALE_CHECK doc=&lt;nom&gt; code_jours=&lt;J_code&gt; doc_jours=&lt;J_doc&gt;</code>.<br>
+Où <code>code_jours</code> représente le nombre de jours écoulés depuis le dernier commit de code source, et <code>doc_jours</code> le nombre de jours écoulés depuis la dernière mise à jour de la documentation correspondante.<br><br>
+Calcul du retard documentaire :<br>
+$\Delta = doc\_jours - code\_jours$ (en jours).<br>
+(Plus $\Delta$ est grand, plus la documentation a accumulé de retard par rapport à l'évolution du code).<br><br>
+Qualification de la dette :<br>
+- Si $\Delta \le 7$ jours (ou $\Delta \le 0$) :<br>
+  <code>STATUT=A_JOUR (SYNCHRONISE)</code><br>
+- Sinon si $\Delta \le 30$ jours :<br>
+  <code>STATUT=ATTENTION_RETARD_MODERE (DELTA=+&lt;\Delta&gt;j)</code><br>
+- Sinon :<br>
+  <code>STATUT=CRITIQUE_DOCUMENTATION_OBSOLETE (DELTA=+&lt;\Delta&gt;j, REVISION_URGENTE)</code><br><br>
+Afficher :<br>
+<code>STALE_DOC_DIAGNOSTIC: &lt;doc&gt; -&gt; ECART=+&lt;\Delta&gt;j | STATUT=&lt;STATUT&gt;</code><br>
+(Si $\Delta &lt; 0$, afficher <code>ECART=&lt;\Delta&gt;j</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STALE_CHECK doc=api.md code_jours=2 doc_jours=5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STALE_DOC_DIAGNOSTIC: api.md -&gt; ECART=+3j | STATUT=A_JOUR (SYNCHRONISE)</pre></div>
+    </div>
+    <p class="lab__note">Écart de 3 jours : documentation synchronisée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer delta = doc_jours - code_jours.</li>
+        <li>Formater avec un + devant delta si &gt;= 0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans l’évaluation ergonomique de la documentation technique, que mesure précisément l’indicateur ASL (Average Sentence Length) ?</p>
+      <div class="opts">
+        <button class="opt">Le temps moyen d’exécution d’un script shell</button>
+        <button class="opt" data-correct="1">Le nombre moyen de mots contenus par phrase dans le document</button>
+        <button class="opt">La vitesse de compilation du serveur web statique</button>
+        <button class="opt">Le nombre d’images vectorielles présentes par chapitre</button>
+      </div>
+      <div class="q__exp">L’ASL (Average Sentence Length) calcule le ratio entre le nombre total de mots et le nombre total de phrases, servant d’étalon de concision rédactionnelle.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Au-delà de quelle longueur de phrase en mots considère-t-on que la lisibilité et l’assimilation d’une consigne technique critique chutent drastiquement ?</p>
+      <div class="opts">
+        <button class="opt">Au-delà de 5 mots</button>
+        <button class="opt" data-correct="1">Au-delà de 25 mots</button>
+        <button class="opt">Au-delà de 250 mots</button>
+        <button class="opt">Il n’y a aucune limite, les phrases de 100 mots sont idéales</button>
+      </div>
+      <div class="q__exp">Au-delà de 25 mots par phrase, la mémoire de travail du lecteur est saturée, augmentant significativement le risque de mauvaise interprétation lors d’une intervention.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Lorsqu’un rédacteur renomme le titre Markdown `## Sauvegarde BDD` en `## Sauvegarde Complète BDD`, quel incident survient pour le lien `[Voir](#sauvegarde-bdd)` ?</p>
+      <div class="opts">
+        <button class="opt">Le document est automatiquement effacé du serveur</button>
+        <button class="opt" data-correct="1">Le lien devient brisé (ancre orpheline), ne pointant plus vers aucun titre valide et laissant le lecteur sans réaction au clic</button>
+        <button class="opt">Le navigateur affiche un écran bleu d’erreur système</button>
+        <button class="opt">Le fichier est converti automatiquement en PDF</button>
+      </div>
+      <div class="q__exp">Le lien d’ancre recherche un identifiant dérivé du nouveau titre (`#sauvegarde-complete-bdd`). L’ancienne anbre `#sauvegarde-bdd` n’existant plus, le lien est rompu.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’obsolescence documentaire (« Stale Documentation ») représente-t-elle un risque de sécurité et d’exploitation majeur ?</p>
+      <div class="opts">
+        <button class="opt">Car elle fait planter les disques durs des serveurs de bases de données</button>
+        <button class="opt" data-correct="1">Car elle donne une illusion d’exactitude conduisant des ingénieurs d’astreinte à appliquer des commandes périmées provoquant des interruptions de service</button>
+        <button class="opt">Car elle est interdite par la Constitution</button>
+        <button class="opt">Car elle augmente la facture d’électricité de la salle informatique</button>
+      </div>
+      <div class="q__exp">Une documentation obsolète induit en erreur les exploitants, qui appliquent des procédures caduques pensant suivre les recommandations officielles de l’entreprise.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mécanisme permet de renseigner proprement le responsable et la date limite de révision d’un document Markdown dans un cadre Docs-as-Code ?</p>
+      <div class="opts">
+        <button class="opt">Un commentaire manuscrit sur une feuille volante</button>
+        <button class="opt" data-correct="1">Un bloc d’en-tête de métadonnées YAML frontmatter placé tout en haut du fichier entre des délimiteurs `---` (`owner`, `last_reviewed`, etc.)</button>
+        <button class="opt">Une image JPEG montrant la photo de l’auteur</button>
+        <button class="opt">Un message envoyé sur un forum de discussion privé</button>
+      </div>
+      <div class="q__exp">Le YAML frontmatter normalise les métadonnées de gouvernance en tête de fichier, permettant aux scripts automatisés de parser l’état de fraîcheur du document.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une équipe appliquant la méthodologie Scrum, que signifie inclure la documentation technique dans la « Definition of Done » (DoD) ?</p>
+      <div class="opts">
+        <button class="opt">Interdire de commencer à développer tant que le roman complet n’est pas rédigé</button>
+        <button class="opt" data-correct="1">Considérer qu’une fonctionnalité n’est officiellement terminée et livrable que si sa documentation, ses schémas et ses runbooks associés sont à jour et validés</button>
+        <button class="opt">Obliger le chef de projet à écrire tout le code source</button>
+        <button class="opt">Supprimer la documentation dès que le sprint est clos</button>
+      </div>
+      <div class="q__exp">La DoD garantit qu’aucune fonctionnalité n’est déclarée terminée si sa documentation associée n’a pas été mise à jour et vérifiée en intégration continue.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Lorsqu’un service informatique est décommissionné, quelle est la bonne pratique concernant son ancienne documentation en ligne ?</p>
+      <div class="opts">
+        <button class="opt">Supprimer brutalement toutes les pages sans avertissement ni redirection</button>
+        <button class="opt" data-correct="1">Maintenir la page avec un bandeau clair d’archivage/décommissionnement ou configurer une redirection HTTP 301 vers la documentation du nouveau service</button>
+        <button class="opt">Remplacer le texte par une page blanche</button>
+        <button class="opt">Modifier le mot de passe de tous les ingénieurs</button>
+      </div>
+      <div class="q__exp">Conserver l’URL avec un avertissement visible ou rediriger via un code HTTP 301 évite les erreurs 404 et oriente correctement les utilisateurs historiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type d’outil permet d’analyser le style, le respect du vocabulaire d’entreprise et l’absence de tournures passives ou jargonnantes dans les textes Markdown ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un linter de prose et de style tel que Vale ou proselint</button>
+        <button class="opt">Un défragmenteur de disque dur</button>
+        <button class="opt">Un compilateur assembleur x86</button>
+        <button class="opt">Un serveur mandataire inverse (Reverse Proxy)</button>
+      </div>
+      <div class="q__exp">Vale et proselint sont des linters de prose configurables qui vérifient la conformité éditoriale des documents texte par rapport à des règles prédéfinies.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Rédiger des paragraphes entiers composés d’une unique phrase de 60 mots truffée de propositions relatives et de jargon inutile.</li>
+      <li>Renommer un titre de section Markdown sans corriger les ancres internes qui pointaient vers son ancien identifiant.</li>
+      <li>Considérer qu’une documentation rédigée il y a 18 mois est toujours exacte sans avoir vérifié les changements intervenus dans le code.</li>
+      <li>Supprimer brutalement des pages de documentation sans mettre en place de bandeaux d’archivage ou de redirections HTTP 301.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie d’Audit &amp; de Maintenance de la Qualité Documentaire</div>
+    <ol>
+      <li>1. Mesurer la lisibilité éditoriale : Calculer l’ASL (Average Sentence Length) et le score Flesch sur les sections clés pour identifier les phrases excessivement longues (> 25 mots).</li>
+      <li>2. Découper et simplifier les instructions : Transformer les phrases complexes en listes à puces ordonnées ou en séquences directes sujet-verbe-complément.</li>
+      <li>3. Auditer les hyperliens et ancres internes : Exécuter un linter de liens pour détecter toutes les URLs externes 404 et toutes les ancres d’en-têtes désynchronisées.</li>
+      <li>4. Valider les métadonnées de gouvernance : Vérifier la présence des balises frontmatter `owner`, `last_reviewed` et `review_interval_days`.</li>
+      <li>5. Exécuter le détecteur de péremption : Identifier les documents dont la dernière révision dépasse le délai fixé (90 ou 180 jours) et notifier les équipes référentes.</li>
+      <li>6. Intégrer la validation dans la forge : Ajouter un job de gating en intégration continue bloquant la fusion de toute PR qui dégrade la qualité ou brise des liens.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La qualité documentaire repose sur des critères mesurables : lisibilité objective, intégrité des liens et fraîcheur des contenus.</li>
+      <li>L’indicateur ASL (Average Sentence Length) doit rester idéalement sous 20 mots par phrase pour minimiser les erreurs d’interprétation en production.</li>
+      <li>La rupture des liens internes (ancres slugifiées déplacées ou renommées) et externes (404) doit être prévenue par des vérificateurs automatisés en CI.</li>
+      <li>L’obsolescence documentaire (« Stale Documentation ») est un risque opérationnel majeur traqué via les métadonnées de frontmatter et les dates de commits Git.</li>
+      <li>La documentation technique fait partie intégrante de la Definition of Done (DoD) : un ticket logiciel n’est pas livré tant que sa documentation n’est pas à jour.</li>
+      <li>L’archivage propre des documents obsolètes conserve l’historique et oriente les utilisateurs via des bandeaux d’avertissement et des redirections 301.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Les phrases explicatives comptent-elles en moyenne moins de 20 mots sans subordonnées complexes superflues ?</li>
+      <li>Tous les liens internes par ancres (`#mon-ancre`) correspondent-ils exactement à des titres présents dans le document ?</li>
+      <li>Un outil de vérification de liens est-il exécuté automatiquement dans la chaîne d’intégration continue ?</li>
+      <li>Chaque document clé comporte-t-il les métadonnées `owner` et `last_reviewed` dans son en-tête frontmatter ?</li>
+      <li>Un mécanisme d’alerte signale-t-il les documents n’ayant pas été révisés depuis plus de 90 ou 180 jours ?</li>
+      <li>La mise à jour documentaire est-elle explicitement inscrite dans les critères de validation de la Definition of Done ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Métrique Average Sentence Length (ASL)</li><li>Indices de lisibilité Flesch &amp; Flesch-Kincaid</li><li>Linters de prose et de style (Vale, cspell)</li><li>Vérification automatisée de liens (link checking)</li><li>Ancres slugifiées et intégrité hypertexte</li><li>Détection des documents obsolètes (stale docs)</li><li>Métadonnées de gouvernance YAML frontmatter</li><li>Intégration dans la Definition of Done (DoD)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez les règles de concision (ASL), les vérifications d’ancres et la gestion de l’obsolescence documentaire.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, approfondissez les algorithmes de détection stale docs et l’intégration continue avec Vale.</div>
+      <div class="bandrow bandrow--high">8/8 : Remarquable ! Vous maîtrisez la gouvernance, l’automatisation et le cycle de vie complet de la documentation technique.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours Support_Elaboration Document Technique.pdf (Yan NYAKU), document_technique.docx, la spécification OpenAPI 3.0, la norme CommonMark et les référentiels Docs-as-Code.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

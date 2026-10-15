@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Corrélation et régression | Statistiques B1</title>
+<meta name="description" content="Chapitre 6 du cours de statistique descriptive B1 : Série à deux caractères, point moyen, covariance, coefficient de corrélation, droite des moindres carrés. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-stats/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Corrélation et régression | Statistiques B1">
+<meta property="og:description" content="Chapitre 6 du cours de statistique descriptive B1 : Série à deux caractères, point moyen, covariance, coefficient de corrélation, droite des moindres carrés. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="stnav"><div class="stnav__in">
+  <a class="stnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="stnav__sep" aria-hidden="true">/</span>
+  <a class="stnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-i-chart"></use></svg> Statistiques B1</a>
+  <div class="stnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="stnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="stwrap">
+<p class="crumb"><a href="../index.html">Statistiques B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Corrélation et régression</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 3 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un magasin relève, chaque jour, sa dépense publicitaire et son chiffre d’affaires. Les deux nombres ont-ils un lien, et si oui, peut-on prévoir le second à partir du premier ? Décrire une seule variable ne suffit plus : il faut étudier deux caractères <em>ensemble</em>, mesurer leur liaison et en tirer une droite de prévision.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>organiser une série à deux caractères et placer un nuage de points ;</li>
+      <li>calculer le point moyen et la covariance ;</li>
+      <li>calculer et interpréter un coefficient de corrélation linéaire ;</li>
+      <li>déterminer la droite des moindres carrés et l’utiliser pour prévoir.</li>
+    </ol>
+  </div>
+
+<h2>1. Série à deux caractères et point moyen</h2>
+
+<p>Quand deux caractères sont relevés sur les mêmes individus, on obtient une série <strong>double</strong> : un couple (x, y) par individu. On la représente par un <strong>nuage de points</strong> dans le plan.</p>
+<p><strong>Point moyen.</strong> Le couple formé des deux moyennes :</p>
+<pre><code>G = ( x̄ ; ȳ )        x̄ = Σ x / n        ȳ = Σ y / n</code></pre>
+<p>C’est le centre de gravité du nuage. Toutes les quantités du chapitre se calculent par rapport à lui : c’est la référence de la liaison.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Lire un nuage de points</div>
+    <p>Trois formes suffisent : nuage allongé du bas-gauche vers le haut-droite → liaison positive ; allongé du haut-gauche vers le bas-droite → liaison négative ; nuage en « rond » ou en courbe sans direction claire → pas de liaison linéaire. Le coefficient r du chapitre ne fait que chiffrer ce que l’œil voit.</p>
+  </div>
+
+<h2>2. La covariance</h2>
+
+<p><strong>Définition.</strong> La <strong>covariance</strong> mesure comment deux caractères varient ensemble :</p>
+<pre><code>cov(x, y) = (1/n) · Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)</code></pre>
+<p>Chaque individu contribue par le produit de ses deux écarts à la moyenne :</p>
+<ul>
+    <li>si x et y sont tous deux au-dessus (ou tous deux en dessous) de leur moyenne, le produit est <strong>positif</strong> → covariance positive ;</li>
+    <li>si l’un est au-dessus et l’autre en dessous, le produit est <strong>négatif</strong> → covariance négative ;</li>
+    <li>si les contributions positives et négatives s’équilibrent, la covariance est <strong>proche de zéro</strong>.</li>
+  </ul>
+<p><strong>Formule de calcul rapide</strong> (même principe que König) :</p>
+<pre><code>cov(x, y) = (1/n) · Σ x<sub>i</sub>y<sub>i</sub>  −  x̄ · ȳ</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la covariance dépend des unités</div>
+    <p>Une covariance de 0,2 ou de 2 000 ne dit rien en soi : elle change si l’on passe des centimètres aux mètres. Impossible donc de comparer deux covariances d’unités différentes — d’où l’utilité du coefficient de corrélation, qui n’a pas d’unité.</p>
+  </div>
+
+<h2>3. Le coefficient de corrélation linéaire</h2>
+
+<p><strong>Définition.</strong> Le <strong>coefficient de corrélation linéaire</strong> de Pearson est la covariance divisée par le produit des deux écarts-types :</p>
+<pre><code>r = cov(x, y) / (σ<sub>x</sub> · σ<sub>y</sub>)</code></pre>
+<p>Ce nombre est <strong>toujours entre −1 et 1</strong>. C’est son principal intérêt avec l’absence d’unité :</p>
+<table>
+    <tr><th>Valeur de r</th><th>Lecture</th></tr>
+    <tr><td>r = 1</td><td>alignement parfait, croissant</td></tr>
+    <tr><td>0,8 ≤ r &lt; 1</td><td>liaison linéaire forte et positive</td></tr>
+    <tr><td>0,4 ≤ r &lt; 0,8</td><td>liaison moyenne</td></tr>
+    <tr><td>r proche de 0</td><td>pas de liaison linéaire</td></tr>
+    <tr><td>r = −1</td><td>alignement parfait, décroissant</td></tr>
+  </table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — corrélation n’est pas causalité</div>
+    <p>Deux caractères très corrélés ne s’influencent pas forcément : ils peuvent dépendre tous les deux d’un troisième facteur. Les ventes de crème glacée et les noyades augmentent ensemble — la cause commune est la saison. Un coefficient de corrélation ne démontre <em>jamais</em> une relation de cause à effet.</p>
+  </div>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — r proche de 0 ne veut pas dire « pas de lien »</div>
+    <p>r ne mesure que la liaison <strong>linéaire</strong>. Si y = x² sur des x symétriques autour de 0, la liaison est parfaite et pourtant r ≈ 0. Il faut toujours regarder le nuage avant de conclure quoi que ce soit.</p>
+  </div>
+
+<h2>4. La droite des moindres carrés</h2>
+
+<p>Quand la liaison est suffisamment forte, on ajuste une droite <code>y = a·x + b</code> qui « passe au plus près » du nuage : c’est la <strong>droite des moindres carrés</strong>, celle qui minimise la somme des carrés des écarts verticaux.</p>
+<pre><code>a = cov(x, y) / V(x)          (pente, ou coefficient directeur)
+b = ȳ − a · x̄                  (ordonnée à l’origine)</code></pre>
+<p><strong>Propriété de contrôle</strong> : la droite passe toujours par le point moyen <code>G = (x̄ ; ȳ)</code>. Si ce n’est pas le cas, il y a une erreur de calcul.</p>
+<p><strong>Prévision.</strong> Une fois a et b connus, on remplace x par une valeur donnée pour estimer y. Deux réserves à toujours énoncer : la prévision n’est légitime que <em>dans</em> la plage des x observés, et elle suppose que la liaison reste la même.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Exemple complet</div>
+    <pre><code>x̄ = 5    ȳ = 20    cov(x, y) = 6,4    V(x) = 16
+
+a = 6,4 / 16 = 0,4
+b = 20 − 0,4 × 5 = 18
+
+y = 0,4·x + 18        vérification : 0,4 × 5 + 18 = 20 = ȳ</code></pre>
+    <p>Pour x = 10 : <code>y ≈ 22</code>. Comme 10 reste dans la plage observée, la prévision est légitime ; pour x = 1 000, elle ne le serait pas.</p>
+  </div>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « a d’abord, b ensuite »</div>
+    <p>On calcule <em>toujours</em> la pente en premier : <code>a = cov(x,y)/V(x)</code>. Puis l’ordonnée à l’origine <code>b = ȳ − a·x̄</code>. L’inverse est impossible — b dépend de a.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="st-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="3&#10;1&#10;2&#10;3&#10;2&#10;4&#10;6">
+  <script type="text/plain" data-lab-starter>n = int(input())
+x = [float(input()) for _ in range(n)]
+y = [float(input()) for _ in range(n)]
+
+# À compléter : afficher la covariance cov(x, y), quatre décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Covariance</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Mesurer si deux caractères varient dans le même sens.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code> (une par ligne), puis les <code>n</code> valeurs de <code>y</code> (une par ligne). Affichez la <strong>covariance</strong> arrondie à quatre décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1
+2
+3
+2
+4
+6</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1.3333</pre></div>
+    </div>
+    <p class="lab__note">Moyennes 2 et 4 ; Σxy/n = 9,3333 ; cov = 1,3333.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La formule rapide évite de calculer chaque écart : cov = (1/n) × Σ xᵢyᵢ − x̄·ȳ.</li>
+        <li>Les deux moyennes se calculent avant la covariance ; n’oublie pas de les retrancher.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="st-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="3&#10;1&#10;2&#10;3&#10;2&#10;4&#10;6">
+  <script type="text/plain" data-lab-starter>n = int(input())
+x = [float(input()) for _ in range(n)]
+y = [float(input()) for _ in range(n)]
+
+# À compléter : afficher r, quatre décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Coefficient de corrélation</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Chiffrer une liaison linéaire par un nombre sans unité, borné par −1 et 1.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code>, puis les <code>n</code> valeurs de <code>y</code>. Affichez le <strong>coefficient de corrélation linéaire</strong> <code>r = cov(x, y) / (σ<sub>x</sub> · σ<sub>y</sub>)</code> arrondi à quatre décimales. Les écarts-types sont de population (division par n).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1
+2
+3
+2
+4
+6</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1.0000</pre></div>
+    </div>
+    <p class="lab__note">Points parfaitement alignés : r = 1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calcule la covariance, puis les deux écarts-types avec la même division par n.</li>
+        <li>r est le quotient de la covariance par le produit des deux écarts-types.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="st-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="3&#10;1&#10;2&#10;3&#10;2&#10;4&#10;6">
+  <script type="text/plain" data-lab-starter>n = int(input())
+x = [float(input()) for _ in range(n)]
+y = [float(input()) for _ in range(n)]
+
+# À compléter : afficher a puis b, quatre décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Droite des moindres carrés</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Ajuster y = a·x + b et contrôler que la droite passe par le point moyen.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code>, puis les <code>n</code> valeurs de <code>y</code>. Affichez la pente <code>a</code> puis l’ordonnée à l’origine <code>b</code> de la droite des moindres carrés, chacune sur sa ligne avec quatre décimales. On a <code>a = cov(x, y)/V(x)</code> et <code>b = ȳ − a·x̄</code>, avec des variances de population.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1
+2
+3
+2
+4
+6</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>2.0000
+0.0000</pre></div>
+    </div>
+    <p class="lab__note">Points alignés sur y = 2x.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calcule d’abord la pente, avec la variance de x au dénominateur — jamais l’inverse.</li>
+        <li>Contrôle final : a × x̄ + b doit redonner ȳ. Si ce n’est pas le cas, il y a une erreur de calcul.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le point moyen d’une série double ?</p>
+      <div class="opts">
+        <button class="opt">(0 ; 0)</button>
+        <button class="opt" data-correct="1">(x̄ ; ȳ)</button>
+        <button class="opt">(x<sub>max</sub> ; y<sub>max</sub>)</button>
+      </div>
+      <div class="q__exp">C’est le centre de gravité du nuage : les deux moyennes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une covariance positive signifie…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">que x et y varient dans le même sens</button>
+        <button class="opt">que x et y varient en sens inverse</button>
+        <button class="opt">qu’il n’y a pas de liaison</button>
+      </div>
+      <div class="q__exp">Les contributions positives dominent : les deux caractères augmentent ensemble.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Entre quelles valeurs le coefficient de corrélation r varie-t-il ?</p>
+      <div class="opts">
+        <button class="opt">0 et 1</button>
+        <button class="opt" data-correct="1">−1 et 1</button>
+        <button class="opt">−∞ et +∞</button>
+      </div>
+      <div class="q__exp">C’est un nombre sans unité borné par −1 et 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">r = 0,05 pour une série où y = x². Conclusion ?</p>
+      <div class="opts">
+        <button class="opt">Aucune liaison</button>
+        <button class="opt" data-correct="1">Pas de liaison linéaire, mais une liaison existe</button>
+        <button class="opt">Erreur de calcul</button>
+      </div>
+      <div class="q__exp">r ne mesure que la liaison linéaire : il faut regarder le nuage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment calcule-t-on la pente a de la droite des moindres carrés ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">a = cov(x, y)/V(x)</button>
+        <button class="opt">a = ȳ/x̄</button>
+        <button class="opt">a = V(x)/cov(x, y)</button>
+      </div>
+      <div class="q__exp">a = cov(x,y)/V(x), puis b = ȳ − a·x̄.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La droite des moindres carrés passe par…</p>
+      <div class="opts">
+        <button class="opt">l’origine</button>
+        <button class="opt" data-correct="1">le point moyen (x̄ ; ȳ)</button>
+        <button class="opt">le premier point du nuage</button>
+      </div>
+      <div class="q__exp">Propriété de contrôle : ȳ = a·x̄ + b.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Confondre covariance et coefficient de corrélation</strong> : le second seul est borné et sans unité.</li>
+      <li><strong>Interpréter une corrélation comme une causalité</strong> : c’est un abus de langage grave.</li>
+      <li><strong>Conclure « pas de liaison » avec r ≈ 0</strong> sans regarder le nuage : la liaison peut être non linéaire.</li>
+      <li><strong>Ordre de calcul inversé</strong> : calculer b avant a.</li>
+      <li><strong>Extrapoler hors de la plage observée</strong> en présentant la prévision comme fiable.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Étudier une série double</div>
+    <ol>
+      <li><strong>Calculer les deux moyennes</strong> x̄ et ȳ : c’est le point moyen G.</li>
+      <li><strong>Calculer la covariance</strong> cov(x, y) = Σ x<sub>i</sub>y<sub>i</sub>/n − x̄·ȳ.</li>
+      <li><strong>Calculer les deux écarts-types</strong> σ<sub>x</sub> et σ<sub>y</sub>, puis r = cov/(σ<sub>x</sub>σ<sub>y</sub>).</li>
+      <li><strong>Si la liaison est suffisante</strong>, ajuster : a = cov/V(x), b = ȳ − a·x̄.</li>
+      <li><strong>Contrôler et commenter</strong> : la droite passe par G, et la prévision reste dans la plage observée.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Série double : un couple (x, y) par individu ; nuage de points et point moyen G = (x̄ ; ȳ).</li>
+      <li>cov(x, y) = Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)/n = Σ x<sub>i</sub>y<sub>i</sub>/n − x̄·ȳ.</li>
+      <li>r = cov(x, y)/(σ<sub>x</sub>σ<sub>y</sub>), toujours dans [−1 ; 1] : il chiffre la liaison linéaire.</li>
+      <li>Droite des moindres carrés : a = cov(x, y)/V(x), b = ȳ − a·x̄ ; elle passe par le point moyen.</li>
+      <li>Corrélation n’est pas causalité, et r ≈ 0 ne prouve pas l’absence de toute liaison.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je place un nuage de points et je repère le point moyen.</li>
+      <li>Je calcule une covariance avec la formule rapide.</li>
+      <li>Je calcule et j’interprète un coefficient de corrélation.</li>
+      <li>Je détermine une droite de régression et je vérifie qu’elle passe par G.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>série double</li><li>nuage de points</li><li>point moyen</li><li>covariance</li><li>coefficient de corrélation</li><li>droite des moindres carrés</li><li>prévision</li><li>corrélation et causalité</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends le calcul de la variance du chapitre 4 avant la régression.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices de niveau 4 de l’atelier du chapitre 6.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible l’interprétation de r et l’ordre a puis b.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise du cours : revois les examens blancs et le projet intégrateur.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de calcul <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support B1 de statistique descriptive et les séries d’exercices du Collège de Paris.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

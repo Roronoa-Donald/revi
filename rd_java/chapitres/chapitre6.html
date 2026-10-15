@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Exceptions et robustesse | Java B2</title>
+<meta name="description" content="Chapitre 6 du cours de Java B2 : try/catch/finally, exceptions standard, exception personnalisée, throws. Théorie, exemples détaillés, exercices Java exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/rd_java/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Exceptions et robustesse | Java B2">
+<meta property="og:description" content="Chapitre 6 du cours de Java B2 : try/catch/finally, exceptions standard, exception personnalisée, throws. Théorie, exemples détaillés, exercices Java exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rd_javanav"><div class="rd_javanav__in">
+  <a class="rd_javanav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rd_javanav__sep" aria-hidden="true">/</span>
+  <a class="rd_javanav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Java B2</a>
+  <div class="rd_javanav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rd_javanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rd_javawrap">
+<p class="crumb"><a href="../index.html">Java B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Exceptions et robustesse</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une division par zéro, une saisie non numérique, un solde négatif : les erreurs surgissent. Java les représente par des exceptions. Bien traitées, elles transforment un plantage en message clair — ou en décision métier.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>intercepter une exception avec try/catch ;</li>
+      <li>reconnaître les exceptions standard (ArithmeticException, NumberFormatException) ;</li>
+      <li>écrire et lancer une exception personnalisée ;</li>
+      <li>déclarer qu’une méthode peut lever une exception avec throws.</li>
+    </ol>
+  </div>
+
+<h2>1. try, catch, finally</h2>
+
+<p>Le bloc <code>try</code> contient le code risqué ; le bloc <code>catch</code> traite l’erreur ; le bloc <code>finally</code> s’exécute dans tous les cas (nettoyage).</p>
+<pre><code>try {
+    System.out.println(a / b);
+} catch (ArithmeticException e) {
+    System.out.println("division par zéro");
+} finally {
+    System.out.println("terminé");
+}</code></pre>
+<p>Sans capture, l’exception remonte et le programme s’arrête en affichant une trace d’appel. Attraper un type précis vaut mieux qu’attraper <code>Exception</code> partout.</p>
+
+<h2>2. Exceptions standard</h2>
+
+<p>Deux erreurs très fréquentes ont chacune leur exception : <code>ArithmeticException</code> pour la division entière par zéro, <code>NumberFormatException</code> pour une conversion <code>Integer.parseInt</code> qui échoue.</p>
+<pre><code>try {
+    int valeur = Integer.parseInt(saisie);
+} catch (NumberFormatException e) {
+    System.out.println("saisie invalide");
+}</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-scale"></use></svg> Vérifié ou non vérifié</div>
+    <p>Les exceptions héritant de <code>RuntimeException</code> ne sont pas obligatoires à déclarer : c’est le cas d’<code>ArithmeticException</code> et de <code>NumberFormatException</code>. Les autres (héritant directement d’<code>Exception</code>) doivent être déclarées avec <code>throws</code> ou capturées.</p>
+  </div>
+
+<h2>3. Exception personnalisée</h2>
+
+<p>Pour un problème métier — un solde insuffisant, une date impossible — on crée une classe d’exception dédiée. Elle étend <code>Exception</code> et transmet son message au constructeur parent.</p>
+<pre><code>class SoldeInsuffisant extends Exception {
+    SoldeInsuffisant(String message) {
+        super(message);
+    }
+}
+
+void retirer(int montant) throws SoldeInsuffisant {
+    if (montant &gt; solde) {
+        throw new SoldeInsuffisant("solde insuffisant");
+    }
+    solde -= montant;
+}</code></pre>
+<p>Intercepter un type précis (<code>catch (SoldeInsuffisant e)</code>) distingue une erreur métier d’un bug technique.</p>
+
+<h2>4. Écrire du code robuste</h2>
+
+<p>Le bon réflexe : anticiper les cas limites (<code>b == 0</code>, saisie vide, montant négatif) et laisser l’exception signaler ce qui ne peut pas être traité. Le message doit être explicite et le traitement cohérent.</p>
+<pre><code>if (montant &lt; 0) {
+    throw new IllegalArgumentException("montant négatif");
+}
+if (montant &gt; solde) {
+    throw new SoldeInsuffisant("solde insuffisant");
+}</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Une erreur est une information</div>
+    <p>Une exception mal traitée est avalée et disparaît : le bug devient invisible. Une exception précise, avec un message clair, transforme un plantage en piste. C’est l’objet le plus utile d’un programme qui dure.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="java2-c6-e1"
+     data-language="java"
+     data-height="300"
+     data-stdin="10&#10;2">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int a = sc.nextInt();
+        int b = sc.nextInt();
+
+        // À compléter : afficher le quotient, ou un message d'erreur si b == 0.
+        // Utilise un bloc try / catch (ArithmeticException).
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Division protégée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Intercepter une exception d’exécution.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux entiers <code>a</code> et <code>b</code>. Affichez <code>resultat : X</code> où <code>X</code> est le quotient entier <code>a / b</code>. Si <code>b</code> vaut 0, interceptez l’exception et affichez <code>erreur : division par zéro</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10
+2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>resultat : 5</pre></div>
+    </div>
+    <p class="lab__note">10 divisé par 2.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En Java, la division entière par zéro lève une ArithmeticException, pas un résultat infini.</li>
+        <li>Place l’affichage du quotient dans le try, et le message d’erreur dans le catch.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="java2-c6-e2"
+     data-language="java"
+     data-height="300"
+     data-stdin="42">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String saisie = sc.next();
+
+        // À compléter : convertir avec Integer.parseInt, gérer l'échec.
+        // Utilise un bloc try / catch (NumberFormatException).
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Conversion d’une saisie</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Intercepter une erreur de format.</p>
+    <div class="lab__brief"><p>Le programme reçoit une saisie (un mot). Essayez de la convertir en entier avec <code>Integer.parseInt</code>. Si la conversion réussit, affichez <code>valeur : X</code> ; sinon affichez <code>saisie invalide</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>42</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>valeur : 42</pre></div>
+    </div>
+    <p class="lab__note">Un entier valide.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Integer.parseInt("42") renvoie 42, mais lance une NumberFormatException sur un texte non numérique.</li>
+        <li>Le catch (NumberFormatException e) affiche "saisie invalide".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="java2-c6-e3"
+     data-language="java"
+     data-height="300"
+     data-stdin="100&#10;30">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+class SoldeInsuffisant extends Exception {
+    // À compléter : constructeur prenant un message.
+}
+
+class Compte {
+    private int solde;
+
+    Compte(int solde) {
+        this.solde = solde;
+    }
+
+    int getSolde() {
+        return solde;
+    }
+
+    void retirer(int montant) throws SoldeInsuffisant {
+        // À compléter : lever SoldeInsuffisant si montant > solde, sinon débiter.
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int solde = sc.nextInt();
+        int montant = sc.nextInt();
+
+        // À compléter : tenter le retrait, afficher le reste ou l'erreur.
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Exception personnalisée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déclarer et lancer une exception métier, puis l’intercepter.</p>
+    <div class="lab__brief"><p>Le programme reçoit un solde puis un montant (deux entiers). Écrivez une exception <code>SoldeInsuffisant</code> et une classe <code>Compte</code> dont <code>retirer()</code> la lance quand le montant dépasse le solde. Affichez <code>reste : X</code> si le retrait passe, sinon <code>erreur : solde insuffisant</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>100
+30</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>reste : 70</pre></div>
+    </div>
+    <p class="lab__note">Un retrait de 30 sur 100.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une exception personnalisée étend Exception et transmet le message à super().</li>
+        <li>La méthode retirer déclare throws SoldeInsuffisant ; l’appel est encadré d’un try / catch de ce type.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel bloc contient le code risqué ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">try</button>
+        <button class="opt">catch</button>
+        <button class="opt">finally</button>
+      </div>
+      <div class="q__exp">Le try encadre le code susceptible de lever une exception.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel bloc s’exécute dans tous les cas ?</p>
+      <div class="opts">
+        <button class="opt">try</button>
+        <button class="opt">catch</button>
+        <button class="opt" data-correct="1">finally</button>
+      </div>
+      <div class="q__exp">finally s’exécute après le try, avec ou sans erreur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle exception pour une division entière par zéro ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ArithmeticException</button>
+        <button class="opt">NumberFormatException</button>
+        <button class="opt">IOException</button>
+      </div>
+      <div class="q__exp">La division par zéro lève une ArithmeticException.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle exception pour parseInt invalide ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">NumberFormatException</button>
+        <button class="opt">ArithmeticException</button>
+        <button class="opt">NullPointerException</button>
+      </div>
+      <div class="q__exp">Une chaîne non numérique provoque NumberFormatException.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment créer une exception métier ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En étendant Exception</button>
+        <button class="opt">En étendant Main</button>
+        <button class="opt">En la déclarant static</button>
+      </div>
+      <div class="q__exp">On crée une classe qui extends Exception.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait throw ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Lance une exception</button>
+        <button class="opt">Capture une exception</button>
+        <button class="opt">Ignore une exception</button>
+      </div>
+      <div class="q__exp">throw déclenche l’exception choisie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que déclare throws ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Qu’une méthode peut lever une exception</button>
+        <button class="opt">Qu’elle l’attrape</button>
+        <button class="opt">Qu’elle est abstraite</button>
+      </div>
+      <div class="q__exp">throws prévient l’appelant du risque, qui doit capturer ou propager.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi capturer un type précis ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour distinguer métier et technique</button>
+        <button class="opt">Pour accélérer</button>
+        <button class="opt">Pour arrondir</button>
+      </div>
+      <div class="q__exp">Un catch précis sépare les erreurs attendues des bugs inattendus.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Avale une exception avec un catch vide.</li>
+      <li>Attraper <code>Exception</code> partout au lieu du type concerné.</li>
+      <li>Oublier <code>throws</code> sur une méthode qui lève une exception vérifiée.</li>
+      <li>Confondre <code>throw</code> (lancer) et <code>throws</code> (déclarer).</li>
+      <li>Laisser un message d’erreur trop vague.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Traiter une erreur proprement</div>
+    <ol>
+      <li><strong>Repérer</strong> les opérations risquées (division, conversion, bornes).</li>
+      <li><strong>Choisir</strong> l’exception adaptée : standard ou personnalisée.</li>
+      <li><strong>Encadrer</strong> l’appel d’un try/catch sur le bon type.</li>
+      <li><strong>Déclarer</strong> throws quand la méthode laisse remonter.</li>
+      <li><strong>Rédiger</strong> un message clair pour l’utilisateur ou le développeur.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>try encadre le code risqué, catch traite, finally s’exécute toujours.</li>
+      <li>ArithmeticException (division par zéro) et NumberFormatException (conversion) sont courantes.</li>
+      <li>Une exception personnalisée étend Exception et transmet un message.</li>
+      <li>throw lance ; throws déclare qu’une méthode peut lever.</li>
+      <li>Une erreur bien signalée vaut mieux qu’un plantage silencieux.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J’encadre le code risqué d’un try/catch.</li>
+      <li>Je capture le type précis de l’exception.</li>
+      <li>Je crée une exception métier quand le cas le justifie.</li>
+      <li>Je rédige des messages d’erreur explicites.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>exception</li><li>try</li><li>catch</li><li>finally</li><li>throw</li><li>throws</li><li>ArithmeticException</li><li>NumberFormatException</li><li>exception personnalisée</li><li>RuntimeException</li><li>robustesse</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois la structure try/catch/finally.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les exceptions standard.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu écris et attrapes une exception métier.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : le cours est bouclé, place aux examens blancs.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de Java (modules 1 à 12 : syntaxe, contrôle du flux, tableaux, objets, collections, exceptions).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

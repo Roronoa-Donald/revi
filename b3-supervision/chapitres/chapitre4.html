@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4 — Métrologie &amp; Observabilité Moderne avec Prometheus &amp; Grafana | Supervision &amp;amp; Observabilité B3</title>
+<meta name="description" content="Module 4 du cours Supervision &amp; Observabilité B3 : Base de séries temporelles (TSDB), format OpenMetrics, métriques Counter/Gauge, requêtage PromQL (rate, sum by), Alertmanager et dashboards Grafana. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-supervision/chapitres/chapitre4.html">
+<meta property="og:title" content="Module 4 — Métrologie &amp; Observabilité Moderne avec Prometheus &amp; Grafana | Supervision &amp;amp; Observabilité B3">
+<meta property="og:description" content="Module 4 du cours Supervision &amp; Observabilité B3 : Base de séries temporelles (TSDB), format OpenMetrics, métriques Counter/Gauge, requêtage PromQL (rate, sum by), Alertmanager et dashboards Grafana. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-supervisionnav"><div class="b3-supervisionnav__in">
+  <a class="b3-supervisionnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-supervisionnav__sep" aria-hidden="true">/</span>
+  <a class="b3-supervisionnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Supervision &amp;amp; Observabilité B3</a>
+  <div class="b3-supervisionnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-supervisionnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-supervisionwrap">
+<p class="crumb"><a href="../index.html">Supervision &amp; Observabilité B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Métrologie & Observabilité Moderne avec Prometheus & Grafana</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Votre entreprise modernise son infrastructure en migrant vers des architectures conteneurisées microservices sous Docker et Kubernetes. Les outils de supervision classiques peinent à suivre le cycle de vie éphémère des conteneurs. Votre mission consiste à déployer une stack d'observabilité cloud-native basée sur Prometheus et Grafana : structurer l'exposition des métriques au format OpenMetrics, maîtriser le requêtage multidimensionnel PromQL, configurer Alertmanager avec déduplication, inhibition et mise sous silence, et construire des tableaux de bord Grafana à forte valeur ajoutée.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Comprendre le modèle de données temporel (TSDB) et l'architecture Pull de Prometheus (Scraping HTTP, Service Discovery).</li>
+      <li>Identifier et manipuler les 4 types de métriques standards : Counter, Gauge, Histogram et Summary.</li>
+      <li>Maîtriser le langage de requêtage PromQL : sélection vectorielle, dérivées temporelles avec rate() et irate(), et agrégations sum by().</li>
+      <li>Configurer et router les alertes via Alertmanager (Grouping, Inhibit Rules, Silences) et créer des visualisations dynamiques sous Grafana.</li>
+    </ol>
+  </div>
+
+<h2>1. L'Architecture Prometheus &amp; le Modèle de Données Séries Temporelles (TSDB)</h2>
+
+<p>Conçu à l'origine par SoundCloud et hébergé par la Cloud Native Computing Foundation (CNCF), <strong>Prometheus</strong> s'est imposé comme le standard de facto de la métrologie moderne pour les environnements dynamiques :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Modèle de Collecte « Pull »</h4>
+    <ul>
+      <li><strong>Scraping HTTP :</strong> Prometheus interroge périodiquement les cibles sur leur point de terminaison HTTP (généralement <code>/metrics</code>).</li>
+      <li><strong>Découverte dynamique (Service Discovery) :</strong> Prometheus dialogue avec les API (Kubernetes, AWS EC2, Consul) pour découvrir automatiquement les nouvelles instances sans reconfiguration manuelle.</li>
+      <li><strong>Détection d'état native :</strong> Si une cible ne répond pas lors du scrap, Prometheus génère immédiatement la métrique <code>up == 0</code>.</li>
+      <li><strong>Pushgateway :</strong> Utilisée exceptionnellement pour les scripts batchs ou jobs cron éphémères qui se terminent avant le passage du scraper.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Structure d'une Série Temporelle</h4>
+    <p>Une série temporelle dans Prometheus est une suite de paires <code>(timestamp, valeur_flottante)</code> identifiée par :</p>
+    <p><code>nom_metrique{label1="valeur1", label2="valeur2"}</code></p>
+    <p>Cette multidimensionnalité permet de filtrer et d'agréger les métriques selon n'importe quelle dimension métier (service, environnement, code de statut, région).</p>
+  </div>
+</div>
+
+<h2>2. Les 4 Types de Métriques &amp; le Format d'Exposition OpenMetrics</h2>
+
+<p>Chaque métrique exposée par un exportateur (ex: <code>node_exporter</code> sur le port 9100/TCP) appartient à un type précis :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Counter (Compteur Cumulatif)</h4>
+    <p>Valeur numérique qui ne peut <strong>que croître ou être remise à zéro</strong> lors d'un redémarrage du processus. Utilisé pour mesurer un volume d'événements (ex: nombre total de requêtes HTTP servies, octets transmis).</p>
+    <p>On ne lit jamais directement la valeur absolue d'un compteur : on calcule son taux de variation par seconde via la fonction <code>rate()</code>.</p>
+  </div>
+  <div class="card">
+    <h4>2. Gauge (Jauge Instantanée)</h4>
+    <p>Valeur numérique qui peut <strong>augmenter ou diminuer</strong> arbitrairement au cours du temps. Représente l'état instantané d'une ressource (ex: mémoire vive libre, température CPU, nombre de goroutines ou threads actifs).</p>
+  </div>
+</div>
+<div class="grid grid-2" style="margin-top: 1rem;">
+  <div class="card">
+    <h4>3. Histogram</h4>
+    <p>Échantillonne des observations (typiquement des durées de requêtes en secondes ou tailles de réponses) et les classe dans des intervalles configurables (<em>buckets</em> délimités par le label <code>le</code> : less than or equal).</p>
+    <p>Permet le calcul précis des centiles (ex: p95, p99) via <code>histogram_quantile()</code>.</p>
+  </div>
+  <div class="card">
+    <h4>4. Summary</h4>
+    <p>Calcule directement des quantiles configurables côté client (sur l'application elle-même) ainsi qu'un compteur et une somme totale. Plus léger pour Prometheus mais impossible à agréger entre plusieurs instances d'un même service.</p>
+  </div>
+</div>
+
+<h2>3. PromQL, Alertmanager &amp; Tableaux de Bord Grafana</h2>
+
+<p>La puissance de la stack réside dans son langage de requêtage et son découplage d'alerting :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Le Langage PromQL</h4>
+    <ul>
+      <li><strong>Vecteur instantané vs de plage :</strong> <code>http_requests_total</code> (dernière valeur) vs <code>http_requests_total[5m]</code> (série des 5 dernières minutes).</li>
+      <li><strong>Calcul de dérivée :</strong> <code>rate(http_requests_total[5m])</code> calcule les requêtes par seconde en gérant automatiquement les resets de compteurs.</li>
+      <li><strong>Agrégations groupées :</strong> <code>sum by (status) (rate(http_requests_total[5m]))</code> pour obtenir le débit par code HTTP.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Alertmanager &amp; Grafana</h4>
+    <ul>
+      <li><strong>Alertmanager (port 9093/TCP) :</strong> Reçoit les alertes de Prometheus, élimine les doublons, applique les règles d'inhibition (si <code>NodeDown</code>, inhiber <code>HighCPU</code> sur le même hôte) et gère les silences.</li>
+      <li><strong>Grafana (port 3000/TCP) :</strong> Portail de visualisation universel connecté à la TSDB Prometheus. Permet de créer des panels riches avec variables dynamiques, alertes visuelles et annotations.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="sup3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="PROM_PARSE http_requests_total{method=&quot;GET&quot;,handler=&quot;/api&quot;} 1027">
+  <script type="text/plain" data-lab-starter>import sys
+import re
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : parser l'échantillon Prometheus et formater la sortie
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Parseur de Format d’Exposition Métrique Prometheus</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une ligne d'échantillon de métrique Prometheus OpenMetrics et extraire son nom, ses labels et sa valeur numérique.</p>
+    <div class="lab__brief"><p>Prometheus collecte ses métriques sous forme de flux textuel structuré :<br><br>
+Format d'un échantillon :<br>
+<code>metric_name{label1="val1",label2="val2"} 1234.56</code><br>
+ou sans label :<br>
+<code>metric_name 1048576</code><br><br>
+Entrée STDIN : <code>PROM_PARSE &lt;ligne_echantillon&gt;</code>.<br>
+Sortie : <code>METRIC: name=&lt;name&gt; labels=&lt;k1=v1,k2=v2|NONE&gt; value=&lt;val&gt;</code>.<br>
+(Les étiquettes sont triées par nom alphabétique en sortie).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PROM_PARSE http_requests_total{method="GET",handler="/api"} 1027</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>METRIC: name=http_requests_total labels=handler=/api,method=GET value=1027</pre></div>
+    </div>
+    <p class="lab__note">Extraction du nom de métrique et des deux labels triés par ordre alphabétique.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utilisez une expression régulière pour séparer le nom, le bloc de labels entre accolades et la valeur.</li>
+        <li>Triez les paires de labels par ordre alphabétique de leurs clés.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="PROMQL_RATE INTERVAL=300 GROUP=status SERIES=1000:2500:service=cart,status=200 SERIES=500:1100:service=auth,status=200 SERIES=10:70:service=cart,status=500">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer les taux individuels et la somme groupée par label
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur de Calcul PromQL rate() et Agrégation sum by()</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le taux d'accroissement par seconde d'un compteur avec gestion des réinitialisations, puis agréger par étiquette.</p>
+    <div class="lab__brief"><p>En PromQL, <code>rate(v[interval])</code> calcule la dérivée par seconde :<br><br>
+1. <strong>Taux par seconde</strong> :<br>
+Si <code>final &gt;= init</code> : <code>delta = final - init</code>.<br>
+Si <code>final &lt; init</code> (redémarrage / compteur reset) : <code>delta = final</code>.<br>
+<code>taux = delta / interval</code>.<br><br>
+2. <strong>Agrégation sum by (LABEL)</strong> :<br>
+Somme des taux pour chaque valeur distincte de l'étiquette cible <code>GROUP</code>.<br><br>
+Entrée STDIN : <code>PROMQL_RATE INTERVAL=&lt;sec&gt; GROUP=&lt;label&gt; SERIES=&lt;init:final:lbl=val,lbl=val&gt; [SERIES=...]</code>.<br>
+Sortie : <code>PROMQL: rates=[&lt;s1_taux:.2f&gt;,&lt;s2_taux:.2f&gt;] sum_by={&lt;val1&gt;:&lt;tot1:.2f&gt;,&lt;val2&gt;:&lt;tot2:.2f&gt;}</code> (clés de sum_by triées par ordre alphabétique).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PROMQL_RATE INTERVAL=300 GROUP=status SERIES=1000:2500:service=cart,status=200 SERIES=500:1100:service=auth,status=200 SERIES=10:70:service=cart,status=500</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PROMQL: rates=[5.00,2.00,0.20] sum_by={200:7.00,500:0.20}</pre></div>
+    </div>
+    <p class="lab__note">Calcul des requêtes par seconde et somme groupée par code de statut HTTP.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Isolez les paramètres INTERVAL, GROUP et chaque argument SERIES.</li>
+        <li>Gérez le reset du compteur si final &lt; init.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sup3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="ALERT_ROUTE GROUP_BY=cluster SILENCE=cluster=dev INHIBIT=NodeDown:InstanceHighCpu:node ALERTS=NodeDown:alertname=NodeDown,node=srv1,cluster=prod|InstanceHighCpu:alertname=InstanceHighCpu,node=srv1,cluster=prod|DiskFull:alertname=DiskFull,node=srv2,cluster=dev">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : appliquer les règles de silence, d'inhibition et de regroupement
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Routeur de Notifications Alertmanager (Grouping &amp; Silences)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Filtrer les alertes actives via les silences et règles d'inhibition puis regrouper les notifications.</p>
+    <div class="lab__brief"><p>Alertmanager évite la surcharge d'alertes en combinant filtrage et groupement :<br><br>
+1. <strong>Silences</strong> : Si un silence actif <code>SILENCE=k=v</code> correspond à un label de l'alerte, celle-ci est ignorée.<br>
+2. <strong>Inhibition</strong> : Si <code>INHIBIT=src:tgt:equal_key</code> est défini, toute alerte <code>tgt</code> est supprimée s'il existe une alerte <code>src</code> active ayant la même valeur sur le label <code>equal_key</code>.<br>
+3. <strong>Groupement</strong> : Les alertes conservées sont regroupées par la valeur de l'étiquette <code>GROUP_BY</code>.<br><br>
+Entrée STDIN : <code>ALERT_ROUTE GROUP_BY=&lt;key&gt; SILENCE=&lt;k=v|NONE&gt; INHIBIT=&lt;src:tgt:eq|NONE&gt; ALERTS=&lt;name1:k=v,k=v|name2:...&gt;</code>.<br>
+Sortie : Pour chaque groupe (dans l'ordre alphabétique des valeurs du label groupé) :<br>
+<code>ALERT_GROUP: key=&lt;val&gt; count=&lt;n&gt; alerts=&lt;nom1,nom2...&gt;</code> (si aucune alerte : <code>ALERT_GROUP: key=NONE count=0 alerts=NONE</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ALERT_ROUTE GROUP_BY=cluster SILENCE=cluster=dev INHIBIT=NodeDown:InstanceHighCpu:node ALERTS=NodeDown:alertname=NodeDown,node=srv1,cluster=prod|InstanceHighCpu:alertname=InstanceHighCpu,node=srv1,cluster=prod|DiskFull:alertname=DiskFull,node=srv2,cluster=dev</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ALERT_GROUP: key=prod count=1 alerts=NodeDown</pre></div>
+    </div>
+    <p class="lab__note">DiskFull est sous silence (dev) et InstanceHighCpu est inhibé par NodeDown sur srv1.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Supprimez d'abord les alertes matchant le silence.</li>
+        <li>Vérifiez ensuite si les alertes restantes sont inhibées par une alerte source active.</li>
+        <li>Regroupez par la clef GROUP_BY et affichez chaque groupe.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel type de métrique Prometheus doit obligatoirement être utilisé pour compter le nombre total de requêtes HTTP traitées par une API web ?</p>
+      <div class="opts">
+        <button class="opt">Gauge</button>
+        <button class="opt" data-correct="1">Counter</button>
+        <button class="opt">Histogram</button>
+        <button class="opt">Summary</button>
+      </div>
+      <div class="q__exp">Un volume cumulé d'événements qui ne fait qu'augmenter au cours du temps doit toujours être modélisé sous la forme d'un Counter.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il formellement interdit d'inclure un identifiant d'utilisateur unique (ex: user_id) dans les labels d'une métrique Prometheus ?</p>
+      <div class="opts">
+        <button class="opt">Car Prometheus ne supporte que les chiffres</button>
+        <button class="opt" data-correct="1">Car cela génère une cardinalité explosive créant des millions de séries temporelles distinctes et sature la mémoire (RAM)</button>
+        <button class="opt">Car cela empêche les alertes par email</button>
+        <button class="opt">Car la loi RGPD interdit les métriques</button>
+      </div>
+      <div class="q__exp">Chaque combinaison unique de labels crée une nouvelle série temporelle en mémoire vive. Une cardinalité infinie sature rapidement la base TSDB de Prometheus.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle fonction PromQL calcule le taux moyen d'accroissement par seconde d'un compteur sur une fenêtre de 5 minutes ?</p>
+      <div class="opts">
+        <button class="opt">avg(http_requests_total[5m])</button>
+        <button class="opt" data-correct="1">rate(http_requests_total[5m])</button>
+        <button class="opt">increase(http_requests_total)</button>
+        <button class="opt">delta(http_requests_total)</button>
+      </div>
+      <div class="q__exp">La fonction rate() calcule la dérivée par seconde d'un compteur en tenant compte des éventuels redémarrages (resets) du processus.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur quel port TCP standard l'exportateur système Node Exporter expose-t-il les métriques matérielles d'une machine Linux ?</p>
+      <div class="opts">
+        <button class="opt">Port 9090</button>
+        <button class="opt" data-correct="1">Port 9100</button>
+        <button class="opt">Port 9093</button>
+        <button class="opt">Port 3000</button>
+      </div>
+      <div class="q__exp">Node Exporter écoute sur le port 9100/TCP. Le port 9090 est le serveur Prometheus, le 9093 Alertmanager et le 3000 Grafana.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans Alertmanager, quel mécanisme permet de bloquer automatiquement une alerte « HighCpuLoad » lorsqu'une alerte « HostDown » est déjà active sur le même serveur ?</p>
+      <div class="opts">
+        <button class="opt">Le silence temporaire (Silence)</button>
+        <button class="opt" data-correct="1">La règle d'inhibition (Inhibit Rule)</button>
+        <button class="opt">Le groupement d'alertes (Grouping)</button>
+        <button class="opt">L'escalade SMTP</button>
+      </div>
+      <div class="q__exp">Les règles d'inhibition (Inhibit Rules) suppriment les alertes secondaires lorsque l'alerte racine (ex: panne totale de l'hôte) est déjà déclenchée sur la même étiquette.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour quel cas d'usage spécifique l'outil Prometheus Pushgateway a-t-il été conçu ?</p>
+      <div class="opts">
+        <button class="opt">Pour superviser les bases de données SQL relationnelles</button>
+        <button class="opt" data-correct="1">Pour collecter les métriques de jobs batchs ou scripts éphémères qui se terminent trop vite pour être scrapés</button>
+        <button class="opt">Pour afficher des graphiques dans un navigateur</button>
+        <button class="opt">Pour remplacer l'agent Zabbix</button>
+      </div>
+      <div class="q__exp">La Pushgateway reçoit les métriques poussées par des scripts batchs courts (cron jobs) avant leur extinction, et les garde en mémoire pour le scraper Prometheus.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle fonction PromQL permet de calculer le 95e centile (p95) de la latence d'une application à partir d'un Histogramme ?</p>
+      <div class="opts">
+        <button class="opt">p95(http_request_duration_seconds)</button>
+        <button class="opt" data-correct="1">histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))</button>
+        <button class="opt">rate(http_request_duration_seconds[95m])</button>
+        <button class="opt">quantile_95(http_request_duration_seconds)</button>
+      </div>
+      <div class="q__exp">histogram_quantile() calcule les centiles à partir des compteurs de buckets cumulatifs (identifiés par l'étiquette le).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole de transport et quel format de sérialisation sont utilisés nativement par Prometheus pour scraper les métriques ?</p>
+      <div class="opts">
+        <button class="opt">SNMP en UDP</button>
+        <button class="opt" data-correct="1">Requêtes HTTP GET avec données au format texte OpenMetrics</button>
+        <button class="opt">Connexion SSH avec commandes bash</button>
+        <button class="opt">WebSockets binaires</button>
+      </div>
+      <div class="q__exp">Prometheus effectue des requêtes HTTP GET standard vers l'URL /metrics et parse le flux textuel structuré conforme au format OpenMetrics.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Appliquer la fonction rate() sur une Gauge : rate() est mathématiquement réservée aux compteurs monotones Counter.</li>
+      <li>Utiliser des labels avec une cardinalité non bornée (ex: user_id, email, UUID de requête) : cela fait exploser la mémoire vive de la TSDB (Time-Series Database churn).</li>
+      <li>Oublier d'utiliser sum() avant d'appliquer histogram_quantile() sur plusieurs instances, faussant complètement le calcul des centiles.</li>
+      <li>Utiliser la Pushgateway pour contourner le modèle Pull sur des applications standards : la Pushgateway transforme Prometheus en goulet d'étranglement sans détection d'inactivité.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie : Prometheus, PromQL & Grafana</div>
+    <ol>
+      <li>Exposer les métriques au format OpenMetrics : instrumenter les applications avec les types Counter, Gauge, Histogram et Summary exposés sur un endpoint HTTP /metrics.</li>
+      <li>Contrôler la cardinalité des labels : bannir formellement les identifiants uniques à haute cardinalité (user_id, IP, UUID) pour préserver la mémoire de la TSDB.</li>
+      <li>Construire des requêtes PromQL résilientes : combiner rate(), sum by() et histogram_quantile() pour calculer avec précision débits, taux d'erreur et centiles de latence.</li>
+      <li>Ordonnancer l'alerting avec Alertmanager : configurer le groupement (group_by, group_wait), l'inhibition et le routage des notifications par sévérité et environnement.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Prometheus repose sur un modèle de collecte active par tirage (Pull HTTP), enregistrant les métriques dans une base de données temporelle (TSDB).</li>
+      <li>Les types fondamentaux sont les Counters (monotones croissants), les Gauges (valeurs fluctuantes), les Histograms (répartition en buckets) et les Summaries.</li>
+      <li>PromQL offre une expressivité algébrique avancée pour filtrer, agréger par étiquettes et dériver des taux de requêtes par seconde via rate().</li>
+      <li>Grafana constitue la couche universelle de visualisation et de dashboards pour unifier métriques, logs et traces applicatives.</li>
+      <li>Alertmanager découple la génération des alertes de leur acheminement, gérant le dédoublonnage, le regroupement et l'atténuation des tempêtes de notifications.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Comprenez-vous la différence fondamentale entre les modèles de collecte Pull (Prometheus) et Push ?</li>
+      <li>Savez-vous choisir judicieusement entre un Counter et une Gauge pour une métrique donnée ?</li>
+      <li>Pourquoi ne faut-il jamais appliquer rate() sur une Gauge ?</li>
+      <li>Savez-vous écrire une requête PromQL calculant le taux d'erreur 5xx par service sur 5 minutes ?</li>
+      <li>Comment les paramètres group_by, group_wait et repeat_interval d'Alertmanager préviennent-ils la saturation des canaux d'astreinte ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Prometheus :</strong> Système open source de métrologie et d'alerting basé sur une base de données de séries temporelles multidimensionnelle.</li><li><strong>OpenMetrics :</strong> Format texte universel d'exposition de métriques adopté par Prometheus et standardisé par l'IETF.</li><li><strong>Counter :</strong> Métrique cumulative monotone croissante réinitialisée uniquement lors du redémarrage du composant.</li><li><strong>Gauge :</strong> Métrique instantanée mesurant une valeur flottante pouvant fluctuer librement à la hausse ou à la baisse.</li><li><strong>PromQL :</strong> Prometheus Query Language : langage fonctionnel permettant de filtrer, transformer et agréger les séries temporelles.</li><li><strong>Alertmanager :</strong> Composant dédié au traitement, regroupement, inhibition et routage des alertes générées par Prometheus.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions PromQL et types de métriques à revoir. Étudiez la différence entre Counter et Gauge.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Bases de l'écosystème Prometheus comprises. Approfondissez les calculs rate() et les règles Alertmanager.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise d'ensemble. Entraînez-vous à requêter PromQL et manipuler les métriques dans l'atelier.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez le modèle TSDB et la conception de dashboards Grafana performants.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte. Prêt pour l'ingestion et l'analyse des logs avec la suite ELK du Module 5 !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Module 5 — Gestion des Journaux & Logs Centralisés, Détection d'Anomalies & SIEM (ELK/EFK) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels B3-IT / B3-RSI Supervision Système et Réseaux (Enseignant : Essowaba AHOULOUMI, Ingénieur en Informatique et Réseaux, 2024/2025), Référentiels RFC 1157/1213/3414 (SNMP), RFC 5424 (Syslog), Documentations officielles Prometheus, Grafana, Zabbix et Elastic.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

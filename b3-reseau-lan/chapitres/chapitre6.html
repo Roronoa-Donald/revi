@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Qualité de Service LAN (QoS 802.1p / DSCP) &amp;amp; Protocoles de Découverte (LLDP/CDP) | Réseau LAN Avancé B3</title>
+<meta name="description" content="Chapitre 6 du cours Réseau LAN Avancé B3 : Gestion de la congestion, marquage de niveau 2 (802.1p CoS) et niveau 3 (DiffServ DSCP), politiques de confiance (Trust Boundary), ordonnanceurs de files (Strict Priority, WRR, CBWFQ), détection précoce WRED, et protocoles de découverte LLDP (802.1AB) et Cisco CDP. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-reseau-lan/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Qualité de Service LAN (QoS 802.1p / DSCP) &amp;amp; Protocoles de Découverte (LLDP/CDP) | Réseau LAN Avancé B3">
+<meta property="og:description" content="Chapitre 6 du cours Réseau LAN Avancé B3 : Gestion de la congestion, marquage de niveau 2 (802.1p CoS) et niveau 3 (DiffServ DSCP), politiques de confiance (Trust Boundary), ordonnanceurs de files (Strict Priority, WRR, CBWFQ), détection précoce WRED, et protocoles de découverte LLDP (802.1AB) et Cisco CDP. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-reseau-lannav"><div class="b3-reseau-lannav__in">
+  <a class="b3-reseau-lannav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-reseau-lannav__sep" aria-hidden="true">/</span>
+  <a class="b3-reseau-lannav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-network"></use></svg> Réseau LAN Avancé B3</a>
+  <div class="b3-reseau-lannav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-reseau-lannav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-reseau-lanwrap">
+<p class="crumb"><a href="../index.html">Réseau LAN Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Qualité de Service LAN (QoS 802.1p / DSCP) &amp; Protocoles de Découverte (LLDP/CDP)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Sur les réseaux locaux de campus modernes, les flux applicatifs hétérogènes cohabitent sur la même infrastructure physique : transferts de fichiers massifs (sauvegardes, mises à jour logicielles), navigation web et flux temps réel hypersensibles à la gigue et à la latence (Voix sur IP - VoIP, visioconférence, flux industriels). En période de congestion sur un commutateur ou un lien d’agrégation, traiter tous les paquets sur le principe du premier arrivé, premier servi (Best Effort) provoque des coupures d’appels téléphoniques et des dégradations intolérables de la visioconférence. L’ingénieur réseau de niveau Bachelor 3 doit maîtriser l’architecture de Qualité de Service (QoS) : classifier et marquer les trames dès la frontière d’accès (Trust Boundary) en 802.1p CoS et DiffServ DSCP, configurer les ordonnanceurs de sortie (Strict Priority vs Weighted Round Robin) et exploiter les protocoles de découverte de voisins (IEEE 802.1AB LLDP et Cisco CDP) pour automatiser la détection et la configuration des téléphones IP et des équipements de supervision.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre les quatre métriques fondamentales de la QoS (Bande passante, Délai, Gigue, Perte de paquets) ;</li>
+      <li>analyser la correspondance entre le champ CoS (802.1p sur 3 bits) et le champ DSCP (DiffServ sur 6 bits) ;</li>
+      <li>définir la frontière de confiance (Trust Boundary) et configurer les politiques de re-marquage d’accès ;</li>
+      <li>comparer les ordonnanceurs de sortie matériels : Strict Priority (SP) et Weighted Round Robin (WRR) / DWRR ;</li>
+      <li>analyser les mécanismes de prévention de congestion par rejet aléatoire précoce (WRED) ;</li>
+      <li>développer en Python 3 des convertisseurs de marquage CoS vers DSCP, des simulateurs d’ordonnanceurs de files et des parseurs TLV LLDP.</li>
+    </ol>
+  </div>
+
+<h2>1. Métriques de Qualité de Service & Modèles d’Architecture</h2>
+
+<p>La Qualité de Service (QoS) désigne l’ensemble des mécanismes permettant d’accorder un traitement différencié aux flux réseau critiques lors des épisodes de saturation de bande passante. Quatre métriques gouvernent l’expérience utilisateur :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les 4 Métriques Fondamentales</h4>
+    <ul>
+      <li><strong>Bande Passante (Bandwidth) :</strong> Volume de données transmis par seconde.</li>
+      <li><strong>Délai de Transmission (Delay / Latency) :</strong> Temps mis par un paquet pour voyager de la source à la destination (maximum recommandé pour la voix : $\le 150\text{ ms}$).</li>
+      <li><strong>Gigue (Jitter) :</strong> Variation du délai entre paquets successifs d’un même flux (maximum recommandé : $\le 30\text{ ms}$).</li>
+      <li><strong>Taux de Perte de Paquets (Packet Loss) :</strong> Pourcentage de paquets détruits en cas de débordement des mémoires tampons (tolérance voix : $\le 1\%$).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Modèle Differentiated Services (DiffServ)</h4>
+    <p>Contrairement au modèle <em>IntServ</em> qui réservait des ressources de bout en bout via RSVP (trop lourd et peu scalable), l’industrie adopte universellement le modèle <strong>DiffServ</strong> :</p>
+    <ul>
+      <li>Chaque paquet est <strong>marqué</strong> au niveau de son en-tête à l’entrée du réseau.</li>
+      <li>Chaque commutateur ou routeur applique un comportement de traitement par saut (<strong>Per-Hop Behavior - PHB</strong>) en fonction de la valeur de ce marquage.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Marquage de Couche 2 (802.1p CoS) & Couche 3 (DiffServ DSCP)</h2>
+
+<p>La classification et le marquage s’opèrent à deux niveaux protocolaires distincts :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Couche 2 : Class of Service (802.1p CoS)</h4>
+    <p>Le champ <strong>PCP (Priority Code Point)</strong> ou <strong>CoS</strong> est codé sur 3 bits dans l’en-tête de tag VLAN 802.1Q (valeurs de 0 à 7) :</p>
+    <ul>
+      <li><code>CoS 0</code> : Best Effort (données ordinaires).</li>
+      <li><code>CoS 3</code> : Données critiques d’entreprise (Call Signaling, ERP).</li>
+      <li><code>CoS 5</code> : Voix sur IP (VoIP Bearer / RTP).</li>
+      <li><code>CoS 6/7</code> : Contrôle de routage et gestion réseau (OSPF, STP).</li>
+      <li><em>Limite :</em> Le tag CoS disparaît dès qu’un paquet franchit un routeur ou un lien non étiqueté.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Couche 3 : DiffServ Code Point (DSCP)</h4>
+    <p>Le champ <strong>DSCP</strong> utilise les 6 bits de poids fort de l’octet <em>DS Field / ToS</em> de l’en-tête IPv4 (ou Traffic Class en IPv6), offrant 64 valeurs possibles :</p>
+    <ul>
+      <li><strong>Default (DF / CS0) :</strong> Best Effort (valeur décimale 0).</li>
+      <li><strong>Expedited Forwarding (EF) :</strong> Valeur décimale <code>46</code> (binaire <code>101110</code>), réservée strictement à la voix (VoIP RTP) pour un traitement prioritaire absolu.</li>
+      <li><strong>Assured Forwarding (AFxy) :</strong> 4 classes de priorité ($x$) avec 3 probabilités de rejet ($y$) en cas de saturation (ex: AF31, AF32, AF33).</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Frontière de Confiance (Trust Boundary)</div>
+<p>Par défaut, un commutateur d’accès ne doit <strong>jamais faire confiance aux marquages provenant des postes utilisateurs</strong> : un utilisateur malveillant pourrait marquer ses téléchargements en EF (46) pour saturer la file voix. Le commutateur écrase le marquage à 0 (Best Effort) à l’exception des ports connectés à des téléphones IP reconnus via CDP ou LLDP-MED (<code>mls qos trust cos</code> ou <code>mls qos trust device cisco-phone</code>).</p>
+  </div>
+
+<h2>3. Ordonnancement de Files & Protocoles de Découverte (LLDP / CDP)</h2>
+
+<p>Lorsque le trafic converge vers une interface de sortie dont la capacité est temporairement saturée, les paquets sont stockés dans des mémoires tampons matérielles organisées en files d’attente (queues) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Ordonnanceurs de Sortie Matériels</h4>
+    <ul>
+      <li><strong>Strict Priority (SP) :</strong> La file prioritaire (dédiée à la voix EF) est systématiquement servie en premier avant toutes les autres files. <em>Attention :</em> un limiteur de débit (Policer) doit obligatoirement encadrer cette file pour éviter d’affamer les files de données (Starvation).</li>
+      <li><strong>Weighted Round Robin (WRR) / DWRR :</strong> Les files secondaires se voient attribuer des poids relatifs (ex: 50 %, 30 %, 20 %) pour garantir qu’aucune application ne soit privée de bande passante.</li>
+      <li><strong>WRED (Weighted Random Early Detection) :</strong> Élimine préventivement des paquets TCP aléatoires dans les files avant la saturation complète pour forcer la réduction de fenêtre d’émission et éviter la synchronisation globale TCP.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Protocoles de Découverte de Voisins (LLDP &amp; CDP)</h4>
+    <p>Fonctionnent au niveau 2 sans nécessiter d’adresse IP configurée :</p>
+    <ul>
+      <li><strong>Cisco Discovery Protocol (CDP) :</strong> Protocole propriétaire historique diffusé périodiquement sur l’adresse multicast <code>01:00:0c:cc:cc:cc</code>.</li>
+      <li><strong>LLDP (IEEE 802.1AB) :</strong> Standard universel multi-constructeurs. Les informations sont structurées en blocs <strong>TLV (Type-Length-Value)</strong> obligatoires : Chassis ID, Port ID, Time-To-Live, et TLVs optionnels (nom du système, capacités de commutation/routage, port VLAN, négociation PoE avec LLDP-MED).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lan3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="FRAME_QOS id=P1 cos=5 traffic=VoIP_RTP&#10;FRAME_QOS id=P2 cos=4 traffic=Video_Conf&#10;FRAME_QOS id=P3 cos=0 traffic=Web_HTTP">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : mapper chaque niveau CoS 802.1p vers son équivalent DSCP DiffServ
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Convertisseur et mappeur de marquage QoS (CoS 802.1p vers DSCP DiffServ)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Mettre en correspondance le marquage de couche 2 (CoS 802.1p) avec les classes DiffServ DSCP de couche 3.</p>
+    <div class="lab__brief"><p>Dans un réseau de campus convergé transportant simultanément de la voix, de la vidéo et des données critiques, la <strong>Qualité de Service (QoS)</strong> garantit le traitement prioritaire des flux sensibles à la gigue et à la latence.<br><br>
+Le champ PCP (Priority Code Point / CoS) de l'en-tête 802.1Q code 8 niveaux de priorité (0 à 7). Au niveau IP (couche 3), le champ DS (Differentiated Services / RFC 2474) utilise les 6 bits supérieurs de l'octet ToS (DSCP, valeurs de 0 à 63).<br><br>
+Table de correspondance standard IETF / Cisco :<br>
+- <strong>CoS 0 (Best Effort) :</strong> DSCP 0 (décimal) &rarr; <code>PHB=BE</code> (Best Effort).<br>
+- <strong>CoS 1 (Background) :</strong> DSCP 8 &rarr; <code>PHB=CS1</code> (Class Selector 1).<br>
+- <strong>CoS 2 (Standard Data) :</strong> DSCP 16 &rarr; <code>PHB=CS2</code>.<br>
+- <strong>CoS 3 (Critical Data) :</strong> DSCP 24 &rarr; <code>PHB=CS3</code>.<br>
+- <strong>CoS 4 (Streaming Video) :</strong> DSCP 34 &rarr; <code>PHB=AF41</code> (Assured Forwarding 41).<br>
+- <strong>CoS 5 (Voice / VoIP) :</strong> DSCP 46 &rarr; <code>PHB=EF</code> (Expedited Forwarding).<br>
+- <strong>CoS 6 (Internetwork Control) :</strong> DSCP 48 &rarr; <code>PHB=CS6</code>.<br>
+- <strong>CoS 7 (Network Control) :</strong> DSCP 56 &rarr; <code>PHB=CS7</code>.<br><br>
+Le script lit sur l'entrée standard des paquets entrants :<br>
+<code>FRAME_QOS id=&lt;nom&gt; cos=&lt;0..7&gt; traffic=&lt;nom_flux&gt;</code><br><br>
+Pour chaque paquet, convertir la CoS en valeur DSCP décimale, en binaire sur 6 bits et en classe PHB :<br>
+<code>QOS_MAP id={id} cos={cos} dscp_dec={dscp_dec} dscp_bin={dscp_6bits} phb={phb} traffic={traffic}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FRAME_QOS id=P1 cos=5 traffic=VoIP_RTP
+FRAME_QOS id=P2 cos=4 traffic=Video_Conf
+FRAME_QOS id=P3 cos=0 traffic=Web_HTTP</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>QOS_MAP id=P1 cos=5 dscp_dec=46 dscp_bin=101110 phb=EF traffic=VoIP_RTP
+QOS_MAP id=P2 cos=4 dscp_dec=34 dscp_bin=100010 phb=AF41 traffic=Video_Conf
+QOS_MAP id=P3 cos=0 dscp_dec=0 dscp_bin=000000 phb=BE traffic=Web_HTTP</pre></div>
+    </div>
+    <p class="lab__note">CoS 5 est mappé vers Expedited Forwarding (DSCP 46 / 101110b) ; CoS 4 vers AF41 ; CoS 0 vers Best Effort.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer un dictionnaire indexé par la valeur de cos (0 à 7).</li>
+        <li>Formater dscp_bin sur 6 bits avec f"{dscp_dec:06b}".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="SCHEDULER mode=STRICT_PRIORITY weights=1,1,1 max_dequeues=4&#10;ENQUEUE queue=Q1 pkt_id=VOIP1&#10;ENQUEUE queue=Q3 pkt_id=DATA1&#10;ENQUEUE queue=Q1 pkt_id=VOIP2&#10;ENQUEUE queue=Q2 pkt_id=VID1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : gérer les files Q1, Q2, Q3 et implémenter STRICT_PRIORITY et WRR
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur d'ordonnancement de files d'attente (Strict Priority vs WRR)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le traitement des paquets en sortie selon les algorithmes d'ordonnancement Strict Priority et Weighted Round-Robin.</p>
+    <div class="lab__brief"><p>À la sortie des ports de commutateurs de campus, les paquets sont dirigés vers différentes files d'attente (Queues : Q1 Priorité Haute / Voix, Q2 Vidéo, Q3 Données Best-Effort) :<br><br>
+Algorithmes d'ordonnancement :<br>
+- <strong>STRICT_PRIORITY :</strong> Tant que Q1 contient des paquets, elle est dépilée prioritairement. Si Q1 est vide, Q2 est traitée. Si Q1 et Q2 sont vides, Q3 est traitée.<br>
+- <strong>WEIGHTED_ROUND_ROBIN (WRR) :</strong> Chaque tour de service dépile jusqu'à <code>W1</code> paquets de Q1, puis <code>W2</code> paquets de Q2, puis <code>W3</code> paquets de Q3. Si une file est vide avant d'avoir atteint son quota, l'ordonnanceur passe à la file suivante.<br><br>
+Le script lit sur l'entrée standard :<br>
+- La configuration de l'ordonnanceur :<br>
+  <code>SCHEDULER mode=&lt;STRICT_PRIORITY|WEIGHTED_ROUND_ROBIN&gt; weights=&lt;w1,w2,w3&gt; max_dequeues=&lt;int&gt;</code><br>
+  (weights est ignoré en mode STRICT_PRIORITY).<br>
+- Les paquets en attente dans les files :<br>
+  <code>ENQUEUE queue=&lt;Q1|Q2|Q3&gt; pkt_id=&lt;nom&gt;</code><br><br>
+Exécuter jusqu'à <code>max_dequeues</code> dépilements (ou jusqu'à ce que toutes les files soient vides) et afficher :<br>
+<code>DEQUEUE_EVENT step={step} queue={queue} pkt_id={pkt_id} mode={mode}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SCHEDULER mode=STRICT_PRIORITY weights=1,1,1 max_dequeues=4
+ENQUEUE queue=Q1 pkt_id=VOIP1
+ENQUEUE queue=Q3 pkt_id=DATA1
+ENQUEUE queue=Q1 pkt_id=VOIP2
+ENQUEUE queue=Q2 pkt_id=VID1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DEQUEUE_EVENT step=1 queue=Q1 pkt_id=VOIP1 mode=STRICT_PRIORITY
+DEQUEUE_EVENT step=2 queue=Q1 pkt_id=VOIP2 mode=STRICT_PRIORITY
+DEQUEUE_EVENT step=3 queue=Q2 pkt_id=VID1 mode=STRICT_PRIORITY
+DEQUEUE_EVENT step=4 queue=Q3 pkt_id=DATA1 mode=STRICT_PRIORITY</pre></div>
+    </div>
+    <p class="lab__note">Strict Priority dépile intégralement Q1 (VOIP1, VOIP2) avant de toucher à Q2 (VID1) puis Q3 (DATA1).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer 3 listes FIFO pour Q1, Q2 et Q3.</li>
+        <li>En STRICT_PRIORITY : dépiler Q1 si non vide, sinon Q2, sinon Q3.</li>
+        <li>En WRR : boucler sur les tours (take up to W1 from Q1, up to W2 from Q2, up to W3 from Q3).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lan3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="NEIGHBOR_DISCOVERY local_port=Gi0/1&#10;TLV type=1 value=00:11:22:33:44:aa&#10;TLV type=2 value=GigabitEthernet1/0/24&#10;TLV type=3 value=120&#10;TLV type=5 value=SW-DISTRIBUTION-01&#10;TLV type=7 value=Bridge,Router&#10;TLV type=8 value=10.0.0.254&#10;END_DISCOVERY">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser les blocs TLV et formater l'inventaire LLDP
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Parseur de trames de découverte de voisins LLDP (IEEE 802.1AB)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Extraire et structurer les attributs TLV d'une trame de découverte de réseau LLDP.</p>
+    <div class="lab__brief"><p>Le protocole standard <strong>LLDP (Link Layer Discovery Protocol - IEEE 802.1AB)</strong> permet aux commutateurs, routeurs et téléphones IP de s'annoncer mutuellement sur un réseau local hétérogène (alternative ouverte à CDP).<br><br>
+Chaque trame LLDP contient une suite de champs <strong>TLV (Type - Length - Value)</strong> :<br>
+- <strong>Chassis ID (Type 1) :</strong> Identifiant physique du châssis (adresse MAC ou nom).<br>
+- <strong>Port ID (Type 2) :</strong> Nom ou numéro de port émetteur.<br>
+- <strong>Time To Live (Type 3) :</strong> Durée de rétention en secondes (TTL).<br>
+- <strong>System Name (Type 5) :</strong> Nom d'hôte du commutateur émetteur.<br>
+- <strong>System Capabilities (Type 7) :</strong> Capacités actives (ex: <code>Bridge</code>, <code>Router</code>, <code>Telephone</code>).<br>
+- <strong>Management Address (Type 8) :</strong> Adresse IP d'administration.<br><br>
+Le script lit sur l'entrée standard les blocs de découverte par port local :<br>
+<code>NEIGHBOR_DISCOVERY local_port=&lt;nom&gt;</code><br>
+Suivi de lignes TLV :<br>
+<code>TLV type=&lt;int&gt; value=&lt;string&gt;</code><br>
+Et cloturé par :<br>
+<code>END_DISCOVERY</code><br><br>
+Pour chaque voisin découvert, afficher la synthèse topologique :<br>
+<code>LLDP_NEIGHBOR local_port={local_port} remote_sys={sys_name} remote_port={port_id} chassis={chassis_id} mgmt_ip={mgmt_ip} caps={caps} ttl={ttl}s</code><br>
+(si un champ facultatif n'est pas fourni, afficher <code>NONE</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NEIGHBOR_DISCOVERY local_port=Gi0/1
+TLV type=1 value=00:11:22:33:44:aa
+TLV type=2 value=GigabitEthernet1/0/24
+TLV type=3 value=120
+TLV type=5 value=SW-DISTRIBUTION-01
+TLV type=7 value=Bridge,Router
+TLV type=8 value=10.0.0.254
+END_DISCOVERY</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LLDP_NEIGHBOR local_port=Gi0/1 remote_sys=SW-DISTRIBUTION-01 remote_port=GigabitEthernet1/0/24 chassis=00:11:22:33:44:aa mgmt_ip=10.0.0.254 caps=Bridge,Router ttl=120s</pre></div>
+    </div>
+    <p class="lab__note">Extraction complète des 6 TLVs standards d'un voisin de distribution.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Regrouper les lignes entre NEIGHBOR_DISCOVERY et END_DISCOVERY.</li>
+        <li>Associer type 1=chassis, 2=port_id, 3=ttl, 5=sys_name, 7=caps, 8=mgmt_ip.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel délai de transmission unidirectionnel maximal est officiellement recommandé par l’UIT-T pour la voix sur IP (VoIP) ?</p>
+      <div class="opts">
+        <button class="opt">10 secondes</button>
+        <button class="opt" data-correct="1">150 millisecondes</button>
+        <button class="opt">1 milliseconde</button>
+        <button class="opt">800 millisecondes</button>
+      </div>
+      <div class="q__exp">La recommandation UIT-T G.114 préconise un délai aller simple inférieur ou égal à 150 ms pour maintenir une conversation téléphonique fluide sans écho perceptible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur combien de bits le champ Class of Service (CoS / 802.1p) est-il encodé dans le tag VLAN 802.1Q ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">3 bits (8 valeurs possibles de 0 à 7)</button>
+        <button class="opt">6 bits (64 valeurs possibles)</button>
+        <button class="opt">8 bits (256 valeurs possibles)</button>
+        <button class="opt">1 bit (0 ou 1)</button>
+      </div>
+      <div class="q__exp">Le champ PCP/CoS est codé sur 3 bits dans l’en-tête 802.1Q, autorisant 8 niveaux de priorité distincts (de 0 à 7).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle valeur décimale standardisée correspond à la classe DSCP « Expedited Forwarding (EF) » réservée à la VoIP ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">46</button>
+        <button class="opt">24</button>
+        <button class="opt">63</button>
+      </div>
+      <div class="q__exp">Expedited Forwarding (EF) est codé en binaire 101110, ce qui correspond à la valeur décimale 46.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il crucial de positionner la frontière de confiance (Trust Boundary) sur le commutateur d’accès ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour empêcher les ordinateurs des utilisateurs d’attribuer arbitrairement un marquage prioritaire à leur trafic ordinaire</button>
+        <button class="opt">Pour accélérer la vitesse de calcul du processeur</button>
+        <button class="opt">Pour chiffrer les adresses MAC des stations</button>
+        <button class="opt">Pour forcer les utilisateurs à payer un abonnement Internet plus cher</button>
+      </div>
+      <div class="q__exp">La frontière de confiance protège le réseau contre les marquages frauduleux ou abusifs générés par des machines clientes non autorisées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel risque majeur l’ordonnanceur Strict Priority (SP) fait-il peser sur les files de données s’il n’est pas associé à un Policer ?</p>
+      <div class="opts">
+        <button class="opt">Une surchauffe des câbles cuivre</button>
+        <button class="opt" data-correct="1">La famine (Starvation) des flux ordinaires si la file prioritaire est saturée en permanence</button>
+        <button class="opt">La suppression de la table de routage</button>
+        <button class="opt">Le redémarrage intempestif des commutateurs</button>
+      </div>
+      <div class="q__exp">Strict Priority vide intégralement la file prioritaire avant d’examiner les autres files : si elle est saturée, les autres applications ne sont jamais transmises.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’objectif de l’algorithme WRED (Weighted Random Early Detection) dans la gestion des files d’attente ?</p>
+      <div class="opts">
+        <button class="opt">Bloquer les adresses IP russes</button>
+        <button class="opt" data-correct="1">Détruire aléatoirement des paquets TCP avant saturation complète pour forcer la réduction de débit et éviter la synchronisation globale TCP</button>
+        <button class="opt">Augmenter la taille des paquets pour remplir la bande passante</button>
+        <button class="opt">Transformer les paquets TCP en requêtes HTTP</button>
+      </div>
+      <div class="q__exp">WRED élimine préventivement quelques paquets TCP dans la file, incitant les émetteurs TCP à réduire leur fenêtre sans effondrer toutes les sessions simultanément.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel standard IEEE ouvert et multi-constructeurs définit le protocole LLDP (Link Layer Discovery Protocol) ?</p>
+      <div class="opts">
+        <button class="opt">IEEE 802.1D</button>
+        <button class="opt" data-correct="1">IEEE 802.1AB</button>
+        <button class="opt">IEEE 802.3ad</button>
+        <button class="opt">RFC 791</button>
+      </div>
+      <div class="q__exp">Le protocole LLDP est spécifié par le standard international IEEE 802.1AB.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une trame LLDP 802.1AB, comment les informations échangées (nom d’équipement, port, capacités) sont-elles encapsulées ?</p>
+      <div class="opts">
+        <button class="opt">En fichiers XML zippés</button>
+        <button class="opt" data-correct="1">Sous forme de blocs TLV (Type-Length-Value)</button>
+        <button class="opt">En texte brut séparé par des virgules (CSV)</button>
+        <button class="opt">En requêtes SQL</button>
+      </div>
+      <div class="q__exp">LLDP utilise une structure modulaire en TLVs (Type-Length-Value), permettant à chaque constructeur d’insérer des attributs standardisés ou propriétaires.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Faire confiance par défaut au marquage QoS sur tous les ports d’accès utilisateurs, permettant aux clients de saturer la file prioritaire.</li>
+      <li>Déployer Strict Priority pour la voix sans aucun mécanisme de limitation de débit (Policing), risquant d’affamer tout le reste du réseau.</li>
+      <li>Oublier que le marquage CoS de niveau 2 est irrémédiablement perdu dès qu’une trame franchit un routeur de niveau 3.</li>
+      <li>Laisser le protocole CDP ou LLDP actif sur les ports d’accès orientés vers des zones publiques non sécurisées, offrant une cartographie complète de l’infrastructure aux intrus.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Classifier les flux réseau d’entreprise en familles applicatives (Voix, Vidéo, Données critiques, Best Effort, Scavenger).</li>
+      <li>Étape 2 : Établir la matrice de mappage standardisée entre les valeurs de couche 2 (802.1p CoS) et couche 3 (DiffServ DSCP).</li>
+      <li>Étape 3 : Définir la frontière de confiance (Trust Boundary) sur les commutateurs d’accès et re-marquer les flux non approuvés.</li>
+      <li>Étape 4 : Allouer une file à priorité stricte (Strict Priority Queue) bornée par un mécanisme de policing pour le trafic voix (DSCP EF / 46).</li>
+      <li>Étape 5 : Configurer un ordonnanceur WRR ou CBWFQ pour répartir équitablement la bande passante restante sur les files secondaires.</li>
+      <li>Étape 6 : Activer LLDP globalement (lldp run) et inspecter la topologie de câblage via show lldp neighbors detail.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La QoS garantit la qualité des flux temps réel en intervenant sur les 4 métriques : débit, latence, gigue et perte de paquets.</li>
+      <li>Le modèle DiffServ classe et marque les paquets aux frontières pour appliquer un traitement par saut (PHB).</li>
+      <li>Le champ CoS (802.1p) code la priorité sur 3 bits (0 à 7) dans l’en-tête 802.1Q ; DSCP utilise 6 bits dans l’en-tête IP.</li>
+      <li>La frontière de confiance (Trust Boundary) interdit aux utilisateurs d’auto-marquer illégitimement leur trafic.</li>
+      <li>Strict Priority sert la file prioritaire en premier mais requiert un policing pour éviter l’assèchement des autres flux.</li>
+      <li>LLDP (IEEE 802.1AB) est le protocole standardisé de découverte de topologie structuré en conteneurs TLVs.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais les seuils critiques de tolérance de la voix sur IP pour le délai (150 ms) et la gigue (30 ms).</li>
+      <li>Je maîtrise le découpage de l’octet DiffServ et la valeur numérique standard de la classe voix EF (46 / 101110).</li>
+      <li>Je comprends l’intérêt d’une frontière de confiance pour prévenir les abus de marquage de priorité.</li>
+      <li>Je sais expliquer la différence de fonctionnement entre un ordonnanceur Strict Priority et Weighted Round Robin.</li>
+      <li>Je comprends le rôle de WRED pour éviter la synchronisation globale TCP lors des congestions.</li>
+      <li>Je sais décoder la structure TLV d’une trame LLDP 802.1AB (Chassis ID, Port ID, TTL).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Métriques QoS (Latence, Gigue, Packet Loss)</li><li>Architecture Differentiated Services (DiffServ)</li><li>Class of Service (802.1p CoS sur 3 bits)</li><li>DiffServ Code Point (DSCP sur 6 bits)</li><li>Frontière de Confiance (Trust Boundary)</li><li>Ordonnanceur Strict Priority & WRR / DWRR</li><li>Prévention de Congestion WRED</li><li>Standard de Découverte LLDP (IEEE 802.1AB) & CDP</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à différencier le marquage CoS de niveau 2 du DSCP de niveau 3 ou méconnaissance des métriques QoS.</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension de la frontière de confiance, configuration d’ordonnanceurs SP/WRR et utilisation de LLDP pour la découverte.</div>
+      <div class="bandrow bandrow--high">Conception complète de politiques de QoS de campus, dimensionnement fin des files d’attente avec WRED et analyse avancée des TLVs LLDP-MED.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards IEEE 802.1D, 802.1w, 802.1s, 802.3ad, 802.1AX, 802.1AB, RFC 2328 (OSPFv2), RFC 5798 (VRRPv3) et Guides de conception Cisco Campus LAN & ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

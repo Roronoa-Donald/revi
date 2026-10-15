@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Optimisation Graphique, Compression GPU &amp;amp; Pipeline Temps Réel | Infographie B2</title>
+<meta name="description" content="Chapitre 6 du cours Infographie B2 : Goulots d’étranglement de rendu (CPU-bound vs GPU-bound), compression matérielle de textures (BC/DXT, ASTC, ETC2), réduction des Draw Calls par Static Batching et GPU Instancing, efficacité de la chaîne de Mipmaps et gestion de la mémoire VRAM. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/infographie/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Optimisation Graphique, Compression GPU &amp;amp; Pipeline Temps Réel | Infographie B2">
+<meta property="og:description" content="Chapitre 6 du cours Infographie B2 : Goulots d’étranglement de rendu (CPU-bound vs GPU-bound), compression matérielle de textures (BC/DXT, ASTC, ETC2), réduction des Draw Calls par Static Batching et GPU Instancing, efficacité de la chaîne de Mipmaps et gestion de la mémoire VRAM. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="infographienav"><div class="infographienav__in">
+  <a class="infographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="infographienav__sep" aria-hidden="true">/</span>
+  <a class="infographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-image"></use></svg> Infographie B2</a>
+  <div class="infographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="infographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="infographiewrap">
+<p class="crumb"><a href="../index.html">Infographie B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Optimisation Graphique, Compression GPU &amp; Pipeline Temps Réel</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Créer des visuels époustouflants ne suffit pas : dans un jeu vidéo, une simulation interactive ou une application WebGL, le moteur doit obligatoirement tenir un taux de rafraîchissement fluide et stable de 60 FPS (16.6 ms par image) ou 120 FPS. Les ralentissements et saccades proviennent de deux goulots distincts : soit le processeur central (CPU) est submergé par une avalanche d’appels de dessin (Draw Calls), soit le processeur graphique (GPU) est saturé par une bande passante mémoire excessive ou des textures non compressées. Ce sixième et dernier module d’Infographie B2 vous livre les clés de l’optimisation industrielle : diagnostiquer les goulots d’étranglement, exploiter les algorithmes de compression de texture par blocs sur silicium (BC, ASTC), fusionner les géométries par Static Batching et calculer avec rigueur la surcharge et les gains de la chaîne de Mipmaps.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>diagnostiquer la nature d’un goulot d’étranglement de rendu : limitation CPU (Draw Calls) vs GPU (Fillrate, VRAM) ;</li>
+      <li>comprendre le fonctionnement de la compression de textures matérielle par blocs (BC1/BC3/BC7, ASTC, ETC2) ;</li>
+      <li>calculer la réduction de taille et le débit de bande passante mémoire requis pour 60 images par seconde ;</li>
+      <li>mettre en œuvre le regroupement de maillages par Static Batching et Instancing pour minimiser les Draw Calls ;</li>
+      <li>analyser la structure géométrique et le surcoût mémoire exact (+33.3 %) d’une chaîne de Mipmaps jusqu’à 1x1 ;</li>
+      <li>auditer et profiler un pipeline de rendu graphique complet pour garantir la fluidité temps réel.</li>
+    </ol>
+  </div>
+
+<h2>1. Diagnostic de Performance : CPU-Bound vs GPU-Bound</h2>
+
+<p>Pour maintenir un affichage fluide à 60 images par seconde, le temps total de calcul par image ne doit jamais dépasser <strong>16.6 millisecondes</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Scénario CPU-Bound (Goulot Processeur)</h4>
+    <ul>
+      <li><strong>Symptôme :</strong> Trop d’objets indépendants générant des milliers de <em>Draw Calls</em> par frame.</li>
+      <li><strong>Cause :</strong> Le pilote graphique et le CPU passent leur temps à changer de contexte, lier des matériaux et soumettre des commandes au GPU.</li>
+      <li><strong>Solutions :</strong> Static Batching, Dynamic Batching, GPU Instancing, réduction du nombre d’objets uniques.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Scénario GPU-Bound (Goulot Carte Graphique)</h4>
+    <ul>
+      <li><strong>Symptôme :</strong> Le GPU met trop de temps à rasteriser ou exécuter les Fragment Shaders.</li>
+      <li><strong>Cause :</strong> Overdraw massif (trop de couches transparentes superposées), shaders trop lourds, ou saturation de la bande passante VRAM.</li>
+      <li><strong>Solutions :</strong> Compression de textures matérielle (BC/ASTC), chaînes de Mipmaps, occlusion culling, allègement des shaders.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Compression Matérielle de Textures GPU : BC, ASTC &amp; ETC2</h2>
+
+<p>Contrairement aux formats JPEG ou PNG qui doivent être intégralement décompressés en mémoire vive (occupant 4 octets par pixel en RGBA8), les formats de compression GPU restent <strong>compressés directement dans la mémoire VRAM</strong> et sont décodés à la volée par le silicium du processeur graphique :</p>
+<table class="table">
+  <thead>
+    <tr><th>Format</th><th>Bits par pixel (bpp)</th><th>Plateforme cible</th><th>Ratio vs RGBA8 non compressé</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>BC1 (DXT1)</code></td><td>4 bpp (0.5 octet/px)</td><td>PC / Consoles (DirectX, Vulkan)</td><td>Réduction x8.0 (couleur RGB sans alpha ou 1-bit).</td></tr>
+    <tr><td><code>BC3 (DXT5)</code></td><td>8 bpp (1.0 octet/px)</td><td>PC / Consoles</td><td>Réduction x4.0 (couleur RGB + alpha graduel).</td></tr>
+    <tr><td><code>BC7</code></td><td>8 bpp (1.0 octet/px)</td><td>PC moderne / Consoles récentes</td><td>Réduction x4.0 (haute fidélité RGB/RGBA, sans artefact visible).</td></tr>
+    <tr><td><code>ASTC 4x4</code></td><td>8 bpp (1.0 octet/px)</td><td>Mobile moderne (iOS, Android, Apple Silicon)</td><td>Réduction x4.0 (qualité maximale).</td></tr>
+    <tr><td><code>ASTC 8x8</code></td><td>2 bpp (0.25 octet/px)</td><td>Mobile moderne</td><td>Réduction x16.0 (idéal pour diffuse et décors lointains).</td></tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Pourquoi JPEG et PNG sont-ils interdits comme format VRAM ?</div>
+<p>Le GPU a besoin d’un accès aléatoire instantané à n’importe quel texel <code>(u, v)</code>. Pour lire un seul pixel au milieu d’un fichier PNG ou JPEG, il faudrait décompresser toute l’image séquentiellement depuis le début ! Les formats de blocs GPU découpent l’image en blocs indépendants (ex: 4x4 pixels), permettant de calculer l’adresse mémoire exacte d’un bloc en une seule addition.</p>
+  </div>
+
+<h2>3. Batching &amp; Analyse Mathématique de la Chaîne de Mipmaps</h2>
+
+<p>Pour minimiser les appels de dessin et soulager la mémoire cache :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Static Batching &amp; Instancing</h4>
+    <p>Lorsque plusieurs maillages statiques partagent le même matériau, le moteur les fusionne dans un grand tampon de sommets unique. Le nombre d’appels de dessin passe de N à <code>ceil(total_sommets / 65535)</code>, soulageant instantanément le CPU.</p>
+  </div>
+  <div class="card">
+    <h4>Série Géométrique des Mipmaps</h4>
+    <p>Une texture carrée de taille <code>L × L</code> génère des niveaux successifs <code>L/2, L/4, ..., 1×1</code>. Le surcoût mémoire total par rapport au niveau 0 seul est donné par la somme de la série géométrique :</p>    <pre><code>Somme = 1/4 + 1/16 + 1/64 + ... = 1/3 ≈ +33.33 %</code></pre>    <p>Pour seulement un tiers de mémoire supplémentaire, on élimine tout scintillement d’aliasing et on accélère les lectures mémoires de 200 à 400 %.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ig2-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="TEXTURE nom=diffuse_sol L=2048 H=2048 FORMAT=BC1&#10;TEXTURE nom=normal_mur L=2048 H=2048 FORMAT=BC7&#10;TEXTURE nom=ui_hud L=1024 H=1024 FORMAT=RGBA8">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer la taille et le débit bande passante
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de compression de textures GPU et bande passante</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l’empreinte mémoire d’une texture compressée sur GPU (BC1, BC3, BC7, ASTC) et le débit bande passante requis à 60 FPS.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>TEXTURE nom=&lt;nom&gt; L=&lt;largeur&gt; H=&lt;hauteur&gt; FORMAT=&lt;RGBA8|BC1|BC3|BC7|ASTC_4x4|ASTC_8x8&gt;</code>.<br>
+Bits par pixel (bpp) selon le format :<br>
+- <code>RGBA8</code> : 32 bpp (4 octets / pixel)<br>
+- <code>BC1</code> : 4 bpp (0.5 octet / pixel)<br>
+- <code>BC3</code> : 8 bpp (1.0 octet / pixel)<br>
+- <code>BC7</code> : 8 bpp (1.0 octet / pixel)<br>
+- <code>ASTC_4x4</code> : 8 bpp (1.0 octet / pixel)<br>
+- <code>ASTC_8x8</code> : 2 bpp (0.25 octet / pixel)<br>
+Formules :<br>
+1. <code>taille_octets = L * H * (bpp / 8)</code><br>
+2. <code>taille_Ko = taille_octets / 1024</code><br>
+3. <code>ratio_compression = 32.0 / bpp</code> (par rapport à RGBA8 non compressé)<br>
+4. <code>debit_Mo_s = (taille_octets * 60) / (1024 * 1024)</code> (à 60 images/seconde).<br>
+Afficher pour chaque ligne :<br>
+<code>TEXTURE: &lt;nom&gt; (&lt;L&gt;x&lt;H&gt;) | FORMAT: &lt;FORMAT&gt; (&lt;bpp&gt; bpp) | TAILLE: &lt;taille_Ko:.1f&gt; Ko | RATIO: &lt;ratio:.1f&gt;x | DEBIT_60FPS: &lt;debit:.2f&gt; Mo/s</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TEXTURE nom=diffuse_sol L=2048 H=2048 FORMAT=BC1
+TEXTURE nom=normal_mur L=2048 H=2048 FORMAT=BC7
+TEXTURE nom=ui_hud L=1024 H=1024 FORMAT=RGBA8</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TEXTURE: diffuse_sol (2048x2048) | FORMAT: BC1 (4 bpp) | TAILLE: 2048.0 Ko | RATIO: 8.0x | DEBIT_60FPS: 120.00 Mo/s
+TEXTURE: normal_mur (2048x2048) | FORMAT: BC7 (8 bpp) | TAILLE: 4096.0 Ko | RATIO: 4.0x | DEBIT_60FPS: 240.00 Mo/s
+TEXTURE: ui_hud (1024x1024) | FORMAT: RGBA8 (32 bpp) | TAILLE: 4096.0 Ko | RATIO: 1.0x | DEBIT_60FPS: 240.00 Mo/s</pre></div>
+    </div>
+    <p class="lab__note">Une texture 2K en BC1 pèse 2 Mo au lieu de 16 Mo en RGBA8 non compressé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>ASTC 8x8 offre un ratio de 16.0x (2 bpp) idéal pour les textures diffuses mobiles.</li>
+        <li>Veiller à arrondir taille_Ko à 1 décimale et debit_Mo_s à 2 décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="OBJET id=arbre_01 MAT=vegetation SOMMETS=1200&#10;OBJET id=arbre_02 MAT=vegetation SOMMETS=1200&#10;OBJET id=buisson MAT=vegetation SOMMETS=600&#10;OBJET id=rocher MAT=roche SOMMETS=3000&#10;OBJET id=route MAT=asphalte SOMMETS=450">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : grouper par matériau et calculer les draw calls
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Optimiseur de Draw Calls et Static Batching</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le regroupement d’objets 3D partageant le même matériau pour réduire les appels de dessin (Draw Calls).</p>
+    <div class="lab__brief"><p>Chaque changement de matériau impose une rupture de batch et un appel de dessin distinct sur le GPU.<br>
+Le script lit une série d'objets sur l'entrée standard :<br>
+<code>OBJET id=&lt;id&gt; MAT=&lt;mat_id&gt; SOMMETS=&lt;nb_sommets&gt;</code>.<br>
+Contrainte de batching : un batch supporte au maximum 65535 sommets (indexation 16 bits).<br>
+Règles :<br>
+1. Grouper les objets par matériau <code>mat_id</code> (par ordre alphabétique de <code>mat_id</code>).<br>
+2. Pour chaque matériau :<br>
+   - Calculer le nombre total d'objets <code>nb_obj</code> et le cumul des sommets <code>total_sommets</code>.<br>
+   - Le nombre de Draw Calls nécessaires est <code>ceil(total_sommets / 65535)</code> (ou 1 si total_sommets == 0).<br>
+   - Afficher : <code>MAT: &lt;mat_id&gt; -&gt; &lt;nb_obj&gt; objet(s), &lt;total_sommets&gt; sommets =&gt; &lt;nb_dc&gt; Draw Call(s)</code>.<br>
+3. En conclusion, afficher :<br>
+   - <code>dc_init = nombre total d'objets</code>.<br>
+   - <code>dc_opti = somme des Draw Calls de tous les matériaux</code>.<br>
+   - <code>gain = ((dc_init - dc_opti) / dc_init) * 100</code>.<br>
+   <code>BILAN: INITIAL = &lt;dc_init&gt; DC -&gt; OPTIMISE = &lt;dc_opti&gt; DC | GAIN: &lt;gain:.1f&gt;%</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>OBJET id=arbre_01 MAT=vegetation SOMMETS=1200
+OBJET id=arbre_02 MAT=vegetation SOMMETS=1200
+OBJET id=buisson MAT=vegetation SOMMETS=600
+OBJET id=rocher MAT=roche SOMMETS=3000
+OBJET id=route MAT=asphalte SOMMETS=450</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MAT: asphalte -&gt; 1 objet(s), 450 sommets =&gt; 1 Draw Call(s)
+MAT: roche -&gt; 1 objet(s), 3000 sommets =&gt; 1 Draw Call(s)
+MAT: vegetation -&gt; 3 objet(s), 3000 sommets =&gt; 1 Draw Call(s)
+BILAN: INITIAL = 5 DC -&gt; OPTIMISE = 3 DC | GAIN: 40.0%</pre></div>
+    </div>
+    <p class="lab__note">Les 3 arbres et buissons ont été fusionnés en un seul Draw Call.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trier les matériaux par ordre alphabétique croissant.</li>
+        <li>Utiliser math.ceil pour calculer les lots de 65535 sommets.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="MIPMAP nom=brique L=512 H=512 OCTETS_PX=4&#10;MIPMAP nom=ruban L=1024 H=64 OCTETS_PX=4">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : itérer les niveaux de mipmap et sommer la mémoire
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Audit de chaîne de Mipmaps et surcoût VRAM</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l’ensemble des niveaux d’une chaîne de mipmaps jusqu’à 1x1 et déterminer la surconsommation mémoire VRAM exacte.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des requêtes :<br>
+<code>MIPMAP nom=&lt;nom&gt; L=&lt;largeur&gt; H=&lt;hauteur&gt; OCTETS_PX=&lt;octets_par_pixel&gt;</code>.<br>
+Algorithme de génération des niveaux :<br>
+- Niveau 0 : dimensions <code>(L, H)</code>.<br>
+- Niveau suivant <code>k + 1</code> : <code>max(1, L // 2)</code> et <code>max(1, H // 2)</code>.<br>
+- La chaîne s'arrête dès que le niveau atteint <code>(1, 1)</code> inclus.<br>
+Pour chaque niveau : <code>octets = w * h * octets_px</code>.<br>
+Calculer :<br>
+1. Le nombre total de niveaux <code>N</code>.<br>
+2. La mémoire VRAM du niveau 0 seul (en Ko).<br>
+3. La mémoire VRAM totale cumulée de tous les niveaux (en Ko).<br>
+4. Le surcoût mémoire en pourcentage : <code>((total - niv0) / niv0) * 100</code>.<br>
+Afficher :<br>
+<code>MIPMAP: &lt;nom&gt; | &lt;N&gt; NIVEAUX (&lt;L&gt;x&lt;H&gt; -&gt; 1x1) | NIV0: &lt;vram_niv0_Ko:.2f&gt; Ko | TOTAL: &lt;vram_total_Ko:.2f&gt; Ko | SURCOUT: +&lt;surcout:.2f&gt;%</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MIPMAP nom=brique L=512 H=512 OCTETS_PX=4
+MIPMAP nom=ruban L=1024 H=64 OCTETS_PX=4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MIPMAP: brique | 10 NIVEAUX (512x512 -&gt; 1x1) | NIV0: 1024.00 Ko | TOTAL: 1365.33 Ko | SURCOUT: +33.33%
+MIPMAP: ruban | 11 NIVEAUX (1024x64 -&gt; 1x1) | NIV0: 256.00 Ko | TOTAL: 341.37 Ko | SURCOUT: +33.35%</pre></div>
+    </div>
+    <p class="lab__note">Le surcoût classique d'une chaîne complète de mipmaps est d'environ 33.3%.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour une texture carrée, la somme de la série géométrique 1/4 + 1/16 + ... tend vers 1/3 (soit un surcoût d'environ +33.33%).</li>
+        <li>Pour une texture 512x512, il y a exactement 10 niveaux (512, 256, 128, 64, 32, 16, 8, 4, 2, 1).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le budget temps maximum accordé pour calculer et afficher une image afin de garantir un framerate stable de 60 images par seconde (FPS) ?</p>
+      <div class="opts">
+        <button class="opt">100 millisecondes</button>
+        <button class="opt">33.3 millisecondes</button>
+        <button class="opt" data-correct="1">16.6 millisecondes</button>
+        <button class="opt">1.0 milliseconde</button>
+      </div>
+      <div class="q__exp">1 seconde / 60 images = 1000 ms / 60 ≈ 16.66 millisecondes par image pour l’ensemble des calculs CPU et de rendu GPU.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la cause la plus fréquente d’un goulot d’étranglement de rendu de type « CPU-bound » dans une scène 3D complexe ?</p>
+      <div class="opts">
+        <button class="opt">Un écran trop lumineux</button>
+        <button class="opt" data-correct="1">Un nombre excessif de Draw Calls provoqué par une multitude de petits objets utilisant chacun des matériaux et textures différents</button>
+        <button class="opt">Une batterie trop froide</button>
+        <button class="opt">Un disque dur trop plein</button>
+      </div>
+      <div class="q__exp">Chaque objet avec un matériau unique exige que le processeur central prépare et soumette un ordre de tracé (Draw Call) au pilote graphique, saturant le CPU.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi les processeurs graphiques (GPU) ne peuvent-ils pas stocker les textures en mémoire vidéo directement au format PNG ou JPEG ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que le GPU exige un accès aléatoire instantané par bloc (O(1)) à n’importe quel texel (u, v), impossible avec des formats séquentiels comme JPEG/PNG</button>
+        <button class="opt">Parce que PNG et JPEG sont trop récents pour les cartes graphiques</button>
+        <button class="opt">Parce que les câbles DisplayPort refusent les fichiers compressés</button>
+        <button class="opt">Parce que PNG utilise trop de voyelles</button>
+      </div>
+      <div class="q__exp">Le silicium GPU décode des blocs de taille fixe en mémoire instantanément. Décompresser un JPEG nécessiterait de recalculer toute la chaîne de blocs depuis le début.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle taille en mémoire VRAM occupe une texture carrée 2048x2048 compressée au format standard BC1 (4 bits par pixel) ?</p>
+      <div class="opts">
+        <button class="opt">16 Mo</button>
+        <button class="opt">8 Mo</button>
+        <button class="opt">4 Mo</button>
+        <button class="opt" data-correct="1">2 Mo</button>
+      </div>
+      <div class="q__exp">2048 × 2048 = 4 194 304 pixels. Avec 4 bpp (0.5 octet par pixel), cela donne 2 097 152 octets = 2048 Ko = exactement 2.0 Mo (contre 16 Mo en RGBA8 non compressé).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel ratio de réduction de taille le format moderne ASTC 8x8 (2 bits par pixel) offre-t-il par rapport à une texture non compressée RGBA8 (32 bits par pixel) ?</p>
+      <div class="opts">
+        <button class="opt">2.0x</button>
+        <button class="opt">4.0x</button>
+        <button class="opt">8.0x</button>
+        <button class="opt" data-correct="1">16.0x</button>
+      </div>
+      <div class="q__exp">32 bpp divisé par 2 bpp = un ratio de compression massif de 16.0x, idéal pour diviser par 16 l’empreinte mémoire des textures sur smartphone.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment la technique du « Static Batching » permet-elle d’accélérer le rendu d’un décor composé de centaines de cailloux et d’arbres immobiles ?</p>
+      <div class="opts">
+        <button class="opt">En supprimant les arbres de la scène</button>
+        <button class="opt" data-correct="1">En fusionnant la géométrie de tous les maillages partageant le même matériau dans un seul tampon de sommets, réduisant les Draw Calls à un seul appel par lot</button>
+        <button class="opt">En baissant le volume sonore de l’application</button>
+        <button class="opt">En augmentant la vitesse du processeur</button>
+      </div>
+      <div class="q__exp">Le Static Batching regroupe les sommets dans un tampon partagé, permettant au GPU de dessiner tous les objets identiques en une seule instruction de dessin.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le surcoût mémoire théorique exact apporté par la génération d’une chaîne complète de Mipmaps pour une texture carrée jusqu’au niveau 1x1 ?</p>
+      <div class="opts">
+        <button class="opt">+100 % (mémoire doublée)</button>
+        <button class="opt">+50 %</button>
+        <button class="opt" data-correct="1">+33.33 % (exactement un tiers)</button>
+        <button class="opt">+5 %</button>
+      </div>
+      <div class="q__exp">La somme de la suite géométrique 1/4 + 1/16 + 1/64 + ... converge rigoureusement vers 1/3, soit exactement un surcoût mémoire de +33.33 %.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le bénéfice principal des Mipmaps sur le processeur graphique en dehors de l’élimination de l’aliasing ?</p>
+      <div class="opts">
+        <button class="opt">Elles réduisent la température de la pièce</button>
+        <button class="opt" data-correct="1">Elles améliorent massivement la localité du cache de texture GPU, car les texels consécutifs des niveaux réduits sont contigus en mémoire vidéo</button>
+        <button class="opt">Elles permettent de jouer en réseau sans connexion Internet</button>
+        <button class="opt">Elles créent de la musique d’ambiance</button>
+      </div>
+      <div class="q__exp">Sans mipmaps, échantillonner une texture 4K vue de loin saute des centaines de texels entre chaque pixel, créant des défauts de cache incessants qui ruinent la bande passante.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Tenter de charger des images PNG non compressées en pensant économiser du temps CPU : elles occupent 4 fois plus de VRAM et saturent la bande passante.</li>
+      <li>Avoir des centaines de petits maillages utilisant chacun un matériau distinct, ce qui empêche tout batching et fait exploser le nombre de Draw Calls.</li>
+      <li>Désactiver la génération de Mipmaps pour « économiser de la mémoire », ce qui ruine les performances du cache GPU et engendre un aliasing insupportable.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole d’Optimisation et de Profilage du Pipeline de Rendu GPU</div>
+    <ol>
+      <li>Étape 1 — Profiler le Frame Time : Mesurer les temps d’exécution CPU et GPU indépendamment pour identifier le goulot d’étranglement prépondérant.</li>
+      <li>Étape 2 — Traiter les goulots CPU (Draw Calls) : Fusionner les maillages statiques par Static Batching et utiliser le GPU Instancing pour les objets répétés.</li>
+      <li>Étape 3 — Compresser les textures sur le matériel : Convertir les assets en BC1/BC7 sur PC/Consoles et en ASTC sur Mobile pour soulager la bande passante VRAM.</li>
+      <li>Étape 4 — Générer les chaînes de Mipmaps : Activer le mipmapping matériel pour tous les formats POT afin d’optimiser le cache de texture GPU.</li>
+      <li>Étape 5 — Limiter l’Overdraw et la transparence : Trier les objets opaques de l’avant vers l’arrière (Front-to-Back) pour exploiter le Z-buffer Early Depth Test.</li>
+      <li>Étape 6 — Valider la tenue du budget 60 FPS : S’assurer que le temps total de calcul par frame reste strictement inférieur à 16.6 ms sans à-coup.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Pour maintenir 60 FPS, le budget temps d’une frame ne doit pas excéder 16.6 millisecondes pour le CPU et le GPU cumulés.</li>
+      <li>Une limitation CPU est le plus souvent provoquée par un excès de Draw Calls causés par de trop nombreux changements de matériaux.</li>
+      <li>Les formats de compression GPU (BC1, BC7, ASTC) restent compressés en mémoire VRAM et sont décodés à la volée en accès direct par bloc.</li>
+      <li>Une texture 2048x2048 en format BC1 ne pèse que 2 Mo au lieu de 16 Mo en RGBA8 non compressé, divisant la bande passante par 8.</li>
+      <li>Le Static Batching regroupe les objets partageant un matériau dans un tampon de 65535 sommets pour limiter les appels de dessin.</li>
+      <li>La chaîne complète de Mipmaps d’une texture carrée n’ajoute qu’un surcoût mémoire constant de 33.3 % tout en évitant l’aliasing.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais identifier si une chute de framerate est d’origine CPU-bound ou GPU-bound.</li>
+      <li>Je comprends pourquoi un GPU ne peut pas utiliser directement une texture au format PNG ou JPEG en mémoire vidéo.</li>
+      <li>Je connais les caractéristiques et ratios des formats BC1, BC7 et ASTC.</li>
+      <li>Je sais calculer la bande passante mémoire consommée par une texture à 60 FPS.</li>
+      <li>Je comprends comment fonctionne le regroupement par Static Batching.</li>
+      <li>Je sais démontrer pourquoi la surcharge mémoire d’une chaîne de mipmaps carrée vaut 33.33 %.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Budget frame temps réel (16.6 ms à 60 FPS)</li><li>Goulots CPU-bound (Draw Calls) vs GPU-bound (Fillrate, VRAM)</li><li>Compression de texture matérielle par blocs (Block Compression)</li><li>Formats PC/Consoles (BC1, BC3, BC7) et Mobiles (ASTC, ETC2)</li><li>Bande passante mémoire VRAM et accès aléatoire</li><li>Static Batching et GPU Instancing</li><li>Série géométrique des Mipmaps (surcoût +33.3 %)</li><li>Cache de texture GPU et réduction de l’aliasing</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la différence CPU/GPU bound, les formats de compression de blocs et le calcul de la série de mipmaps.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bon niveau d’ensemble. Approfondissez les calculs de bande passante mémoire et les limites de batching.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise de l’optimisation GPU et du pipeline temps réel.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous maîtrisez les profils de performance et l’ingénierie GPU au niveau des directeurs techniques.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les spécifications Khronos Group (OpenGL, Vulkan), les documentations officielles Blender, Unity et Unreal Engine, et les traités de référence Real-Time Rendering.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Sécurité des systèmes et des applications | Cybersécurité B1</title>
+<meta name="description" content="Chapitre 4 du cours de Cybersécurité B1 : Utilisateurs et permissions, modèles de contrôle d'accès, gestion des correctifs, développement sécurisé. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-cyber/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Sécurité des systèmes et des applications | Cybersécurité B1">
+<meta property="og:description" content="Chapitre 4 du cours de Cybersécurité B1 : Utilisateurs et permissions, modèles de contrôle d'accès, gestion des correctifs, développement sécurisé. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="cynav"><div class="cynav__in">
+  <a class="cynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="cynav__sep" aria-hidden="true">/</span>
+  <a class="cynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B1</a>
+  <div class="cynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="cynav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="cywrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Sécurité des systèmes et des applications</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un serveur web a 46 jours de retard de correctif, un compte applicatif a des droits de côté administrateur, et une page accepte n'importe quelle saisie. Trois failles différentes, une même discipline : permissions justes, correctifs réguliers, entrées filtrées.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>gérer utilisateurs, groupes et permissions d'un système d'exploitation ;</li>
+      <li>distinguer DAC, MAC, RBAC, ABAC et ACL ;</li>
+      <li>organiser un cycle de correctifs et justifier sa criticité ;</li>
+      <li>appliquer les réflexes du développement sécurisé contre injection et XSS.</li>
+    </ol>
+  </div>
+
+<h2>1. Utilisateurs, groupes, permissions</h2>
+
+<p>Un <strong>utilisateur</strong> est une entité (humaine ou logicielle) identifiée par un nom unique et un identifiant numérique <strong>UID</strong> ; les <strong>groupes</strong> (GID) rapprochent des utilisateurs aux besoins similaires ; les <strong>permissions</strong> — lecture, écriture, exécution — définissent ce que chacun peut faire d'une ressource.</p>\n<p>Le modèle POSIX (Linux/Unix) attribue à chaque fichier un <strong>propriétaire</strong> et un <strong>groupe</strong>, avec des permissions posées séparément pour le propriétaire, le groupe et les autres. Le cours d'administration Linux en détaille les calculs ; ici, il faut retenir le principe : <em>le droit minimal par ressource, jamais le droit large par commodité</em>.</p>\n  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Les cas d'usage à citer</div>
+    <ul>
+      <li>Fichiers sensibles : accès limité aux seuls utilisateurs autorisés (paie, RH).</li>
+      <li>Administration : droits administratifs réservés aux utilisateurs qualifiés.</li>
+      <li>Serveur web multi-utilisateurs : permissions distinctes développeurs, testeurs, administrateurs.</li>
+      <li>Cloud : politiques d'accès granulaires (AWS IAM) plutôt que comptes partagés.</li>
+    </ul>
+  </div>
+
+<h2>2. Modèles de contrôle d'accès</h2>
+
+<p>Cinq modèles structurent les décisions d'accès, et l'examen adore les confondre :</p>\n<table>
+    <tr><th>Modèle</th><th>Qui décide</th><th>Exemple</th></tr>
+    <tr><td><strong>DAC</strong> (Discrétionnaire)</td><td>le propriétaire de la ressource</td><td>permissions POSIX classiques</td></tr>
+    <tr><td><strong>MAC</strong> (Obligatoire)</td><td>une politique centrale imposée par le système</td><td>SELinux, AppArmor</td></tr>
+    <tr><td><strong>RBAC</strong> (par rôles)</td><td>le rôle attribué à l'utilisateur</td><td>rôle « technicien paie » dans une PME</td></tr>
+    <tr><td><strong>ABAC</strong> (par attributs)</td><td>des critères dynamiques (heure, lieu, appareil)</td><td>accès aux heures de bureau seulement</td></tr>
+    <tr><td><strong>ACL</strong> (listes d'accès)</td><td>une liste explicite d'entrées par ressource</td><td>NTFS sous Windows</td></tr>
+  </table>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « propriétaire, politique, rôle, attribut, liste »</div>
+    <p>DAC = le <strong>propriétaire</strong> décide ; MAC = la <strong>politique</strong> impose ; RBAC = le <strong>rôle</strong> porte les droits ; ABAC = l'<strong>attribut</strong> (heure, lieu) tranche ; ACL = la <strong>liste</strong> explicite d'entrées. Cinq mots-clés, cinq modèles, aucune confusion possible.</p>
+  </div>
+
+<h2>3. La gestion des correctifs</h2>
+
+<p>Un <strong>correctif</strong> (patch) est une mise à jour publiée par le fournisseur pour corriger une vulnérabilité, un bug ou ajouter une fonction. Ignorer les correctifs expose aux attaques connues : <strong>Heartbleed</strong> (OpenSSL), <strong>Shellshock</strong> (Bash), <strong>EternalBlue</strong> (SMB Windows, moteur de WannaCry) ont tous été corrigés avant d'être massivement exploités — sur les machines non patchées.</p>\n<p>Le cycle professionnel : <strong>inventorier</strong> les produits, <strong>suivre les bulletins</strong> du fournisseur, <strong>qualifier</strong> la criticité (CVSS, exposition), <strong>tester</strong> en environnement de recette, <strong>déployer</strong> par vagues, <strong>vérifier</strong> la conformité. Le délai de correction est un indicateur de sécurité à part entière : au-delà de 90 jours sans correctif de sécurité, la situation est critique.</p>\n  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — « on patchera à la prochaine maintenance »</div>
+    <p>WannaCry a frappé en mai 2017 un correctif publié en mars : 60 jours de retard ont suffi. Le correctif de sécurité ne suit pas le calendrier de maintenance, il le devance — et la conformité RGPD/PCI DSS exige des systèmes tenus à jour.</p>
+  </div>
+
+<h2>4. Développement sécurisé et bases de données</h2>
+
+<p>Le <strong>secure coding</strong> part d'un principe : toute entrée est suspecte tant qu'elle n'est pas validée. Les deux attaques de référence :</p>\n<ul>\n  <li><strong>Injection SQL</strong> : la saisie <code>Robert');--</code> se glisse dans une requête construite par concaténation et en détourne le sens. Parade : requêtes paramétrées, et validation des entrées (apostrophes, tirets doubles, chevrons suspects).</li>\n  <li><strong>XSS</strong> (cross-site scripting) : un script injecté dans une page s'exécute dans le navigateur d'un autre visiteur. Parade : échapper toute sortie affichée, filtrer les chevrons <code>&lt;</code> et <code>&gt;</code>.</li>\n</ul>\n<p>Côté <strong>bases de données</strong> : contrôle d'accès par comptes nominatifs et privilèges minimaux, chiffrement des données sensibles au repos, sauvegardes testées. Côté <strong>tests</strong> : le pentesting cherche les failles avant l'attaquant, l'audit vérifie la conformité — le référentiel <strong>OWASP</strong> tient la liste des risques applicatifs les plus courants.</p>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « valider à l'entrée, échapper à la sortie »</div>
+    <p>Deux portes pour la même maison : on <strong>valide</strong> ce qui <em>entre</em> (longueur, format, caractères interdits) et on <strong>échappe</strong> ce qui <em>sort</em> vers une page (les chevrons deviennent &amp;lt;). Une seule des deux portes oubliée suffit à l'attaque.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="cy-c4-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;serveur_web 46&#10;base_donnees 12&#10;poste_compta 46&#10;borne_acces 90&#10;messagerie 30&#10;cluster_bdd 3&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r produit jours
+  # À compléter : trois tranches, trois statuts.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Guichet des correctifs</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les produits selon l’âge de leur dernier correctif de sécurité.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « produit jours » (jours = nombre de jours depuis le dernier correctif de sécurité). Verdict par ligne <code>produit : statut</code> : <code>dans les temps</code> (45 jours ou moins), <code>hors delai</code> (46 à 90), <code>critique</code> (plus de 90).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+serveur_web 46
+base_donnees 12
+poste_compta 46
+borne_acces 90
+messagerie 30
+cluster_bdd 3
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>serveur_web : hors delai
+base_donnees : dans les temps
+poste_compta : hors delai
+borne_acces : hors delai
+messagerie : dans les temps
+cluster_bdd : dans les temps</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Deux comparaisons numériques suffisent : -le 45 puis -le 90, le reste tombe dans le else.</li>
+        <li>Le statut est un simple texte : pas besoin de case, un if/elif/else sur $jours suffit.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c4-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;admin'--&#10;&lt;script&gt;alert(1)&lt;/script&gt;&#10;Robert');--&#10;alert(1)&#10;Pomme2026&#10;O'Brien&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+acceptes=0
+refuses=0
+for ((i=0; i<n; i++)); do
+  read -r charge
+  # À compléter : détecter ', <, > et -- dans la charge.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Filtre d’entrées</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Coder le premier réflexe du développement sécurisé : refuser les payloads suspects.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n charges utiles</strong> (sans espace). Une charge est refusée si elle contient une apostrophe (injection SQL), un chevron <code>&lt;</code> ou <code>&gt;</code> (XSS) ou un double tiret <code>--</code> (commentaire SQL) : le script affiche alors <code>charge : refuse</code>, sinon <code>charge : accepte</code>. Enfin <code>rapport : a acceptes, b refuses</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+admin'--
+&lt;script&gt;alert(1)&lt;/script&gt;
+Robert');--
+alert(1)
+Pomme2026
+O'Brien
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>admin'-- : refuse
+&lt;script&gt;alert(1)&lt;/script&gt; : refuse
+Robert');-- : refuse
+alert(1) : accepte
+Pomme2026 : accepte
+O'Brien : refuse
+rapport : 2 acceptes, 4 refuses</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur « $charge » avec des motifs du type *"'"* ou *"--"* sait détecter une sous-chaîne.</li>
+        <li>Compte acceptés et refusés dans les deux branches du if, et affiche le rapport après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c4-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;add rapports&#10;add photo_a.png&#10;add rapports&#10;remove photo_a.png&#10;add photo_a.png&#10;remove factures&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+noms=()
+for ((i=0; i<n; i++)); do
+  read -r action fichier
+  # À compléter : deux tableaux parallèles, recherche linéaire, retrait.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — ACL du serveur de fichiers</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler une liste de contrôle d’accès : ajouter, retirer, refuser le retrait d’une entrée absente.</p>
+    <div class="lab__brief"><p>Le script gère une ACL vide au départ et lit <strong>n lignes</strong> « action fichier » : <code>add fichier</code> l’ajoute et affiche <code>add fichier : ok</code> ; <code>remove fichier</code> la retire si présente (<code>remove fichier : ok</code>) ou échoue (<code>remove fichier : introuvable</code>). Enfin <code>bilan : K éléments</code> avec K le nombre d’entrées <em>distinctes</em> restantes — ajouter deux fois le même fichier ne le compte qu’une fois, et un add sur un nom présent est refusé.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+add rapports
+add photo_a.png
+add rapports
+remove photo_a.png
+add photo_a.png
+remove factures
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>add rapports : ok
+add photo_a.png : ok
+add rapports : refuse
+remove photo_a.png : ok
+add photo_a.png : ok
+remove factures : introuvable
+bilan : 2 éléments</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour savoir si le fichier est présent, balaie le tableau avec ${#noms[@]} et compare chaque case.</li>
+        <li>Le retrait se fait en reconstruisant le tableau sans la valeur visée, puis noms=("${liste[@]}").</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">SELinux applique…</p>
+      <div class="opts">
+        <button class="opt">du DAC</button>
+        <button class="opt" data-correct="1">du MAC</button>
+        <button class="opt">du RBAC</button>
+      </div>
+      <div class="q__exp">SELinux et AppArmor imposent une politique centrale obligatoire : MAC.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">NTFS gère les accès par…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ACL</button>
+        <button class="opt">rôles</button>
+        <button class="opt">attributs</button>
+      </div>
+      <div class="q__exp">NTFS utilise des listes explicites d'entrées par ressource : ACL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un accès accordé « aux heures de bureau seulement » relève de…</p>
+      <div class="opts">
+        <button class="opt">RBAC</button>
+        <button class="opt" data-correct="1">ABAC</button>
+        <button class="opt">DAC</button>
+      </div>
+      <div class="q__exp">Critères dynamiques (heure, lieu, appareil) : ABAC.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">EternalBlue est une faille…</p>
+      <div class="opts">
+        <button class="opt">de OpenSSL</button>
+        <button class="opt">de Bash</button>
+        <button class="opt" data-correct="1">de SMB Windows</button>
+      </div>
+      <div class="q__exp">EternalBlue ciblait SMB ; Heartbleed OpenSSL ; Shellshock Bash.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La saisie Robert');-- cherche…</p>
+      <div class="opts">
+        <button class="opt">une XSS</button>
+        <button class="opt" data-correct="1">une injection SQL</button>
+        <button class="opt">un MITM</button>
+      </div>
+      <div class="q__exp">Fermer la chaîne et commenter la fin de requête : signature d'injection SQL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La parade à la XSS est…</p>
+      <div class="opts">
+        <button class="opt">les requêtes paramétrées</button>
+        <button class="opt" data-correct="1">échapper les chevrons en sortie</button>
+        <button class="opt">un VPN</button>
+      </div>
+      <div class="q__exp">Le script injecté ne s'exécute pas si les chevrons sont échappés à l'affichage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un produit sans correctif depuis 120 jours est…</p>
+      <div class="opts">
+        <button class="opt">dans les temps</button>
+        <button class="opt">hors délai</button>
+        <button class="opt" data-correct="1">critique</button>
+      </div>
+      <div class="q__exp">Au-delà de 90 jours, la situation est critique selon la grille du cours.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le pentesting sert à…</p>
+      <div class="opts">
+        <button class="opt">corriger les failles automatiquement</button>
+        <button class="opt" data-correct="1">chercher les failles avant l'attaquant</button>
+        <button class="opt">chiffrer la base</button>
+      </div>
+      <div class="q__exp">Tester en conditions réelles pour découvrir ce que l'attaquant découvrirait.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Confondre DAC et MAC</strong> : le propriétaire décide (DAC) n'a rien à voir avec la politique imposée (MAC).</li>
+      <li><strong>Donner les droits admin « pour dépanner »</strong> : le moindre privilège n'a pas d'exception durable.</li>
+      <li><strong>Reporter les correctifs de sécurité</strong> : 60 jours ont suffi à WannaCry.</li>
+      <li><strong>Construire des requêtes par concaténation</strong> : paramétré ou exposé, pas d'entre-deux.</li>
+      <li><strong>Valider l'entrée mais oublier la sortie</strong> : la XSS passe par l'affichage non échappé.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Durcir un système en cinq gestes</div>
+    <ol>
+      <li><strong>Inventorier</strong> les comptes et ressources, supprimer les comptes dormants.</li>
+      <li><strong>Poser les permissions</strong> au droit minimal : propriétaire, groupe, autres — puis ACL si besoin.</li>
+      <li><strong>Choisir le modèle d'accès</strong> adapté : RBAC pour l'organisation, MAC pour le sensible.</li>
+      <li><strong>Planifier les correctifs</strong> : inventaire, qualification, test, déploiement par vagues, vérification.</li>
+      <li><strong>Blind er le code</strong> : validation des entrées, requêtes paramétrées, échappement des sorties, OWASP en check-list.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>UID, GID, permissions lecture/écriture/exécution : le droit minimal par ressource.</li>
+      <li>DAC = propriétaire ; MAC = politique imposée (SELinux) ; RBAC = rôles ; ABAC = attributs ; ACL = listes explicites (NTFS).</li>
+      <li>Heartbleed, Shellshock, EternalBlue : corrigés avant d'avoir été massivement exploités — sur les machines en retard.</li>
+      <li>Le cycle de correctifs : inventer, qualifier, tester, déployer, vérifier — au-delà de 90 jours, critique.</li>
+      <li>Secure coding : valider à l'entrée, requêtes paramétrées, échapper à la sortie ; OWASP en référentiel.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je place les cinq modèles de contrôle d'accès avec un exemple chacun.</li>
+      <li>Je déroule le cycle de correctifs et je justifie la criticité des retards.</li>
+      <li>Je reconnais une tentative d'injection SQL et une XSS sur un formulaire.</li>
+      <li>Je liste les quatre cas d'usage des permissions (paie, admin, serveur, cloud).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>DAC</li><li>MAC</li><li>RBAC</li><li>ABAC</li><li>ACL</li><li>patch management</li><li>injection SQL</li><li>XSS</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Refais le tableau des cinq modèles de mémoire.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Classe dix politiques d'accès dans le bon modèle.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : rédige le plan de correctifs d'un parc de 20 machines.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 5, la gestion des incidents.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Détection et réponse aux incidents <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Introduction à la Cybersécurité B1 IT 2024-2025 » (modules 1 à 7).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

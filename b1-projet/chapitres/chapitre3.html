@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — L'interface Tkinter | Projet tutoré B1</title>
+<meta name="description" content="Chapitre 3 du cours B1 : Deux interfaces : connexion puis principale ; widgets (Label, Entry, Button, Frame, Treeview) ; layout pack et grid ; messagebox (showinfo, showwarning, showerror, askyesno) ; validation des champs. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-projet/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — L'interface Tkinter | Projet tutoré B1">
+<meta property="og:description" content="Chapitre 3 du cours B1 : Deux interfaces : connexion puis principale ; widgets (Label, Entry, Button, Frame, Treeview) ; layout pack et grid ; messagebox (showinfo, showwarning, showerror, askyesno) ; validation des champs. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="prnav"><div class="prnav__in">
+  <a class="prnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="prnav__sep" aria-hidden="true">/</span>
+  <a class="prnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-folder"></use></svg> Projet tutoré B1</a>
+  <div class="prnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="prnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="prwrap">
+<p class="crumb"><a href="../index.html">Projet tutoré B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — L'interface Tkinter</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>La fenêtre est le visage du projet : un écran de connexion vers PostgreSQL, puis l'écran principal avec formulaire d'ajout, boutons d'action et tableau des produits. Le tutoriel construit cet enchaînement widget par widget — et protège chaque saisie avant qu'elle n'atteigne la base.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire l'architecture : interface de connexion, puis interface principale ;</li>
+      <li>nommer les widgets : Label, Entry, Button, Frame, LabelFrame, Treeview, Scrollbar ;</li>
+      <li>placer avec pack et grid, lier la sélection du Treeview avec bind ;</li>
+      <li>choisir la bonne messagebox : showinfo, showwarning, showerror, askyesno ;</li>
+      <li>valider les champs avant tout appel à la base (nom, quantite, prix).</li>
+    </ol>
+  </div>
+
+<h2>1. Deux écrans, une fenêtre</h2>
+
+<p>L'application <code>ApplicationGestionStock</code> s'ouvre sur l'<strong>interface de connexion</strong> : champs host, database, user, password préremplis, bouton « Se connecter ». Si <code>db.connecter()</code> réussit, la méthode crée la table, <strong>détruit</strong> le frame de connexion (<code>destroy()</code>) et affiche l'<strong>interface principale</strong> : formulaire d'ajout/modification, boutons Ajouter / Modifier / Supprimer, tableau des produits. En cas d'échec : <code>messagebox.showerror</code> et on reste sur l'écran de connexion.</p>\n<p>La fenêtre se termine proprement : <code>root.protocol("WM_DELETE_WINDOW", fermer_application)</code> appelle <code>db.deconnecter()</code> avant <code>root.destroy()</code> — la base est fermée avant l'écran.</p>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « d'abord la porte, ensuite la salle »</div>
+    <p>Écran 1 : se connecter. Écran 2 : travailler. La fenêtre ne détruit jamais l'écran actif avant d'avoir bâti le suivant.</p>
+  </div>
+
+<h2>2. Widgets, layout et tableau</h2>
+
+<p>Les <strong>widgets</strong> : <code>Label</code> (texte), <code>Entry</code> (saisie), <code>Button</code> (action avec <code>command=</code>), <code>Frame</code> et <code>LabelFrame</code> (cadres titrés), <code>ttk.Treeview</code> (tableau multi-colonnes), <code>Scrollbar</code> (ascenseur relié par <code>yscrollcommand</code>). Le <strong>layout</strong> : <code>pack</code> empile, <code>grid</code> place en lignes/colonnes avec <code>sticky</code> et <code>padx/pady</code>.</p>\n<p>Le <strong>Treeview</strong> définit ses colonnes (« ID », « Nom », « Catégorie », « Quantité », « Prix »), leurs en-têtes (<code>heading</code>) et largeurs ; le clic sur une ligne déclenche <code>selectionner_produit</code> via <code>bind("&lt;ButtonRelease-1&gt;", …)</code>, qui remplit le formulaire. <code>actualiser_tableau()</code> efface le tableau puis le recharge depuis <code>obtenir_tous_produits()</code> : la base reste la source unique de vérité.</p>\n  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>\n      <li>pack empile, grid place en grille : les deux ne se mélangent pas dans un même conteneur.</li>\n      <li>command= appelle la méthode du bouton : pas de parenthèses, la référence suffit.</li>\n      <li>Le Treeview n'est pas la base : il se recharge depuis fetchall à chaque changement.</li>\n      <li>bind relie un événement souris à une méthode : c'est le clic qui remplit le formulaire.</li>\n    </ul>
+  </div>
+
+<h2>3. Validation et boîtes de dialogue</h2>
+
+<p>Avant tout appel à la base, <code>ajouter_produit()</code> vérifie : <strong>champs obligatoires non vides</strong> (nom, quantite, prix) sinon <code>showwarning</code> ; puis <code>int(quantite)</code> et <code>float(prix)</code> dans un try — une <code>ValueError</code> provoque <code>showerror</code> « Quantité et prix doivent être des nombres ». La validation vivant dans l'interface, la base ne reçoit jamais de donnée absurde.</p>\n<p>Les quatre <strong>boîtes de dialogue</strong> : <code>showinfo</code> — succès (« Produit ajouté avec succès ») ; <code>showwarning</code> — champs manquants ou sélection absente ; <code>showerror</code> — échec de connexion, conversion impossible ; <code>askyesno</code> — confirmation avant suppression (« Voulez-vous vraiment supprimer… ? »), la suppression n'a lieu que si l'utilisateur répond oui.</p>\n  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Vérifier en Bash</div>
+    <ul>\n      <li>Les familles : entry/label/button/treeview → widget, pack/grid → layout, messagebox → boite.</li>\n      <li>La validation : nom refuse le vide, quantite et prix testent nombre positif.</li>\n      <li>Les dialogues : succès → showinfo, attention → showwarning, échec → showerror, suppression → askyesno.</li>\n    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="pr-c3-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;entry widget&#10;pack layout&#10;messagebox boite&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r element famille
+  # À compléter : la famille attendue, la comparaison, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Widget ou méthode ?</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer chaque élément Tkinter du tutoriel à sa famille.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « element famille » : famille est un code parmi <code>widget</code>, <code>layout</code> ou <code>boite</code>. Éléments du tutoriel : Entry, Label, Button, Frame, Treeview → <code>widget</code> ; pack, grid → <code>layout</code> ; messagebox (showinfo, showerror, askyesno) → <code>boite</code>. Pour chaque ligne il affiche <code>element : OK</code> ou <code>element : ERREUR</code>, puis <code>conformes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+entry widget
+pack layout
+messagebox boite
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>entry : OK
+pack : OK
+messagebox : OK
+conformes : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur l'élément : entry/label/button/treeview → widget, pack/grid → layout, messagebox → boite.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pr-c3-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;nom clavier&#10;quantite 5&#10;prix -&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r champ valeur
+  # À compléter : la règle selon le champ, la comparaison, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validation des champs de saisie</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la validation du formulaire avant tout appel à la base.</p>
+    <div class="lab__brief"><p>La méthode <code>ajouter_produit()</code> du tutoriel refuse l'insertion si un champ obligatoire est vide, puis convertit quantite en int et prix en float. Le script lit <strong>n lignes</strong> « champ valeur » : champ est un code parmi <code>nom</code>, <code>quantite</code>, <code>prix</code> — valeur est le contenu saisi (un seul mot ; <code>-</code> = vide). Règles : nom non vide ; quantite nombre entier positif ; prix nombre positif. Pour chaque ligne il affiche <code>champ : OK</code> si la règle est respectée, sinon <code>champ : REFUSE</code>, puis <code>valides : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+nom clavier
+quantite 5
+prix -
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>nom : OK
+quantite : OK
+prix : REFUSE
+valides : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur le champ : nom refuse seulement -, quantite/prix testent -gt 0 apres un test numerique.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pr-c3-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;succes showinfo&#10;champs showwarning&#10;suppression askyesno&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r situation boite
+  # À compléter : la boîte attendue, la comparaison, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Message ou boîte ?</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir la bonne boîte de dialogue Tkinter pour chaque situation.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « situation boite » : boite est un code parmi <code>showinfo</code>, <code>showwarning</code>, <code>showerror</code> ou <code>askyesno</code>. Usages du tutoriel : produit ajouté avec succès → <code>showinfo</code> ; champs obligatoires non remplis → <code>showwarning</code> ; impossible de se connecter → <code>showerror</code> ; confirmation avant suppression → <code>askyesno</code>. Pour chaque ligne il affiche <code>situation : conforme</code> ou <code>situation : a revoir</code>, puis <code>avis : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+succes showinfo
+champs showwarning
+suppression askyesno
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>succes : conforme
+champs : conforme
+suppression : conforme
+avis : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur la situation : succes/ajoute → showinfo, champs/attention → showwarning, echec/connexion → showerror, suppression/confirme → askyesno.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la connexion PostgreSQL</button>
+        <button class="opt">le tableau des produits</button>
+        <button class="opt">les statistiques</button>
+      </div>
+      <div class="q__exp">Interface de connexion d'abord, principale ensuite.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Entry</button>
+        <button class="opt">Label</button>
+        <button class="opt">Frame</button>
+      </div>
+      <div class="q__exp">Entry pour les champs host, nom, quantite…</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ttk.Treeview</button>
+        <button class="opt">Entry</button>
+        <button class="opt">Scrollbar</button>
+      </div>
+      <div class="q__exp">Colonnes, en-têtes, sélection au clic.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">le bind de sélection</button>
+        <button class="opt">la fermeture</button>
+        <button class="opt">un commit</button>
+      </div>
+      <div class="q__exp"><ButtonRelease-1> remplit le formulaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">showwarning</button>
+        <button class="opt">showinfo</button>
+        <button class="opt">askyesno</button>
+      </div>
+      <div class="q__exp">Avertissement : on reste sur le formulaire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">askyesno</button>
+        <button class="opt">showerror</button>
+        <button class="opt">showinfo</button>
+      </div>
+      <div class="q__exp">La suppression n'a lieu que si l'utilisateur confirme.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">dans un try pour attraper ValueError</button>
+        <button class="opt">dans la base</button>
+        <button class="opt">jamais</button>
+      </div>
+      <div class="q__exp">ValueError → showerror : la base ne voit jamais de texte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">deconnecter() puis destroy()</button>
+        <button class="opt">destroy() direct</button>
+        <button class="opt">rien</button>
+      </div>
+      <div class="q__exp">root.protocol ferme la base avant l'écran.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Appeler la base sans validation : des quantités textuelles finissent en base.</li>
+      <li>Utiliser showinfo pour un échec de connexion : c'est showerror.</li>
+      <li>Laisser le formulaire rempli après une opération : effacer_champs() existe.</li>
+      <li>Oublier d'actualiser le tableau après un ajout : l'écran ment.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — câbler une action en trois gestes</div>
+    <ol>
+      <li>Récupérer les champs et valider : vides refusés, nombres convertis dans un try.</li>
+      <li>Appeler la méthode Database correspondante dans un if : succès ou messagebox.</li>
+      <li>Effacer les champs et actualiser le tableau : l'écran reflète la base.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Deux écrans : connexion (destroy après succès), puis interface principale.</li>
+      <li>Widgets : Label, Entry, Button, Frame, Treeview, Scrollbar ; pack et grid.</li>
+      <li>Boîtes : showinfo (succès), showwarning (attention), showerror (échec), askyesno (confirmation).</li>
+      <li>Validation : champs non vides, int/float dans un try — la base reçoit du propre.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je décris l'enchaînement des deux écrans.</li>
+      <li>Je nomme chaque widget et son rôle.</li>
+      <li>Je choisis la bonne messagebox pour une situation.</li>
+      <li>Je valide les champs avant l'appel à la base.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Entry</strong> : champ de saisie d'une ligne.</li><li><strong>Treeview</strong> : tableau ttk multi-colonnes avec sélection.</li><li><strong>pack / grid</strong> : les deux gestionnaires de mise en page.</li><li><strong>bind</strong> : relier un événement souris/clavier à une méthode.</li><li><strong>messagebox</strong> : showinfo, showwarning, showerror, askyesno.</li><li><strong>command=</strong> : référence de la méthode déclenchée par un Button.</li><li><strong>effacer_champs</strong> : nettoyage du formulaire après opération.</li><li><strong>WM_DELETE_WINDOW</strong> : protocole de fermeture propre.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis les widgets et les quatre boîtes de dialogue.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais l'enchaînement connexion puis principal.</div>
+      <div class="bandrow bandrow--good">70–89 % — cible la validation et le Treeview.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Cycle de vie d'un produit <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Tutoriel Projet Tutoré — Application de Gestion de Stock » (Python, Tkinter & PostgreSQL, LAWSON Latevi Sena, Collège de Paris - Campus de Lomé, janvier 2026).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Effets de bord (useEffect) &amp; requêtes asynchrones | React B2</title>
+<meta name="description" content="Chapitre 5 du cours React B2 : Hook useEffect, cycle de vie, tableau de dépendances, cleanup function, requêtes HTTP et gestion d’états asynchrones. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/react/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Effets de bord (useEffect) &amp; requêtes asynchrones | React B2">
+<meta property="og:description" content="Chapitre 5 du cours React B2 : Hook useEffect, cycle de vie, tableau de dépendances, cleanup function, requêtes HTTP et gestion d’états asynchrones. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="reactnav"><div class="reactnav__in">
+  <a class="reactnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="reactnav__sep" aria-hidden="true">/</span>
+  <a class="reactnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> React B2</a>
+  <div class="reactnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="reactnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="reactwrap">
+<p class="crumb"><a href="../index.html">React B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Effets de bord (useEffect) & requêtes asynchrones</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un composant React doit rester pur lors de son rendu : il ne doit pas déclencher d’appels réseau ni d’abonnements pendant le calcul du JSX. Pour synchroniser le composant avec le monde extérieur (APIs REST, timers, stockage local), React propose le Hook useEffect.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir la notion d’effet de bord (side effect) dans une application frontend ;</li>
+      <li>maîtriser la syntaxe et le fonctionnement du Hook useEffect ;</li>
+      <li>comprendre le rôle critique du tableau de dépendances et la règle d’exhaustivité ;</li>
+      <li>implémenter des fonctions de nettoyage (cleanup) pour éviter les fuites mémoire ;</li>
+      <li>gérer le cycle complet d’un appel API (états loading, data et error).</li>
+    </ol>
+  </div>
+
+<h2>1. Qu’est-ce qu’un effet de bord en React ?</h2>
+
+<p>Un <strong>effet de bord</strong> (ou <em>side effect</em>) désigne toute opération qui interagit avec l’extérieur du composant ou modifie un état hors de son cycle de calcul pur :</p>
+<ul>
+  <li>Effectuer une requête HTTP vers une API backend (<code>fetch</code>, Axios) ;</li>
+  <li>Démarrer ou arrêter une minuterie (<code>setTimeout</code>, <code>setInterval</code>) ;</li>
+  <li>Écouter un événement global du navigateur (<code>window.addEventListener</code>) ;</li>
+  <li>Modifier directement le titre de la page (<code>document.title = ...</code>).</li>
+</ul>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Séparer le calcul du rendu et les effets</div>
+    <p>Le corps d’un composant sert exclusivement à calculer la représentation visuelle (JSX). Tous les effets secondaires doivent être différés dans <code>useEffect</code>, qui s’exécute <strong>après</strong> que le navigateur a mis à jour l’écran.</p>
+  </div>
+
+<h2>2. Le Hook useEffect et son tableau de dépendances</h2>
+
+<p>Le Hook <code>useEffect</code> accepte deux arguments : une fonction d’effet et un tableau optionnel de dépendances :</p>
+<pre><code>import { useState, useEffect } from 'react';
+
+useEffect(() =&gt; {
+  // Code exécuté après le rendu
+}, [dependance1, dependance2]);</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Les 3 modes du tableau de dépendances</div>
+    <ol>
+      <li><strong>Aucun tableau fourni</strong> : l’effet s’exécute après <em>absolument chaque rendu</em> du composant (à éviter pour les requêtes réseau).</li>
+      <li><strong>Tableau vide <code>[]</code></strong> : l’effet ne s’exécute qu’une seule fois, au <em>montage initial</em> du composant.</li>
+      <li><strong>Tableau garni <code>[a, b]</code></strong> : l’effet s’exécute au montage, puis se réexécute si et seulement si <code>a</code> ou <code>b</code> change de valeur.</li>
+    </ol>
+  </div>
+
+<h2>3. La fonction de nettoyage (Cleanup function)</h2>
+
+<p>Certains effets nécessitent d’être annulés pour libérer des ressources lorsque le composant est retiré de l’écran (démontage) ou avant que le prochain effet ne s’applique. Pour cela, la fonction d’effet renvoie une <strong>fonction de nettoyage</strong> :</p>
+<pre><code>useEffect(() =&gt; {
+  const intervalId = setInterval(() =&gt; {
+    console.log('Battement d’horloge');
+  }, 1000);
+
+  // Fonction de nettoyage appelée au démontage :
+  return () =&gt; {
+    clearInterval(intervalId);
+    console.log('Minuterie nettoyée !');
+  };
+}, []);</code></pre>
+
+<h2>4. Appels API et gestion des états asynchrones</h2>
+
+<p>La fonction passée à <code>useEffect</code> ne peut pas être marquée directement comme <code>async</code> car elle doit renvoyer soit rien, soit une fonction de nettoyage (et non une Promesse). On déclare donc une fonction asynchrone interne :</p>
+<pre><code>function ProfilUtilisateur({ userId }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() =&gt; {
+    let actif = true;
+    setLoading(true);
+
+    async function chargerDonnees() {
+      try {
+        const res = await fetch(`https://api.exemple.fr/users/${userId}`);
+        if (!res.ok) throw new Error('Erreur HTTP ' + res.status);
+        const data = await res.json();
+        if (actif) setUser(data);
+      } catch (err) {
+        if (actif) setError(err.message);
+      } finally {
+        if (actif) setLoading(false);
+      }
+    }
+
+    chargerDonnees();
+    return () =&gt; { actif = false; }; // Évite les courses de requêtes
+  }, [userId]);
+
+  if (loading) return &lt;p&gt;Chargement...&lt;/p&gt;;
+  if (error) return &lt;p className="erreur"&gt;Erreur : {error}&lt;/p&gt;;
+  return &lt;h1&gt;{user?.nom}&lt;/h1&gt;;
+}</code></pre>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="rx2-c5-e1"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="10 Paris&#10;10 Lyon&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const dep1 = (lignes[0] || '').split(' ');
+const dep2 = (lignes[1] || '').split(' ');
+
+// À compléter : comparer les dépendances terme à terme
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Détection de changement de dépendances (useEffect)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer si un effet doit s'exécuter en comparant les dépendances de deux rendus successifs.</p>
+    <div class="lab__brief"><p>React compare chaque valeur du tableau de dépendances de <code>useEffect</code> par égalité stricte (<code>Object.is</code>). Le script lit deux lignes : les valeurs des dépendances au rendu 1 (ligne 1), puis au rendu 2 (ligne 2), séparées par des espaces. Si au moins une valeur a changé, affichez <code>EFFET DECLENCHE</code> ; sinon, affichez <code>EFFET IGNORE</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10 Paris
+10 Lyon
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EFFET DECLENCHE</pre></div>
+    </div>
+    <p class="lab__note">La seconde dépendance a changé (Paris -&gt; Lyon).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparez chaque paire dep1[i] et dep2[i] avec Object.is ou ===.</li>
+        <li>Dès qu'une différence apparaît, l'effet doit s'exécuter.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c5-e2"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="SUCCESS 42_utilisateurs&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const [etat, ...reste] = lignes[0].split(' ');
+const donnee = reste.join(' ');
+
+// À compléter : afficher le composant correspondant à l'état
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Machine d'états d'une requête API</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Afficher le composant adapté au statut du chargement : en attente, succès ou échec.</p>
+    <div class="lab__brief"><p>Lors d'un appel API asynchrone dans un <code>useEffect</code>, l'UI gère trois états : chargement, succès et erreur. Le script lit une ligne <code>etat donnee</code> où etat vaut <code>LOADING</code>, <code>SUCCESS</code> ou <code>ERROR</code>. Affichez :<br>- <code>&lt;Spinner label="Chargement en cours..." /&gt;</code> pour LOADING<br>- <code>&lt;DataView result="DONNEE" /&gt;</code> pour SUCCESS<br>- <code>&lt;AlertError message="DONNEE" /&gt;</code> pour ERROR</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SUCCESS 42_utilisateurs
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>&lt;DataView result="42_utilisateurs" /&gt;</pre></div>
+    </div>
+    <p class="lab__note">Requête réussie avec affichage des données.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérez les trois branches avec if / else if.</li>
+        <li>Pour LOADING, le composant Spinner n'utilise pas la donnée restante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c5-e3"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="MOUNT,TICK,UNMOUNT&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const events = (lignes[0] || '').split(',');
+
+// À compléter : tracer le cycle de vie et le nettoyage
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Nettoyage d'effet (Cleanup function)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la fonction de retour de useEffect pour éviter les fuites de mémoire (timer / écouteur).</p>
+    <div class="lab__brief"><p>La fonction retournée par <code>useEffect</code> nettoie les abonnements ou timers lors du démontage ou avant le prochain effet. Le script lit une suite d'événements séparés par des virgules (ex. <code>MOUNT,TICK,TICK,UNMOUNT</code>). Affichez chaque étape :<br>- <code>MOUNT</code> &rarr; <code>Timer demarre</code><br>- <code>TICK</code> &rarr; <code>Tick horloge</code><br>- <code>UNMOUNT</code> &rarr; <code>Timer nettoye</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MOUNT,TICK,UNMOUNT
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Timer demarre
+Tick horloge
+Timer nettoye</pre></div>
+    </div>
+    <p class="lab__note">Cycle complet avec un battement.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Bouclez sur chaque événement découpé et nettoyé par trim().</li>
+        <li>Associez chaque mot-clé à sa chaîne de journalisation exacte.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Le callback passé à useEffect s’exécute…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Après que le navigateur a peint le rendu dans le DOM</button>
+        <button class="opt">Avant l’initialisation de la fonction</button>
+        <button class="opt">Pendant la compilation du fichier</button>
+      </div>
+      <div class="q__exp">useEffect s’exécute de manière asynchrone après l’affichage pour ne pas bloquer l’écran.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si aucun tableau de dépendances n’est fourni, l’effet s’exécute…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Après chaque rendu du composant</button>
+        <button class="opt">Une seule fois au montage</button>
+        <button class="opt">Jamais</button>
+      </div>
+      <div class="q__exp">Sans tableau, l’effet se relance à chaque actualisation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un tableau de dépendances vide ([]) signifie que l’effet s’exécute…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une seule fois au montage initial</button>
+        <button class="opt">En boucle continue</button>
+        <button class="opt">Uniquement au démontage</button>
+      </div>
+      <div class="q__exp">[] indique à React que l’effet ne dépend d’aucune valeur réactive.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La fonction renvoyée par le callback de useEffect sert à…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Nettoyer les abonnements, timers ou écouteurs d’événements</button>
+        <button class="opt">Sauvegarder l’état dans un fichier</button>
+        <button class="opt">Forcer le rafraîchissement</button>
+      </div>
+      <div class="q__exp">La cleanup function prévient les fuites de mémoire lors du démontage ou ré-exécution.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi ne peut-on pas passer directement une fonction async à useEffect ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Car une fonction async retourne une Promise au lieu d’une cleanup function synchrone</button>
+        <button class="opt">Car async est réservé au backend Node</button>
+        <button class="opt">Car cela désactive le Virtual DOM</button>
+      </div>
+      <div class="q__exp">React attend une fonction de nettoyage ou undefined, pas une promesse.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment éviter les courses de requêtes (race conditions) dans useEffect ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Avec un booléen actif ou un AbortController dans le nettoyage</button>
+        <button class="opt">En augmentant le débit réseau</button>
+        <button class="opt">En désactivant le cache</button>
+      </div>
+      <div class="q__exp">Annuler ou ignorer la requête précédente évite d’écraser des données récentes avec d’anciennes réponses.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quels sont les trois états fondamentaux d’une requête asynchrone ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Chargement (loading), Données (data) et Erreur (error)</button>
+        <button class="opt">Création, Compilation, Débogage</button>
+        <button class="opt">Pause, Reprise, Arrêt</button>
+      </div>
+      <div class="q__exp">Gérer ces trois états garantit une interface claire à chaque instant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si useEffect dépend de [userId], quand se re-déclenche-t-il ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Quand userId change de valeur (comparaison Object.is)</button>
+        <button class="opt">À chaque frappe de clavier</button>
+        <button class="opt">Toutes les dix secondes</button>
+      </div>
+      <div class="q__exp">React compare l’ancienne et la nouvelle valeur de userId pour décider de l’exécution.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier le tableau de dépendances et créer une boucle infinie de requêtes et de re-rendus.</li>
+      <li>Déclarer useEffect(async () => ...) directement.</li>
+      <li>Oublier de nettoyer les timers (setInterval) ou écouteurs (addEventListener).</li>
+      <li>Omettre des variables d’état ou props utilisées à l’intérieur de l’effet dans le tableau de dépendances.</li>
+      <li>Mettre à jour l’état dans le corps de l’effet sans condition ni dépendance appropriée.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Intégrer une requête asynchrone dans un composant React</div>
+    <ol>
+      <li><strong>Définir</strong> trois variables d’état : les données (null), le statut de chargement (true) et l’erreur (null).</li>
+      <li><strong>Déclarer</strong> un useEffect avec les dépendances dont l’appel a besoin (ex. id de ressource).</li>
+      <li><strong>Écrire</strong> une fonction asynchrone interne avec bloc try / catch / finally.</li>
+      <li><strong>Gérer</strong> le nettoyage avec un marqueur d’annulation (AbortController ou variable booléenne).</li>
+      <li><strong>Rendre</strong> conditionnellement l’état correspondant : spinner, message d’erreur ou vue de données.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>useEffect synchronise un composant React avec des systèmes extérieurs (APIs, timers, DOM).</li>
+      <li>Le tableau de dépendances contrôle rigoureusement les moments d’exécution de l’effet.</li>
+      <li>Un tableau vide [] correspond à une exécution unique au montage du composant.</li>
+      <li>La fonction de nettoyage (cleanup) prévient les fuites de mémoire et les effets résiduels.</li>
+      <li>Les requêtes HTTP requièrent une fonction async interne et la gestion des états loading/data/error.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends la différence entre le rendu pur et les effets de bord.</li>
+      <li>Je sais choisir entre aucun tableau, un tableau vide [] et un tableau garni [deps].</li>
+      <li>J’écris systématiquement une fonction de nettoyage pour mes timers et écouteurs.</li>
+      <li>Je n’écris jamais useEffect(async () => ...).</li>
+      <li>Je gère les trois états visuels (chargement, succès, échec) lors d’un appel API.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>useEffect</li><li>Effet de bord (Side effect)</li><li>Tableau de dépendances</li><li>Cleanup function</li><li>Montage (Mount)</li><li>Démontage (Unmount)</li><li>fetch API</li><li>Loading state</li><li>Error handling</li><li>Race conditions</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise le rôle de useEffect et la syntaxe du tableau de dépendances.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur la fonction de nettoyage et les appels asynchrones.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les effets de bord et la gestion d’états réseau.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe au routage et à l’architecture dans le chapitre 6.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Navigation avec React Router & architecture globale <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel React B2, le recueil de questions interactives (scripts/questions-react.js) et la documentation de référence react.dev.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

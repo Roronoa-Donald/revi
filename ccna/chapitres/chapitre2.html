@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Adressage IPv4, Masquage, CIDR &amp;amp; Découpage VLSM | CCNA Réseau B2</title>
+<meta name="description" content="Chapitre 2 du cours CCNA Réseau B2 : Structure des adresses IPv4 (32 bits), classes historiques (A, B, C), plages privées RFC 1918, masques de sous-réseau, notation CIDR, masques génériques Wildcard et découpage hiérarchique VLSM sans gaspillage. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/ccna/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Adressage IPv4, Masquage, CIDR &amp;amp; Découpage VLSM | CCNA Réseau B2">
+<meta property="og:description" content="Chapitre 2 du cours CCNA Réseau B2 : Structure des adresses IPv4 (32 bits), classes historiques (A, B, C), plages privées RFC 1918, masques de sous-réseau, notation CIDR, masques génériques Wildcard et découpage hiérarchique VLSM sans gaspillage. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="ccnanav"><div class="ccnanav__in">
+  <a class="ccnanav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="ccnanav__sep" aria-hidden="true">/</span>
+  <a class="ccnanav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> CCNA Réseau B2</a>
+  <div class="ccnanav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="ccnanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="ccnawrap">
+<p class="crumb"><a href="../index.html">CCNA Réseau B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Adressage IPv4, Masquage, CIDR &amp; Découpage VLSM</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une entreprise multisite en pleine croissance hérite d’un bloc d’adresses IP sous-dimensionné. Des conflits d’adresses et des pannes de connectivité surviennent régulièrement suite à un partitionnement statique inadapté. L’architecte réseau doit restructurer l’ensemble du plan d’adressage avec la méthode VLSM (Variable Length Subnet Masking), séparer les réseaux locaux utilisateurs, les zones de serveurs et les liaisons point-à-point sans gaspiller une seule adresse, tout en calculant rigoureusement les adresses réseau, de broadcast et les masques génériques pour les futures ACL de sécurité. Ce deuxième module forge les compétences de calcul d’adressage indispensables à tout ingénieur réseau certifié Cisco.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser la structure binaire d’une adresse IPv4 de 32 bits découpée en partie réseau et partie hôte ;</li>
+      <li>distinguer les classes historiques d’adresses (A, B, C) et identifier sans hésiter les plages privées RFC 1918 ;</li>
+      <li>convertir rapidement entre notation CIDR (/n), masque décimal pointé et masque inversé (Wildcard) ;</li>
+      <li>déterminer l’adresse réseau, l’adresse de diffusion (broadcast) et la plage d’adresses hôtes valides d’un sous-réseau quelconque ;</li>
+      <li>appliquer la méthode VLSM hiérarchique en ordonnançant les besoins pour optimiser l’espace sans chevauchement.</li>
+    </ol>
+  </div>
+
+<h2>1. Structure d’une Adresse IPv4 &amp; Classes d’Adresses</h2>
+
+<p>Une adresse IPv4 est un identifiant logique de <strong>32 bits</strong>, classiquement représenté sous forme décimale pointée en 4 octets séparés par des points (ex: <code>192.168.1.10</code>). Elle est composée de deux parties :</p>
+<ul>
+  <li><strong>La partie réseau (Network ID) :</strong> Identifie le réseau ou sous-réseau auquel appartient l’hôte.</li>
+  <li><strong>La partie hôte (Host ID) :</strong> Identifie l’interface réseau spécifique au sein de ce sous-réseau.</li>
+</ul>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Classes Historiques (Classful)</h4>
+    <ul>
+      <li><strong>Classe A (1.0.0.0 à 126.255.255.255) :</strong> Masque par défaut <code>/8</code> (255.0.0.0). Plus de 16 millions d’hôtes.</li>
+      <li><strong>Classe B (128.0.0.0 à 191.255.255.255) :</strong> Masque par défaut <code>/16</code> (255.255.0.0). 65 534 hôtes.</li>
+      <li><strong>Classe C (192.0.0.0 à 223.255.255.255) :</strong> Masque par défaut <code>/24</code> (255.255.255.0). 254 hôtes.</li>
+      <li><strong>Classe D (224.0.0.0 à 239.255.255.255) :</strong> Trafic Multicast réservé.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Plages Privées (RFC 1918) &amp; Spéciales</h4>
+    <ul>
+      <li><strong>10.0.0.0/8 :</strong> 10.0.0.0 à 10.255.255.255 (Grande entreprise).</li>
+      <li><strong>172.16.0.0/12 :</strong> 172.16.0.0 à 172.31.255.255 (16 classes B).</li>
+      <li><strong>192.168.0.0/16 :</strong> 192.168.0.0 à 192.168.255.255 (256 classes C).</li>
+      <li><strong>127.0.0.0/8 :</strong> Boucle locale (Loopback / localhost).</li>
+      <li><strong>169.254.0.0/16 :</strong> Adressage automatique local (APIPA).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Masques de Sous-Réseau, Notation CIDR &amp; Masques Génériques (Wildcards)</h2>
+
+<p>Le <strong>masque de sous-réseau</strong> est une suite continue de <code>1</code> binaires pour la portion réseau, suivie de <code>0</code> binaires pour la portion hôte. La notation <strong>CIDR (Classless Inter-Domain Routing)</strong> indique simplement le nombre total de bits à 1 (ex: <code>/24</code> = 24 bits à 1 et 8 bits à 0).</p>
+<p>Le <strong>masque générique (Wildcard mask)</strong> est l’inverse bit à bit du masque de sous-réseau. Il s’obtient en soustrayant chaque octet du masque à 255 (ex: <code>255.255.255.255 - 255.255.255.224 = 0.0.0.31</code>). Cisco utilise le wildcard mask dans les déclarations de réseaux OSPF et dans les listes de contrôle d’accès (ACL).</p>
+<table class="table">
+  <thead>
+    <tr><th>Préfixe</th><th>Masque Décimal</th><th>Wildcard Mask</th><th>Nombre d’Hôtes Utiles</th><th>Usage Typique</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>/24</code></td><td>255.255.255.0</td><td>0.0.0.255</td><td>254 hôtes</td><td>Grand département / LAN</td></tr>
+    <tr><td><code>/26</code></td><td>255.255.255.192</td><td>0.0.0.63</td><td>62 hôtes</td><td>Service moyen (50 postes)</td></tr>
+    <tr><td><code>/27</code></td><td>255.255.255.224</td><td>0.0.0.31</td><td>30 hôtes</td><td>Équipe technique / pool dev</td></tr>
+    <tr><td><code>/28</code></td><td>255.255.255.240</td><td>0.0.0.15</td><td>14 hôtes</td><td>Sous-réseau serveurs internes</td></tr>
+    <tr><td><code>/29</code></td><td>255.255.255.248</td><td>0.0.0.7</td><td>6 hôtes</td><td>Interconnexion passerelles</td></tr>
+    <tr><td><code>/30</code></td><td>255.255.255.252</td><td>0.0.0.3</td><td>2 hôtes</td><td>Liaison point-à-point routeur</td></tr>
+    <tr><td><code>/31</code></td><td>255.255.255.254</td><td>0.0.0.1</td><td>2 hôtes (RFC 3021)</td><td>Lien point-à-point moderne sans broadcast</td></tr>
+    <tr><td><code>/32</code></td><td>255.255.255.255</td><td>0.0.0.0</td><td>1 hôte</td><td>Adresse d’hôte unique / Loopback</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Calcul Pratique d’un Sous-Réseau : Réseau, Broadcast &amp; Plage</h2>
+
+<p>Pour toute adresse IP et son masque (ex: <code>192.168.10.77/26</code>), les éléments clés se calculent ainsi :</p>
+<ol>
+  <li><strong>Nombre de bits d’hôte :</strong> <code>32 - 26 = 6 bits</code>.</li>
+  <li><strong>Taille du bloc (pas d’incrément) :</strong> <code>2^6 = 64 adresses</code> (ou <code>256 - 192 = 64</code> sur le 4e octet).</li>
+  <li><strong>Adresse réseau :</strong> Le multiple de 64 immédiatement inférieur ou égal à 77 est <strong>64</strong> -&gt; <code>192.168.10.64</code>.</li>
+  <li><strong>Adresse de broadcast :</strong> Prochain réseau (64 + 64 = 128) moins 1 -&gt; <code>192.168.10.127</code>.</li>
+  <li><strong>Premier hôte exploitable :</strong> Adresse réseau + 1 -&gt; <code>192.168.10.65</code>.</li>
+  <li><strong>Dernier hôte exploitable :</strong> Adresse broadcast - 1 -&gt; <code>192.168.10.126</code>.</li>
+  <li><strong>Nombre d’hôtes utiles :</strong> <code>2^6 - 2 = 62 hôtes</code>.</li>
+</ol>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Pourquoi soustrait-on 2 adresses ?</div>
+<p>Dans un sous-réseau IPv4 classique (CIDR &lt;= 30), deux adresses sont strictement réservées et ne peuvent jamais être attribuées à une interface hôte :</p>
+<ul>
+  <li><strong>L’adresse réseau :</strong> où tous les bits d’hôte sont à 0, utilisée pour identifier le sous-réseau dans les tables de routage.</li>
+  <li><strong>L’adresse de diffusion (broadcast) :</strong> où tous les bits d’hôte sont à 1, utilisée pour contacter tous les hôtes du segment en une seule émission.</li>
+</ul>
+  </div>
+
+<h2>4. Méthodologie du Découpage Hiérarchique VLSM</h2>
+
+<p>Le <strong>VLSM (Variable Length Subnet Masking)</strong> permet d’appliquer des masques de longueurs différentes à l’intérieur d’un même réseau mère, adaptant la taille exacte de chaque sous-réseau au nombre réel d’hôtes requis.</p>
+<p><strong>Règle d’or VLSM :</strong> L’attribution des sous-réseaux doit impérativement s’effectuer par <strong>ordre décroissant du nombre d’hôtes demandés</strong> :</p>
+<ol>
+  <li>Lister chaque besoin en nombre d’hôtes utiles.</li>
+  <li>Trier la liste de la plus forte demande à la plus faible.</li>
+  <li>Pour chaque besoin, trouver la plus petite puissance de 2 telle que <code>2^k - 2 &gt;= Hôtes</code>. Le masque est <code>/(32 - k)</code>.</li>
+  <li>Allouer le premier sous-réseau à partir de l’adresse de base du réseau mère.</li>
+  <li>Le sous-réseau suivant commence immédiatement à l’adresse de broadcast du précédent + 1, en respectant l’alignement naturel de son bloc.</li>
+</ol>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="na2-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="/24 /30 /32">
+  <script type="text/plain" data-lab-starter>import sys
+
+entrees = sys.stdin.read().split()
+
+# À compléter : convertir chaque préfixe CIDR et calculer les masques
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de masque IPv4 et masque générique (Wildcard)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir une longueur de préfixe CIDR (/n) en masque décimal pointé, masque générique (wildcard pour ACL/OSPF) et compter les adresses.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une série de préfixes CIDR (un par ligne ou séparés par des espaces, avec ou sans le slash, ex: <code>/24</code>, <code>27</code>, <code>/30</code>).<br>
+Pour chaque préfixe <code>/n</code> (avec <code>0 &lt;= n &lt;= 32</code>), il affiche une ligne au format :<br>
+<code>/n -&gt; Masque: &lt;M.M.M.M&gt; | Wildcard: &lt;W.W.W.W&gt; | Total: &lt;T&gt; | Hotes: &lt;H&gt;</code><br>
+avec <code>H = max(0, 2**(32-n) - 2)</code> si <code>n &lt;= 30</code>, <code>2</code> si <code>n == 31</code> (RFC 3021 liens point-à-point), et <code>1</code> si <code>n == 32</code> (adresse d'hôte unique / loopback).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>/24 /30 /32</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>/24 -&gt; Masque: 255.255.255.0 | Wildcard: 0.0.0.255 | Total: 256 | Hotes: 254
+/30 -&gt; Masque: 255.255.255.252 | Wildcard: 0.0.0.3 | Total: 4 | Hotes: 2
+/32 -&gt; Masque: 255.255.255.255 | Wildcard: 0.0.0.0 | Total: 1 | Hotes: 1</pre></div>
+    </div>
+    <p class="lab__note">Conversions classiques pour LAN, lien inter-routeur et loopback.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le masque contient n bits à 1 suivis de (32 - n) bits à 0.</li>
+        <li>Le masque générique (Wildcard) s'obtient par soustraction de chaque octet à 255 : (255 - M).</li>
+        <li>Le nombre total d'adresses est 2**(32 - n).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="192.168.10.45/26">
+  <script type="text/plain" data-lab-starter>import sys
+
+ligne = sys.stdin.read().strip()
+
+# À compléter : décomposer le sous-réseau IPv4
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Analyseur complet de sous-réseau IPv4</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer l'adresse de sous-réseau, l'adresse de diffusion (broadcast), la plage d'adresses hôtes valides et la classe d'adresse.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une adresse IPv4 avec son préfixe au format <code>&lt;IP&gt;/&lt;CIDR&gt;</code> (ex: <code>192.168.10.45/26</code>).<br>
+Il calcule et affiche dans l'ordre :<br>
+- <code>Reseau: &lt;IP_RESEAU&gt;/&lt;CIDR&gt;</code><br>
+- <code>Masque: &lt;MASQUE_DECIMAL&gt;</code><br>
+- <code>Broadcast: &lt;IP_BROADCAST&gt;</code><br>
+- <code>Premier hote: &lt;IP_PREMIER&gt;</code><br>
+- <code>Dernier hote: &lt;IP_DERNIER&gt;</code><br>
+- <code>Capacite: &lt;NB_HOTES&gt; hotes utiles</code><br>
+- <code>Type: &lt;PRIVE|PUBLIC|LOOPBACK|APIPA|MULTICAST&gt;</code> (Privé selon RFC 1918 : 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 ; Loopback 127.0.0.0/8 ; APIPA 169.254.0.0/16 ; Multicast 224.0.0.0/4 ; sinon Public).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>192.168.10.45/26</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Reseau: 192.168.10.0/26
+Masque: 255.255.255.192
+Broadcast: 192.168.10.63
+Premier hote: 192.168.10.1
+Dernier hote: 192.168.10.62
+Capacite: 62 hotes utiles
+Type: PRIVE</pre></div>
+    </div>
+    <p class="lab__note">Sous-réseau /26 avec 62 hôtes exploitables sur adresse RFC 1918.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertir l'adresse IPv4 en entier 32 bits facilite l'opération ET bit à bit avec le masque de sous-réseau.</li>
+        <li>L'adresse réseau a tous les bits d'hôte à 0 ; l'adresse de broadcast a tous les bits d'hôte à 1.</li>
+        <li>Premier hôte = réseau + 1, dernier hôte = broadcast - 1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="na2-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="192.168.1.0/24&#10;Direction: 50&#10;Comptabilite: 25&#10;Informatique: 12&#10;LienWAN: 2">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : ordonnancer et allouer les sous-réseaux selon la méthode VLSM
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Planificateur et allocateur VLSM hiérarchique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Découper un bloc IPv4 mère en sous-réseaux optimaux avec Variable Length Subnet Masking (VLSM).</p>
+    <div class="lab__brief"><p>Le script lit sur la première ligne le bloc racine à découper (ex: <code>192.168.1.0/24</code>).<br>
+Les lignes suivantes décrivent les besoins sous la forme <code>&lt;NOM_SOUS_RESEAU&gt;: &lt;NB_HOTES&gt;</code>.<br>
+L'algorithme VLSM exige de :<br>
+1. Trier les demandes par <strong>nombre d'hôtes requis décroissant</strong> (les sous-réseaux les plus larges en premier pour éviter la fragmentation de l'espace d'adressage). En cas d'égalité d'hôtes, conserver l'ordre d'apparition.<br>
+2. Calculer pour chaque besoin la taille du bloc <code>2**k</code> telle que <code>2**k - 2 &gt;= NB_HOTES</code> (et <code>k &gt;= 2</code>, sauf si hôtes == 1 où <code>k=2</code> pour /30). Le préfixe attribué est <code>/(32 - k)</code>.<br>
+3. Allouer séquentiellement à partir de l'adresse de base du bloc racine.<br>
+Pour chaque sous-réseau, afficher :<br>
+<code>&lt;NOM&gt; (&lt;BESOIN&gt; hotes) -&gt; &lt;RESEAU&gt;/&lt;CIDR&gt; [&lt;FIRST&gt; - &lt;LAST&gt;] BC: &lt;BCAST&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>192.168.1.0/24
+Direction: 50
+Comptabilite: 25
+Informatique: 12
+LienWAN: 2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Direction (50 hotes) -&gt; 192.168.1.0/26 [192.168.1.1 - 192.168.1.62] BC: 192.168.1.63
+Comptabilite (25 hotes) -&gt; 192.168.1.64/27 [192.168.1.65 - 192.168.1.94] BC: 192.168.1.95
+Informatique (12 hotes) -&gt; 192.168.1.96/28 [192.168.1.97 - 192.168.1.110] BC: 192.168.1.111
+LienWAN (2 hotes) -&gt; 192.168.1.112/30 [192.168.1.113 - 192.168.1.114] BC: 192.168.1.115</pre></div>
+    </div>
+    <p class="lab__note">Allocation VLSM typique d'une entreprise avec un lien WAN.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le tri par nombre d'hôtes décroissant est impératif en VLSM sous peine de briser la contrainte d'alignement sur les puissances de 2.</li>
+        <li>L'adresse réseau du bloc suivant commence immédiatement à l'adresse de broadcast du bloc précédent + 1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien d’adresses hôtes exploitables offre un sous-réseau configuré avec un masque de préfixe /27 ?</p>
+      <div class="opts">
+        <button class="opt">32 hôtes</button>
+        <button class="opt" data-correct="1">30 hôtes</button>
+        <button class="opt">62 hôtes</button>
+        <button class="opt">14 hôtes</button>
+      </div>
+      <div class="q__exp">Pour un /27, il reste 32 - 27 = 5 bits d’hôte. Le nombre total d’adresses est 2^5 = 32, et le nombre d’adresses hôtes utiles est 2^5 - 2 = 30.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est l’adresse de diffusion (broadcast) du sous-réseau contenant l’hôte 172.16.20.100/28 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">172.16.20.111</button>
+        <button class="opt">172.16.20.112</button>
+        <button class="opt">172.16.20.127</button>
+        <button class="opt">172.16.20.255</button>
+      </div>
+      <div class="q__exp">Pour un /28, la taille du bloc est 2^(32-28) = 16. Les multiples de 16 autour de 100 sont 96 et 112. Le réseau est 172.16.20.96 et l’adresse de broadcast est 172.16.20.111 (96 + 16 - 1).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le masque générique (Wildcard mask) correspondant au masque de sous-réseau 255.255.255.240 (/28) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0.0.0.15</button>
+        <button class="opt">0.0.0.31</button>
+        <button class="opt">0.0.0.240</button>
+        <button class="opt">255.255.255.15</button>
+      </div>
+      <div class="q__exp">Le masque générique s’obtient par soustraction octet par octet à 255 : (255-255).(255-255).(255-255).(255-240) = 0.0.0.15.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Laquelle de ces adresses IPv4 appartient à une plage privée routable uniquement sur réseau d’entreprise selon la RFC 1918 ?</p>
+      <div class="opts">
+        <button class="opt">172.32.1.5</button>
+        <button class="opt">192.169.10.1</button>
+        <button class="opt" data-correct="1">172.25.100.50</button>
+        <button class="opt">169.254.10.20</button>
+      </div>
+      <div class="q__exp">La plage privée de classe B s’étend de 172.16.0.0 à 172.31.255.255. L’adresse 172.25.100.50 s’y trouve. 172.32.x est publique, 192.169.x est publique, et 169.254.x est une adresse de lien local APIPA.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il impératif de trier les besoins par nombre décroissant d’hôtes lors d’une allocation VLSM ?</p>
+      <div class="opts">
+        <button class="opt">Pour des raisons purement esthétiques dans le tableur</button>
+        <button class="opt" data-correct="1">Pour éviter que les petits sous-réseaux ne fragmentent l’espace et brisent l’alignement des puissances de 2 des grands réseaux</button>
+        <button class="opt">Parce que le routeur Cisco refuse d’enregistrer des routes avec des masques croissants</button>
+        <button class="opt">Pour garantir que la passerelle ait toujours l’adresse .1</button>
+      </div>
+      <div class="q__exp">Les sous-réseaux doivent être alignés sur des multiples de leur taille (puissances de 2). Commencer par les plus petits blocs fragmenterait l’espace et empêcherait d’allouer les blocs plus volumineux sans gaspiller de grandes plages d’adresses.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le préfixe CIDR minimal permettant d’accueillir exactement 50 hôtes utiles sur un sous-réseau ?</p>
+      <div class="opts">
+        <button class="opt">/27</button>
+        <button class="opt" data-correct="1">/26</button>
+        <button class="opt">/25</button>
+        <button class="opt">/24</button>
+      </div>
+      <div class="q__exp">/27 offre 2^5 - 2 = 30 hôtes (insuffisant pour 50). /26 offre 2^6 - 2 = 62 hôtes (suffisant). Le préfixe minimal est donc /26.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le premier hôte utilisable sur le sous-réseau 10.50.80.0/20 ?</p>
+      <div class="opts">
+        <button class="opt">10.50.80.0</button>
+        <button class="opt" data-correct="1">10.50.80.1</button>
+        <button class="opt">10.50.81.1</button>
+        <button class="opt">10.50.0.1</button>
+      </div>
+      <div class="q__exp">Le premier hôte utilisable est toujours l’adresse réseau + 1, soit ici 10.50.80.1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour interconnecter deux routeurs sur une liaison point-à-point série ou Ethernet dédiée, quel masque standard optimise l’espace sans gaspiller d’adresses ?</p>
+      <div class="opts">
+        <button class="opt">/28 (255.255.255.240)</button>
+        <button class="opt">/29 (255.255.255.248)</button>
+        <button class="opt" data-correct="1">/30 (255.255.255.252)</button>
+        <button class="opt">/32 (255.255.255.255)</button>
+      </div>
+      <div class="q__exp">Un masque /30 fournit un bloc de 4 adresses : 1 adresse réseau, 1 adresse broadcast et exactement 2 adresses hôtes exploitables, ce qui est parfait pour une liaison entre deux routeurs.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Attribuer accidentellement l’adresse réseau ou l’adresse de broadcast à une machine ou une interface routeur.</li>
+      <li>Effectuer une allocation VLSM sans trier au préalable par ordre décroissant d’hôtes, provoquant des chevauchements d’adresses.</li>
+      <li>Oublier de compter la passerelle par défaut (interface du routeur) dans le total des hôtes requis pour un sous-réseau.</li>
+      <li>Confondre le masque décimal (ex: 255.255.255.248) avec le masque générique Wildcard (0.0.0.7).</li>
+      <li>Penser qu’un masque /31 permet d’avoir 2 hôtes dans une topologie Ethernet partagée classique (le /31 est réservé aux liens point-à-point).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Algorithme Pas-à-Pas de Résolution VLSM</div>
+    <ol>
+      <li>Étape 1 — Ordonnancement : Classer tous les sous-réseaux demandés par ordre strictement décroissant du nombre d’hôtes requis.</li>
+      <li>Étape 2 — Dimensionnement binaire : Pour chaque sous-réseau, calculer k tel que 2^k - 2 >= Hôtes requis. Déduire le masque /n = /(32 - k).</li>
+      <li>Étape 3 — Calcul du pas : Déterminer la taille du bloc = 2^k. Repérer sur quel octet porte la frontière du masque.</li>
+      <li>Étape 4 — Allocation séquentielle : Attribuer le premier bloc à l’adresse réseau de départ. Calculer son broadcast (réseau + bloc - 1).</li>
+      <li>Étape 5 — Enchaînement sans trou : Démarrer le sous-réseau suivant à l’adresse broadcast précédente + 1 et répéter jusqu’au dernier sous-réseau.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une adresse IPv4 fait 32 bits découpés en portion réseau et portion hôte par le masque de sous-réseau.</li>
+      <li>La RFC 1918 réserve trois plages privées non routables sur Internet public : 10.0.0.0/8, 172.16.0.0/12 et 192.168.0.0/16.</li>
+      <li>Le nombre d’hôtes utiles pour un masque /n est calculé par la formule 2^(32 - n) - 2.</li>
+      <li>Le masque générique (Wildcard mask) est le complément à 255 de chaque octet du masque, utilisé notamment pour OSPF et les ACL.</li>
+      <li>L’adresse réseau a tous ses bits d’hôte à 0 ; l’adresse de broadcast a tous ses bits d’hôte à 1.</li>
+      <li>La méthode VLSM exige de traiter les besoins par taille décroissante pour éviter tout chevauchement et optimiser l’espace d’adressage.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais par cœur les trois plages d’adresses privées de la RFC 1918.</li>
+      <li>Je sais calculer instantanément le nombre d’hôtes utiles pour n’importe quel préfixe de /24 à /30.</li>
+      <li>Je sais convertir un masque décimal en masque générique (Wildcard) par soustraction de 255.</li>
+      <li>Je sais déterminer l’adresse réseau, de broadcast et la plage d’hôtes pour une adresse IP donnée.</li>
+      <li>J’applique rigoureusement le tri décroissant des besoins pour construire un plan d’adressage VLSM.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Adresse IPv4 32 bits</li><li>Classes A, B, C et plages RFC 1918</li><li>Masque de sous-réseau et notation CIDR</li><li>Masque générique (Wildcard mask)</li><li>Adresse réseau et adresse de broadcast</li><li>Formule 2^(32 - n) - 2 hôtes utiles</li><li>Découpage VLSM hiérarchique</li><li>Liaisons point-à-point /30 et RFC 3021 /31</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Entraînez-vous aux conversions de puissances de 2 et révisez les plages privées RFC 1918.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes bases sur les masques. Renforcez le calcul des adresses de broadcast et des wildcards.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise du calcul de sous-réseau et de la logique VLSM.</div>
+      <div class="bandrow bandrow--top">8/8 : Expert en adressage IPv4 et VLSM ! Vous êtes prêt pour la commutation Ethernet et les tables CAM.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Commutation Ethernet L2, Tables CAM &amp; Spanning Tree (STP) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les guides officiels Cisco Press CCNA 200-301 (Wendell Odom), les RFC de l’IETF (RFC 791, RFC 1918, RFC 3021) et les standards IEEE 802.1D, 802.1w et 802.1Q.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

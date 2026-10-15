@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Annuaire d’Entreprise Active Directory (AD DS), Gouvernance AGDLP &amp;amp; Rôles FSMO | Windows Server B3</title>
+<meta name="description" content="Chapitre 2 du cours Windows Server B3 : Architecture hiérarchique Active Directory Domain Services (Schéma, Forêt, Arbres, Domaines et Unités Organisationnelles OU), contrôleurs de domaine (DC) et réplication multi-maîtres, les 5 rôles FSMO de forêt et domaine, modèle de gouvernance des accès AGDLP / AGUDLP, gestion fine des comptes de service gérés (gMSA), et audit de sécurité des identités (Event IDs 4720, 4726, 4728). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-windows-server/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Annuaire d’Entreprise Active Directory (AD DS), Gouvernance AGDLP &amp;amp; Rôles FSMO | Windows Server B3">
+<meta property="og:description" content="Chapitre 2 du cours Windows Server B3 : Architecture hiérarchique Active Directory Domain Services (Schéma, Forêt, Arbres, Domaines et Unités Organisationnelles OU), contrôleurs de domaine (DC) et réplication multi-maîtres, les 5 rôles FSMO de forêt et domaine, modèle de gouvernance des accès AGDLP / AGUDLP, gestion fine des comptes de service gérés (gMSA), et audit de sécurité des identités (Event IDs 4720, 4726, 4728). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-windows-servernav"><div class="b3-windows-servernav__in">
+  <a class="b3-windows-servernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-windows-servernav__sep" aria-hidden="true">/</span>
+  <a class="b3-windows-servernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B3</a>
+  <div class="b3-windows-servernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-windows-servernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-windows-serverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Annuaire d’Entreprise Active Directory (AD DS), Gouvernance AGDLP &amp; Rôles FSMO</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Active Directory Domain Services (AD DS) constitue la colonne vertébrale de l’identité et de la sécurité dans plus de 90 % des systèmes d’information d’entreprise. Une mauvaise modélisation de l’annuaire — arborescence d’OUs chaotique, attribution directe d’utilisateurs sur des ACLs sans passer par des groupes de sécurité, méconnaissance des rôles FSMO lors d’un crash de contrôleur — conduit inévitablement à des compromissions de privilèges critiques, des failles d’intégrité et des pannes de réplication bloquantes. En troisième année, l’ingénieur système doit maîtriser la hiérarchie complète de la forêt, concevoir une gestion des accès irréprochable basée sur la méthodologie standard Microsoft AGDLP/AGUDLP, assurer la résilience des maîtres d’opérations FSMO, et monitorer en continu les journaux d’audit de sécurité pour détecter toute tentative d’élévation de privilèges frauduleuse.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>assimiler la structure hiérarchique d’Active Directory (Schéma, Forêt, Arbre, Domaine racine, Domaines enfants, Unités Organisationnelles) ;</li>
+      <li>différencier la réplication multi-maîtres standard des 5 rôles d’opérations à maître unique FSMO (Schema, Domain Naming, PDC, RID, Infrastructure) ;</li>
+      <li>concevoir une arborescence de groupes conforme à la méthodologie standard Microsoft AGDLP / AGUDLP pour rationaliser l’administration des droits ;</li>
+      <li>distinguer avec rigueur les portées de groupes (Global, Local de Domaine, Universel) et leurs capacités d’imbrication multi-domaines ;</li>
+      <li>exploiter les journaux d’audit Windows Security pour tracer le cycle de vie des identités et détecter les modifications de groupes sensibles (4720, 4726, 4728) ;</li>
+      <li>implémenter en Python 3 des vérificateurs de conformité AGDLP, des routeurs d’opérations FSMO et des parseurs de journaux d’audit de sécurité.</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture Hiérarchique d’Active Directory Domain Services (AD DS)</h2>
+
+<p>Active Directory structure l’ensemble des identités, machines et ressources réseau dans un annuaire distribué normalisé basé sur les standards X.500 et LDAPv3 :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Éléments Logiques Fondamentaux</h4>
+    <ul>
+      <li><strong>Schéma Active Directory :</strong> définition formelle de l’annuaire. Contient la liste de toutes les classes d’objets (utilisateur, ordinateur, groupe) et de leurs attributs autorisés (nom, mot de passe, email). Unique à l’échelle de la forêt.</li>
+      <li><strong>Forêt (Forest) :</strong> frontière de sécurité ultime de l’annuaire. Regroupe un ou plusieurs arbres partageant le même schéma, la même configuration globale et le même catalogue global (Global Catalog - GC).</li>
+      <li><strong>Arbre (Tree) :</strong> ensemble de domaines partageant un espace de noms DNS contigu reliés par des relations d’approbation bidirectionnelles et transitives.</li>
+      <li><strong>Domaine (Domain) :</strong> unité administrative de base contenant les objets et appliquant des stratégies de sécurité communes (ex. politique de mot de passe du domaine).</li>
+      <li><strong>Unité Organisationnelle (OU) :</strong> conteneur administratif interne au domaine permettant de structurer les objets et d’y lier des stratégies de groupe (GPO) ou d’y déléguer des privilèges.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Partitions d’Annuaire & Réplication</h4>
+    <p>La base de données AD (<code>ntds.dit</code>) est segmentée en partitions logiques répliquées entre contrôleurs :</p>
+    <ul>
+      <li><strong>Partition de Schéma :</strong> répliquée sur tous les contrôleurs de la forêt.</li>
+      <li><strong>Partition de Configuration :</strong> topologie physique, sites et services AD répliqués dans toute la forêt.</li>
+      <li><strong>Partition de Domaine :</strong> tous les objets utilisateurs, groupes et ordinateurs propres à un domaine spécifique.</li>
+      <li><strong>Partition d’Application :</strong> zones DNS intégrées (ForestDNSZones, DomainDNSZones).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Les 5 Rôles FSMO (Flexible Single Master Operations)</h2>
+
+<p>Bien que la majorité des modifications Active Directory fassent l’objet d’une réplication multi-maîtres (chaque DC peut créer ou modifier des objets), cinq fonctions critiques exigent un arbitrage centralisé à maître unique (FSMO) pour éviter les collisions :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Rôles à l’Échelle de la Forêt (Forest-Wide)</h4>
+    <ul>
+      <li><strong>Schema Master (Maître de Schéma) :</strong> unique contrôleur de la forêt autorisé à modifier ou étendre les classes et attributs du schéma AD (ex. lors de l’installation d’Exchange ou de la mise à niveau fonctionnelle de l’annuaire).</li>
+      <li><strong>Domain Naming Master (Maître d’attribution des noms de domaine) :</strong> autorise l’ajout ou la suppression de domaines ou de partitions d’applications au sein de la forêt.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Rôles à l’Échelle du Domaine (Domain-Wide)</h4>
+    <ul>
+      <li><strong>PDC Emulator (Émulateur PDC) :</strong> rôle le plus sollicité du domaine. Fait office de référence horaire NTP racine, reçoit immédiatement les modifications et échecs de mot de passe, émule les anciens contrôleurs NT4 et sert de cible privilégiée pour l’édition des GPOs.</li>
+      <li><strong>RID Master (Maître RID) :</strong> alloue des blocs de 500 identifiants relatifs (RID - Relative Identifiers) à chaque contrôleur de domaine pour composer des identifiants de sécurité uniques (SID).</li>
+      <li><strong>Infrastructure Master (Maître d’infrastructure) :</strong> met à jour les références d’objets inter-domaines et synchronise les GUID et SID entre domaines de la forêt.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--Gestion des Pannes FSMO">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <p>En cas de maintenance planifiée d’un contrôleur détenant un rôle FSMO, on procède à un <strong>transfert de rôle</strong> gracieux (Role Transfer via PowerShell : <code>Move-ADDirectoryServerOperationMasterRole</code>). En cas de crash matériel définitif d’un DC, l’administrateur doit effectuer une <strong>saisie forcée de rôle</strong> (Role Seizure). Attention : un serveur dont les rôles Schema, Domain Naming ou RID ont été saisis de force ne doit <strong>JAMAIS</strong> être reconnecté au réseau sous peine de corrompre gravement l’annuaire.</p></div>
+
+  </div>
+
+<h2>3. Gouvernance des Identités : Méthodologie Standard AGDLP / AGUDLP</h2>
+
+<p>Pour administrer les droits d’accès sur les fichiers et applications sans créer de dettes techniques ni de failles de sécurité, Microsoft impose la méthodologie d’imbrication <strong>AGDLP</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Échelons du Modèle AGDLP</h4>
+    <ul>
+      <li><strong>A (Accounts) :</strong> Comptes utilisateurs individuels (ex. Pierre, Sophie).</li>
+      <li><strong>G (Global Groups) :</strong> Groupes globaux représentant un rôle métier ou une appartenance organisationnelle (ex. <code>GG_Comptabilite</code>, <code>GG_RessourcesHumaines</code>).</li>
+      <li><strong>DL (Domain Local Groups) :</strong> Groupes locaux de domaine décrivant une permission précise sur une ressource ciblée (ex. <code>DL_Factures_Lecture</code>, <code>DL_DossierPaie_Modif</code>).</li>
+      <li><strong>P (Permissions) :</strong> La ressource (partage réseau, ACL NTFS) accorde les droits <em>exclusivement</em> au groupe Local de Domaine (DL).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Extension Multi-Domaines : AGUDLP</h4>
+    <p>Dans les environnements multi-domaines complexes, l’échelon <strong>U (Universal Groups)</strong> s’intercale entre les groupes globaux et les groupes locaux de domaine :</p>
+    <p><code>Accounts -&gt; Global Groups -&gt; Universal Groups -&gt; Domain Local Groups -&gt; Permissions</code></p>
+    <p>Les groupes universels sont indexés dans le Catalogue Global (GC), ce qui permet à des utilisateurs de plusieurs domaines distincts de se regrouper dans un groupe universel sans encombrer le trafic de réplication local.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ws3-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="GROUP name=GG_Compta type=GLOBAL member_of=DL_Factures_Modif&#10;GROUP name=DL_Factures_Modif type=DOMAIN_LOCAL member_of=NONE&#10;USER name=Alice member_of=GG_Compta&#10;RESOURCE name=DossierFactures acl_group=DL_Factures_Modif permission=MODIFY">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la hiérarchie et vérifier la règle AGDLP
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Vérificateur de conformité de structure de groupes AGDLP / AGUDLP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité de l’arborescence des identités au standard Microsoft AGDLP (Comptes -&gt; Groupes Globaux -&gt; Groupes Locaux de Domaine -&gt; ACLs).</p>
+    <div class="lab__brief">Dans une forêt Active Directory, Microsoft préconise la règle d’or AGDLP pour l’attribution des permissions :
+- Les comptes utilisateurs (`USER`) doivent appartenir à des groupes globaux (`GLOBAL`).
+- Les groupes globaux (`GLOBAL`) doivent appartenir à des groupes locaux de domaine (`DOMAIN_LOCAL`) ou universels (`UNIVERSAL`).
+- Les ressources partagées (`RESOURCE`) doivent accorder leurs permissions exclusivement à des groupes `DOMAIN_LOCAL`.
+
+Entrée :
+`USER name=<NOM> member_of=<GROUPE>`
+`GROUP name=<NOM> type=<GLOBAL|DOMAIN_LOCAL|UNIVERSAL> member_of=<PARENT_GROUPE|NONE>`
+`RESOURCE name=<NOM> acl_group=<GROUPE> permission=<READ|MODIFY|FULL>`
+
+Infractions détectées :
+- `INFRACTION_USER user=<U> group=<G> type=<TYPE>` : si un utilisateur est rattaché directement à un groupe qui n’est pas GLOBAL.
+- `INFRACTION_NESTING group=<G> parent=<P> parent_type=<TYPE>` : si un groupe GLOBAL est imbriqué dans autre chose qu’un DOMAIN_LOCAL ou UNIVERSAL (ou si parent inconnu).
+- `INFRACTION_ACL resource=<R> group=<G> type=<TYPE>` : si une ressource applique une ACL avec un groupe qui n’est pas DOMAIN_LOCAL.
+
+Sortie :
+- Liste des infractions ordonnées par type puis nom de l’objet :
+  `INFRACTION_...`
+- Bilan :
+  `SUMMARY total_objets=<N> infractions=<I> conformite=<CONFORME|NON_CONFORME>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>GROUP name=GG_Compta type=GLOBAL member_of=DL_Factures_Modif
+GROUP name=DL_Factures_Modif type=DOMAIN_LOCAL member_of=NONE
+USER name=Alice member_of=GG_Compta
+RESOURCE name=DossierFactures acl_group=DL_Factures_Modif permission=MODIFY</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SUMMARY total_objets=4 infractions=0 conformite=CONFORME</pre></div>
+    </div>
+    <p class="lab__note">Alice -&gt; GG_Compta (Global) -&gt; DL_Factures_Modif (Domain Local) -&gt; DossierFactures : chaîne AGDLP parfaite.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Indexer les types des groupes dans un dictionnaire {nom: type}.</li>
+        <li>Vérifier les utilisateurs, les imbrications de groupes et les ACLs des ressources.</li>
+        <li>Trier les infractions pour produire une sortie stable.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="FSMO role=SCHEMA_MASTER dc=DC01&#10;FSMO role=DOMAIN_NAMING dc=DC01&#10;FSMO role=PDC_EMULATOR dc=DC01&#10;FSMO role=RID_MASTER dc=DC02&#10;FSMO role=INFRASTRUCTURE dc=DC02&#10;DC_STATUS name=DC01 state=ONLINE&#10;DC_STATUS name=DC02 state=OFFLINE&#10;OP type=CHANGE_PASSWORD&#10;OP type=CREATE_USER">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : mapper les opérations sur les rôles FSMO et vérifier l'état des DCs
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur de topologie FSMO et routage des opérations AD DS</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Acheminer les opérations Active Directory vers le contrôleur détenteur du rôle FSMO correspondant et gérer les pannes de contrôleur.</p>
+    <div class="lab__brief">Active Directory repose sur 5 rôles FSMO (Flexible Single Master Operations) indispensables aux opérations sensibles :
+- `UPDATE_SCHEMA` -> `SCHEMA_MASTER` (forêt)
+- `ADD_DOMAIN` -> `DOMAIN_NAMING` (forêt)
+- `CHANGE_PASSWORD` -> `PDC_EMULATOR` (domaine)
+- `CREATE_USER` -> `RID_MASTER` (domaine)
+- `INTER_DOMAIN_REF` -> `INFRASTRUCTURE` (domaine)
+
+Entrée :
+`FSMO role=<ROLE> dc=<DC_NAME>` (définition des 5 rôles)
+`DC_STATUS name=<DC_NAME> state=<ONLINE|OFFLINE>`
+`OP type=<UPDATE_SCHEMA|ADD_DOMAIN|CHANGE_PASSWORD|CREATE_USER|INTER_DOMAIN_REF>`
+
+Règles :
+- Identifier le contrôleur assigné au rôle FSMO de l’opération demandée.
+- Si ce DC est `ONLINE`, le statut est `EXECUTE`.
+- Si ce DC est `OFFLINE`, le statut est `BLOQUE` (opération impossible sans transfert/saisie de rôle).
+
+Sortie :
+- Pour chaque opération demandée :
+  `OP_RESULT type=<OP> role=<ROLE> dc=<DC> statut=<EXECUTE|BLOQUE>`
+- Bilan :
+  `SUMMARY total_ops=<N> executees=<E> bloquees=<B>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FSMO role=SCHEMA_MASTER dc=DC01
+FSMO role=DOMAIN_NAMING dc=DC01
+FSMO role=PDC_EMULATOR dc=DC01
+FSMO role=RID_MASTER dc=DC02
+FSMO role=INFRASTRUCTURE dc=DC02
+DC_STATUS name=DC01 state=ONLINE
+DC_STATUS name=DC02 state=OFFLINE
+OP type=CHANGE_PASSWORD
+OP type=CREATE_USER</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>OP_RESULT type=CHANGE_PASSWORD role=PDC_EMULATOR dc=DC01 statut=EXECUTE
+OP_RESULT type=CREATE_USER role=RID_MASTER dc=DC02 statut=BLOQUE
+SUMMARY total_ops=2 executees=1 bloquees=1</pre></div>
+    </div>
+    <p class="lab__note">Le PDC Emulator est sur DC01 (ONLINE -&gt; EXECUTE). Le RID Master est sur DC02 (OFFLINE -&gt; BLOQUE).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Créer une table de correspondance opération -&gt; rôle FSMO.</li>
+        <li>Associer chaque rôle à son contrôleur de domaine (DC).</li>
+        <li>Consulter l’état ONLINE/OFFLINE du DC pour décider du statut.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws3-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="EVENT id=4720 user=jdoe actor=admin01&#10;EVENT id=4728 user=jdoe group=Domain Admins actor=admin01&#10;EVENT id=4720 user=stewart actor=admin02&#10;EVENT id=4726 user=stewart actor=admin02">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser les logs d'audit Windows Security
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Parseur de journaux d’audit de sécurité Active Directory (Event IDs 4720, 4726, 4728)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter les ajouts suspects de membres dans les groupes à haut privilège et reconstituer l’état des comptes créés.</p>
+    <div class="lab__brief">Dans le journal de sécurité Windows Server, les événements d’audit des comptes et groupes sont cruciaux :
+- `EVENT id=4720 user=<U> actor=<A>` : Création d’un compte utilisateur.
+- `EVENT id=4726 user=<U> actor=<A>` : Suppression d’un compte utilisateur.
+- `EVENT id=4728 user=<U> group=<G> actor=<A>` : Ajout d’un membre dans un groupe.
+- `EVENT id=4729 user=<U> group=<G> actor=<A>` : Retrait d’un membre d’un groupe.
+
+Groupes d’administration critique surveillés :
+`Domain Admins`, `Enterprise Admins`, `Schema Admins`, `Administrators`.
+
+Règles d’alerte :
+- Tout événement 4728 ciblant un groupe critique déclenche : `ALERTE_PRIVILEGE user=<U> group=<G> actor=<A>`.
+- Un événement 4726 sur un utilisateur qui n’a jamais été créé (événement 4720 préalable) dans ce flux déclenche : `ANOMALIE_ORPHELIN user=<U> actor=<A>`.
+
+Sortie :
+- Lignes d’alertes triées par type d’alerte puis nom d’utilisateur :
+  `ALERTE_...` ou `ANOMALIE_...`
+- Bilan :
+  `SUMMARY total_events=<N> users_crees_actifs=<U> alertes_securite=<A>` (où users_crees_actifs = nb de comptes créés par 4720 et non supprimés par 4726).</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>EVENT id=4720 user=jdoe actor=admin01
+EVENT id=4728 user=jdoe group=Domain Admins actor=admin01
+EVENT id=4720 user=stewart actor=admin02
+EVENT id=4726 user=stewart actor=admin02</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ALERTE_PRIVILEGE user=jdoe group=Domain Admins actor=admin01
+SUMMARY total_events=4 users_crees_actifs=1 alertes_securite=1</pre></div>
+    </div>
+    <p class="lab__note">jdoe est ajouté au groupe Domain Admins (alerte sécurité). stewart est créé puis supprimé (actif = 0). Il reste 1 compte actif créé (jdoe).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garder un ensemble des utilisateurs créés par Event ID 4720.</li>
+        <li>Sur 4726, retirer le compte de l’ensemble ou lever une anomalie s’il n’y était pas.</li>
+        <li>Sur 4728, tester si le groupe fait partie des groupes critiques.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la frontière ultime de sécurité dans l’architecture logique Microsoft Active Directory ?</p>
+      <div class="opts">
+        <button class="opt">L’Unité Organisationnelle (OU)</button>
+        <button class="opt">Le Domaine local</button>
+        <button class="opt" data-correct="1">La Forêt Active Directory</button>
+        <button class="opt">Le groupe de travail Workgroup</button>
+      </div>
+      <div class="q__exp">La Forêt représente la limite de sécurité absolue : les administrateurs de la racine de la forêt peuvent contrôler l’ensemble des domaines de celle-ci.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel rôle FSMO est chargé de délivrer des blocs d’identifiants pour la création de nouveaux objets ?</p>
+      <div class="opts">
+        <button class="opt">Le Schema Master</button>
+        <button class="opt" data-correct="1">Le RID Master</button>
+        <button class="opt">Le Domain Naming Master</button>
+        <button class="opt">L’Infrastructure Master</button>
+      </div>
+      <div class="q__exp">Le RID Master distribue des blocs de 500 RIDs à chaque DC pour composer les SIDs uniques des nouveaux utilisateurs, groupes et ordinateurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la méthodologie AGDLP, à quel type de groupe accorde-t-on directement les permissions (ACLs) sur les fichiers ?</p>
+      <div class="opts">
+        <button class="opt">Aux groupes Globaux (GG)</button>
+        <button class="opt">Aux groupes Universels (UG)</button>
+        <button class="opt" data-correct="1">Aux groupes Locaux de Domaine (DL)</button>
+        <button class="opt">Directement aux comptes d’utilisateurs</button>
+      </div>
+      <div class="q__exp">Les permissions sont toujours affectées exclusivement aux groupes Locaux de Domaine (DL), qui accueillent ensuite les groupes globaux métier.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel rôle FSMO fait office d’horloge de référence NTP pour tous les ordinateurs et serveurs du domaine ?</p>
+      <div class="opts">
+        <button class="opt">L’Infrastructure Master</button>
+        <button class="opt">Le Schema Master</button>
+        <button class="opt" data-correct="1">Le PDC Emulator</button>
+        <button class="opt">Le Global Catalog</button>
+      </div>
+      <div class="q__exp">Le PDC Emulator est la source de temps faisant autorité dans le domaine pour respecter la tolérance de synchronisation Kerberos (5 min).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel événement du journal de sécurité correspond à l’ajout d’un membre dans un groupe Active Directory ?</p>
+      <div class="opts">
+        <button class="opt">Event ID 4624</button>
+        <button class="opt">Event ID 4720</button>
+        <button class="opt" data-correct="1">Event ID 4728</button>
+        <button class="opt">Event ID 7036</button>
+      </div>
+      <div class="q__exp">L’Event ID 4728 enregistre spécifiquement l’ajout d’un compte dans un groupe de sécurité avec le nom de l’acteur ayant effectué l’action.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que doit-on impérativement faire d’un contrôleur dont le rôle FSMO a été saisi de force (seize) après un crash ?</p>
+      <div class="opts">
+        <button class="opt">Le redémarrer simplement en mode sans échec</button>
+        <button class="opt" data-correct="1">Le formater et ne JAMAIS le reconnecter au réseau Active Directory</button>
+        <button class="opt">Le promouvoir contrôleur secondaire</button>
+        <button class="opt">Changer son adresse IP</button>
+      </div>
+      <div class="q__exp">Un contrôleur dont les rôles ont été saisis de force ne doit jamais réapparaître dans l’annuaire car il contiendrait des métadonnées obsolètes créant des conflits USN.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le modèle AGUDLP multi-domaines, que représente la lettre « U » ?</p>
+      <div class="opts">
+        <button class="opt">Unités Organisationnelles</button>
+        <button class="opt" data-correct="1">Groupes Universels</button>
+        <button class="opt">Utilisateurs privilégiés</button>
+        <button class="opt">Mises à jour automatiques</button>
+      </div>
+      <div class="q__exp">Le U correspond aux Universal Groups (groupes universels), qui permettent de consolider des groupes globaux issus de différents domaines de la forêt.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel événement du journal de sécurité Windows trace la suppression d’un compte utilisateur dans l’annuaire ?</p>
+      <div class="opts">
+        <button class="opt">Event ID 4720</button>
+        <button class="opt" data-correct="1">Event ID 4726</button>
+        <button class="opt">Event ID 4738</button>
+        <button class="opt">Event ID 4768</button>
+      </div>
+      <div class="q__exp">L’Event ID 4726 consigne la suppression définitive d’un objet compte d’utilisateur dans Active Directory.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+      <li>[object Object]</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Concevoir une arborescence d’Unités Organisationnelles (OU) par découpage géographique ou fonctionnel étanche (jamais par type d’objet pur).</li>
+      <li>Placer systématiquement les utilisateurs dans des groupes globaux métier (GG) décrivant leur fonction professionnelle.</li>
+      <li>Créer pour chaque ressource partagée des groupes locaux de domaine (DL) reflétant les niveaux de privilèges (Lecture, Modification, Contrôle total).</li>
+      <li>Imbriquer les groupes globaux (GG) dans les groupes locaux de domaine (DL) appropriés sans jamais affecter directement un compte utilisateur sur une ressource.</li>
+      <li>Répartir les 5 rôles FSMO stratégiquement sur au moins deux contrôleurs de domaine distincts (isoler le PDC Emulator du Master RID).</li>
+      <li>Surveiller les événements d’audit de sécurité (Event IDs 4720, 4726, 4728) pour bloquer toute intégration illégitime dans les groupes Domain Admins.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La forêt est la frontière de sécurité ultime d’Active Directory, unifiée par un schéma commun et une partition de configuration globale.</li>
+      <li>Cinq rôles FSMO régissent les opérations à maître unique : Schema Master et Domain Naming (forêt), PDC Emulator, RID Master et Infrastructure Master (domaine).</li>
+      <li>Le PDC Emulator est le rôle de domaine le plus critique : synchronisation horaire NTP, réplication immédiate des mots de passe et gestion des GPOs.</li>
+      <li>Le standard AGDLP garantit une gestion propre et pérenne : Accounts -> Global Groups -> Domain Local Groups -> Permissions.</li>
+      <li>Les groupes universels (modèle AGUDLP) permettent d’agréger des groupes globaux de plusieurs domaines au sein du Catalogue Global.</li>
+      <li>Les Event IDs 4720 (création), 4726 (suppression) et 4728 (adhésion groupe) constituent la base de la surveillance de la compromission d’annuaire.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>L’arborescence des OUs sépare-t-elle clairement les comptes utilisateurs, les postes clients, les serveurs membres et les comptes d’administration ?</li>
+      <li>Les 5 rôles FSMO sont-ils localisés et documentés à l’aide de la commande netdom query fsmo ?</li>
+      <li>Aucun compte utilisateur n’est-il directement assigné dans une ACL NTFS sans passer par un groupe Local de Domaine (DL) ?</li>
+      <li>Les groupes globaux contiennent-ils exclusivement des comptes du même domaine ?</li>
+      <li>La procédure de secours en cas de perte définitive d’un contrôleur FSMO (saisie de rôle ntdsutil / PowerShell) est-elle éprouvée ?</li>
+      <li>L’audit de gestion des comptes et de modification des groupes de sécurité est-il activé dans les stratégies de groupe du domaine ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong> :</strong> Ensemble d’un ou plusieurs arbres de domaines Active Directory partageant le même schéma logique et constituant la limite de sécurité absolue.</li><li><strong> :</strong> Cinq rôles d’opérations à maître unique attribués à des contrôleurs de domaine spécifiques pour prévenir les conflits de données.</li><li><strong> :</strong> Rôle FSMO de domaine assurant la synchronisation horaire NTP, l’émulation de contrôleur principal et la cohérence immédiate des mots de passe.</li><li><strong> :</strong> Rôle FSMO allouant des pools d’identifiants relatifs (RID) aux contrôleurs de domaine pour la création d’identifiants de sécurité (SID) uniques.</li><li><strong> :</strong> Méthodologie officielle Microsoft structurant l’attribution des permissions : Accounts -> Global Groups -> Domain Local Groups -> Permissions.</li><li><strong> :</strong> Portée de groupe Active Directory conçue pour regrouper des comptes d’un même domaine partageant une même fonction métier.</li><li><strong> :</strong> Portée de groupe Active Directory destinée à être assignée directement sur les listes de contrôle d’accès (ACLs) d’une ressource.</li><li><strong> :</strong> Événement d’audit Windows Security généré chaque fois qu’un membre est ajouté à un groupe de sécurité Active Directory.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Confusion entre rôles de forêt et rôles de domaine, ou non-respect de la chaîne de permissions AGDLP.</div>
+      <div class="bandrow bandrow--medium">Bonne modélisation d’annuaire, gestion rigoureuse des groupes AGDLP et compréhension des responsabilités de chaque rôle FSMO.</div>
+      <div class="bandrow bandrow--high">Expertise d’architecte d’annuaire : gouvernance AGUDLP multi-domaines, gestion de crise FSMO et audit temps réel des élévations de privilèges.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Stratégies de Groupe (GPO), Modèle LSDOU &amp; Gouvernance de Parc <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Microsoft Learn Windows Server 2022/2025, Standards RFC 2131 (DHCP), RFC 2782 (DNS SRV), Guide d’administration L3-IT (Caleb AGOUTOCO-POKO, Collège de Paris).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

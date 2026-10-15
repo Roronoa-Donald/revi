@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Composants fonctionnels &amp; transmission de props | React B2</title>
+<meta name="description" content="Chapitre 2 du cours React B2 : Fonctions composants, déstructuration, valeurs par défaut, prop children, composition et flux unidirectionnel. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/react/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Composants fonctionnels &amp; transmission de props | React B2">
+<meta property="og:description" content="Chapitre 2 du cours React B2 : Fonctions composants, déstructuration, valeurs par défaut, prop children, composition et flux unidirectionnel. Théorie, exemples détaillés, exercices JavaScript exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="reactnav"><div class="reactnav__in">
+  <a class="reactnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="reactnav__sep" aria-hidden="true">/</span>
+  <a class="reactnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> React B2</a>
+  <div class="reactnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="reactnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="reactwrap">
+<p class="crumb"><a href="../index.html">React B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Composants fonctionnels & transmission de props</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une fois le découpage d’une interface compris, il faut faire communiquer les composants entre eux. React privilégie des fonctions pures recevant des données en entrée (les props) pour garantir la réutilisabilité et la prévisibilité de l’application.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>créer des composants fonctionnels modernes respectant les conventions de nommage ;</li>
+      <li>passer des props de tout type (chaînes, nombres, objets, fonctions) ;</li>
+      <li>déstructurer les props et définir des valeurs par défaut robustes ;</li>
+      <li>maîtriser la prop children pour concevoir des conteneurs réutilisables ;</li>
+      <li>comprendre le flux de données unidirectionnel descendant.</li>
+    </ol>
+  </div>
+
+<h2>1. Anatomie d’un composant fonctionnel</h2>
+
+<p>En React moderne, un <strong>composant fonctionnel</strong> est une simple fonction JavaScript qui reçoit un objet de données appelé <code>props</code> et renvoie une description de l’UI en JSX.</p>
+<pre><code>// Composant simple avec déstructuration
+function CarteUtilisateur({ nom, role = 'lecteur' }) {
+  return (
+    &lt;div className="carte"&gt;
+      &lt;h3&gt;{nom}&lt;/h3&gt;
+      &lt;span className="badge"&gt;{role}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+  <div class="box box--warn">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Convention stricte de casse</div>
+    <p>Le nom d’un composant React <strong>doit impérativement commencer par une majuscule</strong> (ex. <code>CarteUtilisateur</code>). Une balise en minuscule (ex. <code>&lt;div&gt;</code>, <code>&lt;span&gt;</code>) est traitée par React comme un élément HTML natif du DOM.</p>
+  </div>
+
+<h2>2. Transmission et lecture des props</h2>
+
+<p>Les <strong>props</strong> (diminutif de <em>properties</em>) constituent le mécanisme par lequel un composant parent transmet des informations à un composant enfant. Elles sont <strong>en lecture seule (immuables)</strong> : un composant ne doit jamais modifier ses propres props.</p>
+<pre><code>// Passage de différents types de props
+&lt;Profil
+  nom="Alexandre"
+  age={24}
+  isAdmin={true}
+  competences={['React', 'Vite', 'Node']}
+  onSelect={() =&gt; console.log('Sélectionné')}
+/&gt;</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Les expressions JavaScript entre accolades</div>
+    <p>Dans du JSX, tout ce qui se trouve entre accolades <code>{...}</code> est évalué comme une expression JavaScript : variables, calculs arithmétiques, appels de fonctions ou chaînes littérales.</p>
+  </div>
+
+<h2>3. Composition et la prop spéciale children</h2>
+
+<p>React favorise la <strong>composition</strong> plutôt que l’héritage. Lorsqu’un composant agit comme une boîte générique (panneau, carte, boîte de dialogue), il ne sait pas à l’avance ce qu’il va contenir. Il utilise alors la prop réservée <code>children</code> :</p>
+<pre><code>function Card({ titre, children }) {
+  return (
+    &lt;div className="card-box"&gt;
+      &lt;h2&gt;{titre}&lt;/h2&gt;
+      &lt;div className="card-body"&gt;
+        {children}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Utilisation avec imbrication de contenu arbitraire :
+&lt;Card titre="Mon Compte"&gt;
+  &lt;p&gt;Bienvenue sur votre espace personnel.&lt;/p&gt;
+  &lt;button&gt;Modifier profil&lt;/button&gt;
+&lt;/Card&gt;</code></pre>
+
+<h2>4. Flux unidirectionnel et prop drilling</h2>
+
+<p>Les données descendent toujours du parent vers les enfants dans un <strong>flux unidirectionnel</strong>. Lorsqu’une donnée doit traverser plusieurs composants intermédiaires qui n’en ont pas l’usage direct, on parle de <em>prop drilling</em>.</p>
+<p>Dans les applications de taille intermédiaire à grande, on résout ce problème par la composition de composants ou par l’utilisation de l’API <code>Context</code> de React.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="rx2-c2-e1"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="Sophie admin&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const [nom, role] = lignes[0].split(' ');
+
+// À compléter : gérer le rôle par défaut et afficher le résultat
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Valeurs par défaut des props</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer un rôle par défaut si la prop transmise est omise ou indéfinie.</p>
+    <div class="lab__brief"><p>Les composants React utilisent des valeurs par défaut pour leurs props optionnelles. Le programme lit une ligne <code>nom role</code>. Si le rôle vaut <code>-</code> ou est absent, la valeur par défaut est <code>invite</code>. Affichez <code>Utilisateur : nom | Role : role</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Sophie admin
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Utilisateur : Sophie | Role : admin</pre></div>
+    </div>
+    <p class="lab__note">Rôle explicite admin.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifiez si role est falsy ou égal à "-" avec une ternaire ou l'opérateur ||.</li>
+        <li>Affichez la chaîne formatée avec un gabarit littéral.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c2-e2"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="info&#10;Mise a jour disponible&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const variante = lignes[0];
+const texte = lignes[1];
+
+// À compléter : afficher le composant conteneur avec sa prop children
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Composition et prop children</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Encapsuler un contenu arbitraire dans un composant Card réutilisable.</p>
+    <div class="lab__brief"><p>La prop spéciale <code>children</code> permet d'imbriquer du contenu. Le programme lit deux lignes : la <strong>variante</strong> CSS sur la ligne 1 (ex. <code>info</code>, <code>danger</code>), et le <strong>texte enfant</strong> sur la ligne 2. Affichez la balise générée : <code>&lt;div class="card card-VARIANTE"&gt;&lt;p&gt;TEXTE&lt;/p&gt;&lt;/div&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>info
+Mise a jour disponible
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>&lt;div class="card card-info"&gt;&lt;p&gt;Mise a jour disponible&lt;/p&gt;&lt;/div&gt;</pre></div>
+    </div>
+    <p class="lab__note">Carte de notification info.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Nettoyez les éventuels espaces avec trim().</li>
+        <li>Injectez la variante dans la classe et le texte enfant dans le paragraphe interne.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="rx2-c2-e3"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="id=btn1 theme=dark active=true onClick=handleClick&#10;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const paires = lignes[0].split(' ');
+
+// À compléter : déstructurer les props et afficher id, theme et active
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Déstructuration et filtrage de props</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Extraire les props pertinentes pour éviter de transmettre des attributs parasites aux balises HTML.</p>
+    <div class="lab__brief"><p>En React moderne, on déstructure les props d'un composant pour isoler celles dont il a besoin. Le script reçoit sur une ligne des paires <code>cle=valeur</code> séparées par des espaces. Isolez les props <code>id</code>, <code>theme</code> et <code>active</code>, et affichez-les au format : <code>Props filtrees : id=ID theme=THEME active=ACTIVE</code> (si une clé manque, affichez <code>none</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>id=btn1 theme=dark active=true onClick=handleClick
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Props filtrees : id=btn1 theme=dark active=true</pre></div>
+    </div>
+    <p class="lab__note">Extraction de 3 props en ignorant onClick.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stockez les paires dans un objet ou une Map en découpant chaque terme au signe =.</li>
+        <li>Assignez la valeur par défaut "none" pour les trois propriétés attendues.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Un composant React doit obligatoirement commencer par…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une lettre majuscule (PascalCase)</button>
+        <button class="opt">Le préfixe use (ex. useButton)</button>
+        <button class="opt">Le mot-clé class</button>
+      </div>
+      <div class="q__exp">Une majuscule signale à React qu’il s’agit d’un composant personnalisé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Les props reçues par un composant sont…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En lecture seule (immuables)</button>
+        <button class="opt">Directement modifiables par réassignation</button>
+        <button class="opt">Synchronisées avec le localStorage</button>
+      </div>
+      <div class="q__exp">Un composant doit se comporter comme une fonction pure vis-à-vis de ses props.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La prop spéciale « children » permet de…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Rendre le contenu imbriqué dans la balise du composant</button>
+        <button class="opt">Lister les processus enfants du système</button>
+        <button class="opt">Forcer le composant à se re-rendre</button>
+      </div>
+      <div class="q__exp">children capture le JSX placé à l’intérieur d’un conteneur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour passer un nombre comme prop en JSX, on écrit…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">age={42}</button>
+        <button class="opt">age="42"</button>
+        <button class="opt">age=[42]</button>
+      </div>
+      <div class="q__exp">Les accolades {42} transmettent un type numérique JavaScript.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le terme « prop drilling » désigne…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le passage fastidieux de props sur plusieurs niveaux hiérarchiques</button>
+        <button class="opt">Une faille de sécurité par injection SQL</button>
+        <button class="opt">Un outil d’optimisation automatique</button>
+      </div>
+      <div class="q__exp">C’est le transit de données à travers des intermédiaires qui ne l’utilisent pas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment définit-on une valeur par défaut pour une prop déstructurée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">function Card({ theme = 'light' })</button>
+        <button class="opt">function Card({ theme : default('light') })</button>
+        <button class="opt">function Card({ theme || 'light' })</button>
+      </div>
+      <div class="q__exp">On utilise la syntaxe standard ES6 de valeur par défaut dans la déstructuration.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Les fonctions de rappel (callbacks) peuvent être passées comme props pour…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Permettre à un composant enfant de notifier un événement au parent</button>
+        <button class="opt">Bloquer l’exécution du JavaScript</button>
+        <button class="opt">Chiffrer les requêtes HTTP</button>
+      </div>
+      <div class="q__exp">Les callbacks permettent aux enfants de faire remonter des informations.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel sens circulent les données en React par défaut ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Du composant parent vers les composants enfants (flux descendant)</button>
+        <button class="opt">Des enfants vers les parents de manière bidirectionnelle</button>
+        <button class="opt">Aléatoirement selon la mémoire disponible</button>
+      </div>
+      <div class="q__exp">Le flux de données unidirectionnel assure la prévisibilité de l’application.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Tenter de modifier directement les props (ex. props.titre = "Nouveau").</li>
+      <li>Oublier les accolades pour passer un booléen, un nombre ou un objet (ex. age="20" au lieu de age={20}).</li>
+      <li>Nommer un composant en minuscule (ex. function button() au lieu de Button()).</li>
+      <li>Multiplier le prop drilling sans envisager la composition avec children.</li>
+      <li>Confondre props (reçues de l’extérieur, immuables) et state (géré localement, modifiable).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Concevoir et paramétrer un composant réutilisable</div>
+    <ol>
+      <li><strong>Identifier</strong> les données variables nécessaires au composant.</li>
+      <li><strong>Déclarer</strong> la fonction avec un nom explicite en PascalCase.</li>
+      <li><strong>Déstructurer</strong> l’objet props en argument avec des valeurs par défaut pour les champs optionnels.</li>
+      <li><strong>Utiliser</strong> la prop children si le composant sert de conteneur d’éléments arbitraires.</li>
+      <li><strong>Tester</strong> le composant avec différents jeux de props pour vérifier sa robustesse.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un composant fonctionnel est une fonction pure retournant du JSX.</li>
+      <li>Les props permettent aux parents de transmettre des paramètres en lecture seule.</li>
+      <li>La déstructuration ES6 ({ prop1, prop2 = defaut }) améliore la lisibilité du code.</li>
+      <li>La prop children permet de concevoir des conteneurs réutilisables (Card, Dialog, Layout).</li>
+      <li>Les données s’écoulent selon un flux unidirectionnel descendant prévisible.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais nommer mes composants en PascalCase.</li>
+      <li>Je transmets des données de tout type avec la syntaxe {expression}.</li>
+      <li>Je déstructure mes props et prévois des valeurs de repli.</li>
+      <li>J’utilise la prop children pour créer des conteneurs.</li>
+      <li>Je ne modifie jamais directement les props reçues.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Composant fonctionnel</li><li>Props</li><li>children</li><li>Composition</li><li>Déstructuration</li><li>Valeurs par défaut</li><li>Flux unidirectionnel</li><li>Prop drilling</li><li>Fonction pure</li><li>PascalCase</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise la syntaxe des props et la déstructuration d’objets.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur l’utilisation de la prop children et les valeurs par défaut.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises la composition et le flux descendant.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe à la gestion d’état avec useState dans le chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — État local (useState) & formulaires contrôlés <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours officiel React B2, le recueil de questions interactives (scripts/questions-react.js) et la documentation de référence react.dev.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

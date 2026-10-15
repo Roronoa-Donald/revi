@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firewall &amp; Sécurité Réseau B3 — Sécurité Périmétrique, Filtrage Réseau &amp;amp; Pare-feux B3</title>
+<meta name="description" content="Formation d’excellence en sécurité périmétrique et technologies de pare-feux pour le Bachelor 3 : fondements de la sécurité réseau et filtrage stateless (zones de confiance, en-têtes L3/L4 IPv4/TCP/UDP, politique Default DROP et vulnérabilités aux paquets ACK forgés), inspection dynamique avec suivi d’état (Stateful Packet Inspection selon la RFC 793, table conntrack netfilter, états NEW/ESTABLISHED/RELATED/INVALID, purge des timeouts et détection des scans furtifs Xmas et Null), politiques de sécurité et ordonnancement d’ACLs (principe First-Match-Wins, détection formelle du Rule Shadowing et des redondances, translation d’adresses SNAT Masquerade, DNAT Port Forwarding et PAT), architectures réseau étanches et zones démilitarisées (règle cardinale DMZ interdisant formellement l’initiation vers le LAN, topologies Dual-Homed, Triple-Homed et Back-to-Back hétérogène, passerelles d’administration par bastion SSH et Jump Hosts MFA), filtrage applicatif L7 et pare-feux nouvelle génération (obsolescence du filtrage de port face au HTTPS, identification applicative App-ID et User-ID, inspection du Server Name Indication SNI TLS, filtrage web catégoriel, protection anti-DoS par Rate Limiting en fenêtre glissante et Deep Packet Inspection DPI neutralisant les injections SQL et failles XSS), et mise en œuvre opérationnelle sous Linux Netfilter (hooks noyau, tables et chaînes, syntaxe comparée iptables vs nftables moderne, analyse statistique des logs Syslog et réponse active automatisée par bannissement dynamique Fail2ban/SIEM).">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-firewall/index.html">
+<meta property="og:title" content="Firewall &amp; Sécurité Réseau B3 — Sécurité Périmétrique, Filtrage Réseau &amp;amp; Pare-feux B3">
+<meta property="og:description" content="Formation d’excellence en sécurité périmétrique et technologies de pare-feux pour le Bachelor 3 : fondements de la sécurité réseau et filtrage stateless (zones de confiance, en-têtes L3/L4 IPv4/TCP/UDP, politique Default DROP et vulnérabilités aux paquets ACK forgés), inspection dynamique avec suivi d’état (Stateful Packet Inspection selon la RFC 793, table conntrack netfilter, états NEW/ESTABLISHED/RELATED/INVALID, purge des timeouts et détection des scans furtifs Xmas et Null), politiques de sécurité et ordonnancement d’ACLs (principe First-Match-Wins, détection formelle du Rule Shadowing et des redondances, translation d’adresses SNAT Masquerade, DNAT Port Forwarding et PAT), architectures réseau étanches et zones démilitarisées (règle cardinale DMZ interdisant formellement l’initiation vers le LAN, topologies Dual-Homed, Triple-Homed et Back-to-Back hétérogène, passerelles d’administration par bastion SSH et Jump Hosts MFA), filtrage applicatif L7 et pare-feux nouvelle génération (obsolescence du filtrage de port face au HTTPS, identification applicative App-ID et User-ID, inspection du Server Name Indication SNI TLS, filtrage web catégoriel, protection anti-DoS par Rate Limiting en fenêtre glissante et Deep Packet Inspection DPI neutralisant les injections SQL et failles XSS), et mise en œuvre opérationnelle sous Linux Netfilter (hooks noyau, tables et chaînes, syntaxe comparée iptables vs nftables moderne, analyse statistique des logs Syslog et réponse active automatisée par bannissement dynamique Fail2ban/SIEM).">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-firewallnav"><div class="b3-firewallnav__in">
+  <a class="b3-firewallnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-firewallnav__sep" aria-hidden="true">/</span>
+  <a class="b3-firewallnav__brand" href="index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Firewall &amp; Sécurité Réseau B3</a>
+  <div class="b3-firewallnav__links">
+    <a href="sommaire.html">Sommaire</a>
+    <a href="chapitres/chapitre1.html">Ch. 1</a>
+    <a href="chapitres/chapitre2.html">Ch. 2</a>
+    <a href="chapitres/chapitre3.html">Ch. 3</a>
+    <a href="chapitres/chapitre4.html">Ch. 4</a>
+    <a href="chapitres/chapitre5.html">Ch. 5</a>
+    <a href="chapitres/chapitre6.html">Ch. 6</a>
+    <a href="chapitres/cartes.html">Cartes</a>
+    <a href="chapitres/formules.html">Mémo</a>
+    <a href="exercices/exercices.html">Exercices</a>
+    <a href="atelier.html">Atelier</a>
+    <a href="chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-firewallnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-firewallwrap">
+  <header class="hero">
+
+    <div class="hero__badge"><span class="badge badge--glow"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Niveau B3 • Sécurité Périmétrique, Filtrage Réseau &amp; Pare-feux</span></div>
+
+    <h1 class="hero__title">Firewall & Sécurité Réseau B3</h1>
+
+    <p class="hero__subtitle">Maîtrisez la défense périmétrique complète, le suivi de sessions conntrack, l’ingénierie DMZ, le filtrage applicatif L7 et le déploiement Linux Netfilter de niveau Bachelor 3. Six modules approfondis combinant formalisme théorique, 18 ateliers de programmation interactive en Python 3 et 48 QCM d’évaluation.</p>
+
+    <div class="hero__actions">
+
+      <a class="btn btn--primary btn--lg" href="chapitres/chapitre1.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Démarrer le cours</a>
+
+      <a class="btn btn--lg" href="sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> Voir le sommaire</a>
+
+      <a class="btn btn--lg" href="atelier.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Laboratoire Pare-feu &amp; Sécurité</a>
+
+    </div>
+
+  </header>
+
+
+
+  <section class="statbar">
+
+    <div class="stat"><span class="stat__val">6</span><span class="stat__lbl">Modules fondamentaux</span></div>
+
+    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Exercices de code exécutables</span></div>
+
+    <div class="stat"><span class="stat__val">48</span><span class="stat__lbl">Questions de QCM corrigées</span></div>
+
+    <div class="stat"><span class="stat__val">2</span><span class="stat__lbl">Examens blancs complets</span></div>
+
+  </section>
+
+
+
+  <h2>Parcours d’apprentissage</h2>
+
+  <div class="grid">    <article class="card">
+      <div class="card__head">
+        <span class="badge">Accès libre</span>
+        <span class="card__num">Module 1</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre1.html">Fondements, Évolution des Pare-feux &amp; Filtrage Sans État (Stateless)</a></h3>
+      <p class="card__desc">Concepts de sécurité périmétrique, zones de confiance, filtrage de paquets statique L3/L4, en-têtes IP/TCP, règles Default DROP et limites du filtrage sans état.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 2</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre2.html">Filtrage Dynamique avec Suivi d’État (Stateful Inspection) &amp; Table Conntrack</a></h3>
+      <p class="card__desc">Machine à états finis TCP (RFC 793), module netfilter conntrack, états NEW/ESTABLISHED/RELATED/INVALID, gestion des timeouts et détection des scans furtifs (Xmas, Null).</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 3</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre3.html">Politiques de Sécurité, Listes de Contrôle d’Accès (ACL) &amp; NAT</a></h3>
+      <p class="card__desc">Moteur d’évaluation First-Match-Wins, politique Default DROP, détection du masquage de règles (Rule Shadowing), redondances et translation d’adresses NAT/PAT (SNAT, DNAT).</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 4</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre4.html">Architectures Réseau Sécurisées, Zone Démilitarisée (DMZ) &amp; Bastions</a></h3>
+      <p class="card__desc">Zone Démilitarisée (DMZ), règle cardinale inter-zones, topologies pare-feu (Dual-Homed, Triple-Homed, Back-to-Back en cascade), hôtes de rebond et bastions SSH d’administration.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 5</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre5.html">Filtrage Applicatif L7, UTM &amp; Pare-feux Nouvelle Génération (NGFW)</a></h3>
+      <p class="card__desc">Limites du filtrage de port L4, identification applicative App-ID, inspection du champ SNI TLS, filtrage web catégoriel, protection anti-DoS par rate limiting et moteur DPI (Deep Packet Inspection).</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 6</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre6.html">Déploiement Linux Netfilter (iptables / nftables), Logs &amp; Intégration SIEM</a></h3>
+      <p class="card__desc">Architecture du sous-système netfilter du noyau Linux, comparaison syntaxique iptables vs nftables, analyse statistique des logs pare-feu, détection de force brute et bannissement dynamique avec Fail2ban/SIEM.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article></div>
+
+
+
+  <h2>Architecture &amp; Philosophie de la Sécurité Réseau</h2>
+
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> La Défense en Profondeur et la Maîtrise des Flux Réseau en Troisième Année</div>
+<p>En ingénierie des réseaux et systèmes informatiques de niveau Bachelor 3, le pare-feu (Firewall) constitue la première ligne de défense péremptoire de toute infrastructure d’entreprise. Loin de se résumer à un simple routeur avec quelques règles de blocage, le pare-feu moderne est un composant stratégique orchestrant l’isolation des zones de confiance, le suivi d’état dynamique des sessions (Stateful Inspection), la translation d’adresses (NAT/PAT), l’analyse protocolaire applicative de couche 7 (DPI/NGFW) et la corrélation d’alertes avec les systèmes de détection d’intrusions (IDS/IPS et SIEM).</p>,<p>Ce cours approfondit l’intégralité des concepts fondamentaux et opérationnels de la sécurité périmétrique : les quatre générations technologiques de pare-feux (du filtrage statique stateless jusqu’aux NGFW dotés d’intelligence sur les menaces zero-day), la mécanique de suivi de sessions TCP selon la RFC 793 et les tables netfilter conntrack, l’ordonnancement des listes de contrôle d’accès (ACLs First-Match-Wins) avec détection mathématique des anomalies et du masquage de règles (Rule Shadowing), la conception rigoureuse de zones démilitarisées (DMZ) et topologies haute sécurité (Dual-Homed, Triple-Homed, pare-feux en cascade Back-to-Back hétérogènes), le filtrage d’URL et SNI TLS, la protection anti-déni de service par rate limiting, l’inspection profonde de contenu (DPI) neutralisant les injections SQL et attaques XSS, et enfin la mise en œuvre pratique sur systèmes Linux via iptables et nftables combinée à l’analyse de logs et au bannissement dynamique automatisé (Fail2ban).</p>
+  </div>
+
+
+
+  <div class="chnav">
+    <a class="btn btn--primary" href="chapitres/chapitre1.html">Commencer par le Chapitre 1 <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail personnel.</p>
+</main>
+
+<script src="assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercices &amp;amp; projet intégrateur — Git B1</title>
+<meta name="description" content="Exercices supplémentaires et projet intégrateur du cours de Git B1 : scripts Bash gradués et gestion complète d'un dépôt de binôme.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-git/exercices/exercices.html">
+<meta property="og:title" content="Exercices &amp;amp; projet intégrateur — Git B1">
+<meta property="og:description" content="Exercices supplémentaires et projet intégrateur du cours de Git B1 : scripts Bash gradués et gestion complète d'un dépôt de binôme.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="gtnav"><div class="gtnav__in">
+  <a class="gtnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="gtnav__sep" aria-hidden="true">/</span>
+  <a class="gtnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git B1</a>
+  <div class="gtnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html" class="is-active">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="gtnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="gtwrap">
+<p class="crumb"><a href="../index.html">Git B1</a> › <a href="../sommaire.html">Sommaire</a> › Exercices</p>
+
+  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>
+
+  <p class="lead">De la pratique graduée pour consolider chaque module, puis un projet final qui gère la collaboration complète d'un dépôt versionné. Les scripts sont en Bash, comme à l'atelier.</p>
+
+  <h2>Entraînement rapide (acquisition)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Échauffement</span></div>
+    <ol>
+      <li>Lit n puis n commandes « commande » et affiche ok pour chaque commande connue (init, add, commit, push, pull).</li>
+      <li>Lit n commits et affiche le nombre total, la tête HEAD (dernier numéro) et le premier numéro.</li>
+      <li>Lit n opérations add/commit et affiche combien de fichiers sont restés en index à la fin.</li>
+      <li>Lit un SHA abrégé (comme a1b2) et affiche sa longueur et son premier caractère.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+connues="init add commit push pull"
+for ((i=0; i&lt;n; i++)); do
+  read -r commande
+  case "$connues" in
+    *"$commande"*) echo "ok" ;;
+    *) echo "inconnue" ;;
+  esac
+done
+
+read -r n
+for ((i=0; i&lt;n; i++)); do
+  read -r mot
+done
+echo "commits : $n"
+echo "HEAD : a$n"
+echo "premier : a1"
+
+read -r n
+index=0
+for ((i=0; i&lt;n; i++)); do
+  read -r op
+  if [ "$op" = "add" ]; then index=$((index + 1)); fi
+  if [ "$op" = "commit" ]; then index=0; fi
+done
+echo "en index : $index"
+
+read -r sha
+echo "longueur : ${#sha}"
+echo "premier : ${sha:0:1}"</code></pre></div></details>
+  </div>
+
+  <h2>Application</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Application</span></div>
+    <ol>
+      <li>Simule git stash : lit n opérations modifie/stash/pop et affiche l'état final (copie, remises).</li>
+      <li>Valide des messages de commit : majuscule, 50 caractères max, sans point final.</li>
+      <li>Lit n fichiers « nom taille » et affiche les trois plus gros dans l'ordre (tri simple).</li>
+      <li>Simule un .gitignore à un motif (*.ext) : refuse les adds filtrés, liste l'index.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+copie=0
+remises=0
+for ((i=0; i&lt;n; i++)); do
+  read -r op
+  if [ "$op" = "modifie" ]; then copie=$((copie + 1)); fi
+  if [ "$op" = "stash" ]; then remises=$((remises + 1)); copie=0; fi
+  if [ "$op" = "pop" ] &amp;&amp; [ "$remises" -gt 0 ]; then remises=$((remises - 1)); fi
+done
+echo "copie : $copie"
+echo "remises : $remises"
+
+read -r n
+for ((i=0; i&lt;n; i++)); do
+  read -r message
+  premiere="${message:0:1}"
+  if [ "$premiere" != "${premiere^^}" ]; then echo "majuscule"
+  elif [ "${#message}" -gt 50 ]; then echo "longueur"
+  elif [ "${message: -1}" = "." ]; then echo "point final"
+  else echo "ok"; fi
+done
+
+read -r n
+noms=()
+tailles=()
+for ((i=0; i&lt;n; i++)); do
+  read -r nom taille
+  noms+=("$nom")
+  tailles+=("$taille")
+done
+for ((i=0; i&lt;3 &amp;&amp; i&lt;n; i++)); do
+  max=-1
+  idx=-1
+  for k in "${!tailles[@]}"; do
+    [ "${tailles[$k]}" -gt "$max" ] &amp;&amp; { max="${tailles[$k]}"; idx=$k; }
+  done
+  echo "${noms[$idx]} ${tailles[$idx]}"
+  unset "noms[$idx]"
+  unset "tailles[$idx]"
+  noms=("${noms[@]}")
+  tailles=("${tailles[@]}")
+done
+
+read -r motif
+read -r n
+suffixe="${motif:1}"
+for ((i=0; i&lt;n; i++)); do
+  read -r op fichier
+  if [ "$op" = "add" ]; then
+    if [ "${fichier: -${#suffixe}}" = "$suffixe" ]; then echo "ignoré"
+    else index+=("$fichier"); fi
+  else for f in "${index[@]}"; do echo "$f"; done; fi
+done</code></pre></div></details>
+  </div>
+
+  <h2>Raisonnement</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Raisonnement</span></div>
+    <ol>
+      <li>Simule deux branches avec commits parallèles puis une fusion : affiche l'historique combiné.</li>
+      <li>Décompose pull : lit les opérations tierce/fetch/merge et affiche local, origin/main et copie.</li>
+      <li>Décode un conflit : lit un fichier avec marqueurs et affiche les deux versions côte à côte.</li>
+      <li>Compte les trajets : pour n opérations, affiche combien de fichiers ont traversé copie→index→dépôt.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+main=()
+feature=()
+num_main=0
+num_feature=0
+for ((i=0; i&lt;n; i++)); do
+  read -r branche message
+  if [ "$branche" = "main" ]; then num_main=$((num_main + 1)); main+=("m$num_main $message")
+  else num_feature=$((num_feature + 1)); feature+=("f$num_feature $message"); fi
+done
+echo "--- main ---"
+for ligne in "${main[@]}"; do echo "$ligne"; done
+echo "--- feature ---"
+for ligne in "${feature[@]}"; do echo "$ligne"; done
+
+read -r n
+local=0
+origin=0
+for ((i=0; i&lt;n; i++)); do
+  read -r op
+  if [ "$op" = "commit" ]; then local=$((local + 1)); fi
+  if [ "$op" = "tierce" ]; then origin=$((origin + 1)); fi
+  if [ "$op" = "fetch" ]; then echo "fetch : origin/main = $origin (copie inchangée)"; fi
+  if [ "$op" = "merge" ] &amp;&amp; [ "$origin" -gt "$local" ]; then local=$origin; echo "merge : avance à $local"; fi
+done
+echo "local : $local"
+echo "origin/main : $origin"
+
+read -r n
+dans_conflit=0
+for ((i=0; i&lt;n; i++)); do
+  read -r ligne
+  case "$ligne" in
+    "&lt;&lt;&lt;&lt;&lt;&lt;&lt;"*) dans_conflit=1 ;;
+    "=======") echo "-- vs --" ;;
+    "&gt;&gt;&gt;&gt;&gt;&gt;&gt;"*) dans_conflit=0 ;;
+    *) [ "$dans_conflit" = "1" ] &amp;&amp; echo "$ligne" ;;
+  esac
+done
+
+read -r n
+trajet_complet=0
+etape=0
+for ((i=0; i&lt;n; i++)); do
+  read -r op
+  if [ "$op" = "add" ]; then etape=1; fi
+  if [ "$op" = "commit" ] &amp;&amp; [ "$etape" = "1" ]; then trajet_complet=$((trajet_complet + 1)); etape=0; fi
+done
+echo "copie→index→dépôt : $trajet_complet"</code></pre></div></details>
+  </div>
+
+  <h2>Projet intégrateur — « dépôt de binôme »</h2>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges</div>
+    <p>Deux développeurs travaillent sur le projet gestion_taches. Le script lit <code>n</code> opérations au format <code>acteur operation [argument]</code> — acteur vaut A ou B, operation parmi <code>commit</code> (message), <code>push</code>, <code>pull</code>. Le dépôt distant rejette un push si l'autre acteur a poussé depuis le dernier pull de cet acteur. Le rapport final affiche le nombre de push réussis, refusés, les conflits détectés (push refusé suivi direct d'un push sans pull entre les deux) et l'état final des deux copies.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Fonctionnalités attendues</div>
+    <ol>
+      <li><strong>Lire</strong> les opérations dans l'ordre, acteur par acteur, sans mélanger.</li>
+      <li><strong>Suivre</strong> par acteur : commits locaux en attente et fraîcheur (pull vu).</li>
+      <li><strong>Arbitrer</strong> : le distant avance à chaque push réussi.</li>
+      <li><strong>Compter</strong> : pushs réussis, rejetés, pulls effectués.</li>
+      <li><strong>Recommander</strong> : « pull recommandé pour X » si X tente un push avec un distant en avance.</li>
+      <li><strong>Formater</strong> : libellés exacts, un compte par ligne.</li>
+    </ol>
+    <p>Contraintes : deux structures parallèles (une par acteur), pas de variable globale de copie, bilan après la boucle.</p>
+  </div>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Grille d'auto-évaluation du projet (sur 100)</div>
+    <div class="bands">
+      <div class="bandrow">Lecture et séparation par acteur <strong>20</strong></div>
+      <div class="bandrow">Suivi des états par acteur correct <strong>20</strong></div>
+      <div class="bandrow">Arbitrage du distant conforme <strong>20</strong></div>
+      <div class="bandrow">Comptes et recommandations exacts <strong>20</strong></div>
+      <div class="bandrow">Lisibilité, noms, formats <strong>20</strong></div>
+    </div>
+    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>
+  </div>
+
+  <details>
+
+    <summary>Voir une solution de référence (après avoir essayé !)</summary>
+
+    <div class="sol">
+
+      <pre><code>read -r n
+commits_a=0 ; commits_b=0
+frais_a=1 ; frais_b=1
+distant=0
+ok_push=0 ; ko_push=0 ; pulls=0
+for ((i=0; i&lt;n; i++)); do
+  read -r acteur operation reste
+  if [ "$operation" = "commit" ]; then
+    if [ "$acteur" = "A" ]; then commits_a=$((commits_a + 1)); else commits_b=$((commits_b + 1)); fi
+  elif [ "$operation" = "pull" ]; then
+    if [ "$acteur" = "A" ]; then frais_a=1 ; [ "$distant" -gt "$commits_a" ] &amp;&amp; commits_a=$distant
+    else frais_b=1 ; [ "$distant" -gt "$commits_b" ] &amp;&amp; commits_b=$distant; fi
+    pulls=$((pulls + 1))
+  elif [ "$operation" = "push" ]; then
+    if [ "$acteur" = "A" ]; then locaux=$commits_a ; frais=$frais_a
+    else locaux=$commits_b ; frais=$frais_b; fi
+    if [ "$locaux" -gt "$distant" ] &amp;&amp; [ "$frais" = "1" ]; then
+      distant=$locaux
+      if [ "$acteur" = "A" ]; then frais_b=0; else frais_a=0; fi
+      ok_push=$((ok_push + 1))
+    else
+      ko_push=$((ko_push + 1))
+      echo "pull recommandé pour $acteur"
+    fi
+  fi
+done
+echo "push réussis : $ok_push"
+echo "push refusés : $ko_push"
+echo "pulls : $pulls"
+echo "commits A : $commits_a"
+echo "commits B : $commits_b"
+echo "distant : $distant"</code></pre>
+
+      Cette solution combine lecture par acteur, suivi d'états parallèles, arbitrage du distant et rapport final — les chapitres 1, 2 et 5 en un seul script.
+
+    </div>
+
+  </details>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../chapitres/simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Exercices construits d'après l'aide-mémoire GitHub, le vade-mecum ENSICAEN et les TP du module. Sources : l'« Aide-mémoire GitHub Git », le vade-mecum « Travailler avec Git au quotidien » (ENSICAEN) et les TP 1 à 5 du module Git.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

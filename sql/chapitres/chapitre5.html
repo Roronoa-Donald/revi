@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Transactions ACID, Concurrence &amp;amp; Niveaux d’Isolation | SQL B2</title>
+<meta name="description" content="Chapitre 5 du cours SQL B2 : Propriétés ACID, commandes de contrôle transactionnel (BEGIN, COMMIT, ROLLBACK, SAVEPOINT), anomalies de concurrence (lectures sales, non répétables, fantômes), 4 niveaux d’isolation ANSI/ISO et gestion des verrous et interblocages (Deadlocks). Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/sql/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Transactions ACID, Concurrence &amp;amp; Niveaux d’Isolation | SQL B2">
+<meta property="og:description" content="Chapitre 5 du cours SQL B2 : Propriétés ACID, commandes de contrôle transactionnel (BEGIN, COMMIT, ROLLBACK, SAVEPOINT), anomalies de concurrence (lectures sales, non répétables, fantômes), 4 niveaux d’isolation ANSI/ISO et gestion des verrous et interblocages (Deadlocks). Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="sqlnav"><div class="sqlnav__in">
+  <a class="sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="sqlnav__sep" aria-hidden="true">/</span>
+  <a class="sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL B2</a>
+  <div class="sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="sqlwrap">
+<p class="crumb"><a href="../index.html">SQL B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Transactions ACID, Concurrence &amp; Niveaux d’Isolation</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lors d’une vente flash de billets de concert, deux utilisateurs cliquent simultanément sur le dernier siège disponible. Dans un système mal isolé, les deux requêtes lisent l’état « libre », débitent les comptes respectifs et attribuent la même place deux fois : c’est une anomalie de concurrence classique de mise à jour perdue (Lost Update). À l’inverse, des verrous trop agressifs risquent de figer la base de données dans un interblocage total (Deadlock) où les transactions s’attendent indéfiniment. Comment garantir l’atomicité intégrale d’une série d’opérations avec BEGIN, COMMIT et ROLLBACK ? Quel niveau d’isolation choisir entre Read Committed, Repeatable Read et Serializable pour équilibrer rigueur et débit ? Comment le SGBD résout-il les deadlocks grâce aux graphes d’attente ? Ce module étudie les mécanismes vitaux de la cohérence transactionnelle.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir rigoureusement les quatre propriétés ACID (Atomicité, Cohérence, Isolation, Durabilité) d’un SGBD relationnel ;</li>
+      <li>manipuler les instructions de contrôle de transaction : BEGIN, COMMIT, ROLLBACK, SAVEPOINT et ROLLBACK TO SAVEPOINT ;</li>
+      <li>identifier et caractériser les 3 anomalies de concurrence majeures : Dirty Read, Non-Repeatable Read et Phantom Read ;</li>
+      <li>comparer les 4 niveaux d’isolation du standard ANSI/ISO SQL et leurs compromis entre consistance et performances ;</li>
+      <li>analyser les mécanismes de verrous partagés (S) et exclusifs (X) et détecter les cycles d’interblocage (Deadlocks).</li>
+    </ol>
+  </div>
+
+<h2>1. Le Modèle ACID &amp; Contrôle Transactionnel (TCL)</h2>
+
+<p>Une <strong>transaction</strong> est une unité logique de travail regroupant une ou plusieurs instructions SQL. Le moteur relationnel garantit que cette séquence respecte le contrat <strong>ACID</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Les 4 Piliers ACID</h4>
+    <ul>
+      <li><strong>A - Atomicité (Tout ou rien) :</strong> Soit toutes les opérations de la transaction sont enregistrées, soit aucune ne l’est. En cas d’erreur au milieu, le SGBD annule tout (ROLLBACK).</li>
+      <li><strong>C - Cohérence (Consistency) :</strong> La transaction fait passer la base d’un état valide à un autre état valide, en respectant l’intégralité des contraintes d’intégrité (clés, CHECK, triggers).</li>
+      <li><strong>I - Isolation :</strong> Les transactions concurrentes s’exécutent sans interférences mutuelles néfastes, comme si elles étaient séquentielles.</li>
+      <li><strong>D - Durabilité :</strong> Une fois le COMMIT confirmé, les modifications sont écrites de façon permanente dans le journal non volatil (WAL), résistant même à une coupure électrique immédiate.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Commandes de Contrôle (TCL)</h4>
+    <div class="code-block">BEGIN TRANSACTION;
+UPDATE Comptes SET solde = solde - 500 WHERE id = 12;
+SAVEPOINT etape1;
+UPDATE Comptes SET solde = solde + 500 WHERE id = 88;
+-- Si incident sur la 2e opération :
+-- ROLLBACK TO SAVEPOINT etape1;
+COMMIT;    </div>
+  </div>
+</div>
+
+<h2>2. Anomalies de Concurrence &amp; Les 4 Niveaux d’Isolation ANSI</h2>
+
+<p>Lorsque des centaines d’utilisateurs lisent et écrivent simultanément sur les mêmes tables, des phénomènes parasites peuvent fausser les calculs :</p>
+<ul>
+  <li><strong>Lecture sale (Dirty Read) :</strong> La transaction T1 lit une donnée modifiée par T2 qui n’a <em>pas encore fait de COMMIT</em>. Si T2 fait un ROLLBACK, T1 aura travaillé sur des données fantaisistes qui n’ont jamais existé.</li>
+  <li><strong>Lecture non répétable (Non-Repeatable Read) :</strong> T1 lit une ligne, puis T2 modifie cette ligne et fait un COMMIT. Si T1 relit la même ligne au cours de sa transaction, elle observe une valeur différente.</li>
+  <li><strong>Lecture fantôme (Phantom Read) :</strong> T1 exécute une requête avec un filtre de plage (ex: <code>WHERE age &gt; 18</code>). T2 insère une nouvelle ligne respectant ce critère et valide son COMMIT. Si T1 relance la même requête, de nouvelles lignes « fantômes » sont apparues.</li>
+</ul>
+<table class="table-compact">
+  <thead><tr><th>Niveau d’Isolation</th><th>Lecture Sale</th><th>Lecture Non Répétable</th><th>Lecture Fantôme</th></tr></thead>
+  <tbody>
+    <tr><td><strong>READ UNCOMMITTED</strong></td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+    <tr><td><strong>READ COMMITTED</strong> (Défaut PostgreSQL/Oracle)</td><td>Non</td><td>Oui</td><td>Oui</td></tr>
+    <tr><td><strong>REPEATABLE READ</strong> (Défaut MySQL InnoDB)</td><td>Non</td><td>Non</td><td>Possible (selon moteur)</td></tr>
+    <tr><td><strong>SERIALIZABLE</strong></td><td>Non</td><td>Non</td><td>Non (Isolation totale)</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Verrouillage Concurrente &amp; Interblocages (Deadlocks)</h2>
+
+<p>Pour isoler les transactions, les SGBD s’appuient sur des verrous posés en mémoire :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Types de verrous</h4>
+    <ul>
+      <li><strong>Verrou Partagé (Shared Lock - S) :</strong> Posé en lecture (<code>SELECT ... FOR SHARE</code>). Plusieurs transactions peuvent lire la même ressource en parallèle.</li>
+      <li><strong>Verrou Exclusif (Exclusive Lock - X) :</strong> Posé en écriture (<code>UPDATE</code>, <code>DELETE</code>, <code>SELECT ... FOR UPDATE</code>). Une seule transaction peut détenir ce verrou ; tout autre accès est suspendu.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">L’Interblocage (Deadlock)</h4>
+    <p>Survient lorsque deux transactions s’attendent mutuellement dans une boucle fermée :</p>
+    <p>T1 verrouille A et attend B &bull; T2 verrouille B et attend A.</p>
+    <p>Le moteur détecte le cycle dans son graphe d’attente (Wait-For Graph), choisit une transaction « victime », annule ses opérations par un ROLLBACK forcé et lève une exception <code>Deadlock detected</code>.</p>
+  </div>
+</div>
+  <div class="box box--Bonnes pratiques pour éliminer les deadlocks">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <ul>  <li><strong>Ordonnancement strict :</strong> Toujours verrouiller ou modifier les tables et les lignes dans le même ordre déterministe au sein de toutes les fonctions applicatives (ex: toujours par id croissant).</li>  <li><strong>Transactions courtes :</strong> Réduire la durée de vie des transactions au strict nécessaire : jamais d’appel API externe ou de traitement lourd à l’intérieur d’un bloc BEGIN ... COMMIT.</li></ul></div>
+
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="sql2-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="A:1000,B:500,C:200&#10;TRANSFERT A B 300&#10;TRANSFERT B C 150">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler la transaction et appliquer COMMIT ou ROLLBACK selon la validité
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de transaction atomique bancaire (COMMIT vs ROLLBACK)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer l’atomicité (A de ACID) : si un virement échoue (fonds insuffisants), la transaction entière est annulée.</p>
+    <div class="lab__brief"><p>Une transaction bancaire transfère des fonds entre comptes : <code>TRANSFERT source destination montant</code>. Pour chaque transfert, le compte source doit exister et disposer d’au moins le montant demandé (pas de découvert). Le compte destination doit également exister.
+Si toutes les opérations réussissent, la transaction fait <code>COMMIT</code>. Si la moindre opération échoue, la transaction fait <code>ROLLBACK</code> et restaure l’état exact de départ.</p>
+<p>Entrée :
+- Ligne 1 : Soldes initiaux <code>compte:solde</code> séparés par des virgules (ex: <code>A:1000,B:500,C:200</code>).
+- Lignes suivantes : Opérations <code>TRANSFERT source destination montant</code>.
+
+Sortie :
+- Si succès : <code>Statut: COMMIT | Soldes: &lt;compte:solde triés&gt;</code>
+- Si échec : <code>Statut: ROLLBACK | Erreur: &lt;Raison&gt; | Soldes: &lt;soldes initiaux inchangés&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>A:1000,B:500,C:200
+TRANSFERT A B 300
+TRANSFERT B C 150</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Statut: COMMIT | Soldes: A:700,B:650,C:350</pre></div>
+    </div>
+    <p class="lab__note">Tous les virements sont valides, la transaction est validée (COMMIT).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garde une copie indépendante des soldes initiaux pour le ROLLBACK.</li>
+        <li>Vérifie que les comptes source et destination existent.</li>
+        <li>Vérifie que le solde de la source est suffisant (&gt;= montant).</li>
+        <li>Si une erreur survient, interromps les virements et restaure la copie de départ.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="AJOUT A 10&#10;SAVEPOINT sp1&#10;AJOUT B 20&#10;ROLLBACK TO sp1&#10;AJOUT C 30&#10;COMMIT">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler la pile de sauvegarde de la transaction et exécuter les commandes
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Gestionnaire de points de sauvegarde SAVEPOINT &amp; ROLLBACK TO</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Gérer des états intermédiaires dans une transaction avec les points de reprise SAVEPOINT.</p>
+    <div class="lab__brief"><p>Dans une longue transaction SQL, l’instruction <code>SAVEPOINT nom_point</code> sauvegarde l’état courant de la base. En cas d’erreur survenue ultérieurement, la commande <code>ROLLBACK TO nom_point</code> annule uniquement les opérations effectuées après ce point de sauvegarde sans compromettre le reste de la transaction.</p>
+<p>Entrée :
+Une suite de commandes sur chaque ligne :
+- <code>AJOUT cle valeur</code>
+- <code>SAVEPOINT nom</code>
+- <code>ROLLBACK TO nom</code>
+- <code>COMMIT</code>
+
+Sortie :
+<code>Etat_Final: &lt;cle:valeur triées&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>AJOUT A 10
+SAVEPOINT sp1
+AJOUT B 20
+ROLLBACK TO sp1
+AJOUT C 30
+COMMIT</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Etat_Final: A:10,C:30</pre></div>
+    </div>
+    <p class="lab__note">L'ajout de B est annulé par le ROLLBACK TO sp1, mais A:10 est conservé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Maintiens un dictionnaire représentant l état de la base.</li>
+        <li>Pour chaque SAVEPOINT nom, sauvegarde une copie superficielle ou profonde du dictionnaire dans un historique {nom: copie}.</li>
+        <li>Lors de ROLLBACK TO nom, restaure la copie correspondante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql2-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="T1 DETIENT R1 ATTEND R2&#10;T2 DETIENT R2 ATTEND R1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : mapper les ressources aux transactions, construire le graphe T_i -> T_j et détecter les cycles
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur d’interblocage (Deadlock) par graphe d’attente (Wait-For Graph)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire le graphe orienté de dépendance des transactions et détecter la présence d’un cycle d’interblocage.</p>
+    <div class="lab__brief"><p>Un interblocage (Deadlock) survient lorsque deux ou plusieurs transactions s’attendent mutuellement pour libérer des verrous exclusifs.
+Si la transaction T1 détient la ressource R1 et attend R2, alors que T2 détient R2 et attend R1, il y a une dépendance circulaire <code>T1 -&gt; T2 -&gt; T1</code>.</p>
+<p>Entrée :
+Chaque ligne décrit une transaction : <code>T_ID DETIENT ressource_tenue ATTEND ressource_attendue</code> (ou <code>ATTEND AUCUNE</code> s’il n’y a pas d’attente).
+
+Sortie :
+- S’il existe un cycle : <code>DEADLOCK DETECTE: cycle &lt;T_A -&gt; T_B -&gt; ... -&gt; T_A&gt;</code>
+- Si le graphe est acyclique : <code>AUCUN DEADLOCK: execution possible</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>T1 DETIENT R1 ATTEND R2
+T2 DETIENT R2 ATTEND R1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DEADLOCK DETECTE: cycle T1 -&gt; T2 -&gt; T1</pre></div>
+    </div>
+    <p class="lab__note">T1 attend T2 qui attend T1 : cycle d'interblocage.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Établis qui détient chaque ressource : detenteurs[ressource] = transaction.</li>
+        <li>Pour chaque transaction qui attend une ressource, crée une arête orientée : T_demandeur -&gt; detenteurs[ressource].</li>
+        <li>Applique un parcours en profondeur (DFS) pour détecter si un cycle existe.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que signifie la propriété d’Atomicité (A) dans le contrat ACID d’une base de données relationnelle ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Toutes les opérations de la transaction sont entièrement appliquées ou aucune ne l’est (principe du tout ou rien)</button>
+        <button class="opt">Les requêtes sont traitées à la vitesse d’un atome</button>
+        <button class="opt">Chaque table ne peut contenir qu’une seule colonne clé primaire</button>
+        <button class="opt">Les données sont sauvegardées sur une clé USB</button>
+      </div>
+      <div class="q__exp">L’atomicité garantit que l’ensemble des instructions d’une transaction forme un bloc indivisible : en cas d’échec partiel, le SGBD annule l’intégralité des modifications préalables pour restaurer l’état d’origine (ROLLBACK).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle anomalie de concurrence se produit lorsqu’une transaction lit des modifications apportées par une autre transaction qui n’a PAS encore été validée par un COMMIT ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Lecture sale (Dirty Read)</button>
+        <button class="opt">Lecture fantôme (Phantom Read)</button>
+        <button class="opt">Lecture non répétable (Non-Repeatable Read)</button>
+        <button class="opt">Mise à jour perdue (Lost Update)</button>
+      </div>
+      <div class="q__exp">La lecture sale (Dirty Read) consiste à lire des données non validées en mémoire qui risquent d’être annulées par un ROLLBACK ultérieur de la transaction concurrente.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le niveau d’isolation minimal requis pour empêcher totalement les lectures sales (Dirty Reads) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Read Committed</button>
+        <button class="opt">Read Uncommitted</button>
+        <button class="opt">Repeatable Read</button>
+        <button class="opt">Serializable</button>
+      </div>
+      <div class="q__exp">Le niveau Read Committed garantit qu’une transaction ne peut lire que les données dont le COMMIT a été définitivement enregistré par d’autres transactions, neutralisant ainsi les lectures sales.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert l’instruction SAVEPOINT dans une transaction SQL ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">À marquer un point de reprise intermédiaire permettant un ROLLBACK partiel sans annuler toute la transaction</button>
+        <button class="opt">À enregistrer définitivement la transaction sur le disque</button>
+        <button class="opt">À verrouiller l’intégralité de la base de données en lecture seule</button>
+        <button class="opt">À créer une copie de sauvegarde physique de la table</button>
+      </div>
+      <div class="q__exp">SAVEPOINT nom_point crée un point de jalonnement dans la transaction en cours. En cas d’erreur sur une étape ultérieure, la commande ROLLBACK TO SAVEPOINT nom_point rétablit l’état à ce point précis sans perdre le travail antérieur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment le SGBD résout-il un interblocage (Deadlock) entre deux transactions ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il détecte le cycle dans son graphe d’attente, choisit une transaction comme victime et force son annulation par ROLLBACK</button>
+        <button class="opt">Il attend indéfiniment que l’administrateur redémarre le serveur</button>
+        <button class="opt">Il exécute les deux transactions en parallèle en fusionnant leurs modifications au hasard</button>
+        <button class="opt">Il supprime les deux tables concernées</button>
+      </div>
+      <div class="q__exp">Le gestionnaire de verrous du SGBD surveille son graphe d’attente (Wait-For Graph). Dès qu’un cycle est détecté, il interrompt l’une des transactions (la victime), annule ses actions par ROLLBACK et renvoie une erreur applicative pour que le programme puisse retenter l’opération.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Laisser une transaction ouverte (BEGIN sans COMMIT ni ROLLBACK) dans une application web, ce qui maintient indéfiniment des verrous et paralyse la base.</li>
+      <li>Effectuer des appels réseau externes lents (ex: API de paiement par carte) à l’intérieur d’une transaction SQL active.</li>
+      <li>Modifier des ressources dans un ordre aléatoire (ex: T1 verrouille client puis facture, T2 verrouille facture puis client), provoquant des interblocages fréquents.</li>
+      <li>Utiliser le niveau SERIALIZABLE partout en pensant que c’est toujours « plus sûr », sans anticiper les erreurs d’interblocage et la chute drastique du débit applicatif.</li>
+      <li>Croire que la durabilité (D de ACID) dispense de mettre en place des sauvegardes régulières et une réplication externe hors-site.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour sécuriser les transactions concurrentes en production</div>
+    <ol>
+      <li>Garder les blocs transactionnels les plus courts et atomiques possible : préparer toutes les données en mémoire avant de lancer le BEGIN.</li>
+      <li>Imposer un ordre universel d’accès aux tables et aux lignes (ex: toujours trier les IDs par ordre croissant avant de poser un SELECT FOR UPDATE).</li>
+      <li>Sélectionner le niveau d’isolation adapté au besoin métier (Read Committed pour les opérations courantes, Repeatable Read ou Serializable pour les clôtures comptables).</li>
+      <li>Intercepter systématiquement les erreurs de deadlock et de sérialisation au niveau du code applicatif pour réexécuter la transaction (Retry Pattern avec backoff exponentiel).</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le contrat ACID garantit l’intégrité absolue des bases de données relationnelles face aux pannes et aux accès concurrents.</li>
+      <li>Les commandes TCL (BEGIN, COMMIT, ROLLBACK, SAVEPOINT) définissent et contrôlent le périmètre de la transaction.</li>
+      <li>Les trois anomalies de concurrence sont la lecture sale, la lecture non répétable et la lecture fantôme.</li>
+      <li>Les 4 niveaux d’isolation ANSI (Read Uncommitted, Read Committed, Repeatable Read, Serializable) offrent un compromis entre consistance et performances.</li>
+      <li>Les deadlocks sont prévenus par un ordonnancement déterministe des verrous et résolus automatiquement par le SGBD via l’annulation d’une transaction victime.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer chacune des 4 lettres de l’acronyme ACID.</li>
+      <li>Je maîtrise l’utilisation de SAVEPOINT et ROLLBACK TO SAVEPOINT.</li>
+      <li>Je sais caractériser une lecture sale et expliquer pourquoi elle est dangereuse.</li>
+      <li>Je connais les 4 niveaux d’isolation ANSI et le niveau par défaut de mon SGBD.</li>
+      <li>Je comprends comment se forme un Deadlock et comment l’éviter par un ordonnancement déterministe.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Transactions relationnelles & Contrat ACID</li><li>Atomicité, Cohérence, Isolation, Durabilité</li><li>Commandes TCL (BEGIN, COMMIT, ROLLBACK)</li><li>Points de reprise SAVEPOINT & ROLLBACK TO</li><li>Anomalies de concurrence (Dirty, Non-repeatable, Phantom Read)</li><li>Niveaux d’isolation ANSI/ISO (Read Committed, Repeatable Read, Serializable)</li><li>Verrous partagés (S) et exclusifs (X)</li><li>Interblocages (Deadlocks) & Graphe d’attente (Wait-For Graph)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise impérativement la signification des 4 lettres d’ACID et le rôle du ROLLBACK.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les anomalies de concurrence et les 4 niveaux d’isolation ANSI.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les transactions et les mécanismes de verrouillage concurrentiel.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe aux vues, procédures stockées, déclencheurs et optimisation au module 6.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Vues, Procédures Stockées, Déclencheurs (Triggers) &amp; Optimisation <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de SGBD et SQL B2, la spécification ANSI/ISO SQL:2003, les documentations PostgreSQL et MySQL InnoDB, et les travaux d’Edgar F. Codd.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

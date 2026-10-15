@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Documentation d’API &amp;amp; Référence Technique (OpenAPI / Swagger) | Document Technique B3</title>
+<meta name="description" content="Chapitre 4 du cours Document Technique B3 : Spécification OpenAPI 3.0, contrats d’interface REST, sémantique des codes HTTP, schémas JSON, docstrings et portails interactifs Swagger UI. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-document-technique/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Documentation d’API &amp;amp; Référence Technique (OpenAPI / Swagger) | Document Technique B3">
+<meta property="og:description" content="Chapitre 4 du cours Document Technique B3 : Spécification OpenAPI 3.0, contrats d’interface REST, sémantique des codes HTTP, schémas JSON, docstrings et portails interactifs Swagger UI. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-document-techniquenav"><div class="b3-document-techniquenav__in">
+  <a class="b3-document-techniquenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-document-techniquenav__sep" aria-hidden="true">/</span>
+  <a class="b3-document-techniquenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Document Technique B3</a>
+  <div class="b3-document-techniquenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-document-techniquenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-document-techniquewrap">
+<p class="crumb"><a href="../index.html">Document Technique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Documentation d’API &amp; Référence Technique (OpenAPI / Swagger)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans les architectures modernes orientées microservices et les écosystèmes d’intégration partenaires, l’API est le produit. Une API dépourvue de documentation claire, rigoureusement typée et à jour est vouée à l’abandon : les développeurs tiers perdent des journées entières à deviner la structure des payloads JSON, se heurtent à des erreurs HTTP 500 inexpliquées et multiplient les tickets de support technique. L’approche « API-First » impose de concevoir et valider la spécification OpenAPI 3.0 (Swagger) du contrat d’interface avant même d’écrire la moindre ligne de code back-end. L’ingénieur de Bachelor 3 doit maîtriser la syntaxe OpenAPI 3.0, respecter les conventions REST canoniques, documenter les docstrings de code et déployer des portails interactifs de référence.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la philosophie « API-First » et les avantages contractuels de la spécification d’interface en amont ;</li>
+      <li>rédiger des spécifications OpenAPI 3.0 complètes : endpoints, méthodes HTTP, paramètres, corps de requêtes et schémas JSON ;</li>
+      <li>appliquer la sémantique stricte des codes de statut HTTP REST (2xx succès, 4xx erreurs client, 5xx erreurs serveur) ;</li>
+      <li>documenter le code source via des docstrings normalisées (formats Google, Sphinx, TypeDoc) ;</li>
+      <li>générer des portails interactifs développeurs exploitant Swagger UI, Redoc et des serveurs de mocks (Prism) ;</li>
+      <li>développer en Python 3 des validateurs de routes OpenAPI, des auditeurs de docstrings et des vérificateurs de schémas JSON.</li>
+    </ol>
+  </div>
+
+<h2>1. L’Approche « API-First » &amp; Le Contrat d’Interface Immuable</h2>
+
+<p>Historiquement, les développeurs programmaient les routes du serveur puis rédigeaient (ou omettaient de rédiger) la documentation a posteriori (« Code-First »). Cette méthode engendre des dérives majeures : documentation perpétuellement en retard sur le code et travail en silo séquentiel.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>La Philosophie API-First</h4>
+    <p>L’API est traitée comme un <strong>contrat officiel opposable</strong> conclu entre l’équipe fournisseuse et les consommateurs du service. La spécification OpenAPI (format YAML ou JSON) est rédigée, revue et validée collégialement <em>avant toute écriture de code d’implémentation</em>.</p>
+  </div>
+  <div class="card">
+    <h4>Bénéfices Opérationnels Majeurs</h4>
+    <ul>
+      <li><strong>Développement Parallèle :</strong> Le front-end et le back-end avancent simultanément grâce à des serveurs de simulation (mocks) générés à partir du contrat.</li>
+      <li><strong>Génération de Code &amp; SDK :</strong> Les stubs de serveurs et les clients typés (TypeScript, Python, Java) sont générés automatiquement via OpenAPI Generator.</li>
+      <li><strong>Zéro Dérive :</strong> Le contrat sert de suite de tests de conformité automatisée en intégration continue.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. La Spécification OpenAPI 3.0 : Anatomie &amp; Conventions REST</h2>
+
+<p>La norme <strong>OpenAPI 3.0</strong> (maintenue par l’OpenAPI Initiative sous l’égide de la Linux Foundation) formalise la description des APIs REST. Elle s’articule autour de sections fondamentales :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. En-tête : info &amp; servers</h4>
+    <p>Titre de l’API, version sémantique (ex. <code>version: 1.2.0</code>), description, conditions d’utilisation, contact technique et URLs des environnements cibles (dev, staging, prod).</p>
+  </div>
+  <div class="card">
+    <h4>2. Les Routes : paths</h4>
+    <p>Déclaration des endpoints hiérarchisés au pluriel (ex. <code>/api/v1/clients/{id}</code>), verbes HTTP associés, résumés, tags de regroupement et identifiants uniques <code>operationId</code>.</p>
+  </div>
+  <div class="card">
+    <h4>3. Les Schémas : components</h4>
+    <p>Dictionnaire centralisé des modèles de données réutilisables (<code>$ref: "#/components/schemas/User"</code>), prévenant la duplication et garantissant la cohérence du typage.</p>
+  </div>
+</div>
+<h4 style="margin-top:20px">Sémantique Canonique des Réponses HTTP</h4>
+<table class="table">
+  <thead>
+    <tr>
+      <th style="width:20%">Code HTTP</th>
+      <th style="width:25%">Intitulé officiel</th>
+      <th style="width:55%">Condition exacte d’émission en API REST</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>200 OK</code></td>
+      <td>Succès nominal</td>
+      <td>Requête <code>GET</code>, <code>PUT</code> ou <code>PATCH</code> traitée avec succès ; retourne la ressource demandée.</td>
+    </tr>
+    <tr>
+      <td><code>201 Created</code></td>
+      <td>Création effectuée</td>
+      <td>Requête <code>POST</code> ayant créé une ressource nouvelle ; inclut l’en-tête <code>Location: /api/v1/items/42</code>.</td>
+    </tr>
+    <tr>
+      <td><code>204 No Content</code></td>
+      <td>Succès sans contenu</td>
+      <td>Requête <code>DELETE</code> ou <code>PUT</code> exécutée sans corps de réponse retourné au client.</td>
+    </tr>
+    <tr>
+      <td><code>400 Bad Request</code></td>
+      <td>Erreur de validation</td>
+      <td>Corps de requête JSON syntaxiquement invalide ou violation de contraintes métier (champs obligatoires omis).</td>
+    </tr>
+    <tr>
+      <td><code>401 Unauthorized</code></td>
+      <td>Non authentifié</td>
+      <td>Absence ou expiration du jeton porteur d’authentification (Token JWT / clé d’API invalide).</td>
+    </tr>
+    <tr>
+      <td><code>403 Forbidden</code></td>
+      <td>Droits insuffisants</td>
+      <td>Client authentifié avec succès mais ne disposant pas du rôle requis (RBAC) pour cette ressource.</td>
+    </tr>
+    <tr>
+      <td><code>404 Not Found</code></td>
+      <td>Ressource introuvable</td>
+      <td>L’identifiant ciblé dans l’URI n’existe pas dans la base de données.</td>
+    </tr>
+    <tr>
+      <td><code>500 Server Error</code></td>
+      <td>Panne interne</td>
+      <td>Exception non interceptée côté serveur (crash base de données, bug inattendu) ; ne doit jamais fuiter la stack trace.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Documentation du Code Source &amp; Docstrings Normalisées</h2>
+
+<p>Au sein du code source, la documentation des fonctions, classes et modules constitue la première ligne de transmission technique. Deux standards dominent l’écosystème : le <strong>format Google Docstrings</strong> et le format <strong>Sphinx / NumPy</strong> :</p>
+<pre><code>def calculer_remise(montant_ht: float, code_promo: str) -> float:
+    """Calcule le montant net apres application d'un code promotionnel valide.
+
+    Args:
+        montant_ht (float): Le montant brut de la commande hors taxe.
+        code_promo (str): La chaine identifiant la regle de remise.
+
+    Returns:
+        float: Le montant final net arrondi a deux decimales.
+
+    Raises:
+        ValueError: Si le montant_ht est strictement negatif.
+    """
+    ...</code></pre>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Portails Développeurs Interactifs</div>
+<p>Une spécification OpenAPI 3.0 bien rédigée permet d’instancier immédiatement des portails visuels de référence : <strong>Swagger UI</strong> (offrant un bouton interactif <em>« Try it out »</em> pour tester l’API en direct dans le navigateur) ou <strong>Redoc</strong> (interface responsive épurée à trois colonnes adoptée par Stripe et Docker). Les développeurs disposent d’une documentation vivante, auto-générée et interactive.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="dt3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="ROUTE_CHECK method=GET path=/api/users codes=200,404,500">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : valider chaque route OpenAPI
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur de spécification de route d’API REST (OpenAPI 3.0)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la complétude et la conformité REST d’une déclaration d’endpoint documentée.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>ROUTE_CHECK method=&lt;v&gt; path=&lt;v&gt; codes=&lt;c1,c2,...&gt;</code>.<br><br>
+Règles de validation OpenAPI :<br>
+1. <code>method</code> : doit appartenir à <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>, <code>PATCH</code>.<br>
+2. <code>path</code> : doit commencer par <code>/api/</code> ou <code>/v</code> (ex. <code>/v1/</code>, <code>/v2/</code>).<br>
+3. <code>codes</code> : doit contenir au moins un code de succès (commençant par <code>2</code>, ex. <code>200</code>, <code>201</code>, <code>204</code>) <strong>ET</strong> au moins un code d'erreur client ou serveur (commençant par <code>4</code> ou <code>5</code>, ex. <code>400</code>, <code>404</code>, <code>500</code>).<br><br>
+Statut :<br>
+- Si tous les critères sont respectés : <code>STATUT=ROUTE_OPENAPI_VALIDE</code><br>
+- Sinon : <code>STATUT=NON_CONFORME (ERREURS=[&lt;erreurs_ordonnees&gt;])</code><br>
+(Ordre d'évaluation : <code>METHODE_INVALIDE</code>, <code>PATH_NON_NORMALISE</code>, <code>CODES_INCOMPLETS</code>).<br><br>
+Afficher :<br>
+<code>OPENAPI_CHECK: &lt;METHOD&gt; &lt;path&gt; -&gt; STATUT=&lt;STATUT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROUTE_CHECK method=GET path=/api/users codes=200,404,500</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>OPENAPI_CHECK: GET /api/users -&gt; STATUT=ROUTE_OPENAPI_VALIDE</pre></div>
+    </div>
+    <p class="lab__note">Méthode, chemin et codes 2xx/4xx valides.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier que la liste des codes contient au moins un 2xx et au moins un 4xx/5xx.</li>
+        <li>Tester la présence de /api/ ou /v au début du chemin.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="DOCSTRING_AUDIT fn=calculer_tva params=montant_ht,taux doc=Calcul du montant. Args: montant_ht (float): base. taux (float): taux. Returns: float">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : auditer chaque docstring face à sa signature
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Extracteur et auditeur de docstrings de code (Format Google / Sphinx)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier qu’une fonction de code possède une documentation complète de ses paramètres et de sa valeur de retour.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des lignes au format :<br>
+<code>DOCSTRING_AUDIT fn=&lt;nom&gt; params=&lt;p1,p2,...&gt; doc=&lt;chaine_docstring&gt;</code>.<br><br>
+Règles d'évaluation de la docstring :<br>
+- Paramètres documentés : pour chaque paramètre $p_i$ présent dans la liste <code>params</code>, vérifier si le mot <code>p_i:</code> ou <code>p_i (</code> apparaît dans <code>doc</code>.<br>
+- Section retour : le mot <code>Returns:</code> ou <code>Return:</code> ou <code>return:</code> doit apparaître dans <code>doc</code>.<br><br>
+Calculs :<br>
+- Paramètres manquants : liste ordonnée des paramètres déclarés dans <code>params</code> mais non trouvés dans la doc.<br>
+- Manque retour : si la section de retour est absente, ajouter <code>RETURNS_MANQUANT</code> à la liste des manques.<br><br>
+Qualité :<br>
+- Si aucun paramètre manquant et retour présent :<br>
+  <code>QUALITE=DOCSTRING_COMPLETE_VALIDE</code><br>
+- Sinon :<br>
+  <code>QUALITE=DOCSTRING_INCOMPLETE (MANQUES=[&lt;manques&gt;])</code><br><br>
+Afficher :<br>
+<code>DOCSTRING_AUDIT: &lt;fn&gt; -&gt; QUALITE=&lt;QUALITE&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DOCSTRING_AUDIT fn=calculer_tva params=montant_ht,taux doc=Calcul du montant. Args: montant_ht (float): base. taux (float): taux. Returns: float</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DOCSTRING_AUDIT: calculer_tva -&gt; QUALITE=DOCSTRING_COMPLETE_VALIDE</pre></div>
+    </div>
+    <p class="lab__note">Tous les paramètres et Returns sont documentés.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découper les paramètres et vérifier leur présence dans le texte de la doc.</li>
+        <li>Vérifier la présence de Returns: ou return:.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dt3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="SCHEMA_CHECK endpoint=/api/user requis=id:int,nom:str,actif:bool payload={&quot;id&quot;: 10, &quot;nom&quot;: &quot;Alice&quot;, &quot;actif&quot;: true}">
+  <script type="text/plain" data-lab-starter>import sys
+import json
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : valider le payload face aux types attendus
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Validateur de contrat de schéma JSON (JSON Schema Contract)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité typée d’un payload JSON produit par un endpoint par rapport au schéma contractuel documenté.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>SCHEMA_CHECK endpoint=&lt;path&gt; requis=&lt;c1:type,c2:type,...&gt; payload=&lt;json_string&gt;</code>.<br><br>
+Types supportés dans <code>requis</code> : <code>str</code>, <code>int</code>, <code>bool</code>, <code>float</code>.<br><br>
+Règles de validation :<br>
+- Analyser le <code>payload</code> (format JSON valide).<br>
+- Pour chaque champ <code>champ:type_attendu</code> déclaré dans <code>requis</code> :<br>
+  1. Vérifier si <code>champ</code> existe dans l'objet JSON. Si absent :<br>
+     erreur : <code>CHAMP_MANQUANT:&lt;champ&gt;</code>.<br>
+  2. Si présent, vérifier la compatibilité du type :<br>
+     - <code>int</code> : doit être un entier numérique (attention en Python : <code>bool</code> hérite de <code>int</code>, veiller à ce que <code>isinstance(v, int) and not isinstance(v, bool)</code>).<br>
+     - <code>float</code> : doit être un nombre flottant ou entier.<br>
+     - <code>str</code> : doit être une chaîne de caractères.<br>
+     - <code>bool</code> : doit être un booléen (<code>True</code> ou <code>False</code>).<br>
+     Si le type ne concorde pas : erreur <code>TYPE_INCORRECT:&lt;champ&gt;(attendu=&lt;type&gt;,recu=&lt;type_reel&gt;)</code>.<br><br>
+Verdict :<br>
+- Si aucune erreur : <code>VERDICT=CONTRAT_RESPECTE</code><br>
+- Sinon : <code>VERDICT=VIOLATION_CONTRAT (ERREURS=[&lt;erreurs&gt;])</code><br><br>
+Afficher :<br>
+<code>CONTRACT_VALIDATION: &lt;endpoint&gt; -&gt; VERDICT=&lt;VERDICT&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SCHEMA_CHECK endpoint=/api/user requis=id:int,nom:str,actif:bool payload={"id": 10, "nom": "Alice", "actif": true}</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CONTRACT_VALIDATION: /api/user -&gt; VERDICT=CONTRAT_RESPECTE</pre></div>
+    </div>
+    <p class="lab__note">Tous les champs sont présents avec les bons types.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser json.loads pour parser le payload.</li>
+        <li>Attention au piège Python : isinstance(True, int) vaut True, vérifier le type bool en priorité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le bénéfice principal de l’approche « API-First » dans un projet logiciel moderne ?</p>
+      <div class="opts">
+        <button class="opt">Elle permet de supprimer totalement l’équipe de test</button>
+        <button class="opt" data-correct="1">Le contrat d’interface OpenAPI est validé avant le codage, permettant le développement parallèle du front-end et du back-end via des serveurs de mocks</button>
+        <button class="opt">Elle rend le serveur dix fois plus rapide lors des requêtes SQL</button>
+        <button class="opt">Elle interdit l’utilisation du format JSON</button>
+      </div>
+      <div class="q__exp">API-First contractualise les interfaces en amont : les intégrateurs n’attendent plus la fin du back-end pour commencer à développer leurs applications clientes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code de statut HTTP une API REST conforme doit-elle retourner lors de la création réussie d’un nouvel utilisateur via une méthode POST ?</p>
+      <div class="opts">
+        <button class="opt">200 OK</button>
+        <button class="opt" data-correct="1">201 Created (avec l’en-tête Location désignant la nouvelle ressource)</button>
+        <button class="opt">204 No Content</button>
+        <button class="opt">302 Found</button>
+      </div>
+      <div class="q__exp">Le code 201 Created est le code standard désignant la création effective d’une ressource nouvelle, idéalement accompagné de l’en-tête Location précisant son URI.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle convention de nommage d’URI respecte les bonnes pratiques de conception d’une API RESTful ?</p>
+      <div class="opts">
+        <button class="opt">/api/getUserById?id=12</button>
+        <button class="opt">/api/v1/deleteUser/12</button>
+        <button class="opt" data-correct="1">/api/v1/users/12 (avec la méthode HTTP appropriée GET ou DELETE)</button>
+        <button class="opt">/api/user_action.php?action=view&uid=12</button>
+      </div>
+      <div class="q__exp">En REST, les URIs désignent des ressources (noms au pluriel), et les verbes HTTP (GET, POST, PUT, DELETE) portent l’action à effectuer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la spécification OpenAPI 3.0, à quoi sert la section « components/schemas » ?</p>
+      <div class="opts">
+        <button class="opt">À lister les noms des employés de l’entreprise</button>
+        <button class="opt" data-correct="1">À centraliser les définitions réutilisables des modèles de données JSON via des références $ref pour éviter la duplication</button>
+        <button class="opt">À enregistrer les adresses IP physiques des commutateurs réseau</button>
+        <button class="opt">À stocker le code source en langage binaire</button>
+      </div>
+      <div class="q__exp">La section components/schemas est le dictionnaire des types de données : un même schéma (ex. User ou ErrorPayload) est référencé partout via `$ref`.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle différence formelle sépare le code d’erreur HTTP 401 Unauthorized du code 403 Forbidden ?</p>
+      <div class="opts">
+        <button class="opt">Il n’y a aucune différence, ils sont strictement interchangeables</button>
+        <button class="opt" data-correct="1">Le code 401 signale l’absence ou l’invalidité d’authentification (identité non prouvée), tandis que le code 403 indique que l’identité est connue mais que les droits d’accès sont insuffisants</button>
+        <button class="opt">Le code 401 concerne les bases de données et le 403 les serveurs DNS</button>
+        <button class="opt">Le code 403 n’existe pas dans les standards du W3C</button>
+      </div>
+      <div class="q__exp">401 est un problème d’authentification (« Qui êtes-vous ? »). 403 est un problème d’autorisation (« Je sais qui vous êtes, mais vous n’avez pas le droit »).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il considéré comme une faute majeure de renvoyer un code 200 OK pour une requête ayant échoué (ex: `{"status": 200, "error": "Compte introuvable"}`) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Car cela brise la couche protocolaire HTTP, empêchant les passerelles, proxys, équilibreurs de charge et bibliothèques clientes de détecter l’erreur</button>
+        <button class="opt">Car le navigateur web s’arrête immédiatement de fonctionner</button>
+        <button class="opt">Car cela supprime la base de données</button>
+        <button class="opt">Car cela consomme le double de mémoire vive</button>
+      </div>
+      <div class="q__exp">Les couches intermédiaires (API Gateways, clients HTTP) inspectent le code statut : masquer une erreur sous un 200 OK oblige à parser chaque corps JSON et neutralise la supervision.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une docstring Python au format standard Google, quelles sont les trois sections fondamentales couramment attendues ?</p>
+      <div class="opts">
+        <button class="opt">Introduction, Conclusion, Remerciements</button>
+        <button class="opt" data-correct="1">Args (arguments d’entrée), Returns (valeur de retour) et Raises (exceptions levées)</button>
+        <button class="opt">Budget, Facturation, Bénéfices</button>
+        <button class="opt">Hardware, Software, Firmware</button>
+      </div>
+      <div class="q__exp">Le format Google structure l’explication technique en documentant les arguments (Args), la valeur produite (Returns) et les erreurs potentielles (Raises).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel outil permet de transformer une spécification OpenAPI 3.0 en une interface web interactive avec formulaire de test « Try it out » ?</p>
+      <div class="opts">
+        <button class="opt">Microsoft Excel</button>
+        <button class="opt" data-correct="1">Swagger UI</button>
+        <button class="opt">Vim en ligne de commande</button>
+        <button class="opt">Le compilateur GCC</button>
+      </div>
+      <div class="q__exp">Swagger UI analyse le fichier OpenAPI YAML/JSON et génère dynamiquement une page web ergonomique permettant aux développeurs de tester les requêtes en temps réel.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Renvoyer un code HTTP 200 OK avec un corps JSON contenant `{"error": "User not found"}`, violant la norme REST.</li>
+      <li>Nommer les routes avec des verbes d’action (ex. `/api/getUser/10`) plutôt que des noms pluriels (`/api/users/10`).</li>
+      <li>Omettre de documenter les schémas d’erreur 400 et 404, laissant les développeurs dans l’ignorance des formats de rejet.</li>
+      <li>Laisser la documentation d’API dériver du code de production sans contrôle automatisé en intégration continue.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Conception et de Validation d’une API OpenAPI 3.0</div>
+    <ol>
+      <li>Concevoir le contrat d’interface en amont sur un modèle API-First avec les équipes consommatrices.</li>
+      <li>Structurer l’arborescence des chemins selon la convention REST plurielle (ex. /api/v1/ressources).</li>
+      <li>Définir rigoureusement les verbes HTTP appropriés et l’idempotence associée (GET, POST, PUT, DELETE).</li>
+      <li>Documenter systématiquement les codes de retour nominaux (200, 201) et les codes d’erreur (400, 401, 403, 404, 500).</li>
+      <li>Factoriser tous les modèles de données dans la section components/schemas pour éliminer la duplication.</li>
+      <li>Intégrer un linter OpenAPI (Spectral) dans le pipeline CI pour bloquer toute route non documentée.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L’approche API-First garantit que la spécification contractuelle OpenAPI est approuvée avant le codage.</li>
+      <li>La norme OpenAPI 3.0 décrit de façon standardisée les routes, paramètres, requêtes et schémas JSON réutilisables.</li>
+      <li>La sémantique REST impose le respect strict des codes HTTP : 200/201 pour le succès, 400/401/403/404 pour les fautes client.</li>
+      <li>Les docstrings de code (format Google/Sphinx) documentent les arguments, le type de retour et les exceptions levées.</li>
+      <li>Swagger UI et Redoc transforment le contrat OpenAPI en portails de documentation interactive testables en direct.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer la valeur de l’approche API-First face au Code-First.</li>
+      <li>Je maîtrise la structure globale d’un fichier de spécification OpenAPI 3.0.</li>
+      <li>Je connais la signification et l’usage canonique de chaque code HTTP (200, 201, 204, 400, 401, 403, 404, 500).</li>
+      <li>Je sais rédiger une docstring normalisée au format Google.</li>
+      <li>Je sais factoriser des schémas JSON avec la directive $ref dans components.</li>
+      <li>Je sais déployer Swagger UI pour offrir un bac à sable interactif de test.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Philosophie de conception API-First</li><li>Spécification OpenAPI 3.0 &amp; Swagger</li><li>Conventions de nommage RESTful</li><li>Sémantique des codes de statut HTTP</li><li>Schémas de données JSON réutilisables</li><li>Docstrings normalisées (format Google)</li><li>Portails interactifs Swagger UI &amp; Redoc</li><li>Serveurs de mocks et génération de SDK</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la sémantique des codes HTTP (200, 201, 400, 401, 403), la philosophie API-First et OpenAPI.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, approfondissez les composants réutilisables d’OpenAPI et le formatage des docstrings.</div>
+      <div class="bandrow bandrow--high">8/8 : Excellent ! Vous maîtrisez la conception et la documentation de contrats d’API professionnelles de niveau expert.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — L’Approche Docs-as-Code, Markdown &amp; Générateurs Statiques <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours Support_Elaboration Document Technique.pdf (Yan NYAKU), document_technique.docx, la spécification OpenAPI 3.0, la norme CommonMark et les référentiels Docs-as-Code.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

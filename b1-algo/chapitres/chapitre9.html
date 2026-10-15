@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 9 — Algorithmes classiques | Algorithmique B1</title>
+<meta name="description" content="Chapitre 9 du cours d'algorithmique B1 : tri à bulles optimisé, recherche dichotomique et récursivité (cas de base, Euclide). Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="9">
+
+<nav class="alnav"><div class="alnav__in">
+  <a class="alnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="alnav__sep" aria-hidden="true">/</span>
+  <a class="alnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algo B1</a>
+  <div class="alnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre8.html">Ch. 8</a>
+    <a href="chapitre9.html" class="is-active">Ch. 9</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="alwrap">
+  <p class="crumb"><a href="../index.html">Algo B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 9</p>
+  <h1>Chapitre 9 — Algorithmes classiques : tris, dichotomie, récursivité</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 9</span>
+    <span class="tag tag--time">≈ 4 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Chercher un mot dans un dictionnaire de 1 000 pages : personne ne tourne les pages une à une. On ouvre
+    au milieu, on élimine la moitié, on recommence. Ce geste, c'est la dichotomie. Et trier, chercher,
+    diviser pour régner : ces schémas reviennent dans chaque examen.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>écrire le tri à bulles et l'optimiser avec un indicateur d'échange ;</li>
+      <li>implémenter la recherche dichotomique et justifier sa condition de validité ;</li>
+      <li>compter les étapes d'un tri à bulles (table de trace) ;</li>
+      <li>écrire une fonction récursive avec son cas de base.</li>
+    </ol>
+  </div>
+
+  <h2>1. Le tri à bulles</h2>
+  <p><strong>Définition.</strong> Le tri à bulles parcourt le tableau en échangeant les paires voisines mal
+  ordonnées. À chaque passage complet, la plus grande valeur non classée « remonte » vers sa place définitive,
+  à la fin.</p>
+  <pre><code><span class="k">for</span> i <span class="k">in</span> range(fin - 1):
+    <span class="k">if</span> tableau[i] &gt; tableau[i + 1]:
+        tableau[i], tableau[i + 1] = tableau[i + 1], tableau[i]</code></pre>
+  <p>Le périmètre rétrécit : après le premier passage, la dernière case est bonne ; après le deuxième, les deux
+  dernières, et ainsi de suite. Sur un tableau de n valeurs, il faut au plus n - 1 passages — c'est le cas du
+  tableau trié à l'envers.</p>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> L'optimisation par indicateur d'échange</div>
+    <p>Si un passage complet n'a rien échangé, le tableau est déjà trié : inutile de continuer. Un booléen,
+    remis à faux au début du passage et levé dès qu'un échange a lieu, permet l'arrêt anticipé. Un tableau déjà
+    trié se termine alors en un seul passage.</p>
+  </div>
+
+  <h2>2. Table de trace d'un tri</h2>
+  <p>L'examen demande de compter les passages. Méthode : simuler chaque passage sur papier, noter le tableau
+  après chaque tour.</p>
+  <table>
+    <tr><th>Passage</th><th>Tableau avant</th><th>Échanges</th><th>Tableau après</th></tr>
+    <tr><td>1</td><td>5 2 8 1</td><td>(5,2), (5,1)</td><td>2 5 1 8</td></tr>
+    <tr><td>2</td><td>2 5 1 8</td><td>(5,1)</td><td>2 1 5 8</td></tr>
+    <tr><td>3</td><td>2 1 5 8</td><td>(2,1)</td><td>1 2 5 8</td></tr>
+    <tr><td>4</td><td>1 2 5 8</td><td>aucun</td><td>arrêt</td></tr>
+  </table>
+  <p>Le tableau s'est trié au troisième passage ; le quatrième, sans échange, déclenche l'arrêt. Sans
+  l'optimisation, il faudrait compter n - 1 passages complets.</p>
+
+  <h2>3. La recherche dichotomique</h2>
+  <p><strong>Définition.</strong> La dichotomie cherche dans un tableau <strong>trié</strong> en comparant la
+  cible au milieu de la zone de recherche : selon le résultat, la moitié restante est éliminée. L'espace de
+  recherche est divisé par deux à chaque étape.</p>
+  <div class="pseudo"><b>Pseudo-code</b><br>début ← 1 ; fin ← n ; trouvé ← Faux<br>TantQue début ≤ fin ET NON trouvé Faire<br>&nbsp;&nbsp;milieu ← (début + fin) div 2<br>&nbsp;&nbsp;Si T[milieu] = cible Alors trouvé ← Vrai<br>&nbsp;&nbsp;Sinon Si T[milieu] &lt; cible Alors début ← milieu + 1<br>&nbsp;&nbsp;Sinon fin ← milieu - 1<br>FinTantQue</div>
+  <pre><code>debut = 0
+fin = n - 1
+<span class="k">while</span> debut &lt;= fin:
+    milieu = (debut + fin) // 2
+    <span class="k">if</span> tableau[milieu] == cible:
+        <span class="k">break</span>            <span class="c"># la zone se resserre sinon</span>
+    <span class="k">elif</span> tableau[milieu] &lt; cible:
+        debut = milieu + 1
+    <span class="k">else</span>:
+        fin = milieu - 1</code></pre>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — un tableau non trié</div>
+    <p>La dichotomie suppose un tableau <strong>trié</strong> en ordre croissant. Sur un tableau quelconque, la
+    comparaison au milieu ne prouve rien : la cible peut être de l'autre côté. Condition de validité
+    systématiquement citée en examen. Second piège : bouger les <em>bornes</em> de la zone, jamais le tableau.</p>
+  </div>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Pourquoi c'est plus rapide</div>
+    <p>Sur 1 000 éléments, une recherche séquentielle regarde jusqu'à 1 000 valeurs ; la dichotomie en examine
+    une dizaine, car 2 puissance 10 dépasse 1 000. Diviser par deux est bien plus puissant que retirer une
+    valeur à la fois.</p>
+  </div>
+
+  <h2>4. La récursivité</h2>
+  <p><strong>Définition.</strong> Une fonction récursive s'appelle elle-même. Sa définition comporte toujours
+  deux parties : un <em>cas de base</em> qui répond sans rappel, et un <em>cas récursif</em> qui réduit le
+  problème vers le cas de base.</p>
+  <pre><code><span class="k">def</span> puissance(base, exposant):
+    <span class="k">if</span> exposant == 0:          <span class="c"># cas de base</span>
+        <span class="k">return</span> 1
+    <span class="k">return</span> base * puissance(base, exposant - 1)
+
+<span class="k">def</span> pgcd(a, b):                <span class="c"># Euclide</span>
+    <span class="k">if</span> b == 0:                 <span class="c"># cas de base</span>
+        <span class="k">return</span> a
+    <span class="k">return</span> pgcd(b, a % b)</code></pre>
+  <table>
+    <tr><th>Appel</th><th>Cas</th><th>Résultat</th></tr>
+    <tr><td>puissance(2, 3)</td><td>2 × puissance(2, 2)</td><td>8</td></tr>
+    <tr><td>puissance(2, 0)</td><td>cas de base</td><td>1</td></tr>
+    <tr><td>pgcd(48, 36)</td><td>pgcd(36, 12)</td><td>12</td></tr>
+    <tr><td>pgcd(12, 0)</td><td>cas de base</td><td>12</td></tr>
+  </table>
+
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique</div>
+    <p>« D'abord la base, ensuite la baisse » : le cas de base s'écrit avant tout, et chaque appel doit faire
+    <em>baisser</em> le paramètre (exposant - 1, b réduit au reste) vers ce cas de base. Sans réduction, la
+    récursion ne s'arrête jamais.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="algo-c9-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;5&#10;2&#10;8&#10;1&#10;9">
+  <script type="text/plain" data-lab-starter>n = int(input())
+tableau = []
+for i in range(n):
+    tableau.append(int(input()))
+
+# À compléter : tri à bulles avec arrêt anticipé.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Tri à bulles</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter le tri à bulles avec arrêt anticipé.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers. Triez-les par la méthode des bulles : répétez des passages qui échangent les paires voisines mal ordonnées. Optimisez avec un indicateur d’échange : si un passage complet n’échange rien, le tableau est trié et le tri s’arrête. Interdits : <code>sort()</code>, <code>sorted()</code>. Affichez les valeurs triées sur une ligne, séparées par des espaces, suivies du nombre de passages effectués sur la ligne suivante.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+5
+2
+8
+1
+9</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1 2 5 8 9
+4</pre></div>
+    </div>
+    <p class="lab__note">Quatre passages pour trier cinq valeurs.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Chaque passage remonte la plus grande valeur non classée vers sa place définitive : la partie à parcourir rétrécit d’une case à chaque passage.</li>
+        <li>Un indicateur booléen, remis à faux au début de chaque passage et relevé dès qu’un échange a lieu, dit quand s’arrêter.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c9-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;2&#10;5&#10;8&#10;12&#10;20&#10;12">
+  <script type="text/plain" data-lab-starter>n = int(input())
+tableau = []
+for i in range(n):
+    tableau.append(int(input()))
+cible = int(input())
+
+# À compléter : recherche dichotomique.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Recherche dichotomique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Diviser l’espace de recherche à chaque étape.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers <strong>triés en ordre croissant</strong>, puis une valeur cible. Implémentez la recherche dichotomique (interdits : <code>index()</code>, <code>in</code>) et affichez la position de la cible (positions numérotées à partir de 1), ou <code>absent</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+2
+5
+8
+12
+20
+12</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>4</pre></div>
+    </div>
+    <p class="lab__note">12 se trouve à la position 4.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparez la cible au milieu de la zone de recherche : le résultat de la comparaison élimine la moitié restante.</li>
+        <li>Déplacez les bornes de la zone, jamais le tableau ; comptez les positions à partir de un à l’affichage.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="algo-c9-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="2&#10;10&#10;48&#10;36">
+  <script type="text/plain" data-lab-starter>def puissance(base, exposant):
+    # À compléter : version récursive, sans boucle.
+    pass
+
+
+def pgcd(a, b):
+    # À compléter : algorithme d'Euclide récursif.
+    pass
+
+
+base = int(input())
+exposant = int(input())
+a = int(input())
+b = int(input())
+print(puissance(base, exposant))
+print(pgcd(a, b))
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Récursivité — puissance et PGCD</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n5">Niveau 5 — Challenge</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire deux fonctions récursives et les combiner.</p>
+    <div class="lab__brief"><p>Écrivez deux fonctions récursives (aucune boucle) : <code>puissance(base, exposant)</code> qui renvoie base élevé à l’exposant (exposant ≥ 0), et <code>pgcd(a, b)</code> par l’algorithme d’Euclide. Le programme lit base, exposant, puis deux entiers a et b, et affiche les deux résultats sur deux lignes.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+10
+48
+36</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1024
+12</pre></div>
+    </div>
+    <p class="lab__note">2 puissance 10 = 1024 ; PGCD(48, 36) = 12.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Toute fonction récursive a un cas de base qui répond sans rappel : identifiez-le d’abord pour chaque fonction.</li>
+        <li>La puissance se ramène à la puissance d’exposant inférieur multipliée par la base ; le PGCD de a et b est celui de b et du reste de la division.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Le tri à bulles compare et échange…</p>
+      <div class="opts">
+        <button class="opt">chaque élément avec le minimum du tableau</button>
+        <button class="opt" data-correct="1">les éléments voisins deux à deux</button>
+        <button class="opt">le premier élément avec le dernier</button>
+      </div>
+      <div class="q__exp">Les paires voisines mal ordonnées sont échangées à chaque passage.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert l'indicateur d'échange du tri à bulles ?</p>
+      <div class="opts">
+        <button class="opt">À compter les valeurs triées</button>
+        <button class="opt" data-correct="1">À détecter un passage sans échange pour s'arrêter</button>
+        <button class="opt">À éviter les doublons</button>
+      </div>
+      <div class="q__exp">Un passage sans échange signifie que le tableau est trié.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Condition indispensable pour utiliser la recherche dichotomique ?</p>
+      <div class="opts">
+        <button class="opt">Le tableau doit contenir des entiers</button>
+        <button class="opt">Le tableau doit être de taille paire</button>
+        <button class="opt" data-correct="1">Le tableau doit être trié</button>
+      </div>
+      <div class="q__exp">Sans tri, la comparaison au milieu n'élimine rien.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la dichotomie, si T[milieu] &lt; cible, alors…</p>
+      <div class="opts">
+        <button class="opt">fin ← milieu</button>
+        <button class="opt" data-correct="1">début ← milieu + 1</button>
+        <button class="opt">on recherche dans tout le tableau</button>
+      </div>
+      <div class="q__exp">La cible est forcément dans la moitié droite : milieu est déjà exclu.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Tout algorithme récursif comporte obligatoirement…</p>
+      <div class="opts">
+        <button class="opt">Une boucle TantQue</button>
+        <button class="opt" data-correct="1">Un cas de base qui s'arrête sans rappel</button>
+        <button class="opt">Deux fonctions</button>
+      </div>
+      <div class="q__exp">Sans cas de base, la récursion ne s'arrête jamais.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie pgcd(a, 0) ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">a</button>
+        <button class="opt">Une erreur</button>
+      </div>
+      <div class="q__exp">C'est le cas de base d'Euclide : le reste nul livre le PGCD.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Boucle interne du tri à bulles mal bornée</strong> : le dernier échange déborde du tableau.</li>
+      <li><strong>Zone rétrécie oubliée</strong> : re-parcourir les cases déjà classées.</li>
+      <li><strong>Dichotomie sur tableau non trié</strong> : résultat faux sans message d'erreur.</li>
+      <li><strong>Milieu calculé hors zone</strong> : oublier de resserrer début ou fin crée une boucle infinie.</li>
+      <li><strong>Récursion sans cas de base</strong> ou sans réduction : appel infini.</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Aborder un algorithme classique</div>
+    <ol>
+      <li><strong>Identifier le schéma</strong> : tri par échange, recherche par division, ou appel de soi-même.</li>
+      <li><strong>Traiter les petits cas</strong> d'abord : tableau d'une ou deux valeurs, exposant 0, b = 0.</li>
+      <li><strong>Écrire la boucle interne</strong> (ou l'appel récursif) et la condition d'arrêt ensemble.</li>
+      <li><strong>Faire une table de trace</strong> sur 4-5 valeurs pour vérifier chaque étape.</li>
+      <li><strong>Compter les étapes</strong> demandées par l'énoncé : passages, comparaisons, appels.</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Tri à bulles : paires voisines échangées, n - 1 passages au pire.</li>
+      <li>Indicateur d'échange : arrêt dès qu'un passage complet n'échange rien.</li>
+      <li>Dichotomie : tableau trié obligatoire, moitié éliminée à chaque étape.</li>
+      <li>Récursivité : cas de base + appel qui réduit le problème.</li>
+      <li>Euclide : pgcd(a, b) = pgcd(b, a mod b), cas de base b = 0.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J'écris le tri à bulles avec sa condition d'arrêt.</li>
+      <li>Je compte les passages d'un tri grâce à une table de trace.</li>
+      <li>Je cite la condition de validité de la dichotomie.</li>
+      <li>J'écris une fonction récursive avec son cas de base.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>tri à bulles</li><li>passage</li><li>indicateur d'échange</li><li>dichotomie</li>
+      <li>milieu</li><li>récursivité</li><li>cas de base</li><li>algorithme d'Euclide</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 3 et refais les traces sur papier.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 3-4 de l'atelier.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible la dichotomie sur tableau non trié.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : dernier chapitre, du pseudo-code au programme.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre8.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 8</a>
+    <a class="btn btn--primary" href="chapitre10.html">Chapitre 10 — Du pseudo-code au programme <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (INF-1002) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

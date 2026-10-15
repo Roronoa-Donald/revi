@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Classes, objets et encapsulation | Java B2</title>
+<meta name="description" content="Chapitre 4 du cours de Java B2 : Attributs, constructeur, méthodes, private/public, getters et setters, toString. Théorie, exemples détaillés, exercices Java exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/rd_java/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Classes, objets et encapsulation | Java B2">
+<meta property="og:description" content="Chapitre 4 du cours de Java B2 : Attributs, constructeur, méthodes, private/public, getters et setters, toString. Théorie, exemples détaillés, exercices Java exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rd_javanav"><div class="rd_javanav__in">
+  <a class="rd_javanav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rd_javanav__sep" aria-hidden="true">/</span>
+  <a class="rd_javanav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Java B2</a>
+  <div class="rd_javanav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rd_javanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rd_javawrap">
+<p class="crumb"><a href="../index.html">Java B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Classes, objets et encapsulation</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un tableau transporte des valeurs, mais rien ne garantit leur cohérence. La classe décrit la forme d’une donnée ; l’objet en est une instance. L’encapsulation protège l’état derrière des méthodes qui le contrôlent.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>déclarer une classe avec ses attributs et son constructeur ;</li>
+      <li>créer des objets avec new et appeler leurs méthodes ;</li>
+      <li>protéger l’état avec private et des getters/setters ;</li>
+      <li>redéfinir toString() pour afficher un objet.</li>
+    </ol>
+  </div>
+
+<h2>1. Classe, objet et constructeur</h2>
+
+<p>Une <strong>classe</strong> décrit les attributs (l’état) et les méthodes (les comportements) d’un type. Le <strong>constructeur</strong> porte le nom de la classe et initialise l’objet.</p>
+<pre><code>class Rectangle {
+    private final int largeur;
+    private final int hauteur;
+
+    Rectangle(int largeur, int hauteur) {
+        this.largeur = largeur;
+        this.hauteur = hauteur;
+    }
+
+    int aire() {
+        return largeur * hauteur;
+    }
+}</code></pre>
+<p>On crée un objet avec <code>new</code> : <code>Rectangle r = new Rectangle(4, 5);</code>. <code>this</code> désigne l’objet courant, notamment pour distinguer un attribut d’un paramètre de même nom.</p>
+
+<h2>2. Encapsulation et visibilité</h2>
+
+<p>Les mots-clés de <strong>visibilité</strong> décident qui accède à un membre : <code>public</code> (tout le monde), <code>private</code> (la classe seule), <code>protected</code> (la classe et ses filles). L’encapsulation met les attributs en <code>private</code> et n’ouvre que des méthodes contrôlées.</p>
+<pre><code>private int solde;
+
+public int getSolde() {
+    return solde;
+}
+
+public void setSolde(int solde) {
+    if (solde &lt; 0) {
+        throw new IllegalArgumentException("solde négatif");
+    }
+    this.solde = solde;
+}</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — l’attribut public</div>
+    <p>Un attribut <code>public</code> se modifie de n’importe où, sans contrôle : un solde négatif peut entrer par la porte de service. Le setter, lui, refuse la valeur avant de l’affecter.</p>
+  </div>
+
+<h2>3. Affichage d’un objet</h2>
+
+<p>Par défaut, afficher un objet montre son type et son adresse, illisibles. On redéfinit <code>toString()</code> avec l’annotation <code>@Override</code> pour lui donner un sens.</p>
+<pre><code>@Override
+public String toString() {
+    return "(" + x + ", " + y + ")";
+}</code></pre>
+<p><code>System.out.println(unPoint)</code> appelle alors automatiquement cette méthode.</p>
+
+<h2>4. Construire un objet complet</h2>
+
+<p>Une bonne classe garantit qu’un objet ne peut pas exister dans un état invalide. Le constructeur range les valeurs obligatoires ; les setters valident celles qui changent.</p>
+<pre><code>class Personne {
+    private final String nom;
+    private int age;
+
+    Personne(String nom, int age) {
+        this.nom = nom;
+        this.age = age;
+    }
+
+    String getNom() { return nom; }
+    int getAge() { return age; }
+}</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Un objet, un contrat</div>
+    <p>Une classe bien faite répond à une question : « qu’est-ce qu’une Personne valide ? ». En verrouillant les propriétés qui ne changent pas (<code>final</code>) et en validant les autres, elle rend les bugs d’état impossibles plutôt que difficiles à trouver.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="java2-c4-e1"
+     data-language="java"
+     data-height="300"
+     data-stdin="4&#10;5">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+class Rectangle {
+    // À compléter : deux attributs privés largeur et hauteur.
+
+    // À compléter : constructeur.
+
+    // À compléter : méthode aire().
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int largeur = sc.nextInt();
+        int hauteur = sc.nextInt();
+
+        // À compléter : construire le rectangle et afficher "aire : " + aire().
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Classe Rectangle</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déclarer une classe, un constructeur et une méthode.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux entiers : <code>largeur</code> puis <code>hauteur</code>. Écrivez une classe <code>Rectangle</code> avec un constructeur rangeant ces valeurs et une méthode <code>aire()</code>, puis affichez <code>aire : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>aire : 20</pre></div>
+    </div>
+    <p class="lab__note">Un rectangle de 4 sur 5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le constructeur s’écrit Rectangle(int largeur, int hauteur) et affecte this.largeur et this.hauteur.</li>
+        <li>aire() renvoie largeur * hauteur ; crée l’objet avec new Rectangle(largeur, hauteur).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="java2-c4-e2"
+     data-language="java"
+     data-height="300"
+     data-stdin="3&#10;4">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+class Point {
+    // À compléter : attributs privés, constructeur.
+
+    // À compléter : redéfinir toString() pour renvoyer "(x, y)".
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int x = sc.nextInt();
+        int y = sc.nextInt();
+
+        // À compléter : créer le point et l'afficher.
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Classe Point et toString</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Encapsuler un état et redéfinir l’affichage d’un objet.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux entiers <code>x</code> et <code>y</code>. Écrivez une classe <code>Point</code> avec deux attributs privés et une méthode <code>toString()</code> qui renvoie <code>(x, y)</code>. Affichez l’objet directement avec <code>System.out.println</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>(3, 4)</pre></div>
+    </div>
+    <p class="lab__note">Le point (3, 4).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Ajoute l’annotation @Override devant public String toString().</li>
+        <li>Concatène les valeurs entre parenthèses : "(" + x + ", " + y + ")".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="java2-c4-e3"
+     data-language="java"
+     data-height="300"
+     data-stdin="Ada&#10;36">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+class Personne {
+    private final String nom;
+    private int age;
+
+    Personne(String nom, int age) {
+        this.nom = nom;
+        this.age = age;
+    }
+
+    String getNom() {
+        return nom;
+    }
+
+    int getAge() {
+        return age;
+    }
+
+    // À compléter : setter qui refuse un âge négatif.
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String nom = sc.next();
+        int age = sc.nextInt();
+
+        // À compléter : créer la personne et afficher "nom (age ans)".
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Classe Personne</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Combiner getters, setter validant et affichage formaté.</p>
+    <div class="lab__brief"><p>Le programme reçoit un prénom (un mot) puis un âge (un entier). Écrivez une classe <code>Personne</code> avec des getters <code>getNom()</code> et <code>getAge()</code>, puis affichez <code>nom (age ans)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Ada
+36</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Ada (36 ans)</pre></div>
+    </div>
+    <p class="lab__note">Ada a 36 ans.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>sc.next() lit un mot (sans espace) ; sc.nextInt() lit l’entier suivant.</li>
+        <li>L’affichage se construit par concaténation : p.getNom() + " (" + p.getAge() + " ans)".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’une classe ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un moule à objets</button>
+        <button class="opt">Une valeur</button>
+        <button class="opt">Une boucle</button>
+      </div>
+      <div class="q__exp">La classe décrit attributs et méthodes ; new produit des instances.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment s’appelle le constructeur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Comme la classe</button>
+        <button class="opt">main</button>
+        <button class="opt">new</button>
+      </div>
+      <div class="q__exp">Le constructeur porte le nom de la classe.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait new ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Crée un objet</button>
+        <button class="opt">Détruit un objet</button>
+        <button class="opt">Copie une classe</button>
+      </div>
+      <div class="q__exp">new instancie et appelle le constructeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne this ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’objet courant</button>
+        <button class="opt">La classe</button>
+        <button class="opt">Le constructeur</button>
+      </div>
+      <div class="q__exp">this référence l’instance en cours.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait private ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Réserve l’accès à la classe</button>
+        <button class="opt">Ouvre à tous</button>
+        <button class="opt">Interdit la classe</button>
+      </div>
+      <div class="q__exp">private n’est accessible que depuis la classe elle-même.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert un setter ?</p>
+      <div class="opts">
+        <button class="opt">Lire l’état</button>
+        <button class="opt" data-correct="1">Écrire l’état en validant</button>
+        <button class="opt">Détruire l’objet</button>
+      </div>
+      <div class="q__exp">Le setter contrôle la valeur avant de l’affecter.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait @Override sur toString ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Redéfinit l’affichage de l’objet</button>
+        <button class="opt">Supprime la méthode</button>
+        <button class="opt">Crée un getter</button>
+      </div>
+      <div class="q__exp">println appelle alors cette version de toString.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie final sur un attribut ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il ne peut plus être réaffecté</button>
+        <button class="opt">Il est public</button>
+        <button class="opt">Il est statique</button>
+      </div>
+      <div class="q__exp">final fige la valeur une fois le constructeur passé.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier <code>this.</code> dans le constructeur quand le paramètre a le même nom.</li>
+      <li>Laisser un attribut <code>public</code> alors qu’il devrait être contrôlé.</li>
+      <li>Affecter avant de valider dans un setter.</li>
+      <li>Afficher un objet sans <code>toString()</code> et lire une adresse illisible.</li>
+      <li>Réaffecter un attribut <code>final</code>.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Écrire une classe propre</div>
+    <ol>
+      <li><strong>Nommer</strong> l’entité métier, pas la table de données.</li>
+      <li><strong>Lister</strong> les attributs qui décrivent un objet complet.</li>
+      <li><strong>Écrire</strong> le constructeur qui range les valeurs reçues.</li>
+      <li><strong>Fermer</strong> les attributs en private et ouvrir getters/setters utiles.</li>
+      <li><strong>Redéfinir</strong> toString() pour un affichage lisible.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une classe décrit état (attributs) et comportements (méthodes).</li>
+      <li>Le constructeur initialise ; new crée l’objet.</li>
+      <li>this désigne l’objet courant.</li>
+      <li>public/private/protected décident de la visibilité ; private protège l’état.</li>
+      <li>Un setter valide avant d’affecter ; toString() rend l’affichage lisible.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je déclare une classe avec attributs et constructeur.</li>
+      <li>Je crée des objets avec new et j’appelle leurs méthodes.</li>
+      <li>Je protège mes attributs en private.</li>
+      <li>Je redéfinis toString() pour afficher un objet.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>classe</li><li>objet</li><li>constructeur</li><li>new</li><li>this</li><li>attribut</li><li>méthode</li><li>public</li><li>private</li><li>protected</li><li>encapsulation</li><li>getter</li><li>setter</li><li>toString</li><li>final</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Réécris la classe Rectangle de zéro.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur la visibilité et les setters validants.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tes classes ont un état clair et protégé.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe aux collections et à l’héritage, chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Collections, héritage et polymorphisme <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de Java (modules 1 à 12 : syntaxe, contrôle du flux, tableaux, objets, collections, exceptions).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

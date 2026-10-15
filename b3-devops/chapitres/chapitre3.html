@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Conteneurisation Docker, Multi-Stage Builds &amp;amp; Infrastructure as Code (IaC) | DevOps B3</title>
+<meta name="description" content="Chapitre 3 du cours DevOps B3 : Mécanismes d’isolation Linux du noyau (namespaces, cgroups), ordonnancement de couches Dockerfile, Multi-Stage Builds, sécurité non-root et idempotence IaC. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-devops/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Conteneurisation Docker, Multi-Stage Builds &amp;amp; Infrastructure as Code (IaC) | DevOps B3">
+<meta property="og:description" content="Chapitre 3 du cours DevOps B3 : Mécanismes d’isolation Linux du noyau (namespaces, cgroups), ordonnancement de couches Dockerfile, Multi-Stage Builds, sécurité non-root et idempotence IaC. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-devopsnav"><div class="b3-devopsnav__in">
+  <a class="b3-devopsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-devopsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-devopsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> DevOps B3</a>
+  <div class="b3-devopsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-devopsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-devopswrap">
+<p class="crumb"><a href="../index.html">DevOps B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Conteneurisation Docker, Multi-Stage Builds &amp; Infrastructure as Code (IaC)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le célèbre syndrome « mais ça fonctionnait pourtant sur ma machine ! » traduit l’hétérogénéité chronique des environnements de développement, de test et de production. Pour éradiquer ces divergences et garantir une portabilité stricte, l’industrie s’est convertie à la conteneurisation et à l’Infrastructure as Code (IaC). Toutefois, de nombreux conteneurs déployés en entreprise s’avèrent pachydermiques (plusieurs gigaoctets), lents à construire en CI et truffés de vulnérabilités critiques car construits sans discernement sous privilèges root. L’ingénieur DevOps B3 doit maîtriser l’ingénierie fine des conteneurs Linux (namespaces, cgroups, OverlayFS), concevoir des Dockerfiles ultra-optimisés tirant parti du cache de couches et des builds multi-étapes (Multi-Stage Builds), et piloter ses parcs de serveurs par du code déclaratif idempotent.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décortiquer les mécanismes d’isolation sous-jacents du noyau Linux : Namespaces, Control Groups (cgroups) et Chroot/Pivot_root ;</li>
+      <li>différencier architecturalement la conteneurisation de la virtualisation lourde par hyperviseur ;</li>
+      <li>ordonnancer méthodiquement les instructions d’un Dockerfile pour maximiser l’efficacité du cache de couches (Layer Caching) ;</li>
+      <li>concevoir des Multi-Stage Builds pour diviser la taille d’image par dix et réduire la surface d’attaque CVE ;</li>
+      <li>appliquer les règles de sécurité indispensables des conteneurs : exécution non-root, suppression d’outils de build et images minimales (Alpine, Distroless) ;</li>
+      <li>modéliser et vérifier l’idempotence et la convergence d’état en Infrastructure as Code (IaC).</li>
+    </ol>
+  </div>
+
+<h2>1. Conteneurisation vs Virtualisation Lourde : Les Primitives du Noyau Linux</h2>
+
+<p>Contrairement à une machine virtuelle (VM) qui embarque un système d’exploitation invité complet au-dessus d’un hyperviseur (Type 1 ou 2), un conteneur Linux n’est pas une machine virtuelle. C’est un <strong>processus standard du système d’exploitation hôte</strong> isolé par des fonctionnalités natives du noyau Linux (Linux Kernel) :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Namespaces (Isolation)</h4>
+    <p>Cloisonnent la vue du système pour le processus : <code>pid</code> (arbre des processus), <code>net</code> (interfaces réseau, ports, tables de routage), <code>mnt</code> (points de montage disque), <code>ipc</code> (mémoire partagée), <code>uts</code> (nom d’hôte) et <code>user</code> (mappage des UID/GID).</p>
+  </div>
+  <div class="card">
+    <h4>Control Groups - cgroups (Plafonds)</h4>
+    <p>Régulent et mesurent la consommation physique des ressources matérielles allouées au conteneur : plafonnement du temps CPU (quota), mémoire vive maximale (RAM limit / OOM killer) et débit d’entrées/sorties disque (I/O throttle).</p>
+  </div>
+  <div class="card">
+    <h4>Chroot &amp; Pivot_root (Système de fichiers)</h4>
+    <p>Isolent la racine du système de fichiers (<code>/</code>), empêchant le processus de naviguer hors de l’arborescence fournie par l’image de base du conteneur.</p>
+  </div>
+</div>
+<p style="margin-top:16px">Puisqu’il partage directement le noyau du serveur hôte, le conteneur démarre en quelques millisecondes, ne consomme aucun overhead de virtualisation matérielle et offre des performances quasi-natives.</p>
+
+<h2>2. Le Système de Fichiers en Couches (OverlayFS) &amp; Optimisation du Cache</h2>
+
+<p>Une image Docker est constituée d’un empilement de <strong>couches immuables en lecture seule (read-only layers)</strong> gérées par un système de fichiers d’union (typiquement <em>OverlayFS</em> sous Linux). Chaque instruction du Dockerfile (<code>FROM</code>, <code>RUN</code>, <code>COPY</code>, <code>ADD</code>) génère une nouvelle couche identifiée par une empreinte cryptographique (hash SHA-256).</p>
+<p>Lors de la commande <code>docker build</code>, Docker compare le hash de chaque couche avec son cache local : si l’instruction et les fichiers injectés sont strictement identiques, la couche est réutilisée instantanément (<code>Using cache</code>). En revanche, <strong>dès qu’une couche est invalidée, toutes les couches suivantes sont obligatoirement reconstruites</strong>.</p>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> L’Erreur Classique d’Ordonnancement Dockerfile</div>
+<p>Copier tout le projet avant d’installer les dépendances brise le cache à chaque modification du moindre fichier source :</p>
+<pre><code># INEFFECTIF (invalide le cache des dépendances à chaque commit) :
+COPY . .
+RUN npm install
+
+# OPTIMAL (le cache de npm install est conservé tant que package.json ne change pas) :
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .</code></pre>
+  </div>
+
+<h2>3. Multi-Stage Builds &amp; Durcissement de Sécurité</h2>
+
+<p>Pour compiler une application (TypeScript, Go, Rust, Java), l’environnement nécessite des compilateurs, des SDKs et des paquets de développement lourds (plusieurs centaines de mégaoctets). Conserver ces outils dans l’image de production finale constitue une triple hérésie : image obèse, transfert réseau lent et vulnérabilités de sécurité critiques (surface d’attaque CVE démesurée).</p>
+<p>Le <strong>Multi-Stage Build</strong> résout ce dilemme en scindant le Dockerfile en étapes distinctes :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Étape 1 : Builder (Compilation)</h4>
+    <p>Image complète équipée de tous les outils nécessaires. Elle compile le binaire exécutable ou minifie les artéfacts web, puis est jetée.</p>
+    <pre><code>FROM golang:1.21 AS builder
+WORKDIR /src
+COPY . .
+RUN CGO_ENABLED=0 go build -o /bin/api</code></pre>
+  </div>
+  <div class="card">
+    <h4>Étape 2 : Runtime (Production Épurée)</h4>
+    <p>Image minimale (Scratch, Alpine ou Distroless). On ne copie que l’artéfact final via <code>COPY --from=builder</code>. Aucun compilateur ni shell n’est conservé.</p>
+    <pre><code>FROM alpine:3.19
+RUN adduser -D appuser
+USER appuser
+COPY --from=builder /bin/api /bin/api
+ENTRYPOINT ["/bin/api"]</code></pre>
+  </div>
+</div>
+<p style="margin-top:16px">Résultat : une image dont la taille passe de 1.1 Go à 15 Mo, sans vulnérabilité système résiduelle et s’exécutant sous un utilisateur non privilégié (<code>USER appuser</code>).</p>
+
+<h2>4. Infrastructure as Code (IaC) &amp; Le Principe d’Idempotence</h2>
+
+<p>L’<strong>Infrastructure as Code (IaC)</strong> formalise l’infrastructure réseau et serveur sous forme de fichiers texte versionnés sur Git, éliminant les interventions manuelles sur console (ClickOps). Deux paradigmes s’opposent :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Approche Impérative (Scripts Bash, CLI)</h4>
+    <p>Décrit <em>comment</em> exécuter une succession d’ordres (ex. <code>aws ec2 create-instance ...</code>). Si le script est relancé deux fois, il risque de dupliquer la ressource ou d’échouer brutalement.</p>
+  </div>
+  <div class="card">
+    <h4>Approche Déclarative (Terraform, CloudFormation)</h4>
+    <p>Décrit <em>l’état cible désiré</em> (ex. « il doit exister exactement 3 VM avec tel tag »). Le moteur compare l’état réel et l’état désiré, calculant le delta strict nécessaire.</p>
+  </div>
+</div>
+<h4 style="margin-top:20px">Idempotence &amp; Détection de Dérive (Configuration Drift)</h4>
+<p>Une opération est dite <strong>idempotente</strong> si son application répétée $N$ fois produit exactement le même résultat que son application unique, sans effet secondaire imprévu :</p>
+$$f(f(x)) = f(x)$$
+<p>Si un opérateur modifie manuellement un groupe de sécurité en production, l’infrastructure entre en état de <strong>Drift (Dérive)</strong>. Un moteur d’IaC moderne détecte ce désalignement lors du <code>plan</code> et restaure la configuration déclarée lors du <code>apply</code> pour garantir la convergence absolue vers l’état de référence.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="do3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="FROM python:3.11-slim&#10;WORKDIR /app&#10;COPY requirements.txt .&#10;RUN pip install -r requirements.txt&#10;COPY . .&#10;USER appuser&#10;CMD [&quot;python&quot;, &quot;main.py&quot;]">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser le Dockerfile et détecter les anti-patterns
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Auditeur d’optimisation de Dockerfile (Layer Caching &amp; Multi-Stage)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter les anti-patterns courants dans la rédaction d’un Dockerfile et calculer son score de conformité aux bonnes pratiques de conteneurisation.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard les lignes successives d'un Dockerfile (format <code>INSTRUCTION argument...</code>) :<br><br>
+Règles d'audit (score de départ : 100 points) :<br>
+1. <strong>Image de base lourde (-20 pts) :</strong> si une instruction <code>FROM</code> utilise une image complète (contient <code>python:</code>, <code>node:</code>, <code>golang:</code>, <code>ubuntu:</code>) SANS contenir <code>slim</code> ou <code>alpine</code> -&gt; alerte <code>BASE_IMAGE_VOLUMINEUSE</code>.<br>
+2. <strong>Invalidation prématurée du cache (-30 pts) :</strong> si une instruction <code>COPY . .</code> ou <code>COPY . /</code> apparaît chronologiquement <strong>avant</strong> une instruction d'installation de dépendances (contenant <code>npm install</code> ou <code>pip install</code>) -&gt; alerte <code>CACHE_DEPENDANCES_INVALIDE</code>.<br>
+3. <strong>Absence de multi-stage pour le compilé (-30 pts) :</strong> si le Dockerfile contient une commande de compilation lourde (contenant <code>go build</code> ou <code>cargo build</code>) mais qu'il n'y a qu'une seule instruction <code>FROM</code> dans tout le fichier -&gt; alerte <code>MULTI_STAGE_REQUIS</code>.<br>
+4. <strong>Exécution en compte root (-20 pts) :</strong> si aucune instruction <code>USER</code> n'apparaît dans tout le fichier -&gt; alerte <code>EXECUTION_ROOT_DECONSEILLEE</code>.<br><br>
+Score minimal = 0.<br>
+Qualification du score :<br>
+- 100 : <code>OPTIMAL</code><br>
+- $\ge 60$ : <code>ACCEPTABLE</code><br>
+- $&lt; 60$ : <code>A_REFACTORISER</code><br><br>
+Afficher :<br>
+<code>AUDIT_DOCKERFILE: SCORE=&lt;score&gt;/100 | NIVEAU=&lt;NIVEAU&gt; | ALERTES=[&lt;alertes ou AUCUNE&gt;]</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+USER appuser
+CMD ["python", "main.py"]</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT_DOCKERFILE: SCORE=100/100 | NIVEAU=OPTIMAL | ALERTES=[AUCUN]</pre></div>
+    </div>
+    <p class="lab__note">Image slim, dépendances copiées avant le code complet, compte non-root : Dockerfile parfait.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Copier package.json ou requirements.txt avant COPY . . permet de réutiliser le cache Docker.</li>
+        <li>Garder l’ordre officiel des 4 alertes ci-dessus.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="IMAGE nom=api_auth LAYERS=L_node:150,L_express:30,L_auth:10&#10;IMAGE nom=api_users LAYERS=L_node:150,L_express:30,L_users:15&#10;IMAGE nom=worker LAYERS=L_node:150,L_queues:40">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : dédoublonner les couches et calculer le gain d'espace
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur d’empreinte disque des couches d’images partagées</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Quantifier l’économie d’espace disque permise par le système de couches immuables (layer sharing) du démon Docker sur un hôte.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard la composition en couches de plusieurs images :<br>
+<code>IMAGE nom=&lt;nom&gt; LAYERS=&lt;hash1:taille,hash2:taille,...&gt;</code>.<br>
+Chaque couche possède un identifiant de hachage et une taille en Mo (ex: <code>L_base:120,L_node:80,L_app:15</code>).<br><br>
+Pour chaque image :<br>
+- Calculer sa taille brute apparente = somme de ses couches.<br>
+- Afficher : <code>IMAGE: &lt;nom&gt; -&gt; TAILLE=&lt;taille&gt;Mo</code><br><br>
+Pour l’ensemble du parc :<br>
+- <code>Brut_cumulé</code> = somme des tailles de toutes les images.<br>
+- <code>Réel_sur_hôte</code> = somme des tailles des couches <strong>uniques</strong> (chaque hash n'est comptabilisé qu'une seule fois sur le disque hôte).<br>
+- <code>Économie</code> = $Brut\_cumulé - Réel\_sur\_hôte$<br>
+- Pourcentage = $(Économie / Brut\_cumulé) \times 100$<br><br>
+Afficher la synthèse :<br>
+<code>SYNTHESE_DOCKER: BRUT_CUMULE=&lt;brut&gt;Mo | REEL_SUR_HOTE=&lt;reel&gt;Mo | ECONOMIE=&lt;eco&gt;Mo (-&lt;pct:.1f&gt;%)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>IMAGE nom=api_auth LAYERS=L_node:150,L_express:30,L_auth:10
+IMAGE nom=api_users LAYERS=L_node:150,L_express:30,L_users:15
+IMAGE nom=worker LAYERS=L_node:150,L_queues:40</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IMAGE: api_auth -&gt; TAILLE=190Mo
+IMAGE: api_users -&gt; TAILLE=195Mo
+IMAGE: worker -&gt; TAILLE=190Mo
+SYNTHESE_DOCKER: BRUT_CUMULE=575Mo | REEL_SUR_HOTE=245Mo | ECONOMIE=330Mo (-57.4%)</pre></div>
+    </div>
+    <p class="lab__note">La couche L_node (150 Mo) et L_express (30 Mo) sont mutualisées sur l’hôte physique.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser un dictionnaire pour mémoriser la taille associée à chaque hash de couche unique.</li>
+        <li>Le partage de couches de base (ex: Ubuntu ou Alpine) réduit drastiquement l’empreinte des flottes de microservices.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="SERVICE nom=web depends_on=api&#10;SERVICE nom=api depends_on=database,redis&#10;SERVICE nom=database depends_on=NONE&#10;SERVICE nom=redis depends_on=NONE">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : tri topologique et détection de cycle
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Résolveur d’ordre de démarrage de services Docker Compose (depends_on)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la séquence de démarrage topologique valide d’un fichier docker-compose.yml en résolvant les dépendances et en détectant les cycles bloquants.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard la liste des services et leurs dépendances :<br>
+<code>SERVICE nom=&lt;nom&gt; depends_on=&lt;s1,s2,...|NONE&gt;</code>.<br><br>
+Règles :<br>
+- Un service ne peut démarrer que lorsque TOUS les services mentionnés dans sa directive <code>depends_on</code> ont déjà démarré.<br>
+- Si plusieurs services sont éligibles à démarrer au même moment, les ordonner par <strong>ordre alphabétique</strong> de leur nom pour garantir un résultat déterministe.<br>
+- Si un cycle de dépendance mutuelle rend le démarrage impossible (ex: A dépend de B et B dépend de A) :<br>
+  <code>DOCKER_COMPOSE: ERREUR=CYCLE_DE_DEPENDANCE_DETECTE</code><br>
+- Sinon, afficher la séquence ordonnée :<br>
+  <code>DOCKER_COMPOSE: ORDRE_DEMARRAGE=[&lt;s1, s2, ...&gt;]</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SERVICE nom=web depends_on=api
+SERVICE nom=api depends_on=database,redis
+SERVICE nom=database depends_on=NONE
+SERVICE nom=redis depends_on=NONE</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DOCKER_COMPOSE: ORDRE_DEMARRAGE=[database, redis, api, web]</pre></div>
+    </div>
+    <p class="lab__note">database et redis démarrent en premier (alphabétiquement database puis redis), puis api, puis web.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser l’algorithme de Kahn avec file de priorité ou sélection du minimum alphabétique parmi les degrés entrants nuls.</li>
+        <li>Un service dépend de ses prérequis (ses prérequis doivent démarrer avant lui).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel mécanisme du noyau Linux permet d’isoler la table des processus (PID) et les interfaces réseau d’un conteneur ?</p>
+      <div class="opts">
+        <button class="opt">L’hyperviseur KVM</button>
+        <button class="opt" data-correct="1">Les Namespaces Linux (pid, net)</button>
+        <button class="opt">Le protocole DNS</button>
+        <button class="opt">Le BIOS physique du serveur</button>
+      </div>
+      <div class="q__exp">Les Namespaces Linux restreignent ce qu’un processus peut voir : les namespaces pid et net lui fournissent une table des processus et des interfaces réseau virtuelles dédiées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle composante du noyau Linux est responsable de limiter la mémoire vive (RAM) maximale consommée par un conteneur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les cgroups (Control Groups)</button>
+        <button class="opt">Les tables IPTables</button>
+        <button class="opt">Le système de fichiers Ext4</button>
+        <button class="opt">Le serveur SSH</button>
+      </div>
+      <div class="q__exp">Les cgroups (Control Groups) contrôlent et plafonnent la quantité de ressources physiques (mémoire vive, temps CPU, entrées/sorties) allouables à un groupe de processus.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il crucial de placer la commande « COPY package.json » avant « COPY . . » dans un Dockerfile Node.js ?</p>
+      <div class="opts">
+        <button class="opt">Car Docker refuse de compiler si les fichiers JavaScript sont copiés en premier</button>
+        <button class="opt" data-correct="1">Pour éviter d’invalider le cache de l’installation des dépendances à chaque modification d’un fichier source de l’application</button>
+        <button class="opt">Pour chiffrer les dépendances de production</button>
+        <button class="opt">Pour réduire automatiquement la taille de la RAM hôte</button>
+      </div>
+      <div class="q__exp">Si le code source change, la couche correspondante et toutes les suivantes sont invalidées. Isoler la copie des manifestes de dépendances permet de réutiliser le cache de téléchargement de paquets.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’avantage architectural majeur d’un Dockerfile « Multi-Stage Build » ?</p>
+      <div class="opts">
+        <button class="opt">Il permet d’exécuter plusieurs systèmes d’exploitation différents dans le même conteneur</button>
+        <button class="opt" data-correct="1">Il sépare l’étape de compilation de l’étape de runtime pour produire une image de production ultra-légère exempte d’outils de build et de compilateurs</button>
+        <button class="opt">Il double automatiquement la mémoire allouée au conteneur</button>
+        <button class="opt">Il empêche l’utilisation de Git</button>
+      </div>
+      <div class="q__exp">Le Multi-Stage Build isole les outils de build lourds dans un stage temporaire et ne transfère que le binaire final dans l’image de production, réduisant la taille et éliminant les CVE.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il formellement déconseillé de laisser un conteneur s’exécuter par défaut sous l’utilisateur « root » en production ?</p>
+      <div class="opts">
+        <button class="opt">Car root consomme trop de bande passante réseau</button>
+        <button class="opt" data-correct="1">Car une faille de fuite de conteneur (container breakout) donnerait immédiatement à l’attaquant les privilèges administrateur complets sur le serveur hôte</button>
+        <button class="opt">Car Docker interdit le déploiement en production des images root</button>
+        <button class="opt">Car les logs ne peuvent pas être enregistrés sous root</button>
+      </div>
+      <div class="q__exp">En cas de vulnérabilité permettant d’échapper au conteneur, un processus tournant sous UID 0 (root) s’octroie un accès root direct sur le noyau de la machine hôte. Il faut toujours créer un utilisateur non privilégié.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En Infrastructure as Code (IaC), que signifie la propriété d’« Idempotence » ?</p>
+      <div class="opts">
+        <button class="opt">Le script doit s’exécuter obligatoirement en moins d’une seconde</button>
+        <button class="opt" data-correct="1">L’application répétée d’une configuration produit le même état final sans créer de duplication ni d’effets secondaires non désirés</button>
+        <button class="opt">L’infrastructure doit être réinitialisée et détruite chaque matin</button>
+        <button class="opt">Les serveurs doivent tous être localisés dans la même zone géographique</button>
+      </div>
+      <div class="q__exp">Une opération idempotente converge vers l’état cible : qu’elle soit exécutée une fois ou cent fois consécutives, l’infrastructure reste conforme sans altération non sollicitée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment qualifie-t-on la situation où la réalité des ressources de production ne correspond plus au code source de configuration déclaré sur Git ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La dérive de configuration (Configuration Drift)</button>
+        <button class="opt">La compilation sémantique</button>
+        <button class="opt">Le multi-threading</button>
+        <button class="opt">L’équilibrage de charge dynamique</button>
+      </div>
+      <div class="q__exp">Le Configuration Drift survient lorsque des modifications manuelles (ou des pannes non réconciliées) désalignent l’infrastructure réelle par rapport au code d’infrastructure versionné.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Parmi ces types d’images de base de conteneur, laquelle offre la surface d’attaque la plus restreinte pour héberger un binaire compilé en Go ou Rust ?</p>
+      <div class="opts">
+        <button class="opt">Ubuntu Desktop 22.04 LTS complète</button>
+        <button class="opt" data-correct="1">Une image Scratch ou Distroless (contenant uniquement le binaire et les certificats TLS de base)</button>
+        <button class="opt">Debian GNU/Linux avec suite de développement gcc préinstallée</button>
+        <button class="opt">CentOS 7 avec serveur de messagerie</button>
+      </div>
+      <div class="q__exp">Les images Scratch ou Distroless ne contiennent ni shell (/bin/sh), ni gestionnaire de paquets, ni outils de diagnostic : un assaillant qui injecte du code ne dispose d’aucun binaire pour pivoter.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Placer l’instruction COPY . . avant l’installation des dépendances dans un Dockerfile, détruisant tout le cache de couches à chaque commit.</li>
+      <li>Conserver les compilateurs et SDKs dans l’image finale de production au lieu d’utiliser un Multi-Stage Build épuré.</li>
+      <li>Exécuter les conteneurs sous le compte utilisateur root en production, exposant l’hôte aux failles d’évasion de conteneur.</li>
+      <li>Écrire des scripts d’automatisation impératifs non idempotents qui échouent ou dupliquent les ressources lorsqu’ils sont exécutés une deuxième fois.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Optimisation et de Sécurisation de Conteneurs Docker</div>
+    <ol>
+      <li>Sélectionner une image de base minimale, officielle et vérifiée (Alpine ou Distroless).</li>
+      <li>Ordonnancer scrupuleusement les instructions Dockerfile de la moins volatile à la plus fréquemment modifiée.</li>
+      <li>Isoler les manifestes de dépendances (package.json, requirements.txt) pour réutiliser le cache de téléchargement.</li>
+      <li>Implémenter un Multi-Stage Build scindant l’environnement de compilation de l’image d’exécution finale.</li>
+      <li>Créer et déclarer un utilisateur système dédié non privilégié (USER nonroot) pour l’exécution du processus.</li>
+      <li>Vérifier l’idempotence et la convergence d’état de toute ressource d’Infrastructure as Code (IaC).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les conteneurs Linux s’appuient sur les Namespaces (isolation) et les cgroups (quotas), partageant le noyau hôte.</li>
+      <li>Une image Docker est un empilement de couches immuables (OverlayFS) identifiées par hash cryptographique.</li>
+      <li>Toute modification d’une couche invalide toutes les couches suivantes : ordonner du statique vers le dynamique.</li>
+      <li>Le Multi-Stage Build réduit l’empreinte de plus de 80% et élimine les compilateurs et failles de l’image de prod.</li>
+      <li>Exécuter un conteneur sous root constitue un risque d’élévation de privilège critique sur la machine hôte.</li>
+      <li>L’IaC déclarative garantit l’idempotence et détecte la dérive de configuration (Drift) par rapport à Git.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer le rôle des Namespaces et des cgroups du noyau Linux.</li>
+      <li>Je sais différencier l’isolation par conteneur de la virtualisation lourde par hyperviseur.</li>
+      <li>Je sais ordonnancer un Dockerfile pour maximiser le taux de succès du cache de build.</li>
+      <li>Je sais écrire un Dockerfile multi-étapes (Multi-Stage Build) fonctionnel.</li>
+      <li>Je sais durcir un conteneur en configurant un utilisateur non-root et en supprimant les shells inutiles.</li>
+      <li>Je sais définir l’idempotence en IaC et expliquer comment un moteur détecte le drift.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Namespaces Linux (pid, net, mnt, uts)</li><li>Control Groups - cgroups (CPU, RAM)</li><li>Conteneur vs Machine Virtuelle</li><li>Système de couches OverlayFS</li><li>Layer Caching &amp; Ordonnancement</li><li>Multi-Stage Builds Docker</li><li>Durcissement de conteneur &amp; Non-root</li><li>Idempotence &amp; Dérive en IaC (Drift)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la distinction conteneur/VM, les namespaces/cgroups et les principes du cache Docker.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, approfondissez les mécanismes de Multi-Stage Builds et l’idempotence IaC.</div>
+      <div class="bandrow bandrow--high">8/8 : Excellent ! Vous maîtrisez parfaitement l’ingénierie des conteneurs Linux et l’Infrastructure as Code.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Déploiement Continu (CD), Stratégies de Release &amp; Feature Flags <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours CC_Devops.docx, les principes de Continuous Delivery (Jez Humble, David Farley), The Phoenix Project (Gene Kim), les recherches DORA (Accelerate) et les référentiels Site Reliability Engineering de Google.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

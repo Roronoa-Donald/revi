@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Chaîne de Production Logicielle (Assembleur, ELF, Linker &amp;amp; Débogueur) | Assembleur B2</title>
+<meta name="description" content="Chapitre 4 du cours Architecture &amp; Programmation en Assembleur B2 : Compilation croisée, étapes de la toolchain (source &amp;rarr; préprocesseur &amp;rarr; assembleur &amp;rarr; linker), sections ELF (.text, .data, .rodata, .bss), directives NASM (db..dq) et alignement. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/assembleur/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Chaîne de Production Logicielle (Assembleur, ELF, Linker &amp;amp; Débogueur) | Assembleur B2">
+<meta property="og:description" content="Chapitre 4 du cours Architecture &amp; Programmation en Assembleur B2 : Compilation croisée, étapes de la toolchain (source &amp;rarr; préprocesseur &amp;rarr; assembleur &amp;rarr; linker), sections ELF (.text, .data, .rodata, .bss), directives NASM (db..dq) et alignement. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="assembleurnav"><div class="assembleurnav__in">
+  <a class="assembleurnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="assembleurnav__sep" aria-hidden="true">/</span>
+  <a class="assembleurnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Assembleur B2</a>
+  <div class="assembleurnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="assembleurnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="assembleurwrap">
+<p class="crumb"><a href="../index.html">Assembleur B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Chaîne de Production Logicielle (Assembleur, ELF, Linker &amp; Débogueur)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un développeur tape la commande <code>gcc -O2 main.c -o programme</code> dans son terminal. En quelques millisecondes, le compilateur a prétraité les macros, généré du code assembleur intermédiaire, assemblé les mnémoniques en opcodes machine binaires dans un fichier objet <code>main.o</code>, puis l’éditeur de liens (<code>ld</code>) a résolu les symboles externes pour produire un exécutable binaire ELF. Que contiennent les sections <code>.text</code>, <code>.data</code> et <code>.bss</code> ? Pourquoi l’éditeur de liens émet-il l’erreur redoutée <code>undefined reference</code> ? Et pourquoi l’alignement mémoire sur 16 octets est-il obligatoire avant tout appel de fonction en x86_64 ?</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire avec exactitude les 4 étapes séquentielles de la chaîne de compilation logicielle ;</li>
+      <li>expliquer le concept et l’utilité de la compilation croisée (cross-compilation) pour les cibles embarquées ;</li>
+      <li>détailler la structure interne et le rôle de chaque section d’un binaire ELF (.text, .rodata, .data, .bss) ;</li>
+      <li>déclarer des données brutes en assembleur NASM avec les directives de taille adaptées (db, dw, dd, dq) ;</li>
+      <li>calculer les contraintes d’alignement mémoire et le nombre d’octets de padding imposés par la directive ALIGN.</li>
+    </ol>
+  </div>
+
+<h2>1. Les 4 étapes de la chaîne de compilation (Toolchain)</h2>
+
+<p>La transformation d’un code source de haut niveau en un programme binaire exécutable fait intervenir quatre outils logiciels spécialisés travaillant en pipeline :</p>
+<table class="table">
+  <thead><tr><th>Étape</th><th>Outil GNU</th><th>Entrée &rarr; Sortie</th><th>Rôle technique exact</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. Préprocesseur</strong></td><td><code>cpp</code></td><td><code>.c / .h &rarr; .i</code></td><td>Supprime les commentaires, remplace les macros (<code>#define</code>) et inclut textuellement les fichiers d’en-tête (<code>#include</code>).</td></tr>
+    <tr><td><strong>2. Compilateur</strong></td><td><code>gcc (cc1)</code></td><td><code>.i &rarr; .s</code></td><td>Analyse syntaxique, optimisation et traduction du code en instructions assembleur textuelles propres à la cible.</td></tr>
+    <tr><td><strong>3. Assembleur</strong></td><td><code>as / nasm</code></td><td><code>.s &rarr; .o</code></td><td>Traduit les mnémoniques textuels (MOV, ADD) en <strong>opcodes binaires machine</strong> et génère un fichier objet relocalisable.</td></tr>
+    <tr><td><strong>4. Éditeur de liens</strong></td><td><code>ld</code></td><td><code>.o + .a &rarr; ELF / EXE</code></td><td>Fusionne les sections des fichiers objets, résout les adresses des symboles externes et intègre les bibliothèques système.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Qu’est-ce que la compilation croisée (Cross-Compilation) ?</div>
+<p>La <strong>compilation croisée</strong> consiste à compiler un programme sur une machine hôte puissante (ex. un PC de développement x86_64 sous Linux) pour produire un fichier binaire destiné à être exécuté sur une machine cible d’architecture matérielle totalement différente (ex. une puce ARM Cortex, ou un microcontrôleur AVR ATmega328P). La toolchain utilise alors des outils préfixés : <code>avr-gcc</code>, <code>avr-as</code>, <code>avr-ld</code> et <code>avr-objcopy</code>.</p>
+  </div>
+
+<h2>2. Anatomie d’un exécutable ELF &amp; ses sections mémoire</h2>
+
+<p>Sous Linux et les systèmes UNIX, le format binaire standard est <strong>ELF (Executable and Linkable Format)</strong>. Le programme est découpé en plusieurs sections indépendantes ayant des droits d’accès matériels distincts (rwx) :</p>
+<pre><code>// Structure des 4 sections fondamentales d’un binaire ELF :
+
+1. Section .text (Code exécutable, Droits: r-x) :
+   - Contient la séquence des instructions machine lues par le processeur.
+   - Mémoire en lecture seule et exécution (protégée contre l’écriture pour interdire l’auto-modification).
+
+2. Section .rodata (Read-Only Data, Droits: r--) :
+   - Constantes littérales du programme (chaînes de caractères de printf, tables de sinus, masques constants).
+
+3. Section .data (Initialized Data, Droits: rw-) :
+   - Variables globales et statiques explicitement initialisées à une valeur non nulle.
+   - Présente physiquement dans le fichier binaire sur le disque.
+
+4. Section .bss (Block Started by Symbol, Droits: rw-) :
+   - Variables globales non initialisées (ou initialisées à 0).
+   - N’occupe aucun octet sur le disque ! Le noyau Linux se contente d’allouer des pages de zéros en mémoire vive au démarrage.</code></pre>
+
+<h2>3. Directives d’allocation NASM &amp; Table des symboles</h2>
+
+<p>En assembleur NASM, la section <code>.data</code> alloue et initialise la mémoire à l’aide de directives explicites de largeur binaire :</p>
+<table class="table">
+  <thead><tr><th>Directive</th><th>Nom complet</th><th>Taille en octets</th><th>Exemple d’utilisation</th></tr></thead>
+  <tbody>
+    <tr><td><code>db</code></td><td>Define Byte</td><td>1 octet (8 bits)</td><td><code>msg db "Hello", 0</code> (chaîne terminée par zéro)</td></tr>
+    <tr><td><code>dw</code></td><td>Define Word</td><td>2 octets (16 bits)</td><td><code>compteur dw 1000</code></td></tr>
+    <tr><td><code>dd</code></td><td>Define Double Word</td><td>4 octets (32 bits)</td><td><code>valeur dd 0x12345678</code></td></tr>
+    <tr><td><code>dq</code></td><td>Define Quad Word</td><td>8 octets (64 bits)</td><td><code>grand_nombre dq 1000000000</code></td></tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le rôle de la table des symboles</div>
+<p>Chaque étiquette (label) déclarée dans le code (ex. <code>main:</code> ou <code>msg:</code>) est enregistrée dans la <strong>table des symboles</strong> du fichier objet avec son nom, sa section d’appartenance, sa portée (locale ou <code>global</code>) et son offset relatif au début de la section.</p>
+  </div>
+
+<h2>4. Alignement mémoire &amp; Directive ALIGN</h2>
+
+<p>Pour que le bus mémoire puisse lire une donnée en un seul cycle d’horloge, l’adresse de départ de la donnée doit idéalement être un multiple de sa taille :</p>
+<pre><code>// Directive ALIGN en assembleur NASM :
+ALIGN 4    ; Insère des octets de bourrage (padding) jusqu’au prochain multiple de 4
+ALIGN 16   ; Obligatoire en x86_64 ABI pour aligner la pile avant un CALL externe
+
+// Formule du padding nécessaire pour aligner l’adresse A sur N octets :
+reste = A % N
+padding = (N - reste) % N
+nouvelle_adresse = A + padding</code></pre>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="asm2-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="dw;10,20">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : analyser la directive, convertir chaque valeur en octets Little-Endian et afficher
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Décodeur de directives de données NASM (db, dw, dd, dq)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir des directives d’allocation mémoire NASM en séquences d’octets bruts Little-Endian.</p>
+    <div class="lab__brief"><p>Dans la section <code>.data</code> d’un programme NASM, la taille des variables est définie par des directives :</p><ul>  <li><code>db (define byte)</code> : 1 octet (8 bits) ;</li>  <li><code>dw (define word)</code> : 2 octets (16 bits, Little-Endian) ;</li>  <li><code>dd (define double word)</code> : 4 octets (32 bits, Little-Endian) ;</li>  <li><code>dq (define quad word)</code> : 8 octets (64 bits, Little-Endian).</li></ul><p>Lit sur l’entrée standard <code>DIRECTIVE;VALEURS</code> où <code>VALEURS</code> est une liste d’entiers décimaux séparés par des virgules. Affiche la taille totale allouée et la séquence d’octets générée :<br><code>TAILLE=&lt;nb_octets&gt; OCTETS=&lt;XX XX ...&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>dw;10,20</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TAILLE=4 OCTETS=0A 00 14 00</pre></div>
+    </div>
+    <p class="lab__note">Deux mots de 16 bits : 10 = 0x000A (0A 00) et 20 = 0x0014 (14 00) -&gt; 4 octets au total.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>db -&gt; 1 octet, dw -&gt; 2 octets, dd -&gt; 4 octets, dq -&gt; 8 octets.</li>
+        <li>Pour convertir un entier x en n octets Little-Endian : (x &gt;&gt; (8*i)) &amp; 0xFF pour i de 0 à n-1.</li>
+        <li>Concatène les octets de toutes les valeurs séparés par un espace.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin=".text;0x00401000;0x00000050">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : calculer l'adresse virtuelle finale du symbole
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Résolution d’adresses virtuelles de sections ELF</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l’adresse virtuelle absolue d’un symbole dans un exécutable ELF.</p>
+    <div class="lab__brief"><p>Lors de l’étape d’édition de liens (linkage), l’éditeur de liens fusionne les sections des fichiers objets et leur attribue une <strong>adresse virtuelle (Virtual Address, VA)</strong> en mémoire.</p><p>Lit sur l’entrée standard <code>SECTION;BASE_HEX;OFFSET_HEX</code> où :</p><ul>  <li><code>SECTION</code> est le nom de la section (ex. <code>.text</code>, <code>.data</code>, <code>.rodata</code>) ;</li>  <li><code>BASE_HEX</code> est l’adresse virtuelle de base de la section (ex. <code>0x00401000</code>) ;</li>  <li><code>OFFSET_HEX</code> est le déplacement du symbole dans la section (ex. <code>0x00000050</code>).</li></ul><p>Affiche :<br><code>SECTION=&lt;NOM&gt; VA=0x&lt;8 chiffres HEX majuscules&gt; DEC=&lt;valeur&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>.text;0x00401000;0x00000050</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SECTION=.text VA=0x00401050 DEC=4198480</pre></div>
+    </div>
+    <p class="lab__note">0x00401000 + 0x50 = 0x00401050 dans l’espace mémoire du processus.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertis BASE_HEX et OFFSET_HEX en entiers avec int(s, 16).</li>
+        <li>L’adresse virtuelle finale vaut base + offset.</li>
+        <li>Formate avec f"SECTION={sec} VA=0x{va:08X} DEC={va}".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="asm2-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="0x1003;4">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : calculer le reste de division par N et déterminer le padding
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Alignement mémoire &amp; calcul de Padding (Directive ALIGN)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le nombre d’octets de bourrage (padding) nécessaires pour aligner une variable sur une frontière N octets.</p>
+    <div class="lab__brief"><p>Pour optimiser les accès au bus mémoire et éviter les pénalités de cycle CPU, les processeurs requièrent souvent que les données soient alignées sur des multiples de 2, 4, 8 ou 16 octets.</p><p>Lit sur l’entrée standard <code>ADRESSE_HEX;N</code> (où N vaut 2, 4, 8 ou 16). Affiche le nombre d’octets de bourrage ajoutés et la nouvelle adresse alignée :<br><code>PADDING=&lt;nb_octets&gt; ALIGNEE=0x&lt;HEX&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>0x1003;4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PADDING=1 ALIGNEE=0x1004</pre></div>
+    </div>
+    <p class="lab__note">0x1003 (4099) modulo 4 donne 3. On ajoute 1 octet pour atteindre 4100 (0x1004).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Si adr % n == 0, aucun padding n’est requis (padding = 0).</li>
+        <li>Sinon, padding = n - (adr % n), et la nouvelle adresse vaut adr + padding.</li>
+        <li>Formate l’adresse avec au moins 4 chiffres : f"0x{alignee:04X}".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel outil de la chaîne de compilation transforme le code assembleur textuel (.s) en fichier objet binaire (.o) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’assembleur (as ou nasm)</button>
+        <button class="opt">Le préprocesseur (cpp)</button>
+        <button class="opt">Le compilateur C (cc1)</button>
+        <button class="opt">L’éditeur de liens (ld)</button>
+      </div>
+      <div class="q__exp">L’assembleur traduit les mnémoniques (comme MOV, ADD) en opcodes binaires machine.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi la section .bss d’un fichier ELF n’occupe-t-elle presque aucun espace sur le disque ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce qu’elle ne contient que des variables non initialisées ou nulles, le noyau se chargeant de réserver des zéros en RAM au lancement</button>
+        <button class="opt">Parce qu’elle est compressée avec l’algorithme gzip</button>
+        <button class="opt">Parce qu’elle est stockée dans la mémoire Flash du processeur</button>
+        <button class="opt">Parce qu’elle est supprimée lors de l’édition de liens</button>
+      </div>
+      <div class="q__exp">La section .bss n’enregistre que la taille totale à allouer : les pages de zéros sont fournies à la volée par le système d’exploitation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle directive NASM permet de réserver et d’initialiser un entier de 64 bits (8 octets) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">dq (define quad word)</button>
+        <button class="opt">dd (define double word)</button>
+        <button class="opt">dw (define word)</button>
+        <button class="opt">db (define byte)</button>
+      </div>
+      <div class="q__exp">dq = Define Quad Word = 64 bits = 8 octets.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle section d’un binaire ELF contient le code exécutable du programme protégé en lecture et exécution (r-x) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">.text</button>
+        <button class="opt">.data</button>
+        <button class="opt">.rodata</button>
+        <button class="opt">.bss</button>
+      </div>
+      <div class="q__exp">La section .text héberge le code machine exécuté par le processeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’une erreur d’édition de liens « undefined reference to main » signifie exactement ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’éditeur de liens ld n’a trouvé aucun symbole global nommé main dans les fichiers objets fournis</button>
+        <button class="opt">Le code assembleur contient une division par zéro</button>
+        <button class="opt">Le processeur ne supporte pas le jeu d’instructions 64 bits</button>
+        <button class="opt">Le fichier source C est trop volumineux</button>
+      </div>
+      <div class="q__exp">Cette erreur survient lors de la phase de linkage : le symbole du point d’entrée principal n’a pas été résolu.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quelle adresse se retrouve une variable située à l’adresse 0x1003 si l’on applique la directive ALIGN 4 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0x1004 (1 octet de padding ajouté)</button>
+        <button class="opt">0x1008</button>
+        <button class="opt">0x1000</button>
+        <button class="opt">0x1007</button>
+      </div>
+      <div class="q__exp">0x1003 = 4099. Le multiple de 4 supérieur le plus proche est 4100 = 0x1004 (padding de 1 octet).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle section mémoire résident les chaînes de caractères littérales passées à printf("Hello\n") ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">.rodata (données en lecture seule)</button>
+        <button class="opt">.bss</button>
+        <button class="opt">.text</button>
+        <button class="opt">Dans la pile RSP</button>
+      </div>
+      <div class="q__exp">Les constantes non modifiables sont logées dans la section .rodata (Read-Only Data).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel outil de la toolchain AVR permet d’extraire le code machine binaire d’un fichier ELF pour en faire un fichier .hex flashable ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">avr-objcopy</button>
+        <button class="opt">avrdude</button>
+        <button class="opt">avr-gdb</button>
+        <button class="opt">avr-cpp</button>
+      </div>
+      <div class="q__exp">avr-objcopy extrait les sections exécutables de l’ELF pour produire le format Intel HEX accepté par les programmateurs de Flash.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre la section .data (variables initialisées occupant de la place sur disque) et .bss (variables nulles allouées en RAM).</li>
+      <li>Oublier le mot-clé global devant une étiquette en NASM, rendant le symbole invisible pour l’éditeur de liens externe.</li>
+      <li>Mélanger les directives de taille : déclarer dw pour un entier 32 bits, ce qui tronque la valeur à 16 bits.</li>
+      <li>Négliger l’alignement de la pile sur 16 octets avant un appel de fonction système en x86_64, provoquant un crash direct.</li>
+      <li>Confondre avr-gcc (le compilateur croisé) et avrdude (l’outil de flashage qui communique physiquement avec la puce via USB).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour assembler et lier un programme NASM</div>
+    <ol>
+      <li>Écrire le code source assembleur en déclarant explicitement la section <code>.data</code>, la section <code>.text</code> et <code>global _start</code>.</li>
+      <li>Assembler le code avec NASM en spécifiant le format cible : <code>nasm -f elf64 prog.asm -o prog.o</code>.</li>
+      <li>Lier les fichiers objets avec ld pour résoudre les adresses virtuelles : <code>ld prog.o -o prog</code>.</li>
+      <li>Inspecter les sections du binaire généré à l’aide des commandes GNU <code>size prog</code> et <code>objdump -d prog</code>.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La toolchain transforme le code en 4 étapes : préprocesseur (.i), compilateur (.s), assembleur (.o) et linker (ELF).</li>
+      <li>La cross-compilation produit du binaire pour une cible d’architecture différente de la machine hôte.</li>
+      <li>Un binaire ELF isole .text (instructions r-x), .rodata (constantes r--), .data (initialisé rw-) et .bss (non initialisé rw-).</li>
+      <li>Les directives NASM définissent la taille mémoire : db (1o), dw (2o), dd (4o) et dq (8o).</li>
+      <li>La directive ALIGN insère du bourrage pour aligner les données et structures sur des frontières de bus optimales.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais nommer les 4 outils de la toolchain et leurs fichiers intermédiaires respectifs.</li>
+      <li>Je sais expliquer ce qu’est la compilation croisée et pourquoi elle est indispensable en embarqué.</li>
+      <li>Je connais le rôle et les droits d’accès des 4 sections ELF (.text, .rodata, .data, .bss).</li>
+      <li>Je sais choisir la bonne directive NASM (db, dw, dd, dq) selon le type de variable.</li>
+      <li>Je sais calculer le padding nécessaire pour aligner une adresse mémoire sur N octets.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Chaîne de compilation (Toolchain)</li><li>Compilation croisée (Cross-compilation)</li><li>Assembleur (NASM / GAS)</li><li>Éditeur de liens (Linker ld)</li><li>Format binaire ELF</li><li>Section .text, .rodata, .data, .bss</li><li>Directives db, dw, dd, dq</li><li>Table des symboles (global)</li><li>Alignement mémoire & Padding</li><li>Format Intel HEX (.hex)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les 4 étapes de la toolchain et le rôle des sections .text et .data.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les directives d’allocation (db..dq) et le calcul d’alignement ALIGN.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises la production logicielle binaire et la structure ELF.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux instructions de transfert et aux modes d’adressage au chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Jeu d’Instructions x86/AVR, Transferts &amp; Modes d’Adressage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours d’Architecture et Programmation en Assembleur B2, les manuels d’architecture logicielle Intel 64 et IA-32, la documentation NASM et la spécification System V AMD64 ABI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

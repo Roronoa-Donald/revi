@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Variables aléatoires discrètes | Probabilités B2</title>
+<meta name="description" content="Chapitre 3 du cours de probabilités B2 : Loi de probabilité, espérance, variance, écart-type, fonction de répartition. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/probabilites/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Variables aléatoires discrètes | Probabilités B2">
+<meta property="og:description" content="Chapitre 3 du cours de probabilités B2 : Loi de probabilité, espérance, variance, écart-type, fonction de répartition. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="probabilitesnav"><div class="probabilitesnav__in">
+  <a class="probabilitesnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="probabilitesnav__sep" aria-hidden="true">/</span>
+  <a class="probabilitesnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-dice"></use></svg> Probabilités B2</a>
+  <div class="probabilitesnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="probabilitesnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="probabiliteswrap">
+<p class="crumb"><a href="../index.html">Probabilités B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Variables aléatoires discrètes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une variable aléatoire associe un nombre au résultat d’une expérience : le gain d’un jeu, le nombre de succès, la somme de deux dés. Une fois sa loi connue, deux nombres résument l’essentiel : autour de quoi elle se centre (espérance) et de combien elle s’en écarte (variance).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir une variable aléatoire discrète et sa loi de probabilité ;</li>
+      <li>calculer l’espérance E(X) = Σ xᵢ·pᵢ ;</li>
+      <li>calculer la variance V(X) = E(X²) − E(X)² et l’écart-type ;</li>
+      <li>construire la fonction de répartition F(x) = P(X ≤ x).</li>
+    </ol>
+  </div>
+
+<h2>1. Loi de probabilité</h2>
+
+<p>Une <strong>variable aléatoire discrète</strong> <code>X</code> prend des valeurs isolées <code>x₁, x₂, …</code>, chacune avec une probabilité <code>pᵢ = P(X = xᵢ)</code>. L’ensemble des couples <code>(xᵢ, pᵢ)</code> est la <strong>loi de probabilité</strong>. Elle doit vérifier <code>0 ≤ pᵢ ≤ 1</code> et <code>Σ pᵢ = 1</code>.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-check-circle"></use></svg> Vérifier une loi avant de calculer</div>
+    <p>Si la somme des probabilités ne vaut pas 1, la loi est mal énoncée : inutile de calculer l’espérance. Ce contrôle attrape la plupart des erreurs d’énoncé et de recopie.</p>
+  </div>
+<pre><code>loi = [(0, 0.5), (1, 0.5)]
+print(sum(p for _, p in loi))   # 1.0 : loi valide</code></pre>
+
+<h2>2. Espérance</h2>
+
+<p>L’<strong>espérance</strong> est la moyenne pondérée des valeurs, pondérée par leurs probabilités : <code>E(X) = Σ xᵢ · pᵢ</code>. C’est le gain moyen à long terme d’un jeu répété.</p>
+<pre><code>loi = [(1, 0.2), (2, 0.3), (3, 0.5)]
+esperance = sum(x * p for x, p in loi)
+print(f"{esperance:.4f}")   # 2.3000</code></pre>
+<p>L’espérance est <strong>linéaire</strong> : <code>E(aX + b) = a·E(X) + b</code>, et <code>E(X + Y) = E(X) + E(Y)</code> même si <code>X</code> et <code>Y</code> ne sont pas indépendantes.</p>
+
+<h2>3. Variance et écart-type</h2>
+
+<p>La <strong>variance</strong> mesure la dispersion autour de la moyenne. La formule la plus commode est la formule de <strong>Kœnig–Huygens</strong> : <code>V(X) = E(X²) − E(X)²</code>. L’<strong>écart-type</strong> est <code>σ(X) = √V(X)</code>, exprimé dans la même unité que <code>X</code>.</p>
+<pre><code>loi = [(0, 0.5), (1, 0.5)]
+E = sum(x * p for x, p in loi)
+E2 = sum(x * x * p for x, p in loi)
+print(f"{E2 - E * E:.4f}")   # 0.2500</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — E(X²) n’est pas E(X)²</div>
+    <p><code>E(X²)</code> est la moyenne des <strong>carrés</strong> ; <code>E(X)²</code> est le <strong>carré de la moyenne</strong>. Les confondre donne une variance nulle à tort. On calcule les deux puis on soustrait.</p>
+  </div>
+
+<h2>4. Fonction de répartition</h2>
+
+<p>La <strong>fonction de répartition</strong> cumule les probabilités jusqu’à un seuil : <code>F(x) = P(X ≤ x) = Σ_{xᵢ ≤ x} pᵢ</code>. Elle est croissante, vaut 0 avant la plus petite valeur et 1 à partir de la plus grande. « Au plus » (≤) est la convention de la répartition ; « au moins » (<code>P(X ≥ x)</code>) s’obtient par le complément.</p>
+<pre><code>loi = [(1, 0.2), (2, 0.3), (3, 0.5)]
+t = 2
+F = sum(p for x, p in loi if x <= t)
+print(f"{F:.4f}")   # 0.5000</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux façons de décrire la même loi</div>
+    <p>La loi ponctuelle donne <code>P(X = x)</code> ; la répartition donne <code>P(X ≤ x)</code>. Passer de l’une à l’autre se fait par somme (ponctuelle → répartition) ou par différence (répartition → ponctuelle : <code>P(X = x) = F(x) − F(x⁻)</code>).</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="pb2-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="2&#10;0 0.5&#10;1 0.5">
+  <script type="text/plain" data-lab-starter>n = int(input())
+couples = [input().split() for _ in range(n)]
+
+# À compléter : afficher l’espérance E(X) avec 4 décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Espérance d’une loi discrète</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer E(X) = Σ xᵢ · pᵢ pour une loi discrète donnée.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> lignes au format <code>valeur probabilité</code>. Affiche l’<strong>espérance</strong> <code>E(X) = Σ xᵢ · pᵢ</code> arrondie à 4 décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+0 0.5
+1 0.5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.5000</pre></div>
+    </div>
+    <p class="lab__note">Pile ou face équilibré : espérance 0,5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Chaque ligne contient une valeur et une probabilité : convertis la valeur avec float (une valeur négative est possible).</li>
+        <li>Accumule la somme des produits valeur × probabilité, puis affiche f"{esperance:.4f}".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pb2-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="2&#10;0 0.5&#10;1 0.5">
+  <script type="text/plain" data-lab-starter>n = int(input())
+couples = [input().split() for _ in range(n)]
+
+# À compléter : afficher la variance V(X) avec 4 décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Variance d’une loi discrète</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer V(X) = E(X²) − E(X)² pour une loi discrète donnée.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> lignes <code>valeur probabilité</code>. Affiche la <strong>variance</strong> <code>V(X) = E(X²) − E(X)²</code> arrondie à 4 décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+0 0.5
+1 0.5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.2500</pre></div>
+    </div>
+    <p class="lab__note">E(X)=0,5 et E(X²)=0,5, donc V=0,25.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calcule E(X) et E(X²) dans la même boucle : E(X²) = Σ xᵢ² · pᵢ.</li>
+        <li>La variance est E(X²) − E(X)² ; attention, il faut élever E(X) au carré après l’avoir calculé.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pb2-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="2&#10;0 0.3&#10;1 0.7&#10;0">
+  <script type="text/plain" data-lab-starter>n = int(input())
+couples = [input().split() for _ in range(n)]
+t = float(input())
+
+# À compléter : afficher F(t) avec 4 décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Fonction de répartition</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer F(t) = P(X ≤ t) pour une loi discrète et un seuil donnés.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> lignes <code>valeur probabilité</code>, puis enfin un seuil <code>t</code>. Affiche <code>F(t) = P(X ≤ t)</code> arrondie à 4 décimales (somme des probabilités des valeurs inférieures ou égales à <code>t</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+0 0.3
+1 0.7
+0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.3000</pre></div>
+    </div>
+    <p class="lab__note">P(X ≤ 0) = 0,3.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Additionne les probabilités dont la valeur est inférieure ou égale au seuil t.</li>
+        <li>Si aucune valeur n’est ≤ t, la répartition vaut 0 ; si toutes le sont, elle vaut 1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Une loi de probabilité discrète vérifie…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Σ pᵢ = 1</button>
+        <button class="opt">Σ pᵢ = 0</button>
+        <button class="opt">Σ pᵢ = n</button>
+      </div>
+      <div class="q__exp">Les probabilités des valeurs possibles somment à 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Formule de l’espérance ?</p>
+      <div class="opts">
+        <button class="opt">Σ xᵢ</button>
+        <button class="opt" data-correct="1">Σ xᵢ·pᵢ</button>
+        <button class="opt">Σ pᵢ</button>
+      </div>
+      <div class="q__exp">E(X) est la moyenne pondérée par les probabilités.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Formule de Kœnig–Huygens ?</p>
+      <div class="opts">
+        <button class="opt">E(X)² − E(X²)</button>
+        <button class="opt" data-correct="1">E(X²) − E(X)²</button>
+        <button class="opt">E(X²) + E(X)²</button>
+      </div>
+      <div class="q__exp">V(X) = E(X²) − E(X)².</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">L’écart-type vaut…</p>
+      <div class="opts">
+        <button class="opt">V(X)</button>
+        <button class="opt" data-correct="1">√V(X)</button>
+        <button class="opt">V(X)²</button>
+      </div>
+      <div class="q__exp">σ(X) = √V(X), même unité que X.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">E(aX + b) vaut…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">aE(X) + b</button>
+        <button class="opt">E(X) + b</button>
+        <button class="opt">aE(X)</button>
+      </div>
+      <div class="q__exp">L’espérance est linéaire : aE(X) + b.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut F(x) = P(X ≤ x) sous la plus petite valeur ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0</button>
+        <button class="opt">1</button>
+        <button class="opt">0,5</button>
+      </div>
+      <div class="q__exp">Aucune valeur n’est ≤ x : la répartition vaut 0.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">P(X ≥ x) se calcule comme…</p>
+      <div class="opts">
+        <button class="opt">F(x)</button>
+        <button class="opt" data-correct="1">1 − P(X < x)</button>
+        <button class="opt">F(x) − 1</button>
+      </div>
+      <div class="q__exp">On passe par le complément de l’événement contraire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">E(X²) est…</p>
+      <div class="opts">
+        <button class="opt">le carré de la moyenne</button>
+        <button class="opt" data-correct="1">la moyenne des carrés</button>
+        <button class="opt">la variance</button>
+      </div>
+      <div class="q__exp">E(X²) = Σ xᵢ²·pᵢ, une quantité différente de E(X)².</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre <code>E(X²)</code> (moyenne des carrés) et <code>E(X)²</code> (carré de la moyenne).</li>
+      <li>Utiliser une loi dont la somme des probabilités n’est pas 1.</li>
+      <li>Calculer la variance avant l’espérance alors que la formule en dépend.</li>
+      <li>Oublier que l’écart-type est la racine de la variance.</li>
+      <li>Se tromper de sens dans la répartition (<code>≤</code> et non <code>&lt;</code>).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Décrire une variable aléatoire</div>
+    <ol>
+      <li><strong>Lister</strong> les valeurs possibles de X.</li>
+      <li><strong>Calculer</strong> chaque probabilité pᵢ et vérifier que Σ pᵢ = 1.</li>
+      <li><strong>Poser</strong> le tableau (xᵢ, pᵢ, xᵢ·pᵢ, xᵢ²·pᵢ).</li>
+      <li><strong>Déduire</strong> E(X) puis V(X) = E(X²) − E(X)².</li>
+      <li><strong>Construire</strong> F(x) en cumulant les probabilités.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La loi ponctuelle donne P(X = xᵢ), avec Σ pᵢ = 1.</li>
+      <li>E(X) = Σ xᵢ·pᵢ, linéaire : E(aX + b) = aE(X) + b.</li>
+      <li>V(X) = E(X²) − E(X)² et σ(X) = √V(X).</li>
+      <li>F(x) = P(X ≤ x) cumule les probabilités jusqu’au seuil x.</li>
+      <li>Vérifier Σ pᵢ = 1 avant tout calcul.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je vérifie que la somme des probabilités vaut 1.</li>
+      <li>Je calcule E(X) et E(X²) séparément.</li>
+      <li>Je distingue variance et écart-type.</li>
+      <li>Je sais lire et construire une fonction de répartition.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>variable aléatoire discrète</li><li>loi de probabilité</li><li>espérance</li><li>linéarité</li><li>variance</li><li>Kœnig–Huygens</li><li>écart-type</li><li>fonction de répartition</li><li>P(X ≤ x)</li><li>complément</li><li>valeur possible</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois E(X) = Σ xᵢ·pᵢ et la somme des probabilités.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Reprends V(X) = E(X²) − E(X)² sur des exemples courts.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu construis la répartition sans erreur.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe aux lois discrètes usuelles, chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Lois discrètes usuelles <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de probabilités (fondements, dénombrement, variables aléatoires discrètes et continues).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

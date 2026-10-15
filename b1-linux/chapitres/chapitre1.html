@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Le système GNU/Linux : histoire, licence, architecture | Linux B1</title>
+<meta name="description" content="Chapitre 1 du cours de Linux B1 : D’UNIX à Linux, les quatre libertés du logiciel libre, distributions, architecture en couches. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-linux/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Le système GNU/Linux : histoire, licence, architecture | Linux B1">
+<meta property="og:description" content="Chapitre 1 du cours de Linux B1 : D’UNIX à Linux, les quatre libertés du logiciel libre, distributions, architecture en couches. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="lxnav"><div class="lxnav__in">
+  <a class="lxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="lxnav__sep" aria-hidden="true">/</span>
+  <a class="lxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux B1</a>
+  <div class="lxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="lxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="lxwrap">
+<p class="crumb"><a href="../index.html">Linux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Le système GNU/Linux : histoire, licence, architecture</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>On te confie une machine pour la première fois : avant même d’ouvrir un terminal, il faut savoir ce qu’est un système d’exploitation, d’où vient Linux et pourquoi il est partout — serveurs web, supercalculateurs, box internet, Android. Ce chapitre pose le vocabulaire qui servira dans les cinq suivants : noyau, distribution, licence GPL, architecture logique.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>rappeler les grandes dates d’UNIX et de GNU/Linux, de 1969 à 1991 ;</li>
+      <li>citer les quatre libertés de la licence GPL et les distinguer d’une licence BSD ;</li>
+      <li>décrire l’architecture logique d’un système UNIX, du matériel aux applications ;</li>
+      <li>expliquer ce qu’est une distribution et citer les principales.</li>
+    </ol>
+  </div>
+
+<h2>1. Un système d’exploitation, à quoi ça sert</h2>
+
+<p>Un <strong>système d’exploitation</strong> (OS, Operating System) est un ensemble de programmes qui gère l’ordinateur et ses périphériques : il sert d’interface entre le matériel (hardware) et les logiciels (software). Windows, macOS et Linux sont trois systèmes d’exploitation concurrents qui remplissent le même rôle.</p>
+<table>
+    <tr><th>Rôle de l’OS</th><th>Exemple concret</th></tr>
+    <tr><td>gestion de la mémoire</td><td>deux programmes tournent en même temps sans s’écraser</td></tr>
+    <tr><td>gestion des accès aux périphériques</td><td>l’imprimante, le clavier, le disque sont partagés</td></tr>
+    <tr><td>gestion des données sur le disque</td><td>les fichiers ont un nom, un emplacement, des droits</td></tr>
+    <tr><td>gestion des programmes</td><td>le processeur est partagé entre les tâches (multitâche)</td></tr>
+    <tr><td>gestion de la sécurité</td><td>chaque utilisateur n’accède qu’à ce qui lui est permis</td></tr>
+  </table>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « le chef d’orchestre »</div>
+    <p>L’OS ne fait rien d’utile pour l’utilisateur final : il orchestre. Toute action — ouvrir un fichier, imprimer, se connecter — passe par lui. C’est pourquoi l’administrer, comme on va l’apprendre, c’est contrôler toute la machine.</p>
+  </div>
+
+<h2>2. D’UNIX à Linux : les dates à connaître</h2>
+
+<p>L’histoire commence bien avant Linux :</p>
+<pre><code>1969   UNIX naît aux laboratoires Bell (AT&amp;T), écrit en assembleur
+       par Ken Thompson et Dennis Ritchie.
+1973   UNIX est réécrit en langage C (de Ritchie) : version 4, et devient,
+       en principe, portable.
+1974   Berkeley (Californie) reçoit la version 4 : naissance de la branche
+       BSD, divergente de la branche AT&amp;T.
+1980   premières licences de distribution d’UNIX System V aux constructeurs.
+1984   Richard M. Stallman lance le projet GNU (« Gnu is not Unix ») :
+       un système d’exploitation entièrement libre.
+1985   Stallman fonde la FSF (Free Software Foundation) et rédige la GPL.
+1991   Linus Torvalds, étudiant finlandais, crée le noyau Linux — contraction
+       de « Linus » et « UNIX » — et le place sous licence GPL.</code></pre>
+<p>Le noyau de Torvalds comble la pièce manquante du projet GNU : les outils (compilateur <code>gcc</code>, shell <code>bash</code>) existaient déjà. L’ensemble forme un système UNIX complet et libre : <strong>GNU/Linux</strong>.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Deux branches d’UNIX à retenir</div>
+    <p><strong>AT&amp;T</strong> (System V) d’un côté, <strong>BSD</strong> (Berkeley Software Distribution) de l’autre : les systèmes UNIX modernes descendent de l’une ou l’autre, ou des deux. Cette double filiation explique les variantes de commandes entre systèmes.</p>
+  </div>
+
+<h2>3. Le logiciel libre et la licence GPL</h2>
+
+<p>Un <strong>logiciel libre</strong> garantit quatre libertés — numérotées de 0 à 3, comme les indices d’un tableau :</p>
+<table>
+    <tr><th>Liberté</th><th>Contenu</th></tr>
+    <tr><td>0</td><td>utiliser le logiciel quel que soit l’usage</td></tr>
+    <tr><td>1</td><td>étudier le fonctionnement du programme et l’adapter à son besoin</td></tr>
+    <tr><td>2</td><td>redistribuer des copies pour aider son voisin</td></tr>
+    <tr><td>3</td><td>améliorer le programme et diffuser les améliorations à la communauté</td></tr>
+  </table>
+<p>La <strong>GPL</strong> (General Public License) ajoute le <strong>copyleft</strong> : quiconque redistribue le logiciel — modifié ou non — doit le faire sous les mêmes conditions. Le code source et les libertés sont inséparables. Une licence <strong>BSD</strong>, à l’inverse, autorise la création de versions propriétaires.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — libre ne veut pas dire gratuit</div>
+    <p>« Libre » se définit par les quatre libertés, pas par le prix (free as in freedom, pas free as in beer). En pratique Linux et ses logiciels sont aussi gratuits, mais le contrat de licence porte sur les libertés 0 à 3 — c’est ce que l’examen demande.</p>
+  </div>
+
+<h2>4. Distributions et architecture logique</h2>
+
+<p>Un <strong>noyau</strong> seul ne suffit pas. Une <strong>distribution</strong> assemble le noyau, les utilitaires, les commandes et les applications pour former un système complet et installable. Les plus utilisées : <strong>Debian</strong> (dont Ubuntu dérive), <strong>RedHat</strong>, <strong>Slackware</strong> (gratuites), SuSE, Mandrake.</p>
+<p>L’architecture logique d’un système UNIX s’organise en couches, du bas vers le haut :</p>
+<pre><code>applications et commandes de l’utilisateur
+shell            interprète les commandes, lance les programmes
+bibliothèques    (glibc…) traduisent les appels pour le noyau
+noyau (kernel)   gère mémoire, processeur, périphériques, fichiers
+matériel         CPU, RAM, disques, cartes réseau</code></pre>
+<p>Le <strong>shell</strong> est la couche que l’on manipule en TP : il lit la commande, la comprend et la transmet au système. <code>bash</code> (Bourne Again Shell) est le shell standard de la plupart des distributions — c’est lui que l’on programme dans l’atelier de ce cours.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx-c1-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="/home/user/docs&#10;3&#10;/etc/passwd&#10;cours/linux&#10;./notes.txt&#10;">
+  <script type="text/plain" data-lab-starter>read -r cwd
+read -r n
+for ((i=0; i<n; i++)); do
+  read -r chemin
+  # À compléter : afficher « absolu » ou « relatif → chemin résolu ».
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Chemins absolus ou relatifs</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classifier des chemins et résoudre un chemin relatif depuis un répertoire courant.</p>
+    <div class="lab__brief"><p>Le script lit d'abord le <strong>répertoire courant</strong> (une ligne), puis <strong>n chemins</strong> (une ligne chacun). Pour chaque chemin, il affiche <code>absolu</code> s'il commence par <code>/</code>, sinon <code>relatif</code> suivi, après « <code> → </code> », de sa résolution depuis le répertoire courant : <code>/home/user/docs</code> + <code>cours/linux</code> donnent <code>relatif → /home/user/docs/cours/linux</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>/home/user/docs
+3
+/etc/passwd
+cours/linux
+./notes.txt
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>absolu
+relatif → /home/user/docs/cours/linux
+relatif → /home/user/docs/./notes.txt</pre></div>
+    </div>
+    <p class="lab__note">Seul le premier caractère décide ; ./notes.txt reste relatif.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un chemin est absolu exactement quand son premier caractère est « / » : test ${chemin:0:1} = "/".</li>
+        <li>Un chemin relatif se résout en le collant au répertoire courant : "$cwd/$chemin".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c1-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="/tmp&#10;/home&#10;/donnees&#10;">
+  <script type="text/plain" data-lab-starter>while read -r chemin; do
+  case "$chemin" in
+    # À compléter : un motif par répertoire, avec son rôle.
+  esac
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Fonctions d'une arborescence</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associater chaque répertoire standard à son rôle et retrouver le rôle d'un chemin demandé.</p>
+    <div class="lab__brief"><p>Le script lit <strong>une requête par ligne</strong> (jusqu'à la fin de l'entrée) : un chemin standard (<code>/home</code>, <code>/tmp</code>, <code>/etc</code>, <code>/var</code>, <code>/bin</code>, <code>/usr</code>, <code>/root</code>, <code>/dev</code>). Pour chacune il affiche son rôle exactement comme ci-dessous ; un chemin inconnu donne <code>inconnu</code>.</p>
+<p>Rôles attendus : /home → <code>repertoires personnels</code> ; /tmp → <code>fichiers temporaires</code> ; /etc → <code>configuration</code> ; /var → <code>donnees variables</code> ; /bin → <code>binaires essentiels</code> ; /usr → <code>applications et librairies</code> ; /root → <code>repertoire de root</code> ; /dev → <code>fichiers de peripheriques</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>/tmp
+/home
+/donnees
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>fichiers temporaires
+repertoires personnels
+inconnu</pre></div>
+    </div>
+    <p class="lab__note">Les rôles, dans l'ordre des requêtes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le case de bash : "*) ... ;;" pour l'inconnu, en dernier motif.</li>
+        <li>Chaque branche affiche exactement la chaîne demandée : pas d'accent dans les sorties attendues.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx-c1-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="6&#10;mkdir /home/user&#10;touch /etc/passwd&#10;ls&#10;mkdir /var/log&#10;touch /var/log/syslog&#10;ls&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r op chemin
+  # À compléter : mémoriser chaque création, répondre au ls.
+done
+# À compléter : afficher le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Arborescence artificielle</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Maintenir une arborescence simulée : créer, lister et compter les éléments par type.</p>
+    <div class="lab__brief"><p>Le script gère une arborescence en texte. Il lit <strong>n lignes</strong> d'opérations : <code>mkdir chemin</code>, <code>touch chemin</code> (création), ou <code>ls</code> (lister). À chaque <code>ls</code> il affiche les chemins créés, dans l'ordre de création, sous la forme <code>repertoire: chemin</code> ou <code>fichier: chemin</code> selon le type. La dernière ligne affiche le bilan : <code>bilan : R repertoire(s) F fichier(s)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+mkdir /home/user
+touch /etc/passwd
+ls
+mkdir /var/log
+touch /var/log/syslog
+ls
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>repertoire: /home/user
+fichier: /etc/passwd
+repertoire: /home/user
+fichier: /etc/passwd
+repertoire: /var/log
+fichier: /var/log/syslog
+bilan : 2 repertoire(s) 2 fichier(s)</pre></div>
+    </div>
+    <p class="lab__note">Chaque ls rejoue toute la création depuis le début.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Deux tableaux (ou deux chaînes) suffisent : un pour les répertoires, un pour les fichiers, remplis dans l'ordre.</li>
+        <li>Pour ls, parcourir les deux tableaux dans l'ordre de création ; le bilan compte les éléments de chacun.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Qui a créé le noyau Linux, et quand ?</p>
+      <div class="opts">
+        <button class="opt">Ken Thompson, 1969</button>
+        <button class="opt">Richard Stallman, 1984</button>
+        <button class="opt" data-correct="1">Linus Torvalds, 1991</button>
+      </div>
+      <div class="q__exp">Linus Torvalds, étudiant finlandais, a créé le noyau en 1991 et l’a placé sous licence GPL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En quel langage UNIX a-t-il été réécrit en 1973 ?</p>
+      <div class="opts">
+        <button class="opt">En assembleur</button>
+        <button class="opt" data-correct="1">En langage C</button>
+        <button class="opt">En Pascal</button>
+      </div>
+      <div class="q__exp">Dennis Ritchie a réécrit UNIX en C pour sa version 4, ce qui l’a rendu portable en principe.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie l’acronyme GNU ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Gnu is not Unix</button>
+        <button class="opt">General New Unix</button>
+        <button class="opt">GNU Network Utility</button>
+      </div>
+      <div class="q__exp">« Gnu is not Unix » : un acronyme récursif, signature du projet de Stallman (1984).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de libertés la licence GPL garantit-elle ?</p>
+      <div class="opts">
+        <button class="opt">Trois, numérotées 1 à 3</button>
+        <button class="opt" data-correct="1">Quatre, numérotées 0 à 3</button>
+        <button class="opt">Cinq, numérotées 0 à 4</button>
+      </div>
+      <div class="q__exp">Libertés 0 (utiliser), 1 (étudier), 2 (redistribuer), 3 (améliorer) — comme les indices d’un tableau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle différence entre licence GPL et licence BSD ?</p>
+      <div class="opts">
+        <button class="opt">La GPL est payante</button>
+        <button class="opt" data-correct="1">La GPL interdit les versions propriétaires (copyleft), la BSD l’autorise</button>
+        <button class="opt">Aucune, ce sont les mêmes</button>
+      </div>
+      <div class="q__exp">Le copyleft de la GPL impose les mêmes conditions à toute redistribution ; la BSD permet des versions propriétaires.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’architecture logique, que fait le shell ?</p>
+      <div class="opts">
+        <button class="opt">Il gère la mémoire</button>
+        <button class="opt" data-correct="1">Il interprète les commandes de l’utilisateur</button>
+        <button class="opt">Il remplace le noyau</button>
+      </div>
+      <div class="q__exp">Le shell lit la commande, l’interprète et transmet les demandes au système via les bibliothèques et le noyau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’une distribution Linux ?</p>
+      <div class="opts">
+        <button class="opt">Une version payante de Linux</button>
+        <button class="opt" data-correct="1">Un assemblage complet : noyau, utilitaires, commandes, applications</button>
+        <button class="opt">Un gestionnaire de téléchargement</button>
+      </div>
+      <div class="q__exp">Une distribution forme après installation un système complet ; Debian, RedHat et Slackware en sont des exemples.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel shell est le standard des distributions actuelles ?</p>
+      <div class="opts">
+        <button class="opt">csh</button>
+        <button class="opt" data-correct="1">bash</button>
+        <button class="opt">ksh</button>
+      </div>
+      <div class="q__exp">bash (Bourne Again Shell) est le shell standard, fourni dès l’origine avec les outils GNU.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Confondre Linux et UNIX</strong> : Linux est un noyau né en 1991 ; UNIX date de 1969.</li>
+      <li><strong>Attribuer GNU à Torvalds</strong> : le projet GNU est de Stallman (1984) ; le noyau, de Torvalds.</li>
+      <li><strong>Décaler les libertés</strong> : elles vont de 0 à 3, pas de 1 à 4.</li>
+      <li><strong>Libre = gratuit</strong> : la définition porte sur les libertés, pas sur le prix.</li>
+      <li><strong>Oublier le copyleft</strong> : la GPL impose les mêmes conditions à toute redistribution.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Réviser l’histoire du système</div>
+    <ol>
+      <li><strong>Reconstruire la frise</strong> 1969, 1973, 1974, 1984, 1985, 1991 avec une phrase par date.</li>
+      <li><strong>Associer un nom à chaque étape</strong> : Thompson et Ritchie, Stallman, Torvalds.</li>
+      <li><strong>Réciter les quatre libertés</strong> dans l’ordre, avec un exemple chacune.</li>
+      <li><strong>Dessiner l’architecture</strong> en couches de mémoire, sans regarder le cours.</li>
+      <li><strong>Citer trois distributions</strong> et leur famille (Debian, RedHat, Slackware).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un OS gère mémoire, périphériques, données, programmes et sécurité ; il interface matériel et logiciels.</li>
+      <li>UNIX : 1969 (Bell), réécrit en C en 1973, branche BSD dès 1974, System V licencié en 1980.</li>
+      <li>GNU (Stallman, 1984) fournit les outils libres ; le noyau Linux (Torvalds, 1991) complète le système.</li>
+      <li>La GPL garantit les libertés 0 à 3 et impose le copyleft ; la BSD tolère le propriétaire.</li>
+      <li>Une distribution = noyau + utilitaires + commandes + applications ; bash est le shell standard.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je situe 1969, 1984 et 1991 sur une frise et nomme les acteurs.</li>
+      <li>Je récite les quatre libertés de la GPL avec leur numéro.</li>
+      <li>Je dessine l’architecture en couches, du matériel aux applications.</li>
+      <li>J’explique ce qu’est une distribution avec trois exemples.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>système d’exploitation</li><li>UNIX</li><li>GNU</li><li>GPL</li><li>copyleft</li><li>liberté 0-1-2-3</li><li>noyau</li><li>distribution</li><li>shell</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Réécris la frise historique de mémoire, sans le cours.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Récite les quatre libertés avec un exemple concret chacune.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : dessine l’architecture en couches et nomme chaque couche.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 2, l’arborescence du système de fichiers.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Arborescence et système de fichiers <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Système Linux B1 ITA &amp; ITB » du Dr Abasse KPEGOUNI (système, fichiers, Debian 12, commandes de base, utilisateurs et groupes, TP droits d’accès).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

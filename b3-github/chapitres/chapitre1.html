@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Modèle Objet Git &amp;amp; Arborescence Interne | Git &amp; GitHub B3</title>
+<meta name="description" content="Chapitre 1 du cours Git &amp; GitHub B3 : Anatomie du dossier .git, modèle objet immuable (blobs, trees, commits, tags), hachage SHA-1/SHA-256, adressage par contenu et commandes de plomberie. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-github/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Modèle Objet Git &amp;amp; Arborescence Interne | Git &amp; GitHub B3">
+<meta property="og:description" content="Chapitre 1 du cours Git &amp; GitHub B3 : Anatomie du dossier .git, modèle objet immuable (blobs, trees, commits, tags), hachage SHA-1/SHA-256, adressage par contenu et commandes de plomberie. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-githubnav"><div class="b3-githubnav__in">
+  <a class="b3-githubnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-githubnav__sep" aria-hidden="true">/</span>
+  <a class="b3-githubnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git &amp; GitHub B3</a>
+  <div class="b3-githubnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-githubnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-githubwrap">
+<p class="crumb"><a href="../index.html">Git & GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Modèle Objet Git &amp; Arborescence Interne</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Pour la majorité des utilisateurs débutants, Git apparaît comme une boîte noire mystérieuse où s’enchaînent des commandes mnémotechniques sans compréhension des structures sous-jacentes. Pourtant, au niveau Bachelor 3, l’ingénieur logiciel doit appréhender Git pour ce qu’il est réellement : un système de fichiers adressable par contenu (Content-Addressable Storage) doublé d’une base de données orientée graphe (Directed Acyclic Graph - DAG). Chaque fichier, chaque dossier, chaque commit et chaque étiquette est sérialisé en un objet immuable indexé par son empreinte cryptographique. Face à un dépôt corrompu, une défaillance de synchronisation ou l’écriture d’outils d’automatisation CI/CD, la maîtrise des commandes de plomberie (plumbing commands) et de l’arborescence interne du répertoire .git est la clé qui sépare l’utilisateur passif de l’expert en ingénierie logicielle.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>analyser la structure détaillée et le rôle de chaque composant du répertoire interne .git (objects, refs, HEAD, index) ;</li>
+      <li>comprendre le principe du stockage adressable par contenu et le calcul des identifiants cryptographiques SHA-1 et SHA-256 ;</li>
+      <li>distinguer la structure, les métadonnées et le rôle des quatre types d’objets fondamentaux : blob, tree, commit et annotated tag ;</li>
+      <li>démontrer le fonctionnement de l’arbre de Merkle et l’immuabilité cryptographique de l’historique de versions ;</li>
+      <li>manipuler les commandes de plomberie de bas niveau (git hash-object, git cat-file, git ls-tree, git rev-parse) ;</li>
+      <li>développer en Python 3 des parseurs de structures Git internes, des calculateurs de hashes conformes et des résolveurs de références.</li>
+    </ol>
+  </div>
+
+<h2>1. Anatomie Interne du Dossier .git &amp; Système Adressable par Contenu</h2>
+
+<p>Lors de l’initialisation d’un dépôt via <code>git init</code>, Git génère un répertoire masqué <code>.git/</code> contenant l’intégralité de la base de données de versionnage. Contrairement aux systèmes centralisés (SVN, CVS) qui stockent des deltas successifs fichier par fichier sur un serveur distant, Git conserve des <strong>instantanés complets (snapshots)</strong> au sein d’une base de données clé-valeur locale.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Architecture du Dossier <code>.git/</code></h4>
+    <ul>
+      <li><code>HEAD</code> : Référence symbolique pointant vers la branche active courante (ex: <code>ref: refs/heads/main</code>).</li>
+      <li><code>objects/</code> : Magasin d’objets adressés par leur empreinte SHA-1/SHA-256. Organisé en sous-dossiers de 2 caractères hexadécimaux pour optimiser les performances des systèmes de fichiers.</li>
+      <li><code>refs/</code> : Pointeurs vers des commits (branches locales dans <code>refs/heads/</code>, branches distantes dans <code>refs/remotes/</code>, étiquettes dans <code>refs/tags/</code>).</li>
+      <li><code>index</code> : Fichier binaire représentant la zone de transit (Staging Area), faisant le lien entre la copie de travail et la base d’objets.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Principe de l’Adressage par Contenu</h4>
+    <p>Une clé dans la base d’objets est la valeur de hachage cryptographique du contenu de l’objet préfixé par son en-tête. La clé détermine l’emplacement physique :</p>
+    <p>Un objet de hash <code>3b18e512...</code> sera sauvegardé dans le fichier <code>.git/objects/3b/18e512...</code> compressé avec l’algorithme DEFLATE (zlib).</p>
+    <p>Ce paradigme garantit une <strong>déduplication native</strong> : deux fichiers au contenu identique, quel que soit leur nom ou leur emplacement, partagent exactement la même entrée dans la base.</p>
+  </div>
+</div>
+
+<h2>2. Les Quatre Types Fondamentaux d’Objets Git</h2>
+
+<p>La base de données Git ne gère que quatre types d’objets atomiques, chacun ayant une structure et une responsabilité précises dans la reconstruction du projet :</p>
+<table class="table">
+  <thead>
+    <tr><th>Type d’Objet</th><th>En-tête &amp; Format Brut</th><th>Contenu Stocké</th><th>Comportement vis-à-vis des Métadonnées</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>blob</code></td>
+      <td><code>blob &lt;taille&gt;\0&lt;octets&gt;</code></td>
+      <td>Contenu brut du fichier (texte, image, binaire).</td>
+      <td><strong>Aucune métadonnée</strong> : ni nom de fichier, ni date, ni permissions d’accès Unix ne sont conservés dans un blob.</td>
+    </tr>
+    <tr>
+      <td><code>tree</code></td>
+      <td><code>tree &lt;taille&gt;\0[entrées...]</code></td>
+      <td>Liste ordonnée de références représentant un dossier.</td>
+      <td>Chaque entrée contient le mode Unix (<code>100644</code> pour standard, <code>100755</code> pour exécutable, <code>040000</code> pour sous-dossier), le type, le hash de l’objet cible et le nom du fichier.</td>
+    </tr>
+    <tr>
+      <td><code>commit</code></td>
+      <td><code>commit &lt;taille&gt;\0[en-têtes + message]</code></td>
+      <td>Instantané de projet avec traçabilité complète.</td>
+      <td>Pointe vers l’arbre racine (<code>tree</code>), les commits parents (0 pour le commit initial, 1 pour standard, 2+ pour fusion), l’auteur, le committer et le message.</td>
+    </tr>
+    <tr>
+      <td><code>tag</code></td>
+      <td><code>tag &lt;taille&gt;\0[cible + tagger + msg]</code></td>
+      <td>Objet d’étiquette annotée immuable.</td>
+      <td>Pointe vers un objet cible (généralement un commit), contient l’identifiant du signataire, un horodatage et optionnellement une signature cryptographique GPG.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Cryptographie du Graphe : Hachage SHA, Immuabilité &amp; Arbre de Merkle</h2>
+
+<p>La rigueur de Git découle de son organisation sous forme d’<strong>arbre de Merkle</strong> (Merkle Tree). Toute modification d’un seul caractère dans un fichier modifie son hash de blob, ce qui modifie le hash du tree parent, qui modifie le hash du commit qui le référence, jusqu’à la tête du graphe.</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Calcul Exact de l’Empreinte SHA-1 d’un Objet Git</div>
+<p>Le hash affiché par Git n’est pas le simple hash du fichier : Git injecte un en-tête canonique avant le calcul cryptographique :</p>,<pre><code>format_brut = f"{type_objet} {taille_en_octets}\0{contenu_du_fichier}"
+sha1 = hashlib.sha1(format_brut).hexdigest()</code></pre>,<p>Par exemple, pour un fichier contenant le mot <code>test\n</code> (5 octets) :</p>,<ul>,  <li>En-tête : <code>blob 5\0</code></li>,  <li>Charge utile : <code>test\n</code></li>,  <li>Total à hacher : <code>blob 5\0test\n</code> (12 octets au total)</li>,  <li>Empreinte SHA-1 résultante : <code>9daeafb9864cf43055ae93beb0afd6c7d144bfa4</code></li>,</ul>
+  </div>
+<p>En 2017, la première collision pratique sur SHA-1 (attaque SHAttered par le CWI et Google) a démontré la vulnérabilité théorique de l’algorithme. Depuis la version 2.29, Git supporte une transition architecturale vers <strong>SHA-256</strong> (hashes de 64 caractères hexadécimaux), renforçant la résilience cryptographique face aux ordinateurs modernes et attaques par collision ciblée.</p>
+
+<h2>4. Commandes de Plomberie vs Porcelaine : Contrôle de Bas Niveau</h2>
+
+<p>Dans la terminologie inventée par Linus Torvalds, Git distingue deux couches d’interfaces :</p>
+<ul>
+  <li><strong>La porcelaine (Porcelain) :</strong> Commandes de haut niveau destinées à l’humain (<code>git status</code>, <code>git commit</code>, <code>git log</code>, <code>git checkout</code>). Elles masquent la complexité en orchestrant plusieurs actions de bas niveau.</li>
+  <li><strong>La plomberie (Plumbing) :</strong> Commandes spécialisées conçues pour les scripts et les outils internes. Elles manipulent directement les objets bruts et les références de la base de données.</li>
+</ul>
+<table class="table">
+  <thead>
+    <tr><th>Commande de Plomberie</th><th>Syntaxe Opérationnelle</th><th>Effet Technique</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>git hash-object</code></td>
+      <td><code>git hash-object -w fichier.txt</code></td>
+      <td>Calcule le SHA et écrit (<code>-w</code>) l’objet compressé dans le magasin <code>.git/objects/</code>.</td>
+    </tr>
+    <tr>
+      <td><code>git cat-file</code></td>
+      <td><code>git cat-file -p &lt;hash&gt;</code> / <code>-t &lt;hash&gt;</code></td>
+      <td>Affiche le contenu formaté (<code>-p</code> pour pretty-print) ou le type de l’objet (<code>-t</code>).</td>
+    </tr>
+    <tr>
+      <td><code>git ls-tree</code></td>
+      <td><code>git ls-tree -r HEAD</code></td>
+      <td>Parcourt récursivement l’objet <code>tree</code> pour lister les blobs et sous-arbres avec leurs modes.</td>
+    </tr>
+    <tr>
+      <td><code>git rev-parse</code></td>
+      <td><code>git rev-parse HEAD</code></td>
+      <td>Résout une référence symbolique ou relative en son identifiant SHA canonique à 40 caractères.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gh3-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="OBJECT type=blob content=hello world&#10;">
+  <script type="text/plain" data-lab-starter>import sys
+import hashlib
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : formater l'objet avec son en-tête et calculer le hachage SHA-1
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de hachage SHA-1 d’objet Git (Plomberie git hash-object)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le hash SHA-1 exact d’un objet Git selon le formatage canonique interne du stockage objet.</p>
+    <div class="lab__brief"><p>En interne, Git stocke tous les contenus dans sa base de données orientée objets (<code>.git/objects/</code>) adressée par le contenu (Content-Addressable Storage).<br><br>
+Pour calculer l'empreinte SHA-1 d'un objet (équivalent de la commande de plomberie <code>git hash-object</code>), Git préfixe le contenu brut avec une chaîne d'en-tête standard suivie d'un octet nul <code>\0</code> :<br>
+<code>en-tete = f"{type_objet} {taille_octets}\0"</code><br>
+Puis il calcule le condensat SHA-1 (40 caractères hexadécimaux en minuscules) de la concaténation de l'en-tête et du contenu.<br><br>
+Le script lit sur l'entrée standard des descriptions d'objets au format :<br>
+<code>OBJECT type=&lt;blob|commit|tree|tag&gt; content=&lt;texte_du_contenu&gt;</code>.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>GIT_HASH type={type} size={taille} sha1={hash_hex}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>OBJECT type=blob content=hello world
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>GIT_HASH type=blob size=11 sha1=95d09f2b10159347eece71399a7e2e907ea3df4f</pre></div>
+    </div>
+    <p class="lab__note">Blob Git contenant "hello world" (11 octets) dont le sha1 canonique avec en-tête est 95d09f2b...</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’en-tête Git s’écrit f"{obj_type} {len(content_bytes)}\0".</li>
+        <li>Encoder l’en-tête et le contenu en UTF-8 avant de passer à hashlib.sha1().</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gh3-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="ENTRY mode=100644 type=blob sha1=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2 name=README.md&#10;ENTRY mode=040000 type=tree sha1=b1c2d3e4f5a6b1c2d3e4f5a6b1c2d3e4f5a6b1c2 name=src">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : trier et afficher les entrées de l'objet Tree
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Parseur d’arbre Git et inspection de hiérarchie (git ls-tree)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les entrées d’un objet Tree Git et afficher l’inventaire des blobs et sous-arbres avec leur mode.</p>
+    <div class="lab__brief"><p>Un objet <strong>Tree</strong> dans Git modélise un répertoire. Il contient une suite ordonnée d'entrées représentant les fichiers (blobs) et les sous-répertoires (trees).<br><br>
+Chaque entrée comporte :<br>
+- Un mode UNIX à 6 chiffres :<br>
+  - <code>100644</code> : fichier texte / données normal (non exécutable)<br>
+  - <code>100755</code> : script / binaire exécutable<br>
+  - <code>040000</code> : sous-répertoire (Tree)<br>
+  - <code>120000</code> : lien symbolique (symlink)<br>
+- Le type de l'objet lié (<code>blob</code> pour les fichiers, <code>tree</code> pour les répertoires).<br>
+- L'identifiant SHA-1 de l'objet (40 caractères hexadécimaux).<br>
+- Le nom du fichier ou dossier.<br><br>
+Le script lit sur l'entrée standard des entrées de Tree au format :<br>
+<code>ENTRY mode=&lt;mode&gt; type=&lt;blob|tree&gt; sha1=&lt;hash&gt; name=&lt;nom&gt;</code>.<br><br>
+Le script doit afficher les entrées triées par ordre alphabétique du nom de fichier au format standard <code>git ls-tree</code> :<br>
+<code>{mode} {type} {sha1}\t{name}</code><br>
+Puis un récapitulatif :<br>
+<code>TREE_SUMMARY total={n} blobs={nb_blobs} subtrees={nb_trees} executables={nb_exec}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ENTRY mode=100644 type=blob sha1=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2 name=README.md
+ENTRY mode=040000 type=tree sha1=b1c2d3e4f5a6b1c2d3e4f5a6b1c2d3e4f5a6b1c2 name=src</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>100644 blob a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2	README.md
+040000 tree b1c2d3e4f5a6b1c2d3e4f5a6b1c2d3e4f5a6b1c2	src
+TREE_SUMMARY total=2 blobs=1 subtrees=1 executables=0</pre></div>
+    </div>
+    <p class="lab__note">Un fichier README et un sous-dossier src.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extraire chaque champ avec une regex ou découpage de chaîne.</li>
+        <li>Trier la liste des entrées sur la clé name.</li>
+        <li>Compter les exécutables dont le mode vaut 100755.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gh3-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="REF name=refs/heads/main target=c0ffee1234567890abcdef1234567890abcdef12&#10;REF name=HEAD target=ref: refs/heads/main&#10;RESOLVE name=HEAD">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : déréférencer les pointeurs Git
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Résolveur de références symboliques &amp; pointeur HEAD (git rev-parse)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Résoudre la chaîne de pointeurs de références de Git pour déterminer le commit actif pointé par HEAD.</p>
+    <div class="lab__brief"><p>Dans Git, <code>HEAD</code> est une référence symbolique qui pointe généralement vers une branche locale (ex: <code>ref: refs/heads/main</code>), qui elle-même contient le hash du dernier commit de cette branche.<br><br>
+Si un développeur effectue un checkout directement sur un commit ou un tag, <code>HEAD</code> contient directement le hash : le dépôt est alors en <strong>HEAD détachée (Detached HEAD)</strong>.<br><br>
+Le script lit sur l'entrée standard :<br>
+1. Des définitions de références :<br>
+   <code>REF name=&lt;nom&gt; target=&lt;hash|ref: autre_ref&gt;</code>.<br>
+2. Des requêtes de résolution :<br>
+   <code>RESOLVE name=&lt;ref_a_resoudre&gt;</code>.<br><br>
+Pour chaque requête, le script suit la chaîne de déréférencement jusqu'au hash SHA-1 final (en détectant si HEAD pointe sur une branche ou est détachée) :<br>
+- Si la chaîne aboutit à un commit :<br>
+  <code>RESOLVED name={name} commit={hash} state={BRANCH_REF|DETACHED_HEAD} path={chaine_de_refs}</code><br>
+- Si la référence n'existe pas :<br>
+  <code>RESOLVED name={name} status=NOT_FOUND</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>REF name=refs/heads/main target=c0ffee1234567890abcdef1234567890abcdef12
+REF name=HEAD target=ref: refs/heads/main
+RESOLVE name=HEAD</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RESOLVED name=HEAD commit=c0ffee1234567890abcdef1234567890abcdef12 state=BRANCH_REF path=HEAD -&gt; refs/heads/main</pre></div>
+    </div>
+    <p class="lab__note">HEAD pointe sur la branche main qui pointe sur le commit.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les refs dans un dictionnaire.</li>
+        <li>Suivre les cibles commençant par "ref: " en boucle jusqu’à obtenir un hash.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelles informations sont réellement conservées à l’intérieur d’un objet Git de type « blob » ?</p>
+      <div class="opts">
+        <button class="opt">Le nom du fichier, ses permissions Unix et son contenu brut</button>
+        <button class="opt" data-correct="1">Uniquement le contenu brut du fichier, sans nom ni droits d’accès</button>
+        <button class="opt">Le chemin d’accès relatif, la date de modification et le hash SHA-1</button>
+        <button class="opt">L’historique des deltas et modifications ligne par ligne du fichier</button>
+      </div>
+      <div class="q__exp">Un blob ne contient que le contenu brut en octets du fichier. Le nom du fichier et les droits d’accès (permissions Unix) sont exclusivement portés par l’objet tree parent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle formule correspond exactement à la chaîne d’octets hachée par Git pour un objet blob de 10 octets ?</p>
+      <div class="opts">
+        <button class="opt">sha1("blob 10:" + contenu)</button>
+        <button class="opt" data-correct="1">sha1("blob 10\0" + contenu)</button>
+        <button class="opt">sha1(contenu + "\0blob 10")</button>
+        <button class="opt">sha1("file 10\n" + contenu)</button>
+      </div>
+      <div class="q__exp">Le standard Git injecte toujours le préambule : type + espace + taille_en_octets + octet_nul (\0) suivi du contenu brut avant d’appliquer la fonction de hachage cryptographique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle structure Git les permissions d’accès Unix d’un fichier (ex: 100644 ou 100755) sont-elles enregistrées ?</p>
+      <div class="opts">
+        <button class="opt">Dans le fichier .git/config du dépôt local</button>
+        <button class="opt">Dans l’en-tête de l’objet blob lui-même</button>
+        <button class="opt" data-correct="1">Dans les entrées de l’objet tree parent</button>
+        <button class="opt">Dans les métadonnées de l’objet commit</button>
+      </div>
+      <div class="q__exp">C’est l’objet tree qui référence chaque blob en lui associant son mode Unix (100644 pour un fichier normal, 100755 pour un exécutable, 120000 pour un lien symbolique) et son nom.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert la commande de plomberie « git cat-file -t <hash> » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">À afficher le type de l’objet Git (blob, tree, commit ou tag)</button>
+        <button class="opt">À imprimer le contenu formatté du fichier</button>
+        <button class="opt">À tester si le hash correspond à une branche distante</button>
+        <button class="opt">À transformer un objet SHA-1 en objet SHA-256</button>
+      </div>
+      <div class="q__exp">L’option -t (type) de git cat-file retourne le nom du type de l’objet correspondant au hash dans la base de données Git (blob, tree, commit ou tag).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que contient le fichier spécial « .git/HEAD » dans un état normal sur la branche principale « main » ?</p>
+      <div class="opts">
+        <button class="opt">Le hash SHA-1 direct du dernier commit de la branche</button>
+        <button class="opt" data-correct="1">La chaîne « ref: refs/heads/main »</button>
+        <button class="opt">L’arbre racine (root tree) de la copie de travail</button>
+        <button class="opt">La liste de tous les commits créés au cours de la session courante</button>
+      </div>
+      <div class="q__exp">HEAD est une référence symbolique pointant vers la branche active. Son contenu est textuellement « ref: refs/heads/main » (sauf en état de tête détachée / detached HEAD où il contient un SHA-1 direct).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’impact de la modification d’un seul octet dans un fichier sur l’arbre de Merkle du dépôt ?</p>
+      <div class="opts">
+        <button class="opt">Seul le hash du blob est modifié, le reste du dépôt conserve les mêmes hashes</button>
+        <button class="opt" data-correct="1">Le hash du blob, du tree parent et de tous les commits ancêtres subséquents sont recalculés</button>
+        <button class="opt">Le fichier .git/index est corrompu et doit être réinitialisé via git init</button>
+        <button class="opt">Git stocke un patch de différence sans toucher à la chaîne des objets SHA</button>
+      </div>
+      <div class="q__exp">L’arbre de Merkle garantit l’intégrité en cascade : changer le blob modifie le tree qui le contient, ce qui modifie le commit qui référence ce tree, garantissant l’immuabilité de l’historique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande de plomberie permet d’écrire directement un nouvel objet blob dans le magasin .git/objects/ ?</p>
+      <div class="opts">
+        <button class="opt">git commit-tree</button>
+        <button class="opt">git write-tree</button>
+        <button class="opt" data-correct="1">git hash-object -w</button>
+        <button class="opt">git update-ref</button>
+      </div>
+      <div class="q__exp">L’option -w (write) de git hash-object ordonne à Git de calculer le hash et d’enregistrer physiquement l’objet compressé dans le répertoire .git/objects/.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de parents possède le tout premier commit (commit initial) créé dans un dépôt Git ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Aucun parent (0 parent)</button>
+        <button class="opt">Exactement 1 parent pointant sur HEAD</button>
+        <button class="opt">2 parents pointant vers le système de fichiers</button>
+        <button class="opt">1 parent fictif constitué de 40 zéros</button>
+      </div>
+      <div class="q__exp">Le commit initial (root commit) n’a aucun commit parent. Un commit standard en possède un, et un commit de fusion en possède au moins deux.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Croire que Git stocke des fichiers entiers sous leur nom réel dans .git/objects/ (ils sont compressés et renommés selon leur hash).</li>
+      <li>Penser qu’un blob conserve le nom du fichier (le nom est uniquement stocké dans l’objet tree parent).</li>
+      <li>Oublier l’octet nul (« \0 ») dans le calcul manuel du hash SHA-1 d’un objet Git.</li>
+      <li>Confondre les références symboliques (HEAD pointant vers refs/heads/main) et les hashes absolus de commits.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Inspection & Audit des Objets Internes Git</div>
+    <ol>
+      <li>Étape 1 : Localiser la référence courante en lisant le fichier .git/HEAD pour identifier la branche ou le commit actif.</li>
+      <li>Étape 2 : Résoudre la référence symbolique via git rev-parse pour obtenir le hash SHA-1/SHA-256 complet du commit cible.</li>
+      <li>Étape 3 : Inspecter la structure du commit via git cat-file -p pour extraire le hash de l’arbre racine (tree) et les parents.</li>
+      <li>Étape 4 : Dérouler l’arborescence des répertoires et fichiers en explorant les entrées tree via git ls-tree.</li>
+      <li>Étape 5 : Vérifier l’intégrité d’un fichier en recalculant son empreinte avec git hash-object et en la comparant au hash stocké.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Git est un système de fichiers adressable par contenu reposant sur un graphe orienté acyclique (DAG).</li>
+      <li>Le dossier .git/ contient toute la base de données : HEAD, objects/, refs/ et index.</li>
+      <li>Quatre types d’objets immuables : blob (contenu pur), tree (répertoire), commit (instantané tracé), tag (étiquette annotée).</li>
+      <li>Un blob ne stocke jamais son nom de fichier ni ses droits : ces métadonnées sont encapsulées dans les objets tree.</li>
+      <li>Le hachage Git injecte toujours un préambule normalisé : type taille\0contenu avant le calcul SHA-1 ou SHA-256.</li>
+      <li>L’architecture en arbre de Merkle garantit que la modification d’un seul bit invalide et propage de nouveaux hashes en cascade.</li>
+      <li>Les commandes de plomberie (hash-object, cat-file, ls-tree, rev-parse) permettent l’automatisation et le diagnostic précis.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer la structure et le contenu du dossier masqué .git.</li>
+      <li>Je connais la formule exacte du préambule injecté avant le hachage d’un objet Git.</li>
+      <li>Je sais pourquoi un objet blob ne contient ni son nom de fichier ni ses permissions d’accès Unix.</li>
+      <li>Je maîtrise la différence entre un objet tree et un objet commit dans le graphe DAG.</li>
+      <li>Je sais utiliser git cat-file (-p, -t) pour inspecter n’importe quel objet de la base.</li>
+      <li>Je suis capable de résoudre une référence symbolique vers un hash absolu avec git rev-parse.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Système de fichiers adressable par contenu (CAS)</li><li>Graphe Orienté Acyclique (DAG)</li><li>Arbre de Merkle (Merkle Tree)</li><li>Objet Blob (Binary Large Object)</li><li>Objet Tree & modes de permissions Unix</li><li>Objet Commit & chaîne d’ancêtres parents</li><li>Empreintes cryptographiques SHA-1 & SHA-256</li><li>Commandes de plomberie (Plumbing vs Porcelain)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à distinguer blobs et trees ou méconnaissance de la structure interne du répertoire .git.</div>
+      <div class="bandrow bandrow--medium">Bonne compréhension du modèle objet, calcul manuel du hash SHA-1 maîtrisé et utilisation régulière des commandes cat-file et rev-parse.</div>
+      <div class="bandrow bandrow--high">Excellente maîtrise du modèle DAG, manipulation fluide de la plomberie Git, compréhension rigoureuse des arbres de Merkle et transition vers SHA-256.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Stratégies de Fusion Avancées &amp; Rebase Interactif <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Git Pro (Scott Chacon & Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

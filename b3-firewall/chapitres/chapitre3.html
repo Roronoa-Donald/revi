@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Politiques de Sécurité, Listes de Contrôle d’Accès (ACL) &amp;amp; NAT | Firewall &amp; Sécurité Réseau B3</title>
+<meta name="description" content="Chapitre 3 du cours Firewall &amp; Sécurité Réseau B3 : Moteur d’évaluation First-Match-Wins, politique Default DROP, détection du masquage de règles (Rule Shadowing), redondances et translation d’adresses NAT/PAT (SNAT, DNAT). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-firewall/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Politiques de Sécurité, Listes de Contrôle d’Accès (ACL) &amp;amp; NAT | Firewall &amp; Sécurité Réseau B3">
+<meta property="og:description" content="Chapitre 3 du cours Firewall &amp; Sécurité Réseau B3 : Moteur d’évaluation First-Match-Wins, politique Default DROP, détection du masquage de règles (Rule Shadowing), redondances et translation d’adresses NAT/PAT (SNAT, DNAT). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-firewallnav"><div class="b3-firewallnav__in">
+  <a class="b3-firewallnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-firewallnav__sep" aria-hidden="true">/</span>
+  <a class="b3-firewallnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Firewall &amp; Sécurité Réseau B3</a>
+  <div class="b3-firewallnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-firewallnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-firewallwrap">
+<p class="crumb"><a href="../index.html">Firewall & Sécurité Réseau B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Politiques de Sécurité, Listes de Contrôle d’Accès (ACL) &amp; NAT</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un réseau d’entreprise, la politique de sécurité (PSSI) se matérialise techniquement sous la forme de listes de contrôle d’accès (ACLs) contenant parfois des centaines, voire des milliers de règles. Contrairement à une idée reçue, l’ordre des règles dans un pare-feu n’est pas indifférent : les moteurs de filtrage évaluent les paquets séquentiellement de haut en bas et appliquent la décision de la toute première règle correspondante (First-Match-Wins). Une règle d’interdiction trop générale placée prématurément rend toutes les autorisations suivantes inopérantes (masquage de règle ou Rule Shadowing). À l’inverse, une règle permissive mal positionnée ouvre des brèches silencieuses. De plus, pour interconnecter les plans d’adressage privés (RFC 1918) avec l’Internet public, le pare-feu doit orchestrer la translation d’adresses (NAT/PAT). L’ingénieur B3 doit être capable de concevoir, auditer et optimiser ces matrices sans introduire d’anomalies logiques.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser le modèle séquentiel d’évaluation des listes de contrôle d’accès (First-Match-Wins) ;</li>
+      <li>appliquer rigoureusement la politique du moindre privilège avec règle de clôture Default DROP explicite ;</li>
+      <li>détecter formellement les anomalies de configuration d’ACLs : Rule Shadowing, redondance, exception mal ordonnée ;</li>
+      <li>comprendre le fonctionnement théorique et pratique de la translation d’adresses source (SNAT / Masquerade) ;</li>
+      <li>configurer la translation d’adresses destination (DNAT / Port Forwarding) pour publier des services sécurisés ;</li>
+      <li>développer en Python 3 des évaluateurs d’ACLs, des détecteurs d’anomalies de masquage et un simulateur de moteur NAT.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Moteur d’Évaluation des ACLs : Principe First-Match-Wins</h2>
+
+<p>Une <strong>Liste de Contrôle d’Accès (ACL)</strong> est une suite ordonnée de critères de filtrage évaluant chaque flux entrant ou sortant :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Mécanisme Séquentiel</h4>
+    <ul>
+      <li>Le pare-feu compare les en-têtes du paquet à la Règle 1. S’il y a correspondance totale (IP src, IP dst, proto, port), la règle s’applique (PERMIT ou DENY) et l’évaluation s’arrête immédiatement.</li>
+      <li>Si la Règle 1 ne correspond pas, le paquet est comparé à la Règle 2, et ainsi de suite jusqu’à la fin de la table.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Règle Implicite Finale</h4>
+    <ul>
+      <li>Si le paquet franchit l’intégralité de la liste sans aucune correspondance, la politique de sécurité implicite s’applique : <strong>Default DROP (ou Implicit Deny)</strong>.</li>
+      <li>En bonne pratique professionnelle, cette règle finale doit être rendue <strong>explicite</strong> et assortie d’une directive de journalisation (LOG &amp; DROP).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Anomalies de Configuration d’ACLs : Rule Shadowing &amp; Redondance</h2>
+
+<p>Dans les parcs de pare-feux vieillissants, l’accumulation anarchique de règles produit des pathologies critiques :</p>
+<table class="table">
+  <thead>
+    <tr><th>Type d’Anomalie</th><th>Définition Formelle</th><th>Impact Sécuritaire / Opérationnel</th><th>Exemple Typique</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Masquage (Shadowing)</code></td><td>Une règle antérieure $R_1$ englobe tous les critères d’une règle postérieure $R_2$ avec une action opposée ($R_1$ DENY et $R_2$ PERMIT).</td><td>$R_2$ n’est jamais atteinte. Le service légitime est bloqué par erreur sans que l’administrateur ne comprenne pourquoi.</td><td>$R_1$: DENY ANY -> 10.0.0.0/24<br>$R_2$: PERMIT TCP -> 10.0.0.10:443</td></tr>
+    <tr><td><code>Redondance (Redundancy)</code></td><td>Une règle $R_2$ a la même action qu’une règle antérieure $R_1$ qui l’englobe déjà totalement.</td><td>Inutile, alourdit la mémoire du pare-feu et ralentit le temps d’évaluation des paquets.</td><td>$R_1$: PERMIT ANY -> 10.0.0.5:80<br>$R_2$: PERMIT 192.168.1.1 -> 10.0.0.5:80</td></tr>
+    <tr><td><code>Corrélation (Generalization)</code></td><td>Une règle spécifique succède à une règle générale alors qu’elle devrait être placée avant sous forme d’exception.</td><td>L’exception n’est jamais prise en compte car le flux général a déjà été traité.</td><td>$R_1$: PERMIT ANY -> ANY<br>$R_2$: DENY Bad_IP -> ANY</td></tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Règle d’Or d’Ordonnancement des ACLs</div>
+<p>Toujours ordonner les règles de filtrage de la plus <strong>spécifique</strong> (hôte unique, port précis) vers la plus <strong>générale</strong> (sous-réseau CIDR, ANY), en terminant toujours par le refus implicite <code>DEFAULT DROP</code>.</p>
+  </div>
+
+<h2>3. Translation d’Adresses Réseau : SNAT Masquerade &amp; DNAT Port Forwarding</h2>
+
+<p>La translation d’adresses (<strong>NAT - Network Address Translation</strong>) modifie à la volée les en-têtes IP des paquets en transit :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. SNAT (Source NAT / Masquerade / PAT)</h4>
+    <p>Utilisé pour le trafic sortant du LAN vers Internet. Le pare-feu remplace l’adresse IP source privée (RFC 1918) par son adresse IP publique officielle.</p>
+    <p>Grâce au <strong>PAT (Port Address Translation)</strong>, des milliers de postes internes partagent une seule adresse IP publique en réécrivant le port source (ex: <code>192.168.1.50:54123 -> 198.51.100.1:40001</code>).</p>
+  </div>
+  <div class="card">
+    <h4>2. DNAT (Destination NAT / Port Forwarding)</h4>
+    <p>Utilisé pour le trafic entrant d’Internet vers la DMZ ou le LAN. Le pare-feu remplace l’adresse IP destination publique et le port externe par l’IP interne et le port réel du serveur (ex: <code>198.51.100.1:443 -> 10.0.0.10:8443</code>).</p>
+    <p>Permet de publier des services sans exposer le plan d’adressage interne de l’entreprise.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="fw3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="RULE id=R1 action=PERMIT proto=TCP src=ANY dst=10.0.0.10 dport=443&#10;RULE id=R2 action=DENY proto=ANY src=ANY dst=10.0.0.10 dport=ANY&#10;PACKET id=P1 proto=TCP src=192.168.1.50 dst=10.0.0.10 dport=443&#10;PACKET id=P2 proto=TCP src=192.168.1.50 dst=10.0.0.10 dport=22">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : parser les règles ACL et évaluer chaque paquet
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Moteur d’évaluation d’ACL First-Match-Wins avec Default DROP</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter le moteur séquentiel d’évaluation des règles de filtrage avec politique de refus par défaut.</p>
+    <div class="lab__brief"><p>Dans un pare-feu réseau, les listes de contrôle d'accès (ACL) sont lues séquentiellement de haut en bas : la <strong>première règle qui correspond</strong> au paquet détermine son sort (<code>First-Match-Wins</code>). Si aucune règle ne correspond, la politique de sécurité implicite applique un refus (<code>DEFAULT_DROP</code>).<br><br>
+Le script lit sur l'entrée standard :<br>
+1. Des règles ordonnées :<br>
+<code>RULE id=&lt;id&gt; action=&lt;PERMIT|DENY&gt; proto=&lt;TCP|UDP|ICMP|ANY&gt; src=&lt;ip|ANY&gt; dst=&lt;ip|ANY&gt; dport=&lt;port|ANY&gt;</code>.<br>
+2. Des paquets à évaluer :<br>
+<code>PACKET id=&lt;pid&gt; proto=&lt;proto&gt; src=&lt;ip&gt; dst=&lt;ip&gt; dport=&lt;port&gt;</code>.<br><br>
+Pour chaque paquet, afficher :<br>
+<code>EVAL packet={pid} action={PERMIT|DENY} matched={rule_id|DEFAULT_DROP}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE id=R1 action=PERMIT proto=TCP src=ANY dst=10.0.0.10 dport=443
+RULE id=R2 action=DENY proto=ANY src=ANY dst=10.0.0.10 dport=ANY
+PACKET id=P1 proto=TCP src=192.168.1.50 dst=10.0.0.10 dport=443
+PACKET id=P2 proto=TCP src=192.168.1.50 dst=10.0.0.10 dport=22</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EVAL packet=P1 action=PERMIT matched=R1
+EVAL packet=P2 action=DENY matched=R2</pre></div>
+    </div>
+    <p class="lab__note">P1 matche R1 en premier (PERMIT), P2 ne matche pas R1 mais matche R2 (DENY).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les règles dans une liste ordonnée.</li>
+        <li>Pour chaque critère, une valeur ANY correspond toujours à toute valeur du paquet.</li>
+        <li>S’arrêter dès la première règle correspondante.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="RULE id=R1 action=DENY proto=ANY src=ANY dst=ANY dport=ANY&#10;RULE id=R2 action=PERMIT proto=TCP src=10.0.0.1 dst=10.0.0.2 dport=80">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : détecter le masquage et la redondance entre règles successives
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Détecteur d’anomalies et masquage de règles (Rule Shadowing)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une politique de sécurité pour détecter les règles masquées (shadowed) ou redondantes.</p>
+    <div class="lab__brief"><p>Une anomalie fréquente dans les jeux de règles de pare-feu est le <strong>masquage de règle</strong> (<em>Shadowing</em>) : une règle antérieure <code>R1</code> est plus générale ou identique à une règle suivante <code>R2</code>, rendant <code>R2</code> totalement inaccessible.<br><br>
+Critères simplifiés pour que R1 masque R2 (R1 placée avant R2) :<br>
+- Protocole : <code>R1.proto == R2.proto</code> ou <code>R1.proto == 'ANY'</code>.<br>
+- Source : <code>R1.src == R2.src</code> ou <code>R1.src == 'ANY'</code>.<br>
+- Destination : <code>R1.dst == R2.dst</code> ou <code>R1.dst == 'ANY'</code>.<br>
+- Port destination : <code>R1.dport == R2.dport</code> ou <code>R1.dport == 'ANY'</code>.<br><br>
+Si ces 4 conditions d'inclusion sont réunies pour au moins une règle antérieure R1 :<br>
+- Si <code>R1.action != R2.action</code> : R2 est masquée et son action ne s'appliquera jamais -> <code>SHADOWED by {R1.id}</code>.<br>
+- Si <code>R1.action == R2.action</code> : R2 est redondante et inutile -> <code>REDUNDANT with {R1.id}</code>.<br>
+- Sinon : la règle est active et valide -> <code>OK</code>.<br><br>
+Le script lit les règles ordonnées au format :<br>
+<code>RULE id=&lt;id&gt; action=&lt;PERMIT|DENY&gt; proto=&lt;TCP|UDP|ANY&gt; src=&lt;ip|ANY&gt; dst=&lt;ip|ANY&gt; dport=&lt;port|ANY&gt;</code>.<br><br>
+Pour chaque règle déclarée, afficher :<br>
+<code>ANALYZE rule={id} status={OK | SHADOWED by {r1} | REDUNDANT with {r1}}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE id=R1 action=DENY proto=ANY src=ANY dst=ANY dport=ANY
+RULE id=R2 action=PERMIT proto=TCP src=10.0.0.1 dst=10.0.0.2 dport=80</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ANALYZE rule=R1 status=OK
+ANALYZE rule=R2 status=SHADOWED by R1</pre></div>
+    </div>
+    <p class="lab__note">R1 bloque tout le trafic, donc R2 située après ne sera jamais atteinte.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parcourir chaque règle i et vérifier si une règle j antérieure (j &lt; i) englobe tous ses critères.</li>
+        <li>S’arrêter au premier antécédent j qui englobe la règle i.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="CONFIG_SNAT public_ip=198.51.100.1 start_port=40000&#10;PACKET dir=OUTBOUND src=192.168.1.50:52001 dst=93.184.216.34:80">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la translation SNAT et DNAT
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Simulateur de translation d’adresses NAT (SNAT Masquerade &amp; DNAT)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler les translations SNAT pour le trafic sortant et DNAT (Port Forwarding) pour le trafic entrant.</p>
+    <div class="lab__brief"><p>Le mécanisme NAT (Network Address Translation) permet de masquer le plan d'adressage privé ou d'exposer des services internes.<br><br>
+Le script lit la configuration puis une série de paquets à translater :<br>
+1. Configuration SNAT :<br>
+<code>CONFIG_SNAT public_ip=&lt;ip&gt; start_port=&lt;p&gt;</code> (alloue les ports sortants séquentiellement : start_port, start_port+1, ...).<br>
+2. Règles DNAT :<br>
+<code>CONFIG_DNAT ext_ip=&lt;ip&gt; ext_port=&lt;p&gt; int_ip=&lt;ip&gt; int_port=&lt;p&gt;</code>.<br>
+3. Paquets réseau :<br>
+<code>PACKET dir=&lt;OUTBOUND|INBOUND&gt; src=&lt;ip:port&gt; dst=&lt;ip:port&gt;</code>.<br><br>
+Règles de translation :<br>
+- <code>OUTBOUND</code> (LAN vers Internet) : applique le SNAT.<br>
+  L'IP et le port source privés <code>src</code> sont remplacés par <code>public_ip:alloué</code>. La destination <code>dst</code> reste inchangée. L'association inverse est mémorisée dans la table d'état.<br>
+- <code>INBOUND</code> (Internet vers LAN) :<br>
+  a) Si <code>dst</code> correspond à une règle <code>CONFIG_DNAT</code> : la destination <code>dst</code> est réécrite vers <code>int_ip:int_port</code>.<br>
+  b) Sinon si <code>dst</code> correspond au port alloué d'une session SNAT existante : la destination <code>dst</code> est restaurée vers l'IP:port interne de l'hôte LAN.<br>
+  c) Sinon : le paquet n'est pas translaté (<code>DROP_NO_ROUTE</code>).<br><br>
+Pour chaque paquet, afficher :<br>
+<code>NAT dir={dir} in={src_in}->{dst_in} out={src_out}->{dst_out}</code><br>
+(ou <code>NAT dir={dir} in={src_in}->{dst_in} out=DROP_NO_ROUTE</code> si rejet)</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CONFIG_SNAT public_ip=198.51.100.1 start_port=40000
+PACKET dir=OUTBOUND src=192.168.1.50:52001 dst=93.184.216.34:80</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>NAT dir=OUTBOUND in=192.168.1.50:52001-&gt;93.184.216.34:80 out=198.51.100.1:40000-&gt;93.184.216.34:80</pre></div>
+    </div>
+    <p class="lab__note">Translation SNAT avec réécriture de la source vers l’IP publique et premier port alloué 40000.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer un compteur incrémental pour les ports SNAT dynamiques.</li>
+        <li>Mémoriser les sessions SNAT : port_alloué -&gt; (src_interne_ip, src_interne_port).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans un moteur d’évaluation First-Match-Wins, que se passe-t-il dès qu’un paquet correspond aux critères d’une règle ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’action de cette règle est appliquée immédiatement et l’évaluation des règles suivantes est arrêtée</button>
+        <button class="opt">Le paquet continue à être comparé à toutes les règles suivantes pour faire une moyenne</button>
+        <button class="opt">Le paquet est renvoyé à l’émetteur pour confirmation</button>
+        <button class="opt">Le pare-feu applique obligatoirement l’action la plus restrictive parmi toutes les règles</button>
+      </div>
+      <div class="q__exp">En First-Match-Wins, la première correspondance est définitive ; aucune règle ultérieure n’est consultée pour ce paquet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce que l’anomalie de configuration appelée « Rule Shadowing » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une règle antérieure englobe totalement les critères d’une règle postérieure avec une action contraire, empêchant cette dernière d’être jamais exécutée</button>
+        <button class="opt">Une règle qui masque le mot de passe de l’administrateur dans les logs</button>
+        <button class="opt">Une règle qui s’applique uniquement pendant la nuit</button>
+        <button class="opt">Un bogue de mémoire vive faisant disparaître les règles après un redémarrage</button>
+      </div>
+      <div class="q__exp">Le Rule Shadowing survient lorsqu’une règle plus générale placée plus haut intercepte tout le trafic destiné à une règle plus spécifique située plus bas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’ordre logique recommandé pour organiser les règles au sein d’une ACL ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">De la règle la plus spécifique (hôte, port précis) vers la règle la plus générale (sous-réseau, ANY)</button>
+        <button class="opt">De la règle la plus générale vers la plus spécifique</button>
+        <button class="opt">Par ordre alphabétique des noms de serveurs</button>
+        <button class="opt">Toutes les règles DENY d’abord puis toutes les règles PERMIT à la fin</button>
+      </div>
+      <div class="q__exp">Placer le spécifique avant le général permet de traiter les exceptions d’abord avant d’appliquer la politique globale.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mécanisme réseau permet à plusieurs milliers d’ordinateurs internes de naviguer sur Internet avec une seule adresse IP publique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le PAT (Port Address Translation / SNAT dynamique) qui associe chaque flux à un port source éphémère unique</button>
+        <button class="opt">Le routage statique sans passerelle</button>
+        <button class="opt">Le protocole ARP gratuit</button>
+        <button class="opt">Le protocole Spanning Tree (STP)</button>
+      </div>
+      <div class="q__exp">Le PAT multiplexe de nombreuses connexions privées sur une seule adresse IP publique en modifiant dynamiquement le port source de chaque session.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel scénario met-on en œuvre une règle de Destination NAT (DNAT / Port Forwarding) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour rediriger une requête arrivant sur l’adresse IP publique du pare-feu vers un serveur web ou applicatif interne en DMZ</button>
+        <button class="opt">Pour permettre aux utilisateurs internes de consulter un site web public</button>
+        <button class="opt">Pour chiffrer les disques durs des serveurs de bases de données</button>
+        <button class="opt">Pour attribuer automatiquement une adresse IP par DHCP</button>
+      </div>
+      <div class="q__exp">Le DNAT modifie l’adresse IP destination publique du paquet pour l’acheminer vers l’IP privée du serveur interne hébergeant le service.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si une règle R1 PERMIT ANY -> 10.0.0.1:80 précède une règle R2 PERMIT 192.168.1.10 -> 10.0.0.1:80, comment qualifie-t-on la règle R2 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Redondante (Redundant)</button>
+        <button class="opt">Masquée (Shadowed)</button>
+        <button class="opt">Invalide (Invalid Syntax)</button>
+        <button class="opt">Prioritaire</button>
+      </div>
+      <div class="q__exp">R1 autorisant déjà tout le monde vers ce service, R2 produit exactement le même effet pour un sous-ensemble : elle est redondante et inutile.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle adresse IP est modifiée dans l’en-tête du paquet lors de l’application d’une translation SNAT sur le trafic sortant ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’adresse IP source (remplacée par l’IP publique du pare-feu)</button>
+        <button class="opt">L’adresse IP destination (remplacée par 127.0.0.1)</button>
+        <button class="opt">L’adresse MAC du commutateur de distribution</button>
+        <button class="opt">Le numéro de réseau de diffusion (Broadcast)</button>
+      </div>
+      <div class="q__exp">Le SNAT réécrit l’adresse IP source du paquet avant de l’émettre sur l’interface publique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il crucial de journaliser les paquets rejetés par la règle finale Default DROP ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour détecter les balayages de ports, cartographies réseau et tentatives d’intrusion hostiles</button>
+        <button class="opt">Pour accélérer le débit de bande passante sur la fibre optique</button>
+        <button class="opt">Pour libérer de l’espace sur les disques durs des serveurs applicatifs</button>
+        <button class="opt">Pour permettre aux pirates de vérifier que leurs sondes ont bien été reçues</button>
+      </div>
+      <div class="q__exp">Journaliser les rejets de la règle Default DROP permet aux analystes SOC et au SIEM de détecter les activités malveillantes et les scans de reconnaissance.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Placer une règle DENY générale sur un sous-réseau avant des règles autorisant des serveurs spécifiques de ce sous-réseau.</li>
+      <li>Confondre SNAT (changement de l’IP source pour sortir) et DNAT (changement de l’IP destination pour entrer).</li>
+      <li>Oublier de modifier la règle de filtrage lorsqu’on configure une règle DNAT (le pare-feu doit autoriser le port translaté ou le port original selon le moteur).</li>
+      <li>Créer des règles d’accès ouvertes avec ANY comme port destination sous prétexte de simplifier le dépannage.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Structuration &amp; d’Audit d’une Politique ACL</div>
+    <ol>
+      <li>1. Lister exhaustivement les flux métier nécessaires avec leur tuple {IP_src, IP_dst, proto, port, action}.</li>
+      <li>2. Regrouper les règles par familles fonctionnelles (Administration SSH/HTTPS, Services Web publics, Flux BDD, Supervision).</li>
+      <li>3. Placer en tête de table les règles de bypass conntrack (ESTABLISHED, RELATED) et de rejet INVALID.</li>
+      <li>4. Ordonner les règles restantes du cas le plus spécifique vers le cas le plus générique.</li>
+      <li>5. Exécuter un algorithme de détection de masquage (Rule Shadowing) pour s’assurer qu’aucune règle permissive n’est neutralisée par un antécédent restrictif.</li>
+      <li>6. Terminer obligatoirement la politique par une règle explicite LOG_AND_DROP tout trafic.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>L’évaluation des ACLs obéit au principe First-Match-Wins : la première règle correspondante met fin à l’analyse.</li>
+      <li>Le Default DROP garantit qu’aucun trafic imprévu ne traverse le réseau.</li>
+      <li>Le Rule Shadowing est une anomalie critique où une règle postérieure est rendue inactive par une règle antérieure plus large.</li>
+      <li>Le SNAT (Masquerade) masque le plan d’adressage privé des clients sortants derrière l’IP publique du pare-feu.</li>
+      <li>Le DNAT (Port Forwarding) redirige les requêtes entrantes publiques vers les serveurs hébergés en DMZ.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Le principe First-Match-Wins et le traitement séquentiel sont maîtrisés.</li>
+      <li>La règle implicite Default DROP est comprise et formalisée.</li>
+      <li>La différence entre Rule Shadowing (masquage néfaste) et Redundancy (règle inutile) est claire.</li>
+      <li>La distinction entre SNAT (sortant) et DNAT (entrant) est assimilée.</li>
+      <li>Le mécanisme de réécriture des ports en PAT est compris.</li>
+      <li>Les 3 ateliers de programmation interactive en Python 3 (fw3-c3-e1 à fw3-c3-e3) sont validés.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Listes de contrôle d’accès (ACL)</li><li>Évaluation First-Match-Wins</li><li>Politique Default DROP</li><li>Rule Shadowing (masquage)</li><li>Règles redondantes</li><li>Source NAT (SNAT / Masquerade)</li><li>Destination NAT (DNAT / Port Forward)</li><li>Port Address Translation (PAT)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Niveau initial : vous écrivez des règles dans le désordre ou ignorez le risque de masquage de règle (Rule Shadowing).</div>
+      <div class="bandrow bandrow--medium">Niveau opérationnel : vous structurez des ACLs en First-Match-Wins du spécifique vers le général et configurez SNAT/DNAT sans faille.</div>
+      <div class="bandrow bandrow--high">Maîtrise B3 : vous auditez automatiquement des milliers de règles avec détection algorithmique des redondances et optimisez les tables PAT à haute échelle.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Architectures Réseau Sécurisées, Zone Démilitarisée (DMZ) &amp; Bastions <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours Module 1 & Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

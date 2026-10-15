@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Formulaires, validation et sécurité des entrées | Prog. Web B1</title>
+<meta name="description" content="Chapitre 3 du cours de programmation web B1 : Structure d’un formulaire, types de champs, étiquettes, validation côté client, échappement et injection HTML. Théorie, exemples de code, exercices JavaScript exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-prog-web/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Formulaires, validation et sécurité des entrées | Prog. Web B1">
+<meta property="og:description" content="Chapitre 3 du cours de programmation web B1 : Structure d’un formulaire, types de champs, étiquettes, validation côté client, échappement et injection HTML. Théorie, exemples de code, exercices JavaScript exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="webnav"><div class="webnav__in">
+  <a class="webnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="webnav__sep" aria-hidden="true">/</span>
+  <a class="webnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> Prog. Web B1</a>
+  <div class="webnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="webnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="webwrap">
+<p class="crumb"><a href="../index.html">Prog. Web B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Formulaires, validation et sécurité des entrées</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un formulaire est la seule porte d’entrée du site : ce qui vient de l’utilisateur est, par définition, imprévisible. Le navigateur peut aider à filtrer, mais il ne protège rien : n’importe qui peut envoyer ce qu’il veut, avec ou sans navigateur. Écrire un formulaire, c’est donc écrire deux fois la même règle — une fois pour aider l’utilisateur, une fois pour se protéger.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>construire un formulaire HTML complet et correctement étiqueté ;</li>
+      <li>choisir le type de champ adapté à la donnée attendue ;</li>
+      <li>utiliser la validation native du navigateur sans en dépendre ;</li>
+      <li>échapper une entrée utilisateur avant de l’insérer dans une page ;</li>
+      <li>expliquer pourquoi la validation serveur reste indispensable.</li>
+    </ol>
+  </div>
+
+<h2>1. Un formulaire, c’est une requête préparée</h2>
+
+<p>Un formulaire décrit ce qui sera envoyé au serveur : où (<code>action</code>), comment (<code>method</code>) et quoi (chaque champ qui porte un attribut <code>name</code>). Sans <code>name</code>, un champ est visible mais jamais transmis.</p>
+<pre><code><form action="/notes/ajouter" method="post">
+  <label for="etudiant">Nom de l’étudiant</label>
+  <input id="etudiant" name="etudiant" type="text" required>
+
+  <label for="note">Note sur 20</label>
+  <input id="note" name="note" type="number" min="0" max="20" step="0.5" required>
+
+  <button type="submit">Enregistrer</button>
+</form></code></pre>
+<p>Avec <code>method="post"</code>, les données voyagent dans le corps de la requête. Avec <code>method="get"</code>, elles se retrouvent dans l’URL, visibles et conservées dans l’historique du navigateur : acceptable pour une recherche, à proscrire pour un mot de passe.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — GET pour une action qui modifie</div>
+    <p>Un formulaire de suppression en <code>GET</code> se déclenche par un simple rechargement d’URL. Une action qui change l’état du serveur s’envoie toujours en <code>POST</code>.</p>
+  </div>
+
+<h2>2. Les types de champs</h2>
+
+<p>Le type d’un <code>input</code> dit au navigateur ce qu’il attend : il adapte le clavier sur téléphone et propose un contrôle adapté. Ce n’est pas une protection, c’est une aide.</p>
+<table>
+    <tr><th>Type</th><th>Pour quoi</th><th>Ce qu’il apporte</th></tr>
+    <tr><td><code>text</code></td><td>une chaîne libre</td><td>rien de particulier</td></tr>
+    <tr><td><code>email</code></td><td>une adresse électronique</td><td>clavier adapté, contrôle de forme simple</td></tr>
+    <tr><td><code>number</code></td><td>une quantité numérique</td><td>flèches +, bornes <code>min</code>/<code>max</code></td></tr>
+    <tr><td><code>password</code></td><td>un secret</td><td>caractères masqués</td></tr>
+    <tr><td><code>checkbox</code></td><td>un choix à cocher</td><td>état vrai/faux</td></tr>
+    <tr><td><code>radio</code></td><td>un choix unique dans un groupe</td><td>même <code>name</code> pour tout le groupe</td></tr>
+    <tr><td><code>date</code></td><td>une date</td><td>sélecteur de calendrier</td></tr>
+    <tr><td><code>file</code></td><td>un fichier</td><td>ouvre le sélecteur de fichiers</td></tr>
+  </table>
+<p>Pour les listes de choix, on utilise <code>select</code> avec <code>option</code>, ou <code>textarea</code> pour un texte long. Attention : <code>textarea</code> n’est pas un <code>input</code>, sa valeur est écrite entre les balises, pas dans un attribut <code>value</code>.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « un name, une valeur »</div>
+    <p>Le couple qui compte pour le serveur est toujours <code>name=valeur</code>. Le <code>id</code>, lui, sert au navigateur : il relie l’étiquette au champ et permet au CSS et au JavaScript de le cibler.</p>
+  </div>
+
+<h2>3. Étiquettes et accessibilité</h2>
+
+<p>Chaque champ doit avoir une étiquette. Deux façons de la relier, la première étant préférable : l’attribut <code>for</code> qui désigne l’<code>id</code> du champ, ou l’imbrication du champ dans l’étiquette.</p>
+<pre><code><!-- bonne pratique : for + id -->
+<label for="mail">Adresse électronique</label>
+<input id="mail" name="mail" type="email">
+
+<!-- équivalent acceptable : imbrication -->
+<label>Adresse électronique <input name="mail" type="email"></label>
+
+<!-- mauvaise pratique : le placeholder ne remplace pas l’étiquette -->
+<input name="mail" type="email" placeholder="Adresse électronique"></code></pre>
+<p>Un <code>placeholder</code> disparaît dès la première frappe et n’est pas toujours lu par les lecteurs d’écran : c’est une aide, jamais une étiquette. Pour un groupe de cases à cocher, on encadre l’ensemble avec <code>&lt;fieldset&gt;</code> et <code>&lt;legend&gt;</code>.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le clic qui va au bon champ</div>
+    <p>Quand <code>label for="mail"</code> désigne <code>input id="mail"</code>, cliquer sur le texte place le curseur dans le champ. C’est un gain de confort réel sur téléphone, et le signe que la relation entre étiquette et champ est correcte.</p>
+  </div>
+
+<h2>4. La validation côté client</h2>
+
+<p>HTML fournit des règles déclaratives : <code>required</code> (champ obligatoire), <code>min</code> et <code>max</code> (bornes numériques), <code>minlength</code> et <code>maxlength</code> (longueur), <code>pattern</code> (expression régulière), <code>type</code> (forme attendue). Le navigateur bloque l’envoi et affiche un message s’il n’est pas satisfait.</p>
+<pre><code><input name="code" type="text" pattern="[A-Z]{2}[0-9]{4}" required
+       title="Deux majuscules puis quatre chiffres, par exemple AB1234">
+<input name="age" type="number" min="16" max="99">
+<input name="mail" type="email" required></code></pre>
+<p>Deux limites, décisives : un utilisateur peut désactiver la validation du navigateur, et n’importe quel programme peut envoyer une requête <code>POST</code> sans passer par la page. <strong>La validation côté client est un service rendu à l’utilisateur ; la validation côté serveur est la seule qui protège le système.</strong></p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la validation en JavaScript n’est pas une protection</div>
+    <p>Désactiver le JavaScript du navigateur, ou envoyer directement la requête avec <code>curl</code>, contourne toutes les règles écrites dans la page. La même vérification doit exister sur le serveur, sans exception.</p>
+  </div>
+
+<h2>5. Insérer une entrée utilisateur sans danger</h2>
+
+<p>Le navigateur interprète comme du HTML tout ce qu’on lui donne à afficher. Si une chaîne saisie par un visiteur est insérée telle quelle dans la page, son contenu devient du <em>code</em> : c’est le mécanisme de l’injection HTML, et de la faille XSS qui en découle.</p>
+<pre><code>// dangereux : la saisie devient du balisage
+zone.innerHTML = commentaire;
+
+// sûr : la saisie reste du texte
+zone.textContent = commentaire;
+
+// si le HTML est indispensable, on échappe d’abord les caractères sensibles
+function echapper(texte) {
+  return texte
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}</code></pre>
+<p>L’ordre des remplacements n’est pas neutre : on commence toujours par le <code>&amp;</code>, sinon les entités déjà créées seraient ré-échappées et afficheraient <code>&amp;amp;lt;</code> au lieu de <code>&amp;lt;</code>.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — texte ou balisage ?</div>
+    <p><code>textContent</code> traite ce qu’on lui donne comme du <em>texte</em> ; <code>innerHTML</code> comme du <em>balisage</em>. Pour une donnée venue d’un utilisateur, la réponse est toujours <code>textContent</code>.</p>
+  </div>
+
+<h2>6. Progression d’un formulaire bien conçu</h2>
+
+<p>Un formulaire utilisable se construit dans un ordre stable : structure, étiquettes, types, validation, puis messages d’erreur.</p>
+<ol>
+    <li><strong>Action et méthode</strong> : où vont les données et comment elles voyagent.</li>
+    <li><strong>Étiquettes</strong> : un <code>label</code> relié à chaque champ, un <code>fieldset</code> par groupe de choix.</li>
+    <li><strong>Types et contraintes</strong> : le bon <code>type</code>, les bornes, <code>required</code>.</li>
+    <li><strong>Validation serveur</strong> : les mêmes règles, réécrites côté serveur, sans exception.</li>
+    <li><strong>Messages</strong> : explicites et proches du champ, jamais un simple « erreur ».</li>
+  </ol>
+<table>
+    <tr><th>Message</th><th>Ce qu’il apporte au visiteur</th></tr>
+    <tr><td>« Note attendue entre 0 et 20. »</td><td>la règle et la borne</td></tr>
+    <tr><td>« Cette note vaut 25. »</td><td>la valeur reçue, à corriger</td></tr>
+    <tr><td>« Erreur de saisie. »</td><td>rien : le visiteur ne sait pas quoi corriger</td></tr>
+  </table>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> La règle des deux validations</div>
+    <p>Écris la règle une fois pour l’utilisateur (HTML, messages clairs) et une fois pour le système (serveur, refus silencieux). Si tu ne dois en garder qu’une, garde celle du serveur : elle est la seule que personne ne peut contourner.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>7. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="web-c3-e1"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="etudiant.b1@campus.fr">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const adresse = lignes[0];
+
+// À compléter : afficher « valide » ou « invalide ».
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Valider une adresse électronique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une validation explicite plutôt que de se reposer sur le navigateur.</p>
+    <div class="lab__brief"><p>Le programme reçoit une adresse électronique sur une seule ligne. Elle est valide si elle contient <strong>exactement un</strong> <code>@</code>, si la partie avant est non vide, si la partie après contient un point qui n’est ni le premier ni le dernier caractère, et si elle ne contient aucun espace. Affichez <code>valide</code> ou <code>invalide</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>etudiant.b1@campus.fr</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>valide</pre></div>
+    </div>
+    <p class="lab__note">Un seul @, domaine avec un point, pas d’espace.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Compte les @ avec split("@"): le tableau obtenu ne doit contenir que deux éléments.</li>
+        <li>Pour la partie domaine : elle doit contenir un point, et ni commencer ni finir par ce point.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="web-c3-e2"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="B1-secret!">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const motDePasse = lignes[0];
+
+// À compléter : compter les cinq critères, puis afficher « score conseil ».
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Force d’un mot de passe</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter des critères, puis traduire un score en conseil lisible.</p>
+    <div class="lab__brief"><p>Le programme reçoit un mot de passe sur une seule ligne. Comptez cinq critères : au moins 8 caractères ; au moins une majuscule ; au moins une minuscule ; au moins un chiffre ; au moins un caractère qui n’est ni lettre ni chiffre. Affichez <code>score conseil</code> où le conseil vaut <code>faible</code> (score ≤ 2), <code>moyen</code> (3 ou 4) ou <code>fort</code> (5).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>B1-secret!</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>5 fort</pre></div>
+    </div>
+    <p class="lab__note">Longueur, majuscule, minuscule, chiffre et symbole.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trois expressions régulières (majuscule, minuscule, chiffre) suffisent ; le caractère spécial s’obtient par différence.</li>
+        <li>Les critères vrais valent 1 et les faux 0 : la somme donne directement le score.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="web-c3-e3"
+     data-language="javascript"
+     data-height="300"
+     data-stdin="5 &lt; 10 &amp; &quot;ok&quot;">
+  <script type="text/plain" data-lab-starter>const fs = require('fs');
+const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
+
+const texte = lignes[0];
+
+// À compléter : afficher le texte échappé.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Échapper du HTML</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> JavaScript</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Neutraliser un texte saisi par l’utilisateur avant de l’insérer dans une page.</p>
+    <div class="lab__brief"><p>Le programme reçoit un texte saisi par un visiteur, sur une seule ligne. Affichez ce texte après échappement : <code>&amp;</code> devient <code>&amp;amp;</code>, <code>&lt;</code> devient <code>&amp;lt;</code>, <code>&gt;</code> devient <code>&amp;gt;</code>, <code>"</code> devient <code>&amp;quot;</code> et <code>'</code> devient <code>&amp;#39;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5 &lt; 10 &amp; "ok"</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>5 &amp;lt; 10 &amp;amp; &amp;quot;ok&amp;quot;</pre></div>
+    </div>
+    <p class="lab__note">Chaque caractère sensible est remplacé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’ordre des remplacements n’est pas neutre : commence impérativement par le &amp; , sinon tu ré-échapperas les entités créées.</li>
+        <li>replace() avec une expression régulière globale — le drapeau g — remplace toutes les occurrences, pas seulement la première.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>8. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel attribut rend un champ effectivement transmis au serveur ?</p>
+      <div class="opts">
+        <button class="opt">id</button>
+        <button class="opt" data-correct="1">name</button>
+        <button class="opt">class</button>
+      </div>
+      <div class="q__exp">Le couple name/valeur est ce qui voyage dans la requête ; sans name, le champ est ignoré.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de champ pour une note sur 20 bornée ?</p>
+      <div class="opts">
+        <button class="opt"><input type="text"></button>
+        <button class="opt" data-correct="1"><input type="number" min="0" max="20"></button>
+        <button class="opt"><input type="range"></button>
+      </div>
+      <div class="q__exp">type="number" avec min et max donne un contrôle adapté et des bornes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi un placeholder ne remplace-t-il pas un label ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">il disparaît dès la saisie et est mal lu par les lecteurs d’écran</button>
+        <button class="opt">il n’est pas stylable</button>
+        <button class="opt">il ne fonctionne pas sur mobile</button>
+      </div>
+      <div class="q__exp">Le texte d’aide doit rester visible et associé au champ : c’est le rôle du label.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait la validation HTML côté client ?</p>
+      <div class="opts">
+        <button class="opt">elle protège le serveur</button>
+        <button class="opt" data-correct="1">elle aide l’utilisateur</button>
+        <button class="opt">elle remplace la validation serveur</button>
+      </div>
+      <div class="q__exp">Elle est contournable : elle rend service au visiteur, mais ne protège rien.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment insérer un commentaire d’utilisateur sans risque ?</p>
+      <div class="opts">
+        <button class="opt">innerHTML</button>
+        <button class="opt" data-correct="1">textContent</button>
+        <button class="opt">document.write</button>
+      </div>
+      <div class="q__exp">textContent traite la valeur comme du texte ; innerHTML l’interpréterait comme du HTML.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel remplacement doit être fait en premier lors de l’échappement ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">&</button>
+        <button class="opt"><</button>
+        <button class="opt">"</button>
+      </div>
+      <div class="q__exp">Commencer par & évite de ré-échapper les entités créées par les remplacements suivants.</div>
+    </div>
+  </div>
+
+<h2>9. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Champ sans <code>name</code></strong> : il s’affiche, mais rien n’arrive au serveur.</li>
+      <li><strong>Formulaire de modification en <code>GET</code></strong> : l’action se rejoue à chaque rechargement.</li>
+      <li><strong>Placeholder utilisé comme étiquette</strong> : l’information disparaît à la première frappe.</li>
+      <li><strong>Validation uniquement en JavaScript</strong> : désactiver le script contourne tout.</li>
+      <li><strong>Insérer une saisie avec <code>innerHTML</code></strong> : la donnée devient du code exécutable.</li>
+    </ul>
+  </div>
+
+<h2>10. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire et sécuriser un formulaire</div>
+    <ol>
+      <li><strong>Fixez action et méthode</strong> avant d’ajouter le premier champ.</li>
+      <li><strong>Étiquetez chaque champ</strong> avec un <code>label</code> relié par <code>for</code>/<code>id</code>.</li>
+      <li><strong>Choisissez le bon type</strong> et ajoutez les contraintes natives (bornes, longueur, motif).</li>
+      <li><strong>Réécrivez les mêmes règles côté serveur</strong> : c’est la seule validation qui compte.</li>
+      <li><strong>Échappez à l’affichage</strong> toute donnée venue de l’extérieur, ou affichez-la en texte.</li>
+    </ol>
+  </div>
+
+<h2>11. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un formulaire est une requête préparée : <code>action</code> pour la destination, <code>method</code> pour le transport.</li>
+      <li>Seul un champ porteur d’un <code>name</code> est transmis ; l’<code>id</code> sert au navigateur.</li>
+      <li>Le type du champ adapte le clavier et les contrôles : email, number, date, password, checkbox, radio.</li>
+      <li>Chaque champ a une étiquette reliée par <code>for</code> ; le <code>placeholder</code> n’en est pas une.</li>
+      <li>La validation HTML aide l’utilisateur ; la validation serveur est la seule qui protège.</li>
+      <li>Une donnée utilisateur s’affiche en texte (<code>textContent</code>) ou après échappement des caractères sensibles.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je construis un formulaire complet, étiquettes et contraintes comprises.</li>
+      <li>Je choisis le type de champ adapté à chaque donnée.</li>
+      <li>J’explique pourquoi la validation côté client ne suffit pas.</li>
+      <li>J’échappe une entrée utilisateur avant de l’insérer dans une page.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>action</li><li>method</li><li>name</li><li>label et for</li><li>fieldset et legend</li><li>types d’input</li><li>validation native</li><li>échappement</li><li>injection HTML</li><li>textContent</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>12. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends la section 1 : reconstruis un formulaire complet à la main.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais l’exercice 1 du module : validation d’une adresse.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible l’échappement et la frontière client/serveur.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 4, les sélecteurs CSS.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — CSS : sélecteurs, cascade et modèle de boîte <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les quatre modules du support B1 de programmation web (introduction au Web, HTML, CSS, JavaScript).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

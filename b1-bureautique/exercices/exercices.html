@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercices &amp;amp; projet intégrateur — Bureautique B1</title>
+<meta name="description" content="Exercices supplémentaires et projet intégrateur du cours de Bureautique B1 : scripts Bash gradués et classeur de bord du secrétariat.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-bureautique/exercices/exercices.html">
+<meta property="og:title" content="Exercices &amp;amp; projet intégrateur — Bureautique B1">
+<meta property="og:description" content="Exercices supplémentaires et projet intégrateur du cours de Bureautique B1 : scripts Bash gradués et classeur de bord du secrétariat.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="bunav"><div class="bunav__in">
+  <a class="bunav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="bunav__sep" aria-hidden="true">/</span>
+  <a class="bunav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Bureautique B1</a>
+  <div class="bunav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html" class="is-active">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="bunav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="buwrap">
+<p class="crumb"><a href="../index.html">Bureautique B1</a> › <a href="../sommaire.html">Sommaire</a> › Exercices</p>
+
+  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>
+
+  <p class="lead">De la pratique graduée pour consolider chaque séance, puis un projet final qui outille le secrétariat entier. Les scripts sont en Bash, comme à l'atelier.</p>
+
+  <h2>Entraînement rapide (acquisition)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Échauffement</span></div>
+    <ol>
+      <li>Lit n lignes « groupe onglet » et valide le classement Word, puis le compteur Accueil.</li>
+      <li>Lit n lignes « alignement bord » et valide les quatre alignements, puis le compteur justifie.</li>
+      <li>Lit n lignes « valeur type » (texte/nombre) et aligne comme Excel, puis les deux compteurs.</li>
+      <li>Lit n lignes « mode usage » de PowerPoint et valide les couples, puis le compteur diaporama.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r groupe onglet
+  case "$groupe" in
+    police|paragraphe|styles) attendu="accueil" ;;
+    tableaux|symbole) attendu="insertion" ;;
+    zoom|macros) attendu="affichage" ;;
+  esac
+  if [ "$onglet" = "$attendu" ]; then
+    echo "$groupe : OK" ; ok=$((ok + 1))
+  else
+    echo "$groupe : ERREUR"
+  fi
+done
+echo "accueil confirmes : $ok/$n"
+
+read -r n
+just=0
+for ((k=0; k&lt;n; k++)); do
+  read -r alignement bord
+  case "$alignement" in
+    gauche) attendu="gauche" ;;
+    droite) attendu="droite" ;;
+    centre) attendu="centre" ;;
+    justifie) attendu="lesdeux" ;;
+  esac
+  if [ "$bord" = "$attendu" ]; then
+    echo "$alignement : OUI"
+    if [ "$alignement" = "justifie" ]; then just=$((just + 1)) ; fi
+  else
+    echo "$alignement : NON"
+  fi
+done
+echo "justifies : $just"
+
+read -r n
+t=0 ; c=0
+for ((k=0; k&lt;n; k++)); do
+  read -r valeur type
+  if [ "$type" = "texte" ]; then
+    echo "$valeur : aligne a gauche" ; t=$((t + 1))
+  else
+    echo "$valeur : aligne a droite" ; c=$((c + 1))
+  fi
+done
+echo "textes : $t / chiffres : $c"
+
+read -r n
+d=0
+for ((k=0; k&lt;n; k++)); do
+  read -r mode usage
+  case "$mode" in
+    normal) attendu="edition" ;;
+    trieuse) attendu="vueglobale" ;;
+    diaporama) attendu="projection" ;;
+    commentaire) attendu="notes" ;;
+  esac
+  if [ "$usage" = "$attendu" ]; then
+    echo "$mode : OUI"
+    if [ "$mode" = "diaporama" ]; then d=$((d + 1)) ; fi
+  else
+    echo "$mode : NON"
+  fi
+done
+echo "diaporama confirmes : $d"</code></pre></div></details>
+  </div>
+
+  <h2>Application</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Application</span></div>
+    <ol>
+      <li>Lit n notes puis calcule SOMME, MOYENNE, MAX et MIN au format des formules Excel.</li>
+      <li>Lit n cellules « contenu type » (nombre/texte/vide) et sort NB, NBVAL et le nombre de vides.</li>
+      <li>Lit n lignes « chaine op a b » et reproduit Gauche, Droite et STXT (position 1 = première lettre).</li>
+      <li>Lit n lignes « plage resultat » (somme/moyenne/max/min + valeur) et valide chaque formule.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+somme=0 ; max=0 ; min=999999
+for ((k=0; k&lt;n; k++)); do
+  read -r note
+  somme=$((somme + note))
+  [ "$note" -gt "$max" ] &amp;&amp; max=$note
+  [ "$note" -lt "$min" ] &amp;&amp; min=$note
+done
+echo "=SOMME(...) -> $somme"
+echo "=MOYENNE(...) -> $((somme / n))"
+echo "=MAX(...) -> $max"
+echo "=MIN(...) -> $min"
+
+read -r n
+nb=0 ; nbval=0 ; vides=0
+for ((k=0; k&lt;n; k++)); do
+  read -r contenu type
+  if [ "$type" = "vide" ]; then vides=$((vides + 1))
+  else
+    nbval=$((nbval + 1))
+    [ "$type" = "nombre" ] &amp;&amp; nb=$((nb + 1))
+  fi
+done
+echo "NB : $nb / NBVAL : $nbval / vides : $vides"
+
+read -r n
+for ((k=0; k&lt;n; k++)); do
+  read -r chaine op a b
+  case "$op" in
+    gauche) echo "\${chaine:0:a}" ;;
+    droite) echo "\${chaine: -a}" ;;
+    stxt) echo "\${chaine:a-1:b}" ;;
+  esac
+done
+
+read -r n
+ok=0
+for ((k=0; k&lt;n; k++)); do
+  read -r plage resultat
+  case "$resultat" in
+    somme|moyenne|max|min) echo "$plage : formule valide ($resultat)" ; ok=$((ok + 1)) ;;
+    *) echo "$plage : il manque le signe =" ;;
+  esac
+done
+echo "validees : $ok/$n"</code></pre></div></details>
+  </div>
+
+  <h2>Raisonnement</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Raisonnement</span></div>
+    <ol>
+      <li>Lit n lignes « agent ca » et applique la commission à paliers du support (10/15/20 %), verdict de masse salariale compris.</li>
+      <li>Lit n lignes « eleve note » et applique le SI imbriqué des mentions, puis le taux de réussite.</li>
+      <li>Lit n lignes « valeur critere » et répond pour NB.SI, SOMME.SI et MOYENNE.SI simulés.</li>
+      <li>Lit n lignes « diapo duree » et simule le minutage du diaporama, alerte si le total dépasse la durée impartie.</li>
+    </ol>
+    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
+tot=0 ; masse=0
+for ((k=0; k&lt;n; k++)); do
+  read -r agent ca
+  if [ "$ca" -ge 50000 ]; then taux=20
+  elif [ "$ca" -ge 10000 ]; then taux=15
+  else taux=10
+  fi
+  echo "$agent : $taux%"
+  tot=$((tot + taux))
+  masse=$((masse + ca * taux / 100))
+done
+echo "taux moyen : $((tot / n))%"
+echo "masse : $masse"
+
+read -r n
+recus=0
+for ((k=0; k&lt;n; k++)); do
+  read -r eleve note
+  if [ "$note" -ge 16 ]; then m="tres bien"
+  elif [ "$note" -ge 14 ]; then m="bien"
+  elif [ "$note" -ge 10 ]; then m="passe"
+  else m="rattrapage"
+  fi
+  echo "$eleve : $m"
+  [ "$note" -ge 10 ] &amp;&amp; recus=$((recus + 1))
+done
+echo "taux de reussite : $((recus * 100 / n))%"
+
+read -r n
+compte=0 ; somme=0
+for ((k=0; k&lt;n; k++)); do
+  read -r valeur critere
+  if [ "$critere" = "retenu" ]; then
+    echo "$valeur : compte" ; compte=$((compte + 1)) ; somme=$((somme + valeur))
+  else
+    echo "$valeur : ecarte"
+  fi
+done
+echo "NB.SI : $compte"
+echo "SOMME.SI : $somme"
+if [ "$compte" -gt 0 ]; then echo "MOYENNE.SI : $((somme / compte))" ; else echo "MOYENNE.SI : erreur division zero" ; fi
+
+read -r n
+impartie=0 ; total=0
+for ((k=0; k&lt;n; k++)); do
+  read -r diapo duree
+  if [ "$k" = "0" ]; then impartie=$duree ; continue ; fi
+  echo "$diapo : \${duree}s"
+  total=$((total + duree))
+done
+echo "total : $total / impartie : $impartie"
+if [ "$total" -le "$impartie" ]; then
+  echo "diaporama : dans les temps"
+else
+  echo "diaporama : depasse de $((total - impartie))s"
+fi</code></pre></div></details>
+  </div>
+
+  <h2>Projet intégrateur — « le classeur de bord du secrétariat »</h2>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges</div>
+    <p>Le script reçoit le journal du secrétariat : d'abord <code>n_docs</code> documents au format <code>doc genre</code> où genre vaut <code>lettre</code>, <code>rapport</code> ou <code>tableau</code>, chaque document devant respecter son orientation (lettre et rapport : portrait, tableau : paysage). Puis <code>n_ventes</code> ventes au format <code>vendeur ca</code> ; chaque vendeur reçoit la commission à paliers du support (10 / 15 / 20 %). Le script affiche pour chaque document <code>doc : conforme</code> ou <code>doc : orientation a revoir</code>, pour chaque vente <code>vendeur : X%</code>, puis le bilan : <code>dossiers conformes : X/n</code>, <code>commission moyenne : Y%</code> (division entière) et le verdict <code>secreariat prete</code> si tous les documents sont conformes, <code>revision requise</code> sinon.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Fonctionnalités attendues</div>
+    <ol>
+      <li><strong>Lire</strong> les deux blocs sans mélanger documents et ventes.</li>
+      <li><strong>Valider</strong> chaque orientation selon le genre du document.</li>
+      <li><strong>Calculer</strong> la commission à paliers du plus strict au plus large.</li>
+      <li><strong>Agréger</strong> les deux bilans : conformité et taux moyen.</li>
+      <li><strong>Verdict</strong> final au format exact du cahier des charges.</li>
+    </ol>
+    <p>Contraintes : arithmétique entière (bash refuse les décimales), ordre des tests de paliers, bilan après lecture complète.</p>
+  </div>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Grille d'auto-évaluation du projet (sur 100)</div>
+    <div class="bands">
+      <div class="bandrow">Lecture des deux blocs et parsing correct <strong>20</strong></div>
+      <div class="bandrow">Validation des orientations <strong>20</strong></div>
+      <div class="bandrow">Commission à paliers correcte <strong>20</strong></div>
+      <div class="bandrow">Bilans agrégés (conformes, moyenne) <strong>20</strong></div>
+      <div class="bandrow">Verdict final conforme <strong>20</strong></div>
+    </div>
+    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>
+  </div>
+
+  <details>
+
+    <summary>Voir une solution de référence (après avoir essayé !)</summary>
+
+    <div class="sol">
+
+      <pre><code>read -r n_docs
+conformes=0
+tout_ok=1
+for ((k=0; k&lt;n_docs; k++)); do
+  read -r doc genre
+  case "$genre" in
+    lettre|rapport) attendu="portrait" ;;
+    tableau) attendu="paysage" ;;
+  esac
+  read -r orientation
+  if [ "$orientation" = "$attendu" ]; then
+    echo "$doc : conforme"
+    conformes=$((conformes + 1))
+  else
+    echo "$doc : orientation a revoir"
+    tout_ok=0
+  fi
+done
+read -r n_ventes
+tot=0
+for ((k=0; k&lt;n_ventes; k++)); do
+  read -r vendeur ca
+  if [ "$ca" -ge 50000 ]; then taux=20
+  elif [ "$ca" -ge 10000 ]; then taux=15
+  else taux=10
+  fi
+  echo "$vendeur : $taux%"
+  tot=$((tot + taux))
+done
+echo "dossiers conformes : $conformes/$n_docs"
+echo "commission moyenne : $((tot / n_ventes))%"
+if [ "$tout_ok" = "1" ]; then
+  echo "verdict : secreariat prete"
+else
+  echo "verdict : revision requise"
+fi</code></pre>
+
+      Cette solution combine validation d'orientation, commission à paliers, agrégation et verdict global — les chapitres 2, 5 et 6 en un seul script.
+
+    </div>
+
+  </details>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../chapitres/simulateur-examen.html">Examens blancs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Exercices construits d'après les supports de cours « Microsoft Office Word », « Le logiciel tableur Excel » et « Initiation PowerPoint » (AHADJI Katé Kékéli). Sources : les supports de cours « Microsoft Office Word », « Le logiciel tableur Excel » et « Initiation PowerPoint » (AHADJI Katé Kékéli).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

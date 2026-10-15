@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1 — Fondements, Principes de Sécurité et Chiffrements Historiques | Cryptographie &amp; PKI B3</title>
+<meta name="description" content="Module 1 du cours Cryptographie &amp; PKI B3 : Objectifs fondamentaux de la sécurité de l'information (confidentialité, intégrité, authenticité, non-répudiation), principe de Kerckhoffs, modèle de menace et cryptanalyse, chiffrements historiques par substitution monoalphabétique (César, chiffrement affine), chiffre polyalphabétique de Vigenère, masque jetable de Vernam (One-Time Pad et confidentialité parfaite de Shannon), analyse fréquentielle et indice de coïncidence de Friedman. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cryptographie/chapitres/chapitre1.html">
+<meta property="og:title" content="Module 1 — Fondements, Principes de Sécurité et Chiffrements Historiques | Cryptographie &amp; PKI B3">
+<meta property="og:description" content="Module 1 du cours Cryptographie &amp; PKI B3 : Objectifs fondamentaux de la sécurité de l'information (confidentialité, intégrité, authenticité, non-répudiation), principe de Kerckhoffs, modèle de menace et cryptanalyse, chiffrements historiques par substitution monoalphabétique (César, chiffrement affine), chiffre polyalphabétique de Vigenère, masque jetable de Vernam (One-Time Pad et confidentialité parfaite de Shannon), analyse fréquentielle et indice de coïncidence de Friedman. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cryptographienav"><div class="b3-cryptographienav__in">
+  <a class="b3-cryptographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cryptographienav__sep" aria-hidden="true">/</span>
+  <a class="b3-cryptographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lock"></use></svg> Cryptographie &amp; PKI B3</a>
+  <div class="b3-cryptographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cryptographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cryptographiewrap">
+<p class="crumb"><a href="../index.html">Cryptographie & PKI B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements, Principes de Sécurité et Chiffrements Historiques</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un contexte d'entreprise où les communications et les données sensibles transitent par des réseaux ouverts non sécurisés, la méconnaissance des principes fondamentaux de la cryptographie conduit souvent à des choix catastrophiques tels que l'illusion de la « sécurité par l'obscurité », l'utilisation d'algorithmes faits maison ou la réutilisation dangereuse de clés de chiffrement. En tant qu'ingénieur en sécurité des systèmes d'information B3, vous devez maîtriser les fondations théoriques de la cryptographie, évaluer la robustesse des chiffrements face à la cryptanalyse statistique et fréquentielle, et modéliser les exigences de confidentialité parfaite démontrées par Shannon.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser les quatre piliers de la sécurité : Confidentialité, Intégrité, Authenticité et Non-répudiation ;</li>
+      <li>appliquer le principe de Kerckhoffs et bannir la sécurité par l'obscurité dans les architectures logicielles ;</li>
+      <li>analyser le fonctionnement mathématique des chiffrements de César et de substitution affine modulo 26 ;</li>
+      <li>comprendre le chiffre polyalphabétique de Vigenère et caractériser les conditions de confidentialité parfaite du masque jetable (One-Time Pad) ;</li>
+      <li>maîtriser la cryptanalyse fréquentielle et le calcul de l'Indice de Coïncidence (IC) de William Friedman pour identifier la longueur de clé ;</li>
+      <li>développer en Python 3 des chiffreurs/déchiffreurs de César, de substitution affine, de Vigenère et des analyseurs d'Indice de Coïncidence.</li>
+    </ol>
+  </div>
+
+<h2>1. Objectifs de la Sécurité, Règle de Kerckhoffs &amp; Types d'Attaques</h2>
+
+<p>La cryptographie (du grec <em>kryptos</em>, caché, et <em>graphein</em>, écrire) est la science mathématique permettant de protéger des messages contre l'interception et la modification frauduleuse. Elle vise quatre objectifs fondamentaux :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Piliers de la Sécurité Informatique</h4>
+    <ul>
+      <li><strong>Confidentialité :</strong> seules les entités autorisées possédant la clé secrète peuvent lire le texte en clair.</li>
+      <li><strong>Intégrité :</strong> garantie que le message n'a subi aucune modification, altération ou suppression en transit.</li>
+      <li><strong>Authenticité :</strong> certitude formelle quant à l'identité de l'émetteur du message.</li>
+      <li><strong>Non-répudiation :</strong> l'auteur d'une action ou d'un message ne peut nier en être l'émetteur face à un tiers.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Le Principe de Kerckhoffs (1883)</h4>
+    <p>Énoncé par Auguste Kerckhoffs dans son traité <em>La cryptographie militaire</em> :</p>
+    <blockquote>« Il faut qu'un système n'exige pas le secret, et qu'il puisse sans inconvénient tomber entre les mains de l'ennemi. La sécurité ne doit reposer que sur la clé secrète. »</blockquote>
+    <p>Ce principe condamne formellement la <em>sécurité par l'obscurité</em>. Les algorithmes industriels (AES, RSA, SHA-256) sont publics et rigoureusement audités par la communauté scientifique mondiale.</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Taxonomie des Modèles d'Attaque Cryptanalytique</div>
+<p>En analyse de sécurité, un attaquant (Eve / Mallory) est modélisé selon son niveau de visibilité sur le système :</p>,<ul>,  <li><strong>Ciphertext-Only Attack (COA) :</strong> l'attaquant ne dispose que de textes chiffrés interceptés et cherche à retrouver le clair ou la clé.</li>,  <li><strong>Known-Plaintext Attack (KPA) :</strong> l'attaquant possède plusieurs paires (texte clair, texte chiffré correspondant) et tente d'en déduire la clé.</li>,  <li><strong>Chosen-Plaintext Attack (CPA) :</strong> l'attaquant a accès au mécanisme de chiffrement et peut faire chiffrer des textes clairs arbitraires de son choix.</li>,  <li><strong>Chosen-Ciphertext Attack (CCA) :</strong> l'attaquant peut soumettre des textes chiffrés et obtenir leur déchiffrement (sauf le chiffré cible).</li>,</ul>
+  </div>
+
+<h2>2. Chiffrements Historiques : Substitution Monoalphabétique (César &amp; Affine)</h2>
+
+<p>Dans un chiffrement par substitution monoalphabétique, chaque caractère de l'alphabet est remplacé de manière déterministe par un autre caractère selon une bijection fixe :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Chiffre de César (Décalage Circulaire)</h4>
+    <p>Chaque lettre est décalée de <code>k</code> positions dans l'alphabet modulo 26 (avec A=0, B=1, ..., Z=25) :</p>
+    <pre><code>C = (P + k) mod 26
+P = (C - k) mod 26</code></pre>
+    <p>L'espace des clés est minuscule (25 clés non triviales), permettant une attaque par force brute exhaustive immédiate.</p>
+  </div>
+  <div class="card">
+    <h4>Chiffrement par Substitution Affine</h4>
+    <p>Généralise César en combinant une multiplication et une addition modulaire :</p>
+    <pre><code>C = (a * P + b) mod 26
+P = (a^(-1) * (C - b)) mod 26</code></pre>
+    <p>Pour que la fonction soit bijective et déchiffrable, il est mathématiquement obligatoire que <code>pgcd(a, 26) == 1</code>. Il existe 12 entiers inversibles modulo 26 (1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25), soit un espace de 12 * 26 = 312 clés.</p>
+  </div>
+</div>
+
+<h2>3. Vigenère, Masque Jetable (OTP) &amp; Analyse Fréquentielle (Friedman)</h2>
+
+<p>Pour contrer la prévisibilité des substitutions monoalphabétiques, Blaise de Vigenère a popularisé le chiffrement polyalphabétique, où la valeur de décalage varie à chaque position du texte :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Chiffre de Vigenère &amp; Masque Jetable (OTP)</h4>
+    <ul>
+      <li><strong>Vigenère :</strong> répète une clé alphabétique de longueur <code>m</code>. La i-ème lettre est décalée de <code>K[i mod m]</code>.</li>
+      <li><strong>Masque Jetable (Vernam / One-Time Pad) :</strong> si la clé a exactement la longueur du message, est issue d'une source purement aléatoire et n'est <em>jamais réutilisée</em>, Claude Shannon a démontré en 1949 que le chiffrement offre une <strong>confidentialité parfaite</strong> : observer le chiffré n'apporte aucune information statistique sur le texte en clair.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Indice de Coïncidence de Friedman (IC)</h4>
+    <p>L'Indice de Coïncidence quantifie la non-uniformité de la distribution des lettres :</p>
+    <pre><code>IC = sum(f_i * (f_i - 1)) / (N * (N - 1))</code></pre>
+    <ul>
+      <li>Texte clair en français ou chiffrement monoalphabétique : <code>IC ≈ 0.0778</code>.</li>
+      <li>Texte aléatoire ou polyalphabétique à clé longue : <code>IC ≈ 0.0385</code> (1/26).</li>
+      <li>L'IC permet de déterminer sans tester les clés si un texte a été chiffré par César ou par Vigenère, et d'estimer la longueur de la clé.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="cr3-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="CAESAR ENC k=3 text=ATTAQUE A L'AUBE">
+  <script type="text/plain" data-lab-starter>import sys
+import math
+import re
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter César et substitution affine mod 26
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Chiffrement et Déchiffrement de César et Substitution Affine</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter les chiffrements classiques de César (décalage mod 26) et de substitution affine avec calcul d'inverse modulaire.</p>
+    <div class="lab__brief"><p>Dans la cryptographie classique, le chiffrement par décalage de César applique la transformation :
+<code>C = (P + k) mod 26</code>.
+Le chiffrement par substitution affine généralise ce principe selon :
+<code>C = (a * P + b) mod 26</code>, où la clé multiplicative <code>a</code> doit être strictement première avec 26 (<code>pgcd(a, 26) == 1</code>) pour garantir l'inversibilité.<br><br>
+Le script lit sur STDIN des commandes sous les formes suivantes :<br>
+1. <code>CAESAR ENC k=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>
+   Décale chaque lettre de <code>k</code> positions (A=0, ..., Z=25). Les minuscules sont converties en majuscules, les caractères non alphabétiques sont préservés.<br>
+2. <code>CAESAR DEC k=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>
+   Déchiffre le texte avec la clé <code>k</code>.<br>
+3. <code>AFFINE ENC a=&lt;entier&gt; b=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>
+   Si <code>pgcd(a, 26) != 1</code>, affiche <code>ERROR: gcd(a,26)!=1</code>.<br>
+   Sinon chiffre selon <code>C = (a * P + b) mod 26</code>.<br>
+4. <code>AFFINE DEC a=&lt;entier&gt; b=&lt;entier&gt; text=&lt;texte&gt;</code> :<br>
+   Si <code>pgcd(a, 26) != 1</code>, affiche <code>ERROR: gcd(a,26)!=1</code>.<br>
+   Sinon calcule <code>a_inv = pow(a, -1, 26)</code> et déchiffre selon <code>P = (a_inv * (C - b)) mod 26</code>.<br><br>
+Pour toute opération réussie :<br>
+<code>OUT: &lt;texte_resultat&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CAESAR ENC k=3 text=ATTAQUE A L'AUBE</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>OUT: DWWDTXH D O'DXEH</pre></div>
+    </div>
+    <p class="lab__note">Chiffrement de César avec décalage de 3 positions.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour isoler text=, découpez la ligne en recherchant text= afin de préserver les espaces dans le message.</li>
+        <li>Utilisez math.gcd(a, 26) pour tester l inversibilité et pow(a, -1, 26) pour calculer l inverse modulaire en Python 3.8+.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="VIGENERE ENC key=SECRET text=MESSAGE CONFIDENTIEL">
+  <script type="text/plain" data-lab-starter>import sys
+import re
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter Vigenère et vérificateur OTP
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Chiffre Polyalphabétique de Vigenère et Masque Jetable (OTP)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Réaliser le chiffrement et le déchiffrement polyalphabétique de Vigenère et valider les propriétés de sécurité d'un masque jetable (One-Time Pad).</p>
+    <div class="lab__brief"><p>Le chiffre de Vigenère utilise une clé alphabétique répétée pour masquer les fréquences de lettres. Le masque jetable (Vernam / OTP) offre une confidentialité théorique parfaite si et seulement si la clé est purement aléatoire, au moins aussi longue que le message, et jamais réutilisée.<br><br>
+Commandes lues sur STDIN :<br>
+1. <code>VIGENERE ENC key=&lt;cle&gt; text=&lt;texte&gt;</code> : chiffre le texte.<br>
+2. <code>VIGENERE DEC key=&lt;cle&gt; text=&lt;texte&gt;</code> : déchiffre le texte.<br>
+3. <code>OTP VERIFY key_len=&lt;k&gt; text_len=&lt;t&gt; reuse=&lt;true|false&gt;</code> :<br>
+   - Si <code>key_len &lt; text_len</code> : <code>OTP: INVALID (key shorter than message)</code><br>
+   - Sinon si <code>reuse == true</code> : <code>OTP: INVALID (key reused, vulnerable to two-time pad attack)</code><br>
+   - Sinon : <code>OTP: VALID (perfect secrecy achieved)</code><br><br>
+Pour les opérations VIGENERE : <code>OUT: &lt;texte_resultat&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VIGENERE ENC key=SECRET text=MESSAGE CONFIDENTIEL</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>OUT: EIUJEZW GQEJBVIPKMXD</pre></div>
+    </div>
+    <p class="lab__note">Chiffrement polyalphabétique avec la clé SECRET répétée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Maintenez un index ki incrémenté uniquement lorsque le caractère courant est une lettre alphabétique.</li>
+        <li>Pour OTP, vérifiez d abord si key_len &lt; text_len, puis si reuse est true, sinon déclarez valide.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cr3-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="ANALYZE text=LE PETIT CHAPERON ROUGE SE PROMENAIT DANS LA FORET TOUT SEUL ET RENCONTRA LE LOUP">
+  <script type="text/plain" data-lab-starter>import sys
+import collections
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer l'Indice de Coïncidence et qualifier le chiffrement
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyse Fréquentielle et Indice de Coïncidence (IC) pour Cryptanalyse</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l'Indice de Coïncidence (IC) d'un texte et identifier les fréquences majeures pour distinguer chiffrement monoalphabétique et polyalphabétique.</p>
+    <div class="lab__brief"><p>L'Indice de Coïncidence de Friedman est défini par :<br>
+<code>IC = sum(f_i * (f_i - 1)) / (N * (N - 1))</code><br>
+où <code>f_i</code> est la fréquence de chaque lettre (A-Z) et <code>N</code> est le nombre total de lettres.<br><br>
+Commandes sur STDIN : <code>ANALYZE text=&lt;texte&gt;</code><br>
+1. Si <code>N &lt; 2</code> : <code>ERROR: TEXT_TOO_SHORT</code>.<br>
+2. Calculer <code>IC</code> (4 décimales).<br>
+3. Qualifier le type :<br>
+   - Si <code>IC &gt;= 0.0650</code> : <code>TYPE=MONOALPHABETIC</code><br>
+   - Sinon si <code>IC &gt;= 0.0450</code> : <code>TYPE=POLYALPHABETIC_SHORT_KEY</code><br>
+   - Sinon : <code>TYPE=POLYALPHABETIC_OR_RANDOM</code><br>
+4. Identifier le top 3 : <code>TOP=L1(c1),L2(c2),L3(c3)</code> trié par occurrences décroissantes puis alphabétiquement.<br><br>
+Format de sortie : <code>N=&lt;N&gt; IC=&lt;IC:.4f&gt; TYPE=&lt;TYPE&gt; TOP=&lt;TOP&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ANALYZE text=LE PETIT CHAPERON ROUGE SE PROMENAIT DANS LA FORET TOUT SEUL ET RENCONTRA LE LOUP</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>N=67 IC=0.0751 TYPE=MONOALPHABETIC TOP=E(11),T(8),O(7)</pre></div>
+    </div>
+    <p class="lab__note">Distribution naturelle en français produisant un IC élevé (0.0751 &gt; 0.065).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Filtrez les caractères avec [ch for ch in text.upper() if "A" &lt;= ch &lt;= "Z"].</li>
+        <li>Triez les fréquences avec sorted(counts.items(), key=lambda x: (-x[1], x[0])).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel principe fondamental affirme que la sécurité d'un cryptosystème ne doit dépendre que du secret de la clé et pas de celui de l'algorithme ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le principe de Kerckhoffs</button>
+        <button class="opt">Le rasoir d'Ockham</button>
+        <button class="opt">Le théorème de Shannon</button>
+        <button class="opt">La loi de Moore</button>
+      </div>
+      <div class="q__exp">Auguste Kerckhoffs a énoncé en 1883 que la sécurité d'un système cryptographique doit résider entièrement dans la clé, l'algorithme pouvant être public sans compromettre la sécurité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de clés multiplicatives 'a' sont valides pour un chiffrement affine dans un alphabet de 26 lettres ?</p>
+      <div class="opts">
+        <button class="opt">26</button>
+        <button class="opt">13</button>
+        <button class="opt" data-correct="1">12</button>
+        <button class="opt">25</button>
+      </div>
+      <div class="q__exp">La clé a doit être première avec 26 (pgcd(a, 26) = 1). Les entiers impairs non multiples de 13 sont 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25, soit exactement 12 valeurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle condition n'est PAS obligatoire pour garantir la confidentialité parfaite du masque jetable (One-Time Pad) selon Shannon ?</p>
+      <div class="opts">
+        <button class="opt">La clé doit être générée par un processus matériel purement aléatoire</button>
+        <button class="opt">La clé doit être au moins aussi longue que le message</button>
+        <button class="opt" data-correct="1">La clé doit être conservée sur une carte à puce sécurisée</button>
+        <button class="opt">La clé ne doit jamais être réutilisée</button>
+      </div>
+      <div class="q__exp">La confidentialité parfaite de Shannon exige que la clé soit purement aléatoire, au moins aussi longue que le texte, et à usage unique (One-Time). Le support physique de stockage n'est pas une condition mathématique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la valeur approximative de l'Indice de Coïncidence (IC) pour un texte rédigé en français naturel ?</p>
+      <div class="opts">
+        <button class="opt">0.0385</button>
+        <button class="opt">0.0500</button>
+        <button class="opt" data-correct="1">0.0778</button>
+        <button class="opt">0.1250</button>
+      </div>
+      <div class="q__exp">En langue française, l'hétérogénéité des fréquences de lettres (dominance de E, A, S, I) produit un Indice de Coïncidence théorique d'environ 0.0778 (contre 0.0385 pour un texte uniforme/aléatoire).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type d'attaque cryptanalytique désigne le scénario où l'attaquant ne dispose que d'interceptions de messages chiffrés ?</p>
+      <div class="opts">
+        <button class="opt">Known-Plaintext Attack (KPA)</button>
+        <button class="opt" data-correct="1">Ciphertext-Only Attack (COA)</button>
+        <button class="opt">Chosen-Plaintext Attack (CPA)</button>
+        <button class="opt">Man-in-the-Middle (MITM)</button>
+      </div>
+      <div class="q__exp">L'attaque à texte chiffré seul (Ciphertext-Only Attack - COA) est le modèle d'attaque le plus contraignant pour l'attaquant, qui ne possède aucun extrait en clair du message.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un attaquant intercepte deux textes C1 et C2 chiffrés avec le même masque jetable K (Two-Time Pad) ?</p>
+      <div class="opts">
+        <button class="opt">L'attaquant ne peut rien déduire car le masque est aléatoire</button>
+        <button class="opt" data-correct="1">L'opération C1 ^ C2 annule le masque et révèle P1 ^ P2</button>
+        <button class="opt">La clé K est automatiquement détruite</button>
+        <button class="opt">Les textes clairs sont effacés du réseau</button>
+      </div>
+      <div class="q__exp">Comme C1 = P1 ^ K et C2 = P2 ^ K, effectuer le XOR des deux chiffrés donne C1 ^ C2 = P1 ^ K ^ P2 ^ K = P1 ^ P2. La clé s'annule et l'analyse fréquentielle sur deux textes naturels permet de retrouver P1 et P2.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Concevoir son propre algorithme de chiffrement « secret » pour un projet d'entreprise en croyant qu'il sera plus sécurisé qu'AES (violation majeure du principe de Kerckhoffs).</li>
+      <li>Choisir une clé multiplicative paire ou égale à 13 dans un chiffrement affine mod 26 : pgcd(a, 26) != 1 rend la fonction non injective et le déchiffrement impossible.</li>
+      <li>Réutiliser la clé d'un masque jetable (One-Time Pad) pour chiffrer deux messages distincts : l'opération C1 ^ C2 = P1 ^ P2 permet de casser immédiatement les deux clairs (Two-Time Pad attack).</li>
+      <li>Croire que Vigenère est incassable parce que la clé est longue : l'analyse de Kasiski et l'indice de coïncidence permettent d'isoler la période et de casser chaque sous-colonne par César.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Caractérisation du modèle de menace et des objectifs de sécurité : classifier le besoin entre confidentialité (chiffrement), intégrité (hachage) et authenticité (signature), et appliquer strictement le principe de Kerckhoffs.</li>
+      <li>Cryptanalyse statistique par calcul d'Indice de Coïncidence : analyser le message chiffré intercepté, calculer son Indice de Coïncidence de Friedman et déterminer s'il s'agit d'une substitution monoalphabétique (IC >= 0.065) ou polyalphabétique.</li>
+      <li>Recherche de période et décomposition en sous-textes (Kasiski) : pour un chiffre polyalphabétique, déterminer la longueur probable de la clé m à partir des répétitions ou du profil d'IC par tranches entrelacées.</li>
+      <li>Reconstitution des clés par analyse fréquentielle des lettres : aligner les fréquences observées dans chaque tranche sur les fréquences de la langue naturelle (pic de la lettre E) pour déduire la clé secrète.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La sécurité de l'information repose sur quatre piliers : confidentialité, intégrité, authenticité et non-répudiation.</li>
+      <li>Le principe de Kerckhoffs stipule que la sécurité d'un cryptosystème repose uniquement sur le secret de sa clé et jamais sur le secret de son algorithme.</li>
+      <li>Les chiffrements de César et affine sont monoalphabétiques et vulnérables à l'analyse statistique et à la force brute.</li>
+      <li>Le masque jetable (One-Time Pad) offre une confidentialité théorique absolue sous réserve que la clé soit purement aléatoire, au moins aussi longue que le texte et à usage unique.</li>
+      <li>L'Indice de Coïncidence de Friedman (IC) permet de distinguer instantanément un chiffrement monoalphabétique d'un chiffrement polyalphabétique aplati.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous énoncer et justifier le principe de Kerckhoffs face à la sécurité par l'obscurité ?</li>
+      <li>Connaissez-vous la condition mathématique nécessaire pour que la clé d'un chiffrement affine soit valide (pgcd(a, 26) == 1) ?</li>
+      <li>Pouvez-vous citer les trois conditions indispensables pour que le masque jetable (OTP) garantisse une confidentialité parfaite ?</li>
+      <li>Savez-vous calculer l'Indice de Coïncidence (IC) et interpréter les valeurs seuils (0.077 pour le français, 0.038 pour l'aléatoire) ?</li>
+      <li>Comprenez-vous la différence entre une attaque à texte chiffré seul (COA) et à texte clair connu (KPA) ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Principe de Kerckhoffs :</strong> Règle cryptographique stipulant que la sécurité d'un système doit reposer exclusivement sur le secret de la clé et non sur celui de l'algorithme.</li><li><strong>Confidentialité Parfaite :</strong> Propriété démontrée par Shannon où la distribution de probabilité du message clair conditionnée par le message chiffré est égale à la distribution a priori (P(M|C) = P(M)).</li><li><strong>Chiffrement Affine :</strong> Chiffrement monoalphabétique associant à chaque lettre P la lettre C = (a*P + b) mod 26, nécessitant pgcd(a, 26) = 1.</li><li><strong>Masque Jetable (One-Time Pad) :</strong> Chiffrement où le clair est combiné par XOR avec une clé aléatoire de même longueur, jamais réutilisée.</li><li><strong>Indice de Coïncidence (IC) :</strong> Mesure probabiliste de Friedman évaluant la chance que deux lettres choisies au hasard dans un texte soient identiques, révélant la structure de la langue.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Audit de conformité au principe de Kerckhoffs :</strong> Évaluer les architectures logicielles d'entreprise pour éradiquer tout mécanisme cryptographique propriétaire non standardisé.</div>
+      <div class="bandrow"><strong>Cryptanalyse de chiffrements monoalphabétiques :</strong> Casser des chiffrements par substitution à l'aide de dictionnaires statistiques et d'alignement fréquentiel en Python.</div>
+      <div class="bandrow"><strong>Implémentation de l'Indice de Coïncidence de Friedman :</strong> Développer des outils d'analyse statistique capables de détecter automatiquement la nature d'un cryptosystème.</div>
+      <div class="bandrow"><strong>Gestion rigoureuse du cycle de vie des clés de masque jetable :</strong> Mettre en place des protocoles d'effacement mémoire sécurisé pour garantir l'unicité stricte des flux de clés.</div>
+      <div class="bandrow"><strong>Programmation d'outils d'analyse cryptographique en Python 3 :</strong> Concevoir des scripts robustes de déchiffrement modulaire, d'analyse polyalphabétique et de détection de motifs répétés.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Module 2 — Cryptographie Symétrique Moderne (Chiffrement par Bloc et par Flux) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Cryptographie L3/B3 (Enseignant : M. Djiwa N’tèla OGA, PolyCrypto2010), Standards RFC 5280 (X.509), RFC 8446 (TLS 1.3), RFC 2104 (HMAC), RFC 8017 (PKCS#1 v2.2) et Référentiels NIST Post-Quantum Cryptography (FIPS 203, FIPS 204).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

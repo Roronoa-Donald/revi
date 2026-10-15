@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 4 — Sous-réseaux (Subnetting) | Réseaux B1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>:root{--accent:#0ea5e9;--accent-light:#38bdf8;--accent-dark:#0284c7;--accent-glow:rgba(14,165,233,0.25)}.dark{--accent:#38bdf8;--accent-light:#7dd3fc;--accent-dark:#0ea5e9;--accent-glow:rgba(56,189,248,0.25)}</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Aller au contenu</a>
+<div class="reading-progress" id="reading-progress"></div>
+<nav class="glass-nav"><div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><i class="fas fa-network-wired"></i> NetBot</a>
+    <ul class="nav-links">
+        <li><a href="../index.html">Accueil</a></li><li><a href="formules.html">Formules</a></li>
+        <li><a href="cartes.html">Cartes</a></li><li><a href="simulateur-examen.html">Simulateur</a></li>
+        <li><a href="../exercices/exercices.html">Exercices</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+</div></nav>
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>🌐 NetBot</span><button class="mobile-nav-close" id="mobile-nav-close"><i class="fas fa-times"></i></button></div>
+    <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+    <a href="chapitre1.html"><i class="fas fa-book-open"></i> Ch.1</a><a href="chapitre2.html"><i class="fas fa-book-open"></i> Ch.2</a>
+    <a href="chapitre3.html"><i class="fas fa-book-open"></i> Ch.3</a><a href="chapitre4.html" class="active"><i class="fas fa-book-open"></i> Ch.4</a>
+    <a href="chapitre5.html"><i class="fas fa-book-open"></i> Ch.5</a><a href="chapitre6.html"><i class="fas fa-book-open"></i> Ch.6</a>
+    <a href="chapitre7.html"><i class="fas fa-book-open"></i> Ch.7</a><a href="chapitre8.html"><i class="fas fa-book-open"></i> Ch.8</a>
+    <a href="formules.html"><i class="fas fa-scroll"></i> Formules</a><a href="cartes.html"><i class="fas fa-layer-group"></i> Cartes</a>
+    <a href="simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Simulateur</a>
+    <a href="../exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a>
+</div>
+
+<section class="hero-section" id="main-content">
+    <div class="hero-badge"><i class="fas fa-cut"></i> Chapitre 4</div>
+    <h1>🌐 Sous-réseaux <span class="highlight">(Subnetting)</span></h1>
+    <p>Découper un réseau en sous-réseaux : CIDR, calculs, et méthode pas à pas.</p>
+</section>
+
+<main class="content-wrapper">
+
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-bullseye"></i> Objectifs du chapitre</h2>
+    <div class="info-box">
+        <ul>
+            <li>Maîtriser l'adressage IPv4 et les masques de sous-réseau</li>
+            <li>Comprendre le routage statique et dynamique</li>
+            <li>Connaître les protocoles ARP et ICMP</li>
+        </ul>
+    </div>
+</section>
+
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-cut"></i> Pourquoi découper en sous-réseaux ?</h2>
+    <div class="concept-card">
+        <h4>🍕 Analogie de la pizza</h4>
+        <p>Vous avez une grosse pizza (un réseau). Si 4 personnes veulent manger, vous la coupez en <strong>4 parts</strong>. Chaque part = un <strong>sous-réseau</strong>. On divise le réseau pour : la <strong>sécurité</strong> (isoler les services), la <strong>performance</strong> (réduire le trafic), et l'<strong>organisation</strong> (départements).</p>
+    </div>
+</section>
+
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-hashtag"></i> Notation CIDR</h2>
+    <div class="code-block"><div class="code-header"><span>CIDR = /nombre de bits réseau</span></div><pre><code>192.168.1.0/24
+
+/24 signifie : les 24 premiers bits = réseau
+             les 8 derniers bits = hôtes
+
+Équivalent masque : 255.255.255.0
+Hôtes : 2^8 - 2 = 254</code></pre></div>
+
+    <div class="styled-table-container"><table class="styled-table">
+        <thead><tr><th>CIDR</th><th>Masque</th><th>Hôtes</th><th>Taille du bloc</th></tr></thead>
+        <tbody>
+            <tr><td>/24</td><td>255.255.255.0</td><td>254</td><td>256</td></tr>
+            <tr><td>/25</td><td>255.255.255.128</td><td>126</td><td>128</td></tr>
+            <tr><td>/26</td><td>255.255.255.192</td><td>62</td><td>64</td></tr>
+            <tr><td>/27</td><td>255.255.255.224</td><td>30</td><td>32</td></tr>
+            <tr><td>/28</td><td>255.255.255.240</td><td>14</td><td>16</td></tr>
+            <tr><td>/29</td><td>255.255.255.248</td><td>6</td><td>8</td></tr>
+            <tr><td>/30</td><td>255.255.255.252</td><td>2</td><td>4</td></tr>
+        </tbody>
+    </table></div>
+
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 Astuce : la « ligne magique » des puissances de 2</h4>
+        <p>128 · 64 · 32 · 16 · 8 · 4 · 2 · 1 — ce sont les valeurs des bits dans un octet. Pour trouver la taille du bloc : <strong>256 – valeur du masque dans le dernier octet</strong>.</p>
+    </div>
+</section>
+
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-calculator"></i> Méthode de calcul pas à pas</h2>
+    <div class="code-block"><div class="code-header"><span>Exemple : 192.168.10.50/26</span></div><pre><code>Étape 1 : Trouver le masque
+   /26 → 255.255.255.192 (192 = 128+64)
+
+Étape 2 : Taille du bloc
+   256 - 192 = 64
+
+Étape 3 : Trouver le sous-réseau
+   50 ÷ 64 = 0,78 → arrondir vers le BAS → 0
+   Sous-réseau = 0 × 64 = 0
+   → Adresse réseau : 192.168.10.0
+
+Étape 4 : Broadcast
+   Prochain multiple de 64 = 64 → 64 - 1 = 63
+   → Broadcast : 192.168.10.63
+
+Étape 5 : Plage d'hôtes
+   → Premier : 192.168.10.1
+   → Dernier : 192.168.10.62
+   → 62 hôtes utilisables (2^6 - 2)</code></pre></div>
+
+    <div class="tip-box"><strong>💡 Recette en 5 étapes :</strong><br>
+    1. CIDR → masque<br>
+    2. 256 – masque = <strong>taille</strong><br>
+    3. IP ÷ taille → arrondir bas × taille = <strong>réseau</strong><br>
+    4. Réseau + taille – 1 = <strong>broadcast</strong><br>
+    5. Réseau+1 à broadcast-1 = <strong>hôtes</strong></div>
+</section>
+
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-project-diagram"></i> Découper un réseau en sous-réseaux</h2>
+    <div class="code-block"><div class="code-header"><span>Découper 192.168.1.0/24 en 4 sous-réseaux</span></div><pre><code>4 sous-réseaux = 2² → il faut emprunter 2 bits
+Nouveau masque : /24 + 2 = /26
+
+Taille de bloc : 256 - 192 = 64
+
+Sous-réseau 1 : 192.168.1.0/26   (hôtes .1 – .62)
+Sous-réseau 2 : 192.168.1.64/26  (hôtes .65 – .126)
+Sous-réseau 3 : 192.168.1.128/26 (hôtes .129 – .190)
+Sous-réseau 4 : 192.168.1.192/26 (hôtes .193 – .254)</code></pre></div>
+</section>
+
+<!-- VLSM -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-cut"></i> VLSM – Masques de longueur variable</h2>
+    <p>Le VLSM (<strong>Variable Length Subnet Mask</strong>) permet de créer des sous-réseaux de <strong>tailles différentes</strong> pour optimiser l'utilisation des adresses IP.</p>
+    <div class="concept-card">
+        <h4>🍕 Analogie : découper une pizza</h4>
+        <p>Sans VLSM = couper une pizza en parts <strong>égales</strong> (même si certains convives mangent peu).<br>
+        Avec VLSM = couper des parts <strong>adaptées</strong> à l'appétit de chacun → moins de gaspillage !</p>
+    </div>
+    <div class="code-block"><div class="code-header"><span>Exemple VLSM : 192.168.10.0/24 pour 3 départements</span></div><pre><code>Besoins : Marketing = 100 hôtes · IT = 50 hôtes · Direction = 10 hôtes
+
+Étape 1 : Trier du PLUS GRAND au plus petit
+  Marketing (100) → IT (50) → Direction (10)
+
+Étape 2 : Allouer en commençant par le plus grand
+  Marketing : 100 hôtes → besoin 2⁷ = 128 → /25
+    → 192.168.10.0/25    (126 hôtes utilisables)
+
+  IT : 50 hôtes → besoin 2⁶ = 64 → /26
+    → 192.168.10.128/26  (62 hôtes utilisables)
+
+  Direction : 10 hôtes → besoin 2⁴ = 16 → /28
+    → 192.168.10.192/28  (14 hôtes utilisables)
+
+Résultat : 3 sous-réseaux optimisés au lieu de 4 sous-réseaux /26 !</code></pre></div>
+    <div class="tip-box"><strong>💡 Règle d'or VLSM :</strong> Toujours commencer par le sous-réseau le <strong>plus grand</strong>. C'est comme remplir une valise : on met les gros objets d'abord !</div>
+</section>
+
+<!-- Masques spéciaux /31 et /32 -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-link"></i> Masques spéciaux : /31 et /32</h2>
+    <div class="styled-table-container"><table class="styled-table">
+        <thead><tr><th>Masque</th><th>Hôtes</th><th>Usage</th><th>Explication</th></tr></thead>
+        <tbody>
+            <tr><td><strong>/32</strong></td><td>1 seul</td><td>Loopback, route vers un hôte</td><td>Identifie une machine <strong>unique</strong> (255.255.255.255)</td></tr>
+            <tr><td><strong>/31</strong></td><td>2</td><td>Liaison point-à-point</td><td>Pas de broadcast, 2 IPs pour connecter 2 routeurs (RFC 3021)</td></tr>
+            <tr><td><strong>/30</strong></td><td>2</td><td>Liaison point-à-point (classique)</td><td>4 adresses − réseau − broadcast = 2 hôtes</td></tr>
+        </tbody>
+    </table></div>
+    <div class="info-box"><strong>ℹ️ En examen :</strong> Pour une liaison entre 2 routeurs, la réponse attendue est souvent <strong>/30</strong>. Le /31 est correct aussi (RFC 3021) mais moins courant dans les QCM.</div>
+</section>
+
+<!-- Pièges classiques -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-exclamation-triangle"></i> Pièges classiques</h2>
+    <div class="warning-box"><strong>⚠️ Piège 1 – Oublier de trier en VLSM :</strong> Si on alloue les petits réseaux d'abord, on risque de ne plus avoir assez d'espace contigu pour les grands. <strong>Toujours du plus grand au plus petit !</strong></div>
+    <div class="warning-box"><strong>⚠️ Piège 2 – Le /24 n'est PAS le seul masque :</strong> Par réflexe, on pense « masque = 255.255.255.0 ». En réalité le masque dépend du nombre d'hôtes nécessaires. Pour 200 hôtes → /24. Pour 30 → /27. Pour 10 → /28.</div>
+    <div class="warning-box"><strong>⚠️ Piège 3 – Confondre nombre de bits réseau et bits hôte :</strong> Dans /26, il y a 26 bits <strong>réseau</strong> et 32 − 26 = 6 bits <strong>hôte</strong>. C'est 2<sup>6</sup> − 2 = 62 hôtes, pas 2<sup>26</sup>.</div>
+</section>
+
+
+    <!-- Exercice guidé : Subnetting -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-pencil-alt"></i> Exercices guidés</h2>
+
+        <div class="example-box">
+            <h4>Découper un réseau en sous-réseaux</h4>
+            <p><strong>Énoncé :</strong> Découper 192.168.10.0/24 en 4 sous-réseaux.</p>
+            <h5>Étape 1 — Combien de bits emprunter ?</h5>
+            <pre><code>4 sous-réseaux → 2^n ≥ 4 → n = 2 bits
+Nouveau masque : /24 + 2 = /26
+Masque : 255.255.255.192</code></pre>
+            <h5>Étape 2 — Taille de chaque sous-réseau</h5>
+            <pre><code>Bits hôte restants : 32 - 26 = 6
+Adresses par sous-réseau : 2^6 = 64
+Hôtes utilisables : 64 - 2 = 62 par sous-réseau</code></pre>
+            <h5>Étape 3 — Calculer les plages</h5>
+            <table class="styled-table">
+                <thead><tr><th>Sous-réseau</th><th>Adresse réseau</th><th>Plage d'hôtes</th><th>Broadcast</th></tr></thead>
+                <tbody>
+                    <tr><td>SR1</td><td>192.168.10.0/26</td><td>.1 à .62</td><td>.63</td></tr>
+                    <tr><td>SR2</td><td>192.168.10.64/26</td><td>.65 à .126</td><td>.127</td></tr>
+                    <tr><td>SR3</td><td>192.168.10.128/26</td><td>.129 à .190</td><td>.191</td></tr>
+                    <tr><td>SR4</td><td>192.168.10.192/26</td><td>.193 à .254</td><td>.255</td></tr>
+                </tbody>
+            </table>
+            <pre><code>Vérification :
+4 sous-réseaux × 64 adresses = 256 = 2^8 ✓
+Total hôtes : 4 × 62 = 248 (vs 254 avant découpage)</code></pre>
+        </div>
+
+        <div class="example-box">
+            <h4>Trouver le sous-réseau d'une adresse</h4>
+            <p><strong>Énoncé :</strong> À quel sous-réseau appartient 192.168.10.200/26 ?</p>
+            <h5>Méthode rapide</h5>
+            <pre><code>Pas du masque = 256 - 192 = 64
+Diviser le dernier octet : 200 ÷ 64 = 3.125
+Partie entière = 3 → Sous-réseau n°3 (en partant de 0)
+Début = 3 × 64 = 192
+
+→ 192.168.10.200 appartient à 192.168.10.192/26
+  Plage : .193 à .254
+  Broadcast : .255 ✓</code></pre>
+        </div>
+    </section>
+
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-check-circle"></i> Récapitulatif</h2>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>📝 L'essentiel du Chapitre 4</h4>
+        <ul>
+            <li>Subnetting = découper un réseau en sous-réseaux</li>
+            <li>CIDR /n = n bits réseau, (32-n) bits hôtes</li>
+            <li>Taille du bloc = 256 – dernier octet du masque</li>
+            <li>Hôtes = 2<sup>n</sup> – 2</li>
+            <li>Formule rapide : IP ÷ taille → réseau, +taille-1 → broadcast</li>
+        </ul>
+    </div>
+</section>
+
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-dumbbell"></i> Exercices</h2>
+    <div id="chapter-exercises"></div>
+</section>
+
+<div class="chapter-nav">
+    <a href="chapitre3.html" class="prev-chapter"><i class="fas fa-arrow-left"></i> Adressage IPv4</a>
+    <a href="chapitre5.html" class="next-chapter">Protocoles <i class="fas fa-arrow-right"></i></a>
+</div>
+</main>
+
+<div class="xp-bar-container">
+    <span class="xp-level">Débutant</span>
+    <div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div>
+    <span class="xp-text">0 XP</span>
+</div>
+<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/gamification.js"></script>
+<script>GameEngine.configure({storageKey:'b1_reseaux_progress',badges:[],levels:[{title:'Débutant',min:0},{title:'Apprenti',min:100},{title:'Technicien',min:300},{title:'Admin',min:550},{title:'Architecte',min:850},{title:'Guru',min:1200}]});GameEngine.init();</script>
+<script src="../../assets/js/chapter-exercises.js"></script>
+<script>
+ChapterExercises.init({
+    guided:[
+        {q:"Trouvez l'adresse réseau et broadcast de 10.0.50.200/25.",hints:["256-128=128","200÷128=1.56, arrondi bas=1"],answer:"Masque: /25=255.255.255.128, bloc=128\n200÷128=1 → réseau: 10.0.50.128\nBroadcast: 128+128-1=255 → 10.0.50.255\nHôtes: .129-.254 (126 hôtes)"},
+        {q:"Combien de sous-réseaux et d'hôtes avec /28 ?",hints:["/28 = 4 bits hôte","2^4-2=14"],answer:"Taille bloc: 256-240=16\nHôtes par sous-réseau: 2^4-2=14\nSous-réseaux possibles dans un /24: 256/16=16"},
+        {q:"Découpez 172.16.0.0/16 en 8 sous-réseaux.",hints:["8=2^3, emprunter 3 bits","/16+3=/19"],answer:"Nouveau masque: /19\nBloc: 2^(32-19)=8192 adresses par sous-réseau\n172.16.0.0/19, 172.16.32.0/19, 172.16.64.0/19..."},
+        {q:"192.168.5.130/27 : trouvez réseau, broadcast, hôtes.",hints:["/27=224, bloc=32","130÷32=4.06"],answer:"Bloc=32, 130÷32=4 → réseau: 192.168.5.128\nBroadcast: 128+32-1=159 → 192.168.5.159\nHôtes: .129-.158 (30 hôtes)"},
+        {q:"Quel masque pour avoir au moins 50 hôtes par sous-réseau ?",hints:["2^n-2≥50","2^6=64, 64-2=62"],answer:"Il faut 6 bits hôte: 2^6-2=62 ≥ 50\nMasque: /26 (255.255.255.192)"}
+    ],
+    quiz:[
+        {type:"mcq",q:"/25 correspond à quel masque ?",options:["255.255.255.0","255.255.255.128","255.255.255.192","255.255.255.224"],correct:1},
+        {type:"mcq",q:"Combien d'hôtes avec un /27 ?",options:["14","30","62","126"],correct:1},
+        {type:"mcq",q:"Taille du bloc pour /26 ?",options:["16","32","64","128"],correct:2},
+        {type:"mcq",q:"192.168.1.100/25 : adresse réseau ?",options:["192.168.1.0","192.168.1.64","192.168.1.100","192.168.1.128"],correct:0},
+        {type:"mcq",q:"Pour 4 sous-réseaux, combien de bits emprunter ?",options:["1","2","3","4"],correct:1},
+        {type:"mcq",q:"Le broadcast de 10.0.0.0/26 est :",options:["10.0.0.63","10.0.0.127","10.0.0.255","10.0.0.64"],correct:0},
+        {type:"mcq",q:"CIDR signifie :",options:["Class Internet Domain Routing","Classless Inter-Domain Routing","Central IP Distribution Registry","Calculated IP Data Range"],correct:1},
+        {type:"mcq",q:"256-224 = ?",options:["16","32","64","128"],correct:1},
+        {type:"qa",q:"Donnez la formule pour le nombre d'hôtes utilisables.",answer:"2^n - 2 où n = nombre de bits de la partie hôte (32 - CIDR)"},
+        {type:"qa",q:"Comment trouver l'adresse réseau à partir d'une IP et d'un masque ?",answer:"Diviser le dernier octet de l'IP par la taille du bloc, arrondir vers le bas, multiplier par la taille du bloc."}
+    ],
+    dragdrop:[
+        {instruction:"Associez chaque CIDR à sa taille de bloc :",pairs:[["/24","256"],["/25","128"],["/26","64"],["/27","32"]]},
+        {instruction:"Associez chaque CIDR au nombre d'hôtes :",pairs:[["/24","254"],["/26","62"],["/28","14"],["/30","2"]]},
+        {instruction:"Associez chaque masque à son CIDR :",pairs:[["255.255.255.0","/24"],["255.255.255.128","/25"],["255.255.255.192","/26"],["255.255.255.224","/27"]]}
+    ]
+});
+</script>
+<script src="../../assets/js/download.js"></script>
+</body>
+</html>

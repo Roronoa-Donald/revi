@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 5 — Stockage Azure (Blob, Files, Disques) et Données Managées | Cloud Azure B3</title>
+<meta name="description" content="Module 5 du cours Cloud Microsoft Azure B3 : Comptes de stockage Azure (Storage Accounts standard v2), services de stockage de données (Blob Storage non structuré, partages de fichiers SMB/NFS Azure Files, Azure Queues et Tables), gestion automatique du cycle de vie des objets (Lifecycle Management : Hot, Cool, Cold, Archive), politiques de réplication des données (LRS, ZRS, GRS, GZRS), sécurité par signatures d’accès partagé (SAS Tokens) et comparatif des bases de données managées (Azure SQL Database vs Azure Cosmos DB). Notions clés, architectures Azure, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-azure/chapitres/chapitre5.html">
+<meta property="og:title" content="Module 5 — Stockage Azure (Blob, Files, Disques) et Données Managées | Cloud Azure B3">
+<meta property="og:description" content="Module 5 du cours Cloud Microsoft Azure B3 : Comptes de stockage Azure (Storage Accounts standard v2), services de stockage de données (Blob Storage non structuré, partages de fichiers SMB/NFS Azure Files, Azure Queues et Tables), gestion automatique du cycle de vie des objets (Lifecycle Management : Hot, Cool, Cold, Archive), politiques de réplication des données (LRS, ZRS, GRS, GZRS), sécurité par signatures d’accès partagé (SAS Tokens) et comparatif des bases de données managées (Azure SQL Database vs Azure Cosmos DB). Notions clés, architectures Azure, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-azurenav"><div class="b3-cloud-azurenav__in">
+  <a class="b3-cloud-azurenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-azurenav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-azurenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Cloud Azure B3</a>
+  <div class="b3-cloud-azurenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-azurenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-azurewrap">
+<p class="crumb"><a href="../index.html">Cloud Azure B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Stockage Azure (Blob, Files, Disques) et Données Managées</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un écosystème d'entreprise produisant quotidiennement des téraoctets de sauvegardes, de logs applicatifs et de données transactionnelles, conserver indéfiniment toutes les données sur des paliers de stockage à coût élevé entraîne une explosion budgétaire. De même, partager des clés maîtresses de compte de stockage avec des applications clientes crée une faille de sécurité majeure. En tant qu'architecte de données Cloud B3, vous devez structurer les comptes de stockage Azure, implémenter une politique de cycle de vie (Lifecycle Management) automatisant le passage vers Cool et Archive, sécuriser les accès par jetons SAS délimités dans le temps, et arbitrer entre Azure SQL Database pour le relationnel ACID et Azure Cosmos DB pour le NoSQL distribué à l'échelle mondiale.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser l'architecture des comptes de stockage Azure Storage (Blob, File, Queue, Table) ;</li>
+      <li>comparer les mécanismes de réplication des données : LRS, ZRS, GRS et GZRS ;</li>
+      <li>configurer des règles d'optimisation du cycle de vie des données (Hot -&gt; Cool -&gt; Cold -&gt; Archive -&gt; Delete) ;</li>
+      <li>générer et valider des jetons de signature d'accès partagé (Shared Access Signature - SAS) à privilèges restreints ;</li>
+      <li>différencier les services de bases de données managées : Azure SQL Database (ACID relationnel) et Azure Cosmos DB (NoSQL distribué mondialement) ;</li>
+      <li>développer en Python 3 des simulateurs de cycle de vie de stockage, des validateurs de jetons SAS et des sélecteurs d'architecture de données.</li>
+    </ol>
+  </div>
+
+<h2>1. Comptes de Stockage Azure (Storage Accounts) &amp; Éventail de Services</h2>
+
+<p>Un Azure Storage Account (Standard general-purpose v2) est le conteneur fondamental de données d'entreprise sous Azure. Il expose quatre services spécialisés accessibles via des API REST HTTP/HTTPS hautement performantes :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Blob Storage (Objets Non Structurés)</h4>
+    <ul>
+      <li><strong>Block Blobs :</strong> optimisés pour le streaming de médias, les sauvegardes et les data lakes (fichiers jusqu'à 190,7 To par blob).</li>
+      <li><strong>Append Blobs :</strong> optimisés pour l'écriture séquentielle de journaux d'audit et de logs en continu.</li>
+      <li><strong>Page Blobs :</strong> blocs de 512 octets à accès aléatoire, servant de support physique aux disques durs virtuels VHD des machines virtuelles.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Azure Files, Queues &amp; Tables</h4>
+    <ul>
+      <li><strong>Azure Files :</strong> partages de fichiers réseau managés accessibles via les protocoles standard <strong>SMB 3.0</strong> (port 445) et <strong>NFS 4.1</strong>. Montables nativement sur Windows, Linux et macOS.</li>
+      <li><strong>Azure Queue Storage :</strong> file d'attente de messagerie asynchrone pour découpler les composants d'une architecture logicielle (messages jusqu'à 64 Ko).</li>
+      <li><strong>Azure Table Storage :</strong> magasin de clés-valeurs NoSQL sans schéma pour jeux de données tabulaires simples et économiques.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Paliers d'Accès (Access Tiers), Cycle de Vie &amp; Réplication des Données</h2>
+
+<p>Pour concilier performances d'accès et maîtrise budgétaire FinOps, Azure Blob Storage segmente les données en quatre paliers tarifaires :</p>
+<table class="table">
+  <thead><tr><th>Palier d'Accès</th><th>Coût Stockage</th><th>Coût Accès / Lecture</th><th>Durée Minimale</th><th>Latence de Restauration</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Hot (Chaud)</strong></td><td>0.0184 $/Go/mois</td><td>Le plus faible</td><td>Aucune</td><td>Immédiate (millisecondes)</td></tr>
+    <tr><td><strong>Cool (Froid)</strong></td><td>0.0100 $/Go/mois (≈ -45%)</td><td>Moyen</td><td>30 jours</td><td>Immédiate (millisecondes)</td></tr>
+    <tr><td><strong>Cold (Très froid)</strong></td><td>0.0036 $/Go/mois (≈ -80%)</td><td>Élevé</td><td>90 jours</td><td>Immédiate (millisecondes)</td></tr>
+    <tr><td><strong>Archive</strong></td><td>0.00099 $/Go/mois (≈ -94%)</td><td>Très élevé</td><td>180 jours</td><td>Plusieurs heures (réhydratation)</td></tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Politiques Automatisées de Cycle de Vie (Lifecycle Management)</div>
+<p>Azure applique des règles déclaratives JSON sans aucun code serveur. Les règles évaluent l'âge du blob depuis sa dernière modification (ou son dernier accès si le suivi d'accès est activé) :</p>,<ul>,  <li>Transférer vers le palier <code>Cool</code> si le blob n'a pas été modifié depuis plus de 30 jours.</li>,  <li>Transférer vers le palier <code>Archive</code> si le blob n'a pas été modifié depuis plus de 90 jours.</li>,  <li>Supprimer définitivement le blob (<code>delete</code>) après 365 ou 1825 jours (conservation légale).</li>,</ul>
+  </div>
+
+<h2>3. Sécurité par Jetons SAS &amp; Bases de Données Managées (SQL vs Cosmos DB)</h2>
+
+<p>L'exposition sécurisée des données et le choix des moteurs de bases de données constituent deux piliers d'architecture majeurs :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Signatures d'Accès Partagé (SAS Tokens)</h4>
+    <ul>
+      <li><strong>Principe :</strong> URL signée temporaire accordant un accès granulaire sans divulguer la clé maîtresse du compte de stockage.</li>
+      <li><strong>Paramètres clés :</strong>
+        <br>- <code>sp</code> (Permissions) : <code>r</code> (read), <code>w</code> (write), <code>d</code> (delete), <code>l</code> (list).
+        <br>- <code>st</code> / <code>se</code> : date de début et d'expiration stricte.
+        <br>- <code>spr=https</code> : impose le protocole HTTPS sécurisé.
+      <li><strong>User Delegation SAS :</strong> signée avec une identité Entra ID pour une traçabilité totale des accès dans les logs d'audit.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Azure SQL Database vs Cosmos DB</h4>
+    <ul>
+      <li><strong>Azure SQL Database :</strong> base relationnelle managée (PaaS), compatible T-SQL / SQL Server, transactions ACID complètes, intégrité référentielle et requêtes jointures complexes.</li>
+      <li><strong>Azure Cosmos DB :</strong> base NoSQL multi-modèle (document JSON, clé-valeur, graphe Gremlin) avec distribution mondiale à l'échelle de la planète en un clic, latence garantie inférieure à 10 ms et 5 niveaux de consistance (de Strong à Eventual).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="az3-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="POLICY cool_days=30 archive_days=90 delete_days=365&#10;BLOB name=log-recent.csv size_gb=10 age_days=10&#10;BLOB name=backup-q1.bak size_gb=100 age_days=45&#10;BLOB name=archive-2023.tar size_gb=500 age_days=120&#10;BLOB name=temp-2022.tmp size_gb=50 age_days=400">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : appliquer la politique de cycle de vie et calculer les économies
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de cycle de vie Azure Blob Storage</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer des règles de gestion automatique du cycle de vie des données Blob Storage (Hot -&gt; Cool -&gt; Archive -&gt; Delete) et mesurer les économies financières.</p>
+    <div class="lab__brief"><p>Azure Blob Lifecycle Management permet de transférer automatiquement des données froides vers des paliers de stockage moins coûteux ou de les purger.<br><br>
+Tarification de référence mensuelle par Go :<br>
+- <code>HOT</code> : 0.0184 USD / Go<br>
+- <code>COOL</code> : 0.0100 USD / Go<br>
+- <code>ARCHIVE</code> : 0.00099 USD / Go<br>
+- <code>DELETED</code> : 0.0000 USD / Go<br><br>
+Format d'entrée :<br>
+Ligne 1 : Déclaration de la politique de cycle de vie :<br>
+<code>POLICY cool_days=&lt;int&gt; archive_days=&lt;int&gt; delete_days=&lt;int&gt;</code><br>
+Lignes suivantes : Objets blobs à évaluer :<br>
+<code>BLOB name=&lt;nom&gt; size_gb=&lt;int&gt; age_days=&lt;int&gt;</code><br><br>
+Règles de transition (évaluation par ordre de priorité descendante) :<br>
+- Si <code>age_days &gt;= delete_days</code> : palier <code>DELETED</code> (coût = 0.0000)<br>
+- Sinon si <code>age_days &gt;= archive_days</code> : palier <code>ARCHIVE</code> (coût = <code>size_gb * 0.00099</code>)<br>
+- Sinon si <code>age_days &gt;= cool_days</code> : palier <code>COOL</code> (coût = <code>size_gb * 0.0100</code>)<br>
+- Sinon : palier <code>HOT</code> (coût = <code>size_gb * 0.0184</code>)<br><br>
+Format de sortie attendu :<br>
+Pour chaque blob :<br>
+<code>BLOB &lt;nom&gt;: age=&lt;age_days&gt;d TARGET_TIER=&lt;TIER&gt; COST=$&lt;cost:.4f&gt;</code><br>
+À la fin, afficher le récapitulatif comparatif (coût initial si tous en HOT vs coût optimisé) :<br>
+<code>TOTAL_HOT=$&lt;total_hot:.2f&gt; TOTAL_OPTIMIZED=$&lt;total_opt:.2f&gt; SAVINGS=&lt;savings_pct:.1f&gt;%</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POLICY cool_days=30 archive_days=90 delete_days=365
+BLOB name=log-recent.csv size_gb=10 age_days=10
+BLOB name=backup-q1.bak size_gb=100 age_days=45
+BLOB name=archive-2023.tar size_gb=500 age_days=120
+BLOB name=temp-2022.tmp size_gb=50 age_days=400</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BLOB log-recent.csv: age=10d TARGET_TIER=HOT COST=$0.1840
+BLOB backup-q1.bak: age=45d TARGET_TIER=COOL COST=$1.0000
+BLOB archive-2023.tar: age=120d TARGET_TIER=ARCHIVE COST=$0.4950
+BLOB temp-2022.tmp: age=400d TARGET_TIER=DELETED COST=$0.0000
+TOTAL_HOT=$12.14 TOTAL_OPTIMIZED=$1.68 SAVINGS=86.2%</pre></div>
+    </div>
+    <p class="lab__note">Migration vers Cool, Archive et suppression générant 86.2% d'économies.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier les conditions d'âge dans l'ordre : delete_days, puis archive_days, puis cool_days.</li>
+        <li>Calculer total_hot = somme(size_gb * 0.0184) pour mesurer le gain du Lifecycle Management.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="az3-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="SAS_CONFIG sp=rw st=100 se=200 spr=https&#10;REQUEST method=GET time=150 proto=https&#10;REQUEST method=DELETE time=150 proto=https">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la vérification des règles du jeton SAS
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validateur de requêtes avec jetons SAS</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider la conformité d’appels API clients face aux permissions, plages horaires et protocoles imposés par un jeton de signature d’accès partagé (SAS).</p>
+    <div class="lab__brief"><p>Les jetons de signature d'accès partagé (Azure SAS Tokens) délèguent un accès restreint aux ressources de stockage en précisant les permissions accordées, une fenêtre temporelle et un protocole strict.<br><br>
+Format d'entrée :<br>
+Ligne 1 : Configuration du jeton SAS :<br>
+<code>SAS_CONFIG sp=&lt;perms&gt; st=&lt;int&gt; se=&lt;int&gt; spr=&lt;protocol&gt;</code><br>
+- <code>sp</code> : permissions autorisées (sous-chaîne contenant <code>r</code>, <code>w</code>, <code>d</code>, <code>l</code>)<br>
+- <code>st</code> : horodatage début de validité (entier)<br>
+- <code>se</code> : horodatage fin de validité (entier)<br>
+- <code>spr</code> : protocole imposé (<code>https</code> ou <code>https,http</code>)<br><br>
+Lignes suivantes : Requêtes HTTP clientes :<br>
+<code>REQUEST method=&lt;GET|PUT|DELETE|LIST&gt; time=&lt;int&gt; proto=&lt;http|https&gt;</code><br><br>
+Correspondance des méthodes HTTP avec les permissions SAS :<br>
+- <code>GET</code> requiert <code>r</code><br>
+- <code>PUT</code> requiert <code>w</code><br>
+- <code>DELETE</code> requiert <code>d</code><br>
+- <code>LIST</code> requiert <code>l</code><br><br>
+Ordre strict d'évaluation de la requête :<br>
+1. Si <code>spr=https</code> et que la requête utilise <code>proto=http</code> :<br>
+   <code>REQUEST &lt;method&gt; at &lt;time&gt;: DENIED (reason=PROTOCOL_VIOLATION)</code><br>
+2. Si <code>time &lt; st</code> :<br>
+   <code>REQUEST &lt;method&gt; at &lt;time&gt;: DENIED (reason=NOT_YET_VALID)</code><br>
+3. Si <code>time &gt; se</code> :<br>
+   <code>REQUEST &lt;method&gt; at &lt;time&gt;: DENIED (reason=EXPIRED)</code><br>
+4. Si la permission requise n'est pas présente dans <code>sp</code> :<br>
+   <code>REQUEST &lt;method&gt; at &lt;time&gt;: DENIED (reason=INSUFFICIENT_PERMISSIONS)</code><br>
+5. Si tous les contrôles réussissent :<br>
+   <code>REQUEST &lt;method&gt; at &lt;time&gt;: ALLOWED</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SAS_CONFIG sp=rw st=100 se=200 spr=https
+REQUEST method=GET time=150 proto=https
+REQUEST method=DELETE time=150 proto=https</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>REQUEST GET at 150: ALLOWED
+REQUEST DELETE at 150: DENIED (reason=INSUFFICIENT_PERMISSIONS)</pre></div>
+    </div>
+    <p class="lab__note">Lecture autorisée mais suppression interdite par le jeton SAS (permissions rw uniquement).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Créer un dictionnaire associant chaque méthode HTTP à sa lettre de permission (GET: r, PUT: w, DELETE: d, LIST: l).</li>
+        <li>Respecter l'ordre prescrit des contrôles d'erreur : protocole, puis anticipé, puis expiré, puis permissions.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="az3-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="REQUIREMENT workload=app-erp model=RELATIONAL&#10;REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la sélection architecturale Azure
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Sélecteur d'architecture de données Azure</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les besoins fonctionnels et recommander le service de stockage ou de base de données managé Azure adéquat.</p>
+    <div class="lab__brief"><p>Azure dispose d'une gamme diversifiée de services de données managés. Le choix dépend du modèle de données (relationnel, NoSQL, fichiers, objets) et des contraintes d'infrastructure.<br><br>
+Matrice de décision Azure :<br>
+- Si <code>model=RELATIONAL</code> :<br>
+  <code>SERVICE=Azure_SQL_Database JUSTIFICATION="Moteur relationnel transactionnel ACID et compatibilité T-SQL"</code><br>
+- Si <code>model=NOSQL_DOCUMENT</code> :<br>
+  <code>SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL multi-modèle distribuée mondialement avec latence garantie &lt; 10ms"</code><br>
+- Si <code>model=FILE_SMB</code> :<br>
+  <code>SERVICE=Azure_Files JUSTIFICATION="Partage de fichiers partagé natif compatible SMB/NFS sans serveur dédié"</code><br>
+- Si <code>model=UNSTRUCTURED_OBJECTS</code> :<br>
+  <code>SERVICE=Azure_Blob_Storage JUSTIFICATION="Stockage objet massif hautement scalable avec gestion de cycle de vie et niveaux d'accès"</code><br><br>
+Format d'entrée :<br>
+<code>REQUIREMENT workload=&lt;nom&gt; model=&lt;MODEL&gt;</code><br><br>
+Format de sortie attendu :<br>
+<code>DECISION workload=&lt;nom&gt;: SERVICE=&lt;SERVICE&gt; JUSTIFICATION="&lt;JUSTIFICATION&gt;"</code><br>
+(Si le modèle est inconnu : <code>DECISION workload=&lt;nom&gt;: SERVICE=UNKNOWN JUSTIFICATION="Modèle non supporté"</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>REQUIREMENT workload=app-erp model=RELATIONAL
+REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DECISION workload=app-erp: SERVICE=Azure_SQL_Database JUSTIFICATION="Moteur relationnel transactionnel ACID et compatibilité T-SQL"
+DECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL multi-modèle distribuée mondialement avec latence garantie &lt; 10ms"</pre></div>
+    </div>
+    <p class="lab__note">Sélection d'Azure SQL pour l'ERP et Cosmos DB pour le panier mobile.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Associer chaque mot-clé de modèle de données aux caractéristiques techniques du service managé Azure.</li>
+        <li>Soigner le formatage avec guillemets autour de la justification.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel protocole réseau standard Azure Files supporte-t-il nativement pour permettre le montage de lecteurs réseau partagés sur des postes Windows et serveurs Linux ?</p>
+      <div class="opts">
+        <button class="opt">FTP</button>
+        <button class="opt" data-correct="1">SMB 3.0 / NFS</button>
+        <button class="opt">Telnet</button>
+        <button class="opt">TFTP</button>
+      </div>
+      <div class="q__exp">Azure Files fournit des partages de fichiers managés dans le Cloud accessibles directement via les protocoles standard SMB 3.0 (port 445) et NFS 4.1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la durée minimale de facturation d'un objet stocké dans le palier Cool (Froid) d'Azure Blob Storage ?</p>
+      <div class="opts">
+        <button class="opt">1 jour</button>
+        <button class="opt">7 jours</button>
+        <button class="opt" data-correct="1">30 jours</button>
+        <button class="opt">90 jours</button>
+      </div>
+      <div class="q__exp">Le palier Cool impose une durée minimale de rétention de 30 jours. Tout fichier supprimé ou déplacé avant ce terme fait l'objet d'une facturation anticipée au prorata des 30 jours.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel palier de stockage offre le coût de stockage par Go le plus bas (moins de 0.001 $/Go/mois) mais nécessite une réhydratation de plusieurs heures pour être lu ?</p>
+      <div class="opts">
+        <button class="opt">Hot</button>
+        <button class="opt">Cool</button>
+        <button class="opt">Cold</button>
+        <button class="opt" data-correct="1">Archive</button>
+      </div>
+      <div class="q__exp">Le palier Archive stocke les données hors ligne au tarif le plus bas (≈ 0.00099 $/Go/mois), mais nécessite un délai de réhydratation de plusieurs heures pour redevenir lisible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel paramètre d'un jeton de signature d'accès partagé (SAS) permet de forcer l'utilisation exclusive du protocole chiffré HTTPS ?</p>
+      <div class="opts">
+        <button class="opt">ssl=true</button>
+        <button class="opt" data-correct="1">spr=https</button>
+        <button class="opt">tls=1.3</button>
+        <button class="opt">secure=yes</button>
+      </div>
+      <div class="q__exp">Le paramètre spr (Signed Protocol) configuré à spr=https contraint le client à utiliser uniquement le protocole HTTPS, rejetant toute requête transmise en HTTP non sécurisé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelles circonstances devez-vous recommander Azure Cosmos DB plutôt qu'Azure SQL Database ?</p>
+      <div class="opts">
+        <button class="opt">Pour héberger une application comptable nécessitant des jointures SQL complexes et des clés étrangères strictes</button>
+        <button class="opt" data-correct="1">Pour une application mobile mondiale requérant une latence sub-10ms, un modèle de données semi-structuré JSON et une distribution multi-régions</button>
+        <button class="opt">Pour réduire la taille de la mémoire RAM d'une VM</button>
+        <button class="opt">Uniquement pour les fichiers PDF archivés</button>
+      </div>
+      <div class="q__exp">Azure Cosmos DB est la base NoSQL par excellence pour les applications web et mobiles modernes distribuées mondialement nécessitant une latence ultra-faible garantie et un schéma JSON flexible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la taille maximale d'un seul Block Blob dans Azure Blob Storage ?</p>
+      <div class="opts">
+        <button class="opt">5 Go</button>
+        <button class="opt">100 Go</button>
+        <button class="opt">5 To</button>
+        <button class="opt" data-correct="1">Environ 190.7 To</button>
+      </div>
+      <div class="q__exp">Un Block Blob standard dans Azure Storage peut atteindre jusqu'à environ 190.7 To (50 000 blocs de 4 000 Mo chacun).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle stratégie de réplication garantit la copie synchrone sur 3 zones de disponibilité locales, suivie d'une réplication asynchrone dans la région jumelée ?</p>
+      <div class="opts">
+        <button class="opt">LRS</button>
+        <button class="opt">ZRS</button>
+        <button class="opt">GRS</button>
+        <button class="opt" data-correct="1">GZRS (Geo-Zone-Redundant Storage)</button>
+      </div>
+      <div class="q__exp">GZRS (Geo-Zone-Redundant Storage) combine la haute disponibilité locale sur 3 zones (ZRS) avec la résilience géographique dans la région jumelée (GRS).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel service Azure Storage devez-vous utiliser pour créer un système de découplage de tâches et de traitement asynchrone entre microservices ?</p>
+      <div class="opts">
+        <button class="opt">Blob Storage</button>
+        <button class="opt">Azure Files</button>
+        <button class="opt" data-correct="1">Azure Queue Storage</button>
+        <button class="opt">Ultra Disk</button>
+      </div>
+      <div class="q__exp">Azure Queue Storage permet de stocker d'immenses volumes de messages (jusqu'à 64 Ko par message) pour découpler les microservices et absorber les pics de charge applicatifs.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Passer un blob en palier Archive puis tenter de le lire immédiatement via une requête HTTP directe : Azure retourne une erreur 409 (l'objet doit d'abord être réhydraté).</li>
+      <li>Supprimer un fichier dans le palier Cool au bout de 5 jours : Azure facture la pénalité des 25 jours restants de la durée minimale de rétention de 30 jours.</li>
+      <li>Générer un jeton SAS sans date d'expiration ou avec des droits de suppression complets pour une simple application mobile cliente.</li>
+      <li>Utiliser Azure Blob Storage pour partager des répertoires de travail réseau d'entreprise alors qu'Azure Files est spécialement conçu pour le protocole SMB avec gestion des verrous de fichiers.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Choix du service de données selon le modèle applicatif : qualifier le modèle entre relationnel transactionnel (Azure SQL), documents NoSQL ultra-rapides (Cosmos DB), partage réseau (Azure Files) ou stockage objet volumineux (Blob Storage).</li>
+      <li>Définition de la politique de réplication de résilience : sélectionner ZRS pour les données critiques locales, et GRS/GZRS pour les sauvegardes devant survivre à un sinistre régional continental.</li>
+      <li>Mise en place de règles de cycle de vie FinOps : automatiser la descente progressive des fichiers vers Cool et Archive pour réduire jusqu'à 90% des coûts de stockage des données froides.</li>
+      <li>Verrouillage des accès par jetons SAS et points de terminaison privés : interdire l'accès public aux comptes de stockage, déployer des Private Endpoints dans le VNet et restreindre les flux clients via des jetons SAS éphémères.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les comptes de stockage Azure regroupent 4 services majeurs : Blob (objets), Files (partage SMB/NFS), Queues (messages) et Tables (NoSQL simple).</li>
+      <li>Les 4 paliers d'accès Blob (Hot, Cool, Cold, Archive) permettent d'ajuster les coûts selon la fréquence de consultation des fichiers.</li>
+      <li>Le Lifecycle Management déplace automatiquement les données froides vers des paliers économiques selon leur ancienneté sans code.</li>
+      <li>Les signatures d'accès partagé (SAS Tokens) accordent un accès restreint (droits, durée, HTTPS) sans divulguer la clé secrète du compte.</li>
+      <li>Azure SQL Database répond aux besoins relationnels ACID structurés, tandis qu'Azure Cosmos DB gère le NoSQL mondial à latence sub-10ms.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous dans quels cas utiliser Azure Files (SMB/NFS) plutôt qu'un conteneur Azure Blob ?</li>
+      <li>Connaissez-vous les durées minimales de facturation associées aux paliers Cool (30 j), Cold (90 j) et Archive (180 j) ?</li>
+      <li>Pouvez-vous expliquer le phénomène de réhydratation lors de la lecture d'un blob archivé ?</li>
+      <li>Savez-vous composer les paramètres obligatoires d'un jeton SAS sécurisé (sp=r, spr=https, fenêtre temporelle courte) ?</li>
+      <li>Quand devez-vous choisir Azure Cosmos DB plutôt qu'Azure SQL Database ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Block Blob :</strong> Type de blob Azure optimisé pour stocker efficacement d'immenses volumes de données non structurées (fichiers, images, sauvegardes).</li><li><strong>Access Tier (Palier d'accès) :</strong> Niveau de stockage Blob (Hot, Cool, Cold, Archive) associant un coût de rétention par Go et un coût d'opération de lecture/écriture.</li><li><strong>Réhydratation de Blob :</strong> Processus asynchrone prenant plusieurs heures pour copier un blob du palier Archive vers un palier en ligne (Hot ou Cool).</li><li><strong>Shared Access Signature (SAS) :</strong> URI sécurisée intégrant un jeton cryptographique autorisant un accès délégué restreint aux ressources Azure Storage.</li><li><strong>Azure Cosmos DB :</strong> Base de données NoSQL distribuée mondialement avec latences de lecture et écriture inférieures à 10 millisecondes.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Conception de politiques de cycle de vie de stockage d'entreprise :</strong> Définir des règles déclaratives Azure Blob Lifecycle automatisant la descente en Cool, Cold et Archive pour optimiser le TCO de pétaoctets de logs.</div>
+      <div class="bandrow"><strong>Architecture sécurisée avec Private Endpoints et SAS User Delegation :</strong> Bannir l'accès public Internet aux comptes de stockage et déléguer des autorisations de téléchargement sécurisées via Entra ID.</div>
+      <div class="bandrow"><strong>Modélisation de données transactionnelles et analytiques multi-moteurs :</strong> Séparer les flux transactionnels structurés vers Azure SQL et les flux de télémétrie semi-structurés vers Cosmos DB.</div>
+      <div class="bandrow"><strong>Plan de reprise d'activité (PRA) avec réplication GZRS :</strong> Configurer la réplication géo-redondante inter-régions et simuler le basculement d'un compte de stockage en cas de sinistre continental.</div>
+      <div class="bandrow"><strong>Développement d'outils d'analyse de stockage en Python 3 :</strong> Concevoir des calculateurs de coûts de transition, des validateurs de syntaxe SAS et des sélecteurs de moteurs de base de données.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Module 6 — Surveillance, Gestion des Coûts &amp; Automatisation (IaC &amp; KQL) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AZURE B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation Microsoft Learn Azure, Référentiels d'examen Microsoft Certified Azure Administrator (AZ-104) et Azure Solutions Architect Expert (AZ-305).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Lois discrètes usuelles | Probabilités B2</title>
+<meta name="description" content="Chapitre 4 du cours de probabilités B2 : Loi de Bernoulli, loi binomiale, loi de Poisson : situation, formule, espérance et variance. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/probabilites/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Lois discrètes usuelles | Probabilités B2">
+<meta property="og:description" content="Chapitre 4 du cours de probabilités B2 : Loi de Bernoulli, loi binomiale, loi de Poisson : situation, formule, espérance et variance. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="probabilitesnav"><div class="probabilitesnav__in">
+  <a class="probabilitesnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="probabilitesnav__sep" aria-hidden="true">/</span>
+  <a class="probabilitesnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-dice"></use></svg> Probabilités B2</a>
+  <div class="probabilitesnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="probabilitesnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="probabiliteswrap">
+<p class="crumb"><a href="../index.html">Probabilités B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Lois discrètes usuelles</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Beaucoup d’expériences se ressemblent : une épreuve à deux issues, un nombre de succès sur n essais, un comptage d’événements rares dans le temps. Plutôt que de recalculer à chaque fois, on reconnaît la loi type et on applique ses formules.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>identifier une épreuve de Bernoulli et sa loi ;</li>
+      <li>calculer P(X = k) pour une loi binomiale B(n, p) ;</li>
+      <li>utiliser E = np et V = np(1−p) pour une loi binomiale ;</li>
+      <li>modéliser un comptage rare par une loi de Poisson.</li>
+    </ol>
+  </div>
+
+<h2>1. Loi de Bernoulli</h2>
+
+<p>Une <strong>épreuve de Bernoulli</strong> n’a que deux issues : succès (probabilité <code>p</code>) et échec (probabilité <code>1 − p</code>). La variable <code>X</code> qui vaut 1 en cas de succès suit la <strong>loi de Bernoulli</strong> <code>B(p)</code>, d’espérance <code>p</code> et de variance <code>p(1 − p)</code>.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> La brique de base</div>
+    <p>Tout le chapitre s’appuie sur cette épreuve. Une suite de <code>n</code> épreuves de Bernoulli indépendantes donne la loi binomiale ; on la répète sans mémoire.</p>
+  </div>
+<pre><code>p = 0.3
+esperance = p
+variance = p * (1 - p)
+print(f"{esperance:.4f} {variance:.4f}")   # 0.3000 0.2100</code></pre>
+
+<h2>2. Loi binomiale</h2>
+
+<p>Si <code>X</code> compte le nombre de succès sur <code>n</code> épreuves de Bernoulli indépendantes de paramètre <code>p</code>, alors <code>X</code> suit la <strong>loi binomiale</strong> <code>B(n, p)</code> et :</p>
+<pre><code>P(X = k) = C(n, k) · pᵏ · (1 − p)ⁿ⁻ᵏ
+E(X) = n·p        V(X) = n·p·(1 − p)</code></pre>
+<pre><code>from math import comb
+
+n, k, p = 5, 2, 0.5
+P = comb(n, k) * p ** k * (1 - p) ** (n - k)
+print(f"{P:.4f}")   # 0.3125</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Reconnaître B(n, p)</div>
+    <p>On cherche un <strong>nombre de succès</strong> sur un <strong>nombre fixé</strong> d’épreuves <strong>identiques et indépendantes</strong> à deux issues. Les trois conditions réunies → binomiale. Si le nombre d’épreuves n’est pas fixé mais qu’on compte des événements rares → Poisson.</p>
+  </div>
+
+<h2>3. Loi de Poisson</h2>
+
+<p>La <strong>loi de Poisson</strong> de paramètre <code>λ &gt; 0</code> modélise un <strong>nombre d’événements</strong> survenant dans un intervalle (temps, espace) à taux moyen constant et sans mémoire :</p>
+<pre><code>P(X = k) = λᵏ · e^(−λ) / k!        E(X) = V(X) = λ</code></pre>
+<pre><code>from math import factorial, exp
+
+lam, k = 2.0, 1
+P = (lam ** k) * exp(-lam) / factorial(k)
+print(f"{P:.4f}")   # 0.2707</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — multiplier au lieu d’exponentier</div>
+    <p>Dans <code>λᵏ · e^(−λ)</code>, le premier facteur est <code>λ</code> à la puissance <code>k</code>, le second l’exponentielle de <code>−λ</code>. Mélanger les deux (ou oublier le <code>k!</code> au dénominateur) fausse complètement le résultat.</p>
+  </div>
+
+<h2>4. Choisir la bonne loi</h2>
+
+<p>Le réflexe est de traduire l’énoncé en paramètres : <code>n</code> et <code>p</code> pour la binomiale, <code>λ</code> (moyenne) pour la Poisson. Sens et unité de <code>λ</code> doivent suivre l’énoncé : « 3 appels par heure » donne <code>λ = 3</code> pour une heure, <code>λ = 1,5</code> pour une demi-heure.</p>
+<pre><code># Loi binomiale : 10 tirages avec remise, probabilité de succès 0,2.
+n, p = 10, 0.2
+print(f"E = {n * p:.4f}")          # 2.0000
+print(f"V = {n * p * (1 - p):.4f}")  # 1.6000</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-scale"></use></svg> Deux paramètres, deux formules</div>
+    <p>Binomiale : deux paramètres <code>(n, p)</code>, espérance <code>np</code>, variance <code>np(1−p)</code>. Poisson : un paramètre <code>λ</code>, espérance et variance égales à <code>λ</code>. C’est souvent le nombre de paramètres qui trahit la loi.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="pb2-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;2&#10;0.5">
+  <script type="text/plain" data-lab-starter>from math import comb
+
+n = int(input())
+k = int(input())
+p = float(input())
+
+# À compléter : afficher P(X = k) avec 4 décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Loi binomiale — probabilité</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer P(X = k) pour X suivant une loi binomiale B(n, p).</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, un entier <code>k</code>, puis un décimal <code>p</code>. Affiche <code>P(X = k) = C(n,k)·pᵏ·(1−p)ⁿ⁻ᵏ</code> arrondie à 4 décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+2
+0.5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.3125</pre></div>
+    </div>
+    <p class="lab__note">C(5,2)·0,5²·0,5³ = 10 × 0,03125.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le coefficient binomial se calcule avec comb(n, k) du module math.</li>
+        <li>Multiplie-le par p ** k puis par (1 - p) ** (n - k), et formate le résultat sur 4 décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pb2-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="10&#10;0.5">
+  <script type="text/plain" data-lab-starter>n = int(input())
+p = float(input())
+
+# À compléter : afficher E = np puis V = np(1-p), avec 4 décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Loi binomiale — espérance et variance</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Retenir E(X) = np et V(X) = np(1−p) pour une loi binomiale.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code> puis un décimal <code>p</code>. Affiche l’<strong>espérance</strong> <code>E(X) = np</code> puis la <strong>variance</strong> <code>V(X) = np(1−p)</code>, chacune sur sa ligne, arrondies à 4 décimales et précédées de <code>E = </code> et <code>V = </code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10
+0.5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>E = 5.0000
+V = 2.5000</pre></div>
+    </div>
+    <p class="lab__note">Dix épreuves équilibrées : E=5, V=2,5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’espérance d’une loi binomiale vaut simplement n·p.</li>
+        <li>La variance vaut n·p·(1−p) : n’oublie pas le facteur (1−p).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pb2-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="2&#10;1">
+  <script type="text/plain" data-lab-starter>from math import factorial, exp
+
+lam = float(input())
+k = int(input())
+
+# À compléter : afficher P(X = k) avec 4 décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Loi de Poisson</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer P(X = k) pour X suivant une loi de Poisson de paramètre λ.</p>
+    <div class="lab__brief"><p>Le programme reçoit un décimal <code>lambda</code> (λ) puis un entier <code>k</code>. Affiche <code>P(X = k) = λᵏ · e^(−λ) / k!</code> arrondie à 4 décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.2707</pre></div>
+    </div>
+    <p class="lab__note">λ=2 et k=1 : 2·e⁻² ≈ 0,2707.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La probabilité vaut (λ ** k) * exp(-λ) / factorial(k).</li>
+        <li>Utilise exp(-lam) plutôt que la constante e : c’est la fonction du module math.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Une épreuve de Bernoulli a…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">deux issues</button>
+        <button class="opt">trois issues</button>
+        <button class="opt">aucune issue</button>
+      </div>
+      <div class="q__exp">Succès ou échec : deux issues seulement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">La loi binomiale modélise…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">un nombre de succès sur n épreuves</button>
+        <button class="opt">une durée</button>
+        <button class="opt">une moyenne</button>
+      </div>
+      <div class="q__exp">X compte les succès parmi n épreuves de Bernoulli.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Formule de P(X = k) pour B(n, p) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">C(n,k)·pᵏ·(1−p)ⁿ⁻ᵏ</button>
+        <button class="opt">pᵏ</button>
+        <button class="opt">n·p</button>
+      </div>
+      <div class="q__exp">Le coefficient binomial choisit l’emplacement des k succès.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Espérance d’une binomiale ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">np</button>
+        <button class="opt">np(1−p)</button>
+        <button class="opt">λ</button>
+      </div>
+      <div class="q__exp">E(X) = n·p.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Variance d’une binomiale ?</p>
+      <div class="opts">
+        <button class="opt">np</button>
+        <button class="opt" data-correct="1">np(1−p)</button>
+        <button class="opt">p(1−p)</button>
+      </div>
+      <div class="q__exp">V(X) = n·p·(1−p).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut l’espérance d’une loi de Poisson ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">λ</button>
+        <button class="opt">λ²</button>
+        <button class="opt">√λ</button>
+      </div>
+      <div class="q__exp">Pour une Poisson, E(X) = V(X) = λ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une loi de Poisson modélise…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">un comptage d’événements rares</button>
+        <button class="opt">un nombre de succès sur n fixé</button>
+        <button class="opt">une durée</button>
+      </div>
+      <div class="q__exp">Elle compte les occurrences par unité de temps ou d’espace.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie λ dans la Poisson ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">le nombre moyen d’événements</button>
+        <button class="opt">la probabilité</button>
+        <button class="opt">l’écart-type</button>
+      </div>
+      <div class="q__exp">λ est l’intensité moyenne sur l’intervalle considéré.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser la binomiale sans vérifier l’indépendance des épreuves.</li>
+      <li>Oublier le coefficient binomial <code>C(n,k)</code> dans <code>P(X = k)</code>.</li>
+      <li>Confondre <code>E = np</code> et <code>V = np(1−p)</code>.</li>
+      <li>Se tromper sur l’unité de <code>λ</code> dans une loi de Poisson.</li>
+      <li>Oublier le <code>k!</code> au dénominateur de la loi de Poisson.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Reconnaître et appliquer une loi</div>
+    <ol>
+      <li><strong>Traduire</strong> l’énoncé : que compte X et quelle est son unité ?</li>
+      <li><strong>Choisir</strong> Bernoulli, binomiale ou Poisson selon le contexte.</li>
+      <li><strong>Relever</strong> les paramètres (n, p) ou λ.</li>
+      <li><strong>Appliquer</strong> la formule P(X = k), puis E et V.</li>
+      <li><strong>Contrôler</strong> l’ordre de grandeur (probabilité entre 0 et 1).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Bernoulli B(p) : deux issues, E = p, V = p(1−p).</li>
+      <li>Binomiale B(n,p) : P(X=k) = C(n,k)·pᵏ·(1−p)ⁿ⁻ᵏ, E = np, V = np(1−p).</li>
+      <li>Poisson P(λ) : P(X=k) = λᵏ·e^(−λ)/k!, E = V = λ.</li>
+      <li>Reconnaître la loi revient à lire les paramètres et le contexte.</li>
+      <li>Vérifier λ et son unité avant tout calcul.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je reconnais une épreuve de Bernoulli.</li>
+      <li>Je fixe n et p ou λ selon le contexte.</li>
+      <li>J’écris la bonne formule P(X = k).</li>
+      <li>Je distingue espérance et variance de chaque loi.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>épreuve de Bernoulli</li><li>loi de Bernoulli</li><li>loi binomiale</li><li>coefficient binomial</li><li>loi de Poisson</li><li>paramètre λ</li><li>espérance</li><li>variance</li><li>succès</li><li>épreuves indépendantes</li><li>événement rare</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois B(p) puis la formule de la binomiale.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à choisir la loi selon l’énoncé.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu appliques formule, espérance et variance.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe aux variables continues, chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Variables aléatoires continues <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de probabilités (fondements, dénombrement, variables aléatoires discrètes et continues).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

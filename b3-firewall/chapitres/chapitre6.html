@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Déploiement Linux Netfilter (iptables / nftables), Logs &amp;amp; Intégration SIEM | Firewall &amp; Sécurité Réseau B3</title>
+<meta name="description" content="Chapitre 6 du cours Firewall &amp; Sécurité Réseau B3 : Architecture du sous-système netfilter du noyau Linux, comparaison syntaxique iptables vs nftables, analyse statistique des logs pare-feu, détection de force brute et bannissement dynamique avec Fail2ban/SIEM. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-firewall/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Déploiement Linux Netfilter (iptables / nftables), Logs &amp;amp; Intégration SIEM | Firewall &amp; Sécurité Réseau B3">
+<meta property="og:description" content="Chapitre 6 du cours Firewall &amp; Sécurité Réseau B3 : Architecture du sous-système netfilter du noyau Linux, comparaison syntaxique iptables vs nftables, analyse statistique des logs pare-feu, détection de force brute et bannissement dynamique avec Fail2ban/SIEM. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-firewallnav"><div class="b3-firewallnav__in">
+  <a class="b3-firewallnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-firewallnav__sep" aria-hidden="true">/</span>
+  <a class="b3-firewallnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Firewall &amp; Sécurité Réseau B3</a>
+  <div class="b3-firewallnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-firewallnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-firewallwrap">
+<p class="crumb"><a href="../index.html">Firewall & Sécurité Réseau B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Déploiement Linux Netfilter (iptables / nftables), Logs &amp; Intégration SIEM</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Sur les serveurs et appliances de sécurité d’entreprise (passerelles Debian, Red Hat, pare-feux logiciels pfSense ou VyOS), la mise en œuvre pratique du filtrage repose sur le sous-système netfilter intégré au noyau Linux. Longtemps administré via l’outil historique iptables, le standard moderne est aujourd’hui nftables, offrant une syntaxe unifiée, des performances accrues et un moteur de traitement en bytecode dans le noyau. Mais configurer un pare-feu ne suffit pas : sans exploitation continue des journaux d’événements (logs), l’administrateur reste aveugle aux tentatives de compromission. L’ingénieur réseau et sécurité de niveau Bachelor 3 doit savoir traduire des politiques théoriques en scripts netfilter robustes, analyser les journaux de trafic pour en extraire des métriques d’attaque (top ports ciblés, adresses IP assaillantes) et automatiser la réaction défensive en intégrant des outils de bannissement dynamique (Fail2ban) et un système de gestion des informations et des événements de sécurité (SIEM).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser l’architecture interne du sous-système Linux netfilter (tables, chaînes et hooks noyau) ;</li>
+      <li>comparer et traduire avec rigueur des jeux de règles entre la syntaxe iptables et la syntaxe moderne nftables ;</li>
+      <li>écrire des scripts de filtrage étanches appliquant la politique Default DROP, l’état conntrack et les règles de NAT ;</li>
+      <li>parser et agréger les journaux de pare-feu (logs syslog) pour extraire des indicateurs de menace pertinents ;</li>
+      <li>concevoir une chaîne de réponse active automatisée par bannissement dynamique d’IP (Fail2ban et sets nftables) ;</li>
+      <li>développer en Python 3 des compilateurs de règles netfilter, des analyseurs de journaux et des moteurs de bannissement SIEM.</li>
+    </ol>
+  </div>
+
+<h2>1. L’Architecture Netfilter du Noyau Linux : Tables, Chaînes &amp; Hooks</h2>
+
+<p><strong>Netfilter</strong> est le framework intégré directement dans le noyau Linux permettant d’intercepter, manipuler et filtrer les paquets réseau à différents points stratégiques (hooks) de la pile TCP/IP :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Les Cinq Chaînes Standards (Hooks)</h4>
+    <ul>
+      <li><code>PREROUTING :</code> Traite les paquets dès leur entrée sur la carte réseau avant toute décision de routage (idéal pour le DNAT).</li>
+      <li><code>INPUT :</code> Filtre les paquets destinés à la machine locale elle-même (ex: service SSH ou web local).</li>
+      <li><code>FORWARD :</code> Filtre les paquets qui traversent la machine pour aller vers un autre sous-réseau (mode routeur / passerelle).</li>
+      <li><code>OUTPUT :</code> Filtre les paquets générés localement par des processus de la machine elle-même.</li>
+      <li><code>POSTROUTING :</code> Traite les paquets juste avant leur émission sur le câble réseau (idéal pour le SNAT / Masquerade).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Les Tables Fonctionnelles</h4>
+    <ul>
+      <li><code>filter :</code> Table par défaut pour le filtrage pur (décisions ACCEPT, DROP, REJECT). Chaînes : INPUT, FORWARD, OUTPUT.</li>
+      <li><code>nat :</code> Table pour la translation d’adresses (SNAT, DNAT, MASQUERADE). Chaînes : PREROUTING, POSTROUTING, OUTPUT.</li>
+      <li><code>mangle :</code> Altération spécifique des en-têtes (TOS, TTL, marquage de paquets QoS).</li>
+      <li><code>raw :</code> Traitement haute performance avant l’allocation conntrack (bypass de session via NOTRACK).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Comparaison Pratique : iptables (Hérité) vs nftables (Moderne)</h2>
+
+<p>Bien qu’iptables reste omniprésent dans les infrastructures historiques, <strong>nftables</strong> le remplace avantageusement sur toutes les distributions modernes :</p>
+<table class="table">
+  <thead>
+    <tr><th>Critère Technique</th><th>iptables (Hérité)</th><th>nftables (Moderne)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Outils CLI</td><td>Outils éclatés : <code>iptables</code>, <code>ip6tables</code>, <code>arptables</code>, <code>ebtables</code></td><td>Un seul outil unifié : <code>nft</code> pour IPv4, IPv6, ARP et ponts Ethernet.</td></tr>
+    <tr><td>Performance noyau</td><td>Évaluation linéaire en C dans le noyau</td><td>Machine virtuelle à bytecode optimisée avec jeux de données (Sets) natifs.</td></tr>
+    <tr><td>Atomicité des règles</td><td>Mises à jour non atomiques pouvant créer des incohérences transitoires</td><td>Rechargement de configuration 100% atomique sans perte de trafic.</td></tr>
+    <tr><td>Syntaxe d’autorisation SSH</td><td><code>iptables -A INPUT -p tcp --dport 22 -j ACCEPT</code></td><td><code>nft add rule inet filter input tcp dport 22 accept</code></td></tr>
+    <tr><td>Filtrage de liste d’IPs</td><td>Nécessite l’extension externe <code>ipset</code></td><td>Ensembles dynamiques intégrés nativement : <code>ip saddr { 1.1.1.1, 2.2.2.2 } drop</code></td></tr>
+  </tbody>
+</table>
+
+<h2>3. Analyse des Journaux (Syslog) &amp; Réponse Active SIEM / Fail2ban</h2>
+
+<p>Un système de filtrage efficace s’intègre dans la boucle d’observabilité et de cyberdéfense globale de l’entreprise :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Exploitation des Logs de Pare-feu</h4>
+    <p>Le noyau Linux journalise les paquets rejetés au format Syslog :<br>    <code>firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45000 DPT=22</code></p>
+    <p>L’analyse statistique permet d’extraire les métriques clés : taux de paquets bloqués vs acceptés, ports destination les plus souvent ciblés (ex: scan du port 22 ou 3389) et adresses IP assaillantes prépondérantes.</p>
+  </div>
+  <div class="card">
+    <h4>2. Bannissement Dynamique &amp; SIEM / Fail2ban</h4>
+    <p>Lorsqu’un outil comme <strong>Fail2ban</strong> ou un collecteur <strong>SIEM / SOAR</strong> détecte des tentatives répétées d’intrusion (ex: plus de 3 échecs d’authentification SSH en moins de 60 secondes), il ne se contente pas d’une alerte passive :</p>
+    <p>Il injecte immédiatement une directive dynamique dans le pare-feu (ex: ajout de l’IP dans un ensemble <code>blacklist</code> nftables) pour couper court à l’attaque avant toute compromission.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="fw3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="RULE chain=INPUT proto=tcp src=ANY dst=10.0.0.1 dport=22 target=ACCEPT">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : compiler les règles en syntaxe iptables et nftables
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Compilateur de règles vers les syntaxes iptables et nftables</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Traduire une politique de sécurité déclarative en commandes concrètes pour les moteurs netfilter iptables et nftables.</p>
+    <div class="lab__brief"><p>L'administration d'un pare-feu Linux repose sur <strong>iptables</strong> (hérité) ou <strong>nftables</strong> (standard moderne).<br><br>
+Spécification de conversion d'une règle :<br>
+<code>RULE chain=&lt;INPUT|FORWARD|OUTPUT&gt; proto=&lt;tcp|udp|ANY&gt; src=&lt;ip|ANY&gt; dst=&lt;ip|ANY&gt; dport=&lt;p|ANY&gt; target=&lt;ACCEPT|DROP&gt;</code>.<br><br>
+Règles de génération :<br>
+1. Syntaxe <strong>iptables</strong> :<br>
+   <code>iptables -A {chain} [options] -j {target}</code><br>
+   - Si <code>proto != 'ANY'</code> : ajouter <code>-p {proto}</code>.<br>
+   - Si <code>src != 'ANY'</code> : ajouter <code>-s {src}</code>.<br>
+   - Si <code>dst != 'ANY'</code> : ajouter <code>-d {dst}</code>.<br>
+   - Si <code>dport != 'ANY'</code> : ajouter <code>--dport {dport}</code> (placé après le protocole si présent).<br>
+2. Syntaxe <strong>nftables</strong> :<br>
+   <code>nft add rule inet filter {chain_lower} [clauses] counter {target_lower}</code><br>
+   - Si <code>src != 'ANY'</code> : ajouter <code>ip saddr {src}</code>.<br>
+   - Si <code>dst != 'ANY'</code> : ajouter <code>ip daddr {dst}</code>.<br>
+   - Si <code>proto != 'ANY' et dport != 'ANY'</code> : ajouter <code>{proto} dport {dport}</code>.<br>
+   - Si <code>proto != 'ANY' et dport == 'ANY'</code> : ajouter <code>ip protocol {proto}</code>.<br><br>
+Pour chaque règle en entrée, afficher :<br>
+<code>IPTABLES: {commande_iptables}</code><br>
+<code>NFTABLES: {commande_nftables}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE chain=INPUT proto=tcp src=ANY dst=10.0.0.1 dport=22 target=ACCEPT</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT
+NFTABLES: nft add rule inet filter input ip daddr 10.0.0.1 tcp dport 22 counter accept</pre></div>
+    </div>
+    <p class="lab__note">Ouverture du port SSH 22 sur l’interface d’écoute.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Construire les listes d’arguments dans l’ordre demandé puis joindre par des espaces.</li>
+        <li>Convertir en minuscules pour nftables (ex: chain.lower(), target.lower()).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45000 DPT=22&#10;firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.10 DST=10.0.0.2 PROTO=TCP SPT=50000 DPT=80&#10;firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45001 DPT=22">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser les logs et calculer les métriques d'attaque
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Parseur et agrégateur statistique de journaux de pare-feu (Logs)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser un flux de logs de pare-feu format syslog et extraire les métriques de sécurité essentielles.</p>
+    <div class="lab__brief"><p>L'exploitation des journaux (logs) permet de mesurer l'efficacité du pare-feu et de détecter les tendances d'attaque.<br><br>
+Format des lignes de logs lues sur l'entrée standard :<br>
+<code>firewall: [ACTION] IN=&lt;if&gt; OUT=&lt;if&gt; SRC=&lt;ip&gt; DST=&lt;ip&gt; PROTO=&lt;proto&gt; SPT=&lt;p&gt; DPT=&lt;p&gt;</code><br>
+où <code>ACTION</code> est <code>DROP</code> ou <code>ACCEPT</code>.<br><br>
+Métriques à calculer :<br>
+- <code>total</code> : nombre total de lignes analysées.<br>
+- <code>dropped</code> : nombre de paquets avec <code>[DROP]</code>.<br>
+- <code>accepted</code> : nombre de paquets avec <code>[ACCEPT]</code>.<br>
+- <code>top_blocked_port</code> : numéro de port destination <code>DPT</code> ayant cumulé le plus grand nombre de <code>DROP</code> (en cas d'égalité, le plus petit numéro de port numérique). Si aucun DROP : <code>NONE</code>.<br>
+- <code>top_attacker_ip</code> : adresse IP source <code>SRC</code> ayant généré le plus grand nombre de <code>DROP</code> (en cas d'égalité, la plus petite par ordre alphabétique). Si aucun DROP : <code>NONE</code>.<br><br>
+Sortie attendue :<br>
+<code>LOG_SUMMARY total={total} dropped={dropped} accepted={accepted} top_blocked_port={p} top_attacker_ip={ip}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45000 DPT=22
+firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.10 DST=10.0.0.2 PROTO=TCP SPT=50000 DPT=80
+firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45001 DPT=22</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LOG_SUMMARY total=3 dropped=2 accepted=1 top_blocked_port=22 top_attacker_ip=203.0.113.5</pre></div>
+    </div>
+    <p class="lab__note">2 drops sur le port 22 par la même IP 203.0.113.5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser des dictionnaires pour compter les occurrences de SRC et DPT pour les lignes DROP.</li>
+        <li>Trier par fréquence décroissante puis par la clé secondaire pour départager les égalités.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="AUTH_FAIL ts=100 ip=203.0.113.50 service=ssh&#10;AUTH_FAIL ts=120 ip=203.0.113.50 service=ssh&#10;AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : surveiller les échecs et déclencher le bannissement nftables
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur de force brute et bannissement dynamique (Fail2ban SIEM)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Surveiller les échecs répétés d’authentification et déclencher le blocage dynamique de l’IP attaquante.</p>
+    <div class="lab__brief"><p>Les outils de sécurité active (comme <strong>Fail2ban</strong> ou les playbooks SOAR/SIEM) observent les journaux de connexion et appliquent un bannissement temporaire ou définitif lorsqu'une IP dépasse un seuil d'échecs.<br><br>
+Paramètres de la jail de sécurité :<br>
+- <code>findtime</code> : <code>60</code> secondes (fenêtre d'observation glissante <code>[ts - 59, ts]</code>).<br>
+- <code>maxretry</code> : <code>3</code> échecs.<br><br>
+Comportement :<br>
+1. Dès qu'une IP accumule son 3e échec dans la fenêtre de 60s, elle devient immédiatement bannie (<code>BANNED</code>). Une fois bannie, elle reste bannie pour tous les événements suivants.<br>
+2. Pour chaque événement <code>AUTH_FAIL ts=&lt;ts&gt; ip=&lt;ip&gt; service=&lt;ssh|rdp&gt;</code> reçu :<br>
+   - Si l'IP est déjà bannie :<br>
+     <code>BAN_ACTION ip={ip} status=ALREADY_BANNED</code><br>
+   - Sinon si le nombre d'échecs dans la fenêtre atteint 3 :<br>
+     l'IP passe à l'état bannie et on affiche :<br>
+     <code>BAN_ACTION ip={ip} status=TRIGGER_BAN rule="nft add element inet filter blocklist {{ {ip} }}"</code><br>
+   - Sinon :<br>
+     <code>BAN_ACTION ip={ip} status=MONITORING attempts={nb_dans_fenetre}</code><br><br>
+Le script lit les événements ordonnés chronologiquement sur l'entrée standard.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>AUTH_FAIL ts=100 ip=203.0.113.50 service=ssh
+AUTH_FAIL ts=120 ip=203.0.113.50 service=ssh
+AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BAN_ACTION ip=203.0.113.50 status=MONITORING attempts=1
+BAN_ACTION ip=203.0.113.50 status=MONITORING attempts=2
+BAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule="nft add element inet filter blocklist { 203.0.113.50 }"</pre></div>
+    </div>
+    <p class="lab__note">Le 3e échec dans les 60s déclenche le bannissement immédiat.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garder la trace des IPs déjà bannies dans un ensemble (set).</li>
+        <li>Pour les IPs non bannies, filtrer les échecs récents où t &gt;= ts - 59.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle chaîne netfilter intercepte les paquets qui traversent la machine pare-feu pour aller d’un réseau vers un autre ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La chaîne FORWARD</button>
+        <button class="opt">La chaîne INPUT</button>
+        <button class="opt">La chaîne OUTPUT</button>
+        <button class="opt">La chaîne PREROUTING</button>
+      </div>
+      <div class="q__exp">La chaîne FORWARD est dédiée au filtrage des paquets en transit traversant l’équipement lorsque celui-ci agit comme passerelle ou routeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le principal avantage de nftables par rapport à iptables ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une syntaxe unifiée pour IPv4/IPv6, des opérations atomiques et une exécution par bytecode optimisé avec ensembles natifs</button>
+        <button class="opt">Il supprime totalement le besoin de configurer des adresses IP</button>
+        <button class="opt">Il remplace le protocole TCP par un protocole plus rapide</button>
+        <button class="opt">Il fonctionne uniquement sans connexion réseau</button>
+      </div>
+      <div class="q__exp">nftables unifie la gestion de tous les protocoles, offre des performances nettement supérieures et permet des rechargements de configuration atomiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il impératif d’autoriser l’interface "lo" (Loopback) dans les règles d’un pare-feu Linux ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que de nombreux démons locaux (ex: communication serveur web vers BDD locale) utilisent cette interface pour fonctionner</button>
+        <button class="opt">Pour permettre aux utilisateurs extérieurs de télécharger les logs</button>
+        <button class="opt">Pour éviter que la carte réseau physique ne chauffe trop</button>
+        <button class="opt">Pour activer automatiquement le mode Wi-Fi</button>
+      </div>
+      <div class="q__exp">Si le trafic local (127.0.0.1 / lo) est bloqué, les composants internes du système d’exploitation ne peuvent plus communiquer entre eux.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle chaîne netfilter est utilisée pour appliquer la translation d’adresses source (SNAT / Masquerade) lors de l’émission du paquet ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">POSTROUTING</button>
+        <button class="opt">PREROUTING</button>
+        <button class="opt">INPUT</button>
+        <button class="opt">FORWARD</button>
+      </div>
+      <div class="q__exp">Le SNAT doit s’appliquer en POSTROUTING, c’est-à-dire après que la décision de routage a sélectionné l’interface réseau de sortie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment l’outil Fail2ban neutralise-t-il les attaques par force brute sur un serveur SSH ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il surveille les logs d’authentification et ajoute dynamiquement l’adresse IP de l’attaquant dans une règle de blocage du pare-feu après un seuil d’échecs</button>
+        <button class="opt">Il change automatiquement le mot de passe de l’administrateur à chaque attaque</button>
+        <button class="opt">Il redémarre le serveur Linux à chaque tentative de connexion échouée</button>
+        <button class="opt">Il envoie un message texte d’avertissement au pirate</button>
+      </div>
+      <div class="q__exp">Fail2ban analyse les journaux en continu et ordonne à netfilter (iptables ou nftables) de DROP les paquets de l’IP assaillante pendant une durée déterminée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quelle table netfilter applique-t-on les décisions classiques d’autorisation ou de rejet (ACCEPT / DROP) de paquets ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La table filter</button>
+        <button class="opt">La table nat</button>
+        <button class="opt">La table mangle</button>
+        <button class="opt">La table raw</button>
+      </div>
+      <div class="q__exp">La table filter est spécifiquement dédiée aux politiques d’acceptation ou de rejet de paquets.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande nftables permet d’ajouter une adresse IP à une liste noire (blacklist) dynamique de manière instantanée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">nft add element inet filter blacklist { IP }</button>
+        <button class="opt">nft remove table inet filter</button>
+        <button class="opt">nft delete rule all</button>
+        <button class="opt">nft shutdown network</button>
+      </div>
+      <div class="q__exp">La gestion native des éléments d’ensembles (Sets) permet d’ajouter ou de retirer des IPs de listes de blocage de façon atomique et instantanée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il dangereux d’exécuter "iptables -P INPUT DROP" sans avoir au préalable inséré de règle autorisant la connexion SSH courante ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La session SSH de l’administrateur est immédiatement coupée et il perd l’accès à distance au serveur</button>
+        <button class="opt">Le serveur formate automatiquement ses disques durs</button>
+        <button class="opt">La carte mère subit une surtension électrique</button>
+        <button class="opt">Le processeur refuse de traiter les paquets pendant 24 heures</button>
+      </div>
+      <div class="q__exp">Si la politique par défaut devient DROP sans règle autorisant la connexion active (ou le port 22), l’administrateur se verrouille lui-même hors du système.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Appliquer une politique Default DROP sur la chaîne INPUT via SSH sans avoir préalablement autorisé sa session courante, coupant instantanément son propre accès distant.</li>
+      <li>Oublier d’autoriser l’interface de bouclage locale (lo), ce qui fait planter les communications inter-processus et bases de données locales.</li>
+      <li>Mélanger des règles iptables et nftables sur un même serveur, créant des conflits d’interception difficiles à déboguer.</li>
+      <li>Régler un délai de bannissement Fail2ban infini sans purge périodique, entraînant une surcharge mémoire de la liste noire sur le long terme.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Guide Opérationnel de Déploiement d’un Script Netfilter Robuste</div>
+    <ol>
+      <li>1. Réinitialiser proprement les règles et tables existantes pour repartir d’un état vierge.</li>
+      <li>2. Définir impérativement la politique par défaut à DROP sur les chaînes INPUT et FORWARD.</li>
+      <li>3. Autoriser l’interface de bouclage local (loopback lo) pour le fonctionnement des services internes du système.</li>
+      <li>4. Activer en toute première règle le passage des paquets des sessions établies (ctstate established,related).</li>
+      <li>5. Rejeter et journaliser immédiatement tout paquet identifié à l’état ctstate invalid.</li>
+      <li>6. Déclarer les autorisations de services spécifiques (ports SSH d’administration restreints, services web autorisés).</li>
+      <li>7. Mettre en œuvre le bannissement dynamique automatisé relié aux journaux d’authentification via Fail2ban ou playbooks SOAR.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Netfilter est le cœur du filtrage réseau sous Linux, articulé autour de 5 chaînes clés (PREROUTING, INPUT, FORWARD, OUTPUT, POSTROUTING).</li>
+      <li>nftables remplace iptables en unifiant IPv4/IPv6 avec de meilleures performances et des rechargements atomiques.</li>
+      <li>Un script pare-feu robuste commence par Default DROP, autorise la boucle locale et traite les paquets ESTABLISHED en priorité.</li>
+      <li>Les journaux Syslog permettent d’identifier les tendances d’attaques et d’agréger les métriques de sécurité.</li>
+      <li>L’intégration avec Fail2ban et les systèmes SIEM permet d’appliquer un bannissement dynamique automatisé des adresses malveillantes.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Les 5 chaînes netfilter et leur rôle dans le cheminement d’un paquet sont maîtrisés.</li>
+      <li>La syntaxe comparative iptables et nftables est comprise.</li>
+      <li>La structure d’un script pare-feu complet en politique Default DROP est assimilée.</li>
+      <li>Le format des lignes de logs netfilter et leur parsing statistique sont compris.</li>
+      <li>Le principe du bannissement dynamique d’IP via des sets nftables / Fail2ban est assimilé.</li>
+      <li>Les 3 ateliers de programmation interactive en Python 3 (fw3-c6-e1 à fw3-c6-e3) sont validés.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Framework Linux Netfilter</li><li>Chaînes INPUT, FORWARD & OUTPUT</li><li>Chaînes PREROUTING & POSTROUTING</li><li>Syntaxe iptables vs nftables</li><li>Ensembles (Sets) nftables</li><li>Journaux Syslog de pare-feu</li><li>Métriques d’analyse d’attaque</li><li>Bannissement dynamique (Fail2ban/SIEM)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Niveau initial : vous confondez les chaînes INPUT et FORWARD ou vous risquez de vous couper l’accès SSH à distance.</div>
+      <div class="bandrow bandrow--medium">Niveau opérationnel : vous écrivez des scripts de filtrage iptables et nftables propres en Default DROP avec gestion de la boucle locale.</div>
+      <div class="bandrow bandrow--high">Maîtrise B3 : vous orchestrez des pare-feux Linux durcis avec sets nftables dynamiques, corrélation SIEM et bannissement automatique Fail2ban.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours Module 1 & Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

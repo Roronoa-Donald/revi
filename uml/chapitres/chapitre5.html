@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Diagramme d’Activités, Flux de Contrôle, Fork/Join &amp;amp; Swimlanes | UML B2</title>
+<meta name="description" content="Chapitre 5 du cours UML B2 : Formalisation des processus métier et algorithmes, nœuds d’action, décisions et fusions (losanges), parallélisme par barres Fork / Join, couloirs de responsabilités (swimlanes), flux d’objets et synchronisation des jetons (token semantics). Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/uml/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Diagramme d’Activités, Flux de Contrôle, Fork/Join &amp;amp; Swimlanes | UML B2">
+<meta property="og:description" content="Chapitre 5 du cours UML B2 : Formalisation des processus métier et algorithmes, nœuds d’action, décisions et fusions (losanges), parallélisme par barres Fork / Join, couloirs de responsabilités (swimlanes), flux d’objets et synchronisation des jetons (token semantics). Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="umlnav"><div class="umlnav__in">
+  <a class="umlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="umlnav__sep" aria-hidden="true">/</span>
+  <a class="umlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> UML B2</a>
+  <div class="umlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="umlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="umlwrap">
+<p class="crumb"><a href="../index.html">UML B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Diagramme d’Activités, Flux de Contrôle, Fork/Join &amp; Swimlanes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une chaîne logistique e-commerce souffre de ralentissements massifs et de commandes bloquées à l’entrepôt : les colis sont parfois conditionnés avant que le paiement ne soit validé, tandis que d’autres fois, l’expédition attend inutilement l’archivage comptable. Les équipes métier et les développeurs ne parviennent pas à s’accorder sur l’ordonnancement des tâches et les frontières de responsabilités entre le Système, les Magasiniers et les Transporteurs. Pour modéliser sans ambiguïté les flux de travail (workflows) séquentiels et concurrents, l’architecte déploie le diagramme d’activités UML 2.5. Ce module forme les étudiants à maîtriser la circulation des jetons d’activité, à synchroniser les branches parallèles via les barres Fork/Join et à partitionner le travail dans des couloirs de nage (swimlanes).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre la sémantique formelle d’exécution par jetons (token semantics) d’un diagramme d’activités ;</li>
+      <li>distinguer et représenter le nœud initial, les nœuds d’actions et les deux types de nœuds finaux (fin d’activité vs fin de flux) ;</li>
+      <li>modéliser les branchements conditionnels via les nœuds de décision et de fusion (losanges) avec des gardes exclusives [condition] ;</li>
+      <li>ordonnancer des tâches hautement concurrentes à l’aide des barres de séparation (Fork) et de synchronisation (Join) ;</li>
+      <li>découper les processus métier en couloirs de responsabilités organisationnelles ou techniques (Swimlanes) ;</li>
+      <li>intégrer des nœuds d’objets (Object Nodes) pour suivre les transformations de données au cours du flux de contrôle.</li>
+    </ol>
+  </div>
+
+<h2>1. Nœuds Fondamentaux et Sémantique des Jetons</h2>
+
+<p>Le <strong>diagramme d’activités</strong> modélise le flux séquentiel et concurrent d’un processus métier ou d’un algorithme. Sa dynamique repose sur la notion formelle de <strong>jetons (tokens)</strong> circulant le long des transitions :</p>
+<ul>
+  <li><strong>Nœud initial (Initial Node) :</strong> Représenté par un <strong>disque noir plein</strong>. Il produit le jeton initial au lancement de l’activité.</li>
+  <li><strong>Nœud d’action (Action Node) :</strong> Rectangle à coins arrondis contenant la description de l’opération atomique exécutée (ex: <em>Prélever articles</em>). L’action consomme son jeton d’entrée, réalise son traitement, puis émet un jeton sur chacune de ses transitions sortantes.</li>
+  <li><strong>Nœud final d’activité (Activity Final Node) :</strong> Disque noir plein entouré d’un cercle concentrique (« œil de bœuf »). Dès qu’un jeton atteint ce nœud, <em>l’intégralité de l’activité s’arrête immédiatement</em> et tous les jetons résiduels sont détruits.</li>
+  <li><strong>Nœud final de flux (Flow Final Node) :</strong> Cercle blanc contenant une croix diagonale. Il détruit uniquement le jeton qui l’atteint sans interrompre les autres branches concurrentes actives du processus.</li>
+</ul>
+
+<h2>2. Décision, Fusion et Parallélisme (Fork / Join)</h2>
+
+<p>Pour structurer l’aiguillage et la concurrence des flux, UML 2.5 définit des symboles géométriques précis :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Décision et Fusion (&loz; Losange)</h4>
+    <ul>
+      <li><strong>Nœud de décision :</strong> 1 entrée &rarr; <em>N</em> sorties. Chaque branche sortante est gardée par une condition entre crochets <code>[condition]</code>. Les gardes doivent être mutuellement exclusives (avec une clause <code>[else]</code>).</li>
+      <li><strong>Nœud de fusion (Merge) :</strong> <em>N</em> entrées &rarr; 1 sortie. Réunit plusieurs flux alternatifs sans attendre qu’ils soient tous complétés (dès qu’un jeton arrive, il passe).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Bifurcation et Jonction (&HorizontalLine; Barre épaisse)</h4>
+    <ul>
+      <li><strong>Nœud Fork (Séparation) :</strong> 1 entrée &rarr; <em>N</em> sorties parallèles. Duplique le jeton entrant sur chaque branche sortante pour démarrer des tâches concurrentes.</li>
+      <li><strong>Nœud Join (Rendez-vous) :</strong> <em>N</em> entrées &rarr; 1 sortie. <strong>Barrière de synchronisation</strong> : attend impérativement qu’un jeton soit présent sur <em>chacune</em> des branches entrantes avant de libérer un unique jeton en sortie.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Couloirs de Responsabilités (Swimlanes) et Flux d’Objets</h2>
+
+<p>Dans les processus d’entreprise complexes, il est crucial d’identifier <strong>qui</strong> réalise chaque action :</p>
+<ul>
+  <li><strong>Couloirs de responsabilités (Swimlanes / Partitions) :</strong> Le diagramme est divisé en colonnes verticales ou bandes horizontales. Chaque couloir porte le nom d’un acteur, d’un département ou d’un sous-système (ex: <em>Client</em>, <em>Entrepôt</em>, <em>Système Bancaire</em>). Une action placée dans un couloir relève de la responsabilité exclusive de cette entité.</li>
+  <li><strong>Flux d’objets (Object Flow) :</strong> Représenté par un rectangle d’état d’objet <code>Commande [Payée]</code> intercalé entre deux actions. Il matérialise la donnée ou l’entité physique produite par l’action source et consommée par l’action cible.</li>
+</ul>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="um2-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="VAR stock=10&#10;ACTION INITIAL -&gt; VerifierStock&#10;DECISION VerifierStock [stock &gt; 0] -&gt; PreparerColis | [else] -&gt; Reapprovisionner&#10;ACTION PreparerColis -&gt; Expédier&#10;ACTION Expédier -&gt; FIN&#10;FINAL FIN">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler le parcours du flux d'activité
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de chemin d'activité (décisions et gardes)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre le chemin d'exécution d'un diagramme d'activités depuis le nœud initial jusqu'au nœud final en évaluant les gardes de décision.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+- Ligne 1 : Valeurs des variables : <code>VAR k=v ...</code> (ex: <code>VAR stock=5 solde=100</code>).<br>
+- Lignes suivantes : Description du graphe d'activités :<br>
+  * <code>ACTION &lt;Nom&gt; -&gt; &lt;Cible&gt;</code> (Transition inconditionnelle)<br>
+  * <code>DECISION &lt;Nom&gt; [&lt;garde1&gt;] -&gt; &lt;Cible1&gt; | [else] -&gt; &lt;Cible2&gt;</code><br>
+  * <code>FINAL &lt;Nom&gt;</code><br>
+Le parcours débute au nœud <code>INITIAL</code>.<br>
+Le script affiche chronologiquement chaque étape franchie :<br>
+<code>[ETAPE] &lt;NomNoeud&gt;</code><br>
+Lorsqu'un nœud final est atteint, afficher :<br>
+<code>PROCESSUS TERMINE au noeud &lt;NomFinal&gt; (Total etapes: &lt;N&gt;)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VAR stock=10
+ACTION INITIAL -&gt; VerifierStock
+DECISION VerifierStock [stock &gt; 0] -&gt; PreparerColis | [else] -&gt; Reapprovisionner
+ACTION PreparerColis -&gt; Expédier
+ACTION Expédier -&gt; FIN
+FINAL FIN</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[ETAPE] INITIAL
+[ETAPE] VerifierStock
+[ETAPE] PreparerColis
+[ETAPE] Expédier
+[ETAPE] FIN
+PROCESSUS TERMINE au noeud FIN (Total etapes: 5)</pre></div>
+    </div>
+    <p class="lab__note">Parcours avec garde stock &gt; 0 vérifiée (10 &gt; 0).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les transitions dans un graphe et évaluer les expressions entre crochets pour choisir la branche de décision.</li>
+        <li>Le mot-clé "else" est sélectionné si la garde principale est fausse.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="FORK F1 -&gt; B_Facturation,B_Livraison&#10;JOIN J1 &lt;- B_Facturation,B_Livraison&#10;COMPLETE B_Facturation&#10;COMPLETE B_Livraison">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la synchronisation Fork / Join
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Vérificateur de synchronisation Fork / Join</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Modéliser le parallélisme dans un diagramme d'activités avec barre de divergence (Fork) et barre de synchronisation (Join).</p>
+    <div class="lab__brief"><p>Dans un diagramme d'activités UML :<br>
+- Une barre <strong>FORK</strong> scinde un flux unique en plusieurs branches exécutées en parallèle.<br>
+- Une barre <strong>JOIN</strong> attend impérativement la complétion de <strong>TOUTES</strong> les branches entrantes avant d'autoriser la poursuite du flux.<br>
+Le script lit :<br>
+- <code>FORK &lt;NomFork&gt; -&gt; &lt;B1&gt;,&lt;B2&gt;...</code> (déclenche N branches)<br>
+- <code>JOIN &lt;NomJoin&gt; &lt;- &lt;B1&gt;,&lt;B2&gt;...</code> (attend toutes les branches)<br>
+- Les notifications d'achèvement de branches au format :<br>
+  <code>COMPLETE &lt;Branche&gt;</code>.<br>
+Pour chaque complétion, afficher :<br>
+<code>[RECU] Branche &lt;B&gt; terminee (En attente join &lt;Join&gt;: &lt;Restantes&gt;)</code>.<br>
+Lorsque la dernière branche requise par le Join est complétée :<br>
+<code>[SYNCHRONISE] Barre Join &lt;NomJoin&gt; franchie ! Poursuite du flux vers l'etape suivante.</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FORK F1 -&gt; B_Facturation,B_Livraison
+JOIN J1 &lt;- B_Facturation,B_Livraison
+COMPLETE B_Facturation
+COMPLETE B_Livraison</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[RECU] Branche B_Facturation terminee (En attente join J1: 1 restante)
+[RECU] Branche B_Livraison terminee (En attente join J1: 0 restante)
+[SYNCHRONISE] Barre Join J1 franchie ! Poursuite du flux vers l'etape suivante.</pre></div>
+    </div>
+    <p class="lab__note">Synchronisation de 2 flux parallèles.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Maintenir un ensemble des branches attendues par chaque barre de jointure (Join).</li>
+        <li>Le Join ne se débloque que lorsque son ensemble de branches manquantes devient vide.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="SWIMLANE Client : SaisirCommande,Payer&#10;SWIMLANE Logistique : PreparerColis,Expedier&#10;SEQUENCE SaisirCommande -&gt; Payer -&gt; PreparerColis -&gt; Expedier">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : affecter les actions aux couloirs et tracer les transferts
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Partitionneur de responsabilités (Couloirs Swimlanes)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Organiser les actions d'un processus métier dans leurs couloirs de responsabilité (swimlanes) et tracer les transferts inter-organisationnels.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+- La déclaration des couloirs : <code>SWIMLANE &lt;NomRôle&gt; : &lt;Action1&gt;,&lt;Action2&gt;...</code><br>
+- La séquence ordonnée d'exécution : <code>SEQUENCE &lt;A1&gt; -&gt; &lt;A2&gt; -&gt; &lt;A3&gt;...</code><br>
+Le script doit afficher :<br>
+1. La chronologie des actions avec leur responsable :<br>
+   <code>1. &lt;Action&gt; [Assigne a : &lt;Couloir&gt;]</code><br>
+2. Le journal des transferts de responsabilité (chaque fois que deux actions consécutives changent de couloir) :<br>
+   <code>[TRANSFERT] &lt;CouloirSource&gt; -&gt; &lt;CouloirCible&gt; (Transition : &lt;ActionPrec&gt; vers &lt;ActionSuiv&gt;)</code><br>
+3. Le bilan : <code>TOTAL TRANSFERTS: &lt;N&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SWIMLANE Client : SaisirCommande,Payer
+SWIMLANE Logistique : PreparerColis,Expedier
+SEQUENCE SaisirCommande -&gt; Payer -&gt; PreparerColis -&gt; Expedier</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1. SaisirCommande [Assigne a : Client]
+2. Payer [Assigne a : Client]
+3. PreparerColis [Assigne a : Logistique]
+4. Expedier [Assigne a : Logistique]
+[TRANSFERT] Client -&gt; Logistique (Transition : Payer vers PreparerColis)
+TOTAL TRANSFERTS: 1</pre></div>
+    </div>
+    <p class="lab__note">Un seul transfert de responsabilité entre le Client et la Logistique.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Associer chaque action à son couloir de nage unique dans un dictionnaire.</li>
+        <li>Comparer le couloir de l'action i avec le couloir de l'action i-1 pour détecter un changement d'intervenant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel symbole représente un nœud de décision conditionnelle (embranchement if / else) dans un diagramme d’activités ?</p>
+      <div class="opts">
+        <button class="opt">Un rectangle à coins arrondis</button>
+        <button class="opt" data-correct="1">Un losange avec une entrée et plusieurs sorties gardées</button>
+        <button class="opt">Une barre noire épaisse horizontale</button>
+        <button class="opt">Un cercle barré d’une croix</button>
+      </div>
+      <div class="q__exp">En diagramme d’activités, le losange (decision node) aiguille un jeton entrant vers une seule de ses branches de sortie en fonction des conditions de garde [condition].</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le comportement exact d’un nœud de jonction Join (représenté par une barre épaisse) ?</p>
+      <div class="opts">
+        <button class="opt">Il laisse passer le premier jeton arrivé et ignore les suivants</button>
+        <button class="opt" data-correct="1">Il attend qu’un jeton soit présent sur CHACUNE de ses transitions entrantes avant d’émettre un unique jeton en sortie</button>
+        <button class="opt">Il duplique le jeton entrant vers toutes les sorties</button>
+        <button class="opt">Il détruit l’intégralité de l’activité en cours</button>
+      </div>
+      <div class="q__exp">Le nœud Join agit comme une barrière de synchronisation : il bloque tant que toutes les branches concurrentes entrantes n’ont pas produit leur jeton.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre un «nœud final d’activité» et un «nœud final de flux» ?</p>
+      <div class="opts">
+        <button class="opt">Le final d’activité détruit la base de données SQL, le final de flux ferme le réseau</button>
+        <button class="opt" data-correct="1">Le final d’activité stoppe immédiatement l’intégralité de l’activité et tue tous les jetons, tandis que le final de flux détruit uniquement le jeton qui l’atteint sans impacter les autres branches</button>
+        <button class="opt">Il n’y a aucune différence, ce sont deux variantes cosmétiques</button>
+        <button class="opt">Le final de flux ne peut être placé que dans une Swimlane administrateur</button>
+      </div>
+      <div class="q__exp">Le final d’activité (disque cerclé) termine tout le processus. Le final de flux (cercle avec croix) détruit seulement son flux local sans stopper les branches parallèles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment s’appellent les colonnes ou compartiments utilisés pour partitionner un diagramme d’activités selon les acteurs ou services responsables ?</p>
+      <div class="opts">
+        <button class="opt">Les Lifelines</button>
+        <button class="opt" data-correct="1">Les Swimlanes (ou partitions)</button>
+        <button class="opt">Les Packages composites</button>
+        <button class="opt">Les Threads pools</button>
+      </div>
+      <div class="q__exp">Les Swimlanes (couloirs de nage ou partitions d’activité) permettent d’attribuer visuellement chaque tâche à un acteur, un service ou une entité organisationnelle précise.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un modélisateur relie les deux sorties exclusives d’un losange de décision directement aux entrées d’une barre Join ?</p>
+      <div class="opts">
+        <button class="opt">Le diagramme s’exécute deux fois plus vite</button>
+        <button class="opt" data-correct="1">Le système se bloque définitivement (Deadlock) car la barre Join attend deux jetons, alors qu’un seul ne sera jamais produit par le losange</button>
+        <button class="opt">La barre Join se transforme automatiquement en nœud de fusion</button>
+        <button class="opt">C’est la syntaxe recommandée par l’OMG</button>
+      </div>
+      <div class="q__exp">Puisque la décision n’émet qu’un seul jeton sur l’une de ses branches, l’autre branche ne recevra jamais de jeton. La barre Join attendant toutes ses entrées sera bloquée à l’infini.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel symbole représente l’état initial d’un diagramme d’activités ?</p>
+      <div class="opts">
+        <button class="opt">Un cercle blanc vide</button>
+        <button class="opt" data-correct="1">Un disque noir plein</button>
+        <button class="opt">Un losange jaune</button>
+        <button class="opt">Un rectangle avec une flèche</button>
+      </div>
+      <div class="q__exp">L’état initial est matérialisé par un disque noir plein, qui produit le premier jeton dès l’activation du diagramme.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle notation est utilisée pour encadrer une condition de garde sur une transition sortant d’un losange de décision ?</p>
+      <div class="opts">
+        <button class="opt">Des parenthèses (condition)</button>
+        <button class="opt" data-correct="1">Des crochets [condition]</button>
+        <button class="opt">Des accolades {condition}</button>
+        <button class="opt">Des guillemets "condition"</button>
+      </div>
+      <div class="q__exp">La syntaxe officielle OMG UML pour les conditions de garde sur les transitions est l’encadrement strict par des crochets, par exemple [solde &gt;= montant].</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un diagramme d’activités, comment est modélisé un objet produit ou consommé par une action (flux d’objets) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Par un rectangle classique portant le nom de l’objet et son état entre crochets (ex: Facture [Émise])</button>
+        <button class="opt">Par une ligne brisée rouge</button>
+        <button class="opt">Par un losange plein</button>
+        <button class="opt">Par un point d’exclamation</button>
+      </div>
+      <div class="q__exp">Un nœud d’objet (Object Node) est représenté par un rectangle portant le nom de la classe ou de la donnée avec son état éventuel spécifié entre crochets.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre un nœud de fusion (losange) avec un nœud de jonction (barre Join) : le losange ne synchronise pas, il transmet dès la première entrée.</li>
+      <li>Oublier des conditions de garde sur un nœud de décision, ou définir des gardes non exclusives pouvant être vraies simultanément.</li>
+      <li>Créer un blocage permanent en reliant à une même barre Join des branches qui ne peuvent pas être exécutées en même temps (ex: deux branches issues d’un losange de décision).</li>
+      <li>Utiliser un nœud final d’activité (œil de bœuf) dans une sous-branche optionnelle : cela tue prématurément tout le processus global.</li>
+      <li>Placer une action à cheval sur deux couloirs Swimlanes sans en définir la responsabilité.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthodologie de Modélisation de Processus Métier par Diagramme d’Activités</div>
+    <ol>
+      <li>Étape 1 — Identifier les rôles et poser les Swimlanes : Déterminer tous les acteurs ou systèmes intervenants et tracer les colonnes correspondantes.</li>
+      <li>Étape 2 — Positionner le nœud initial : Placer le disque noir de départ dans le couloir de l’acteur qui déclenche le processus.</li>
+      <li>Étape 3 — Rédiger la chaîne séquentielle nominale : Poser les actions dans leurs couloirs respectifs en reliant les transitions directes.</li>
+      <li>Étape 4 — Isoler les conditions et alternatives : Utiliser des losanges de décision avec des gardes [condition] exhaustives et exclusives, refermées par des losanges de fusion.</li>
+      <li>Étape 5 — Identifier les tâches parallélisables : Insérer une barre de Fork pour lancer les tâches concurrentes, et une barre de Join pour les synchroniser avant l’étape suivante.</li>
+      <li>Étape 6 — Choisir la bonne terminaison : Utiliser un nœud final d’activité (œil de bœuf) pour clore le processus, ou un final de flux (croix) pour éteindre une branche sans impacter les autres.</li>
+      <li>Étape 7 — Valider la conservation des jetons : Vérifier mentalement qu’aucun jeton ne reste bloqué indéfiniment devant une barre Join orpheline.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le diagramme d’activités décrit les processus métier et la logique algorithmique par circulation de jetons.</li>
+      <li>Les nœuds d’action sont rectangulaires à coins arrondis et exécutent une tâche élémentaire.</li>
+      <li>Les losanges gèrent les flux alternatifs : Décision (1 entrée, N sorties gardées) et Fusion (N entrées, 1 sortie non bloquante).</li>
+      <li>Les barres épaisses gèrent la concurrence : Fork (duplication de jetons en parallèle) et Join (barrière de synchronisation bloquante).</li>
+      <li>Le nœud final d’activité stoppe tout le processus, tandis que le final de flux détruit uniquement le jeton local de sa branche.</li>
+      <li>Les Swimlanes structurent le diagramme en couloirs assignant clairement les responsabilités opérationnelles.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je connais la représentation du nœud initial (disque noir) et final d’activité (disque avec cercle concentrique).</li>
+      <li>Je distingue un nœud de décision (losange) d’un nœud Fork (barre épaisse).</li>
+      <li>Je sais qu’une barre Join attend tous les jetons entrants avant de continuer.</li>
+      <li>Je sais rédiger des conditions de garde mutuellement exclusives avec une clause [else].</li>
+      <li>Je sais utiliser les Swimlanes pour séparer les responsabilités entre acteurs et services techniques.</li>
+      <li>Je sais choisir entre un nœud final de flux et un nœud final d’activité.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Sémantique des jetons (Token semantics)</li><li>Nœud initial et nœuds d’actions</li><li>Final d’activité vs Final de flux</li><li>Décision et Fusion (losanges)</li><li>Gardes conditionnelles [condition]</li><li>Bifurcation Fork et Jonction Join</li><li>Couloirs de responsabilités (Swimlanes)</li><li>Flux d’objets (Object Nodes)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la distinction entre losange (décision/fusion) et barre épaisse (Fork/Join).</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes notions de base. Attention aux erreurs de synchronisation et d’interblocage sur les barres Join.</div>
+      <div class="bandrow bandrow--good">7/8 : Excellente maîtrise des flux de contrôle, du parallélisme et des Swimlanes.</div>
+      <div class="bandrow bandrow--top">8/8 : Parfait ! Vous maîtrisez les diagrammes d’activités et les processus concurrents au niveau expert.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Machines à États, Composants &amp; Déploiement Physique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la spécification officielle OMG UML 2.5.1, le standard OCL 2.4, les ouvrages de référence des trois amigos (Booch, Rumbaugh, Jacobson) et les patrons de conception GoF.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

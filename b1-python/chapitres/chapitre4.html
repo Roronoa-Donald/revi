@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Structures de données | Python B1</title>
+<meta name="description" content="Chapitre 4 du cours Python B1 : listes, dictionnaires, tuples, ensembles. Théorie, exemples, exercices 5 niveaux, QCM corrigés et applications IT.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="4">
+
+<nav class="pynav"><div class="pynav__in">
+  <a class="pynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="pynav__sep" aria-hidden="true">/</span>
+  <a class="pynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Python B1</a>
+  <div class="pynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html">Ch. 2</a>
+    <a href="chapitre3.html">Ch. 3</a>
+    <a href="chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="pywrap">
+  <p class="crumb"><a href="../index.html">Python B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+  <h1>Chapitre 4 — Structures de données : stocker, organiser, manipuler</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 3 h</span>
+    <span class="tag tag--time">Contenu protégé</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>On te confie le registre des étudiants d'une école : chaque étudiant a un nom et une liste de notes.
+    Tu dois pouvoir <em>ajouter</em> un étudiant, <em>retrouver</em> ses notes par son nom, et <em>calculer</em>
+    sa moyenne. Une variable simple ne suffit plus. Il te faut les <strong>structures de données</strong> :
+    listes, dictionnaires, tuples, ensembles. Choisir la bonne structure, c'est la moitié du travail.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <ol>
+      <li>Créer, indexer, découper (<em>slice</em>) et modifier une liste ;</li>
+      <li>ajouter/supprimer avec <code>append</code>, <code>insert</code>, <code>remove</code>, <code>pop</code> ;</li>
+      <li>créer et parcourir un dictionnaire (clé <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> valeur) ;</li>
+      <li>distinguer mutable/immuable (liste vs tuple) et choisir ;</li>
+      <li>utiliser un ensemble pour éliminer les doublons ;</li>
+      <li>combiner structures pour modéliser une donnée métier.</li>
+    </ol>
+  </div>
+
+  <h2>1. Panorama — quelle structure pour quel besoin ?</h2>
+  <table>
+    <tr><th>Structure</th><th>Syntaxe</th><th>Ordonnée</th><th>Modifiable</th><th>Doublons</th><th>Usage</th></tr>
+    <tr><td>Liste</td><td><code>[1,2,3]</code></td><td>oui</td><td>oui</td><td>oui</td><td>Séquence à parcourir</td></tr>
+    <tr><td>Tuple</td><td><code>(1,2,3)</code></td><td>oui</td><td>non</td><td>oui</td><td>Valeur fixe, retour multiple</td></tr>
+    <tr><td>Dictionnaire</td><td><code>{"a":1}</code></td><td>oui*</td><td>oui</td><td>clés uniques</td><td>Association clé <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> valeur</td></tr>
+    <tr><td>Ensemble</td><td><code>{1,2,3}</code></td><td>non</td><td>oui</td><td>non</td><td>Unicité, tests d'appartenance</td></tr>
+  </table>
+
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p>Liste = <em>file d'attente</em> (l'ordre compte). Dictionnaire = <em>répertoire</em> (on cherche par nom,
+    pas par position). Tuple = <em>fiche gravée</em> (on ne modifie pas). Ensemble = <em>sac sans doublons ni ordre</em>.</p>
+  </div>
+
+  <h2>2. Les listes</h2>
+  <pre><code>notes = [12, 15, 9, 18]
+
+notes[0]            # 12  (indexation, commence à 0)
+notes[-1]           # 18  (dernier élément)
+notes[1:3]          # [15, 9]  (slice : index 1 inclus, 3 exclu)
+
+notes.append(14)    # ajoute à la fin
+notes.insert(0, 7)  # insère 7 en position 0
+notes.remove(9)     # supprime la première valeur 9
+dernier = notes.pop()  # retire ET renvoie le dernier
+notes.sort()        # tri sur place
+print(len(notes), sum(notes))</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Index hors bornes</div>
+    <p>Une liste de 4 éléments a les index 0 à 3. <code>notes[4]</code> lève <code>IndexError</code>.
+    Pour le dernier élément, utilise <code>notes[-1]</code> : c'est plus sûr et plus lisible.</p>
+  </div>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Slice — la règle « fin exclue »</div>
+    <p><code>liste[a:b]</code> prend de <code>a</code> inclus à <code>b</code> <strong>exclu</strong>.
+    <code>liste[:3]</code> = les 3 premiers ; <code>liste[2:]</code> = du 3<sup>e</sup> à la fin ;
+    <code>liste[::-1]</code> = inversée.</p>
+  </div>
+
+  <h2>3. Les dictionnaires</h2>
+  <pre><code>etudiant = {"nom": "Ali", "notes": [12, 14, 16]}
+
+etudiant["nom"]                    # "Ali"
+etudiant.get("age", "inconnu")     # "inconnu" (pas de KeyError)
+etudiant["classe"] = "B1"          # ajout d'une clé
+etudiant["notes"].append(18)       # modification d'une liste interne
+
+for cle, valeur in etudiant.items():
+    print(cle, "->", valeur)</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> KeyError — la source n°1</div>
+    <p><code>etudiant["age"]</code> lève <code>KeyError</code> si la clé n'existe pas. Préfère
+    <code>.get(cle, valeur_defaut)</code> qui retourne une valeur par défaut au lieu de planter.</p>
+  </div>
+
+  <h2>4. Tuples et ensembles</h2>
+  <pre><code>coordonnees = (48.8, 2.3)        # tuple : immuable
+# coordonnees[0] = 5   -> TypeError
+
+x, y = coordonnees               # déballage
+
+pairs = {n for n in range(1, 21) if n % 2 == 0}   # ensemble
+pairs_ordonnes = tuple(sorted(pairs))
+print(len(pairs), pairs_ordonnes)</code></pre>
+  <div class="out">10 (2, 4, 6, 8, 10, 12, 14, 16, 18, 20)</div>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Pourquoi un ensemble ?</div>
+    <p>Un ensemble ne contient <strong>jamais</strong> de doublon et teste l'appartenance très vite :
+    <code>if user in admins:</code>. Idéal pour les listes d'autorisation, les tags, les identifiants uniques.</p>
+  </div>
+
+  <h2>5. Exemples travaillés</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple A</span><span class="badge badge--n1">Très simple</span></div>
+    <p>Somme et moyenne d'une liste.</p>
+    <pre><code>notes = [12, 15, 9]
+print(sum(notes) / len(notes))   # 12.0</code></pre>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple B</span><span class="badge badge--n2">Intermédiaire</span></div>
+    <p><strong>Énoncé (sujet type).</strong> 3 étudiants avec noms et notes ; calculer et afficher chaque moyenne.</p>
+    <pre><code>etudiants = [
+    {"nom": "Ali", "notes": [12, 14, 16]},
+    {"nom": "Sara", "notes": [8, 11, 7]},
+    {"nom": "Paul", "notes": [18, 17, 19]},
+]
+
+for e in etudiants:
+    moyenne = sum(e["notes"]) / len(e["notes"])
+    print(f"{e['nom']} : {moyenne:.2f}")</code></pre>
+    <div class="out">Ali : 14.00
+Sara : 8.67
+Paul : 18.00</div>
+    <p><strong>Analyse.</strong> Une <em>liste de dictionnaires</em> est le modèle le plus courant pour des
+    enregistrements. On parcourt la liste, puis on accède aux champs par clé.</p>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple C</span><span class="badge badge--n3">Difficile</span></div>
+    <p><strong>Énoncé.</strong> Trouver le nom de l'étudiant ayant la meilleure moyenne.</p>
+    <pre><code>meilleur = None
+meilleure_moyenne = -1
+for e in etudiants:
+    m = sum(e["notes"]) / len(e["notes"])
+    if m > meilleure_moyenne:
+        meilleure_moyenne = m
+        meilleur = e["nom"]
+print(meilleur, meilleure_moyenne)   # Paul 18.0</code></pre>
+    <p><strong>Pourquoi initialiser à -1 ?</strong> Une moyenne est ≥ 0 : partir de -1 garantit que le premier
+    étudiant est toujours retenu. Initialiser à 0 buggerait sur une classe où tout le monde aurait 0.</p>
+  </div>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Utilité IT</div>
+    <p>API JSON <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> dictionnaires python. Logs <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> listes de dictionnaires. Identifiants uniques <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> ensembles.
+    Le choix de structure conditionne la lisibilité et la performance du code.</p>
+  </div>
+
+  <h2>6. Exercices (5 niveaux)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Niveau 1 — Acquisition</span></div>
+    <p><strong>1.</strong> Que vaut <code>[10, 20, 30][1]</code> ? <strong>2.</strong> <code>len({"a":1,"b":2})</code> ?
+    <strong>3.</strong> Un tuple est-il modifiable ?</p>
+    <details><summary>Correction</summary><div class="sol">1. <code>20</code>. &nbsp; 2. <code>2</code> (nombre de clés). &nbsp; 3. Non : immuable.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Niveau 2 — Application</span></div>
+    <p><strong>4.</strong> Crée l'ensemble des nombres pairs de 1 à 20, puis affiche-le comme tuple trié.</p>
+    <details><summary>Correction</summary><div class="sol"><pre><code>pairs = {n for n in range(1, 21) if n % 2 == 0}
+print(tuple(sorted(pairs)))</code></pre></div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Niveau 3 — Raisonnement</span></div>
+    <p><strong>5.</strong> Pourquoi <code>d.get("age")</code> est-il préférable à <code>d["age"]</code> quand la clé
+    peut manquer ? <strong>6.</strong> Que fait <code>notes.sort()</code> sur <code>notes</code> ?</p>
+    <details><summary>Correction</summary><div class="sol">5. <code>get</code> renvoie <code>None</code> (ou un défaut) au lieu de lever <code>KeyError</code> :
+    code plus robuste. 6. Elle trie la liste <em>sur place</em> (modifie <code>notes</code> et renvoie <code>None</code>).</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n4">Niveau 4 — Examen</span></div>
+    <p><strong>7.</strong> Écris un programme qui crée une liste de 3 étudiants (noms + notes), puis calcule et
+    affiche la moyenne de chacun et la moyenne générale de la classe.</p>
+    <details><summary>Correction détaillée</summary><div class="sol"><pre><code>etudiants = [
+    {"nom": "Ali", "notes": [12, 14, 16]},
+    {"nom": "Sara", "notes": [8, 11, 7]},
+    {"nom": "Paul", "notes": [18, 17, 19]},
+]
+total_general = 0
+for e in etudiants:
+    moy = sum(e["notes"]) / len(e["notes"])
+    total_general += moy
+    print(f"{e['nom']} : {moy:.2f}")
+print(f"Moyenne classe : {total_general / len(etudiants):.2f}")</code></pre>
+    Barème : structure liste de dict, accès par clé, moyenne par étudiant, moyenne globale.
+    Piège : diviser par un <code>len</code> constant au lieu du nombre de notes par étudiant.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n5">Niveau 5 — Challenge</span></div>
+    <p><strong>8.</strong> À partir de deux listes <code>admins</code> et <code>superadmins</code>, produis
+    la liste triée des personnes ayant les deux rôles (intersection), puis de toutes (union).</p>
+    <details><summary>Correction</summary><div class="sol"><pre><code>admins = {"ali", "sara", "paul"}
+superadmins = {"sara", "paul", "zoe"}
+print(sorted(admins & superadmins))   # ['paul', 'sara']
+print(sorted(admins | superadmins))   # ['ali', 'paul', 'sara', 'zoe']</code></pre>
+    <code>&</code> = intersection, <code>|</code> = union, <code>-</code> = différence, <code>^</code> = symétrique.</div></details>
+  </div>
+<!-- code-labs:start -->
+  <h2>7. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="py-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="20">
+  <script type="text/plain" data-lab-starter>n = int(input())
+
+# À compléter : construire la liste des pairs, la trier, la convertir en tuple.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Liste, tri et tuple</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Construire une collection par filtrage, la trier et la convertir.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n. Construisez la liste des nombres pairs de 1 à n inclus, triez-la, convertissez-la en tuple, puis affichez sa longueur sur une première ligne et le tuple sur la seconde.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>20</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>10
+(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)</pre></div>
+    </div>
+    <p class="lab__note">Dix nombres pairs, du plus petit au plus grand.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La parité se teste avec le reste de la division par 2 : un reste nul signifie que le nombre est pair.</li>
+        <li>Une liste et un tuple s’affichent presque pareil, mais les crochets deviennent des parenthèses. Un tuple vide s’affiche avec deux parenthèses collées.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="2&#10;Jean 12 15 14&#10;Marie 18 17 19">
+  <script type="text/plain" data-lab-starter>n = int(input())
+
+# À compléter : lire chaque ligne, puis afficher nom et moyenne.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moyennes d’une promotion — sujet d’examen</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parcourir des structures imbriquées et présenter un résultat formaté.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n lignes de la forme <code>nom note1 note2 note3</code>. Affichez, dans l’ordre reçu, le nom suivi de la moyenne des trois notes avec deux décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+Jean 12 15 14
+Marie 18 17 19</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Jean 13.67
+Marie 18.00</pre></div>
+    </div>
+    <p class="lab__note">Deux lignes lues, deux lignes affichées, dans le même ordre.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une ligne se découpe sur les espaces : le premier morceau est le nom, les suivants sont les notes.</li>
+        <li>Un morceau de texte reste du texte : pour calculer une moyenne, chaque note doit d’abord redevenir un nombre entier.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="le chat le chien le rat">
+  <script type="text/plain" data-lab-starter>texte = input()
+
+# À compléter : compter les occurrences de chaque mot.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Fréquence des mots</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter des occurrences avec un dictionnaire.</p>
+    <div class="lab__brief"><p>Le programme reçoit une ligne de texte. Affichez chaque mot en minuscules suivi de son nombre d’occurrences, un mot par ligne, dans l’ordre de leur première apparition.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>le chat le chien le rat</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>le 3
+chat 1
+chien 1
+rat 1</pre></div>
+    </div>
+    <p class="lab__note">Le premier mot apparaît trois fois.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un dictionnaire ne connaît que deux opérations utiles ici : lire la valeur associée à un mot, et l’incrémenter.</li>
+        <li>Une lecture de clé absente interrompt le programme : il faut une lecture qui accepte une valeur de repli quand le mot est vu pour la première fois.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>8. QCM — niveau examen</h2>
+  <div class="qcm" data-mastery="1">
+    <div class="q">
+      <p class="q__stem">Que vaut <code>[1, 2, 3][-1]</code> ?</p>
+      <div class="opts">
+        <button class="opt">1</button>
+        <button class="opt" data-correct="1">3</button>
+        <button class="opt">IndexError</button>
+      </div>
+      <div class="q__exp">L'index négatif part de la fin : -1 = dernier élément.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>[1, 2, 3, 4][1:3]</code> ?</p>
+      <div class="opts">
+        <button class="opt">[1, 2, 3]</button>
+        <button class="opt" data-correct="1">[2, 3]</button>
+        <button class="opt">[2, 3, 4]</button>
+      </div>
+      <div class="q__exp">De l'index 1 (inclus) à 3 (exclu) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> [2, 3].</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle affirmation sur les dictionnaires est vraie ?</p>
+      <div class="opts">
+        <button class="opt">Les clés peuvent être dupliquées</button>
+        <button class="opt" data-correct="1">L'accès se fait par clé, pas par position</button>
+        <button class="opt">Ils sont immuables</button>
+      </div>
+      <div class="q__exp">Les clés sont uniques ; l'accès est <code>d[cle]</code> / <code>d.get(cle)</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type choisir pour une liste d'identifiants sans doublon ?</p>
+      <div class="opts">
+        <button class="opt">list</button>
+        <button class="opt">tuple</button>
+        <button class="opt" data-correct="1">set</button>
+      </div>
+      <div class="q__exp">Un <code>set</code> garantit l'unicité automatiquement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie <code>[3,1,2].sort()</code> ?</p>
+      <div class="opts">
+        <button class="opt">[1, 2, 3]</button>
+        <button class="opt" data-correct="1">None</button>
+        <button class="opt">[3, 1, 2]</button>
+      </div>
+      <div class="q__exp"><code>sort()</code> trie sur place et renvoie <code>None</code>. Pour obtenir une nouvelle liste triée : <code>sorted(...)</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Après <code>t = (1, 2)</code>, que fait <code>t[0] = 9</code> ?</p>
+      <div class="opts">
+        <button class="opt">t devient (9, 2)</button>
+        <button class="opt" data-correct="1">TypeError</button>
+        <button class="opt">Rien</button>
+      </div>
+      <div class="q__exp">Un tuple est immuable : toute affectation d'élément lève <code>TypeError</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>{1, 2, 2, 3}</code> ?</p>
+      <div class="opts">
+        <button class="opt">{1, 2, 2, 3}</button>
+        <button class="opt" data-correct="1">{1, 2, 3}</button>
+        <button class="opt">SyntaxError</button>
+      </div>
+      <div class="q__exp">Un ensemble élimine les doublons à la création.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment itérer sur clés et valeurs d'un dictionnaire <code>d</code> ?</p>
+      <div class="opts">
+        <button class="opt"><code>for k, v in d:</code></button>
+        <button class="opt" data-correct="1"><code>for k, v in d.items():</code></button>
+        <button class="opt"><code>for k, v in d.values():</code></button>
+      </div>
+      <div class="q__exp"><code>d.items()</code> renvoie des couples (clé, valeur) déballables.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>sum([10, 20]) + len([10, 20])</code> ?</p>
+      <div class="opts">
+        <button class="opt">30</button>
+        <button class="opt" data-correct="1">32</button>
+        <button class="opt">Erreur</button>
+      </div>
+      <div class="q__exp">30 + 2 = 32.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle opération donne les éléments communs à deux ensembles a et b ?</p>
+      <div class="opts">
+        <button class="opt">a | b</button>
+        <button class="opt" data-correct="1">a &amp; b</button>
+        <button class="opt">a - b</button>
+      </div>
+      <div class="q__exp"><code>&</code> = intersection, <code>|</code> = union, <code>-</code> = différence.</div>
+    </div>
+  </div>
+
+  <h2>9. Erreurs classiques</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><code>IndexError</code> : accéder à <code>liste[len(liste)]</code> (le dernier index valide est <code>len-1</code>).</li>
+      <li><code>KeyError</code> : utiliser <code>d[cle]</code> sur une clé absente.</li>
+      <li><code>TypeError</code> : modifier un tuple.</li>
+      <li>Confondre <code>sort()</code> (sur place, renvoie None) et <code>sorted()</code> (renvoie une copie).</li>
+      <li>Utiliser <code>{ }</code> en pensant créer une liste vide (c'est un dictionnaire vide !).</li>
+    </ul>
+  </div>
+
+  <h2>10. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Choisir sa structure en 4 questions</div>
+    <ol>
+      <li>Ai-je besoin d'un <strong>ordre</strong> ? Non <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> envisage l'ensemble.</li>
+      <li>Ai-je besoin d'<strong>unicité</strong> ? Oui <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> ensemble.</li>
+      <li>Ai-je besoin de retrouver une valeur par un <strong>nom</strong> ? Oui <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> dictionnaire.</li>
+      <li>La collection doit-elle être <strong>modifiable</strong> ? Non <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> tuple ; oui <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> liste.</li>
+    </ol>
+  </div>
+
+  <h2>11. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Liste <code>[]</code> : ordonnée, modifiable, index <code>0..n-1</code>, slice fin exclue.</li>
+      <li>Dict <code>{}</code> : clé <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> valeur, <code>.get</code> pour éviter <code>KeyError</code>.</li>
+      <li>Tuple <code>()</code> : immuable, déballable, retour multiple.</li>
+      <li>Set <code>set()</code> : unique, non ordonné, <code>&amp; | -</code>.</li>
+      <li><code>sorted()</code> renvoie une copie ; <code>.sort()</code> trie sur place.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais choisir liste / dict / tuple / set pour un besoin donné.</li>
+      <li>Je sais éviter IndexError et KeyError.</li>
+      <li>Je sais parcourir un dictionnaire avec <code>.items()</code>.</li>
+      <li>Je sais modéliser « enregistrements » avec une liste de dictionnaires.</li>
+      <li>Je sais utiliser les opérations ensemblistes.</li>
+    </ul>
+    <h3>Les 10 notions à connaître absolument</h3>
+    <ol>
+      <li>liste</li><li>index / index négatif</li><li>slice</li><li>append / insert / pop</li>
+      <li>dictionnaire</li><li>.get</li><li>.items()</li><li>tuple immuable</li><li>ensemble / unicité</li><li>sort vs sorted</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Flashcards</a> <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo</a></p>
+  </div>
+
+  <h2>12. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Lecture du score</div>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends sections 2 et 3.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exemples B/C et les niveaux 1-2.</div>
+      <div class="bandrow bandrow--good">70–89 % — Travaille les pièges IndexError/KeyError.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Passe au chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Chapitre 4 maîtrisé (≥ 95 %).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre3.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 3</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Fichiers <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail. Sources :
+  supports B1 INF-1001 (module 4) et sujets d'examen 2024-2025 (listes/dicts, tuples/ensembles).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

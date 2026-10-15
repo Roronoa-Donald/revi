@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Avancé B3 — Noyau Linux, Systemd, Cgroups v2 &amp;amp; Sécurité B3</title>
+<meta name="description" content="Formation d’excellence en ingénierie système Linux pour le Bachelor 3 : architecture interne du noyau et diagnostic système (/proc, /sys, espace d’adressage virtuel VMMAP, détection de violations W^X, traçabilité des appels système avec strace et codes errno), gestion avancée de l’init avec systemd (PID 1, syntaxe déclarative des unités service/timer, graphe de dépendances directed acyclic graph DAG, détection de cycles After/Before/Requires et requêtes journald avec décodage des priorités RFC 5424), ingénierie du stockage d’entreprise (Logical Volume Manager LVM, calcul des Physical Extents PE, snapshots Copy-On-Write COW, surveillance d’états et reconstruction RAID logiciel mdadm, et détection de saturation des métadonnées d’inodes vs blocs de données), fondements de la conteneurisation moderne (les 8 Namespaces Linux PID/MNT/NET/IPC/UTS/USER/CGROUP/TIME, hiérarchie unifiée Cgroups v2 sous /sys/fs/cgroup, régulation stricte cpu.max et memory.max, et mécanique de sacrifice de l’OOM Killer avec oom_score_adj), réseau virtuel avancé et routage par politiques (interconnexion de conteneurs avec paires veth et ponts logiciels Linux bridge, suite moderne iproute2, Policy-Based Routing PBR avec tables multiples via ip rule et séquence de résolution /etc/nsswitch.conf), et durcissement sécuritaire du noyau Linux (paramétrage /etc/sysctl.conf, randomisation ASLR, masquage de pointeurs kptr_restrict, architecture modulaire PAM avec drapeaux required/requisite/sufficient, et traçabilité inaltérable avec auditd pour la détection d’élévations de privilèges EUID=0).">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-linux/index.html">
+<meta property="og:title" content="Linux Avancé B3 — Noyau Linux, Systemd, Cgroups v2 &amp;amp; Sécurité B3">
+<meta property="og:description" content="Formation d’excellence en ingénierie système Linux pour le Bachelor 3 : architecture interne du noyau et diagnostic système (/proc, /sys, espace d’adressage virtuel VMMAP, détection de violations W^X, traçabilité des appels système avec strace et codes errno), gestion avancée de l’init avec systemd (PID 1, syntaxe déclarative des unités service/timer, graphe de dépendances directed acyclic graph DAG, détection de cycles After/Before/Requires et requêtes journald avec décodage des priorités RFC 5424), ingénierie du stockage d’entreprise (Logical Volume Manager LVM, calcul des Physical Extents PE, snapshots Copy-On-Write COW, surveillance d’états et reconstruction RAID logiciel mdadm, et détection de saturation des métadonnées d’inodes vs blocs de données), fondements de la conteneurisation moderne (les 8 Namespaces Linux PID/MNT/NET/IPC/UTS/USER/CGROUP/TIME, hiérarchie unifiée Cgroups v2 sous /sys/fs/cgroup, régulation stricte cpu.max et memory.max, et mécanique de sacrifice de l’OOM Killer avec oom_score_adj), réseau virtuel avancé et routage par politiques (interconnexion de conteneurs avec paires veth et ponts logiciels Linux bridge, suite moderne iproute2, Policy-Based Routing PBR avec tables multiples via ip rule et séquence de résolution /etc/nsswitch.conf), et durcissement sécuritaire du noyau Linux (paramétrage /etc/sysctl.conf, randomisation ASLR, masquage de pointeurs kptr_restrict, architecture modulaire PAM avec drapeaux required/requisite/sufficient, et traçabilité inaltérable avec auditd pour la détection d’élévations de privilèges EUID=0).">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-linuxnav"><div class="b3-linuxnav__in">
+  <a class="b3-linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-linuxnav__sep" aria-hidden="true">/</span>
+  <a class="b3-linuxnav__brand" href="index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux Avancé B3</a>
+  <div class="b3-linuxnav__links">
+    <a href="sommaire.html">Sommaire</a>
+    <a href="chapitres/chapitre1.html">Ch. 1</a>
+    <a href="chapitres/chapitre2.html">Ch. 2</a>
+    <a href="chapitres/chapitre3.html">Ch. 3</a>
+    <a href="chapitres/chapitre4.html">Ch. 4</a>
+    <a href="chapitres/chapitre5.html">Ch. 5</a>
+    <a href="chapitres/chapitre6.html">Ch. 6</a>
+    <a href="chapitres/cartes.html">Cartes</a>
+    <a href="chapitres/formules.html">Mémo</a>
+    <a href="exercices/exercices.html">Exercices</a>
+    <a href="atelier.html">Atelier</a>
+    <a href="chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-linuxwrap">
+  <header class="hero">
+
+    <div class="hero__badge"><span class="badge badge--glow"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Niveau B3 • Ingénierie Système Linux, Noyau, Systemd, Cgroups v2 &amp; Sécurité</span></div>
+
+    <h1 class="hero__title">Linux Avancé B3</h1>
+
+    <p class="hero__subtitle">Maîtrisez les composants profonds du noyau Linux, l’orchestration systemd, le stockage LVM, la conteneurisation Cgroups v2 et le durcissement sécuritaire en entreprise. Six modules approfondis combinant formalisme théorique, 18 ateliers de programmation interactive en Python 3 et 48 QCM d’évaluation.</p>
+
+    <div class="hero__actions">
+
+      <a class="btn btn--primary btn--lg" href="chapitres/chapitre1.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Démarrer le cours</a>
+
+      <a class="btn btn--lg" href="sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> Voir le sommaire</a>
+
+      <a class="btn btn--lg" href="atelier.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Laboratoire Linux Avancé</a>
+
+    </div>
+
+  </header>
+
+
+
+  <section class="statbar">
+
+    <div class="stat"><span class="stat__val">6</span><span class="stat__lbl">Modules fondamentaux</span></div>
+
+    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Exercices de code exécutables</span></div>
+
+    <div class="stat"><span class="stat__val">48</span><span class="stat__lbl">Questions de QCM corrigées</span></div>
+
+    <div class="stat"><span class="stat__val">2</span><span class="stat__lbl">Examens blancs complets</span></div>
+
+  </section>
+
+
+
+  <h2>Parcours d’apprentissage</h2>
+
+  <div class="grid">    <article class="card">
+      <div class="card__head">
+        <span class="badge">Accès libre</span>
+        <span class="card__num">Module 1</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre1.html">Noyau Linux, Pseudo-FS (/proc, /sys) &amp; Appels Système</a></h3>
+      <p class="card__desc">Architecture noyau (espace noyau vs espace utilisateur, VFS), inspection de /proc et /sys, mémoire virtuelle (W^X), et traçage des appels système avec strace.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 2</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre2.html">Initialisation &amp; Gestionnaire de Services Systemd Avancé</a></h3>
+      <p class="card__desc">Séquence d’initialisation (UEFI, GRUB2, initramfs), architecture de Systemd (PID 1), gestion déclarative des unités (.service, .socket, .target), graphes de dépendances et analyse de journaux avec journald.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 3</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre3.html">Gestion Avancée du Stockage : LVM, RAID Logiciel &amp; Inodes</a></h3>
+      <p class="card__desc">Architecture LVM (Physical Extents, VG, LV, snapshots COW), tolérance aux pannes RAID mdadm (RAID 1, 5, 6), table d’inodes et diagnostic de saturation sous ext4/XFS.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 4</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre4.html">Isolation &amp; Conteneurisation Noyau : Namespaces &amp; Cgroups v2</a></h3>
+      <p class="card__desc">Les 8 namespaces Linux (pid, net, mnt, ipc, uts, user, cgroup, time), contrôle de ressources avec Cgroups v2 (cpu.max, memory.max), mécanique de l’OOM Killer et fondements des conteneurs.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 5</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre5.html">Réseau Avancé Linux : Namespaces, Bridges &amp; Policy Routing</a></h3>
+      <p class="card__desc">Interfaces virtuelles (veth pairs, Linux bridge, tap/tun), iproute2, routage par règles et politiques multiples (PBR, ip rule), et séquence de résolution NSSwitch.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 6</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre6.html">Sécurité Avancée, Durcissement du Noyau, PAM &amp; Auditing (auditd)</a></h3>
+      <p class="card__desc">Durcissement du noyau (/etc/sysctl.conf, ASLR, restriction dmesg/kptr), pile modulaire d’authentification PAM (required/requisite/sufficient), et traçabilité avec auditd.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article></div>
+
+
+
+  <h2>Ingénierie Système &amp; Philosophie de Linux Avancé en Troisième Année</h2>
+
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> De l’Administration Système au Cœur du Noyau Linux et des Conteneurs</div>
+<p>En troisième année de Bachelor en Ingénierie Informatique, Linux dépasse largement l’utilisation des commandes usuelles (<code>ls</code>, <code>grep</code>, <code>tar</code>). L’ingénieur système, DevOps ou SRE doit comprendre comment le système d’exploitation dialogue intimement avec le matériel et orchestre les processus à l’échelle industrielle.</p>,<p>Ce cours approfondit l’intégralité des mécanismes avancés du système d’exploitation GNU/Linux : les pseudo-systèmes de fichiers <code>/proc</code> et <code>/sys</code>, l’espace d’adressage virtuel et les appels système (syscalls) sous <code>strace</code>, l’architecture de <code>systemd</code> (PID 1), l’ordonnancement des dépendances de services et le journal binaire <code>journald</code>, la gestion avancée du stockage (LVM, Physical Extents, snapshots COW, RAID logiciel <code>mdadm</code> et saturation des tables d’inodes), les fondements de la conteneurisation moderne par l’isolation des huit Namespaces et le contrôle unifié des ressources avec Cgroups v2, le réseau avancé Linux (paires veth, bridges logiciels et Policy-Based Routing multi-tables via <code>ip rule</code>), et enfin le durcissement sécuritaire du noyau (paramètres <code>sysctl</code>, modules d’authentification PAM et traçabilité continue avec <code>auditd</code>).</p>
+  </div>
+
+
+
+  <div class="chnav">
+    <a class="btn btn--primary" href="chapitres/chapitre1.html">Commencer par le Chapitre 1 <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail personnel.</p>
+</main>
+
+<script src="assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Algorithmes Gloutons &amp;amp; Théorie des Graphes | Algorithmique B3</title>
+<meta name="description" content="Chapitre 4 du cours Algorithmique B3 : Modélisation des graphes, représentations par listes et matrices d’adjacence, parcours en largeur (BFS) et profondeur (DFS), principe de choix glouton, arbre couvrant minimal (MST) et algorithme de Kruskal avec structure Union-Find. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-algo/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Algorithmes Gloutons &amp;amp; Théorie des Graphes | Algorithmique B3">
+<meta property="og:description" content="Chapitre 4 du cours Algorithmique B3 : Modélisation des graphes, représentations par listes et matrices d’adjacence, parcours en largeur (BFS) et profondeur (DFS), principe de choix glouton, arbre couvrant minimal (MST) et algorithme de Kruskal avec structure Union-Find. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-algonav"><div class="b3-algonav__in">
+  <a class="b3-algonav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-algonav__sep" aria-hidden="true">/</span>
+  <a class="b3-algonav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algorithmique B3</a>
+  <div class="b3-algonav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-algonav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-algowrap">
+<p class="crumb"><a href="../index.html">Algorithmique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Algorithmes Gloutons &amp; Théorie des Graphes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Réseaux de télécommunications, cartographie routière GPS, topologies de clusters distribués, dépendances de paquets logiciels ou réseaux sociaux : la majorité des problèmes complexes du monde réel se modélisent naturellement sous forme de graphes $G = (V, E)$. Comment concevoir un réseau optique reliant un ensemble de métropoles au coût minimal absolu de déploiement de fibre ? L’approche par force brute consistant à évaluer tous les arbres couvrants possibles se heurte à la formule de Cayley ($n^{n-2}$ arbres pour $n$ sommets), faisant exploser le calcul même pour 20 villes. Le paradigme glouton (Greedy Approach) démontre qu’en prenant à chaque étape le choix localement optimal, on peut converger avec une preuve mathématique rigoureuse vers l’optimum global. Ce chapitre étudie la théorie des graphes, les parcours d’exploration et l’algorithme de Kruskal avec la structure Union-Find.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>modéliser formellement des topologies sous forme de graphes orientés ou non orientés, pondérés ou non ;</li>
+      <li>comparer les représentations en mémoire : matrice d’adjacence $O(|V|^2)$ vs liste d’adjacence $O(|V| + |E|)$ ;</li>
+      <li>maîtriser le parcours en largeur (BFS) avec file FIFO pour trouver la plus courte distance en nombre d’arêtes ;</li>
+      <li>maîtriser le parcours en profondeur (DFS) avec pile LIFO pour la détection de cycles et les composantes connexes ;</li>
+      <li>comprendre le principe du choix glouton et la propriété de sous-structure optimale ;</li>
+      <li>implémenter l’algorithme de Kruskal avec une structure de données Union-Find pour trouver l’Arbre Couvrant Minimal (MST).</li>
+    </ol>
+  </div>
+
+<h2>1. Représentation des Graphes en Mémoire</h2>
+
+<p>Un graphe $G = (V, E)$ est constitué d’un ensemble de sommets (vertices) $V$ et d’un ensemble d’arêtes ou arcs (edges) $E$. Selon la densité du graphe, le choix de la structure de données est déterminant :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Matrice d’Adjacence</h4>
+    <ul>
+      <li>Matrice booléenne ou pondérée de dimensions $|V| \times |V|$.</li>
+      <li><strong>Espace mémoire :</strong> $\Theta(|V|^2)$, indépendant du nombre d’arêtes.</li>
+      <li><strong>Test d’adjacence $(u, v)$ :</strong> Temps immédiat $O(1)$.</li>
+      <li><strong>Itérer sur les voisins :</strong> Temps $\Theta(|V|)$.</li>
+      <li>Idéal pour les <em>graphes denses</em> où $|E| \approx |V|^2$.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Liste d’Adjacence</h4>
+    <ul>
+      <li>Tableau ou dictionnaire associant à chaque sommet la liste de ses voisins directs.</li>
+      <li><strong>Espace mémoire :</strong> $\Theta(|V| + |E|)$.</li>
+      <li><strong>Test d’adjacence $(u, v)$ :</strong> Temps $O(\text{deg}(u))$.</li>
+      <li><strong>Itérer sur les voisins :</strong> Temps $O(\text{deg}(u))$.</li>
+      <li>Structure standard par excellence pour les <em>graphes creux</em> où $|E| \ll |V|^2$.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Parcours de Graphes : BFS vs DFS</h2>
+
+<p>L’exploration exhaustive d’un graphe repose sur deux démarches fondamentales en complexité $O(|V| + |E|)$ :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Parcours en Largeur (Breadth-First Search - BFS)</h4>
+    <p>Utilise une <strong>file FIFO</strong>. Explore d’abord tous les voisins à distance 1, puis à distance 2, etc.<br>    <strong>Propriété clé :</strong> Calcule la distance minimale en nombre d’arêtes depuis la source.<br>    Permet de trouver le plus court chemin dans tout graphe non pondéré.</p>
+  </div>
+  <div class="card">
+    <h4>Parcours en Profondeur (Depth-First Search - DFS)</h4>
+    <p>Utilise une <strong>pile LIFO</strong> (ou récursion). S’enfonce le plus loin possible le long d’une branche avant de rebrousser chemin.<br>    <strong>Propriétés clés :</strong> Détection de cycles, calcul des composantes fortement connexes (Tarjan, Kosaraju) et tri topologique d’un DAG.</p>
+  </div>
+</div>
+
+<h2>3. Arbre Couvrant Minimal (MST) et Algorithme de Kruskal</h2>
+
+<p>Dans un graphe connexe non orienté pondéré, un <strong>Arbre Couvrant Minimal (Minimum Spanning Tree - MST)</strong> est un sous-graphe aciclique reliant l’ensemble des $|V|$ sommets avec exactement $|V| - 1$ arêtes, de manière à minimiser la somme des poids de ces arêtes.</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L’Algorithme Glouton de Kruskal</div>
+<ol>
+  <li>Trier toutes les arêtes de $E$ par poids croissant.</li>
+  <li>Initialiser chaque sommet dans sa propre composante disjointe (forêt de $|V|$ arbres isolés).</li>
+  <li>Parcourir les arêtes triées : pour chaque arête $(u, v)$ de poids $w$ :<br>  - Si $u$ et $v$ appartiennent à des composantes distinctes : ajouter l’arête au MST et fusionner les deux composantes.<br>  - Sinon : rejeter l’arête car elle formerait un cycle.</li>
+  <li>S’arrêter dès que le MST contient $|V| - 1$ arêtes.</li>
+</ol>
+<p><strong>Structure Union-Find (Disjoint-Set) :</strong> avec la compression de chemin et l’union par rang, les opérations <code>find</code> et <code>union</code> s’exécutent en temps quasi constant $O(\alpha(|V|))$ (où $\alpha$ est la fonction inverse d’Ackermann, $\alpha(n) \le 4$ pour toute échelle réaliste).<br>La complexité totale de Kruskal est dominée par le tri initial : <strong>$O(|E| \log |E|)$</strong>.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="al3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="GRAPHE nom=g1 TYPE=NON_ORIENTE SOMMETS=A,B,C,D ARETES=A-B:5,B-C:2,A-C:8,C-D:1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser le graphe, calculer les degrés et afficher la structure
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Représentation de graphe et calcul des degrés</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir une liste d’arêtes en liste d’adjacence ordonnée et calculer les degrés de chaque sommet selon l’orientation.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>GRAPHE nom=&lt;nom&gt; TYPE=&lt;ORIENTE|NON_ORIENTE&gt; SOMMETS=&lt;S1,S2,...&gt; ARETES=&lt;u-v:poids,...&gt;</code>.<br>
+Pour chaque graphe :<br>
+1. Construire la liste d’adjacence : pour chaque sommet, trier ses voisins par ordre alphabétique.<br>
+2. Calculer le degré de chaque sommet (pour un graphe orienté, afficher <code>deg_in/deg_out</code>, pour non-orienté le degré total).<br>
+Afficher :<br>
+<code>GRAPHE: nom=&lt;nom&gt; | SOMMETS: &lt;nb&gt; | ARETES: &lt;nb&gt;</code><br>
+<code>DEGRES: S1=&lt;d1&gt;, S2=&lt;d2&gt;, ...</code><br>
+<code>ADJ: S1 -&gt; [v1(p1), v2(p2)] | S2 -&gt; ...</code> (si aucun voisin, <code>[]</code>)</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>GRAPHE nom=g1 TYPE=NON_ORIENTE SOMMETS=A,B,C,D ARETES=A-B:5,B-C:2,A-C:8,C-D:1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>GRAPHE: nom=g1 | SOMMETS: 4 | ARETES: 4
+DEGRES: A=2, B=2, C=3, D=1
+ADJ: A -&gt; [B(5), C(8)] | B -&gt; [A(5), C(2)] | C -&gt; [A(8), B(2), D(1)] | D -&gt; [C(1)]</pre></div>
+    </div>
+    <p class="lab__note">Graphe non-orienté : C est relié à A, B, D donc deg=3.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour un graphe non orienté, l’arête u-v:p ajoute v à la liste de u et u à la liste de v.</li>
+        <li>Pour un graphe orienté, u-v:p signifie un arc partant de u vers v.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="BFS nom=reseau1 SOMMETS=A,B,C,D,E ARETES=A-B,A-C,B-D,C-D,D-E DEPART=A CIBLE=E">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter le parcours BFS avec file FIFO et reconstruction de chemin
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Parcours en largeur (BFS) et distance minimale</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter un parcours BFS pour trouver le chemin le plus court en nombre d’arêtes dans un graphe non pondéré.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>BFS nom=&lt;nom&gt; SOMMETS=&lt;S1,S2,...&gt; ARETES=&lt;u-v,...&gt; DEPART=&lt;src&gt; CIBLE=&lt;dst&gt;</code>.<br>
+Algorithme BFS :<br>
+1. Initialiser une file FIFO avec le sommet de départ <code>src</code> (distance 0).<br>
+2. Pour garantir le déterminisme, visiter les voisins dans l’ordre alphabétique.<br>
+3. Suivre l’ordre de visite et enregistrer le parent de chaque sommet pour reconstituer le chemin le plus court.<br>
+Afficher :<br>
+Si la cible est accessible :<br>
+<code>BFS: nom=&lt;nom&gt; | DISTANCE: &lt;dist&gt; | CHEMIN: &lt;s1 -&gt; s2 -&gt; ... -&gt; dst&gt; | VISITES: &lt;ordre_visite&gt;</code><br>
+Si inaccessible :<br>
+<code>BFS: nom=&lt;nom&gt; | INACCESSIBLE | VISITES: &lt;ordre_visite&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BFS nom=reseau1 SOMMETS=A,B,C,D,E ARETES=A-B,A-C,B-D,C-D,D-E DEPART=A CIBLE=E</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BFS: nom=reseau1 | DISTANCE: 3 | CHEMIN: A -&gt; B -&gt; D -&gt; E | VISITES: A, B, C, D, E</pre></div>
+    </div>
+    <p class="lab__note">BFS explore A, puis B et C, puis D, puis E. Le chemin minimal fait 3 arêtes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser collections.deque pour la file FIFO.</li>
+        <li>Trier les voisins dans l’ordre alphabétique avant de les enfiler.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="KRUSKAL nom=g1 SOMMETS=A,B,C,D ARETES=A-B:4,A-C:2,B-C:1,B-D:5,C-D:8">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter l'algorithme de Kruskal avec structure Union-Find
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Arbre couvrant minimal (MST) de Kruskal et Union-Find</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le poids total et les arêtes d’un Arbre Couvrant Minimal (MST) avec l’algorithme glouton de Kruskal et une structure Union-Find.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>KRUSKAL nom=&lt;nom&gt; SOMMETS=&lt;S1,S2,...&gt; ARETES=&lt;u-v:poids,...&gt;</code>.<br>
+Algorithme glouton de Kruskal :<br>
+1. Trier toutes les arêtes par poids croissant. En cas d’égalité de poids, trier par ordre lexicographique sur le nom <code>u-v</code> (avec $u &lt; v$).<br>
+2. Pour chaque arête, vérifier si ses extrémités appartiennent à la même composante connexe (structure Union-Find avec compression de chemin).<br>
+3. Si non : l’ajouter au MST et fusionner les ensembles. Si oui : rejeter l’arête (cycle évité).<br>
+Afficher :<br>
+<code>KRUSKAL: nom=&lt;nom&gt; | POIDS_MST: &lt;poids&gt; | ARETES: &lt;a1, a2, ...&gt; | REJETS: &lt;nb_cycles&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>KRUSKAL nom=g1 SOMMETS=A,B,C,D ARETES=A-B:4,A-C:2,B-C:1,B-D:5,C-D:8</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>KRUSKAL: nom=g1 | POIDS_MST: 8 | ARETES: B-C:1, A-C:2, B-D:5 | REJETS: 2</pre></div>
+    </div>
+    <p class="lab__note">B-C(1) et A-C(2) sont acceptées. A-B(4) forme un cycle avec A-C-B (rejetée). B-D(5) acceptée. C-D(8) forme un cycle (rejetée).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Normaliser les arêtes pour que le premier sommet soit toujours le plus petit alphabétiquement.</li>
+        <li>Union-Find utilise find(x) pour trouver le représentant et union(x, y) pour fusionner.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Combien d’arêtes comporte obligatoirement un arbre couvrant minimal d’un graphe connexe ayant 12 sommets ?</p>
+      <div class="opts">
+        <button class="opt">10 arêtes</button>
+        <button class="opt" data-correct="1">11 arêtes</button>
+        <button class="opt">12 arêtes</button>
+        <button class="opt">13 arêtes</button>
+      </div>
+      <div class="q__exp">Dans tout arbre à |V| sommets, le nombre d’arêtes est strictement égal à |V| - 1. Pour 12 sommets, un arbre couvrant compte obligatoirement 11 arêtes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’espace mémoire requis par une liste d’adjacence pour représenter un graphe à |V| sommets et |E| arêtes ?</p>
+      <div class="opts">
+        <button class="opt">O(1)</button>
+        <button class="opt">O(|V|)</button>
+        <button class="opt" data-correct="1">O(|V| + |E|)</button>
+        <button class="opt">O(|V|^2)</button>
+      </div>
+      <div class="q__exp">Une liste d’adjacence alloue une entrée pour chaque sommet et stocke chaque arête (une fois pour un graphe orienté, deux fois pour un non-orienté), soit un coût en O(|V| + |E|).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel parcours garantit de trouver le chemin avec le nombre minimal d’arêtes entre deux sommets dans un graphe non pondéré ?</p>
+      <div class="opts">
+        <button class="opt">Parcours en profondeur (DFS)</button>
+        <button class="opt" data-correct="1">Parcours en largeur (BFS)</button>
+        <button class="opt">Tri topologique</button>
+        <button class="opt">Algorithme de Kruskal</button>
+      </div>
+      <div class="q__exp">Le parcours BFS explore les sommets par couches de distance croissante (0 arête, puis 1 arête, puis 2 arêtes...). Le premier chemin atteignant la cible est obligatoirement minimal.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité temporelle globale de l’algorithme de Kruskal sur un graphe G = (V, E) ?</p>
+      <div class="opts">
+        <button class="opt">O(|V|)</button>
+        <button class="opt" data-correct="1">O(|E| log |E|)</button>
+        <button class="opt">O(|V|^3)</button>
+        <button class="opt">O(2^{|V|})</button>
+      </div>
+      <div class="q__exp">Kruskal commence par trier toutes les arêtes par poids, ce qui coûte O(|E| log |E|). Les opérations Union-Find s’exécutant ensuite en O(|E| * alpha(|V|)), le tri domine la complexité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si l’on applique l’algorithme de Kruskal sur un graphe comportant deux composantes connexes disjointes ?</p>
+      <div class="opts">
+        <button class="opt">L’algorithme plante avec une erreur de division par zéro</button>
+        <button class="opt" data-correct="1">Il génère une forêt couvrante minimale (un arbre couvrant par composante)</button>
+        <button class="opt">Il connecte artificiellement les deux composantes</button>
+        <button class="opt">Il rejette toutes les arêtes</button>
+      </div>
+      <div class="q__exp">Kruskal va connecter tous les sommets connectables au sein de chaque composante, formant ainsi une forêt couvrante minimale (Minimum Spanning Forest) avec moins de |V|-1 arêtes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’optimisation de compression de chemin (Path Compression) est-elle cruciale dans Union-Find ?</p>
+      <div class="opts">
+        <button class="opt">Elle évite d’allouer de la mémoire</button>
+        <button class="opt" data-correct="1">Elle aplatit la structure arborescente pour que chaque nœud pointe directement vers la racine représentative</button>
+        <button class="opt">Elle trie les sommets par ordre alphabétique</button>
+        <button class="opt">Elle supprime les cycles du graphe</button>
+      </div>
+      <div class="q__exp">Lors de l’appel à find(x), la compression de chemin rattache tous les ancêtres traversés directement à la racine, réduisant la hauteur de l’arbre à presque 1 pour les accès ultérieurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un graphe dense où |E| est proche de |V|^2, quelle structure de données peut s’avérer plus rapide pour tester l’existence d’une arête spécifique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La matrice d’adjacence</button>
+        <button class="opt">La liste d’adjacence</button>
+        <button class="opt">La pile LIFO</button>
+        <button class="opt">L’arbre binaire de recherche</button>
+      </div>
+      <div class="q__exp">Une matrice d’adjacence permet de tester si (u, v) existe en un accès mémoire immédiat O(1), contre O(deg(u)) dans une liste d’adjacence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel autre algorithme glouton célèbre résout le problème de l’arbre couvrant minimal en faisant croître un arbre unique depuis un sommet arbitraire ?</p>
+      <div class="opts">
+        <button class="opt">L’algorithme de Dijkstra</button>
+        <button class="opt" data-correct="1">L’algorithme de Prim</button>
+        <button class="opt">L’algorithme de Bellman-Ford</button>
+        <button class="opt">L’algorithme de Floyd-Warshall</button>
+      </div>
+      <div class="q__exp">L’algorithme de Prim résout le MST en partant d’un sommet initial et en ajoutant à chaque étape l’arête de poids minimal reliant l’arbre courant à un sommet extérieur.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser DFS pour chercher le plus court chemin dans un graphe : DFS peut explorer un chemin très long avant de trouver la cible.</li>
+      <li>Oublier de vérifier si les deux sommets d’une arête sont déjà dans le même ensemble lors de Kruskal (création de cycle).</li>
+      <li>Allouer une matrice d’adjacence de 100 000 x 100 000 sommets : cela saturerait instantanément la RAM (10 Go de mémoire).</li>
+      <li>Confondre arête non orientée (symétrique u-v et v-u) et arc orienté (direction stricte u -> v).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Résolution de Problèmes sur les Graphes</div>
+    <ol>
+      <li>Choisir impérativement la liste d’adjacence pour modéliser le graphe afin d’éviter l’écueil quadratique O(|V|^2).</li>
+      <li>Pour trouver un chemin le plus court non pondéré, utiliser sans hésitation BFS avec une file FIFO.</li>
+      <li>Toujours marquer les sommets visités dans un ensemble ou un tableau booléen dès l’enfilement pour éviter les boucles infinies.</li>
+      <li>Pour Kruskal, normaliser les arêtes (u < v) pour faciliter le dédoublonnage et le tri lexicographique.</li>
+      <li>Implémenter Union-Find avec compression de chemin pour garantir un temps quasi constant lors des tests de cycle.</li>
+      <li>Vérifier que le graphe est connexe avant d’affirmer qu’un arbre couvrant complet existe.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les listes d’adjacence sont la représentation optimale pour les graphes creux avec un espace en O(|V| + |E|).</li>
+      <li>Le parcours BFS utilise une file FIFO et trouve le plus court chemin en nombre d’arêtes.</li>
+      <li>Le parcours DFS utilise une pile LIFO et permet la détection de cycles et le tri topologique.</li>
+      <li>Un algorithme glouton fait à chaque pas le choix localement optimal pour construire l’optimum global.</li>
+      <li>L’algorithme de Kruskal construit l’Arbre Couvrant Minimal (MST) en triant les arêtes et en évitant les cycles.</li>
+      <li>La structure Union-Find teste l’appartenance et fusionne des composantes en temps quasi constant O(alpha(n)).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais convertir une liste d’arêtes en liste d’adjacence et en matrice.</li>
+      <li>Je sais calculer le degré d’un sommet pour un graphe orienté (entrant/sortant) et non orienté.</li>
+      <li>Je sais implémenter BFS avec deque en Python.</li>
+      <li>Je sais reconstituer le chemin trouvé par BFS à l’aide du dictionnaire des précurseurs.</li>
+      <li>Je connais le principe de la structure Union-Find (find et union).</li>
+      <li>Je sais énoncer le théorème de Cayley donnant le nombre d’arbres couvrants (n^(n-2)).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Graphe orienté vs non orienté et fonction de pondération</li><li>Liste d’adjacence O(|V| + |E|) vs Matrice d’adjacence O(|V|^2)</li><li>Parcours en largeur (BFS) et file FIFO</li><li>Plus court chemin en nombre d’arêtes</li><li>Parcours en profondeur (DFS) et pile LIFO</li><li>Arbre Couvrant Minimal (MST - Minimum Spanning Tree)</li><li>Algorithme glouton de Kruskal en O(|E| log |E|)</li><li>Structure Union-Find avec compression de chemin</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la modélisation par liste d’adjacence et le parcours BFS.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bonnes bases, revoyez le déroulement de Kruskal et le rôle d’Union-Find.</div>
+      <div class="bandrow bandrow--high">8/8 : Parfait ! La théorie des graphes et les algorithmes gloutons sont solidement acquis.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Plus Courts Chemins &amp; Algorithme de Dijkstra <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours magistral ALGO_B3, l’ouvrage de référence Introduction à l’Algorithmique (Cormen, Leiserson, Rivest, Stein - CLRS) et les standards académiques universitaires de Licence 3 Informatique.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

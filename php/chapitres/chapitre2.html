@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Encapsulation, constantes et membres statiques | PHP POO B2</title>
+<meta name="description" content="Chapitre 2 du cours de PHP objet B2 : Visibilité, getters et setters avec validation, constantes de classe et membres statiques. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/php/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Encapsulation, constantes et membres statiques | PHP POO B2">
+<meta property="og:description" content="Chapitre 2 du cours de PHP objet B2 : Visibilité, getters et setters avec validation, constantes de classe et membres statiques. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="phpnav"><div class="phpnav__in">
+  <a class="phpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phpnav__sep" aria-hidden="true">/</span>
+  <a class="phpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP POO B2</a>
+  <div class="phpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="phpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="phpwrap">
+<p class="crumb"><a href="../index.html">PHP POO B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Encapsulation, constantes et membres statiques</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un objet dont on peut modifier l’état librement de l’extérieur est un tableau déguisé. Protéger l’état derrière des méthodes qui vérifient ce qu’on leur donne, c’est la différence entre du code qui tient et du code qui casse au premier solde négatif.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>choisir la bonne visibilité pour chaque propriété et méthode ;</li>
+      <li>exposer l’état par des getters et le modifier par des setters qui valident ;</li>
+      <li>déclarer une constante de classe et la lire avec self:: ;</li>
+      <li>utiliser un membre statique partagé par tous les objets.</li>
+    </ol>
+  </div>
+
+<h2>1. Encapsulation et visibilité</h2>
+
+<p>La <strong>visibilité</strong> décide qui peut toucher un membre. <code>public</code> l’ouvre à tout le monde, <code>private</code> le réserve à la classe, <code>protected</code> l’ouvre aussi aux classes filles (chapitre 3). Le principe d’<strong>encapsulation</strong> : propriétés en private, méthodes publiques qui contrôlent l’accès.</p>
+<pre><code>class Compte {
+    private $solde;
+
+    public function solde(): float {
+        return $this-&gt;solde;
+    }
+}</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lock"></use></svg> Le soupirail, pas la porte ouverte</div>
+    <p>Une propriété publique se modifie de partout : n’importe quel bout de code peut écrire <code>$compte-&gt;solde = -500</code>. Avec un private et un setter, on ne peut passer que par une porte qui trie : c’est là qu’on refuse une valeur absurde.</p>
+  </div>
+
+<h2>2. Getters et setters qui valident</h2>
+
+<p>Un <strong>getter</strong> (<code>getX()</code> ou <code>x()</code>) lit l’état ; un <strong>setter</strong> (<code>setX()</code>) l’écrit et en profite pour valider. Une valeur invalide déclenche une exception plutôt que de corrompre l’objet.</p>
+<pre><code>public function setSolde(float $solde): void {
+    if ($solde &lt; 0) {
+        throw new InvalidArgumentException("solde négatif");
+    }
+    $this-&gt;solde = $solde;
+}</code></pre>
+<p>Le setter peut aussi renvoyer <code>$this</code> pour permettre l’enchaînement (<code>$compte-&gt;setNom(...)-&gt;setSolde(...)</code>), une convention dite <em>interface fluide</em>.</p>
+
+<h2>3. Constantes de classe</h2>
+
+<p>Une <strong>constante de classe</strong> <code>const</code> appartient à la classe, pas aux objets : elle est fixée à la déclaration et ne change jamais. On la lit avec <code>self::</code> à l’intérieur et <code>Classe::</code> à l’extérieur.</p>
+<pre><code>class Facture {
+    const TVA = 18.0;
+
+    public function ttc(float $ht): float {
+        return $ht * (1 + self::TVA / 100);
+    }
+}</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — un $ de trop</div>
+    <p>Une constante s’écrit <code>const TVA = 18;</code> et se lit <code>self::TVA</code> : pas de <code>$</code>, ni à la déclaration, ni à l’usage. Y ajouter un <code>$</code> transforme la constante en propriété.</p>
+  </div>
+
+<h2>4. Membres statiques</h2>
+
+<p>Un membre <code>static</code> appartient à la classe elle-même, non à un objet : il est partagé par toutes les instances. Utile pour un compteur d’objets ou une méthode outil qui n’a pas besoin d’état.</p>
+<pre><code>class Utilisateur {
+    private static $nombre = 0;
+
+    public function __construct() {
+        self::$nombre++;
+    }
+
+    public static function nombre(): int {
+        return self::$nombre;
+    }
+}</code></pre>
+<p>On appelle une méthode statique sans instance : <code>Utilisateur::nombre()</code>. À l’intérieur, <code>$this</code> n’existe pas — on parle de la classe avec <code>self</code>.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php2-c2-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="3&#10;50&#10;-10&#10;20">
+  <script type="text/plain" data-lab-starter><?php
+class Compte {
+    private $solde = 0;
+
+    // À compléter : deposer() n'ajoute que si le montant est positif.
+    // À compléter : solde() renvoie la valeur.
+}
+
+$n = (int) trim(fgets(STDIN));
+// À compléter : lire n montants, les déposer, afficher "solde : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Propriété privée et setter</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Protéger une propriété derrière un setter qui valide.</p>
+    <div class="lab__brief"><p>Le programme reçoit <code>n</code> puis <code>n</code> montants (entiers). Écris une classe <code>Compte</code> avec une propriété <strong>privée</strong> <code>$solde</code> valant 0 et une méthode <code>deposer(int $montant)</code> qui n’ajoute que les montants strictement positifs. Affiche <code>solde : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+50
+-10
+20</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>solde : 70</pre></div>
+    </div>
+    <p class="lab__note">Le montant négatif est ignoré.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le mot-clé private interdit l’accès direct : seule la méthode de la classe peut modifier $solde.</li>
+        <li>Un montant n’est déposé que si $montant &gt; 0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c2-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="100">
+  <script type="text/plain" data-lab-starter><?php
+class Config {
+    public const TVA = 18;
+
+    // À compléter : ttc() renvoie ht + ht * TVA / 100.
+}
+
+$ht = (int) trim(fgets(STDIN));
+// À compléter : afficher "ttc : X" via Config::ttc().
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Constante de classe</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser une constante et une méthode statique.</p>
+    <div class="lab__brief"><p>Le programme reçoit un prix hors taxe (entier). Écris une classe <code>Config</code> avec la constante <code>TVA = 18</code> (pour cent) et une méthode <strong>statique</strong> <code>ttc(int $ht)</code> qui renvoie le prix TTC arrondi à l’entier inférieur. Affiche <code>ttc : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>100</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ttc : 118</pre></div>
+    </div>
+    <p class="lab__note">100 + 18 % = 118.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une constante de classe se lit self::TVA à l’intérieur de la classe.</li>
+        <li>intdiv($ht * self::TVA, 100) donne la part de TVA entière.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c2-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="4">
+  <script type="text/plain" data-lab-starter><?php
+class Maths {
+    // À compléter : estPair() renvoie un booléen.
+}
+
+$n = (int) trim(fgets(STDIN));
+// À compléter : afficher "pair : oui" ou "pair : non".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Méthode statique</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appeler une méthode sans instancier la classe.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier. Écris une classe <code>Maths</code> avec une méthode statique <code>estPair(int $n)</code> qui renvoie vrai si le nombre est pair. Affiche <code>pair : oui</code> ou <code>pair : non</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>pair : oui</pre></div>
+    </div>
+    <p class="lab__note">4 est pair.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une méthode statique s’appelle avec ClassName::méthode(), sans new.</li>
+        <li>Un nombre est pair si le reste de sa division par 2 vaut 0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle visibilité réserve un membre à la classe ?</p>
+      <div class="opts">
+        <button class="opt">public</button>
+        <button class="opt" data-correct="1">private</button>
+        <button class="opt">static</button>
+      </div>
+      <div class="q__exp">private limite l’accès au code de la classe.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une propriété publique se modifie…</p>
+      <div class="opts">
+        <button class="opt">nulle part</button>
+        <button class="opt" data-correct="1">depuis n’importe où</button>
+        <button class="opt">seulement en lecture</button>
+      </div>
+      <div class="q__exp">public ouvre l’accès à tout code disposant de l’objet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert un setter ?</p>
+      <div class="opts">
+        <button class="opt">Lire l’état</button>
+        <button class="opt" data-correct="1">Écrire l’état en validant</button>
+        <button class="opt">Supprimer l’objet</button>
+      </div>
+      <div class="q__exp">Le setter contrôle la valeur avant de l’affecter.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment lit-on une constante à l’intérieur de la classe ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">self::TVA</button>
+        <button class="opt">$this->TVA</button>
+        <button class="opt">self->TVA</button>
+      </div>
+      <div class="q__exp">self::TVA atteint la constante de classe.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une constante s’écrit…</p>
+      <div class="opts">
+        <button class="opt">const $TVA = 18</button>
+        <button class="opt" data-correct="1">const TVA = 18</button>
+        <button class="opt">static $TVA</button>
+      </div>
+      <div class="q__exp">Pas de $ pour une constante : const TVA = 18.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un membre static appartient…</p>
+      <div class="opts">
+        <button class="opt">à chaque objet</button>
+        <button class="opt" data-correct="1">à la classe</button>
+        <button class="opt">au constructeur</button>
+      </div>
+      <div class="q__exp">static est partagé par la classe et toutes ses instances.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut $this dans une méthode statique ?</p>
+      <div class="opts">
+        <button class="opt">L’objet</button>
+        <button class="opt" data-correct="1">Rien, $this n’existe pas</button>
+        <button class="opt">La classe</button>
+      </div>
+      <div class="q__exp">Une méthode statique n’a pas d’instance : on utilise self.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait `return $this` dans un setter ?</p>
+      <div class="opts">
+        <button class="opt">Rien</button>
+        <button class="opt" data-correct="1">Il permet l’enchaînement des appels</button>
+        <button class="opt">Il crée un objet</button>
+      </div>
+      <div class="q__exp">Renvoyer $this autorise $obj->a()->b(), une interface fluide.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Laisser une propriété <code>public</code> alors qu’elle devrait être contrôlée.</li>
+      <li>Écrire <code>self-&gt;$MACHIN</code> (flèche) au lieu de <code>self::$MACHIN</code> (double deux-points).</li>
+      <li>Mettre un <code>$</code> devant le nom d’une constante.</li>
+      <li>Oublier que <code>$this</code> est indisponible dans une méthode statique.</li>
+      <li>Valider après avoir affecté au lieu de valider avant.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protéger l’état d’un objet</div>
+    <ol>
+      <li><strong>Fermer</strong> : passer toutes les propriétés en private.</li>
+      <li><strong>Ouvrir un getter</strong> par propriété réellement utile à l’extérieur.</li>
+      <li><strong>Contrôler</strong> chaque écriture dans un setter, avec une exception si besoin.</li>
+      <li><strong>Constanteniser</strong> les valeurs fixes (taux, limites) avec const.</li>
+      <li><strong>Choisir static</strong> seulement pour un état partagé ou un outil sans instance.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>public, private, protected décident qui accède à un membre.</li>
+      <li>L’encapsulation = propriétés privées + méthodes publiques de contrôle.</li>
+      <li>Les setters valident avant d’affecter ; un setter peut renvoyer $this pour l’enchaînement.</li>
+      <li>const fixe une valeur de classe, lue avec self::TVA (aucun $).</li>
+      <li>static partage un membre entre toutes les instances ; $this y est indisponible.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais justifier la visibilité de chaque membre.</li>
+      <li>J’écris un setter qui refuse une valeur invalide.</li>
+      <li>Je lis une constante avec self:: sans y mettre de $.</li>
+      <li>J’utilise static et self là où $this n’a pas de sens.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>encapsulation</li><li>public</li><li>private</li><li>protected</li><li>getter</li><li>setter</li><li>validation</li><li>const</li><li>self::</li><li>static</li><li>interface fluide</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends la visibilité : public, private, protected.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Réécris un getter et un setter qui valide.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu distingues const, static et propriété.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe à l’héritage et aux interfaces, chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Héritage, classes abstraites et interfaces <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de PHP objet (classes, héritage, namespaces, PDO, projet ToDo List).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

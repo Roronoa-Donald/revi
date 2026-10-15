@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Programmation Dynamique &amp;amp; Optimisation Sous-Structurelle | Algorithmique B3</title>
+<meta name="description" content="Chapitre 6 du cours Algorithmique B3 : Principe d’optimalité de Bellman, sous-structure optimale, chevauchement de sous-problèmes, mémoïsation descendante (Top-Down) vs tabulation ascendante (Bottom-Up), résolution du problème du sac à dos 0/1 (Knapsack) et plus longue sous-séquence commune (LCS). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-algo/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Programmation Dynamique &amp;amp; Optimisation Sous-Structurelle | Algorithmique B3">
+<meta property="og:description" content="Chapitre 6 du cours Algorithmique B3 : Principe d’optimalité de Bellman, sous-structure optimale, chevauchement de sous-problèmes, mémoïsation descendante (Top-Down) vs tabulation ascendante (Bottom-Up), résolution du problème du sac à dos 0/1 (Knapsack) et plus longue sous-séquence commune (LCS). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-algonav"><div class="b3-algonav__in">
+  <a class="b3-algonav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-algonav__sep" aria-hidden="true">/</span>
+  <a class="b3-algonav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algorithmique B3</a>
+  <div class="b3-algonav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-algonav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-algowrap">
+<p class="crumb"><a href="../index.html">Algorithmique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Programmation Dynamique &amp; Optimisation Sous-Structurelle</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Face à des problèmes d’optimisation combinatoire (sac à dos, alignement de séquences génomiques, multiplication de matrices chaînées), l’exploration naïve de l’espace des solutions mène à une impasse : un algorithme par force brute évalue un nombre exponentiel de configurations ($O(2^n)$ ou $O(n!)$), recalculant des millions de fois exactement les mêmes sous-problèmes identiques. Introduite par Richard Bellman dans les années 1950, la <strong>programmation dynamique</strong> (Dynamic Programming) est l’une des techniques les plus puissantes de l’algorithmique moderne : en stockant les solutions des sous-problèmes résolus dans une table pour ne jamais les recalculer, elle abaisse des complexités exponentielles insolubles à des complexités polynomiales ultra-rapides $O(n^2)$ ou $O(n \cdot W)$. Ce dernier chapitre explore la modélisation rigoureuse d’équations de récurrence, les deux approches (Top-Down et Bottom-Up) et la reconstruction intégrale de solutions optimales.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>identifier les deux conditions indispensables à la programmation dynamique : sous-structure optimale et sous-problèmes chevauchants ;</li>
+      <li>comparer la mémoïsation récursive descendante (Top-Down) et la tabulation itérative ascendante (Bottom-Up) ;</li>
+      <li>formaliser l’équation de récurrence de Bellman pour un problème d’optimisation sous contrainte ;</li>
+      <li>résoudre le problème classique du sac à dos 0/1 (Knapsack Problem) avec une matrice DP à deux dimensions ;</li>
+      <li>implémenter l’algorithme de calcul de la Plus Longue Sous-Séquence Commune (LCS - Longest Common Subsequence) ;</li>
+      <li>reconstruire la solution optimale en remontant le chemin de décisions dans la table DP.</li>
+    </ol>
+  </div>
+
+<h2>1. Fondements : Sous-Structure Optimale & Chevauchement</h2>
+
+<p>Pour qu’un problème puisse être résolu par la programmation dynamique, il doit satisfaire deux critères théoriques fondamentaux :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Sous-Structure Optimale (Optimal Substructure)</h4>
+    <p>Une solution optimale au problème global est composée de solutions optimales à ses sous-problèmes.<br>    <em>Exemple :</em> Si le plus court chemin de $A$ à $C$ passe par $B$, la portion $A \to B$ est nécessairement le plus court chemin entre $A$ et $B$.</p>
+  </div>
+  <div class="card">
+    <h4>2. Sous-Problèmes Chevauchants (Overlapping Subproblems)</h4>
+    <p>La décomposition récursive produit continuellement les <em>mêmes sous-problèmes</em> encore et encore.<br>    <em>Exemple :</em> Pour calculer $\text{fib}(5)$, $\text{fib}(3)$ est réévalué 2 fois, et $\text{fib}(2)$ 3 fois. Sans mémoire, la complexité explose en $O(2^n)$.</p>
+  </div>
+</div>
+
+<h2>2. Top-Down (Mémoïsation) vs Bottom-Up (Tabulation)</h2>
+
+<p>Deux stratégies d’implémentation coexistent en programmation dynamique :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Mémoïsation Descendante (Top-Down)</h4>
+    <ul>
+      <li>Structure récursive naturelle calquée sur l’énoncé mathématique.</li>
+      <li>On consulte un dictionnaire de cache (ou <code>@functools.lru_cache</code>). Si le résultat existe, on le renvoie immédiatement.</li>
+      <li>Ne calcule que les sous-problèmes strictement nécessaires à la réponse finale.</li>
+      <li><strong>Inconvénient :</strong> Consomme de l’espace sur la pile d’appels récursive.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Tabulation Ascendante (Bottom-Up)</h4>
+    <ul>
+      <li>Approche itérative sans récursion.</li>
+      <li>On initialise une table (tableau 1D ou matrice 2D) avec les cas de base ($i=0$).</li>
+      <li>On remplit les cases dans un ordre topologique strict jusqu’à atteindre la case finale $dp[n][W]$.</li>
+      <li><strong>Avantages :</strong> Aucun risque de Stack Overflow, excellente localité de cache CPU, optimisation spatiale possible (rolling array).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Problème du Sac à Dos 0/1 (0/1 Knapsack)</h2>
+
+<p>On dispose de $n$ objets. Chaque objet $i$ possède un poids $p_i$ et une valeur $v_i$. Le sac peut transporter au maximum une capacité $W$. Chaque objet peut être soit emporté ($1$), soit laissé ($0$).</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Équation de Bellman pour le Sac à Dos 0/1</div>
+<p>Soit $dp[i][w]$ la valeur maximale pouvant être obtenue en choisissant parmi les $i$ premiers objets avec une capacité maximale résiduelle $w$ :</p>
+<p>$$dp[i][w] = \begin{cases} dp[i-1][w] & \text{si } w &lt; p_i \quad (\text{l’objet } i \text{ est trop lourd}) \\ \max\left(dp[i-1][w], \; dp[i-1][w - p_i] + v_i\right) & \text{si } w \ge p_i \end{cases}$$</p>
+<p><strong>Cas de base :</strong> $dp[0][w] = 0$ pour tout $w \in [0..W]$ (aucun objet disponible), et $dp[i][0] = 0$ pour tout $i$ (capacité nulle).</p>
+<p><strong>Complexité :</strong> Temps $\Theta(n \cdot W)$ et espace $\Theta(n \cdot W)$. Cette complexité est dite <em>pseudo-polynomiale</em> car elle dépend de la valeur numérique de la capacité $W$.</p>
+  </div>
+<h4>Reconstruction de la Solution Optimale</h4>
+<p>Une fois la table remplie, la valeur maximale se trouve en $dp[n][W]$. Pour identifier quels objets ont été emportés, on remonte depuis $(n, W)$ :<br>- Si $dp[i][w] == dp[i-1][w]$ : l’objet $i$ n’a pas été sélectionné, on passe à $(i-1, w)$.<br>- Si $dp[i][w] \neq dp[i-1][w]$ : l’objet $i$ a été emporté ! On l’ajoute à la liste et on passe à $(i-1, w - p_i)$.
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="al3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="ESCALIER nom=fib_steps N=4 PAS=1,2&#10;ESCALIER nom=triple_steps N=3 PAS=1,2,3">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer les manières d'atteindre la marche N par programmation dynamique
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Mémoïsation et tabulation : le problème de l’escalier</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le nombre de combinaisons pour gravir un escalier de n marches avec des pas autorisés en utilisant la tabulation ascendante (DP).</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>ESCALIER nom=&lt;nom&gt; N=&lt;n&gt; PAS=&lt;p1,p2,...&gt;</code>.<br>
+Modèle DP :<br>
+- Soit $dp[i]$ le nombre de façons d’atteindre la marche $i$.<br>
+- Cas de base : $dp[0] = 1$ (1 façon de rester au sol). Pour tout $i &gt; 0$, $dp[i] = \sum_{p \in PAS, i-p \ge 0} dp[i - p]$.<br>
+Afficher :<br>
+<code>ESCALIER: nom=&lt;nom&gt; | N=&lt;n&gt; -&gt; COMBINAISONS: &lt;dp[N]&gt; | TABLE_DP: &lt;dp[0], dp[1], ..., dp[N]&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ESCALIER nom=fib_steps N=4 PAS=1,2
+ESCALIER nom=triple_steps N=3 PAS=1,2,3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ESCALIER: nom=fib_steps | N=4 -&gt; COMBINAISONS: 5 | TABLE_DP: 1, 1, 2, 3, 5
+ESCALIER: nom=triple_steps | N=3 -&gt; COMBINAISONS: 4 | TABLE_DP: 1, 1, 2, 4</pre></div>
+    </div>
+    <p class="lab__note">N=4 avec pas 1,2 : 1+1+1+1, 1+1+2, 1+2+1, 2+1+1, 2+2 (5 façons).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Initialiser un tableau dp de taille N + 1 à 0, avec dp[0] = 1.</li>
+        <li>Pour chaque marche i de 1 à N, sommer les valeurs dp[i - p] pour les pas p valides.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="KNAPSACK nom=randonnee CAPACITE=10 OBJETS=tente:4:20,gourde:2:10,duvet:5:25,lampe:1:8">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la programmation dynamique du sac à dos 0/1
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Sac à dos 0/1 (0/1 Knapsack) et reconstruction optimale</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Résoudre le problème du sac à dos 0/1 par programmation dynamique 2D, puis reconstituer l’ensemble des objets retenus.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>KNAPSACK nom=&lt;nom&gt; CAPACITE=&lt;W&gt; OBJETS=&lt;nom:poids:valeur,...&gt;</code>.<br>
+Algorithme :<br>
+1. Construire la matrice DP de dimensions $(n+1) \times (W+1)$ :<br>
+   $dp[i][w] = \max(dp[i-1][w], dp[i-1][w - p_i] + v_i)$ si $w \ge p_i$ sinon $dp[i-1][w]$.<br>
+2. Reconstituer les objets choisis en remontant depuis $dp[n][W]$ vers $dp[0][0]$. En cas d’égalité de gain, privilégier de NE PAS prendre l’objet courant.<br>
+3. Trier les noms des objets choisis par ordre alphabétique pour un affichage stable.<br>
+Afficher :<br>
+<code>KNAPSACK: nom=&lt;nom&gt; | CAPACITE: &lt;W&gt; | VALEUR_MAX: &lt;val&gt; | OBJETS: &lt;obj1, obj2...&gt; | POIDS_TOTAL: &lt;poids&gt;</code> (si aucun objet : <code>AUCUN</code>)</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>KNAPSACK nom=randonnee CAPACITE=10 OBJETS=tente:4:20,gourde:2:10,duvet:5:25,lampe:1:8</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>KNAPSACK: nom=randonnee | CAPACITE: 10 | VALEUR_MAX: 53 | OBJETS: duvet, lampe, tente | POIDS_TOTAL: 10</pre></div>
+    </div>
+    <p class="lab__note">Objets choisis : tente (4, 20), duvet (5, 25), lampe (1, 8). Poids = 10, Valeur = 53.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La table DP stocke pour chaque préfixe d’objets et chaque capacité résiduelle la valeur maximale.</li>
+        <li>La reconstruction vérifie si dp[i][w] != dp[i-1][w] pour déduire que l’objet i a été sélectionné.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="LCS nom=adn S1=AGGTAB S2=GXTXAYB&#10;LCS nom=mots S1=ALGORITHME S2=LOGARITHME">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter l'algorithme LCS et sa reconstruction
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Plus Longue Sous-Séquence Commune (LCS)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la longueur et reconstruire la chaîne de la plus longue sous-séquence commune (LCS) entre deux séquences de caractères.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>LCS nom=&lt;nom&gt; S1=&lt;chaine1&gt; S2=&lt;chaine2&gt;</code>.<br>
+Algorithme LCS :<br>
+1. Construire la matrice DP $(m+1) \times (n+1)$ :<br>
+   - Si $S_1[i-1] == S_2[j-1]$ : $dp[i][j] = dp[i-1][j-1] + 1$.<br>
+   - Sinon : $dp[i][j] = \max(dp[i-1][j], dp[i][j-1])$.<br>
+2. Reconstruire la sous-séquence depuis $(m, n)$. En cas d’égalité entre $dp[i-1][j]$ et $dp[i][j-1]$, remonter prioritairement vers le haut $(i-1, j)$.<br>
+Afficher :<br>
+<code>LCS: nom=&lt;nom&gt; | LONGUEUR: &lt;len&gt; | SEQUENCE: &lt;lcs_str&gt;</code> (si vide : <code>VIDE</code>)</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>LCS nom=adn S1=AGGTAB S2=GXTXAYB
+LCS nom=mots S1=ALGORITHME S2=LOGARITHME</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LCS: nom=adn | LONGUEUR: 4 | SEQUENCE: GTAB
+LCS: nom=mots | LONGUEUR: 8 | SEQUENCE: LGRITHME</pre></div>
+    </div>
+    <p class="lab__note">Pour adn, la LCS est GTAB de longueur 4. Pour mots, G et O étant inversés entre les deux mots, la plus longue sous-séquence fait 8 caractères (LGRITHME).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Initialiser une table 2D de taille (len(S1)+1) x (len(S2)+1) à 0.</li>
+        <li>Lors de la reconstruction, si les caractères correspondent, l’ajouter et décrémenter i et j.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelles sont les deux conditions fondamentales pour qu’un problème puisse être résolu efficacement par programmation dynamique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Sous-structure optimale et sous-problèmes chevauchants</button>
+        <button class="opt">Graphe sans cycle et arêtes positives</button>
+        <button class="opt">Données triées et division binaire</button>
+        <button class="opt">Arbre binaire et fonction de hachage</button>
+      </div>
+      <div class="q__exp">La programmation dynamique exige formellement une sous-structure optimale (les solutions optimales locales forment la solution globale) et des sous-problèmes chevauchants (évitant le recalcul redondant).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité temporelle asymptotique pour résoudre le problème du sac à dos 0/1 avec n objets et capacité W ?</p>
+      <div class="opts">
+        <button class="opt">O(2^n)</button>
+        <button class="opt">O(n + W)</button>
+        <button class="opt" data-correct="1">O(n * W)</button>
+        <button class="opt">O(n^2 * W^2)</button>
+      </div>
+      <div class="q__exp">La matrice DP comporte (n + 1) lignes et (W + 1) colonnes, et chaque cellule est calculée en temps constant O(1), donnant une complexité en Theta(n * W).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans le problème de l’escalier où l’on peut gravir 1 ou 2 marches, que vaut dp[4] si dp[0]=1, dp[1]=1, dp[2]=2, dp[3]=3 ?</p>
+      <div class="opts">
+        <button class="opt">4</button>
+        <button class="opt" data-correct="1">5</button>
+        <button class="opt">6</button>
+        <button class="opt">8</button>
+      </div>
+      <div class="q__exp">L’équation est dp[i] = dp[i-1] + dp[i-2]. Donc dp[4] = dp[3] + dp[2] = 3 + 2 = 5.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre l’approche Top-Down (mémoïsation) et l’approche Bottom-Up (tabulation) ?</p>
+      <div class="opts">
+        <button class="opt">Top-Down est itératif et Bottom-Up est récursif</button>
+        <button class="opt" data-correct="1">Top-Down est récursif avec cache mémoire, alors que Bottom-Up remplit itérativement une table depuis les cas de base</button>
+        <button class="opt">Top-Down ne fonctionne pas en Python</button>
+        <button class="opt">Bottom-Up a une complexité exponentielle</button>
+      </div>
+      <div class="q__exp">Top-Down part du problème final et mémorise les résultats intermédiaires en récursion. Bottom-Up calcule les plus petits cas d’abord et progresse itérativement vers le résultat global.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment reconstruit-on la liste des objets emportés dans le sac à dos 0/1 après remplissage de la table DP ?</p>
+      <div class="opts">
+        <button class="opt">En prenant tous les objets de valeur maximale</button>
+        <button class="opt" data-correct="1">En remontant depuis dp[n][W] et en observant si dp[i][w] != dp[i-1][w] pour détecter que l’objet i a été inclus</button>
+        <button class="opt">En effectuant un tri par tas des objets</button>
+        <button class="opt">En appliquant l’algorithme de Dijkstra</button>
+      </div>
+      <div class="q__exp">Si dp[i][w] diffère de dp[i-1][w], c’est que le choix d’inclure l’objet i a produit un gain supérieur au fait de le rejeter. On retient l’objet i et on décrémente la capacité de son poids.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la longueur de la plus longue sous-séquence commune (LCS) entre "ABCD" et "ACDF" ?</p>
+      <div class="opts">
+        <button class="opt">1</button>
+        <button class="opt">2</button>
+        <button class="opt" data-correct="1">3 ("ACD")</button>
+        <button class="opt">4</button>
+      </div>
+      <div class="q__exp">Les lettres A, C, D apparaissent dans cet ordre dans les deux chaînes, formant la sous-séquence commune maximale "ACD" de longueur 3.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi qualifie-t-on la complexité O(n * W) du sac à dos de "pseudo-polynomiale" ?</p>
+      <div class="opts">
+        <button class="opt">Parce qu’elle est fausse en pratique</button>
+        <button class="opt" data-correct="1">Parce qu’elle est polynomiale en la valeur de W, mais exponentielle par rapport au nombre de bits nécessaires pour coder W</button>
+        <button class="opt">Parce qu’elle utilise des nombres complexes</button>
+        <button class="opt">Parce qu’elle n’est valable que pour n = 2</button>
+      </div>
+      <div class="q__exp">En théorie de la complexité, la taille de l’entrée d’un entier W est k = log2(W) bits. Le coût est donc en O(n * 2^k), ce qui est exponentiel en fonction de la taille de représentation de W.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment peut-on optimiser l’espace mémoire de la table du sac à dos 0/1 si seule la valeur maximale finale est demandée ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En ne conservant que les deux dernières lignes (ou un seul tableau 1D parcouru de droite à gauche), réduisant l’espace à O(W)</button>
+        <button class="opt">En compressant avec gzip</button>
+        <button class="opt">En utilisant un graphe de flot</button>
+        <button class="opt">Ce n’est pas possible</button>
+      </div>
+      <div class="q__exp">Comme dp[i][w] ne dépend que de la ligne immédiatement précédente dp[i-1], on peut n’allouer qu’un tableau 1D de taille W + 1 mis à jour de droite à gauche, réduisant la mémoire de O(n * W) à O(W).</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre sous-séquence (éléments non contigus mais dans l’ordre) et sous-chaîne (éléments strictement contigus).</li>
+      <li>Oublier de vérifier la contrainte de poids w >= p_i avant de soustraire p_i dans le sac à dos (risque d’indice négatif).</li>
+      <li>Croire que la programmation dynamique s’applique à tous les problèmes : si la sous-structure n’est pas optimale (ex: plus long chemin sans cycle), DP échoue.</li>
+      <li>Allouer une matrice DP 2D gigantesque quand seule la dernière ligne est nécessaire (oubli de l’optimisation de rolling array).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Conception d’un Algorithme Dynamique</div>
+    <ol>
+      <li>Caractériser formellement la structure d’une solution optimale sous forme de séquence de choix.</li>
+      <li>Définir précisément la sémantique de l’état dp[...] (quelles sont les variables d’état nécessaires et suffisantes).</li>
+      <li>Écrire la relation de récurrence (Bellman) liant l’état courant aux sous-états antérieurs.</li>
+      <li>Identifier les cas de base indispensables (taille 0, capacité nulle, chaîne vide).</li>
+      <li>Choisir le sens de remplissage de la table (de gauche à droite, de bas en haut) pour que les dépendances soient déjà calculées.</li>
+      <li>Reconstituer la solution d’origine en remontant le tableau des décisions si les objets concrets sont demandés.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La programmation dynamique résout les problèmes d’optimisation présentant sous-structure optimale et sous-problèmes chevauchants.</li>
+      <li>La mémoïsation (Top-Down) met en cache les résultats récursifs ; la tabulation (Bottom-Up) remplit itérativement une table.</li>
+      <li>Le problème du sac à dos 0/1 se résout en temps pseudo-polynomial O(n * W) grâce à une matrice DP 2D.</li>
+      <li>L’alignement de chaînes et le problème LCS se résolvent en O(m * n) en comparant les caractères de fin.</li>
+      <li>La reconstruction de la solution optimale s’effectue en remontant les états de la table DP depuis la case finale.</li>
+      <li>L’optimisation spatiale permet souvent de réduire la mémoire de O(n * W) à O(W) en ne conservant que la ligne précédente.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer pourquoi le problème du sac à dos naïf a une complexité exponentielle O(2^n).</li>
+      <li>Je sais formuler l’équation de récurrence de Bellman pour le sac à dos 0/1.</li>
+      <li>Je sais remplir à la main une table DP pour un problème d’escalier ou de sac à dos.</li>
+      <li>Je sais reconstituer la liste des objets choisis en remontant la matrice.</li>
+      <li>Je comprends pourquoi la complexité O(n * W) est qualifiée de pseudo-polynomiale.</li>
+      <li>Je sais définir l’équation de récurrence du problème de la plus longue sous-séquence commune (LCS).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Principe d’optimalité de Bellman</li><li>Propriété de sous-structure optimale</li><li>Sous-problèmes chevauchants (Overlapping Subproblems)</li><li>Mémoïsation descendante (Top-Down avec cache)</li><li>Tabulation ascendante (Bottom-Up itérative)</li><li>Problème du sac à dos 0/1 (0/1 Knapsack)</li><li>Plus longue sous-séquence commune (LCS)</li><li>Reconstruction de la solution optimale par rétro-propagation</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez le principe de sous-structure optimale et la différence Top-Down vs Bottom-Up.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bonnes bases, revoyez la reconstruction optimale du sac à dos 0/1 et de la LCS.</div>
+      <div class="bandrow bandrow--high">8/8 : Parfait ! Vous maîtrisez la programmation dynamique matricielle de niveau Bachelor 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours magistral ALGO_B3, l’ouvrage de référence Introduction à l’Algorithmique (Cormen, Leiserson, Rivest, Stein - CLRS) et les standards académiques universitaires de Licence 3 Informatique.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

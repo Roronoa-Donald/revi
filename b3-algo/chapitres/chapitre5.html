@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Plus Courts Chemins &amp;amp; Algorithme de Dijkstra | Algorithmique B3</title>
+<meta name="description" content="Chapitre 5 du cours Algorithmique B3 : Problème des plus courts chemins à source unique (SSSP), opération fondamentale de relâchement d’arc (relaxation), algorithme de Dijkstra avec file de priorité min-heap, limitation stricte aux poids positifs et comparaison avec l’algorithme de Bellman-Ford face aux cycles absorbants. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-algo/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Plus Courts Chemins &amp;amp; Algorithme de Dijkstra | Algorithmique B3">
+<meta property="og:description" content="Chapitre 5 du cours Algorithmique B3 : Problème des plus courts chemins à source unique (SSSP), opération fondamentale de relâchement d’arc (relaxation), algorithme de Dijkstra avec file de priorité min-heap, limitation stricte aux poids positifs et comparaison avec l’algorithme de Bellman-Ford face aux cycles absorbants. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-algonav"><div class="b3-algonav__in">
+  <a class="b3-algonav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-algonav__sep" aria-hidden="true">/</span>
+  <a class="b3-algonav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algorithmique B3</a>
+  <div class="b3-algonav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-algonav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-algowrap">
+<p class="crumb"><a href="../index.html">Algorithmique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Plus Courts Chemins &amp; Algorithme de Dijkstra</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Des protocoles de routage Internet fondamentaux comme OSPF (Open Shortest Path First) et IS-IS jusqu’aux calculateurs d’itinéraires routiers GPS (OpenStreetMap, Google Maps), la recherche du plus court chemin dans un réseau pondéré est l’un des problèmes algorithmiques les plus exécutés au monde. Comment déterminer la route optimale entre une source et toutes les destinations dans un graphe de millions d’arcs en quelques fractions de seconde ? Publié en 1959 par Edsger W. Dijkstra, l’algorithme éponyme résout ce défi avec une élégance théorique fondée sur le principe glouton et l’opération élémentaire de relâchement d’arc (relaxation). Ce chapitre dissèque l’algorithme de Dijkstra, son implémentation optimale avec file de priorité min-heap, et analyse ses limites fondamentales face aux poids négatifs en introduisant l’algorithme de Bellman-Ford.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>formaliser le problème du plus court chemin à source unique (Single-Source Shortest Paths - SSSP) ;</li>
+      <li>comprendre l’opération fondamentale de relâchement d’arc (Edge Relaxation) et la propriété de sous-chemin optimal ;</li>
+      <li>implémenter l’algorithme de Dijkstra avec une file de priorité Tas-Min (heapq) en complexité $O((|V| + |E|) \log |V|)$ ;</li>
+      <li>reconstituer le chemin optimal complet grâce à la table des prédécesseurs ;</li>
+      <li>démontrer pourquoi l’algorithme de Dijkstra échoue mathématiquement en présence d’arcs de poids négatif ;</li>
+      <li>comprendre le fonctionnement de l’algorithme de Bellman-Ford et sa capacité à détecter les cycles absorbants.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Problème SSSP et le Principe de Relâchement</h2>
+
+<p>Soit un graphe orienté pondéré $G = (V, E)$ muni d’une fonction de poids $w : E \to \mathbb{R}$. Le coût d’un chemin $p = \langle v_0, v_1, \dots, v_k \rangle$ est la somme des poids de ses arcs : $$w(p) = \sum_{i=1}^k w(v_{i-1}, v_i)$$</p>
+<p>La <strong>distance minimale</strong> $\delta(s, v)$ entre la source $s$ et un sommet $v$ est l’infimum des coûts de tous les chemins reliant $s$ à $v$.</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> L’Opération Fondamentale de Relâchement (Relaxation)</div>
+<p>Pour chaque sommet $v$, on maintient une estimation de sa distance minimale $d[v]$ (initialisée à $\infty$, sauf $d[s] = 0$), et son prédécesseur $\pi[v]$ sur le chemin courant.</p>
+<p>Le <strong>relâchement</strong> d’un arc $(u, v)$ de poids $w(u, v)$ consiste à tester si le passage par $u$ permet d’améliorer la distance connue vers $v$ :</p>
+<pre><code>si d[u] != inf et d[u] + w(u, v) &lt; d[v]:
+    d[v] = d[u] + w(u, v)
+    pi[v] = u</code></pre>
+<p>Cette opération est <em>monotone décroissante</em> : $d[v]$ ne fait que diminuer et ne peut jamais descendre en dessous de la distance optimale réelle $\delta(s, v)$.</p>
+  </div>
+
+<h2>2. L’Algorithme de Dijkstra avec File de Priorité</h2>
+
+<p>L’algorithme de Dijkstra maintient un ensemble de sommets $S$ dont la distance minimale est définitivement établie. À chaque étape, il choisit de manière gloutonne le sommet $u \notin S$ ayant la plus petite distance estimée $d[u]$ :</p>
+<ol>
+  <li><strong>Initialisation :</strong> $d[s] = 0$, $d[v] = \infty$ pour tout $v \neq s$. File de priorité $Q$ initialisée avec $(0, s)$.</li>
+  <li><strong>Boucle principale :</strong> Tant que la file $Q$ n’est pas vide :<br>  - Extraire le sommet $u$ ayant la distance $d[u]$ minimale.<br>  - Si $u$ a déjà été finalisé, ignorer.<br>  - Ajouter $u$ aux sommets finalisés.<br>  - Pour chaque voisin $v$ de $u$, relâcher l’arc $(u, v)$. Si la distance est améliorée, insérer $(d[v], v)$ dans la file de priorité $Q$.</li>
+</ol>
+<p><strong>Complexité :</strong> Avec un Tas Binaire (Min-Heap), l’extraction du minimum prend $O(\log |V|)$ et chaque relâchement prend $O(\log |V|)$. Pour $|V|$ sommets et $|E|$ arcs, la complexité totale est : <strong>$O((|V| + |E|) \log |V|)$</strong>. Dans un réseau routier creux ($|E| = O(|V|)$), elle est quasi-linéaire en $O(|V| \log |V|)$.</p>
+
+<h2>3. Limites de Dijkstra et Algorithme de Bellman-Ford</h2>
+
+<p>La preuve de correction de Dijkstra repose entièrement sur l’hypothèse que <strong>tous les poids sont positifs ou nuls ($w(e) \ge 0$)</strong>. Dès qu’un arc a un poids négatif, cette garantie gloutonne s’effondre :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Échec de Dijkstra sur Poids Négatifs</h4>
+    <p>Considérons le graphe : $S \to A$ (poids 4), $S \to B$ (poids 2), $B \to A$ (poids -5).<br>    Dijkstra finalise $B$ (distance 2), puis finalise $A$ (distance 4). Il ne mettra jamais à jour $A$ via $B$     car $A$ est déjà marqué comme finalisé, alors que le chemin $S \to B \to A$ coûte $2 + (-5) = -3 &lt; 4$ !</p>
+  </div>
+  <div class="card">
+    <h4>Algorithme de Bellman-Ford</h4>
+    <p>Bellman-Ford s’affranchit de cette restriction en relâchant <em>tous les arcs</em> de $E$ exactement $|V| - 1$ fois.<br>    <strong>Complexité :</strong> $O(|V| \cdot |E|)$.<br>    <strong>Détection de cycles absorbants :</strong> Une $|V|$-ième passe de relâchement permet de détecter si un cycle négatif existe.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="al3-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="RELAX nom=succes DISTS=A:0,B:10,C:inf ARC=A-&gt;B:4&#10;RELAX nom=echec DISTS=A:0,B:3 ARC=A-&gt;B:5">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter le relâchement d'arc (relaxation)
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Relâchement d’arc (Edge Relaxation)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter l’opération élémentaire de relâchement d’un arc u -&gt; v et vérifier si la distance minimale courante est améliorée.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>RELAX nom=&lt;nom&gt; DISTS=&lt;s:d,...&gt; ARC=&lt;u-&gt;v:poids&gt;</code>.<br>
+Formule de relâchement :<br>
+Si $dist[u] \neq \infty$ et $dist[u] + poids &lt; dist[v]$ :<br>
+La distance $dist[v]$ est améliorée et mise à jour.<br>
+Afficher :<br>
+<code>RELAX: nom=&lt;nom&gt; | ARC: &lt;u-&gt;v:poids&gt; | AMELIORATION: &lt;OUI|NON&gt; | DIST_AVANT: &lt;d_av&gt; | DIST_APRES: &lt;d_ap&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RELAX nom=succes DISTS=A:0,B:10,C:inf ARC=A-&gt;B:4
+RELAX nom=echec DISTS=A:0,B:3 ARC=A-&gt;B:5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RELAX: nom=succes | ARC: A-&gt;B:4 | AMELIORATION: OUI | DIST_AVANT: 10 | DIST_APRES: 4
+RELAX: nom=echec | ARC: A-&gt;B:5 | AMELIORATION: NON | DIST_AVANT: 3 | DIST_APRES: 3</pre></div>
+    </div>
+    <p class="lab__note">0 + 4 &lt; 10 donc succès pour B. Pour le second, 0 + 5 n’est pas inférieur à 3.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Représenter la valeur "inf" par float("inf").</li>
+        <li>Si dist[u] est infinie, le sommet source n’a pas encore été atteint et ne peut pas relâcher ses voisins.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="DIJKSTRA nom=reseau_optique SOURCE=A SOMMETS=A,B,C,D,E ARCS=A-&gt;B:4,A-&gt;C:2,C-&gt;B:1,B-&gt;D:5,C-&gt;D:8,C-&gt;E:10,D-&gt;E:2 CIBLE=E">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter l'algorithme de Dijkstra avec calcul des plus courts chemins
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Algorithme complet de Dijkstra avec file de priorité</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer les plus courts chemins depuis une source vers tous les sommets accessibles dans un graphe orienté à poids strictement positifs.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>DIJKSTRA nom=&lt;nom&gt; SOURCE=&lt;src&gt; SOMMETS=&lt;S1,S2,...&gt; ARCS=&lt;u-&gt;v:poids,...&gt; CIBLE=&lt;dst&gt;</code>.<br>
+Algorithme de Dijkstra :<br>
+1. Initialiser une file de priorité avec <code>(0, src)</code> et $dist[s] = \infty$ pour tout $s \neq src$.<br>
+2. À chaque étape, extraire le sommet non finalisé ayant la distance minimale.<br>
+3. Relâcher tous ses arcs sortants en mettant à jour les distances et les prédécesseurs.<br>
+Afficher :<br>
+<code>DIJKSTRA: nom=&lt;nom&gt; | SOURCE: &lt;src&gt;</code><br>
+<code>DISTANCES: S1=&lt;d1&gt;, S2=&lt;d2&gt;, ...</code> (par ordre alphabétique des sommets, <code>inf</code> si inaccessible)<br>
+<code>CHEMIN vers &lt;dst&gt;: &lt;src -&gt; ... -&gt; dst&gt; (distance: &lt;dist&gt;)</code> (ou <code>CHEMIN vers &lt;dst&gt;: AUCUN</code>)</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DIJKSTRA nom=reseau_optique SOURCE=A SOMMETS=A,B,C,D,E ARCS=A-&gt;B:4,A-&gt;C:2,C-&gt;B:1,B-&gt;D:5,C-&gt;D:8,C-&gt;E:10,D-&gt;E:2 CIBLE=E</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DIJKSTRA: nom=reseau_optique | SOURCE: A
+DISTANCES: A=0, B=3, C=2, D=8, E=10
+CHEMIN vers E: A -&gt; C -&gt; B -&gt; D -&gt; E (distance: 10)</pre></div>
+    </div>
+    <p class="lab__note">Le chemin vers B passe par C (coût 2+1=3 &lt; 4). Le chemin vers E passe par D (coût 8+2=10).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser heapq.heappop et heapq.heappush.</li>
+        <li>Gérer un tableau ou dictionnaire de précurseurs pour remonter le chemin de destination.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="ANALYSE nom=g_positif SOURCE=A SOMMETS=A,B,C ARCS=A-&gt;B:5,B-&gt;C:2&#10;ANALYSE nom=g_cycle_neg SOURCE=S SOMMETS=S,A,B ARCS=S-&gt;A:1,A-&gt;B:-3,B-&gt;A:-2">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la validité pour Dijkstra et détecter les cycles absorbants
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détection de poids négatifs et de cycles absorbants</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser un graphe pour déterminer si Dijkstra est applicable et détecter la présence de cycles absorbants avec Bellman-Ford.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>ANALYSE nom=&lt;nom&gt; SOURCE=&lt;src&gt; SOMMETS=&lt;S1,S2,...&gt; ARCS=&lt;u-&gt;v:poids,...&gt;</code>.<br>
+Étapes d'analyse :<br>
+1. Examiner les poids des arcs : s’il existe au moins un poids $w &lt; 0$, <code>POIDS_NEGATIFS: OUI</code> et <code>DIJKSTRA_APPLICABLE: NON</code>.<br>
+2. Appliquer l’algorithme de Bellman-Ford (relaxation de tous les arcs $|V|-1$ fois depuis la source).<br>
+3. Effectuer une $|V|$-ième passe de relaxation : si au moins un arc peut encore être relâché, un <strong>cycle négatif</strong> (cycle absorbant) est détecté.<br>
+Afficher :<br>
+<code>ANALYSE: nom=&lt;nom&gt; | POIDS_NEGATIFS: &lt;OUI|NON&gt; | DIJKSTRA_APPLICABLE: &lt;OUI|NON&gt; | CYCLE_ABSORBANT: &lt;OUI|NON&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ANALYSE nom=g_positif SOURCE=A SOMMETS=A,B,C ARCS=A-&gt;B:5,B-&gt;C:2
+ANALYSE nom=g_cycle_neg SOURCE=S SOMMETS=S,A,B ARCS=S-&gt;A:1,A-&gt;B:-3,B-&gt;A:-2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ANALYSE: nom=g_positif | POIDS_NEGATIFS: NON | DIJKSTRA_APPLICABLE: OUI | CYCLE_ABSORBANT: NON
+ANALYSE: nom=g_cycle_neg | POIDS_NEGATIFS: OUI | DIJKSTRA_APPLICABLE: NON | CYCLE_ABSORBANT: OUI</pre></div>
+    </div>
+    <p class="lab__note">g_positif est traitable par Dijkstra. g_cycle_neg possède un cycle absorbant A-&gt;B-&gt;A de somme -5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Dijkstra suppose des poids positifs pour garantir la gloutonnerie.</li>
+        <li>Une (|V|)-ième relaxation réussie dans Bellman-Ford prouve l’existence d’un cycle absorbant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité temporelle asymptotique de l’algorithme de Dijkstra utilisant un tas binaire (Min-Heap) ?</p>
+      <div class="opts">
+        <button class="opt">O(|V|^2)</button>
+        <button class="opt" data-correct="1">O((|V| + |E|) log |V|)</button>
+        <button class="opt">O(|V| * |E|)</button>
+        <button class="opt">O(|V|^3)</button>
+      </div>
+      <div class="q__exp">Chaque sommet est extrait du tas en O(log |V|) et chaque arc entraîne au maximum une insertion en O(log |V|), ce qui donne O((|V| + |E|) log |V|).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’algorithme de Dijkstra exige-t-il des poids strictement positifs ou nuls ?</p>
+      <div class="opts">
+        <button class="opt">Pour éviter la division par zéro</button>
+        <button class="opt" data-correct="1">Parce qu’il suppose qu’une fois la distance d’un sommet finalisée, elle ne pourra plus jamais être réduite</button>
+        <button class="opt">Parce que les ordinateurs ne savent pas stocker d’entiers négatifs</button>
+        <button class="opt">Pour limiter le nombre de sommets</button>
+      </div>
+      <div class="q__exp">Dijkstra est un algorithme glouton : dès qu’un sommet est extrait avec la distance minimale courante, il est figé définitivement. Un arc négatif ultérieur pourrait violer cette hypothèse.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est l’opération fondamentale exécutée pour chaque arc sortant dans Dijkstra et Bellman-Ford ?</p>
+      <div class="opts">
+        <button class="opt">La division euclidienne</button>
+        <button class="opt" data-correct="1">Le relâchement d’arc (relaxation)</button>
+        <button class="opt">La compression de chemin</button>
+        <button class="opt">La rotation AVL</button>
+      </div>
+      <div class="q__exp">Le relâchement (relaxation) consiste à tester si passer par l’arc courant permet de découvrir un chemin plus court vers le sommet d’arrivée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de passes de relaxation de tous les arcs l’algorithme de Bellman-Ford effectue-t-il au total ?</p>
+      <div class="opts">
+        <button class="opt">1 passe</button>
+        <button class="opt">|V| passes</button>
+        <button class="opt" data-correct="1">|V| - 1 passes</button>
+        <button class="opt">|E| passes</button>
+      </div>
+      <div class="q__exp">Dans un graphe sans cycle négatif, un plus court chemin simple comporte au maximum |V| - 1 arcs. Il suffit donc de relâcher tous les arcs |V| - 1 fois.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment détecte-t-on la présence d’un cycle absorbant (cycle négatif) avec Bellman-Ford ?</p>
+      <div class="opts">
+        <button class="opt">Si la file de priorité déborde</button>
+        <button class="opt" data-correct="1">Si une |V|-ième passe supplémentaire de relaxation parvient encore à réduire la distance d’au moins un sommet</button>
+        <button class="opt">Si la somme des degrés est impaire</button>
+        <button class="opt">Si le graphe est non orienté</button>
+      </div>
+      <div class="q__exp">Après |V|-1 passes, toutes les distances des chemins simples sont figées. Si un arc peut encore être relâché à la |V|-ième passe, c’est qu’il appartient à un cycle absorbant infini.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole de routage réseau dynamique utilise directement l’algorithme de Dijkstra pour calculer les tables de routage ?</p>
+      <div class="opts">
+        <button class="opt">BGP</button>
+        <button class="opt">RIP</button>
+        <button class="opt" data-correct="1">OSPF (Open Shortest Path First)</button>
+        <button class="opt">DNS</button>
+      </div>
+      <div class="q__exp">Le protocole OSPF (ainsi que IS-IS) est un protocole à état de liens qui utilise l’algorithme de Dijkstra (SPF) pour déterminer le chemin de coût minimal à travers le réseau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut la distance d[v] d’un sommet v inaccessible depuis la source s à la fin de l’algorithme de Dijkstra ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt">-1</button>
+        <button class="opt" data-correct="1">float("inf")</button>
+        <button class="opt">None</button>
+      </div>
+      <div class="q__exp">Initialisée à l’infini (float("inf")), la distance d’un sommet qui ne reçoit aucun chemin depuis la source conserve sa valeur infinie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment reconstitue-t-on le chemin optimal entre la source et la cible à partir du dictionnaire parent généré par Dijkstra ?</p>
+      <div class="opts">
+        <button class="opt">En partant de la source et en tirant au sort les voisins</button>
+        <button class="opt" data-correct="1">En partant de la cible et en remontant de parent en parent jusqu’à atteindre None à la source, puis en inversant la liste</button>
+        <button class="opt">En triant les sommets par nom</button>
+        <button class="opt">Ce n’est pas possible</button>
+      </div>
+      <div class="q__exp">Chaque sommet stocke son prédécesseur optimal. On remonte de la destination vers la source, puis on inverse la liste de sommets pour obtenir le chemin dans le bon sens.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Appliquer Dijkstra sur un graphe comportant des poids négatifs : l’algorithme termine mais produit des distances fausses.</li>
+      <li>Oublier de vérifier si le sommet extrait de la file a déjà été finalisé (problème des doublons de clé dans heapq).</li>
+      <li>Initialiser la distance de la source à float("inf") au lieu de 0.</li>
+      <li>Confondre le coût minimal d’un chemin avec le nombre d’arêtes (ce dernier ne s’applique qu’aux graphes non pondérés via BFS).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole d’Application des Algorithmes de Plus Court Chemin</div>
+    <ol>
+      <li>Vérifier d’abord si les poids des arcs sont strictement positifs : si oui, utiliser obligatoirement Dijkstra.</li>
+      <li>Si des poids négatifs existent, écarter immédiatement Dijkstra et adopter Bellman-Ford.</li>
+      <li>Utiliser le module standard heapq en Python pour implémenter la file de priorité sous forme de tuples (distance, sommet).</li>
+      <li>Gérer un dictionnaire visited ou un ensemble de sommets traités pour éviter de retraiter les entrées périmées dans la file.</li>
+      <li>Mettre à jour rigoureusement le dictionnaire des prédécesseurs parent[v] = u à chaque relâchement réussi.</li>
+      <li>Pour reconstituer le chemin vers la destination, remonter la chaîne des prédécesseurs depuis la cible jusqu’à la source.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le problème SSSP cherche la distance minimale depuis une source vers tous les sommets accessibles d’un graphe.</li>
+      <li>Le relâchement d’un arc (u, v) met à jour d[v] si d[u] + w(u, v) < d[v].</li>
+      <li>L’algorithme de Dijkstra résout SSSP en O((|V| + |E|) log |V|) à l’aide d’une file de priorité Tas-Min.</li>
+      <li>Dijkstra exige impérativement des poids positifs ou nuls sous peine de produire des résultats erronés.</li>
+      <li>Bellman-Ford fonctionne avec des poids négatifs en temps O(|V| * |E|) et détecte les cycles absorbants.</li>
+      <li>Un cycle absorbant (cycle négatif) fait tendre la distance minimale vers -l’infini, rendant le problème indéfini.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer le fonctionnement d’une opération de relâchement.</li>
+      <li>Je sais dérouler pas à pas l’algorithme de Dijkstra sur un graphe d’exemple.</li>
+      <li>Je sais utiliser heapq pour manipuler la file de priorité en Python.</li>
+      <li>Je sais reconstituer la chaîne de sommets menant à la cible avec le dictionnaire parent.</li>
+      <li>Je sais construire un contre-exemple démontrant l’échec de Dijkstra sur des poids négatifs.</li>
+      <li>Je comprends pourquoi Bellman-Ford exécute |V| - 1 passes de relaxation.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Problème du plus court chemin à source unique (SSSP)</li><li>Opération de relâchement d’arc (Edge Relaxation)</li><li>Invariant de sous-chemin optimal</li><li>Algorithme de Dijkstra avec file de priorité min-heap</li><li>Complexité de Dijkstra en O((|V| + |E|) log |V|)</li><li>Table des prédécesseurs et reconstruction de chemin</li><li>Algorithme de Bellman-Ford en O(|V| * |E|)</li><li>Détection de cycle absorbant (cycle négatif)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la notion de relâchement d’arc et les conditions d’application de Dijkstra.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bonnes bases, revoyez la comparaison avec Bellman-Ford et la détection de cycles négatifs.</div>
+      <div class="bandrow bandrow--high">8/8 : Parfait ! Le calcul des plus courts chemins et l’algorithme de Dijkstra sont parfaitement dominés.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Programmation Dynamique &amp; Optimisation Sous-Structurelle <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours magistral ALGO_B3, l’ouvrage de référence Introduction à l’Algorithmique (Cormen, Leiserson, Rivest, Stein - CLRS) et les standards académiques universitaires de Licence 3 Informatique.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

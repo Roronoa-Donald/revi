@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 2 — Identité Microsoft Entra ID (Azure AD), RBAC &amp;amp; Gouvernance | Cloud Azure B3</title>
+<meta name="description" content="Module 2 du cours Cloud Microsoft Azure B3 : Gestion centralisée des identités avec Microsoft Entra ID (utilisateurs, groupes, Managed Identities pour ressources Azure), contrôle d’accès basé sur les rôles (Azure RBAC, Actions / NotActions, wildcards, rôles intégrés Owner/Contributor/Reader et rôles personnalisés), gouvernance déclarative par Azure Policy, verrous de ressources (Resource Locks) et sécurisation des secrets via Azure Key Vault. Notions clés, architectures Azure, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-azure/chapitres/chapitre2.html">
+<meta property="og:title" content="Module 2 — Identité Microsoft Entra ID (Azure AD), RBAC &amp;amp; Gouvernance | Cloud Azure B3">
+<meta property="og:description" content="Module 2 du cours Cloud Microsoft Azure B3 : Gestion centralisée des identités avec Microsoft Entra ID (utilisateurs, groupes, Managed Identities pour ressources Azure), contrôle d’accès basé sur les rôles (Azure RBAC, Actions / NotActions, wildcards, rôles intégrés Owner/Contributor/Reader et rôles personnalisés), gouvernance déclarative par Azure Policy, verrous de ressources (Resource Locks) et sécurisation des secrets via Azure Key Vault. Notions clés, architectures Azure, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-azurenav"><div class="b3-cloud-azurenav__in">
+  <a class="b3-cloud-azurenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-azurenav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-azurenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Cloud Azure B3</a>
+  <div class="b3-cloud-azurenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-azurenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-azurewrap">
+<p class="crumb"><a href="../index.html">Cloud Azure B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Identité Microsoft Entra ID (Azure AD), RBAC &amp; Gouvernance</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un environnement d'entreprise hébergeant des données financières et des infrastructures critiques, accorder des droits trop larges (ex: rôle Owner ou Contributor généralisé) expose l'organisation à des destructions accidentelles et des compromissions massives. En tant qu'administrateur Cloud Azure, vous devez appliquer le principe du moindre privilège (Least Privilege) via Azure RBAC, automatiser l'authentification applicative sans mot de passe avec les Managed Identities, imposer des garde-fous de conformité avec Azure Policy et protéger les secrets et certificats dans un Azure Key Vault sécurisé par Soft-Delete et Purge Protection.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser le modèle d'identité Microsoft Entra ID (ex-Azure Active Directory) et les Managed Identities ;</li>
+      <li>concevoir et évaluer des attributions de rôles Azure RBAC selon le principe du moindre privilège ;</li>
+      <li>comprendre la structure JSON d'un rôle RBAC (Actions, NotActions, DataActions, NotDataActions et AssignableScopes) ;</li>
+      <li>définir et assigner des règles de gouvernance Azure Policy avec effets Audit et Deny ;</li>
+      <li>sécuriser les secrets, clés et certificats d'entreprise dans Azure Key Vault avec Soft-Delete et Purge Protection ;</li>
+      <li>développer en Python 3 des évaluateurs de permissions RBAC, des moteurs de conformité Policy et des auditeurs de secrets Key Vault.</li>
+    </ol>
+  </div>
+
+<h2>1. Identité Moderne avec Microsoft Entra ID &amp; Managed Identities</h2>
+
+<p>Microsoft Entra ID (anciennement Azure Active Directory) est le service d'annuaire et de gestion des identités dans le Cloud. Contrairement à Active Directory Domain Services (AD DS) traditionnel basé sur Kerberos et NTLM, Entra ID repose sur des protocoles modernes web et Cloud (OAuth 2.0, OpenID Connect, SAML 2.0) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Objets d'Identité Fondamentaux</h4>
+    <ul>
+      <li><strong>Utilisateurs &amp; Groupes :</strong> comptes membres du tenant ou invités externes (B2B) regroupés de manière statique ou dynamique (par attributs de département ou titre).</li>
+      <li><strong>Service Principals (Principaux de service) :</strong> identité attribuée à une application tierce ou un pipeline CI/CD (GitHub Actions, Azure DevOps) pour interagir de façon autonome avec l'API Azure.</li>
+      <li><strong>Rôle de sécurité :</strong> l'authentification multifacteur (MFA) et les stratégies d'accès conditionnel (Conditional Access) protègent les accès à risque selon la localisation, l'état de conformité du terminal et le risque utilisateur.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Managed Identities (Identités Managées)</h4>
+    <ul>
+      <li><strong>Zéro secret dans le code :</strong> élimine le besoin pour les développeurs d'écrire des identifiants ou mots de passe dans les fichiers de configuration de leurs VMs ou Web Apps.</li>
+      <li><strong>System-Assigned :</strong> identité liée au cycle de vie de la ressource Azure. Si la VM est supprimée, son identité dans Entra ID est automatiquement révoquée.</li>
+      <li><strong>User-Assigned :</strong> ressource Azure indépendante pouvant être partagée entre plusieurs machines ou conteneurs pour mutualiser des permissions identiques.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Contrôle d'Accès Granulaire Azure RBAC (Role-Based Access Control)</h2>
+
+<p>Azure RBAC détermine les autorisations accordées à une identité (Security Principal) sur un périmètre donné (Scope). Une attribution de rôle combine obligatoirement trois éléments : <strong>Qui</strong> (Principal), <strong>Quoi</strong> (Role Definition) et <strong>Où</strong> (Scope) :</p>
+<table class="table">
+  <thead><tr><th>Composant du Rôle RBAC</th><th>Rôle et Syntaxe</th><th>Exemple Concret</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Actions (Plan de contrôle)</strong></td><td>Liste des opérations administratives autorisées via ARM (création, modification, lecture, redémarrage).</td><td><code>Microsoft.Compute/virtualMachines/restart/action</code></td></tr>
+    <tr><td><strong>NotActions</strong></td><td>Opérations expressément exclues de la liste précédente (effet de soustraction de droits).</td><td><code>Microsoft.Compute/virtualMachines/delete</code></td></tr>
+    <tr><td><strong>DataActions (Plan de données)</strong></td><td>Opérations sur les données applicatives internes de la ressource (lecture de blobs, requêtes Cosmos DB).</td><td><code>Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read</code></td></tr>
+    <tr><td><strong>NotDataActions</strong></td><td>Exclusions appliquées aux opérations de données internes.</td><td><code>Microsoft.Storage/storageAccounts/blobServices/containers/blobs/delete</code></td></tr>
+    <tr><td><strong>AssignableScopes</strong></td><td>Périmètres où le rôle peut être attribué (abonnements, groupes de gestion).</td><td><code>/subscriptions/1111-2222-3333</code></td></tr>
+  </tbody>
+</table>
+<p><strong>Règle d'or de l'évaluation Azure :</strong> Une opération est autorisée si et seulement si elle correspond à au moins un pattern dans <code>Actions</code> ET ne correspond à AUCUN pattern dans <code>NotActions</code>.</p>
+
+<h2>3. Gouvernance avec Azure Policy, Resource Locks &amp; Azure Key Vault</h2>
+
+<p>Au-delà des droits utilisateurs individuels, l'organisation d'entreprise doit garantir la conformité globale et la protection de ses actifs cryptographiques :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Azure Policy &amp; Resource Locks</h4>
+    <ul>
+      <li><strong>Azure Policy :</strong> moteur de règles déclaratives évaluant les propriétés des ressources créées. Effet <code>Deny</code> pour bloquer une création non conforme (ex: région interdite) ou <code>Audit</code> pour signaler les écarts dans un tableau de bord.</li>
+      <li><strong>Resource Locks (Verrous) :</strong>
+        <br>- <code>CanNotDelete</code> : lecture et modification autorisées, mais suppression interdite.
+        <br>- <code>ReadOnly</code> : consultation uniquement, toute modification ou suppression est rejetée (même par le propriétaire Owner).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Sécurité Azure Key Vault</h4>
+    <ul>
+      <li><strong>Gestion centralisée :</strong> stockage hermétique des clés de chiffrement (HSM FIPS 140-2), mots de passe applicatifs (Secrets) et certificats TLS/SSL.</li>
+      <li><strong>Soft-Delete (Suppression réversible) :</strong> les secrets supprimés sont conservés dans une corbeille protégée pendant 7 à 90 jours au lieu d'être détruits immédiatement.</li>
+      <li><strong>Purge Protection :</strong> empêche même l'administrateur de forcer la purge définitive avant l'expiration de la période de rétention (défense absolue contre les rançongiciels).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="az3-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="ROLE VM_Operator&#10;CHECK_ACTION Microsoft.Compute/virtualMachines/restart/action&#10;CHECK_ACTION Microsoft.Compute/virtualMachines/delete">
+  <script type="text/plain" data-lab-starter>import sys
+import fnmatch
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la vérification Azure RBAC avec wildcards
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Évaluateur de permissions Azure RBAC</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une définition de rôle Azure RBAC et déterminer si des opérations administratives sont autorisées ou refusées.</p>
+    <div class="lab__brief"><p>Azure RBAC (Role-Based Access Control) applique une logique d'autorisation stricte : une action est autorisée si elle correspond à au moins une directive dans <code>Actions</code> (supportant le caractère générique <code>*</code>) et ne correspond à <strong>aucune</strong> directive dans <code>NotActions</code>.<br><br>
+Rôles Azure prédéfinis pris en charge :<br>
+- <code>Owner</code> :<br>
+  - Actions : <code>["*"]</code><br>
+  - NotActions : <code>[]</code><br>
+- <code>Contributor</code> :<br>
+  - Actions : <code>["*"]</code><br>
+  - NotActions : <code>["Microsoft.Authorization/*/Delete", "Microsoft.Authorization/*/Write", "Microsoft.Resources/subscriptions/resourceGroups/delete"]</code><br>
+- <code>Reader</code> :<br>
+  - Actions : <code>["*/read"]</code><br>
+  - NotActions : <code>[]</code><br>
+- <code>VM_Operator</code> :<br>
+  - Actions : <code>["Microsoft.Compute/virtualMachines/start/*", "Microsoft.Compute/virtualMachines/restart/*", "Microsoft.Compute/virtualMachines/read"]</code><br>
+  - NotActions : <code>["Microsoft.Compute/virtualMachines/delete"]</code><br><br>
+Format d'entrée :<br>
+La première ligne définit le rôle assigné :<br>
+<code>ROLE &lt;nom_du_role&gt;</code><br>
+Les lignes suivantes soumettent des opérations ARM à tester :<br>
+<code>CHECK_ACTION &lt;action_path&gt;</code><br><br>
+Pour chaque action :<br>
+- Si l'action est autorisée : <code>ACTION &lt;action_path&gt; -&gt; ALLOWED</code><br>
+- Si l'action est refusée : <code>ACTION &lt;action_path&gt; -&gt; DENIED</code><br>
+- Si le rôle est inconnu au départ, afficher : <code>ROLE_ERROR: Unknown role '&lt;nom_du_role&gt;'</code> et arrêter.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROLE VM_Operator
+CHECK_ACTION Microsoft.Compute/virtualMachines/restart/action
+CHECK_ACTION Microsoft.Compute/virtualMachines/delete</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ACTION Microsoft.Compute/virtualMachines/restart/action -&gt; ALLOWED
+ACTION Microsoft.Compute/virtualMachines/delete -&gt; DENIED</pre></div>
+    </div>
+    <p class="lab__note">Le rôle VM_Operator autorise le redémarrage mais refuse la suppression.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le module Python `fnmatch` permet d'évaluer simplement les règles avec wildcards `*`.</li>
+        <li>Penser à convertir en minuscules pour garantir l'insensibilité à la casse.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="az3-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="RESOURCE id=vm-web-01 type=Microsoft.Compute/virtualMachines location=westeurope sku=Standard_D4s_v5 tags=Environment:prod,CostCenter:IT-401">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser les ressources et relever les manquements Azure Policy
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Auditeur de conformité Azure Policy</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer un ensemble de ressources Cloud Azure contre des règles de gouvernance déclaratives et détecter les non-conformités.</p>
+    <div class="lab__brief"><p>Azure Policy permet d'imposer des normes de gouvernance organisationnelle au niveau des abonnements et groupes de ressources.<br><br>
+Règles de conformité définies pour l'organisation :<br>
+1. <code>allowedLocations</code> : la localisation géographique (<code>location</code>) doit obligatoirement être l'une des suivantes : <code>["westeurope", "northeurope", "francecentral"]</code>.<br>
+   Violation : <code>DENY: Invalid location '&lt;loc&gt;'</code><br>
+2. <code>requireTags</code> : la ressource doit obligatoirement inclure les deux tags <code>Environment</code> et <code>CostCenter</code>.<br>
+   Pour chaque tag manquant : <code>AUDIT: Missing required tag '&lt;nom_tag&gt;'</code><br>
+3. <code>disallowedSKUs</code> : les SKUs surdimensionnées ou hors catalogue ne sont pas autorisées : <code>["Standard_M128ms", "Standard_G5"]</code>.<br>
+   Violation : <code>DENY: Disallowed SKU '&lt;sku&gt;'</code><br><br>
+Format d'entrée : chaque ligne déclare une ressource sous la forme :<br>
+<code>RESOURCE id=&lt;id&gt; type=&lt;type&gt; location=&lt;loc&gt; sku=&lt;sku&gt; tags=&lt;k1:v1,k2:v2&gt;</code> (si aucun tag : <code>tags=none</code>).<br><br>
+Format de sortie attendu pour chaque ressource :<br>
+- Si aucune violation :<br>
+  <code>AUDIT id=&lt;id&gt; STATUS=COMPLIANT</code><br>
+- Si des violations existent :<br>
+  <code>AUDIT id=&lt;id&gt; STATUS=NON_COMPLIANT issues=[&lt;issue1&gt;; &lt;issue2&gt;]</code> (dans l'ordre de détection : location, SKU, puis tags manquants).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RESOURCE id=vm-web-01 type=Microsoft.Compute/virtualMachines location=westeurope sku=Standard_D4s_v5 tags=Environment:prod,CostCenter:IT-401</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT id=vm-web-01 STATUS=COMPLIANT</pre></div>
+    </div>
+    <p class="lab__note">Ressource entièrement conforme aux règles de localisation, SKU et tags.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Extraire chaque champ clé=valeur de la ligne de déclaration.</li>
+        <li>Construire la liste des anomalies dans l'ordre prescrit avant d'émettre le diagnostic.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="az3-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="VAULT name=kv-prod-we soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100&#10;SECRET name=db-password expires_at=125&#10;SECRET name=api-key expires_at=0">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : auditer la configuration du Key Vault et l'état des secrets
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyseur de sécurité Azure Key Vault &amp; Expiration de secrets</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer les paramètres de sécurité d’un coffre-fort Azure Key Vault et évaluer l’état d’expiration de ses secrets et certificats.</p>
+    <div class="lab__brief"><p>Azure Key Vault centralise la gestion des clés cryptographiques, secrets et certificats. La sécurisation du coffre exige l'activation de la suppression réversible (Soft-Delete) et de la protection contre la purge (Purge Protection).<br><br>
+Format d'entrée :<br>
+Ligne 1 : Configuration du coffre :<br>
+<code>VAULT name=&lt;nom&gt; soft_delete=&lt;enabled|disabled&gt; purge_protection=&lt;enabled|disabled&gt; auth_mode=&lt;rbac|access_policies&gt; current_day=&lt;int&gt;</code><br>
+Lignes suivantes : Déclaration des secrets :<br>
+<code>SECRET name=&lt;nom&gt; expires_at=&lt;int&gt;</code> (si pas de date d'expiration : <code>expires_at=0</code>).<br><br>
+Règles d'audit du coffre (VAULT) :<br>
+- Si <code>soft_delete != enabled</code> : relever <code>CRITICAL: Soft-delete disabled</code><br>
+- Si <code>purge_protection != enabled</code> : relever <code>WARNING: Purge protection disabled</code><br>
+- Mode d'autorisation : afficher <code>AUTH=&lt;auth_mode.upper()&gt;</code><br>
+Afficher :<br>
+<code>VAULT_SECURITY name=&lt;nom&gt; AUTH=&lt;AUTH&gt; ISSUES=[&lt;issues&gt;]</code> (ou <code>ISSUES=[NONE]</code> si aucune anomalie).<br><br>
+Règles d'audit des secrets (SECRET) :<br>
+- Si <code>expires_at == 0</code> : <code>SECRET &lt;nom&gt; -&gt; STATUS=NO_EXPIRY_RISK</code><br>
+- Si <code>expires_at &lt;= current_day</code> : <code>SECRET &lt;nom&gt; -&gt; STATUS=EXPIRED</code><br>
+- Si <code>0 &lt; (expires_at - current_day) &lt;= 30</code> : <code>SECRET &lt;nom&gt; -&gt; STATUS=EXPIRING_SOON (days_left=&lt;N&gt;)</code><br>
+- Sinon : <code>SECRET &lt;nom&gt; -&gt; STATUS=VALID (days_left=&lt;N&gt;)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VAULT name=kv-prod-we soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100
+SECRET name=db-password expires_at=125
+SECRET name=api-key expires_at=0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VAULT_SECURITY name=kv-prod-we AUTH=RBAC ISSUES=[NONE]
+SECRET db-password -&gt; STATUS=EXPIRING_SOON (days_left=25)
+SECRET api-key -&gt; STATUS=NO_EXPIRY_RISK</pre></div>
+    </div>
+    <p class="lab__note">Coffre sécurisé, secret expirant dans 25 jours et secret sans date d'expiration relevé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parser la ligne VAULT pour récupérer current_day et les indicateurs de sécurité.</li>
+        <li>Comparer expires_at à current_day pour chaque secret selon les 4 cas prescrits.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l'avantage principal d'utiliser une Managed Identity (Identité Managée) pour une machine virtuelle Azure accédant à une base de données ?</p>
+      <div class="opts">
+        <button class="opt">Accélération de la vitesse de la carte réseau virtuelle</button>
+        <button class="opt" data-correct="1">Suppression totale des identifiants et mots de passe stockés en clair dans le code de l'application</button>
+        <button class="opt">Gratuité des requêtes SQL exécutées</button>
+        <button class="opt">Chiffrement automatique des disques physiques du datacenter</button>
+      </div>
+      <div class="q__exp">Une Managed Identity permet à la VM de demander un jeton d'accès Entra ID directement à la plateforme Azure locale sans qu'aucun secret ni mot de passe ne soit inscrit dans le code applicatif.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une définition de rôle Azure RBAC, comment s'articulent les directives Actions et NotActions ?</p>
+      <div class="opts">
+        <button class="opt">NotActions s'applique uniquement si la ressource est située hors d'Europe</button>
+        <button class="opt" data-correct="1">Une action est autorisée si elle est présente dans Actions ET absente de NotActions</button>
+        <button class="opt">NotActions remplace Actions et autorise toutes les opérations inverses</button>
+        <button class="opt">Actions est réservé aux administrateurs, NotActions aux utilisateurs réguliers</button>
+      </div>
+      <div class="q__exp">Dans Azure RBAC, une opération est validée si elle correspond à au moins un élément d'Actions et ne correspond à AUCUN élément de NotActions (soustraction stricte de privilèges).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel rôle prédéfini (Built-in Role) permet de créer et modifier toutes les ressources Azure sans pouvoir gérer les attributions de droits RBAC à d'autres utilisateurs ?</p>
+      <div class="opts">
+        <button class="opt">Owner</button>
+        <button class="opt" data-correct="1">Contributor</button>
+        <button class="opt">Reader</button>
+        <button class="opt">User Access Administrator</button>
+      </div>
+      <div class="q__exp">Le rôle Contributor possède Actions: ["*"] avec NotActions excluant les modifications d'autorisations RBAC (Microsoft.Authorization/*).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel effet Azure Policy devez-vous employer pour empêcher immédiatement le déploiement d'une machine virtuelle si sa localisation n'est pas dans la liste autorisée ?</p>
+      <div class="opts">
+        <button class="opt">Audit</button>
+        <button class="opt" data-correct="1">Deny</button>
+        <button class="opt">Append</button>
+        <button class="opt">Disabled</button>
+      </div>
+      <div class="q__exp">L'effet Deny bloque la requête de déploiement au niveau d'ARM et retourne un message d'erreur explicite à l'utilisateur avant même que la ressource ne soit créée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel verrou de ressource (Resource Lock) permet aux utilisateurs de lire et modifier les données d'une ressource mais interdit rigoureusement sa suppression ?</p>
+      <div class="opts">
+        <button class="opt">ReadOnly</button>
+        <button class="opt" data-correct="1">CanNotDelete</button>
+        <button class="opt">NoModification</button>
+        <button class="opt">WriteOnly</button>
+      </div>
+      <div class="q__exp">Le verrou CanNotDelete protège la ressource contre toute suppression accidentelle tout en autorisant les modifications de configuration et les mises à jour.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un utilisateur tente de modifier la configuration d'une ressource protégée par un verrou ReadOnly ?</p>
+      <div class="opts">
+        <button class="opt">La modification est acceptée mais signalée par email</button>
+        <button class="opt" data-correct="1">La modification est rejetée avec une erreur d'autorisation, car ReadOnly bloque toute écriture et suppression</button>
+        <button class="opt">La modification est placée dans une file d'attente d'approbation</button>
+        <button class="opt">Le verrou bascule automatiquement en mode CanNotDelete</button>
+      </div>
+      <div class="q__exp">Un verrou ReadOnly équivaut à restreindre l'accès à des droits de pure lecture (Reader) pour tous les utilisateurs, interdisant toute modification ou suppression.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans Azure Key Vault, quel est le rôle de la fonctionnalité Soft-Delete ?</p>
+      <div class="opts">
+        <button class="opt">Supprimer immédiatement les données sans laisser de trace</button>
+        <button class="opt" data-correct="1">Conserver les secrets et clés supprimés dans un état récupérable pendant une période paramétrable de 7 à 90 jours</button>
+        <button class="opt">Diviser par deux le coût de stockage des secrets</button>
+        <button class="opt">Chiffrer les secrets avec un algorithme plus léger</button>
+      </div>
+      <div class="q__exp">Soft-Delete empêche la perte définitive immédiate en plaçant les objets supprimés dans une corbeille protégée pendant une durée de 7 à 90 jours (par défaut 90 jours).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle mesure de sécurité Key Vault empêche un attaquant disposant des droits administrateurs de purger immédiatement un secret placé en Soft-Delete ?</p>
+      <div class="opts">
+        <button class="opt">Firewall IP</button>
+        <button class="opt" data-correct="1">Purge Protection</button>
+        <button class="opt">Private Endpoint</button>
+        <button class="opt">Azure Bastion</button>
+      </div>
+      <div class="q__exp">Purge Protection verrouille l'objet en corbeille jusqu'à la fin de la période de rétention Soft-Delete, empêchant toute destruction prématurée même par un compte administrateur.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Attribuer le rôle Contributor à une équipe de développement au niveau de l'abonnement complet au lieu de restreindre les droits à leur Resource Group de dev/test.</li>
+      <li>Confondre Azure RBAC (qui gère l'autorisation des utilisateurs sur ARM) et Azure Policy (qui contrôle la configuration et les propriétés des ressources).</li>
+      <li>Oublier qu'un verrou de ressource ReadOnly empêche également le démarrage et l'arrêt d'une machine virtuelle car cette action met à jour le statut dans ARM.</li>
+      <li>Désactiver la Purge Protection sur un Azure Key Vault de production : un compte administrateur compromis pourrait détruire irréversiblement les clés de chiffrement de l'entreprise.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Remplacement des comptes nominatifs par des Managed Identities : activer une Managed Identity System-Assigned sur chaque serveur ou conteneur pour éliminer définitivement les clés d'accès en dur dans le code.</li>
+      <li>Définition des attributions RBAC au périmètre le plus restreint : n'assigner jamais de droits au niveau de l'abonnement quand un groupe de ressources suffit, et préférer des rôles d'exploitation dédiés (ex. Virtual Machine User Login).</li>
+      <li>Déploiement d'Azure Policy pour la gouvernance territoriale et les tags : créer une initiative de politiques imposant la localisation westeurope/francecentral et la présence obligatoire des tags CostCenter et Environment.</li>
+      <li>Chiffrement et verrouillage des ressources de production : placer un verrou CanNotDelete sur les passerelles réseau et bases de données, et centraliser tous les mots de passe de production dans un Key Vault avec Purge Protection activée.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Microsoft Entra ID centralise les identités Cloud et offre les Managed Identities pour une authentification automatique sans mot de passe.</li>
+      <li>Azure RBAC applique le contrôle d'accès granulaire combinant un Principal, une Définition de rôle et un Périmètre (Scope).</li>
+      <li>La structure d'un rôle RBAC repose sur Actions (autorisations) et NotActions (exclusions soustractives), évaluées avec wildcards.</li>
+      <li>Azure Policy impose des contraintes de conformité aux ressources (ex: restriction géographique, tags obligatoires) avec les effets Deny et Audit.</li>
+      <li>Azure Key Vault protège les secrets contre les rançongiciels grâce aux mécanismes combinés de Soft-Delete et Purge Protection.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous différencier une Managed Identity System-Assigned d'une identité User-Assigned ?</li>
+      <li>Pouvez-vous expliquer pourquoi une action présente dans NotActions est systématiquement refusée même si Actions contient * ?</li>
+      <li>Connaissez-vous la différence entre un verrou CanNotDelete et un verrou ReadOnly ?</li>
+      <li>Savez-vous rédiger une condition Azure Policy pour bloquer la création de machines hors des régions autorisées ?</li>
+      <li>Comprenez-vous le rôle de la Purge Protection face aux scénarios d'attaque par rançongiciel ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Managed Identity :</strong> Identité gérée automatiquement par Azure dans Entra ID pour une ressource Cloud, permettant de s'authentifier auprès d'autres services sans stocker de secret.</li><li><strong>RBAC (Role-Based Access Control) :</strong> Modèle d'autorisation fondé sur des rôles découpés en Actions et NotActions assignés à un niveau de scope précis.</li><li><strong>Scope (Périmètre) :</strong> Niveau hiérarchique auquel s'applique une attribution de rôle (Management Group, Subscription, Resource Group ou Ressource individuelle).</li><li><strong>Azure Policy :</strong> Service de gouvernance évaluant la conformité des propriétés des ressources par rapport à des règles d'entreprise déclaratives.</li><li><strong>Purge Protection :</strong> Fonctionnalité de sécurité imposant la rétention incompressible des objets supprimés dans Key Vault, interdisant toute destruction définitive prématurée.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Implémentation d'une architecture Zero Trust avec Managed Identities :</strong> Configurer des identités managées User-Assigned pour des microservices et interconnecter les flux sans aucun secret partagé.</div>
+      <div class="bandrow"><strong>Création de rôles RBAC sur-mesure (Custom Roles) :</strong> Rédiger des gabarits JSON de rôles personnalisés avec exclusions chirurgicales pour déléguer l'administration sans risque d'élévation.</div>
+      <div class="bandrow"><strong>Gouvernance multi-abonnements par Azure Policy Initiatives :</strong> Créer une initiative regroupant les exigences de souveraineté géographique européenne et les règles d'étiquetage fiscal FinOps.</div>
+      <div class="bandrow"><strong>Sécurisation de secrets d'entreprise dans Azure Key Vault :</strong> Automatiser la rotation des secrets, auditer les dates d'expiration et verrouiller la purge protection contre les menaces de ransomware.</div>
+      <div class="bandrow"><strong>Conception d'outils d'audit de sécurité en Python 3 :</strong> Développer des scripts évaluant automatiquement la conformité des assignations RBAC et des configurations de coffres-forts.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Module 3 — Calcul &amp; Virtualisation Azure (Azure Compute, VMSS &amp; PaaS) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AZURE B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation Microsoft Learn Azure, Référentiels d'examen Microsoft Certified Azure Administrator (AZ-104) et Azure Solutions Architect Expert (AZ-305).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

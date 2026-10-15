@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git &amp; GitHub B3 — Ingénierie Git, DAG, GitHub Actions &amp;amp; Sécurité B3</title>
+<meta name="description" content="Formation d’excellence en ingénierie de contrôle de version et automatisation de dépôts pour le Bachelor 3 : modèle objet interne et stockage adressable par contenu (système de fichiers CAS, objets blobs, trees, commits, tags annotés, hachage canonique SHA-1/SHA-256 avec octet nul, immuabilité en arbre de Merkle et commandes de plomberie cat-file, hash-object, ls-tree, rev-parse), stratégies de fusions avancées et rebase interactif (analyse topologique du graphe DAG, calcul du Lowest Common Ancestor LCA, moteurs de fusion recursive et ORT, rebase interactif git rebase -i avec directives pick, squash, fixup, reword, règle d’or du rebase et arbitrage formel des conflits tridirectionnels), diagnostic, reflog et sauvetage de données (journal chronologique de références git reflog, sauvetage de commits orphelins dangling après reset dur, vérification d’intégrité git fsck, isolation logarithmique de régressions avec git bisect interactif et automatisé, et gestion de pile LIFO git stash), workflows d’équipe et gouvernance de dépôts (comparaison Git Flow vs GitHub Flow vs Trunk-Based Development avec Feature Flags, règles de protection de branches Branch Protection Rules et Rulesets, signature cryptographique GPG/SSH de commits et spécification formelle Conventional Commits 1.0.0 pour automatiser SemVer), automatisation CI/CD complète avec GitHub Actions (syntaxe déclarative YAML sous .github/workflows/, architecture d’événements et runners, stratégie matricielle multi-plateforme strategy.matrix avec fail-fast, durcissement de sécurité contre les injections de commandes shell CWE-78 dans les contextes dynamiques et principe du moindre privilège GITHUB_TOKEN), et administration avancée de dépôts à grande échelle (gestion des fichiers binaires volumineux par déport et pointeurs textuels Git LFS v1, automatisation par hooks client pre-commit/commit-msg et serveur pre-receive, hygiène de paquets et réécriture complète de l’historique par git-filter-repo pour purger définitivement les secrets compromis).">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-github/index.html">
+<meta property="og:title" content="Git &amp; GitHub B3 — Ingénierie Git, DAG, GitHub Actions &amp;amp; Sécurité B3">
+<meta property="og:description" content="Formation d’excellence en ingénierie de contrôle de version et automatisation de dépôts pour le Bachelor 3 : modèle objet interne et stockage adressable par contenu (système de fichiers CAS, objets blobs, trees, commits, tags annotés, hachage canonique SHA-1/SHA-256 avec octet nul, immuabilité en arbre de Merkle et commandes de plomberie cat-file, hash-object, ls-tree, rev-parse), stratégies de fusions avancées et rebase interactif (analyse topologique du graphe DAG, calcul du Lowest Common Ancestor LCA, moteurs de fusion recursive et ORT, rebase interactif git rebase -i avec directives pick, squash, fixup, reword, règle d’or du rebase et arbitrage formel des conflits tridirectionnels), diagnostic, reflog et sauvetage de données (journal chronologique de références git reflog, sauvetage de commits orphelins dangling après reset dur, vérification d’intégrité git fsck, isolation logarithmique de régressions avec git bisect interactif et automatisé, et gestion de pile LIFO git stash), workflows d’équipe et gouvernance de dépôts (comparaison Git Flow vs GitHub Flow vs Trunk-Based Development avec Feature Flags, règles de protection de branches Branch Protection Rules et Rulesets, signature cryptographique GPG/SSH de commits et spécification formelle Conventional Commits 1.0.0 pour automatiser SemVer), automatisation CI/CD complète avec GitHub Actions (syntaxe déclarative YAML sous .github/workflows/, architecture d’événements et runners, stratégie matricielle multi-plateforme strategy.matrix avec fail-fast, durcissement de sécurité contre les injections de commandes shell CWE-78 dans les contextes dynamiques et principe du moindre privilège GITHUB_TOKEN), et administration avancée de dépôts à grande échelle (gestion des fichiers binaires volumineux par déport et pointeurs textuels Git LFS v1, automatisation par hooks client pre-commit/commit-msg et serveur pre-receive, hygiène de paquets et réécriture complète de l’historique par git-filter-repo pour purger définitivement les secrets compromis).">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-githubnav"><div class="b3-githubnav__in">
+  <a class="b3-githubnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-githubnav__sep" aria-hidden="true">/</span>
+  <a class="b3-githubnav__brand" href="index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git &amp; GitHub B3</a>
+  <div class="b3-githubnav__links">
+    <a href="sommaire.html">Sommaire</a>
+    <a href="chapitres/chapitre1.html">Ch. 1</a>
+    <a href="chapitres/chapitre2.html">Ch. 2</a>
+    <a href="chapitres/chapitre3.html">Ch. 3</a>
+    <a href="chapitres/chapitre4.html">Ch. 4</a>
+    <a href="chapitres/chapitre5.html">Ch. 5</a>
+    <a href="chapitres/chapitre6.html">Ch. 6</a>
+    <a href="chapitres/cartes.html">Cartes</a>
+    <a href="chapitres/formules.html">Mémo</a>
+    <a href="exercices/exercices.html">Exercices</a>
+    <a href="atelier.html">Atelier</a>
+    <a href="chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-githubnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-githubwrap">
+  <header class="hero">
+
+    <div class="hero__badge"><span class="badge badge--glow"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Niveau B3 • Ingénierie Git, Graphe DAG, CI/CD Actions &amp; Gouvernance</span></div>
+
+    <h1 class="hero__title">Git & GitHub B3</h1>
+
+    <p class="hero__subtitle">Maîtrisez les structures internes du graphe DAG, les fusions tridirectionnelles, la résurrection de données via le reflog, l’orchestration CI/CD avec GitHub Actions et l’ingénierie de sécurité de niveau Bachelor 3. Six modules approfondis combinant formalisme théorique, 18 ateliers de programmation interactive en Python 3 et 48 QCM d’évaluation.</p>
+
+    <div class="hero__actions">
+
+      <a class="btn btn--primary btn--lg" href="chapitres/chapitre1.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Démarrer le cours</a>
+
+      <a class="btn btn--lg" href="sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> Voir le sommaire</a>
+
+      <a class="btn btn--lg" href="atelier.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Laboratoire Git &amp; GitHub</a>
+
+    </div>
+
+  </header>
+
+
+
+  <section class="statbar">
+
+    <div class="stat"><span class="stat__val">6</span><span class="stat__lbl">Modules fondamentaux</span></div>
+
+    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Exercices de code exécutables</span></div>
+
+    <div class="stat"><span class="stat__val">48</span><span class="stat__lbl">Questions de QCM corrigées</span></div>
+
+    <div class="stat"><span class="stat__val">2</span><span class="stat__lbl">Examens blancs complets</span></div>
+
+  </section>
+
+
+
+  <h2>Parcours d’apprentissage</h2>
+
+  <div class="grid">    <article class="card">
+      <div class="card__head">
+        <span class="badge">Accès libre</span>
+        <span class="card__num">Module 1</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre1.html">Modèle Objet Git &amp; Arborescence Interne</a></h3>
+      <p class="card__desc">Anatomie du dossier .git, modèle objet immuable (blobs, trees, commits, tags), hachage SHA-1/SHA-256, adressage par contenu et commandes de plomberie.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 2</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre2.html">Stratégies de Fusion Avancées &amp; Rebase Interactif</a></h3>
+      <p class="card__desc">Fast-Forward vs 3-Way Merge, calcul du Lowest Common Ancestor (LCA), stratégies recursive et ort, rebase interactif, squash et arbitrage formel des conflits.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 3</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre3.html">Diagnostic, Reflog &amp; Sauvetage de Données</a></h3>
+      <p class="card__desc">Journal de références git reflog, sauvetage de commits orphelins (dangling), recherche dichotomique de régressions avec git bisect, gestion de la pile LIFO git stash et intégrité avec git fsck.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 4</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre4.html">Workflows d’Équipe, Gouvernance &amp; Protection de Branches</a></h3>
+      <p class="card__desc">Modèles de collaboration (Git Flow, GitHub Flow, Trunk-Based Development), règles de protection de branches (Branch Protection Rules / Rulesets), signature cryptographique GPG et norme Conventional Commits 1.0.0.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 5</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre5.html">Automatisation &amp; CI/CD avec GitHub Actions</a></h3>
+      <p class="card__desc">Syntaxe déclarative YAML, événements déclencheurs, runners, stratégie matricielle multi-plateforme (strategy.matrix), gestion des secrets et durcissement contre les injections de commandes.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B3 et plus</span>
+        <span class="card__num">Module 6</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre6.html">Administration Avancée, LFS, Hooks &amp; Purge d’Historique</a></h3>
+      <p class="card__desc">Gestion des gros fichiers binaires avec Git LFS, automatisation avec les hooks client et serveur, hygiène de dépôt, réécriture complète du DAG et purge de secrets compromis avec git-filter-repo.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article></div>
+
+
+
+  <h2>Architecture &amp; Philosophie de Git &amp; GitHub en Troisième Année</h2>
+
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Du Contrôle de Version Élémentaire à l’Ingénierie des Dépôts d’Entreprise</div>
+<p>En troisième année de Bachelor en Ingénierie Informatique, Git n’est plus appréhendé comme une simple collection de commandes mémorisées (<code>add</code>, <code>commit</code>, <code>push</code>), mais comme un système de fichiers adressable par contenu reposant sur un graphe orienté acyclique (DAG - Directed Acyclic Graph) hautement performant et mathématiquement rigoureux.</p>,<p>Ce cours approfondit l’intégralité des rouages internes et des pratiques industrielles indispensables à un ingénieur logiciel ou DevOps : la mécanique exacte de stockage des quatre types d’objets (blobs, trees, commits, annotated tags) avec hachage cryptographique SHA-1 et SHA-256, la topologie des fusions avancées (calcul du Lowest Common Ancestor LCA, fusion tridirectionnelle et réécriture d’historique par rebase interactif), les techniques de résurrection de données via le journal de références <code>git reflog</code> et l’isolation de régressions par recherche dichotomique binaire <code>git bisect</code>, la gouvernance collaborative d’équipe (Trunk-Based Development, règles de protection de branches GitHub, validation formelle Conventional Commits), l’automatisation CI/CD complète par GitHub Actions (déclencheurs, exécuteurs, matrices multi-plateformes et durcissement de sécurité contre les injections de commandes et fuites de secrets), et enfin la gestion de dépôts à grande échelle (Git LFS pour les fichiers volumineux, hooks automatisés de pré-validation et assainissement d’historique par <code>git-filter-repo</code> pour purger les secrets compromis).</p>
+  </div>
+
+
+
+  <div class="chnav">
+    <a class="btn btn--primary" href="chapitres/chapitre1.html">Commencer par le Chapitre 1 <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail personnel.</p>
+</main>
+
+<script src="assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

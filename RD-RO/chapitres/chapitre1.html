@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Fondements, Variables &amp;amp; Modélisation Linéaire | Recherche Opérationnelle B2</title>
+<meta name="description" content="Chapitre 1 du cours Recherche Opérationnelle B2 : Origines de la RO, variables de décision, fonction objectif, contraintes de ressources et formalisation canonique d’un programme linéaire. Modèles mathématiques, algorithmes d’optimisation, ateliers Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/RD-RO/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Fondements, Variables &amp;amp; Modélisation Linéaire | Recherche Opérationnelle B2">
+<meta property="og:description" content="Chapitre 1 du cours Recherche Opérationnelle B2 : Origines de la RO, variables de décision, fonction objectif, contraintes de ressources et formalisation canonique d’un programme linéaire. Modèles mathématiques, algorithmes d’optimisation, ateliers Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="RD-ROnav"><div class="RD-ROnav__in">
+  <a class="RD-ROnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="RD-ROnav__sep" aria-hidden="true">/</span>
+  <a class="RD-ROnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Recherche Opérationnelle B2</a>
+  <div class="RD-ROnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="RD-ROnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="RD-ROwrap">
+<p class="crumb"><a href="../index.html">Recherche Opérationnelle B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements, Variables &amp; Modélisation Linéaire</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une menuiserie industrielle fabrique des tables et des chaises à partir de bois de chêne et d’heures d’assemblage limitées. Chaque table rapporte 50 € de marge et consomme 3 m² de bois et 2 heures d’ouvrier. Chaque chaise rapporte 30 € de marge et consomme 1 m² de bois et 2 heures d’ouvrier. L’entreprise dispose de 90 m² de bois et 80 heures par semaine. Faut-il fabriquer uniquement des tables ? Uniquement des chaises ? Un mélange des deux ? L’intuition humaine échoue dès que les contraintes se multiplient : seule la modélisation mathématique rigoureuse permet de prouver scientifiquement quelle décision garantit le profit maximal absolu.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir avec exactitude la discipline de la Recherche Opérationnelle et son rôle stratégique dans la prise de décision ;</li>
+      <li>identifier sans ambiguïté les variables de décision et leurs unités physiques ($x_j \ge 0$) ;</li>
+      <li>construire la fonction objectif économique $Z$ (maximisation de profit ou minimisation de coût) ;</li>
+      <li>traduire des contraintes textuelles en inéquations linéaires de ressources ($le$), de besoins ($ge$) et d’équilibres ($=$) ;</li>
+      <li>valider les hypothèses fondamentales de la programmation linéaire (proportionnalité, additivité, divisibilité, certitude).</li>
+    </ol>
+  </div>
+
+<h2>1. Qu’est-ce que la Recherche Opérationnelle ?</h2>
+
+<p>La <strong>Recherche Opérationnelle (RO)</strong> est l’ensemble des méthodes et techniques scientifiques (principalement mathématiques, statistiques et algorithmiques) qui permettent d’optimiser le fonctionnement des systèmes et de prendre les <strong>meilleures décisions possibles</strong> en présence de ressources limitées.</p>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les trois repères historiques fondateurs</div>
+<ul>
+  <li><strong>1913 — Formule du lot économique de Wilson-Harris</strong> : première formalisation mathématique de gestion optimale des stocks industriels.</li>
+  <li><strong>1940-1945 — La Seconde Guerre mondiale</strong> : des équipes pluridisciplinaires britanniques et américaines déploient des modèles probabilistes pour optimiser l’implantation des radars, la taille des convois maritimes et l’acheminement logistique.</li>
+  <li><strong>1947 — George Dantzig et le Simplexe</strong> : invention de l’algorithme du simplexe aux États-Unis, qui révolutionne la résolution numérique des programmes linéaires et ouvre l’ère de l’optimisation industrielle sur ordinateur.</li>
+</ul>
+  </div>
+<p>Aujourd’hui, la RO pilote les plans de vol des compagnies aériennes, la distribution des colis dans les réseaux logistiques, la planification du personnel hospitalier, l’affectation des fréquences 5G et la gestion des chaînes de production de microprocesseurs.</p>
+
+<h2>2. Composants fondamentaux d’un Programme Linéaire (PL)</h2>
+
+<p>Tout problème de programmation linéaire repose sur une structure mathématique universelle à quatre piliers :</p>
+<pre><code>// Structure canonique d’un Programme Linéaire (PL)
+1. Variables de décision : x1, x2, ..., xn  (avec xj &ge; 0 pour tout j)
+2. Fonction objectif   : OPTIMISER (MAX ou MIN) Z = c1*x1 + c2*x2 + ... + cn*xn
+3. Contraintes réelles : a_i1*x1 + a_i2*x2 + ... + a_in*xn {&le;, =, &ge;} bi  (pour i = 1..m)
+4. Contraintes de signe: x1 &ge; 0, x2 &ge; 0, ..., xn &ge; 0</code></pre>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Analyse détaillée des quatre composantes</div>
+<ul>
+  <li><strong>Les variables de décision ($x_j$)</strong> : ce sont les grandeurs physiques contrôlables dont on cherche la valeur optimale (ex. nombre de lots à fabriquer, tonnes d’engrais à épandre, nombre d’avions à affecter).</li>
+  <li><strong>La fonction objectif ($Z$)</strong> : l’expression algébrique linéaire qui mesure la performance globale du système. Les coefficients $c_j$ représentent les marges unitaires ou les coûts marginaux.</li>
+  <li><strong>Les contraintes technologiques</strong> : les limitations imposées par la réalité physique, légale ou contractuelle (disponibilité d’une machine, capacité de stockage, seuil de demande contractuelle).</li>
+  <li><strong>Les contraintes de non-négativité ($x_j \ge 0$)</strong> : un impératif physique dans 99 % des applications réelles (on ne peut pas fabriquer $-5$ chaises ou rouler $-200$ kilomètres).</li>
+</ul>
+  </div>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> L’exigence stricte de linéarité</div>
+<p>Un programme est <strong>strictement linéaire</strong> si et seulement si :</p>
+<ul>
+  <li>Toutes les variables apparaissent à la <strong>puissance 1</strong> (pas de $x_1^2$, pas de $\sqrt{x_2}$) ;</li>
+  <li>Il n’y a aucun produit de variables entre elles (pas de terme $x_1 \cdot x_2$) ;</li>
+  <li>Il n’y a aucune fonction non linéaire appliquée aux variables (pas de $\log(x_1)$, ni de $\sin(x_2)$).</li>
+</ul>
+  </div>
+
+<h2>3. Protocole de modélisation pas à pas (Les 4 étapes)</h2>
+
+<p>Pour traduire un énoncé verbal en programme linéaire sans commettre d’erreur de modélisation, l’analyste applique systématiquement une démarche en quatre étapes séquentielles :</p>
+<table class="table">
+  <thead><tr><th>Étape</th><th>Question clé</th><th>Opération mathématique</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. Définition des variables</strong></td><td>Quelles sont les décisions à prendre ?</td><td>Nommer les $x_j$ et préciser leur unité physique exacte (ex. $x_1$ = nombre de tables produites par semaine).</td></tr>
+    <tr><td><strong>2. Fonction objectif</strong></td><td>Quel est le critère d’évaluation ?</td><td>Écrire $MAX \ Z = \sum c_j x_j$ (profit) ou $MIN \ C = \sum c_j x_j$ (coût).</td></tr>
+    <tr><td><strong>3. Recensement des contraintes</strong></td><td>Quelles ressources ou règles limitent mes choix ?</td><td>Poser une inéquation par ressource limitée ou obligation de livraison.</td></tr>
+    <tr><td><strong>4. Contraintes de positivité</strong></td><td>Les variables ont-elles un sens physique négatif ?</td><td>Poser explicitement $x_j \ge 0$ pour chaque variable.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Exemple complet : le problème du menuisier</div>
+<p>Variables : $x_1$ = tables/semaine, $x_2$ = chaises/semaine.</p>
+<p>Objectif : $\text{MAX } Z = 50 x_1 + 30 x_2$</p>
+<p>Contraintes :<br>- Bois : $3 x_1 + 1 x_2 \le 90$ (m² disponibles)<br>- Main-d’œuvre : $2 x_1 + 2 x_2 \le 80$ (heures disponibles)<br>- Non-négativité : $x_1 \ge 0, \ x_2 \ge 0$</p>
+  </div>
+
+<h2>4. Grandes familles de problèmes linéaires</h2>
+
+<p>La plupart des applications industrielles de la programmation linéaire se rattachent à trois grandes familles de modèles :</p>
+<pre><code>// 1. Problème de Production (Mix de production)
+Objectif   : MAXIMISER le profit total = &sum; (marge_unitaire * quantite_produite)
+Contraintes: &sum; (conso_ressource * quantite) &le; capacite_disponible  (&le;)
+
+// 2. Problème de Mélange (Régime alimentaire, Métallurgie, Pétrochimie)
+Objectif   : MINIMISER le coût d’achat = &sum; (prix_matiere * quantite_matiere)
+Contraintes: &sum; (teneur_nutriment * quantite) &ge; seuil_nutritionnel_requis (&ge;)
+
+// 3. Problème d’Affectation / Recouvrement (Planning du personnel)
+Objectif   : MINIMISER la masse salariale ou le nombre d’agents
+Contraintes: agents_en_service &ge; effectif_minimum_par_creneau_horaire (&ge;)</code></pre>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ro2-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="MAX;15,20;4,5">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : analyser la ligne, vérifier les variables et calculer Z
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validation de fonction objectif &amp; positivité</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la non-négativité des variables de décision et calculer la fonction objectif.</p>
+    <div class="lab__brief"><p>En programmation linéaire, toute variable de décision physique doit être non-négative ($x_j \ge 0$). Lit sur l’entrée standard une ligne au format <code>SENS;c1,c2;x1,x2</code> où :</p><ul>  <li><code>SENS</code> vaut <code>MAX</code> ou <code>MIN</code> ;</li>  <li><code>c1,c2</code> sont les coefficients économiques de la fonction objectif $Z = c_1 x_1 + c_2 x_2$ ;</li>  <li><code>x1,x2</code> sont les valeurs proposées pour les variables de décision.</li></ul><p>Si l’une des variables est strictement négative ($x_1 < 0$ ou $x_2 < 0$), affiche :<br><code>NON_VALIDE VIOLATION_SIGNE</code>.<br>Sinon, calcule $Z$ et affiche :<br><code>VALIDE Z=&lt;valeur arrondie à 1 décimale&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MAX;15,20;4,5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VALIDE Z=160.0</pre></div>
+    </div>
+    <p class="lab__note">Z = 15*4 + 20*5 = 60 + 100 = 160.0 avec x1=4 &gt;= 0 et x2=5 &gt;= 0.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe la ligne avec split(";") pour isoler le sens, les coefficients et les valeurs de x.</li>
+        <li>Convertis les coordonnées en float et vérifie x1 &gt;= 0 and x2 &gt;= 0 avant de calculer Z.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="3,2;2,1,10;1,2,8">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : calculer les consommations, vérifier les contraintes et afficher le résultat
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Faisabilité de contraintes de ressources &amp; écarts</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la faisabilité d’un plan de production et calculer les marges d’inactivité (slacks).</p>
+    <div class="lab__brief"><p>Un atelier dispose de deux ressources limitées $R_1$ et $R_2$ définies par des contraintes $\le$ :<br>$$a_{11} x_1 + a_{12} x_2 \le b_1 \quad \text{et} \quad a_{21} x_1 + a_{22} x_2 \le b_2$$</p><p>Lit sur l’entrée standard une ligne au format <code>x1,x2;a11,a12,b1;a21,a22,b2</code>.<br>Calcule la consommation de chaque ressource et l’écart $s_i = b_i - (a_{i1} x_1 + a_{i2} x_2)$.<br>Si $s_1 \ge 0$ et $s_2 \ge 0$, le point est réalisable, affiche :<br><code>REALISABLE s1=&lt;s1 à 1 décimale&gt; s2=&lt;s2 à 1 décimale&gt;</code>.<br>Sinon, liste la ou les contraintes violées séparées par un espace :<br><code>IRREALISABLE VIOLATION_R1</code> (si seulement $R_1$ est dépassée),<br><code>IRREALISABLE VIOLATION_R2</code> (si seulement $R_2$ est dépassée), ou<br><code>IRREALISABLE VIOLATION_R1 VIOLATION_R2</code> (si les deux sont dépassées).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3,2;2,1,10;1,2,8</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>REALISABLE s1=2.0 s2=1.0</pre></div>
+    </div>
+    <p class="lab__note">R1 : 2*3 + 1*2 = 8 &lt;= 10 (s1=2.0). R2 : 1*3 + 2*2 = 7 &lt;= 8 (s2=1.0).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calcule conso1 = a11 * x1 + a12 * x2 puis s1 = b1 - conso1.</li>
+        <li>Une contrainte est violée si son écart s est strictement négatif (arrondi à 1e-6 près pour éviter les approximations flottantes).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ro2-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="4,6;0.2,0.5,10;0.4,0.2,12;20,15|25,10|10,20">
+  <script type="text/plain" data-lab-starter>ligne = input().strip()
+
+# À compléter : tester chaque candidat, filtrer les réalisables et trouver le coût minimal
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Arbitrage de mélange de coût minimal (Blending)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Sélectionner le plan de mélange réalisable de coût économique minimal.</p>
+    <div class="lab__brief"><p>Un problème de mélange cherche à minimiser le coût d’achat de deux ingrédients $x_1$ et $x_2$ :<br>$$MIN \quad C = c_1 x_1 + c_2 x_2$$sous les exigences nutritionnelles minimales :<br>$$a_{11} x_1 + a_{12} x_2 \ge b_1 \quad \text{et} \quad a_{21} x_1 + a_{22} x_2 \ge b_2$$avec $x_1, x_2 \ge 0$.</p><p>Lit sur l’entrée standard une ligne au format :<br><code>c1,c2;a11,a12,b1;a21,a22,b2;x1A,x2A|x1B,x2B|...</code> contenant plusieurs candidats séparés par <code>|</code>.<br>Filtre les candidats qui respectent les deux exigences nutritionnelles.<br>Parmi les réalisables, sélectionne celui qui minimise le coût total $C$ et affiche :<br><code>MEILLEUR: x1=&lt;x1&gt; x2=&lt;x2&gt; COUT=&lt;C à 1 décimale&gt;</code>.<br>Si aucun candidat n’est réalisable, affiche : <code>AUCUN_REALISABLE</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4,6;0.2,0.5,10;0.4,0.2,12;20,15|25,10|10,20</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MEILLEUR: x1=25.0 x2=10.0 COUT=160.0</pre></div>
+    </div>
+    <p class="lab__note">Pour (25,10) : 0.2*25+0.5*10=10&gt;=10 et 0.4*25+0.2*10=12&gt;=12. Coût = 4*25 + 6*10 = 160.0 (plus économique que (20,15) à 170.0).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpe les candidats avec split("|") puis chaque paire avec split(",").</li>
+        <li>Vérifie a11*x1 + a12*x2 &gt;= b1 et a21*x1 + a22*x2 &gt;= b2 avec une tolérance epsilon.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">George Dantzig</button>
+        <button class="opt">John von Neumann</button>
+        <button class="opt">Alan Turing</button>
+        <button class="opt">Claude Shannon</button>
+      </div>
+      <div class="q__exp">George Dantzig a formalisé la programmation linéaire et publié l’algorithme du simplexe en 1947.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">x_j ≥ 0 (non-négativité)</button>
+        <button class="opt">x_j ≤ 1 (normalisation)</button>
+        <button class="opt">x_j ∈ ℤ (variables entières obligatoires)</button>
+        <button class="opt">x_j = 0</button>
+      </div>
+      <div class="q__exp">Les quantités physiques réelles (volumes, temps, unités produites) sont nécessairement positives ou nulles ($x_j \ge 0$).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">3*x1 + 4*x1*x2</button>
+        <button class="opt">5*x1 - 2*x2</button>
+        <button class="opt">0.5*x1 + 10</button>
+        <button class="opt">x1 + x2 + x3</button>
+      </div>
+      <div class="q__exp">Le produit de deux variables de décision ($x_1 \cdot x_2$) est quadratique et viole la propriété d’additivité et de linéarité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">≥ (supérieur ou égal au seuil requis)</button>
+        <button class="opt">≤ (inférieur ou égal)</button>
+        <button class="opt">= (égalité stricte)</button>
+        <button class="opt">≠ (différent de zéro)</button>
+      </div>
+      <div class="q__exp">Un besoin minimal ou une norme de qualité impose d’apporter au moins une quantité seuil, d’où l’opérateur $\ge$.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">70 m²</button>
+        <button class="opt">90 m²</button>
+        <button class="opt">80 m²</button>
+        <button class="opt">60 m²</button>
+      </div>
+      <div class="q__exp">3 * 20 + 1 * 10 = 60 + 10 = 70 m², ce qui est inférieur ou égal à la capacité de 90 m².</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une solution réalisable (feasible)</button>
+        <button class="opt">Une solution optimale</button>
+        <button class="opt">Une solution dégénérée</button>
+        <button class="opt">Une solution duale</button>
+      </div>
+      <div class="q__exp">Une solution réalisable satisfait l’ensemble des contraintes techniques et de signe, mais n’est pas nécessairement la meilleure.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Maximiser le profit total (ou la marge contributive)</button>
+        <button class="opt">Minimiser le nombre de machines</button>
+        <button class="opt">Égaliser les temps de travail</button>
+        <button class="opt">Maximiser les stocks résiduels</button>
+      </div>
+      <div class="q__exp">L’objectif économique premier est de maximiser la marge sur coût variable générée par les ventes des produits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">L’hypothèse de proportionnalité</button>
+        <button class="opt">L’hypothèse de convexité</button>
+        <button class="opt">L’hypothèse de séparabilité</button>
+        <button class="opt">L’hypothèse d’élasticité</button>
+      </div>
+      <div class="q__exp">La proportionnalité stipule que la contribution de chaque variable est strictement proportionnelle à sa valeur sans économie d’échelle.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de poser explicitement les contraintes de non-négativité ($x_j \ge 0$) dans le modèle mathématique.</li>
+      <li>Mélanger les unités physiques dans une même contrainte (par exemple additionner des minutes et des heures).</li>
+      <li>Introduire des non-linéarités en voulant modéliser des coûts fixes par des produits de variables sans variables binaires.</li>
+      <li>Confondre le sens d’une contrainte de ressource (disponibilité $\le$) et d’une contrainte d’engagement (minimum contractuel $\ge$).</li>
+      <li>Considérer une solution réalisable quelconque comme étant la solution optimale.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour modéliser tout énoncé de RO</div>
+    <ol>
+      <li>Lire attentivement l’énoncé et repérer les questions finales : chaque décision à quantifier devient une variable $x_j$ avec son unité.</li>
+      <li>Identifier l’objectif économique global : isoler les gains unitaires pour poser $\text{MAX } Z$ ou les coûts unitaires pour poser $\text{MIN } C$.</li>
+      <li>Dresser un tableau des ressources : identifier les plafonds disponibles ($\le$) et les exigences minimales ($\ge$), puis poser les inéquations.</li>
+      <li>Vérifier l’homogénéité dimensionnelle de chaque équation (les deux membres doivent avoir la même unité) et conclure par $x_j \ge 0$.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La Recherche Opérationnelle aide à la décision scientifique en maximisant ou minimisant une fonction sous contraintes.</li>
+      <li>Un Programme Linéaire comprend : des variables de décision $x_j$, une fonction objectif $Z$, des contraintes techniques et $x_j \ge 0$.</li>
+      <li>Les 4 hypothèses fondamentales sont la proportionnalité, l’additivité, la divisibilité et la certitude des paramètres.</li>
+      <li>Les contraintes de ressources disponibles utilisent l’opérateur $\le$ ; les contraintes de demande minimale utilisent $\ge$.</li>
+      <li>Toute modélisation rigoureuse débute par la définition explicite de chaque variable en français avec son unité.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer ce qu’est la Recherche Opérationnelle et son origine avec George Dantzig.</li>
+      <li>Je sais identifier et nommer les variables de décision dans un problème de gestion.</li>
+      <li>Je sais formaliser la fonction objectif et distinguer MAX (profit) et MIN (coût).</li>
+      <li>Je sais traduire des limitations d’heures machine ou de matières en contraintes $\le$.</li>
+      <li>Je n’oublie jamais les contraintes de positivité $x_j \ge 0$.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Recherche Opérationnelle</li><li>Variables de décision</li><li>Fonction objectif Z</li><li>Contraintes de ressources</li><li>Contraintes de demande</li><li>Non-négativité</li><li>Programme Linéaire</li><li>George Dantzig</li><li>Proportionnalité</li><li>Région réalisable</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois les définitions de variables de décision et le rôle des contraintes de positivité.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à formaliser les inéquations de ressources et la fonction objectif.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les fondamentaux de la modélisation de programmes linéaires.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Parfait : passe aux formes canoniques, standards et à la résolution graphique au chapitre 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Formes Mathématiques &amp; Résolution Graphique <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Recherche Opérationnelle B2, les publications historiques de George Dantzig (1947), Ford & Fulkerson (1956) et les manuels de référence en optimisation linéaire.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

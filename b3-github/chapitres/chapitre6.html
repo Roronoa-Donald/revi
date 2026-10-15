@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Administration Avancée, LFS, Hooks &amp;amp; Purge d’Historique | Git &amp; GitHub B3</title>
+<meta name="description" content="Chapitre 6 du cours Git &amp; GitHub B3 : Gestion des gros fichiers binaires avec Git LFS, automatisation avec les hooks client et serveur, hygiène de dépôt, réécriture complète du DAG et purge de secrets compromis avec git-filter-repo. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-github/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Administration Avancée, LFS, Hooks &amp;amp; Purge d’Historique | Git &amp; GitHub B3">
+<meta property="og:description" content="Chapitre 6 du cours Git &amp; GitHub B3 : Gestion des gros fichiers binaires avec Git LFS, automatisation avec les hooks client et serveur, hygiène de dépôt, réécriture complète du DAG et purge de secrets compromis avec git-filter-repo. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-githubnav"><div class="b3-githubnav__in">
+  <a class="b3-githubnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-githubnav__sep" aria-hidden="true">/</span>
+  <a class="b3-githubnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Git &amp; GitHub B3</a>
+  <div class="b3-githubnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-githubnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-githubwrap">
+<p class="crumb"><a href="../index.html">Git & GitHub B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Administration Avancée, LFS, Hooks &amp; Purge d’Historique</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Au fur et à mesure que les projets d’entreprise grandissent, deux fléaux majeurs menacent la viabilité des dépôts : l’explosion de la taille du dossier .git due au stockage inapproprié de gros fichiers binaires (datasets, modèles d’IA, fichiers multimédias), et la fuite catastrophique d’identifiants de production (clés API, mots de passe, certificats SSL) commis par mégarde dans l’historique. Un ingénieur de niveau Bachelor 3 doit maîtriser l’administration de haut niveau d’un dépôt : déporter les binaires lourds via l’architecture de pointeurs Git LFS, automatiser les contrôles qualité et sécurité au plus près des postes de travail grâce aux hooks Git, et maîtriser les techniques de réécriture complète de graphe (DAG rewrite) avec l’outil moderne git-filter-repo pour purger définitivement les secrets compromis sans corrompre l’intégrité du projet.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l’architecture de Git LFS (Large File Storage) et la spécification formelle de ses pointeurs textuels ;</li>
+      <li>configurer le suivi de motifs de fichiers avec .gitattributes pour déporter les binaires volumineux vers un stockage d’objets dédié ;</li>
+      <li>concevoir et déployer des hooks Git côté client (pre-commit, commit-msg) et côté serveur (pre-receive) ;</li>
+      <li>analyser l’impact de l’empaquetage d’objets (.pack/.idx) et du garbage collector (git gc, git prune) sur les performances ;</li>
+      <li>maîtriser l’utilisation de git-filter-repo pour expurger des secrets et supprimer des dossiers volumineux de l’historique complet ;</li>
+      <li>développer en Python 3 des générateurs de pointeurs LFS, des vérificateurs de hooks pre-commit et des moteurs de purge de secrets.</li>
+    </ol>
+  </div>
+
+<h2>1. Gestion des Fichiers Volumineux : Architecture de Git LFS</h2>
+
+<p>Par conception, Git est conçu pour le code source textuel : il calcule des deltas compressés efficaces entre versions successives. En revanche, pour des fichiers binaires volumineux (vidéos, modèles de Deep Learning, fichiers audio, archives compressées), toute modification infime réécrit l’intégralité du fichier, provoquant une <strong>croissance exponentielle de la taille du dépôt</strong> lors du clonage.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Fonctionnement de Git LFS</h4>
+    <p><strong>Git LFS (Large File Storage)</strong> remplace le fichier lourd dans l’arborescence Git par un <strong>micro-pointeur textuel</strong> de quelques octets :</p>
+    <ul>
+      <li>Le fichier binaire réel est téléversé séparément sur un serveur de stockage d’objets compatible LFS (ex: Amazon S3 ou stockage GitHub LFS).</li>
+      <li>Lors du <code>git checkout</code>, le client LFS télécharge uniquement les binaires nécessaires pour la version courante.</li>
+      <li>La configuration s’effectue dans le fichier tracé <code>.gitattributes</code> : <code>*.bin filter=lfs diff=lfs merge=lfs -text</code>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Format Formel d’un Pointeur LFS (v1)</h4>
+    <p>Un pointeur LFS est un fichier texte strict respectant la spécification suivante :</p>
+    <pre><code>version https://git-lfs.github.com/spec/v1
+oid sha256:4d7a214614ab2935c9470e9b14...
+size 12345678</code></pre>
+    <p>Le champ <code>oid</code> contient l’identifiant d’objet calculé par la fonction de hachage <strong>SHA-256</strong> sur le contenu brut du binaire, suivi de sa taille exacte en octets.</p>
+  </div>
+</div>
+
+<h2>2. Automatisation Locale &amp; Serveur : Les Hooks Git</h2>
+
+<p>Les <strong>hooks (crochets)</strong> sont des scripts exécutables situés dans le dossier <code>.git/hooks/</code> (ou gérés via des frameworks modernes comme <code>pre-commit</code>) déclenchés automatiquement lors d’événements clés du cycle Git :</p>
+<table class="table">
+  <thead>
+    <tr><th>Nom du Hook</th><th>Emplacement</th><th>Moment d’Exécution</th><th>Cas d’Usage &amp; Pouvoir de Blocage</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>pre-commit</code></td>
+      <td>Client local</td>
+      <td>Avant la création du commit (après <code>git commit</code>).</td>
+      <td>Vérifie le formatage du code (Black, ESLint), détecte les clés d’API en clair ou les marqueurs de conflits non résolus. Si le script renvoie un code non-zéro, le commit est annulé.</td>
+    </tr>
+    <tr>
+      <td><code>commit-msg</code></td>
+      <td>Client local</td>
+      <td>Après saisie du message de commit.</td>
+      <td>Valide le format du message selon la spécification Conventional Commits ou vérifie la présence d’un numéro de ticket JIRA.</td>
+    </tr>
+    <tr>
+      <td><code>pre-push</code></td>
+      <td>Client local</td>
+      <td>Avant l’envoi des commits vers le serveur distant.</td>
+      <td>Exécute la suite de tests rapides pour éviter de pousser du code cassé sur le dépôt distant.</td>
+    </tr>
+    <tr>
+      <td><code>pre-receive</code></td>
+      <td>Serveur distant</td>
+      <td>À la réception d’un push, avant mise à jour des refs.</td>
+      <td>Le garde-fou ultime d’entreprise : rejette tout push contenant des secrets, des commits non signés ou des branches non conformes à la politique PSSI.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Purge Radicale de Secrets &amp; Réécriture du DAG avec git-filter-repo</h2>
+
+<p>L’incident de sécurité le plus redouté : un développeur commite par inadvertance un fichier <code>.env</code> contenant des clés privées AWS de production ou un token d’API Stripe dans un dépôt public.</p>
+  <div class="box box--danger">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Pourquoi « git rm » Ne Sert Absolument à Rien Face à une Fuite</div>
+<p>Exécuter <code>git rm .env &amp;&amp; git commit -m "suppression secret"</code> ne résout aucunement la compromission :</p>,<p>Le secret est <strong>toujours présent et intact dans les commits antérieurs de l’historique</strong>. N’importe quel utilisateur qui clone le projet ou consulte l’arborescence passée peut extraire la clé !</p>
+  </div>
+<p>Pour expurger définitivement un secret ou un fichier volumineux, il est indispensable de <strong>réécrire l’intégralité du graphe orienté acyclique (DAG)</strong> afin de supprimer ou anonymiser l’objet dans chaque commit passé. L’outil officiel et moderne recommandé par la documentation Git est <strong><code>git-filter-repo</code></strong> (remplaçant avantageusement le vieil outil obsolète et lent <code>git filter-branch</code>) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Suppression Définitive d’un Fichier</h4>
+    <pre><code># Supprimer completement un fichier de tout l’historique
+git-filter-repo --path .env --invert-paths</code></pre>
+    <p>Cette commande recalcule tous les arbres (trees) et tous les commits sans le fichier cible.</p>
+  </div>
+  <div class="card">
+    <h4>Remplacement de Secrets en Texte</h4>
+    <pre><code># Remplacer une cle par un texte factice
+echo "AKIAIOSFODNN7EXAMPLE==>REDACTED" > expressions.txt
+git-filter-repo --replace-text expressions.txt</code></pre>
+    <p>Tous les commits contenant la chaîne sont réécrits de manière atomique et instantanée.</p>
+  </div>
+</div>
+
+<h2>4. Procédure Post-Purge en Production &amp; Révocation d’Urgence</h2>
+
+<p>Une réécriture d’historique sur un dépôt d’entreprise requiert un protocole opérationnel millimétré :</p>
+<ol>
+  <li><strong>Révocation immédiate :</strong> Considérer le secret comme irrémédiablement compromis et le révoquer sur la plateforme cloud avant même de toucher à Git.</li>
+  <li><strong>Exécution de la purge locale :</strong> Cloner un miroir frais (<code>git clone --bare</code>) et appliquer <code>git-filter-repo</code>.</li>
+  <li><strong>Forçage des références distantes :</strong> <code>git push origin --force --all --tags</code>.</li>
+  <li><strong>Re-synchronisation de l’équipe :</strong> Tous les collaborateurs doivent jeter leur copie locale et re-cloner le dépôt assaini pour éviter de réintroduire les anciens commits réécrits.</li>
+</ol>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="gh3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="FILE path=videos/intro.mp4 size_bytes=52428800 sha256=abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890&#10;FILE path=src/main.py size_bytes=2048 sha256=00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : classifier les fichiers LFS et formater la décision
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de Git LFS (Large File Storage) et génération de pointeurs</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer si un fichier doit être géré par Git LFS et générer le pointeur texte officiel.</p>
+    <div class="lab__brief"><p>Git n'est pas conçu pour stocker de volumineux fichiers binaires : chaque modification duplique l'intégralité du fichier dans <code>.git/objects/</code>, gonflant démesurément la taille du clone.<br><br>
+<strong>Git LFS (Large File Storage)</strong> remplace le fichier lourd dans le commit par un minuscule fichier texte de 130 octets appelé <strong>pointeur LFS</strong>, tandis que le contenu réel est stocké sur un serveur d'objets distant (S3/Azure Blob).<br><br>
+Spécification officielle du pointeur LFS (v1) :<br>
+<code>version https://git-lfs.github.com/spec/v1\noid sha256:{sha256_du_binaire}\nsize {taille_octets}</code><br><br>
+Critères d'éligibilité LFS :<br>
+- Si l'extension figure dans les extensions surveillées (ex: <code>.iso</code>, <code>.psd</code>, <code>.zip</code>, <code>.tar.gz</code>, <code>.mp4</code>) OU si <code>size_bytes &gt;= 104857600</code> (100 Mo) :<br>
+  Le fichier doit être géré par LFS (<code>MODE=LFS_POINTER</code>).<br>
+- Sinon : le fichier est stocké sous forme de blob Git standard (<code>MODE=GIT_BLOB</code>).<br><br>
+Le script lit sur l'entrée standard :<br>
+<code>FILE path=&lt;chemin&gt; size_bytes=&lt;taille&gt; sha256=&lt;hash_sha256&gt;</code>.<br><br>
+Pour chaque fichier, afficher :<br>
+- Si LFS :<br>
+  <code>LFS_DECISION file="{path}" mode=LFS_POINTER oid="{sha256}" size={size_bytes}</code><br>
+- Si Git standard :<br>
+  <code>LFS_DECISION file="{path}" mode=GIT_BLOB</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FILE path=videos/intro.mp4 size_bytes=52428800 sha256=abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+FILE path=src/main.py size_bytes=2048 sha256=00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LFS_DECISION file="videos/intro.mp4" mode=LFS_POINTER oid="abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" size=52428800
+LFS_DECISION file="src/main.py" mode=GIT_BLOB</pre></div>
+    </div>
+    <p class="lab__note">Le fichier MP4 est intercepté par LFS, le script Python reste un blob Git standard.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier les extensions éligibles : .iso, .psd, .zip, .tar.gz, .mp4.</li>
+        <li>Vérifier le seuil de 100 Mo (104857600 octets).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gh3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="INSPECT_FILE file=app.py content=AWS_KEY = &quot;AKIAIOSFODNN7EXAMPLE123&quot;&#10;INSPECT_FILE file=main.py content=print(&quot;Hello World&quot;)">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler le filtrage pre-commit
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validateur de Hook Git pre-commit (Détection de secrets &amp; conflits)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Intercepter avant l’enregistrement du commit les clés de sécurité codées en dur et les résidus de conflits.</p>
+    <div class="lab__brief"><p>Le hook côté client <code>.git/hooks/pre-commit</code> s'exécute localement avant la validation d'un commit. S'il renvoie un code de sortie différent de 0, le commit est avorté.<br><br>
+Règles de sécurité inspectées dans le contenu des fichiers indexés (Staged) :<br>
+1. <strong>Résidus de conflit de fusion</strong> : présence de <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> ou <code>=======</code> ou <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>.<br>
+   -> <code>COMMIT_REJECTED reason=MERGE_CONFLICT_MARKERS</code>.<br>
+2. <strong>Clé d'API AWS codée en dur</strong> : motif commençant par <code>AKIA</code> suivi d'au moins 16 caractères alphanumériques majuscules.<br>
+   -> <code>COMMIT_REJECTED reason=HARDCODED_AWS_KEY</code>.<br>
+3. <strong>Jeton d'accès GitHub personnel</strong> : motif commençant par <code>ghp_</code> suivi d'au moins 20 caractères alphanumériques.<br>
+   -> <code>COMMIT_REJECTED reason=HARDCODED_GITHUB_TOKEN</code>.<br>
+4. Sinon : fichier sain.<br>
+   -> <code>COMMIT_ACCEPTED reason=CLEAN</code>.<br><br>
+Le script lit sur l'entrée standard :<br>
+<code>INSPECT_FILE file=&lt;nom&gt; content=&lt;contenu_du_fichier&gt;</code>.<br><br>
+Pour chaque fichier, afficher :<br>
+<code>HOOK_RESULT file="{file}" verdict={COMMIT_ACCEPTED|COMMIT_REJECTED} reason={reason}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>INSPECT_FILE file=app.py content=AWS_KEY = "AKIAIOSFODNN7EXAMPLE123"
+INSPECT_FILE file=main.py content=print("Hello World")</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>HOOK_RESULT file="app.py" verdict=COMMIT_REJECTED reason=HARDCODED_AWS_KEY
+HOOK_RESULT file="main.py" verdict=COMMIT_ACCEPTED reason=CLEAN</pre></div>
+    </div>
+    <p class="lab__note">La clé AWS bloque le commit, le code sain est accepté.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tester dans l’ordre : marqueurs de conflits, clés AWS, jetons GitHub.</li>
+        <li>Utiliser re.search() pour détecter les motifs réguliers.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="gh3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="COMMIT id=C1 files=main.py,.env parents=NONE&#10;COMMIT id=C2 files=main.py parents=C1&#10;PURGE_FILE target=.env">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la réécriture de l'historique git-filter-repo
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Purge médico-légale de secrets dans l’historique (git-filter-repo)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la réécriture d’un historique Git pour expurger un fichier confidentiel commité par erreur.</p>
+    <div class="lab__brief"><p>Supprimer un fichier sensible dans un commit récent ne suffit pas : le secret reste accessible dans les commits antérieurs de l’historique. L’outil officiel <strong>git-filter-repo</strong> permet de purger le fichier de tous les commits passés et recalcule les nouveaux hachages SHA-1 en cascade.<br><br>
+Spécification :<br>
+Le script lit la liste des commits chronologiques :<br>
+<code>COMMIT id=&lt;hash&gt; files=&lt;f1,f2...&gt; parents=&lt;p|NONE&gt;</code><br>
+Puis la commande d'expurgation :<br>
+<code>PURGE_FILE target=&lt;nom_du_fichier_a_supprimer&gt;</code>.<br><br>
+Règles :<br>
+1. Chaque commit contenant le fichier cible est <strong>impacté</strong> : le fichier est retiré de sa liste.<br>
+2. Tout commit impacté ou dont l'un des parents a été réécrit voit son hash modifié : <code>new_hash = f"r_{ancien_hash}"</code>.<br>
+3. Les commits non impactés et dont les parents sont inchangés conservent leur hash d'origine.<br><br>
+Sortie attendue :<br>
+<code>PURGE_RESULT target="{fichier}" impacted_count={n} new_tip_hash="{nouveau_hash_de_tete}"</code><br>
+Puis pour chaque commit réécrit :<br>
+<code>REWRITTEN_COMMIT old="{old_hash}" new="{new_hash}" remaining_files=[{liste_fichiers}]</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>COMMIT id=C1 files=main.py,.env parents=NONE
+COMMIT id=C2 files=main.py parents=C1
+PURGE_FILE target=.env</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PURGE_RESULT target=".env" impacted_count=2 new_tip_hash="r_C2"
+REWRITTEN_COMMIT old="C1" new="r_C1" remaining_files=[main.py]
+REWRITTEN_COMMIT old="C2" new="r_C2" remaining_files=[main.py]</pre></div>
+    </div>
+    <p class="lab__note">C1 contenait .env donc il est réécrit en r_C1, et C2 ayant r_C1 pour parent est réécrit en r_C2.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parcourir les commits dans l’ordre chronologique.</li>
+        <li>Si un commit contient target_file ou si son parent a changé, générer un nouveau hash r_{old}.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Pourquoi le stockage direct de gros fichiers binaires dans Git classique pose-t-il un problème majeur de performance ?</p>
+      <div class="opts">
+        <button class="opt">Parce que Git refuse les fichiers dont l’extension n’est pas en UTF-8</button>
+        <button class="opt" data-correct="1">Parce que Git conserve l’intégralité des versions successives dans le packfile, rendant les opérations de clone extrêmement lourdes</button>
+        <button class="opt">Parce que les fichiers binaires empêchent l’utilisation de git branch</button>
+        <button class="opt">Parce que le hachage SHA-1 ne fonctionne que sur du texte ASCII</button>
+      </div>
+      <div class="q__exp">Git télécharge l’historique complet lors du clone. Pour des fichiers binaires non compressibles par deltas, la taille du dossier .git enfle de plusieurs gigaoctets, saturant le réseau et les disques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que contient physiquement dans l’arbre Git un fichier suivi par Git LFS (Large File Storage) ?</p>
+      <div class="opts">
+        <button class="opt">Le fichier binaire complet compressé avec gzip</button>
+        <button class="opt" data-correct="1">Un court pointeur textuel contenant la version LFS, le hash SHA-256 et la taille en octets</button>
+        <button class="opt">Une clé API pointant vers un bucket Google Cloud Storage</button>
+        <button class="opt">Un lien symbolique Unix vers le système de fichiers hôte</button>
+      </div>
+      <div class="q__exp">Git LFS remplace le binaire par un micro-pointeur textuel contenant l’identifiant SHA-256 (oid) et la taille du fichier. Le binaire réel est déporté sur un serveur de stockage dédié.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel fichier de configuration les règles associant des extensions de fichiers au filtre LFS sont-elles déclarées et tracées ?</p>
+      <div class="opts">
+        <button class="opt">.git/config</button>
+        <button class="opt" data-correct="1">.gitattributes</button>
+        <button class="opt">.lfsconfig</button>
+        <button class="opt">.gitignore</button>
+      </div>
+      <div class="q__exp">Le fichier .gitattributes versionné à la racine du dépôt définit les filtres appliqués aux fichiers lors des checkouts et commits (ex: *.psd filter=lfs diff=lfs merge=lfs -text).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel hook Git côté client permet d’interrompre automatiquement un commit si des marqueurs de conflit non résolus sont détectés ?</p>
+      <div class="opts">
+        <button class="opt">post-commit</button>
+        <button class="opt" data-correct="1">pre-commit</button>
+        <button class="opt">post-merge</button>
+        <button class="opt">prepare-commit-msg</button>
+      </div>
+      <div class="q__exp">Le hook pre-commit s’exécute immédiatement après le lancement de git commit : s’il retourne un code de sortie non-zéro (suite à la détection de conflits ou erreurs de linter), Git interrompt la validation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où le hook d’entreprise « pre-receive » s’exécute-t-il et quel est son avantage stratégique pour la sécurité ?</p>
+      <div class="opts">
+        <button class="opt">Sur le poste du développeur pour chiffrer ses fichiers en local</button>
+        <button class="opt" data-correct="1">Sur le serveur distant à la réception d’un push, permettant de rejeter tout commit non conforme avant écriture</button>
+        <button class="opt">Dans le navigateur web lors de la création d’une Pull Request</button>
+        <button class="opt">Dans l’agent de signature GPG</button>
+      </div>
+      <div class="q__exp">pre-receive s’exécute sur le serveur Git distant. Il examine l’ensemble des commits reçus et peut bloquer définitivement le push s’il contient des secrets, du code mal formaté ou des violations de politiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande moderne recommandée permet d’effacer définitivement un fichier confidentiel de l’historique complet d’un dépôt ?</p>
+      <div class="opts">
+        <button class="opt">git reset --hard HEAD</button>
+        <button class="opt" data-correct="1">git-filter-repo --path secret.txt --invert-paths</button>
+        <button class="opt">git rm --cached secret.txt</button>
+        <button class="opt">git revert HEAD~1</button>
+      </div>
+      <div class="q__exp">git-filter-repo avec l’option --path secret.txt --invert-paths réécrit tout le graphe DAG en excluant le fichier désigné de chaque commit passé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la première action vitale à accomplir immédiatement dès qu’une clé d’API sensible est découverte sur un dépôt Git public ?</p>
+      <div class="opts">
+        <button class="opt">Supprimer le dépôt de GitHub</button>
+        <button class="opt" data-correct="1">Révoquer et invalider immédiatement la clé auprès du fournisseur du service tiers concerné</button>
+        <button class="opt">Faire un git commit pour supprimer le fichier .env</button>
+        <button class="opt">Envoyer un email à l’équipe support de Git</button>
+      </div>
+      <div class="q__exp">Même si le dépôt est nettoyé quelques minutes plus tard, des robots scrappeurs automatisés surveillent en permanence GitHub pour voler les secrets publiés. La seule parade absolue est la révocation immédiate du secret.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que doivent impérativement faire les membres de l’équipe de développement après une réécriture d’historique complète (purge de secrets) poussée sur le serveur ?</p>
+      <div class="opts">
+        <button class="opt">Exécuter un simple git pull pour fusionner les branches</button>
+        <button class="opt" data-correct="1">Re-cloner une copie fraîche du dépôt assaini et supprimer leur ancien clone local</button>
+        <button class="opt">Désinstaller puis réinstaller le client Git</button>
+        <button class="opt">Créer un nouveau compte utilisateur GitHub</button>
+      </div>
+      <div class="q__exp">Puisque la réécriture a modifié tous les hashes SHA de l’historique, faire un git pull réintroduirait les anciens commits non purgés. Les collaborateurs doivent cloner une copie neuve et supprimer l’ancienne.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Penser qu’effacer un secret dans le commit le plus récent élimine la vulnérabilité (il reste dans l’historique antérieur).</li>
+      <li>Utiliser le vieil outil obsolète git filter-branch au lieu de git-filter-repo (trop lent et sujet à des corruptions).</li>
+      <li>Oublier de révoquer le secret chez le fournisseur de service en pensant que réécrire Git suffit.</li>
+      <li>Pousser de gros fichiers binaires dans Git sans LFS, ce qui fait exploser définitivement la taille du clone pour l’équipe.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Protocole d’Assainissement d’un Dépôt après Fuite de Secret</div>
+    <ol>
+      <li>Étape 1 : Révoquer et renouveler immédiatement le secret compromis auprès du fournisseur tiers (AWS, GitHub, Stripe, BDD).</li>
+      <li>Étape 2 : Créer une sauvegarde bare de sécurité du dépôt dans un dossier isolé : git clone --bare mon-depot.git backup.git.</li>
+      <li>Étape 3 : Sur un clone de travail dédié, exécuter git-filter-repo avec le motif de fichier ou l’expression de remplacement ciblée.</li>
+      <li>Étape 4 : Vérifier avec git log -S "secret" que la chaîne compromise est devenue totalement introuvable dans tout l’historique.</li>
+      <li>Étape 5 : Réassocier le remote distant et forcer la mise à jour : git push origin --force --all --tags.</li>
+      <li>Étape 6 : Informer l’équipe technique et invalider les caches des serveurs d’intégration continue (runners CI).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Git gère mal les fichiers binaires lourds : Git LFS résout ce problème en utilisant des pointeurs textuels légers (SHA-256).</li>
+      <li>Le fichier .gitattributes spécifie les motifs de fichiers capturés par le filtre LFS (filter=lfs).</li>
+      <li>Les hooks Git permettent d’automatiser des vérifications qualité et sécurité avant commit (pre-commit) ou à la réception serveur (pre-receive).</li>
+      <li>Un git rm ne supprime pas un secret compromis des commits passés dans l’historique.</li>
+      <li>git-filter-repo réécrit l’intégralité du DAG pour expurger définitivement fichiers volumineux ou données sensibles.</li>
+      <li>Après une fuite de secret, la révocation immédiate de la clé auprès du service concerné est la priorité numéro un absolue.</li>
+      <li>Toute réécriture d’historique modifie les hashes et impose un re-clonage propre par l’ensemble des collaborateurs.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends l’architecture de Git LFS et la structure d’un pointeur LFS v1.</li>
+      <li>Je sais configurer .gitattributes pour orienter des fichiers binaires vers Git LFS.</li>
+      <li>Je connais la différence entre un hook client (pre-commit) et un hook serveur (pre-receive).</li>
+      <li>Je sais expliquer pourquoi git rm est inefficace pour corriger la fuite d’un mot de passe dans l’historique.</li>
+      <li>Je maîtrise la commande git-filter-repo pour purger un fichier ou masquer un secret.</li>
+      <li>Je connais la procédure opérationnelle complète à suivre en cas de fuite de clé de production.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Git LFS (Large File Storage)</li><li>Pointeurs textuels LFS (v1 spec)</li><li>Fichier de configuration .gitattributes</li><li>Hooks côté client (pre-commit, commit-msg)</li><li>Hooks côté serveur (pre-receive)</li><li>Réécriture de graphe (DAG Rewrite)</li><li>Outil officiel git-filter-repo</li><li>Protocole de remédiation post-fuite de secrets</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à comprendre le rôle de Git LFS ou tentative de corriger une fuite de secret par un simple git rm.</div>
+      <div class="bandrow bandrow--medium">Bonne configuration de .gitattributes pour LFS, utilisation de hooks pre-commit basiques et compréhension de git-filter-repo.</div>
+      <div class="bandrow bandrow--high">Maîtrise complète de l’administration de dépôts à grande échelle, conception de hooks pre-receive stricts et orchestration rigoureuse des purges de secrets d’entreprise.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Git Pro (Scott Chacon & Ben Straub), spécification Conventional Commits 1.0.0, documentation officielle GitHub Actions et guides de durcissement GitHub Security Hardening.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

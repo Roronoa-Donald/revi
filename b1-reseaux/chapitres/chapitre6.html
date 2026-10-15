@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Le sous-réseautage | Architecture des réseaux B1</title>
+<meta name="description" content="Chapitre 6 du cours d'Architecture des réseaux B1 : Emprunter des bits à la partie hôte ; calculer le nouveau masque ; VLSM et CIDR : la fin des classes. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-reseaux/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Le sous-réseautage | Architecture des réseaux B1">
+<meta property="og:description" content="Chapitre 6 du cours d'Architecture des réseaux B1 : Emprunter des bits à la partie hôte ; calculer le nouveau masque ; VLSM et CIDR : la fin des classes. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="renav"><div class="renav__in">
+  <a class="renav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="renav__sep" aria-hidden="true">/</span>
+  <a class="renav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-globe"></use></svg> Architecture des réseaux B1</a>
+  <div class="renav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="renav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rewrap">
+<p class="crumb"><a href="../index.html">Architecture des réseaux B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Le sous-réseautage</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un /24 offre 254 hôtes ; quatre bureaux de 30 postes ne peuvent pas partager le même identifiant réseau — et quatre classes C complètes gaspilleraient ~896 adresses. Le sous-réseautage « divise pour régner » : emprunter des bits, recalculer le masque, dimensionner chaque bloc — VLSM et CIDR en font le standard.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>justifier le sous-réseautage : diviser un réseau sans gaspiller d'adresses ;</li>
+      <li>calculer sous-réseaux et hôtes valides après emprunt de bits ;</li>
+      <li>convertir un emprunt en masque décimal et en notation CIDR ;</li>
+      <li>dimensionner un plan VLSM : le plus petit bloc couvrant chaque besoin.</li>
+    </ol>
+  </div>
+
+<h2>1. Emprunter des bits</h2>
+
+<p>Créer des sous-réseaux, c'est <strong>emprunter des bits à la partie hôte</strong> en les mettant à 1 dans le masque. Les <strong>bits empruntés</strong> déterminent le nombre de sous-réseaux : 2^emprunt (3 bits = 8 sous-réseaux). Les <strong>bits restants</strong> déterminent les hôtes valides de chaque sous-réseau : 2^(bits restants) - 2 (5 bits restants = 30 hôtes valides — l'adresse réseau et l'adresse de diffusion sont retirées).</p>\n<p>Le <strong>nouveau masque</strong> se lit sur le dernier octet : 3 bits empruntés donnent 11100000, soit 128 + 64 + 32 = <strong>224</strong> — masque 255.255.255.224, ou <strong>/27</strong> en notation CIDR. Deux bits donnent 192 (/26), un bit 128 (/25), quatre bits 240 (/28).</p>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « chaque bit emprunté double les réseaux et divise les hôtes »</div>
+    <p>+1 bit emprunté : sous-réseaux x 2, hôtes valides environ / 2 (moins 2). Le masque monte en face : 128, 192, 224, 240, 248, 252.</p>
+  </div>
+
+<h2>2. VLSM et CIDR</h2>
+
+<p>Avec le découpage classique, tous les sous-réseaux d'un réseau portaient le même masque : inefficace quand un bureau n'a besoin que de 5 hôtes et un autre de 50. Le <strong>VLSM</strong> (Variable Length Subnet Masking) permet <strong>différents masques au sein du même réseau principal</strong> : /30 pour les liaisons point-à-point (2 hôtes), /26 pour les gros bureaux — efficacité maximale. Le routeur doit comprendre le masque de chaque sous-réseau.</p>\n<p>Le <strong>CIDR</strong> (Classless Inter-Domain Routing), adopté au début des années 90, rend obsolète le système de classes et standardise le VLSM. La <strong>notation CIDR</strong> écrit le nombre de bits réseau après un slash : 192.168.1.0/27 — ancienne classe C sous-réseautée ; 10.0.0.0/30 — liaison point-à-point. Le choix de la taille exacte optimise l'espace d'adressage global.</p>\n  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
+    <ul>\n      <li>Les hôtes valides retirent deux adresses : réseau et diffusion — 2^k - 2, jamais 2^k.</li>\n      <li>3 bits empruntés sur /24 donnent /27, pas /3 : on additionne au préfixe de départ.</li>\n      <li>/30 = 2 hôtes valides : c'est le bloc des liaisons point-à-point.</li>\n      <li>Le VLSM exige que le routeur connaisse chaque masque : « diviser pour régner » se route.</li>\n    </ul>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>3. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="re-c6-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;agence 3&#10;agence2 2&#10;agence3 1&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r reseau emprunt
+  # À compléter : calculer le préfixe, les sous-réseaux et les hôtes.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Emprunter des bits</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l'effet de l'emprunt de bits d'hôte : combien de sous-réseaux créés, combien d'hôtes valides chacun.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « reseau emprunt » : emprunt est le nombre de bits empruntés à la partie hôte d'un /24 (entier de 1 à 6). Pour chaque ligne il affiche <code>reseau : /C (S sous-reseaux, H hotes)</code>, où C = 24 + emprunt, S = 2^emprunt et H = 2^(8-emprunt) - 2. Si l'emprunt vaut 7 ou plus, afficher <code>reseau : emprunt trop grand</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+agence 3
+agence2 2
+agence3 1
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>agence : /27 (8 sous-reseaux, 30 hotes)
+agence2 : /26 (4 sous-reseaux, 62 hotes)
+agence3 : /25 (2 sous-reseaux, 126 hotes)</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La puissance de deux se calcule en Bash avec le décalage : (1 &lt;&lt; e) vaut 2 puissance e.</li>
+        <li>Les hôtes valides retirent l'adresse réseau et l'adresse de diffusion : 2^k - 2.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c6-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;agence 3&#10;agence2 2&#10;agence3 4&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+slash28=0
+for ((i=0; i<n; i++)); do
+  read -r reseau emprunt
+  # À compléter : convertir l'emprunt en octet décimal, compter les /28.
+done
+# À compléter : bilan des /28.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Le nouveau masque</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir l'emprunt de bits en masque décimal : 3 bits empruntés sur le 4e octet donnent 255.255.255.224.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « reseau emprunt » : emprunt est le nombre de bits mis à 1 dans le 4e octet du masque (entier de 1 à 6). Le 4e octet vaut 256 - 2^(8-emprunt) : 3 bits empruntés donnent 224, 2 bits donnent 192, etc. Pour chaque ligne il affiche <code>reseau : 255.255.255.X (/C)</code> où C = 24 + emprunt. Si l'emprunt vaut 7 ou plus, afficher <code>reseau : emprunt trop grand</code>. Il termine par <code>slash28 : X/n</code> (les emprunts de 4 bits).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+agence 3
+agence2 2
+agence3 4
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>agence : 255.255.255.224 (/27)
+agence2 : 255.255.255.192 (/26)
+agence3 : 255.255.255.240 (/28)
+slash28 : 1/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L'octet vaut 256 moins la puissance de deux restante : 256 - (1 &lt;&lt; (8 - emprunt)).</li>
+        <li>L'emprunt de 4 bits donne 240 : c'est le /28 à compter.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="re-c6-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="4&#10;bureau1 30&#10;bureau2 6&#10;liaison 2&#10;siege 100&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+liaisons=0
+for ((i=0; i<n; i++)); do
+  read -r site hotes
+  # À compléter : chercher k tel que 2^k - 2 couvre les hôtes.
+done
+# À compléter : bilan des liaisons point-à-point.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Le plan d'adressage VLSM</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Dimensionner les sous-réseaux de chaque site : le plus petit bloc dont la capacité couvre les hôtes demandés.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « site hotes » : hotes est le nombre d'hôtes requis (entier de 1 à 254). Pour chaque site le script cherche le plus petit bloc valable : la capacité vaut 2^k - 2 hôtes pour k bits d'hôte, et le préfixe vaut 32 - k. Il affiche <code>site : /P (C hotes)</code> où P est le préfixe et C la capacité du bloc retenu. Si plus de 254 hôtes sont demandés, afficher <code>site : impossible</code>. Il termine par <code>liaisons : X/n</code> (les sites servis en /30, capacité 2 : liaisons point-à-point).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+bureau1 30
+bureau2 6
+liaison 2
+siege 100
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>bureau1 : /27 (30 hotes)
+bureau2 : /29 (6 hotes)
+liaison : /30 (2 hotes)
+siege : /25 (126 hotes)
+liaisons : 1/4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une boucle while augmente k tant que (2^k - 2) est inférieur au besoin ; le préfixe vaut 32 - k.</li>
+        <li>Un /30 a une capacité de 2 hôtes : c'est la liaison point-à-point du plan.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>4. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">3 sous-réseaux</button>
+        <button class="opt" data-correct="1">8 sous-réseaux</button>
+        <button class="opt">30 sous-réseaux</button>
+      </div>
+      <div class="q__exp">2^3 = 8 sous-réseaux possibles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">32 hôtes</button>
+        <button class="opt" data-correct="1">30 hôtes</button>
+        <button class="opt">5 hôtes</button>
+      </div>
+      <div class="q__exp">2^5 - 2 : réseau et diffusion retirés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">/26</button>
+        <button class="opt" data-correct="1">/27</button>
+        <button class="opt">/28</button>
+      </div>
+      <div class="q__exp">11100000 = 224 : 3 bits empruntés, /27.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">192</button>
+        <button class="opt">224</button>
+        <button class="opt">240</button>
+      </div>
+      <div class="q__exp">11000000 = 128 + 64 = 192.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">un masque unique par réseau</button>
+        <button class="opt" data-correct="1">des masques différents dans un même réseau</button>
+        <button class="opt">d'ignorer le routage</button>
+      </div>
+      <div class="q__exp">Tailles variées : /30 pour les liaisons, /26 pour les bureaux.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">le VLSM</button>
+        <button class="opt" data-correct="1">le système de classes</button>
+        <button class="opt">DHCP</button>
+      </div>
+      <div class="q__exp">Routage sans classe : notation /n, fin des classes A-B-C.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt">/24</button>
+        <button class="opt">/28</button>
+        <button class="opt" data-correct="1">/30</button>
+      </div>
+      <div class="q__exp">2 hôtes valides : exactement deux routeurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">30 hôtes</button>
+        <button class="opt">62 hôtes</button>
+        <button class="opt">126 hôtes</button>
+      </div>
+      <div class="q__exp">27 bits réseau, 5 bits hôte : 2^5 - 2 = 30.</div>
+    </div>
+  </div>
+
+<h2>5. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de retirer 2 aux hôtes : l'adresse réseau et la diffusion ne sont pas attribuables.</li>
+      <li>Calculer le masque sans convertir le binaire : 11100000 = 224, pas 223.</li>
+      <li>Confondre nombre de sous-réseaux (2^emprunt) et hôtes par sous-réseau (2^restants - 2).</li>
+      <li>Appliquer le même masque partout quand le VLSM est demandé.</li>
+    </ul>
+  </div>
+
+<h2>6. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — dimensionner un sous-réseau en trois gestes</div>
+    <ol>
+      <li>Compter les hôtes nécessaires, ajouter le marge de croissance.</li>
+      <li>Choisir k bits d'hôte tel que 2^k - 2 couvre le besoin ; préfixe = 32 - k.</li>
+      <li>Convertir le masque : bits à 1 = réseau — 128, 192, 224, 240, 248, 252, 254.</li>
+    </ol>
+  </div>
+
+<h2>7. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Emprunt de bits : 2^emprunt sous-réseaux, 2^(restants) - 2 hôtes valides.</li>
+      <li>Nouveau masque : dernier octet 128, 192, 224, 240, 248, 252 — /25 à /30.</li>
+      <li>VLSM : masques différents dans un même réseau, efficacité maximale.</li>
+      <li>CIDR : notation /n, fin des classes, standard de l'adressage IPv4.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais calculer sous-réseaux et hôtes valides après un emprunt.</li>
+      <li>Je sais convertir un emprunt en masque décimal et en /n.</li>
+      <li>Je sais justifier le VLSM sur un plan à besoins inégaux.</li>
+      <li>Je sais choisir le bloc le plus petit couvrant un besoin.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Sous-réseautage</strong> : diviser un réseau en empruntant des bits d'hôte.</li><li><strong>Bits empruntés</strong> : déterminent 2^emprunt sous-réseaux.</li><li><strong>Hôtes valides</strong> : 2^k - 2 (réseau et diffusion exclus).</li><li><strong>/27</strong> : 255.255.255.224, 30 hôtes valides.</li><li><strong>/30</strong> : 255.255.255.252, 2 hôtes — liaison point-à-point.</li><li><strong>VLSM</strong> : masques de longueurs variables dans un même réseau.</li><li><strong>CIDR</strong> : routage sans classe, notation IP/n.</li><li><strong>Diffusion</strong> : dernière adresse du bloc, non attribuable.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>8. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — relis l'exemple de l'emprunt de 3 bits du support.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais les conversions masque binaire/décimal/CIDR.</div>
+      <div class="bandrow bandrow--good">70–89 % — bon niveau, dimensionne un plan VLSM complet.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — niveau de maîtrise recherché.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de scripts <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les présentations « Architecture des réseaux » (Collège de Paris, A. Nadjak Kan'sam, sessions 1 à 3).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

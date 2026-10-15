@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Procédures Stockées PL/pgSQL, Déclencheurs (Triggers) &amp;amp; Row-Level Security (RLS) | SQL Avancé B3</title>
+<meta name="description" content="Chapitre 5 du cours SQL Avancé B3 : Langage procédural PL/pgSQL, blocs d’exécution et gestion des exceptions, déclencheurs (Triggers) BEFORE / AFTER sur INSERT, UPDATE, DELETE, pseudo-enregistrements NEW et OLD, tables d’audit immuables, sécurité au niveau de la ligne (Row-Level Security - RLS) avec politiques CREATE POLICY, et prévention absolue des injections SQL (SQLi). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-sql/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Procédures Stockées PL/pgSQL, Déclencheurs (Triggers) &amp;amp; Row-Level Security (RLS) | SQL Avancé B3">
+<meta property="og:description" content="Chapitre 5 du cours SQL Avancé B3 : Langage procédural PL/pgSQL, blocs d’exécution et gestion des exceptions, déclencheurs (Triggers) BEFORE / AFTER sur INSERT, UPDATE, DELETE, pseudo-enregistrements NEW et OLD, tables d’audit immuables, sécurité au niveau de la ligne (Row-Level Security - RLS) avec politiques CREATE POLICY, et prévention absolue des injections SQL (SQLi). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-sqlnav"><div class="b3-sqlnav__in">
+  <a class="b3-sqlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-sqlnav__sep" aria-hidden="true">/</span>
+  <a class="b3-sqlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> SQL Avancé B3</a>
+  <div class="b3-sqlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-sqlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-sqlwrap">
+<p class="crumb"><a href="../index.html">SQL Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Procédures Stockées PL/pgSQL, Déclencheurs (Triggers) &amp; Row-Level Security (RLS)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 3 h 00 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans les architectures d’entreprise modernes et les environnements multi-tenants (SaaS), la sécurité et l’intégrité des données ne peuvent reposer uniquement sur la couche applicative backend. Si une faille d’injection SQL ou un bug de code survient, la base de données doit constituer le rempart ultime. PostgreSQL offre un moteur d’exécution procédurale puissant (PL/pgSQL) permettant d’exécuter des règles métier complexes directement au plus près des données. Les déclencheurs (Triggers) garantissent une traçabilité d’audit infalsifiable en interceptant chaque mutation physique via les pseudo-enregistrements NEW et OLD. Enfin, le mécanisme de Row-Level Security (RLS) applique un cloisonnement cryptographique et logique strict, garantissant qu’un utilisateur ne puisse jamais lire ou modifier les données d’une autre organisation.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la syntaxe et la structure des blocs procéduraux PL/pgSQL (DECLARE, BEGIN, EXCEPTION, END) ;</li>
+      <li>concevoir et déployer des fonctions déclencheurs (TRIGGER) associées aux événements BEFORE et AFTER ;</li>
+      <li>exploiter rigoureusement les pseudo-enregistrements NEW et OLD pour journaliser les modifications d’attributs ;</li>
+      <li>activer et configurer la sécurité au niveau de la ligne (Row-Level Security) avec CREATE POLICY ;</li>
+      <li>différencier les clauses de politique RLS : USING (filtrage en lecture) et WITH CHECK (validation en écriture) ;</li>
+      <li>développer en Python 3 des simulateurs de déclencheurs d’audit, des moteurs d’évaluation RLS et des détecteurs d’injections SQL.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Langage Procédural PL/pgSQL & Les Fonctions Déclencheurs</h2>
+
+<p>PL/pgSQL est un langage procédural structuré par blocs intégré au moteur PostgreSQL. Il permet de combiner des requêtes relationnelles avec des variables typées, des boucles (<code>LOOP</code>, <code>WHILE</code>, <code>FOR</code>) et des structures conditionnelles (<code>IF/THEN/ELSE</code>) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Structure d’une Fonction PL/pgSQL</h4>
+    <pre><code>CREATE OR REPLACE FUNCTION virer_fonds(
+    compte_src INT, compte_dest INT, montant NUMERIC
+) RETURNS VOID AS $$
+DECLARE
+    solde_dispo NUMERIC;
+BEGIN
+    SELECT solde INTO solde_dispo FROM comptes WHERE id = compte_src FOR UPDATE;
+    IF solde_dispo &lt; montant THEN
+        RAISE EXCEPTION 'Fonds insuffisants : disponible %', solde_dispo;
+    END IF;
+    UPDATE comptes SET solde = solde - montant WHERE id = compte_src;
+    UPDATE comptes SET solde = solde + montant WHERE id = compte_dest;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Erreur transactionnelle : %', SQLERRM;
+        RAISE;
+END;
+$$ LANGUAGE plpgsql;</code></pre>
+  </div>
+  <div class="card">
+    <h4>Cycle de Vie et Types de Triggers</h4>
+    <p>Un déclencheur intercepte une mutation (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>TRUNCATE</code>) :</p>
+    <ul>
+      <li><strong>BEFORE :</strong> Déclenché <em>avant</em> l’écriture sur disque. Permet de modifier ou normaliser les données arrivantes, ou d’avorter l’opération (<code>RETURN NULL</code> ou <code>RAISE EXCEPTION</code>).</li>
+      <li><strong>AFTER :</strong> Déclenché <em>après</em> la validation physique. Idéal pour propager des actions secondaires ou alimenter un journal d’audit infalsifiable.</li>
+      <li><strong>FOR EACH ROW vs FOR EACH STATEMENT :</strong> S’exécute soit pour chaque ligne altérée individuellement, soit une seule fois pour toute la commande SQL.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Pseudo-Enregistrements NEW / OLD & Tables d’Audit Immuables</h2>
+
+<p>Au sein d’un déclencheur s’exécutant au niveau de la ligne (<code>FOR EACH ROW</code>), le moteur PostgreSQL met à disposition deux variables d’enregistrement spéciales :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Variables Spéciales de Trigger</h4>
+    <table class="table">
+      <thead><tr><th>Opération</th><th>OLD</th><th>NEW</th></tr></thead>
+      <tbody>
+        <tr><td><strong>INSERT</strong></td><td><code>NULL</code></td><td>Nouvelle ligne insérée</td></tr>
+        <tr><td><strong>UPDATE</strong></td><td>Ligne avant modification</td><td>Ligne après modification</td></tr>
+        <tr><td><strong>DELETE</strong></td><td>Ligne supprimée</td><td><code>NULL</code></td></tr>
+      </tbody>
+    </table>
+    <p>La variable <code>TG_OP</code> contient le type d’opération (<code>'INSERT'</code>, <code>'UPDATE'</code>, <code>'DELETE'</code>).</p>
+  </div>
+  <div class="card">
+    <h4>Patron de Conception : Table d’Audit Infalsifiable</h4>
+    <pre><code>CREATE OR REPLACE FUNCTION audit_employes_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'UPDATE') THEN
+        INSERT INTO audit_log (table_name, op, row_id, old_val, new_val, modifie_par, modifie_le)
+        VALUES ('employes', 'UPDATE', OLD.id, row_to_json(OLD), row_to_json(NEW), current_user, clock_timestamp());
+        RETURN NEW;
+    ELSIF (TG_OP = 'DELETE') THEN
+        INSERT INTO audit_log (table_name, op, row_id, old_val, new_val, modifie_par, modifie_le)
+        VALUES ('employes', 'DELETE', OLD.id, row_to_json(OLD), NULL, current_user, clock_timestamp());
+        RETURN OLD;
+    END IF;
+    RETURN NEW;
+END; $$ LANGUAGE plpgsql;</code></pre>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Règle d’or des Triggers AFTER :</strong> Les triggers d’audit doivent toujours être de type <code>AFTER ... FOR EACH ROW</code> pour s’assurer que les données ont passé toutes les contraintes d’intégrité (clés étrangères, check, unicités) avant d’être enregistrées dans le journal.</div>
+
+  </div>
+
+<h2>3. Sécurité au Niveau de la Ligne (Row-Level Security - RLS) & Prévention SQLi</h2>
+
+<p>La <strong>Row-Level Security (RLS)</strong> est une fonctionnalité de sécurité avancée intégrée dans le noyau du SGBD. Elle filtre de manière invisible les lignes accessibles par chaque utilisateur de base de données :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Configuration RLS dans PostgreSQL</h4>
+    <pre><code>-- 1. Activer RLS sur la table cible
+ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
+
+-- 2. Définir une politique de cloisonnement multi-tenant
+CREATE POLICY rls_documents_tenant ON documents
+    FOR ALL
+    TO role_applicatif
+    USING (tenant_id = current_setting('app.current_tenant_id')::INT)
+    WITH CHECK (tenant_id = current_setting('app.current_tenant_id')::INT);</code></pre>
+    <ul>
+      <li><strong>USING :</strong> Condition booléenne appliquée aux requêtes de lecture (<code>SELECT</code>, <code>UPDATE</code>, <code>DELETE</code>). Les lignes hors condition sont invisibles.</li>
+      <li><strong>WITH CHECK :</strong> Condition validée sur les nouvelles écritures (<code>INSERT</code>, <code>UPDATE</code>). Bloque toute tentative d’écriture illégitime.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Défense en Profondeur contre l’Injection SQL (SQLi)</h4>
+    <p>L’injection SQL survient lorsque des entrées utilisateur non assainies sont concaténées dans des requêtes dynamiques :</p>
+    <pre><code>-- VULNÉRABLE (Concaténation textuelle) :
+EXECUTE 'SELECT * FROM users WHERE nom = ''' || entree || '''';
+
+-- SÉCURISÉ (Requête paramétrée avec USING) :
+EXECUTE 'SELECT * FROM users WHERE nom = $1' USING entree;</code></pre>
+    <p>En PL/pgSQL dynamique, l’utilisation de la clause <code>USING</code> et des fonctions <code>quote_ident()</code> (pour les noms de tables/colonnes) et <code>quote_literal()</code> est indispensable pour neutraliser toute injection.</p>
+  </div>
+</div>
+  <div class="box box--danger">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> <strong>Les super-utilisateurs contournent RLS par défaut :</strong> Dans PostgreSQL, l’utilisateur <code>postgres</code> (superuser) ainsi que le propriétaire de la table ignorent les politiques RLS sauf si la table est explicitement configurée avec <code>ALTER TABLE table_name FORCE ROW LEVEL SECURITY;</code>. Dans une architecture applicative sécurisée, l’application doit toujours se connecter avec un rôle sans privilèges superuser.</div>
+
+  </div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="sql3-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="OP action=INSERT table=users id=10 user=admin new=email:a@b.com,role:user&#10;OP action=UPDATE table=users id=10 user=sec_admin old=email:a@b.com,role:user new=email:a@b.com,role:admin&#10;OP action=DELETE table=users id=10 user=admin old=email:a@b.com,role:admin">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la comparaison OLD vs NEW et générer les entrées d'audit
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de déclencheur d’audit d’historisation (Audit Trail Trigger)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le comportement d’un trigger AFTER INSERT/UPDATE/DELETE alimentant une table de journalisation d’audit.</p>
+    <div class="lab__brief">Dans les systèmes financiers et médicaux, les réglementations (RGPD, PCI-DSS, HDS) imposent une traçabilité immuable de chaque modification.
+Un déclencheur d’audit compare les variables d’état `OLD` et `NEW` :
+- Pour `INSERT` : enregistre `diff=INSERTED`.
+- Pour `DELETE` : enregistre `diff=DELETED`.
+- Pour `UPDATE` : compare les champs clés pour lister précisément les valeurs modifiées sous la forme `champ:old_val->new_val`.
+
+Entrée :
+`OP action=<INSERT|UPDATE|DELETE> table=<name> id=<row_id> user=<username> [old=<k:v,k:v>] [new=<k:v,k:v>]`
+
+Sortie :
+- Pour chaque opération :
+  `AUDIT_ENTRY action=<ACT> table=<TBL> row_id=<ID> diff=<DIFF> user=<USR>`
+- Bilan : `AUDIT_SUMMARY total_events=<N> inserts=<N> updates=<N> deletes=<N>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>OP action=INSERT table=users id=10 user=admin new=email:a@b.com,role:user
+OP action=UPDATE table=users id=10 user=sec_admin old=email:a@b.com,role:user new=email:a@b.com,role:admin
+OP action=DELETE table=users id=10 user=admin old=email:a@b.com,role:admin</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT_ENTRY action=INSERT table=users row_id=10 diff=INSERTED user=admin
+AUDIT_ENTRY action=UPDATE table=users row_id=10 diff=role:user-&gt;admin user=sec_admin
+AUDIT_ENTRY action=DELETE table=users row_id=10 diff=DELETED user=admin
+AUDIT_SUMMARY total_events=3 inserts=1 updates=1 deletes=1</pre></div>
+    </div>
+    <p class="lab__note">Le trigger trace la création, le changement de rôle et la suppression.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parser les champs old et new en dictionnaires pour l’action UPDATE.</li>
+        <li>Identifier les clés pour lesquelles old[k] != new[k] et formater champ:old-&gt;new.</li>
+        <li>Comptabiliser le nombre d’événements de chaque type.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="SESSION tenant=org_A role=member&#10;DOC id=1 tenant=org_A title=Bilan_A&#10;DOC id=2 tenant=org_B title=Bilan_B&#10;ACCESS action=SELECT doc_id=1&#10;ACCESS action=SELECT doc_id=2&#10;ACCESS action=DELETE doc_id=1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : simuler la validation de politique Row-Level Security
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur d’évaluation de politiques de sécurité au niveau ligne (Row-Level Security RLS)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le filtrage transparent des lignes en fonction du tenant et du rôle utilisateur via PostgreSQL Row-Level Security (RLS).</p>
+    <div class="lab__brief">Dans une architecture SaaS multi-locataire (multi-tenant) mutualisée, la sécurité au niveau des lignes (RLS) garantit qu’une session ne peut jamais lire ni modifier les données d’une autre organisation :
+- Chaque session déclare son identité : `SESSION tenant=<tenant_id> role=<admin|member>`.
+- Des documents sont enregistrés : `DOC id=<id> tenant=<tenant_id> title=<title>`.
+- Une politique RLS applique les règles suivantes lors d’une action (`SELECT`, `UPDATE`, `DELETE`) :
+  1. Si `doc.tenant == session.tenant` : l’accès est `ALLOWED`.
+  2. Si `doc.tenant != session.tenant` : l’accès est `DENIED` pour violation de frontière inter-tenant (isolation étanche).
+  3. Pour `DELETE` : nécessite en plus le rôle `admin` dans le tenant ; si le rôle est `member`, l’accès est `DENIED_INSUFFICIENT_ROLE`.
+
+Entrée :
+- `SESSION tenant=<T> role=<R>`
+- `DOC id=<id> tenant=<T> title=<title>`
+- `ACCESS action=<SELECT|UPDATE|DELETE> doc_id=<id>`
+
+Sortie :
+- Pour chaque tentative : `RLS_CHECK action=<ACT> doc_id=<ID> status=<ALLOWED|DENIED> reason=<REASON>`
+- Bilan : `RLS_REPORT total_checks=<N> allowed=<N> denied=<N>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SESSION tenant=org_A role=member
+DOC id=1 tenant=org_A title=Bilan_A
+DOC id=2 tenant=org_B title=Bilan_B
+ACCESS action=SELECT doc_id=1
+ACCESS action=SELECT doc_id=2
+ACCESS action=DELETE doc_id=1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RLS_CHECK action=SELECT doc_id=1 status=ALLOWED reason=TENANT_MATCH
+RLS_CHECK action=SELECT doc_id=2 status=DENIED reason=CROSS_TENANT_VIOLATION
+RLS_CHECK action=DELETE doc_id=1 status=DENIED reason=INSUFFICIENT_ROLE
+RLS_REPORT total_checks=3 allowed=1 denied=2</pre></div>
+    </div>
+    <p class="lab__note">Accès autorisé sur doc 1 pour SELECT, refusé sur doc 2 (cross-tenant), et refusé pour DELETE sans rôle admin.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les documents dans un dictionnaire documents[doc_id] = {tenant, title}.</li>
+        <li>Comparer doc[tenant] avec session_tenant pour valider l’isolation multi-tenant.</li>
+        <li>Vérifier le rôle pour les opérations destructrices comme DELETE.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="sql3-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="CHECK_SQL id=1 input=&quot;alice&quot;&#10;CHECK_SQL id=2 input=&quot;admin' OR '1'='1&quot;&#10;CHECK_SQL id=3 input=&quot;test'; DROP TABLE clients; --&quot;">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : détecter les motifs malveillants d'injection SQL ou formater la valeur saine
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Validateur de requêtes dynamiques et détecteur d’injections SQL (SQLi Sanitizer)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser des paramètres de requêtes SQL dynamiques et neutraliser les vecteurs d’injection SQL classiques.</p>
+    <div class="lab__brief">Dans le code procédural PL/pgSQL, la concaténation directe de variables utilisateur dans des instructions `EXECUTE` engendre des failles critiques d’injection SQL (SQLi).
+Les signatures d’attaque typiques incluent :
+- Tautologies logiques contournant les filtres : `OR 1=1`, `OR '1'='1'`, `OR true`.
+- Concaténations de requêtes multiples (Piggybacked queries) : `; DROP TABLE`, `; TRUNCATE`, `; DELETE`.
+- Injections par union : `UNION SELECT`, `UNION ALL SELECT`.
+- Troncature de commentaires : `--`, `/*`.
+
+Entrée :
+`CHECK_SQL id=<num> input="<chaine_brute>"`
+
+Sortie :
+- Si une signature est détectée : `SQLI_ALERT id=<id> status=VULNERABLE threat=<TAUTOLOGY|PIGGYBACKED_DROP|UNION_INJECTION|COMMENT_BYPASS> action=BLOCK`
+- Si la chaîne est saine : `SQLI_ALERT id=<id> status=SECURE safe_value=<quote_literal_value> action=ALLOW`
+- Bilan : `SECURITY_AUDIT checked=<N> blocked=<N> allowed=<N>`</div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CHECK_SQL id=1 input="alice"
+CHECK_SQL id=2 input="admin' OR '1'='1"
+CHECK_SQL id=3 input="test'; DROP TABLE clients; --"</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SQLI_ALERT id=1 status=SECURE safe_value='alice' action=ALLOW
+SQLI_ALERT id=2 status=VULNERABLE threat=TAUTOLOGY action=BLOCK
+SQLI_ALERT id=3 status=VULNERABLE threat=PIGGYBACKED_DROP action=BLOCK
+SECURITY_AUDIT checked=3 blocked=2 allowed=1</pre></div>
+    </div>
+    <p class="lab__note">La saisie légitime est autorisée après échappement ; les deux attaques sont bloquées.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Rechercher les mots-clés dangereux en ignorant la casse (upper/lower).</li>
+        <li>Identifier "or 1=1" ou "or '1'='1'" comme TAUTOLOGY.</li>
+        <li>Identifier "; drop" ou "; truncate" comme PIGGYBACKED_DROP.</li>
+        <li>Identifier "union select" comme UNION_INJECTION.</li>
+        <li>Identifier "--" ou "/*" comme COMMENT_BYPASS.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que vaut la variable OLD dans une fonction déclencheur interceptant un INSERT ?</p>
+      <div class="opts">
+        <button class="opt">La valeur par défaut de la colonne</button>
+        <button class="opt">Une chaîne vide</button>
+        <button class="opt" data-correct="1">NULL</button>
+        <button class="opt">Une copie de NEW</button>
+      </div>
+      <div class="q__exp">Lors d’un INSERT, aucune ligne préalable n’existait dans la table : la variable OLD vaut donc strictement NULL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de déclencheur est recommandé pour modifier ou normaliser les données d’une ligne avant son écriture sur disque ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">BEFORE INSERT OR UPDATE FOR EACH ROW</button>
+        <button class="opt">AFTER INSERT FOR EACH STATEMENT</button>
+        <button class="opt">INSTEAD OF TABLE</button>
+        <button class="opt">DEFERRED TRANSACTION TRIGGER</button>
+      </div>
+      <div class="q__exp">Un trigger BEFORE FOR EACH ROW s’exécute avant l’écriture disque et permet de modifier les attributs du tuple NEW avant persistance.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si une fonction déclencheur BEFORE INSERT retourne NULL, que se passe-t-il pour la ligne en cours d’insertion ?</p>
+      <div class="opts">
+        <button class="opt">La ligne est insérée avec des valeurs nulles</button>
+        <button class="opt" data-correct="1">L’opération d’insertion pour cette ligne est silencieusement annulée</button>
+        <button class="opt">Une erreur fatale est levée et le serveur plante</button>
+        <button class="opt">La ligne est insérée dans la table de log</button>
+      </div>
+      <div class="q__exp">Retourner NULL dans un trigger BEFORE interrompt immédiatement l’opération pour le tuple courant, l’ignorant sans lever d’exception.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une politique PostgreSQL Row-Level Security, quel est le rôle de la clause WITH CHECK ?</p>
+      <div class="opts">
+        <button class="opt">Vérifier que la table possède un index primaire</button>
+        <button class="opt" data-correct="1">Valider que les nouvelles lignes insérées ou mises à jour respectent la condition de sécurité</button>
+        <button class="opt">Filtrer les lignes retournées par un SELECT</button>
+        <button class="opt">Chiffrer le mot de passe de l’utilisateur</button>
+      </div>
+      <div class="q__exp">La clause WITH CHECK valide les données en entrée lors d’un INSERT ou UPDATE, rejetant toute ligne violant la condition.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Par défaut, pourquoi le super-utilisateur postgres n’est-il pas filtré par les politiques Row-Level Security ?</p>
+      <div class="opts">
+        <button class="opt">Parce qu’il a un mot de passe trop long</button>
+        <button class="opt" data-correct="1">Parce que les superusers ont le droit de bypasser RLS afin de pouvoir administrer et sauvegarder la base</button>
+        <button class="opt">Parce que RLS est désactivé sur le port 5432</button>
+        <button class="opt">C’est un bogue connu corrigé en version 17</button>
+      </div>
+      <div class="q__exp">Dans la conception PostgreSQL, les super-utilisateurs ignorent les politiques de sécurité sauf si la directive FORCE ROW LEVEL SECURITY est appliquée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle instruction PL/pgSQL permet d’exécuter une requête dynamique sécurisée contre les injections SQL ?</p>
+      <div class="opts">
+        <button class="opt">EXECUTE 'SELECT * FROM t WHERE id = ' || user_input;</button>
+        <button class="opt" data-correct="1">EXECUTE 'SELECT * FROM t WHERE id = $1' USING user_input;</button>
+        <button class="opt">RUN QUERY WITH user_input;</button>
+        <button class="opt">CALL SQL(user_input);</button>
+      </div>
+      <div class="q__exp">L’utilisation de la clause USING avec des paramètres de substitution typés ($1) empêche toute interprétation de code malveillant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que contient la variable spéciale TG_OP dans un trigger PL/pgSQL ?</p>
+      <div class="opts">
+        <button class="opt">Le temps d’exécution de la requête</button>
+        <button class="opt" data-correct="1">Une chaîne de caractères indiquant l’opération déclencheuse ('INSERT', 'UPDATE', 'DELETE')</button>
+        <button class="opt">L’identifiant du processus PostgreSQL</button>
+        <button class="opt">Le nom de l’index utilisé</button>
+      </div>
+      <div class="q__exp">TG_OP contient sous forme de chaîne de caractères l’événement SQL ayant déclenché l’exécution (INSERT, UPDATE, DELETE ou TRUNCATE).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pour garantir qu’un journal d’audit ne conserve que les transactions ayant réellement réussi, quel trigger privilégier ?</p>
+      <div class="opts">
+        <button class="opt">BEFORE ... FOR EACH STATEMENT</button>
+        <button class="opt" data-correct="1">AFTER ... FOR EACH ROW</button>
+        <button class="opt">INSTEAD OF VIEW</button>
+        <button class="opt">BEFORE ... FOR EACH ROW</button>
+      </div>
+      <div class="q__exp">Un trigger AFTER ... FOR EACH ROW garantit que la modification a passé toutes les contraintes de table avant d’écrire l’audit.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser un trigger BEFORE au lieu d’un AFTER pour alimenter une table d’audit, risquant de journaliser une transaction qui va ensuite échouer.</li>
+      <li>Oublier de retourner NEW dans une fonction trigger BEFORE INSERT/UPDATE, ce qui supprime silencieusement la ligne.</li>
+      <li>Tester la Row-Level Security en se connectant en tant que superuser postgres, masquant ainsi l’inactivité des règles.</li>
+      <li>Concaténer des entrées utilisateur dans un bloc EXECUTE en PL/pgSQL, ouvrant une faille critique d’injection SQL.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>1. Déterminer si la règle métier doit être garantie dans la base (PL/pgSQL/Trigger) ou dans l’application cliente.</li>
+      <li>2. Choisir le moment du trigger : BEFORE pour nettoyer/valider des données, AFTER pour journaliser ou synchroniser.</li>
+      <li>3. Isoler le code procédural dans des blocs BEGIN...EXCEPTION pour garantir des rollbacks propres en cas d’anomalie.</li>
+      <li>4. Mettre en place une table d’audit immuable avec stockage JSON des états OLD et NEW.</li>
+      <li>5. Activer systématiquement ENABLE ROW LEVEL SECURITY sur toutes les tables contenant des données multi-tenants ou confidentielles.</li>
+      <li>6. Bannir toute concaténation de chaînes dans les requêtes dynamiques au profit de requêtes préparées avec clause USING.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>PL/pgSQL apporte la puissance procédurale au moteur relationnel avec une gestion fine des exceptions et des curseurs.</li>
+      <li>Les triggers interceptent les opérations INSERT, UPDATE et DELETE soit avant validation physique (BEFORE), soit après (AFTER).</li>
+      <li>NEW représente l’état résultant d’une modification, OLD l’état antérieur ; NEW est NULL lors d’un DELETE, OLD est NULL lors d’un INSERT.</li>
+      <li>Row-Level Security (RLS) applique un filtrage transparent et imperméable au niveau des tuples sans modifier le code SQL applicatif.</li>
+      <li>La clause USING d’une politique RLS filtre les lignes visibles en lecture ; la clause WITH CHECK valide les insertions et modifications.</li>
+      <li>La prévention absolue contre les injections SQL exige des requêtes paramétrées avec substitution typée ($1, $2).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Le trigger est-il déclaré FOR EACH ROW pour inspecter chaque tuple individuellement ?</li>
+      <li>La fonction trigger retourne-t-elle NEW pour les insertions/mises à jour valides et OLD pour les suppressions ?</li>
+      <li>La table d’audit enregistre-t-elle l’utilisateur système (current_user) et un horodatage précis (clock_timestamp()) ?</li>
+      <li>La politique RLS utilise-t-elle à la fois USING (lecture) et WITH CHECK (écriture) ?</li>
+      <li>L’application se connecte-t-elle avec un rôle dédié non-superuser pour que la politique RLS s’applique réellement ?</li>
+      <li>Toutes les requêtes dynamiques utilisent-elles des paramètres typés ($1, USING) plutôt que des concaténations ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Langage PL/pgSQL (DECLARE, BEGIN, EXCEPTION)</li><li>Déclencheurs (Triggers) BEFORE vs AFTER</li><li>Pseudo-enregistrements NEW & OLD</li><li>Opération TG_OP & variable TG_TABLE_NAME</li><li>Tables d’audit immuables (Audit Logging)</li><li>Row-Level Security (RLS) & ALTER TABLE ... ENABLE RLS</li><li>Politiques de sécurité (CREATE POLICY ... USING / WITH CHECK)</li><li>Prévention des injections SQL & requêtes paramétrées (USING)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à structurer une fonction PL/pgSQL ou confusion entre pseudo-variables NEW et OLD.</div>
+      <div class="bandrow bandrow--medium">Bonne maîtrise de l’écriture de déclencheurs d’audit et configuration de politiques simples de Row-Level Security.</div>
+      <div class="bandrow bandrow--high">Architecture de sécurité complète : RLS multi-tenant étanche avec FORCE RLS, audit infalsifiable et élimination totale des risques SQLi.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Partitionnement Déclaratif, Réplication WAL &amp; Haute Disponibilité (HA) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

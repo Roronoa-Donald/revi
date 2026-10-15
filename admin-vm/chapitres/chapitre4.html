@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Stockage et gestion des volumes | Admin VM B2</title>
+<meta name="description" content="Chapitre 4 du cours Admin VM B2 : LVM (PV/VG/LV), types de stockage Proxmox, NFS vs iSCSI, snapshots vs backup, stratégie GFS. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/admin-vm/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Stockage et gestion des volumes | Admin VM B2">
+<meta property="og:description" content="Chapitre 4 du cours Admin VM B2 : LVM (PV/VG/LV), types de stockage Proxmox, NFS vs iSCSI, snapshots vs backup, stratégie GFS. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="admin-vmnav"><div class="admin-vmnav__in">
+  <a class="admin-vmnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="admin-vmnav__sep" aria-hidden="true">/</span>
+  <a class="admin-vmnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Admin VM B2</a>
+  <div class="admin-vmnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="admin-vmnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="admin-vmwrap">
+<p class="crumb"><a href="../index.html">Admin VM B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Stockage et gestion des volumes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Toutes les VM reposent sur le stockage. Une panne disque n’arrête pas une machine : elle arrête plusieurs services. Prioriser la fiabilité avant la performance est le premier réflexe d’un administrateur.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>expliquer LVM et ses trois notions (PV, VG, LV) ;</li>
+      <li>comparer les types de stockage (Directory, LVM-thin, ZFS, Ceph) ;</li>
+      <li>distinguer NFS et iSCSI ;</li>
+      <li>structurer une sauvegarde avec la stratégie GFS.</li>
+    </ol>
+  </div>
+
+<h2>1. Pourquoi le stockage est critique</h2>
+
+<p>Toute la plateforme de virtualisation repose sur le stockage : une panne disque entraîne l’arrêt de plusieurs services simultanément.</p>
+<ul>
+  <li>Prioriser la <strong>fiabilité</strong> avant la performance.</li>
+  <li>Planifier <strong>sauvegarde</strong> et redondance (RAID/NAS).</li>
+  <li>Séparer le stockage des VM du stockage des sauvegardes.</li>
+</ul>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-database"></use></svg> Le point de défaillance principal</div>
+    <p>Contrairement à une VM qu’on peut redémarrer ailleurs, un stockage perdu met en danger toutes les VM qui y reposent à la fois. C’est pourquoi il se pense en premier.</p>
+  </div>
+
+<h2>2. LVM en trois notions</h2>
+
+<p>LVM (Logical Volume Manager) ajoute une couche d’abstraction entre les disques et les volumes logiques :</p>
+<ul>
+  <li><strong>PV</strong> (Physical Volume) : un disque ou une partition physique.</li>
+  <li><strong>VG</strong> (Volume Group) : le pool regroupant les PV.</li>
+  <li><strong>LV</strong> (Logical Volume) : le volume logique, qui devient le disque d’une VM.</li>
+</ul>
+<p>LVM permet d’<strong>agrandir un disque de VM</strong> sans tout réinstaller. Le mode <em>thin</em> est souple mais exige une surveillance pour éviter la saturation du pool.</p>
+
+<h2>3. Types de stockage et protocoles</h2>
+
+<table><thead><tr><th>Type</th><th>Usage</th><th>Avantage</th></tr></thead><tbody>
+<tr><td>Directory</td><td>ISO, backups, templates</td><td>Simple à configurer</td></tr>
+<tr><td>LVM-thin</td><td>Disques de VM</td><td>Souple et rapide</td></tr>
+<tr><td>ZFS</td><td>Snapshots, compression</td><td>Robuste et performant</td></tr>
+<tr><td>Ceph</td><td>Cluster multi-nœuds</td><td>Haute dispo scalable</td></tr>
+</tbody></table>
+<table><thead><tr><th>Protocole</th><th>Principe</th><th>Limite</th></tr></thead><tbody>
+<tr><td>NFS</td><td>Partage fichier</td><td>Moins rapide sur gros I/O</td></tr>
+<tr><td>iSCSI</td><td>Disque réseau</td><td>Configuration plus technique</td></tr>
+</tbody></table>
+<p>Pour un petit laboratoire, NFS suffit ; en production, on privilégie iSCSI ou ZFS.</p>
+
+<h2>4. Snapshots, sauvegardes et GFS</h2>
+
+<p>Un <strong>snapshot</strong> est rapide et local, mais vulnérable : il repose sur le même stockage que la VM. Une <strong>sauvegarde</strong> est une copie externe, essentielle en cas de panne. Règle d’or : <strong>3 copies, 2 supports différents, 1 hors site</strong>.</p>
+<p>La stratégie <strong>GFS</strong> (Grandfather-Father-Son) structure la rétention : quotidien sur 7 jours, hebdomadaire sur 4 semaines, mensuel sur 6 à 12 mois. Le principe — régularité et tests — compte plus que l’outil.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Un snapshot n’est pas une sauvegarde</div>
+    <p>Conserver des snapshots en croyant être protégé est une erreur fréquente : si le stockage disparaît, snapshots et VM disparaissent ensemble. La copie externe reste la seule vraie protection.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vm2-c4-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="vg">
+  <script type="text/plain" data-lab-starter>$element = [Console]::In.ReadLine()
+
+# À compléter : avec un switch, afficher la description de l'élément LVM.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — LVM en trois notions</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer PV, VG et LV à leur description.</p>
+    <div class="lab__brief"><p>Le script lit un élément LVM : <code>pv</code>, <code>vg</code> ou <code>lv</code>. Affichez sa description : <code>pv : disque physique</code>, <code>vg : groupe de volumes</code> ou <code>lv : volume logique</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>vg</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>vg : groupe de volumes</pre></div>
+    </div>
+    <p class="lab__note">Le pool de stockage.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>PV = Physical Volume (disque ou partition).</li>
+        <li>VG = Volume Group (pool) ; LV = Logical Volume (disque d’une VM).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c4-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="500&#10;100">
+  <script type="text/plain" data-lab-starter>$capacite = [int][Console]::In.ReadLine()
+$utilise = [int][Console]::In.ReadLine()
+
+# À compléter : afficher l'espace libre, puis une alerte sous 10 Go.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Surveiller l’espace d’un volume</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l’espace libre et alerter sur une saturation proche.</p>
+    <div class="lab__brief"><p>Le script lit la <strong>capacité</strong> d’un volume (Go), puis l’espace <strong>utilisé</strong> (Go). Affichez <code>libre : X Go</code>. Si l’espace libre est inférieur à 10 Go, affichez en plus <code>alerte : espace faible</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>500
+100</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>libre : 400 Go</pre></div>
+    </div>
+    <p class="lab__note">400 Go disponibles.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Espace libre = $capacite - $utilise.</li>
+        <li>Ajoutez une ligne d’alerte si le libre est inférieur à 10.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vm2-c4-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="hebdo">
+  <script type="text/plain" data-lab-starter>$frequence = [Console]::In.ReadLine()
+
+# À compléter : avec un switch, afficher la rétention correspondante.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Stratégie de sauvegarde GFS</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Associer une fréquence de sauvegarde à sa durée de rétention.</p>
+    <div class="lab__brief"><p>Le script lit une <strong>fréquence</strong> : <code>quotidien</code>, <code>hebdo</code> ou <code>mensuel</code>. Affichez la rétention : <code>retention : 7 jours</code>, <code>retention : 4 semaines</code> ou <code>retention : 6 a 12 mois</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>hebdo</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>retention : 4 semaines</pre></div>
+    </div>
+    <p class="lab__note">Sauvegarde hebdomadaire.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>GFS = Grandfather / Father / Son.</li>
+        <li>Quotidien 7 jours ; hebdo 4 semaines ; mensuel 6 à 12 mois.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que représente un PV ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Un disque physique</button>
+        <button class="opt">Un volume logique</button>
+        <button class="opt">Un pool</button>
+      </div>
+      <div class="q__exp">Le Physical Volume est un disque ou une partition.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que regroupe un VG ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Les PV en un pool</button>
+        <button class="opt">Les VM</button>
+        <button class="opt">Les VLAN</button>
+      </div>
+      <div class="q__exp">Le Volume Group agrège les disques physiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert un LV ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Devenir le disque d’une VM</button>
+        <button class="opt">Router le réseau</button>
+        <button class="opt">Sauvegarder</button>
+      </div>
+      <div class="q__exp">Le Logical Volume est le volume utilisé par la VM.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel stockage pour ISO et backups ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Directory</button>
+        <button class="opt">Ceph</button>
+        <button class="opt">LVM-thin</button>
+      </div>
+      <div class="q__exp">Directory est simple et adapté aux fichiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">NFS vs iSCSI ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Partage fichier vs disque réseau</button>
+        <button class="opt">Réseau vs stockage</button>
+        <button class="opt">Aucune différence</button>
+      </div>
+      <div class="q__exp">NFS partage des fichiers, iSCSI un disque en réseau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que structure la stratégie GFS ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La rétention des sauvegardes</button>
+        <button class="opt">Les VLAN</button>
+        <button class="opt">Les vCPU</button>
+      </div>
+      <div class="q__exp">Grandfather-Father-Son organise les fréquences.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Règle d’or de sauvegarde ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">3-2-1</button>
+        <button class="opt">1-1-1</button>
+        <button class="opt">5-5-5</button>
+      </div>
+      <div class="q__exp">3 copies, 2 supports, 1 hors site.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un snapshot est-il une sauvegarde ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Non</button>
+        <button class="opt">Oui</button>
+        <button class="opt">Toujours</button>
+      </div>
+      <div class="q__exp">Il est local et temporaire.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Considérer un snapshot comme une sauvegarde.</li>
+      <li>Laisser un pool thin se saturer sans surveillance.</li>
+      <li>Mélanger stockage des VM et stockage des sauvegardes.</li>
+      <li>Choisir un protocole inadapté à la charge (NFS sur gros I/O).</li>
+      <li>Négliger de tester les restaurations.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Structurer le stockage</div>
+    <ol>
+      <li><strong>Prévoir</strong> la redondance et la sauvegarde avant la performance.</li>
+      <li><strong>Organiser</strong> LVM : PV, VG, puis LV pour les VM.</li>
+      <li><strong>Choisir</strong> le type et le protocole selon les besoins.</li>
+      <li><strong>Séparer</strong> stockage des VM et stockage des sauvegardes.</li>
+      <li><strong>Appliquer</strong> GFS et tester régulièrement les restaurations.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le stockage est le point de défaillance principal.</li>
+      <li>LVM : PV (disque), VG (pool), LV (disque de VM).</li>
+      <li>Types : Directory, LVM-thin, ZFS, Ceph ; protocoles : NFS, iSCSI.</li>
+      <li>Snapshot local et rapide, sauvegarde externe et durable.</li>
+      <li>GFS : quotidien 7 j, hebdo 4 sem., mensuel 6 à 12 mois.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J’explique LVM (PV, VG, LV).</li>
+      <li>Je compare les types de stockage.</li>
+      <li>Je distingue NFS et iSCSI.</li>
+      <li>Je structure une stratégie GFS.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>stockage</li><li>LVM</li><li>PV</li><li>VG</li><li>LV</li><li>LVM-thin</li><li>ZFS</li><li>Ceph</li><li>Directory</li><li>NFS</li><li>iSCSI</li><li>snapshot</li><li>backup</li><li>GFS</li><li>3-2-1</li><li>RAID</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends LVM (PV, VG, LV).</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur NFS vs iSCSI.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu structures stockage et sauvegardes.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au réseau virtualisé, chapitre 5.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Réseau virtualisé et segmentation <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique Admin VM (modules 1 à 7 : introduction, prérequis, architecture, cycle de vie, stockage, réseau, administration avancée).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

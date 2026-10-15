@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture &amp;amp; Programmation en Assembleur B2 — Du Transistor au Noyau Linux</title>
+<meta name="description" content="Cours complet d’Architecture des Ordinateurs et Programmation Assembleur niveau B2 : représentation de l’information (binaire, hexadécimal, complément à 2, virgule flottante IEEE 754), modèle de von Neumann et microarchitecture du CPU (ALU, registres x86_64, cycle fetch-decode-execute, drapeaux EFLAGS), mémoire et bus (SRAM, DRAM, Little-Endian, segmentation, pagination, GPIO AVR), structure d’un programme assembleur (sections ELF, directives NASM, symboles globaux, alignement mémoire), jeu d’instructions x86 (MOV, LEA, arithmétique, modes d’adressage SIB, équivalents AVR) et contrôle de flux, gestion de la pile, conventions d’appel (cdecl, System V AMD64 ABI) et appels système Linux.">
+<link rel="canonical" href="https://revi-mu.vercel.app/assembleur/index.html">
+<meta property="og:title" content="Architecture &amp;amp; Programmation en Assembleur B2 — Du Transistor au Noyau Linux">
+<meta property="og:description" content="Cours complet d’Architecture des Ordinateurs et Programmation Assembleur niveau B2 : représentation de l’information (binaire, hexadécimal, complément à 2, virgule flottante IEEE 754), modèle de von Neumann et microarchitecture du CPU (ALU, registres x86_64, cycle fetch-decode-execute, drapeaux EFLAGS), mémoire et bus (SRAM, DRAM, Little-Endian, segmentation, pagination, GPIO AVR), structure d’un programme assembleur (sections ELF, directives NASM, symboles globaux, alignement mémoire), jeu d’instructions x86 (MOV, LEA, arithmétique, modes d’adressage SIB, équivalents AVR) et contrôle de flux, gestion de la pile, conventions d’appel (cdecl, System V AMD64 ABI) et appels système Linux.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="assembleurnav"><div class="assembleurnav__in">
+  <a class="assembleurnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="assembleurnav__sep" aria-hidden="true">/</span>
+  <a class="assembleurnav__brand" href="index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Assembleur B2</a>
+  <div class="assembleurnav__links">
+    <a href="sommaire.html">Sommaire</a>
+    <a href="chapitres/chapitre1.html">Ch. 1</a>
+    <a href="chapitres/chapitre2.html">Ch. 2</a>
+    <a href="chapitres/chapitre3.html">Ch. 3</a>
+    <a href="chapitres/chapitre4.html">Ch. 4</a>
+    <a href="chapitres/chapitre5.html">Ch. 5</a>
+    <a href="chapitres/chapitre6.html">Ch. 6</a>
+    <a href="chapitres/cartes.html">Cartes</a>
+    <a href="chapitres/formules.html">Mémo</a>
+    <a href="exercices/exercices.html">Exercices</a>
+    <a href="atelier.html">Atelier</a>
+    <a href="chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="assembleurnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="assembleurwrap">
+  <header class="hero">
+
+    <div class="hero__badge"><span class="badge badge--glow"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Niveau B2 • Architecture des Ordinateurs &amp; Systèmes Bas Niveau</span></div>
+
+    <h1 class="hero__title">Assembleur B2</h1>
+
+    <p class="hero__subtitle">Comprenez enfin ce qui se passe sous le capot de votre machine. Six chapitres d’ingénierie matérielle et logicielle pour maîtriser les registres, dompter la pile et dialoguer directement avec le processeur et le noyau du système.</p>
+
+    <div class="hero__actions">
+
+      <a class="btn btn--primary btn--lg" href="chapitres/chapitre1.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Démarrer le cours</a>
+
+      <a class="btn btn--lg" href="sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> Voir le sommaire</a>
+
+      <a class="btn btn--lg" href="atelier.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bac à sable Assembleur</a>
+
+    </div>
+
+  </header>
+
+
+
+  <section class="statbar">
+
+    <div class="stat"><span class="stat__val">6</span><span class="stat__lbl">Modules fondamentaux</span></div>
+
+    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Exercices de code exécutables</span></div>
+
+    <div class="stat"><span class="stat__val">48</span><span class="stat__lbl">Questions de QCM corrigées</span></div>
+
+    <div class="stat"><span class="stat__val">2</span><span class="stat__lbl">Examens blancs complets</span></div>
+
+  </section>
+
+
+
+  <h2>Parcours d’apprentissage</h2>
+
+  <div class="grid">    <article class="card">
+      <div class="card__head">
+        <span class="badge">Accès libre</span>
+        <span class="card__num">Module 1</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre1.html">Numération, Représentation des Données &amp; Logique Binaire</a></h3>
+      <p class="card__desc">Bases binaire, décimale et hexadécimale, entiers signés en complément à 2, masques binaires et décalages arithmétiques.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 30 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B2 et plus</span>
+        <span class="card__num">Module 2</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre2.html">Architecture du Processeur, Registres &amp; Drapeaux d’État</a></h3>
+      <p class="card__desc">Cycle Fetch-Decode-Execute, hiérarchie des registres généraux x86_64, registres de contrôle (RIP, RSP, RBP) et drapeaux EFLAGS (ZF, CF, SF, OF).</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B2 et plus</span>
+        <span class="card__num">Module 3</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre3.html">Mémoires, Bus &amp; Architectures (Von Neumann vs Harvard, AVR / x86)</a></h3>
+      <p class="card__desc">Architectures Von Neumann et Harvard, mémoires Flash, SRAM et EEPROM des microcontrôleurs AVR, bus matériels, Little vs Big-Endian, GPIO et mode segmenté x86.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B2 et plus</span>
+        <span class="card__num">Module 4</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre4.html">Chaîne de Production Logicielle (Assembleur, ELF, Linker &amp; Débogueur)</a></h3>
+      <p class="card__desc">Compilation croisée, étapes de la toolchain (source &rarr; préprocesseur &rarr; assembleur &rarr; linker), sections ELF (.text, .data, .rodata, .bss), directives NASM (db..dq) et alignement.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B2 et plus</span>
+        <span class="card__num">Module 5</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre5.html">Jeu d’Instructions x86/AVR, Transferts &amp; Modes d’Adressage</a></h3>
+      <p class="card__desc">Règle d’or x86, instruction MOV, calcul d’adresse LEA, arithmétique (ADD, SUB, INC, DEC, NEG, IMUL, IDIV), modes d’adressage indexés et équivalents AVR.</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 2 h 45 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article>
+    <article class="card">
+      <div class="card__head">
+        <span class="badge">Réservé B2 et plus</span>
+        <span class="card__num">Module 6</span>
+      </div>
+      <h3 class="card__title"><a href="chapitres/chapitre6.html">Branchements, Pile d’Exécution, Fonctions &amp; Appels Système</a></h3>
+      <p class="card__desc">Drapeaux et sauts conditionnels (Jcc), fonctionnement de la pile (PUSH/POP), conventions d’appel (cdecl et System V AMD64 ABI), cadre de pile et appels système (syscall / int 0x80).</p>
+      <div class="card__foot">
+        <span class="card__time"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-clock"></use></svg> ≈ 3 h 00 de travail</span>
+        <span class="card__link">Étudier le module <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></span>
+      </div>
+    </article></div>
+
+
+
+  <h2>Méthodologie pédagogique</h2>
+
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Comprendre la machine depuis le silicium jusqu’à l’exécutable</div>
+<p>La programmation en assembleur est la clé de voûte de la compréhension des systèmes informatiques. Elle révèle comment le compilateur traduit vos structures de haut niveau en opcodes binaires, comment les registres et le bus mémoire collaborent, et comment la pile d’exécution organise vos appels de fonctions. Chaque chapitre propose 3 ateliers de code interactifs pour manipuler directement les concepts matériels.</p>
+  </div>
+
+
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail personnel. Ce cours couvre le programme officiel d’Architecture &amp; Programmation en Assembleur de deuxième année de licence / cycle ingénieur.</p>
+</main>
+
+<script src="assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

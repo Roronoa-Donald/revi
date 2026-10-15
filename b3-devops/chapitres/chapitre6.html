@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — SRE (Site Reliability Engineering), SLI/SLO, Error Budgets &amp;amp; Observabilité | DevOps B3</title>
+<meta name="description" content="Chapitre 6 du cours DevOps B3 : Doctrine SRE de Google, gestion du Toil, dialectique SLI/SLO/SLA, politiques d’Error Budget, les 4 signaux dorés et amortissement de l’Alert Flapping. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-devops/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — SRE (Site Reliability Engineering), SLI/SLO, Error Budgets &amp;amp; Observabilité | DevOps B3">
+<meta property="og:description" content="Chapitre 6 du cours DevOps B3 : Doctrine SRE de Google, gestion du Toil, dialectique SLI/SLO/SLA, politiques d’Error Budget, les 4 signaux dorés et amortissement de l’Alert Flapping. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-devopsnav"><div class="b3-devopsnav__in">
+  <a class="b3-devopsnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-devopsnav__sep" aria-hidden="true">/</span>
+  <a class="b3-devopsnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> DevOps B3</a>
+  <div class="b3-devopsnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-devopsnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-devopswrap">
+<p class="crumb"><a href="../index.html">DevOps B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — SRE (Site Reliability Engineering), SLI/SLO, Error Budgets &amp; Observabilité</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Fixer un objectif de disponibilité de 100% est une illusion ruineuse : non seulement atteindre 100% d’uptime est physiquement impossible dans des systèmes distribués, mais cela paralyserait totalement l’innovation en interdisant toute modification logicielle. Fondée par Benjamin Treynor Sloss chez Google en 2003, la discipline du Site Reliability Engineering (SRE) réconcilie développement et exploitation par un arbitrage mathématique élégant : l’Error Budget (Budget d’Erreur). L’indisponibilité tolérée devient une ressource que l’équipe de développement peut dépenser pour innover et déployer vite. Dès lors que ce budget est menacé ou épuisé, les déploiements sont gelés au profit exclusif de la fiabilité. L’ingénieur DevOps B3 doit savoir formaliser les SLI et SLO, administrer les Error Budgets et instrumenter les 4 Signaux Dorés d’observabilité.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>assimiler la doctrine fondatrice du Site Reliability Engineering (SRE) telle que théorisée chez Google ;</li>
+      <li>distinguer avec une rigueur absolue les concepts de SLI (Indicateur), SLO (Objectif) et SLA (Accord contractuel) ;</li>
+      <li>calculer, administrer et gouverner les Budgets d’Erreur (Error Budgets) et analyser leur vitesse de consommation (Burn Rate) ;</li>
+      <li>limiter le travail répétitif sans valeur pérenne (Toil) à moins de 50% du temps des équipes de fiabilité ;</li>
+      <li>instrumenter les 4 Signaux Dorés de l’observabilité : Latence, Trafic, Erreurs et Saturation ;</li>
+      <li>développer en Python 3 des analyseurs de conformité SLI/SLO, des régulateurs d’Error Budget et des détecteurs d’Alert Flapping.</li>
+    </ol>
+  </div>
+
+<h2>1. La Doctrine SRE : Quand l’Ingénierie Logicielle Repense l’Exploitation</h2>
+
+<p>Selon la formule célèbre de Ben Treynor Sloss : <em>« SRE is what happens when you ask a software engineer to design an operations function »</em> (le SRE est ce qui se produit lorsque l’on demande à un ingénieur logiciel de concevoir une fonction d’exploitation). Le SRE applique les paradigmes du génie logiciel aux problèmes d’infrastructure et de production :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Élimination Systémique du « Toil »</h4>
+    <p>Le <strong>Toil</strong> désigne le travail opérationnel répétitif, manuel, dépourvu de valeur pérenne et croissant linéairement avec la taille du service (ex. redémarrage manuel de serveurs, création de comptes, rotations manuelles de certificats). La règle cardinale de Google impose de <strong>plafonner le Toil à un maximum strict de 50% du temps</strong> des ingénieurs SRE, les 50% restants étant obligatoirement consacrés à des projets d’ingénierie et d’automatisation durable.</p>
+  </div>
+  <div class="card">
+    <h4>L’Axiome de l’Inévitabilité des Pannes</h4>
+    <p>Le SRE abandonne la quête utopique du zéro défaut. Les défaillances réseau, matérielles et logicielles sont considérées comme inhérentes à la complexité des systèmes distribués à grande échelle. L’enjeu n’est plus d’empêcher la panne à tout prix, mais de la rendre inoffensive en automatisant la résilience et le confinement.</p>
+  </div>
+</div>
+
+<h2>2. La Trinité de la Fiabilité : SLI, SLO et SLA</h2>
+
+<p>Pour mesurer et négocier rationnellement la qualité de service, le SRE articule trois niveaux contractuels complémentaires :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th style="width:15%">Concept</th>
+      <th style="width:25%">Nature &amp; Rôle</th>
+      <th style="width:30%">Formule / Définition</th>
+      <th style="width:30%">Exemple Concret</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>SLI</strong><br>(Service Level Indicator)</td>
+      <td>Métrique objective mesurée en temps réel.</td>
+      <td>Ratio des événements conformes divisé par le total des événements observés.</td>
+      <td>$$\frac{\text{Req HTTP } 2xx/3xx < 200\,\text{ms}}{\text{Total Requêtes HTTP}} \times 100$$</td>
+    </tr>
+    <tr>
+      <td><strong>SLO</strong><br>(Service Level Objective)</td>
+      <td>Cible interne de fiabilité que l’équipe technique s’engage à tenir.</td>
+      <td>Seuil minimal requis sur une fenêtre glissante (ex. 30 jours calendaires).</td>
+      <td>$$SLI \ge 99.9\,\%$$ sur 30 jours glissants (soit max 43 min 12 s d’indisponibilité).</td>
+    </tr>
+    <tr>
+      <td><strong>SLA</strong><br>(Service Level Agreement)</td>
+      <td>Contrat légal et commercial liant l’entreprise à ses clients externes.</td>
+      <td>Seuil en-deçà duquel des pénalités financières ou remboursements s’appliquent.</td>
+      <td>$$99.5\,\%$$ annuel (marge de sécurité volontairement plus souple que le SLO interne).</td>
+    </tr>
+  </tbody>
+</table>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La Règle d’Or du Différentiel SLO vs SLA</div>
+<p>Le SLO interne doit <strong>toujours être plus strict que le SLA externe</strong>. Si votre SLA contractuel est de 99.5%, fixez votre SLO interne à 99.9%. Cet écart forme un coussin de sécurité permettant à l’équipe SRE de détecter, contenir et réparer les anomalies en interne bien avant qu’elles n’engendrent des ruptures de contrat et des pénalités juridiques avec les clients.</p>
+  </div>
+
+<h2>3. Error Budgets &amp; Vitesse de Consommation (Burn Rate)</h2>
+
+<p>L’<strong>Error Budget (Budget d’Erreur)</strong> découle directement du SLO :</p>
+$$\text{Error Budget (\%)} = 100\,\% - \text{SLO (\%)}$$
+<p>Pour un service dont le SLO est fixé à 99.9% sur une fenêtre de 30 jours (soit $30 \times 24 \times 3600 = 2\,592\,000$ secondes), le budget d’erreur total alloué vaut :</p>
+$$\text{Budget Total} = 2\,592\,000 \times (1 - 0.999) = 2\,592\,\text{secondes (soit 43 minutes et 12 secondes)}$$
+<p>L’Error Budget n’est pas une tolérance passive au laxisme, mais une <strong>monnaie d’arbitrage régulatrice</strong> entre développeurs et SRE :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Budget Positif (&gt; 20% restant)</h4>
+    <p>L’équipe de développement dispose du champ libre pour innover : releases fréquentes, tests de nouvelles fonctionnalités, déploiements Canary agressifs et expérimentations architecturales.</p>
+  </div>
+  <div class="card">
+    <h4>Budget Épuisé (&le; 0% restant)</h4>
+    <p><strong>Gel strict des déploiements (Release Freeze).</strong> Les nouvelles fonctionnalités sont suspendues. 100% de la bande passante d’ingénierie est redirigée vers la fiabilisation du code, les tests et l’automatisation.</p>
+  </div>
+</div>
+<h4 style="margin-top:20px">Le Burn Rate (Taux de Consommation)</h4>
+<p>Le <strong>Burn Rate ($BR$)</strong> mesure la vitesse à laquelle l’Error Budget est consommé par rapport à la vitesse nominale :</p>
+<ul>
+  <li>$BR = 1$ : le service consomme exactement 100% de son budget sur la période nominale de 30 jours.</li>
+  <li>$BR = 14.4$ : le service consomme l’intégralité de son budget mensuel en seulement 2 jours (48 heures) ! C’est un signal d’alerte critique immédiat.</li>
+</ul>
+
+<h2>4. Observabilité : Les 4 Signaux Dorés &amp; Amortissement des Alertes (Flapping)</h2>
+
+<p>Dans le livre SRE de Google, l’observabilité d’un service transactionnel s’articule autour des <strong>Quatre Signaux Dorés (The Four Golden Signals)</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Latence (Latency)</h4>
+    <p>Temps d’exécution d’une requête. Il est impératif de distinguer la latence des requêtes réussies de celle des requêtes échouées (une erreur 500 retournée en 2 ms ne doit pas fausser la moyenne d’un calcul de 800 ms).</p>
+  </div>
+  <div class="card">
+    <h4>2. Trafic (Traffic)</h4>
+    <p>Volume de demande adressée au système : requêtes HTTP par seconde, transactions de paiement ou connexions simultanées actives.</p>
+  </div>
+  <div class="card">
+    <h4>3. Erreurs (Errors)</h4>
+    <p>Taux de requêtes qui échouent : codes HTTP 5xx explicites, réponses incorrectes ou violations de protocole applicatif.</p>
+  </div>
+  <div class="card">
+    <h4>4. Saturation (Saturation)</h4>
+    <p>Degré de remplissage de la ressource la plus contrainte du système : pourcentage d’occupation mémoire, saturation de pool de threads ou bande passante I/O disque.</p>
+  </div>
+</div>
+<h4 style="margin-top:20px">L’Alert Flapping &amp; La Fatigue d’Alerte (Alert Fatigue)</h4>
+<p>Lorsqu’une métrique fluctue rapidement autour de son seuil critique (par exemple une utilisation CPU oscillant entre 89% et 91% toutes les dix secondes), l’alerte bascule convulsivement entre l’état <code>FIRING</code> et <code>RESOLVED</code>. Cette oscillation instable est qualifiée d’<strong>Alert Flapping</strong>.</p>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> La Clause « for » dans Prometheus</div>
+<p>Pour éradiquer le flapping et protéger les équipes d’astreinte contre la fatigue d’alerte, les règles Prometheus exigent une temporisation :</p>
+<pre><code>- alert: HighMemoryUsage
+  expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.10
+  for: 5m
+  labels:
+    severity: warning</code></pre>
+<p>La clause <code>for: 5m</code> impose que la condition soit violée de manière ininterrompue durant 5 minutes consécutives avant de notifier l’astreinte, filtrant instantanément les micro-pics éphémères bénins.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="do3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="INCIDENT_LOG total_hours=720 pannes=3 total_downtime_h=1.5 total_detection_h=0.6">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer MTBF, MTTR, MTTD et la disponibilité
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur des métriques d’incident SRE (MTBF, MTTR, MTTD &amp; Disponibilité)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Mesurer la fiabilité opérationnelle d’un service en calculant les temps moyens de détection, de résolution et d’espacement des pannes.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>INCIDENT_LOG total_hours=&lt;T&gt; pannes=&lt;N&gt; total_downtime_h=&lt;D&gt; total_detection_h=&lt;Det&gt;</code>.<br><br>
+Formules standards SRE :<br>
+- Si $N &gt; 0$ :<br>
+  - Temps moyen de détection : $MTTD = Det / N$ (heures)<br>
+  - Temps moyen de réparation / résolution : $MTTR = D / N$ (heures)<br>
+  - Temps moyen entre deux pannes : $MTBF = (T - D) / N$ (heures de fonctionnement sain divisées par le nombre de pannes)<br>
+  - Disponibilité intrinsèque : $A = \frac{MTBF}{MTBF + MTTR} \times 100 = \frac{T - D}{T} \times 100$ (en %)<br>
+- Si $N == 0$ :<br>
+  - $MTTD = 0.0$, $MTTR = 0.0$, $MTBF = T$, $A = 100.0\%$.<br><br>
+Afficher :<br>
+<code>SRE_METRICS: DISPO=&lt;A:.4f&gt;% | MTBF=&lt;MTBF:.1f&gt;h | MTTR=&lt;MTTR:.2f&gt;h | MTTD=&lt;MTTD:.2f&gt;h</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>INCIDENT_LOG total_hours=720 pannes=3 total_downtime_h=1.5 total_detection_h=0.6</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SRE_METRICS: DISPO=99.7917% | MTBF=239.5h | MTTR=0.50h | MTTD=0.20h</pre></div>
+    </div>
+    <p class="lab__note">Sur un mois de 720h avec 3 pannes (total 1.5h de coupure), MTTR=30min, MTTD=12min, MTBF=239.5h, dispo=99.7917%.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>MTBF mesure la fiabilité (espacement des incidents), MTTR mesure la résilience de l’équipe.</li>
+        <li>Arrondir Disponibilité à 4 décimales, MTBF à 1 décimale, MTTR et MTTD à 2 décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="SLO_MONITOR slo_pct=99.9 indispo_s=500.0&#10;SLO_MONITOR slo_pct=99.9 indispo_s=2400.0&#10;SLO_MONITOR slo_pct=99.9 indispo_s=3000.0">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer la consommation du budget d'erreur SLO
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Auditeur de budget d’erreur SLO/SLI et gel des déploiements</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Mesurer la consommation du budget d’erreur (Error Budget Burn Rate) sur une fenêtre glissante de 30 jours et déclencher l’arrêt des déploiements en cas d’épuisement.</p>
+    <div class="lab__brief"><p>Une fenêtre glissante de 30 jours compte $30 \times 24 \times 3600 = 2\,592\,000$ secondes.<br>
+Le script lit sur l'entrée standard :<br>
+<code>SLO_MONITOR slo_pct=&lt;val&gt; indispo_s=&lt;sec&gt;</code>.<br><br>
+Formules :<br>
+- $Budget\_total = 2592000 \times (1 - slo\_pct / 100.0)$ (en secondes)<br>
+- $Taux\_consommation (Burn) = (indispo\_s / Budget\_total) \times 100.0$ (en %)<br>
+- $Budget\_restant = Budget\_total - indispo\_s$ (en secondes, peut être négatif si dépassé)<br><br>
+Décision opérationnelle SRE :<br>
+- Si $indispo\_s &gt; Budget\_total$ :<br>
+  <code>ACTION=GEL_DEPLOIEMENTS_URGENCE (BUDGET_EPUISE)</code><br>
+- Sinon si $Burn \ge 80.0\%$ :<br>
+  <code>ACTION=ATTENTION_BUDGET_CRITIQUE</code><br>
+- Sinon :<br>
+  <code>ACTION=DEPLOIEMENTS_AUTORISES</code><br><br>
+Afficher :<br>
+<code>SLO_STATUS: BUDGET_TOTAL=&lt;b_tot:.1f&gt;s | CONSOMME=&lt;indispo_s:.1f&gt;s (&lt;burn:.1f&gt;%) | RESTANT=&lt;rest:.1f&gt;s | ACTION=&lt;ACTION&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SLO_MONITOR slo_pct=99.9 indispo_s=500.0
+SLO_MONITOR slo_pct=99.9 indispo_s=2400.0
+SLO_MONITOR slo_pct=99.9 indispo_s=3000.0</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SLO_STATUS: BUDGET_TOTAL=2592.0s | CONSOMME=500.0s (19.3%) | RESTANT=2092.0s | ACTION=DEPLOIEMENTS_AUTORISES
+SLO_STATUS: BUDGET_TOTAL=2592.0s | CONSOMME=2400.0s (92.6%) | RESTANT=192.0s | ACTION=ATTENTION_BUDGET_CRITIQUE
+SLO_STATUS: BUDGET_TOTAL=2592.0s | CONSOMME=3000.0s (115.7%) | RESTANT=-408.0s | ACTION=GEL_DEPLOIEMENTS_URGENCE (BUDGET_EPUISE)</pre></div>
+    </div>
+    <p class="lab__note">À 99.9%, le budget mensuel est de 2592s. Au-delà, les déploiements sont gelés.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le budget d’erreur est la marge d’indisponibilité tolérée par contrat : tant qu’il est positif, l’équipe peut innover et déployer.</li>
+        <li>Si le budget est épuisé, l’équipe stoppe les livraisons pour se consacrer 100% à la fiabilité.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="do3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="ALERT nom=high_cpu etats=OK,FIRING,OK,FIRING,OK&#10;ALERT nom=disk_full etats=OK,OK,FIRING,FIRING">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : compter les bascules et diagnostiquer le flapping
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur d’instabilité et de tempête d’alertes Prometheus (Alert Flapping)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une séquence temporelle d’états d’alerte pour détecter les oscillations rapides (flapping) causées par un manque d’amortissement temporel.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+<code>ALERT nom=&lt;nom&gt; etats=&lt;e1,e2,...&gt;</code>.<br>
+Chaque état vaut soit <code>OK</code> soit <code>FIRING</code>.<br><br>
+Calculs :<br>
+- Compter le nombre de bascules (flaps) : chaque transition $e_i \ne e_{i+1}$ pour $i \in [0..N-2]$ incrémente le compteur de bascules.<br>
+- Noter l'<code>ETAT_FINAL</code> (dernier élément de la séquence).<br><br>
+Diagnostic de stabilité :<br>
+- Si $bascules \ge 3$ : l'alerte est considérée comme instable.<br>
+  <code>DIAGNOSTIC=FLAPPING_INSTABILITE (RECOMMANDATION=AJOUTER_FOR_CLAUSE)</code><br>
+- Sinon :<br>
+  <code>DIAGNOSTIC=STABLE</code><br><br>
+Afficher :<br>
+<code>ALERT_DIAGNOSTIC: &lt;nom&gt; -&gt; BASCULES=&lt;N&gt; | ETAT_FINAL=&lt;OK|FIRING&gt; | DIAGNOSTIC=&lt;DIAGNOSTIC&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ALERT nom=high_cpu etats=OK,FIRING,OK,FIRING,OK
+ALERT nom=disk_full etats=OK,OK,FIRING,FIRING</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ALERT_DIAGNOSTIC: high_cpu -&gt; BASCULES=4 | ETAT_FINAL=OK | DIAGNOSTIC=FLAPPING_INSTABILITE (RECOMMANDATION=AJOUTER_FOR_CLAUSE)
+ALERT_DIAGNOSTIC: disk_full -&gt; BASCULES=1 | ETAT_FINAL=FIRING | DIAGNOSTIC=STABLE</pre></div>
+    </div>
+    <p class="lab__note">high_cpu oscille 4 fois (flapping typique). disk_full ne bascule qu’une fois (passage sain à l’alerte).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Dans Prometheus, ajouter une clause "for: 5m" exige que la condition reste vraie 5 minutes avant d’émettre une alerte, supprimant le flapping.</li>
+        <li>Comparer les éléments adjacents de la liste d’états.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans la doctrine SRE formalisée par Google, quelle proportion maximale du temps d’un ingénieur peut être légitimement consacrée au travail opérationnel répétitif (« Toil ») ?</p>
+      <div class="opts">
+        <button class="opt">100%</button>
+        <button class="opt">80%</button>
+        <button class="opt" data-correct="1">50% au maximum (les 50% restants étant consacrés à l’ingénierie et l’automatisation)</button>
+        <button class="opt">0% (aucun travail opérationnel n’est permis)</button>
+      </div>
+      <div class="q__exp">Google impose de plafonner le Toil à un maximum strict de 50%. Les ingénieurs SRE doivent consacrer au moins la moitié de leur temps à développer du code d’automatisation durable.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle distinction fondamentale sépare un SLO (Service Level Objective) d’un SLA (Service Level Agreement) ?</p>
+      <div class="opts">
+        <button class="opt">Le SLO est un format de fichier texte tandis que le SLA est une base de données</button>
+        <button class="opt" data-correct="1">Le SLO est un objectif interne de fiabilité plus strict que le SLA, qui est quant à lui un contrat juridique assorti de pénalités financières envers les clients externes</button>
+        <button class="opt">Le SLO est réservé au matériel physique et le SLA aux logiciels libres</button>
+        <button class="opt">Il n’y a aucune différence, ce sont deux acronymes strictement synonymes</button>
+      </div>
+      <div class="q__exp">Le SLO est la boussole interne de l’équipe d’ingénierie. Le SLA est le contrat d’engagement légal avec le client, volontairement plus souple pour intégrer une marge de sécurité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un service web applique un SLO de 99.9% de disponibilité sur un mois de 30 jours (2 592 000 secondes), quel est le volume de son Error Budget en secondes ?</p>
+      <div class="opts">
+        <button class="opt">25 920 secondes</button>
+        <button class="opt" data-correct="1">2 592 secondes (soit 43 minutes et 12 secondes)</button>
+        <button class="opt">259 secondes</button>
+        <button class="opt">0 seconde</button>
+      </div>
+      <div class="q__exp">Error Budget = 2 592 000 * (1 - 0.999) = 2 592 000 * 0.001 = 2 592 secondes (exactement 43 minutes et 12 secondes d’indisponibilité permise).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que doit décider l’équipe d’ingénierie lorsque l’Error Budget d’un service de production est intégralement consommé en milieu de mois ?</p>
+      <div class="opts">
+        <button class="opt">Accélérer la cadence de mise en production de nouvelles fonctionnalités</button>
+        <button class="opt" data-correct="1">Appliquer une politique de gel des releases fonctionnelles (Release Freeze) et réorienter l’effort sur la fiabilisation et la résilience du système</button>
+        <button class="opt">Supprimer la surveillance pour ne plus voir les erreurs</button>
+        <button class="opt">Réduire artificiellement le SLO pour que le budget redevienne positif</button>
+      </div>
+      <div class="q__exp">L’épuisement du budget d’erreur est un coupe-circuit organisationnel : le déploiement de fonctionnalités nouvelles est suspendu pour restaurer la stabilité du service.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quels sont les « Quatre Signaux Dorés » (Four Golden Signals) de l’observabilité selon Google SRE ?</p>
+      <div class="opts">
+        <button class="opt">RAM, Disque, Clavier, Souris</button>
+        <button class="opt" data-correct="1">Latence, Trafic, Erreurs, Saturation</button>
+        <button class="opt">Nombre de commits, Pull requests, Lignes de code, Heures de travail</button>
+        <button class="opt">Température de la salle, Débit d’air, Pression atmosphérique, Voltage</button>
+      </div>
+      <div class="q__exp">Les 4 signaux dorés (Latency, Traffic, Errors, Saturation) constituent la télémétrie minimale indispensable pour caractériser l’état de santé d’un système distribué.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’appelle-t-on l’« Alert Flapping » dans un système de monitoring et d’alerte ?</p>
+      <div class="opts">
+        <button class="opt">L’envoi de notifications par SMS en cas de panne</button>
+        <button class="opt" data-correct="1">L’oscillation rapide d’une alerte entre les états actif (firing) et résolu (ok) en raison d’une métrique fluctuant autour du seuil critique</button>
+        <button class="opt">L’absence totale de logs sur un serveur</button>
+        <button class="opt">La panne simultanée de tous les routeurs d’un réseau</button>
+      </div>
+      <div class="q__exp">L’Alert Flapping survient lorsqu’une valeur oscille autour de la frontière de déclenchement, saturant les canaux de notification et provoquant une fatigue d’alerte toxique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle directive permet d’éradiquer l’Alert Flapping dans la définition d’une règle d’alerte sous Prometheus ?</p>
+      <div class="opts">
+        <button class="opt">La directive « delay: infinite »</button>
+        <button class="opt" data-correct="1">La clause « for: <durée> » exigeant que la condition critique persiste de manière ininterrompue durant un délai minimal avant déclenchement</button>
+        <button class="opt">L’augmentation du seuil de mémoire à 100%</button>
+        <button class="opt">La suppression du serveur Alertmanager</button>
+      </div>
+      <div class="q__exp">La clause `for: 5m` filtre les micro-variations passagères : l’alerte ne se déclenche que si le problème persiste au moins 5 minutes continues.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un service a un Burn Rate de 14.4 sur son budget d’erreur mensuel, en combien de temps consommera-t-il la totalité de son budget de 30 jours ?</p>
+      <div class="opts">
+        <button class="opt">En 30 jours</button>
+        <button class="opt" data-correct="1">En 2 jours (48 heures)</button>
+        <button class="opt">En 14 heures</button>
+        <button class="opt">En 6 mois</button>
+      </div>
+      <div class="q__exp">Durée = 30 jours / 14.4 = 2.08 jours (environ 48 heures). Un Burn Rate de 14.4 signale une hémorragie critique de fiabilité exigeant une mobilisation d’urgence.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Viser un objectif de disponibilité irréaliste de 100% qui paralyse l’innovation et coûte des budgets exponentiels sans bénéfice utilisateur.</li>
+      <li>Négliger le Toil opérationnel jusqu’à ce qu’il absorbe plus de 50% du temps des équipes, étouffant toute capacité d’ingénierie durable.</li>
+      <li>Fixer un SLO interne identique ou plus tolérant que le SLA contractuel client, supprimant tout coussin de détection d’anomalie préventive.</li>
+      <li>Créer des règles d’alerte sans temporisation (for), provoquant des tempêtes d’Alert Flapping et une fatigue d’alerte toxique chez les astreintes.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie de Fiabilité SRE &amp; Gouvernance d’Error Budget</div>
+    <ol>
+      <li>Identifier les parcours utilisateurs critiques et formaliser des indicateurs mesurables précis (SLI).</li>
+      <li>Définir des objectifs de niveau de service (SLO) réalistes et exigeants sur des fenêtres glissantes de 30 jours.</li>
+      <li>S’assurer que le SLO interne est strictement plus sévère que le SLA contractuel conclu avec les clients.</li>
+      <li>Calculer l’Error Budget alloué et suivre en temps réel sa vitesse de consommation (Burn Rate).</li>
+      <li>Appliquer la politique convenue : gel de release (Feature Freeze) dès que le budget restant devient critique.</li>
+      <li>Instrumenter les 4 Signaux Dorés et configurer une clause for sur les alertes Prometheus pour éradiquer le flapping.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le SRE applique les paradigmes du génie logiciel aux opérations pour maîtriser la complexité.</li>
+      <li>Le Toil (travail répétitif sans valeur durable) doit impérativement rester sous le plafond de 50% du temps.</li>
+      <li>Le SLI est la métrique observée, le SLO l’objectif interne visé, le SLA le contrat commercial assorti de pénalités.</li>
+      <li>L’Error Budget (100% - SLO) régule l’équilibre entre prise de risque d’innovation et fiabilisation du système.</li>
+      <li>Les 4 Signaux Dorés (Latence, Trafic, Erreurs, Saturation) constituent la télémétrie cardinale.</li>
+      <li>L’Alert Flapping fatigue les astreintes et se neutralise par l’amortissement temporel (clause for dans Prometheus).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais citer la formule de Benjamin Treynor Sloss définissant le Site Reliability Engineering.</li>
+      <li>Je sais identifier et quantifier le Toil opérationnel pour maintenir sa part sous les 50%.</li>
+      <li>Je sais formuler un SLI, un SLO et un SLA pour un service web transactionnel.</li>
+      <li>Je sais calculer la durée exacte d’un Error Budget sur une fenêtre de 30 jours calendaires.</li>
+      <li>Je sais interpréter un indicateur de Burn Rate et appliquer les conséquences d’un épuisement de budget.</li>
+      <li>Je sais paramétrer une alerte Prometheus avec la clause for pour éviter le flapping.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Site Reliability Engineering (SRE)</li><li>Élimination du Toil (&lt; 50% du temps)</li><li>Indicateurs SLI vs Objectifs SLO</li><li>Accords SLA &amp; Pénalités contractuelles</li><li>Error Budgets &amp; Politiques de gel de release</li><li>Burn Rate &amp; Vitesse de consommation</li><li>Les 4 Signaux Dorés de Google</li><li>Alert Flapping &amp; Temporisation Prometheus</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la distinction SLI/SLO/SLA, la définition du Toil et les 4 signaux dorés.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bon niveau, approfondissez le calcul des Error Budgets et la gestion du Burn Rate.</div>
+      <div class="bandrow bandrow--high">8/8 : Excellent ! Vous maîtrisez les principes d’ingénierie de fiabilité SRE et d’observabilité de niveau expert.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours CC_Devops.docx, les principes de Continuous Delivery (Jez Humble, David Farley), The Phoenix Project (Gene Kim), les recherches DORA (Accelerate) et les référentiels Site Reliability Engineering de Google.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

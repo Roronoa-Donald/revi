@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 5 — Normalisation | FBD B1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>:root{--accent:#ea580c;--accent-light:#f97316;--accent-dark:#c2410c;--accent-glow:rgba(234,88,12,0.18)}.dark{--accent:#f97316;--accent-light:#fb923c;--accent-dark:#ea580c;--accent-glow:rgba(249,115,22,0.18)}</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Aller au contenu</a>
+<div class="reading-progress" id="reading-progress"></div>
+<nav class="glass-nav"><div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><i class="fas fa-database"></i> AutoBot</a>
+    <ul class="nav-links">
+        <li><a href="../index.html">Accueil</a></li><li><a href="formules.html">Formules</a></li>
+        <li><a href="cartes.html">Cartes</a></li><li><a href="simulateur-examen.html">Simulateur</a></li>
+        <li><a href="../exercices/exercices.html">Exercices</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+</div></nav>
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>🔧 AutoBot</span><button class="mobile-nav-close" id="mobile-nav-close"><i class="fas fa-times"></i></button></div>
+    <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+    <a href="chapitre1.html"><i class="fas fa-book-open"></i> Ch.1</a><a href="chapitre2.html"><i class="fas fa-book-open"></i> Ch.2</a>
+    <a href="chapitre3.html"><i class="fas fa-book-open"></i> Ch.3</a><a href="chapitre4.html"><i class="fas fa-book-open"></i> Ch.4</a>
+    <a href="chapitre5.html" class="active"><i class="fas fa-book-open"></i> Ch.5</a><a href="chapitre6.html"><i class="fas fa-book-open"></i> Ch.6</a>
+    <a href="formules.html"><i class="fas fa-scroll"></i> Formules</a><a href="cartes.html"><i class="fas fa-layer-group"></i> Cartes</a>
+    <a href="simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Simulateur</a>
+    <a href="../exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a>
+</div>
+
+<section class="hero-section" id="main-content">
+    <div class="hero-badge"><i class="fas fa-broom"></i> Chapitre 5</div>
+    <h1>🧹 La <span class="highlight">Normalisation</span></h1>
+    <p>1NF → 2NF → 3NF → BCNF — éliminer la redondance et les anomalies.</p>
+</section>
+
+<main class="content-wrapper">
+
+    <!-- ─── 1. Pourquoi normaliser ? ─── -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-bullseye"></i> Objectifs du chapitre</h2>
+        <div class="info-box">
+            <ul>
+                <li>Construire un MCD avec entités, associations et cardinalités</li>
+                <li>Identifier les identifiants et les cardinalités (0,n / 1,1 / etc.)</li>
+                <li>Appliquer les règles de passage MCD → MLD</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="chapter-section reveal-on-scroll">
+        <h2 class="section-title"><i class="fas fa-question-circle"></i> Pourquoi normaliser ?</h2>
+
+        <div class="info-box">
+            <strong>🔧 Analogie AutoBot :</strong> Imagine un <strong>placard en bazar</strong> où les chaussettes sont mélangées avec les chemises. Normaliser = <strong>ranger le placard</strong> : chaque tiroir a un rôle précis, rien n'est en double, et on retrouve tout facilement.
+        </div>
+
+        <p>Sans normalisation, une base de données souffre de 3 types d'<strong>anomalies</strong> :</p>
+
+        <div class="concept-card">
+            <h3>Les 3 anomalies</h3>
+            <table class="styled-table">
+                <thead><tr><th>Anomalie</th><th>Problème</th><th>Exemple</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Insertion</strong></td><td>Impossible d'ajouter sans données inutiles</td><td>Ajouter un cours sans étudiant inscrit</td></tr>
+                    <tr><td><strong>Mise à jour</strong></td><td>Incohérence si on oublie une copie</td><td>Changer l'adresse d'un client dans 1 ligne sur 5</td></tr>
+                    <tr><td><strong>Suppression</strong></td><td>Perte de données non voulue</td><td>Supprimer le dernier étudiant d'un cours supprime aussi le cours</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mnemonic-box">
+            <div class="mnemonic-title">🧠 Mnémonique I.M.S.</div>
+            <p><strong>I</strong>nsertion — <strong>M</strong>ise à jour — <strong>S</strong>uppression</p>
+            <p>Les 3 anomalies que la normalisation élimine.</p>
+        </div>
+    </section>
+
+    <!-- ─── 2. Dépendances fonctionnelles ─── -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2 class="section-title"><i class="fas fa-arrow-right"></i> Dépendances fonctionnelles (DF)</h2>
+
+        <p>Une <strong>dépendance fonctionnelle</strong> A → B signifie : si on connaît A, on connaît B de manière unique.</p>
+
+        <div class="info-box">
+            <strong>🔧 Analogie :</strong> Connaître le <strong>numéro de sécurité sociale</strong> → connaître le nom, prénom, date de naissance. Le numéro <em>détermine</em> les autres infos.
+        </div>
+
+        <div class="code-block">
+            <div class="code-header"><span>Exemples de DF</span></div>
+            <pre>id_etudiant → nom, prenom, email     (l'id détermine tout)
+email → id_etudiant                   (email unique aussi)
+(id_etu, id_cours) → note             (clé composée → note)
+ville → code_postal  ❌ FAUX !        (une ville peut avoir plusieurs CP)</pre>
+        </div>
+
+        <div class="concept-card">
+            <h3>Types de DF</h3>
+            <table class="styled-table">
+                <thead><tr><th>Type</th><th>Définition</th><th>Exemple</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>DF élémentaire</strong></td><td>Aucun sous-ensemble de A ne détermine B</td><td>(id_etu, id_cours) → note ✓</td></tr>
+                    <tr><td><strong>DF partielle</strong></td><td>Un sous-ensemble de la clé suffit</td><td>id_etu → nom (ne dépend pas de id_cours) ⚠️</td></tr>
+                    <tr><td><strong>DF transitive</strong></td><td>A → B → C (indirect)</td><td>id → ville → region ⚠️</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ─── 3. 1NF ─── -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2 class="section-title"><i class="fas fa-1"></i> Première forme normale (1NF)</h2>
+
+        <div class="mnemonic-box">
+            <div class="mnemonic-title">🧠 Règle 1NF : A.U.P.</div>
+            <p><strong>A</strong>tomique — <strong>U</strong>nique (pas de répétition) — <strong>P</strong>K définie</p>
+        </div>
+
+        <p><strong>1NF</strong> = chaque cellule contient une valeur <strong>atomique</strong> (indivisible). Pas de listes, pas de groupes répétitifs.</p>
+
+        <div class="code-block">
+            <div class="code-header"><span>Avant 1NF ❌</span></div>
+            <pre>| id | nom    | telephones           |
+|----|--------|----------------------|
+| 1  | Ali    | 0601, 0602, 0603     |  ← liste = PAS atomique !
+| 2  | Marie  | 0701                 |</pre>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header"><span>Après 1NF ✅</span></div>
+            <pre>PERSONNES(id, nom)
+TELEPHONES(id_tel, #id_personne, numero)
+
+| id_tel | id_personne | numero |
+|--------|-------------|--------|
+| 1      | 1           | 0601   |
+| 2      | 1           | 0602   |
+| 3      | 1           | 0603   |
+| 4      | 2           | 0701   |</pre>
+        </div>
+
+        <div class="tip-box">
+            <strong>💡 Test 1NF :</strong> « Y a-t-il des virgules, des listes ou des ensembles dans une cellule ? » → Si oui, pas en 1NF !
+        </div>
+    </section>
+
+    <!-- ─── 4. 2NF ─── -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2 class="section-title"><i class="fas fa-2"></i> Deuxième forme normale (2NF)</h2>
+
+        <p><strong>2NF = 1NF + pas de dépendance partielle</strong>. Tous les attributs non-clé dépendent de la clé ENTIÈRE (pas d'un sous-ensemble).</p>
+
+        <div class="info-box">
+            <strong>🔧 Analogie :</strong> Si la clé est un <strong>verrou à 2 clés</strong>, chaque information dans le tiroir doit nécessiter les DEUX clés pour être retrouvée. Si une info n'a besoin que d'UNE clé, elle est mal rangée.
+        </div>
+
+        <div class="code-block">
+            <div class="code-header"><span>Avant 2NF ❌ (DF partielle)</span></div>
+            <pre>INSCRIPTIONS(<u>id_etu, id_cours</u>, note, nom_etu, intitule_cours)
+                                        │          │
+                                        └── dépend seulement de id_etu
+                                                   └── dépend seulement de id_cours</pre>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header"><span>Après 2NF ✅ (décomposition)</span></div>
+            <pre>ETUDIANTS(<u>id_etu</u>, nom_etu)
+COURS(<u>id_cours</u>, intitule_cours)
+INSCRIPTIONS(<u>#id_etu, #id_cours</u>, note)</pre>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Quand s'applique 2NF ?</strong> Uniquement sur les tables avec une <strong>clé composée</strong>. Si la clé primaire est simple (un seul attribut), la table est déjà en 2NF (si elle est en 1NF).
+        </div>
+    </section>
+
+    <!-- ─── 5. 3NF ─── -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2 class="section-title"><i class="fas fa-3"></i> Troisième forme normale (3NF)</h2>
+
+        <p><strong>3NF = 2NF + pas de dépendance transitive</strong>. Aucun attribut non-clé ne détermine un autre attribut non-clé.</p>
+
+        <div class="mnemonic-box">
+            <div class="mnemonic-title">🧠 Résumé 3NF « La clé, toute la clé, rien que la clé »</div>
+            <p>Chaque attribut non-clé dépend :<br>
+            • de <strong>la clé</strong> (1NF) → valeurs atomiques<br>
+            • de <strong>toute la clé</strong> (2NF) → pas de DF partielle<br>
+            • de <strong>rien que la clé</strong> (3NF) → pas de DF transitive</p>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header"><span>Avant 3NF ❌ (DF transitive)</span></div>
+            <pre>ETUDIANTS(<u>id</u>, nom, ville, region)
+    id → ville → region     ← transitive !
+    (la region dépend de ville, pas directement de id)</pre>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header"><span>Après 3NF ✅</span></div>
+            <pre>ETUDIANTS(<u>id</u>, nom, #ville)
+VILLES(<u>ville</u>, region)</pre>
+        </div>
+    </section>
+
+    <!-- ─── 6. BCNF ─── -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2 class="section-title"><i class="fas fa-award"></i> Forme normale de Boyce-Codd (BCNF)</h2>
+
+        <p><strong>BCNF</strong> = version plus stricte de 3NF. Règle : tout déterminant (côté gauche d'une DF) doit être une <strong>clé candidate</strong>.</p>
+
+        <div class="info-box">
+            <strong>🔧 Analogie :</strong> En 3NF, on dit « les non-clés ne déterminent pas d'autres non-clés ». En BCNF, on va plus loin : « SEULES les clés candidates ont le droit de déterminer quoi que ce soit ».
+        </div>
+
+        <div class="concept-card">
+            <h3>Hiérarchie des formes normales</h3>
+            <table class="styled-table">
+                <thead><tr><th>Forme</th><th>Règle ajoutée</th><th>Élimine</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>1NF</strong></td><td>Valeurs atomiques + PK</td><td>Groupes répétitifs</td></tr>
+                    <tr><td><strong>2NF</strong></td><td>+ Pas de DF partielles</td><td>Dépendances partielles</td></tr>
+                    <tr><td><strong>3NF</strong></td><td>+ Pas de DF transitives</td><td>Dépendances transitives</td></tr>
+                    <tr><td><strong>BCNF</strong></td><td>+ Tout déterminant est clé candidate</td><td>Cas résiduels rares</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tip-box">
+            <strong>💡 En pratique :</strong> 3NF suffit dans 95% des cas. BCNF est un bonus pour les puristes. L'examen teste surtout 1NF → 2NF → 3NF.
+        </div>
+    </section>
+
+    <!-- ─── 7. Méthode de normalisation ─── -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2 class="section-title"><i class="fas fa-list-ol"></i> Méthode pas à pas</h2>
+
+        <div class="concept-card">
+            <h3>🔧 Procédure de normalisation</h3>
+            <ol>
+                <li><strong>Identifier les DF</strong> : lister toutes les dépendances fonctionnelles</li>
+                <li><strong>Vérifier 1NF</strong> : valeurs atomiques ? PK définie ?</li>
+                <li><strong>Vérifier 2NF</strong> : DF partielles ? (seulement si clé composée)</li>
+                <li><strong>Vérifier 3NF</strong> : DF transitives ?</li>
+                <li><strong>Décomposer</strong> : créer de nouvelles tables pour chaque violation</li>
+                <li><strong>Vérifier</strong> : les FK relient correctement les tables décomposées</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ─── Exercices ─── -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2 class="section-title"><i class="fas fa-dumbbell"></i> Exercices du chapitre</h2>
+        <div id="chapter-exercises"></div>
+    </section>
+
+    <div class="chapter-nav">
+        <a href="chapitre4.html" class="btn-nav"><i class="fas fa-arrow-left"></i> Chapitre 4</a>
+        <a href="chapitre6.html" class="btn-nav">Chapitre 6 <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <!-- Exercice guidé : Normalisation -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2 class="section-title"><i class="fas fa-pencil-alt"></i> Exercices guidés</h2>
+
+        <div class="example-box">
+            <h4>Normaliser une table pas à pas (1NF → 2NF → 3NF)</h4>
+            <p><strong>Table de départ (non normalisée) :</strong></p>
+            <pre><code>COMMANDE(NumCmd, DateCmd, NomClient, VilleClient,
+         Produit1, Qte1, Produit2, Qte2)</code></pre>
+            <h5>Étape 1 — Passage en 1NF (atomicité)</h5>
+            <p>Problème : attributs répétitifs (Produit1/Qte1, Produit2/Qte2).</p>
+            <pre><code>COMMANDE_1NF(NumCmd, DateCmd, NomClient, VilleClient,
+             IdProd, Qte)
+-- Chaque produit = une ligne distincte
+-- Clé primaire : (NumCmd, IdProd)</code></pre>
+            <h5>Étape 2 — Passage en 2NF (dépendances totales)</h5>
+            <p>Problème : NomClient et VilleClient dépendent de NumCmd seulement (pas de IdProd).</p>
+            <pre><code>COMMANDE_2NF(NumCmd, DateCmd, NomClient, VilleClient)
+DETAIL_CMD(NumCmd#, IdProd, Qte)
+-- NomClient ne dépend que de NumCmd → déplacé</code></pre>
+            <h5>Étape 3 — Passage en 3NF (pas de dépendance transitive)</h5>
+            <p>Problème : VilleClient dépend de NomClient (transitif via NumCmd).</p>
+            <pre><code>COMMANDE_3NF(NumCmd, DateCmd, NomClient#)
+CLIENT(NomClient, VilleClient)
+DETAIL_CMD(NumCmd#, IdProd, Qte)
+
+✓ 3NF atteinte : chaque attribut non-clé dépend
+  directement et uniquement de la clé primaire.</code></pre>
+        </div>
+
+        <div class="example-box">
+            <h4>Identifier les dépendances fonctionnelles</h4>
+            <p><strong>Table :</strong> EMPLOYE(NumEmp, Nom, NumDept, NomDept, NomChef)</p>
+            <h5>Lister les dépendances fonctionnelles (DF)</h5>
+            <pre><code>NumEmp → Nom          (chaque n° identifie un nom)
+NumEmp → NumDept      (chaque employé a un département)
+NumDept → NomDept     (chaque n° de dept a un nom)
+NumDept → NomChef     (chaque dept a un chef)
+
+Dépendance transitive détectée :
+  NumEmp → NumDept → NomDept
+  NumEmp → NumDept → NomChef</code></pre>
+            <h5>Décomposition en 3NF</h5>
+            <pre><code>EMPLOYE_3NF(NumEmp, Nom, NumDept#)
+DEPARTEMENT(NumDept, NomDept, NomChef)
+
+✓ Plus de dépendance transitive
+✓ Mise à jour du chef = 1 seule ligne à modifier</code></pre>
+        </div>
+    </section>
+
+</main>
+
+<div class="xp-bar-container">
+    <span class="xp-level">Débutant</span>
+    <div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div>
+    <span class="xp-text">0 XP</span>
+</div>
+<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/gamification.js"></script>
+<script>
+GameEngine.configure({storageKey:'b1_fbd_progress',badges:[{id:'first_table',name:'Première Table',icon:'🗃️',desc:''},{id:'algebra_fan',name:'Algèbre Fan',icon:'σ',desc:''},{id:'sql_starter',name:'SQL Starter',icon:'💻',desc:''},{id:'join_master',name:'JOIN Master',icon:'🔗',desc:''},{id:'norm_ninja',name:'Normalisateur',icon:'🧹',desc:''},{id:'architect',name:'Architecte BD',icon:'🏗️',desc:''},{id:'half_way',name:'Mi-parcours',icon:'🏁',desc:''},{id:'db_legend',name:'Légende BD',icon:'🏆',desc:''}],levels:[{title:'Débutant',min:0},{title:'Apprenti SQL',min:100},{title:'Requêteur Jr.',min:250},{title:'Analyste BD',min:500},{title:'DBA Confirmé',min:800},{title:'Guru des Données',min:1200}],tips:["1NF = atomique, 2NF = pas partiel, 3NF = pas transitif","La clé, toute la clé, rien que la clé !"]});
+GameEngine.init();
+</script>
+<script src="../../assets/js/chapter-exercises.js"></script>
+<script>
+ChapterExercises.init({
+    guided:[
+        {q:"La table COMMANDES(id_cmd, id_client, nom_client, produit, prix, ville_client, region_client) est-elle en 1NF ?",hints:["Les valeurs sont-elles toutes atomiques ?","Y a-t-il des listes dans les cellules ?"],answer:"Oui, si chaque cellule est atomique (pas de listes). Mais il y a beaucoup de redondance → à vérifier pour 2NF et 3NF."},
+        {q:"Dans la table INSCRIPTIONS(id_etu, id_cours, note, nom_etu), identifiez la DF partielle.",hints:["La clé est (id_etu, id_cours)","nom_etu dépend de quel sous-ensemble ?"],answer:"DF partielle : id_etu → nom_etu. nom_etu ne dépend pas de id_cours, donc elle viole la 2NF."},
+        {q:"Normalisez en 2NF : INSCRIPTIONS(id_etu, id_cours, note, nom_etu, intitule).",hints:["Extraire ce qui dépend partiellement","Créer des tables séparées"],answer:"ETUDIANTS(id_etu, nom_etu), COURS(id_cours, intitule), INSCRIPTIONS(#id_etu, #id_cours, note)"},
+        {q:"Identifiez la DF transitive dans EMPLOYES(id, nom, dept, localisation_dept).",hints:["id → dept → ?","La localisation dépend du département"],answer:"DF transitive : id → dept → localisation_dept. Il faut créer DEPARTEMENTS(dept, localisation_dept) et mettre #dept dans EMPLOYES."},
+        {q:"Expliquez « La clé, toute la clé, rien que la clé ».",hints:["Chaque terme correspond à une NF"],answer:"La clé = 1NF (PK identifie chaque ligne). Toute la clé = 2NF (pas de DF partielle). Rien que la clé = 3NF (pas de DF transitive)."}
+    ],
+    quiz:[
+        {type:"mcq",q:"1NF exige :",options:["Pas de DF partielles","Valeurs atomiques et PK","Pas de DF transitives","BCNF"],correct:1},
+        {type:"mcq",q:"2NF s'applique surtout quand :",options:["La clé est simple","La table a beaucoup de lignes","La clé est composée","Il y a des NULL"],correct:2},
+        {type:"mcq",q:"3NF élimine :",options:["Les groupes répétitifs","Les DF partielles","Les DF transitives","Les NULL"],correct:2},
+        {type:"mcq",q:"« La clé, toute la clé, rien que la clé » résume :",options:["1NF, 2NF, 3NF respectivement","DDL, DML, DCL","SELECT, FROM, WHERE","INNER, LEFT, RIGHT"],correct:0},
+        {type:"mcq",q:"Si A → B → C, c'est une DF :",options:["Élémentaire","Partielle","Transitive","Naturelle"],correct:2},
+        {type:"mcq",q:"Quel problème cause la non-normalisation ?",options:["Tables trop petites","Anomalies d'insertion, mise à jour, suppression","Performances trop rapides","Trop de tables"],correct:1},
+        {type:"mcq",q:"BCNF est :",options:["Moins strict que 3NF","Plus strict que 3NF","Identique à 2NF","Obsolète"],correct:1},
+        {type:"qa",q:"Citez les 3 anomalies (I.M.S.).",answer:"Insertion, Mise à jour, Suppression."},
+        {type:"qa",q:"Quelle est la condition de 2NF ?",answer:"1NF + aucun attribut non-clé ne dépend partiellement de la clé (dépend de TOUTE la clé)."},
+        {type:"qa",q:"Qu'est-ce qu'une dépendance fonctionnelle A → B ?",answer:"Si on connaît la valeur de A, on connaît une et une seule valeur de B. A détermine B."}
+    ],
+    dragdrop:[
+        {instruction:"Associez la NF à sa règle :",pairs:[["1NF","Valeurs atomiques"],["2NF","Pas de DF partielles"],["3NF","Pas de DF transitives"],["BCNF","Tout déterminant est clé candidate"]]},
+        {instruction:"Associez l'anomalie à l'exemple :",pairs:[["Insertion","Impossible d'ajouter un cours sans étudiant"],["Mise à jour","Adresse modifiée dans 1 ligne sur 5"],["Suppression","Dernier étudiant supprimé = cours perdu"]]},
+        {instruction:"Classez dans l'ordre d'inclusion (le plus faible → le plus strict) :",pairs:[["1","1NF"],["2","2NF"],["3","3NF"],["4","BCNF"]]}
+    ]
+});
+</script>
+<script src="../../assets/js/download.js"></script>
+</body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 3 — Circuits Logiques | ATO B1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        :root{--accent:#f43f5e;--accent-light:#fb7185;--accent-dark:#e11d48;--accent-glow:rgba(244,63,94,0.25)}
+        .dark{--accent:#fb7185;--accent-light:#fda4af;--accent-dark:#f43f5e;--accent-glow:rgba(251,113,133,0.25)}
+        .gate-table{text-align:center}.gate-table td,.gate-table th{padding:.4rem .8rem;min-width:50px}
+        .kmap{border-collapse:collapse;border:2px solid var(--accent);border-radius:8px;overflow:hidden;margin:1rem auto}
+        .kmap td,.kmap th{padding:.6rem .9rem;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.95rem;border:1px solid var(--border,rgba(255,255,255,.15));min-width:44px;color:var(--text-primary,#e5e7eb)}
+        .kmap th{background:var(--accent-glow);font-weight:700;color:var(--accent)}
+        .kmap .grouped{background:var(--accent);color:#fff;font-weight:700}
+        .kmap .grp-blue{background:#6366f1;color:#fff;font-weight:700}
+        .kmap .grp-green{background:#10b981;color:#fff;font-weight:700}
+        .kmap-legend{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.8rem 0;font-size:.85rem;align-items:center}
+        .kmap-legend span{display:inline-flex;align-items:center;gap:.4rem}
+        .kmap-legend .swatch{width:16px;height:16px;border-radius:4px;display:inline-block}
+        .gate-svg{display:inline-block;vertical-align:middle}
+        .gate-svg svg{width:80px;height:50px}
+        .gate-card{background:var(--card-bg,#111827);border:1px solid var(--border,rgba(255,255,255,.06));border-radius:14px;padding:1.2rem;margin:.8rem 0;display:flex;align-items:flex-start;gap:1.2rem;flex-wrap:wrap}
+        .gate-card .gate-visual{flex:0 0 100px;display:flex;align-items:center;justify-content:center}
+        .gate-card .gate-visual svg{width:100px;height:64px}
+        .gate-card .gate-info{flex:1;min-width:200px}
+        .gate-card .gate-info h4{color:var(--accent);font-size:1.05rem;margin-bottom:.3rem}
+        .gate-card .gate-truth{margin-top:.5rem}
+        .gate-card .gate-truth table{font-size:.85rem;width:auto}
+        .gate-card .gate-truth td,.gate-card .gate-truth th{padding:.25rem .6rem;text-align:center;border:1px solid var(--border,rgba(255,255,255,.1))}
+        .gate-card .gate-truth th{background:var(--accent-glow);color:var(--accent);font-weight:700}
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Aller au contenu</a>
+<div class="reading-progress" id="reading-progress"></div>
+
+<nav class="glass-nav"><div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><i class="fas fa-microchip"></i> ArchiBot</a>
+    <ul class="nav-links">
+        <li><a href="../index.html">Accueil</a></li>
+        <li><a href="chapitre1.html">Ch.1</a></li>
+        <li><a href="chapitre2.html">Ch.2</a></li>
+        <li><a href="chapitre3.html" class="active">Ch.3</a></li>
+        <li><a href="chapitre4.html">Ch.4</a></li>
+        <li><a href="formules.html">Formules</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+</div></nav>
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>🖥️ ArchiBot</span><button class="mobile-nav-close" id="mobile-nav-close"><i class="fas fa-times"></i></button></div>
+    <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+    <a href="chapitre1.html"><i class="fas fa-book-open"></i> Ch.1 — Généralités</a>
+    <a href="chapitre2.html"><i class="fas fa-book-open"></i> Ch.2 — Numération</a>
+    <a href="chapitre3.html" class="active"><i class="fas fa-book-open"></i> Ch.3 — Circuits logiques</a>
+    <a href="chapitre4.html"><i class="fas fa-book-open"></i> Ch.4 — Architecture PC</a>
+    <a href="formules.html"><i class="fas fa-scroll"></i> Formules</a>
+    <a href="cartes.html"><i class="fas fa-layer-group"></i> Cartes</a>
+    <a href="simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Simulateur</a>
+    <a href="../exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a>
+</div>
+
+<section class="hero-section" id="main-content">
+    <div class="hero-badge"><i class="fas fa-microchip"></i> Chapitre 3 — ATO</div>
+    <h1>Circuits <span class="highlight">Logiques</span></h1>
+    <p>Portes logiques, algèbre de Boole, tableaux de Karnaugh, circuits combinatoires et séquentiels.</p>
+</section>
+
+<main class="content-wrapper">
+
+    <!-- 3.1 Portes logiques -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-bullseye"></i> Objectifs du chapitre</h2>
+        <div class="info-box">
+            <ul>
+                <li>Connaître les portes logiques de base (ET, OU, NON, XOR)</li>
+                <li>Simplifier des expressions booléennes (algèbre de Boole)</li>
+                <li>Construire et lire des tables de vérité et tableaux de Karnaugh</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-toggle-on"></i> 3.1 — Les portes logiques de base</h2>
+
+        <div class="concept-card">
+            <h4>📋 Le monde binaire</h4>
+            <p>En électronique numérique, tout signal est soit <strong>0</strong> (faux, bas, ~0V) soit <strong>1</strong> (vrai, haut, ~5V ou 3.3V). Les <strong>portes logiques</strong> sont les briques élémentaires qui combinent ces signaux.</p>
+            <p>Un processeur moderne contient <strong>des milliards</strong> de portes logiques minuscules gravées dans le silicium !</p>
+        </div>
+
+        <div class="analogy-box">
+            <span class="icon">💡</span>
+            <div>
+                <strong>Analogie — Les interrupteurs :</strong> Deux interrupteurs en <strong>série</strong> = porte AND (les deux doivent être ON pour que la lampe s'allume). Deux interrupteurs en <strong>parallèle</strong> = porte OR (un seul suffit). Un interrupteur <strong>inversé</strong> = porte NOT (la lampe est allumée quand l'interrupteur est OFF).
+            </div>
+        </div>
+
+        <h3>Les 7 portes essentielles</h3>
+
+        <!-- ── NOT ── -->
+        <div class="gate-card">
+            <div class="gate-visual">
+                <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="0" y1="35" x2="25" y2="35" stroke="currentColor" stroke-width="2"/>
+                    <polygon points="25,15 85,35 25,55" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                    <circle cx="91" cy="35" r="6" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+                    <line x1="97" y1="35" x2="120" y2="35" stroke="currentColor" stroke-width="2"/>
+                    <text x="6" y="28" font-size="10" fill="var(--text-muted)">A</text>
+                    <text x="104" y="28" font-size="10" fill="var(--text-muted)">S</text>
+                </svg>
+            </div>
+            <div class="gate-info">
+                <h4>NOT (NON) — Inverseur</h4>
+                <p><strong>Expression :</strong> S = <span style="text-decoration:overline">A</span> (ou ¬A)</p>
+                <p><strong>En français :</strong> La sortie est l'<strong>inverse</strong> de l'entrée. Si A=1, S=0. Si A=0, S=1.</p>
+                <p><strong>Reconnaissance :</strong> Le petit <strong>cercle ○</strong> à la sortie signifie « inversion ». Tu le retrouveras sur NAND, NOR, XNOR.</p>
+                <div class="gate-truth">
+                    <table><thead><tr><th>A</th><th>S</th></tr></thead>
+                    <tbody><tr><td>0</td><td><strong>1</strong></td></tr><tr><td>1</td><td><strong>0</strong></td></tr></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── AND ── -->
+        <div class="gate-card">
+            <div class="gate-visual">
+                <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="0" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="2"/>
+                    <line x1="0" y1="50" x2="30" y2="50" stroke="currentColor" stroke-width="2"/>
+                    <path d="M30,10 L30,10 L55,10 A25,25 0 0,1 55,60 L30,60 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                    <line x1="80" y1="35" x2="120" y2="35" stroke="currentColor" stroke-width="2"/>
+                    <text x="6" y="16" font-size="10" fill="var(--text-muted)">A</text>
+                    <text x="6" y="46" font-size="10" fill="var(--text-muted)">B</text>
+                    <text x="100" y="28" font-size="10" fill="var(--text-muted)">S</text>
+                </svg>
+            </div>
+            <div class="gate-info">
+                <h4>AND (ET) — Multiplication logique</h4>
+                <p><strong>Expression :</strong> S = A · B (ou A ∧ B)</p>
+                <p><strong>En français :</strong> La sortie vaut 1 <strong>seulement si les deux entrées sont à 1</strong>. Une seule entrée à 0 suffit pour que la sortie soit 0.</p>
+                <p><strong>Astuce :</strong> AND = multiplication. 1×1=1, tout le reste=0.</p>
+                <div class="gate-truth">
+                    <table><thead><tr><th>A</th><th>B</th><th>S</th></tr></thead>
+                    <tbody><tr><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td></tr><tr><td>1</td><td>0</td><td>0</td></tr><tr><td>1</td><td>1</td><td><strong style="color:var(--accent)">1</strong></td></tr></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── OR ── -->
+        <div class="gate-card">
+            <div class="gate-visual">
+                <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="0" y1="20" x2="32" y2="20" stroke="currentColor" stroke-width="2"/>
+                    <line x1="0" y1="50" x2="32" y2="50" stroke="currentColor" stroke-width="2"/>
+                    <path d="M20,10 Q45,10 80,35 Q45,60 20,60 Q35,35 20,10 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                    <line x1="80" y1="35" x2="120" y2="35" stroke="currentColor" stroke-width="2"/>
+                    <text x="6" y="16" font-size="10" fill="var(--text-muted)">A</text>
+                    <text x="6" y="46" font-size="10" fill="var(--text-muted)">B</text>
+                    <text x="100" y="28" font-size="10" fill="var(--text-muted)">S</text>
+                </svg>
+            </div>
+            <div class="gate-info">
+                <h4>OR (OU) — Addition logique</h4>
+                <p><strong>Expression :</strong> S = A + B (ou A ∨ B)</p>
+                <p><strong>En français :</strong> La sortie vaut 1 <strong>dès qu'au moins une entrée est à 1</strong>. La sortie est 0 seulement quand les deux entrées sont à 0.</p>
+                <p><strong>Astuce :</strong> OR = addition « plafonnée » à 1. Il suffit d'UN seul 1.</p>
+                <div class="gate-truth">
+                    <table><thead><tr><th>A</th><th>B</th><th>S</th></tr></thead>
+                    <tbody><tr><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td><strong style="color:var(--accent)">1</strong></td></tr><tr><td>1</td><td>0</td><td><strong style="color:var(--accent)">1</strong></td></tr><tr><td>1</td><td>1</td><td><strong style="color:var(--accent)">1</strong></td></tr></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── NAND ── -->
+        <div class="gate-card">
+            <div class="gate-visual">
+                <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="0" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="2"/>
+                    <line x1="0" y1="50" x2="30" y2="50" stroke="currentColor" stroke-width="2"/>
+                    <path d="M30,10 L30,10 L55,10 A25,25 0 0,1 55,60 L30,60 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                    <circle cx="86" cy="35" r="6" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+                    <line x1="92" y1="35" x2="120" y2="35" stroke="currentColor" stroke-width="2"/>
+                    <text x="6" y="16" font-size="10" fill="var(--text-muted)">A</text>
+                    <text x="6" y="46" font-size="10" fill="var(--text-muted)">B</text>
+                    <text x="100" y="28" font-size="10" fill="var(--text-muted)">S</text>
+                </svg>
+            </div>
+            <div class="gate-info">
+                <h4>NAND (NON-ET) — AND inversé</h4>
+                <p><strong>Expression :</strong> S = <span style="text-decoration:overline">A · B</span></p>
+                <p><strong>En français :</strong> C'est un AND suivi d'un NOT. La sortie vaut 0 <strong>seulement si les deux entrées sont à 1</strong>. Sinon elle vaut 1.</p>
+                <p><strong>Importance :</strong> Porte <strong>universelle</strong> — on peut construire TOUTES les autres portes avec uniquement des NAND !</p>
+                <div class="gate-truth">
+                    <table><thead><tr><th>A</th><th>B</th><th>S</th></tr></thead>
+                    <tbody><tr><td>0</td><td>0</td><td><strong style="color:var(--accent)">1</strong></td></tr><tr><td>0</td><td>1</td><td><strong style="color:var(--accent)">1</strong></td></tr><tr><td>1</td><td>0</td><td><strong style="color:var(--accent)">1</strong></td></tr><tr><td>1</td><td>1</td><td>0</td></tr></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── NOR ── -->
+        <div class="gate-card">
+            <div class="gate-visual">
+                <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="0" y1="20" x2="32" y2="20" stroke="currentColor" stroke-width="2"/>
+                    <line x1="0" y1="50" x2="32" y2="50" stroke="currentColor" stroke-width="2"/>
+                    <path d="M20,10 Q45,10 75,35 Q45,60 20,60 Q35,35 20,10 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                    <circle cx="81" cy="35" r="6" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+                    <line x1="87" y1="35" x2="120" y2="35" stroke="currentColor" stroke-width="2"/>
+                    <text x="6" y="16" font-size="10" fill="var(--text-muted)">A</text>
+                    <text x="6" y="46" font-size="10" fill="var(--text-muted)">B</text>
+                    <text x="100" y="28" font-size="10" fill="var(--text-muted)">S</text>
+                </svg>
+            </div>
+            <div class="gate-info">
+                <h4>NOR (NON-OU) — OR inversé</h4>
+                <p><strong>Expression :</strong> S = <span style="text-decoration:overline">A + B</span></p>
+                <p><strong>En français :</strong> C'est un OR suivi d'un NOT. La sortie vaut 1 <strong>seulement si les deux entrées sont à 0</strong>. Dès qu'une entrée est à 1, la sortie tombe à 0.</p>
+                <p><strong>Importance :</strong> Aussi une porte <strong>universelle</strong> (comme NAND).</p>
+                <div class="gate-truth">
+                    <table><thead><tr><th>A</th><th>B</th><th>S</th></tr></thead>
+                    <tbody><tr><td>0</td><td>0</td><td><strong style="color:var(--accent)">1</strong></td></tr><tr><td>0</td><td>1</td><td>0</td></tr><tr><td>1</td><td>0</td><td>0</td></tr><tr><td>1</td><td>1</td><td>0</td></tr></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── XOR ── -->
+        <div class="gate-card">
+            <div class="gate-visual">
+                <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="0" y1="20" x2="32" y2="20" stroke="currentColor" stroke-width="2"/>
+                    <line x1="0" y1="50" x2="32" y2="50" stroke="currentColor" stroke-width="2"/>
+                    <path d="M25,10 Q45,10 80,35 Q45,60 25,60 Q40,35 25,10 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                    <path d="M17,10 Q32,35 17,60" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="80" y1="35" x2="120" y2="35" stroke="currentColor" stroke-width="2"/>
+                    <text x="6" y="16" font-size="10" fill="var(--text-muted)">A</text>
+                    <text x="6" y="46" font-size="10" fill="var(--text-muted)">B</text>
+                    <text x="100" y="28" font-size="10" fill="var(--text-muted)">S</text>
+                </svg>
+            </div>
+            <div class="gate-info">
+                <h4>XOR (OU exclusif)</h4>
+                <p><strong>Expression :</strong> S = A ⊕ B</p>
+                <p><strong>En français :</strong> La sortie vaut 1 <strong>quand les entrées sont différentes</strong>. Si A et B sont identiques (tous deux 0 ou tous deux 1), la sortie est 0.</p>
+                <p><strong>Reconnaissance :</strong> Le symbole est un OR avec une <strong>double courbe</strong> à l'entrée.</p>
+                <p><strong>Usage clé :</strong> C'est la porte de l'<strong>addition binaire</strong> (demi-additionneur : Somme = A ⊕ B).</p>
+                <div class="gate-truth">
+                    <table><thead><tr><th>A</th><th>B</th><th>S</th></tr></thead>
+                    <tbody><tr><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td><strong style="color:var(--accent)">1</strong></td></tr><tr><td>1</td><td>0</td><td><strong style="color:var(--accent)">1</strong></td></tr><tr><td>1</td><td>1</td><td>0</td></tr></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── XNOR ── -->
+        <div class="gate-card">
+            <div class="gate-visual">
+                <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="0" y1="20" x2="32" y2="20" stroke="currentColor" stroke-width="2"/>
+                    <line x1="0" y1="50" x2="32" y2="50" stroke="currentColor" stroke-width="2"/>
+                    <path d="M25,10 Q45,10 74,35 Q45,60 25,60 Q40,35 25,10 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                    <path d="M17,10 Q32,35 17,60" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                    <circle cx="80" cy="35" r="6" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+                    <line x1="86" y1="35" x2="120" y2="35" stroke="currentColor" stroke-width="2"/>
+                    <text x="6" y="16" font-size="10" fill="var(--text-muted)">A</text>
+                    <text x="6" y="46" font-size="10" fill="var(--text-muted)">B</text>
+                    <text x="100" y="28" font-size="10" fill="var(--text-muted)">S</text>
+                </svg>
+            </div>
+            <div class="gate-info">
+                <h4>XNOR (OU exclusif inversé) — Comparateur</h4>
+                <p><strong>Expression :</strong> S = <span style="text-decoration:overline">A ⊕ B</span></p>
+                <p><strong>En français :</strong> La sortie vaut 1 <strong>quand les entrées sont identiques</strong>. C'est l'inverse du XOR.</p>
+                <p><strong>Usage :</strong> Comparateur d'égalité — si A = B, alors S = 1.</p>
+                <div class="gate-truth">
+                    <table><thead><tr><th>A</th><th>B</th><th>S</th></tr></thead>
+                    <tbody><tr><td>0</td><td>0</td><td><strong style="color:var(--accent)">1</strong></td></tr><tr><td>0</td><td>1</td><td>0</td></tr><tr><td>1</td><td>0</td><td>0</td></tr><tr><td>1</td><td>1</td><td><strong style="color:var(--accent)">1</strong></td></tr></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tip-box">
+            <span>💡</span>
+            <div><strong>Comment reconnaître les portes :</strong> AND = forme en D plate. OR = forme en D incurvée. Le <strong>cercle ○</strong> à la sortie = inversion (NOT). Le XOR a la <strong>double courbe</strong> à l'entrée.</div>
+        </div>
+
+        <h3>Tableau récapitulatif</h3>
+        <table class="styled-table gate-table">
+            <thead><tr><th>Porte</th><th>Expression</th><th>0,0</th><th>0,1</th><th>1,0</th><th>1,1</th><th>Règle</th></tr></thead>
+            <tbody>
+                <tr><td><strong>AND</strong></td><td>A · B</td><td>0</td><td>0</td><td>0</td><td><strong>1</strong></td><td>Les DEUX à 1</td></tr>
+                <tr><td><strong>OR</strong></td><td>A + B</td><td>0</td><td><strong>1</strong></td><td><strong>1</strong></td><td><strong>1</strong></td><td>Au moins UN à 1</td></tr>
+                <tr><td><strong>NAND</strong></td><td><span style="text-decoration:overline">A·B</span></td><td><strong>1</strong></td><td><strong>1</strong></td><td><strong>1</strong></td><td>0</td><td>Inverse de AND</td></tr>
+                <tr><td><strong>NOR</strong></td><td><span style="text-decoration:overline">A+B</span></td><td><strong>1</strong></td><td>0</td><td>0</td><td>0</td><td>Inverse de OR</td></tr>
+                <tr><td><strong>XOR</strong></td><td>A ⊕ B</td><td>0</td><td><strong>1</strong></td><td><strong>1</strong></td><td>0</td><td>Différent = 1</td></tr>
+                <tr><td><strong>XNOR</strong></td><td><span style="text-decoration:overline">A⊕B</span></td><td><strong>1</strong></td><td>0</td><td>0</td><td><strong>1</strong></td><td>Identique = 1</td></tr>
+            </tbody>
+        </table>
+        </table>
+
+        <div class="mnemonic-box">
+            <span class="icon">🧠</span>
+            <div>
+                <strong>Mnémo :</strong><br>
+                <strong>AND</strong> = multiplication (0×1=0, 1×1=1). Il faut les DEUX.<br>
+                <strong>OR</strong> = addition plafonnée (0+1=1, 1+1=1). Il suffit d'UN.<br>
+                <strong>XOR</strong> = « <em>ou exclusif</em> » → différent = 1, pareil = 0.<br>
+                <strong>NAND/NOR</strong> = complémentaire (bulle ○ = NOT)
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <span>⚠️</span>
+            <div><strong>Portes universelles :</strong> NAND et NOR sont dites « universelles » car on peut reconstruire TOUTES les autres portes avec uniquement des NAND (ou uniquement des NOR) !</div>
+        </div>
+    </section>
+
+    <!-- 3.2 Algèbre de Boole -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-scale-balanced"></i> 3.2 — Algèbre de Boole</h2>
+
+        <div class="concept-card">
+            <h4>📋 Propriétés fondamentales</h4>
+            <table class="styled-table">
+                <thead><tr><th>Propriété</th><th>AND (·)</th><th>OR (+)</th></tr></thead>
+                <tbody>
+                    <tr><td>Commutativité</td><td>A·B = B·A</td><td>A+B = B+A</td></tr>
+                    <tr><td>Associativité</td><td>(A·B)·C = A·(B·C)</td><td>(A+B)+C = A+(B+C)</td></tr>
+                    <tr><td>Distributivité</td><td>A·(B+C) = A·B+A·C</td><td>A+(B·C) = (A+B)·(A+C)</td></tr>
+                    <tr><td>Élément neutre</td><td>A·1 = A</td><td>A+0 = A</td></tr>
+                    <tr><td>Élément absorbant</td><td>A·0 = 0</td><td>A+1 = 1</td></tr>
+                    <tr><td>Idempotence</td><td>A·A = A</td><td>A+A = A</td></tr>
+                    <tr><td>Complémentarité</td><td>A·Ā = 0</td><td>A+Ā = 1</td></tr>
+                    <tr><td>Involution</td><td colspan="2"><span style="text-decoration:overline;text-decoration-style:double">A</span> = A (double négation)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Théorèmes de De Morgan</h3>
+        <div class="concept-card" style="border-left:4px solid var(--accent)">
+            <h4>⚡ Théorèmes de De Morgan (fondamental !)</h4>
+            <ul>
+                <li><strong><span style="text-decoration:overline">A·B</span> = Ā + B̄</strong> — « le NOT du AND = OR des NOT »</li>
+                <li><strong><span style="text-decoration:overline">A+B</span> = Ā · B̄</strong> — « le NOT du OR = AND des NOT »</li>
+            </ul>
+        </div>
+
+        <div class="mnemonic-box">
+            <span class="icon">🧠</span>
+            <div>
+                <strong>Mnémo De Morgan :</strong> « <em>Casser la barre, changer le signe</em> ». Quand on « casse » la barre de complémentation, le AND (·) devient OR (+) et vice versa.
+            </div>
+        </div>
+    </section>
+
+    <!-- 3.3 Simplification algébrique -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-compress"></i> 3.3 — Simplification algébrique</h2>
+
+        <div class="concept-card">
+            <h4>📋 Pourquoi simplifier ?</h4>
+            <p>Une expression booléenne simplifiée = <strong>moins de portes logiques</strong> = circuit plus petit, plus rapide, moins cher et qui consomme moins d'énergie. C'est fondamental en conception de circuits !</p>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple 1 : simplifier F = A·B + A·B̄ + Ā·B</h4>
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem;">
+                <p><strong>Étape 1 :</strong> On remarque que A apparaît dans les deux premiers termes → <strong>factorisation</strong></p>
+                <p style="font-family:'JetBrains Mono',monospace;margin:.3rem 0">F = <span style="color:var(--accent);font-weight:700">A</span>·(B + B̄) + Ā·B</p>
+                <p><strong>Étape 2 :</strong> B + B̄ = 1 (complémentarité — un bit vaut toujours 0 ou 1 !)</p>
+                <p style="font-family:'JetBrains Mono',monospace;margin:.3rem 0">F = A·<span style="color:var(--accent);font-weight:700">1</span> + Ā·B</p>
+                <p><strong>Étape 3 :</strong> A·1 = A (élément neutre)</p>
+                <p style="font-family:'JetBrains Mono',monospace;margin:.3rem 0">F = <span style="color:var(--accent);font-weight:700">A</span> + Ā·B</p>
+                <p><strong>Étape 4 :</strong> Absorption → A + Ā·B = A + B</p>
+                <p style="font-family:'JetBrains Mono',monospace;margin:.3rem 0;font-size:1.1rem"><strong>F = A + B</strong> ✓</p>
+                <p style="margin-top:.5rem;color:var(--text-muted);font-size:.85rem">On est passé de 3 termes (7 variables) à 1 terme (2 variables) = circuit beaucoup plus simple !</p>
+            </div>
+        </div>
+
+        <div class="example-box">
+            <h4>📝 Exemple 2 : simplifier F = Ā·B·C + A·B·C + A·B·C̄</h4>
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem;">
+                <p><strong>Étape 1 :</strong> Les termes 2 et 3 ont A·B en commun → <strong>factorisation</strong></p>
+                <p style="font-family:'JetBrains Mono',monospace;margin:.3rem 0">F = Ā·B·C + <span style="color:var(--accent);font-weight:700">A·B</span>·(C + C̄)</p>
+                <p><strong>Étape 2 :</strong> C + C̄ = 1</p>
+                <p style="font-family:'JetBrains Mono',monospace;margin:.3rem 0">F = Ā·B·C + A·B</p>
+                <p><strong>Étape 3 :</strong> Factoriser B → F = B·(Ā·C + A)</p>
+                <p><strong>Étape 4 :</strong> Absorption : Ā·C + A = A + C</p>
+                <p style="font-family:'JetBrains Mono',monospace;margin:.3rem 0;font-size:1.1rem"><strong>F = B·(A + C)</strong> ✓</p>
+            </div>
+        </div>
+
+        <h3>Règles d'absorption utiles</h3>
+        <table class="styled-table" style="max-width:500px">
+            <thead><tr><th>Règle</th><th>Explication</th></tr></thead>
+            <tbody>
+                <tr><td>A + A·B = <strong>A</strong></td><td>Si A=1, pas besoin de B</td></tr>
+                <tr><td>A + Ā·B = <strong>A + B</strong></td><td>Ā·B « complète » A</td></tr>
+                <tr><td>A·(A+B) = <strong>A</strong></td><td>Dual de la 1ère règle</td></tr>
+                <tr><td>(A+B)·(A+B̄) = <strong>A</strong></td><td>B et B̄ s'annulent</td></tr>
+            </tbody>
+        </table>
+
+        <div class="mnemonic-box">
+            <span class="icon">🧠</span>
+            <div>
+                <strong>Méthode de simplification en 4 étapes :</strong><br>
+                1. Chercher des <strong>termes communs</strong> → factoriser<br>
+                2. Appliquer <strong>X + X̄ = 1</strong> pour éliminer des variables<br>
+                3. Appliquer <strong>X·1 = X</strong> pour simplifier<br>
+                4. Utiliser l'<strong>absorption</strong> pour réduire encore
+            </div>
+        </div>
+    </section>
+
+    <!-- 3.4 Karnaugh -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-table-cells"></i> 3.4 — Tableaux de Karnaugh</h2>
+
+        <div class="concept-card">
+            <h4>📋 C'est quoi un tableau de Karnaugh ?</h4>
+            <p>C'est une méthode <strong>graphique</strong> (visuelle) pour simplifier des expressions booléennes sans faire d'algèbre compliquée. On remplit un tableau, on repère des <strong>groupes de 1</strong>, et on lit directement le résultat simplifié !</p>
+        </div>
+
+        <div class="concept-card" style="border-left:4px solid var(--accent)">
+            <h4>⚡ Les 5 règles du Karnaugh</h4>
+            <ol>
+                <li><strong>Ordre Gray</strong> — Les en-têtes suivent le code de Gray (00, 01, 11, 10) pour qu'entre deux cases voisines, <strong>un seul bit change</strong>.</li>
+                <li><strong>Remplir</strong> — On place des 1 dans les cases correspondant aux mintermes de la fonction.</li>
+                <li><strong>Grouper les 1</strong> — Former des rectangles de <strong>1, 2, 4, 8 ou 16 cases</strong> (puissances de 2 uniquement).</li>
+                <li><strong>Plus gros = mieux</strong> — Un groupe de 4 élimine 2 variables, un groupe de 2 en élimine 1. Toujours chercher le plus grand groupe possible.</li>
+                <li><strong>Les bords s'enroulent</strong> — La 1ère colonne est adjacente à la dernière, la 1ère ligne à la dernière (comme un tore).</li>
+            </ol>
+        </div>
+
+        <h3>Exemple 1 : Karnaugh à 3 variables</h3>
+
+        <div class="example-box">
+            <h4>📝 F(A,B,C) = Σm(3,4,5,6,7)</h4>
+
+            <p><strong>Étape 1 — Placer les 1 dans le tableau</strong></p>
+            <p style="font-size:.85rem;color:var(--text-muted)">m3=011, m4=100, m5=101, m6=110, m7=111 — Colonnes en ordre <strong>Gray</strong> : 00, 01, 11, 10</p>
+
+            <!-- SVG Karnaugh 3 variables : 2 lignes × 4 colonnes -->
+            <div style="text-align:center;margin:1rem 0">
+            <svg viewBox="0 0 420 210" style="max-width:440px;width:100%;font-family:'JetBrains Mono',monospace" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grille : header col 60px (x80-140), 4 data cols 60px each (x140-380) -->
+                <!-- header row 40px (y40-80), 2 data rows 50px each (y80-130, y130-180) -->
+                <rect x="80" y="40" width="300" height="140" rx="6" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>
+                <line x1="80" y1="80" x2="380" y2="80" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="80" y1="130" x2="380" y2="130" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="140" y1="40" x2="140" y2="180" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="200" y1="40" x2="200" y2="180" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="260" y1="40" x2="260" y2="180" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="320" y1="40" x2="320" y2="180" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+
+                <!-- En-têtes -->
+                <text x="110" y="66" fill="#fb7185" font-size="12" font-weight="700" text-anchor="middle">A\BC</text>
+                <text x="170" y="66" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">00</text>
+                <text x="230" y="66" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">01</text>
+                <text x="290" y="66" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">11</text>
+                <text x="350" y="66" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">10</text>
+                <text x="110" y="110" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">0</text>
+                <text x="110" y="160" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">1</text>
+
+                <!-- ═══ GROUPE BLEU (dessous) : toute la ligne A=1 ═══ -->
+                <rect x="142" y="132" width="236" height="46" rx="12" fill="rgba(99,102,241,0.18)" stroke="#6366f1" stroke-width="3"/>
+
+                <!-- ═══ GROUPE ROSE (dessus) : colonne BC=11 ═══ -->
+                <rect x="262" y="82" width="56" height="96" rx="12" fill="rgba(244,63,94,0.18)" stroke="#f43f5e" stroke-width="3"/>
+
+                <!-- Valeurs ligne A=0 -->
+                <text x="170" y="110" fill="#9ca3af" font-size="16" text-anchor="middle">0</text>
+                <text x="230" y="110" fill="#9ca3af" font-size="16" text-anchor="middle">0</text>
+                <text x="290" y="110" fill="#fff" font-size="16" font-weight="700" text-anchor="middle">1</text>
+                <text x="350" y="110" fill="#9ca3af" font-size="16" text-anchor="middle">0</text>
+                <!-- Valeurs ligne A=1 -->
+                <text x="170" y="160" fill="#fff" font-size="16" font-weight="700" text-anchor="middle">1</text>
+                <text x="230" y="160" fill="#fff" font-size="16" font-weight="700" text-anchor="middle">1</text>
+                <text x="290" y="160" fill="#fff" font-size="16" font-weight="700" text-anchor="middle">1</text>
+                <text x="350" y="160" fill="#fff" font-size="16" font-weight="700" text-anchor="middle">1</text>
+
+                <!-- Labels des groupes -->
+                <text x="395" y="160" fill="#6366f1" font-size="11" font-weight="700">A</text>
+                <text x="290" y="198" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="middle">B·C</text>
+            </svg>
+            </div>
+
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem;margin-top:.8rem">
+                <p style="font-weight:700">Étape 2 — Former les groupes</p>
+                <p><strong style="color:#6366f1">Groupe bleu (4 cases) :</strong> toute la ligne A=1 (m4, m5, m7, m6). 4 cases → on élimine 2 variables (B et C). Seule variable constante : A=1. Résultat : <strong>A</strong></p>
+                <p><strong style="color:#f43f5e">Groupe rose (2 cases) :</strong> colonne BC=11 (m3 et m7). 2 cases → on élimine 1 variable (A change). Variables constantes : B=1 et C=1. Résultat : <strong>B·C</strong></p>
+
+                <p style="font-weight:700;margin-top:.8rem">Étape 3 — Écrire le résultat (OR de tous les groupes)</p>
+                <p style="font-size:1.15rem;text-align:center;margin:.5rem 0"><strong>F = A + B·C</strong></p>
+
+                <p style="font-size:.85rem;color:var(--text-muted);margin-top:.5rem">Vérification : m3 (A=0,B=1,C=1) → 0 + 1·1 = 1 ✓ | m4 (A=1,B=0,C=0) → 1 + 0 = 1 ✓ | m0 (A=0,B=0,C=0) → 0 + 0 = 0 ✓ | m1 (A=0,B=0,C=1) → 0 + 0 = 0 ✓</p>
+            </div>
+        </div>
+
+        <div class="concept-card">
+            <h4>📋 Méthode Karnaugh — Résumé en 4 étapes</h4>
+            <ol>
+                <li><strong>Construire le tableau</strong> avec les en-têtes en <strong>code de Gray</strong> (00, 01, 11, 10)</li>
+                <li><strong>Remplir</strong> les 1 à partir des mintermes de la table de vérité</li>
+                <li><strong>Former les plus grands rectangles possibles</strong> de 1 (taille = puissance de 2). Une case peut appartenir à plusieurs groupes. Les bords s'enroulent.</li>
+                <li><strong>Pour chaque groupe</strong>, écrire le produit des variables qui <strong>ne changent pas</strong> à l'intérieur du groupe. Faire le OR (somme) de tous les groupes.</li>
+            </ol>
+        </div>
+
+        <h3>Exemple 2 : Karnaugh à 4 variables (avec enroulement !)</h3>
+
+        <div class="example-box">
+            <h4>📝 F(A,B,C,D) = Σm(0,2,5,7,8,10,13,15)</h4>
+
+            <p><strong>Étape 1 —</strong> Remplir le tableau :</p>
+            <p style="font-size:.85rem;color:var(--text-muted)">m0=0000, m2=0010, m5=0101, m7=0111, m8=1000, m10=1010, m13=1101, m15=1111</p>
+
+            <!-- SVG Karnaugh 4 variables : 4 lignes × 4 colonnes -->
+            <div style="text-align:center;margin:1rem 0">
+            <svg viewBox="0 0 430 330" style="max-width:460px;width:100%;font-family:'JetBrains Mono',monospace" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grille : header col 60px (x80-140), 4 data cols 60px (x140-380) -->
+                <!-- header row 40px (y40-80), 4 data rows 50px (y80-280) -->
+                <rect x="80" y="40" width="300" height="240" rx="6" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>
+                <!-- Horizontales -->
+                <line x1="80" y1="80" x2="380" y2="80" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="80" y1="130" x2="380" y2="130" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="80" y1="180" x2="380" y2="180" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="80" y1="230" x2="380" y2="230" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <!-- Verticales -->
+                <line x1="140" y1="40" x2="140" y2="280" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="200" y1="40" x2="200" y2="280" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="260" y1="40" x2="260" y2="280" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+                <line x1="320" y1="40" x2="320" y2="280" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+
+                <!-- En-têtes colonnes -->
+                <text x="110" y="66" fill="#fb7185" font-size="11" font-weight="700" text-anchor="middle">AB\CD</text>
+                <text x="170" y="66" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">00</text>
+                <text x="230" y="66" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">01</text>
+                <text x="290" y="66" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">11</text>
+                <text x="350" y="66" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">10</text>
+                <!-- En-têtes lignes -->
+                <text x="110" y="110" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">00</text>
+                <text x="110" y="160" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">01</text>
+                <text x="110" y="210" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">11</text>
+                <text x="110" y="260" fill="#fb7185" font-size="13" font-weight="700" text-anchor="middle">10</text>
+
+                <!-- ═══ GROUPE BLEU (dessous) : bloc central 2×2 ═══ -->
+                <rect x="202" y="132" width="116" height="96" rx="14" fill="rgba(99,102,241,0.18)" stroke="#6366f1" stroke-width="3"/>
+
+                <!-- ═══ GROUPE ROSE : 4 coins (enroulement !) ═══ -->
+                <rect x="142" y="82" width="56" height="46" rx="10" fill="rgba(244,63,94,0.2)" stroke="#f43f5e" stroke-width="2.5"/>
+                <rect x="322" y="82" width="56" height="46" rx="10" fill="rgba(244,63,94,0.2)" stroke="#f43f5e" stroke-width="2.5"/>
+                <rect x="142" y="232" width="56" height="46" rx="10" fill="rgba(244,63,94,0.2)" stroke="#f43f5e" stroke-width="2.5"/>
+                <rect x="322" y="232" width="56" height="46" rx="10" fill="rgba(244,63,94,0.2)" stroke="#f43f5e" stroke-width="2.5"/>
+                <!-- Lignes pointillées d'enroulement -->
+                <line x1="170" y1="128" x2="170" y2="232" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="5,4" opacity=".5"/>
+                <line x1="350" y1="128" x2="350" y2="232" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="5,4" opacity=".5"/>
+                <line x1="198" y1="105" x2="322" y2="105" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="5,4" opacity=".5"/>
+                <line x1="198" y1="255" x2="322" y2="255" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="5,4" opacity=".5"/>
+
+                <!-- Valeurs (au-dessus des groupes pour lisibilité) -->
+                <!-- AB=00 -->
+                <text x="170" y="110" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">1</text>
+                <text x="230" y="110" fill="#9ca3af" font-size="15" text-anchor="middle">0</text>
+                <text x="290" y="110" fill="#9ca3af" font-size="15" text-anchor="middle">0</text>
+                <text x="350" y="110" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">1</text>
+                <!-- AB=01 -->
+                <text x="170" y="160" fill="#9ca3af" font-size="15" text-anchor="middle">0</text>
+                <text x="230" y="160" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">1</text>
+                <text x="290" y="160" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">1</text>
+                <text x="350" y="160" fill="#9ca3af" font-size="15" text-anchor="middle">0</text>
+                <!-- AB=11 -->
+                <text x="170" y="210" fill="#9ca3af" font-size="15" text-anchor="middle">0</text>
+                <text x="230" y="210" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">1</text>
+                <text x="290" y="210" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">1</text>
+                <text x="350" y="210" fill="#9ca3af" font-size="15" text-anchor="middle">0</text>
+                <!-- AB=10 -->
+                <text x="170" y="260" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">1</text>
+                <text x="230" y="260" fill="#9ca3af" font-size="15" text-anchor="middle">0</text>
+                <text x="290" y="260" fill="#9ca3af" font-size="15" text-anchor="middle">0</text>
+                <text x="350" y="260" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">1</text>
+
+                <!-- Labels des groupes -->
+                <text x="260" y="186" fill="#6366f1" font-size="11" font-weight="700" text-anchor="middle">B·D</text>
+                <text x="230" y="305" fill="#f43f5e" font-size="11" font-weight="700" text-anchor="middle">⤡ Enroulement des 4 coins → B̄·D̄</text>
+            </svg>
+            </div>
+
+            <div style="background:var(--accent-glow);border-radius:10px;padding:1rem 1.2rem;margin-top:.8rem">
+                <p style="font-weight:700">Étape 2 — Former les groupes :</p>
+
+                <p><strong style="color:#f43f5e">Groupe rose (4 cases — enroulement !) :</strong> Les 4 coins du tableau : AB=00/CD=00, AB=00/CD=10, AB=10/CD=00, AB=10/CD=10</p>
+                <p style="padding-left:1rem">→ AB=00 et AB=10 sont adjacentes (1ʳᵉ et dernière ligne = enroulement haut↔bas)</p>
+                <p style="padding-left:1rem">→ CD=00 et CD=10 sont adjacentes (1ʳᵉ et dernière colonne = enroulement gauche↔droite)</p>
+                <p style="padding-left:1rem">→ Variables constantes : <strong>B=0</strong> et <strong>D=0</strong>. Donc ce groupe = <strong>B̄·D̄</strong></p>
+
+                <p style="margin-top:.5rem"><strong style="color:#6366f1">Groupe bleu (4 cases) :</strong> Bloc central : AB=01/CD=01, AB=01/CD=11, AB=11/CD=01, AB=11/CD=11</p>
+                <p style="padding-left:1rem">→ AB=01 et AB=11 adjacentes (seul A change)</p>
+                <p style="padding-left:1rem">→ CD=01 et CD=11 adjacentes (seul C change)</p>
+                <p style="padding-left:1rem">→ Variables constantes : <strong>B=1</strong> et <strong>D=1</strong>. Donc ce groupe = <strong>B·D</strong></p>
+
+                <p style="font-weight:700;margin-top:.8rem">Étape 3 — Résultat :</p>
+                <p style="font-size:1.2rem;text-align:center;margin:.5rem 0"><strong>F = B̄·D̄ + B·D</strong></p>
+                <p style="text-align:center;font-size:.9rem;color:var(--text-muted)">Ou encore : F = B ⊙ D (XNOR de B et D !)</p>
+
+                <p style="font-size:.85rem;color:var(--text-muted);margin-top:.5rem">Vérif : m0 (0000) → B̄·D̄=1·1=1 ✓ | m5 (0101) → B·D=1·1=1 ✓ | m3 (0011) → 0+0=0 ✓</p>
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <span>⚠️</span>
+            <div><strong>Erreur fréquente :</strong> Oublier que les bords s'enroulent ! Dans un tableau 4×4, la 1ère ligne est adjacente à la dernière, et la 1ère colonne est adjacente à la dernière. Les 4 coins forment aussi un groupe valide !</div>
+        </div>
+
+        <div class="tip-box">
+            <span>💡</span>
+            <div><strong>Astuces Karnaugh :</strong> 1) Un même 1 peut appartenir à <strong>plusieurs groupes</strong>. 2) Les <strong>don't care (X)</strong> peuvent être traités comme 0 ou 1 selon ce qui arrange le groupement. 3) Pour n variables : n=2 → 2×2, n=3 → 2×4, n=4 → 4×4.</div>
+        </div>
+
+        <div class="mnemonic-box">
+            <span class="icon">🧠</span>
+            <div>
+                <strong>Mnémo Karnaugh — G.R.A.P. :</strong><br>
+                <strong>G</strong>rille en code de Gray | <strong>R</strong>ectangles de puissances de 2 | <strong>A</strong>djacences (bords enroulés) | <strong>P</strong>lus grand = plus simple
+            </div>
+        </div>
+    </section>
+
+    <!-- 3.5 Circuits combinatoires -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-network-wired"></i> 3.5 — Circuits combinatoires</h2>
+
+        <div class="concept-card">
+            <h4>📋 Définition</h4>
+            <p>Un circuit <strong>combinatoire</strong> produit des sorties qui dépendent <strong>uniquement</strong> des entrées actuelles (pas de mémoire, pas d'état passé).</p>
+        </div>
+
+        <table class="styled-table">
+            <thead><tr><th>Circuit</th><th>Fonction</th><th>Entrées</th><th>Sorties</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Demi-additionneur</strong></td><td>Additionne 2 bits</td><td>A, B</td><td>S = A⊕B, C = A·B</td></tr>
+                <tr><td><strong>Additionneur complet</strong></td><td>Additionne 2 bits + retenue</td><td>A, B, Cᵢₙ</td><td>S = A⊕B⊕Cᵢₙ, Cₒᵤₜ = A·B + Cᵢₙ·(A⊕B)</td></tr>
+                <tr><td><strong>Multiplexeur (MUX)</strong></td><td>Sélectionne 1 entrée parmi 2ⁿ</td><td>2ⁿ données + n sélection</td><td>1 sortie</td></tr>
+                <tr><td><strong>Démultiplexeur (DEMUX)</strong></td><td>Distribue 1 entrée vers 2ⁿ</td><td>1 donnée + n sélection</td><td>2ⁿ sorties</td></tr>
+                <tr><td><strong>Décodeur</strong></td><td>n entrées → 2ⁿ sorties</td><td>n bits</td><td>1 seule sortie active</td></tr>
+                <tr><td><strong>Encodeur</strong></td><td>2ⁿ entrées → n sorties</td><td>2ⁿ lignes</td><td>Code binaire</td></tr>
+                <tr><td><strong>Comparateur</strong></td><td>Compare 2 nombres</td><td>A, B (n bits)</td><td>A>B, A=B, A<B</td></tr>
+            </tbody>
+        </table>
+
+        <div class="analogy-box">
+            <span class="icon">📺</span>
+            <div>
+                <strong>Analogie MUX :</strong> Un multiplexeur, c'est comme une télécommande TV avec un sélecteur de chaîne. Tu as 100 chaînes (entrées) mais l'écran (sortie) n'en affiche qu'une à la fois. Le sélecteur choisit laquelle.
+            </div>
+        </div>
+    </section>
+
+    <!-- 3.6 Circuits séquentiels -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-clock"></i> 3.6 — Circuits séquentiels</h2>
+
+        <div class="concept-card">
+            <h4>📋 Définition</h4>
+            <p>Un circuit <strong>séquentiel</strong> a une mémoire : ses sorties dépendent des entrées <strong>ET de l'état précédent</strong>. Il est synchronisé par un signal d'<strong>horloge</strong>.</p>
+        </div>
+
+        <h3>Les bascules (flip-flops)</h3>
+        <table class="styled-table">
+            <thead><tr><th>Bascule</th><th>Fonctionnement</th><th>Usage</th></tr></thead>
+            <tbody>
+                <tr><td><strong>RS (Set-Reset)</strong></td><td>S=1 → Q=1, R=1 → Q=0, S=R=1 → interdit</td><td>Mémoire élémentaire</td></tr>
+                <tr><td><strong>D (Data)</strong></td><td>Q = D au front d'horloge</td><td>Registres, mémorisation de bits</td></tr>
+                <tr><td><strong>JK</strong></td><td>Comme RS mais J=K=1 → bascule (toggle)</td><td>Compteurs</td></tr>
+                <tr><td><strong>T (Toggle)</strong></td><td>T=1 → Q change d'état</td><td>Diviseur de fréquence</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Registres et compteurs</h3>
+        <ul>
+            <li><strong>Registre :</strong> ensemble de bascules D stockant n bits en parallèle</li>
+            <li><strong>Registre à décalage :</strong> décale les bits d'un cran à chaque coup d'horloge</li>
+            <li><strong>Compteur :</strong> circuit séquentiel qui compte les impulsions d'horloge (0→1→2→…→2ⁿ−1→0)</li>
+        </ul>
+
+        <div class="tip-box">
+            <span>💡</span>
+            <div><strong>Application :</strong> Les registres du processeur (EAX, EBX…) sont constitués de bascules D. Un processeur 64 bits a des registres de 64 bascules D chacun !</div>
+        </div>
+    </section>
+
+    <!-- 3.7 Additionneurs -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-calculator"></i> 3.7 — L'additionneur n bits</h2>
+
+        <div class="concept-card">
+            <h4>📋 Additionneur à propagation de retenue (Ripple Carry Adder)</h4>
+            <p>On cascade n additionneurs complets. La retenue du bit i devient l'entrée retenue du bit i+1.</p>
+            <p>Inconvénient : la retenue se propage bit par bit → lent pour de grands n.</p>
+            <p>Solution : <strong>additionneur à anticipation de retenue</strong> (Carry Look-Ahead) qui calcule toutes les retenues en parallèle.</p>
+        </div>
+    </section>
+
+    <!-- RÉSUMÉ -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-clipboard-list"></i> Résumé du chapitre</h2>
+        <div class="concept-card">
+            <h4>🔑 Points clés</h4>
+            <ul>
+                <li><strong>7 portes :</strong> NOT, AND, OR, NAND, NOR, XOR, XNOR</li>
+                <li><strong>NAND et NOR</strong> sont universelles</li>
+                <li><strong>De Morgan :</strong> casser la barre → changer le signe</li>
+                <li><strong>Karnaugh :</strong> regrouper les 1 en rectangles de puissances de 2</li>
+                <li><strong>Combinatoire :</strong> sorties = f(entrées actuelles) — MUX, additionneur, décodeur</li>
+                <li><strong>Séquentiel :</strong> sorties = f(entrées + état) — bascules RS, D, JK, T</li>
+                <li><strong>Registres :</strong> ensemble de bascules D | <strong>Compteurs :</strong> circuits séquentiels</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- EXERCICES -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-dumbbell"></i> Exercices interactifs</h2>
+        <div id="chapter-exercises"></div>
+    </section>
+
+    <div class="chapter-nav">
+        <a href="chapitre2.html"><i class="fas fa-arrow-left"></i> Chapitre 2 — Numération</a>
+        <a href="chapitre4.html">Chapitre 4 — Architecture PC <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+</main>
+
+<div class="xp-bar-container">
+    <span class="xp-level">Débutant</span>
+    <div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div>
+    <span class="xp-text">0 XP</span>
+</div>
+
+<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/gamification.js"></script>
+<script src="../../assets/js/chapter-exercises.js"></script>
+<script src="../../assets/js/download.js"></script>
+<script>
+GameEngine.configure({
+    storageKey:'b1_ato_progress',
+    badges:[{id:'gate_keeper',name:'Gate Keeper',icon:'🚪',desc:'Portes logiques maîtrisées',xp:20},{id:'boole_boss',name:'Boole Boss',icon:'🧮',desc:'Algèbre de Boole simplifiée',xp:25}],
+    levels:[{min:0,title:'Débutant'},{min:30,title:'Apprenti Hardware'},{min:80,title:'Technicien Jr.'},{min:150,title:'Architecte'},{min:250,title:'Ingénieur Système'},{min:400,title:'Guru du Silicium'}],
+    tips:["AND = multiplication, OR = addition.","NAND et NOR sont universelles.","De Morgan : casser la barre, changer le signe.","Karnaugh : regrouper par puissances de 2."]
+});
+GameEngine.init();
+
+ChapterExercises.init({
+    guided:[
+        {q:"Que vaut AND(1,0) ?",hints:["AND = les deux doivent être à 1","1×0 = ?",""],answer:"0"},
+        {q:"Simplifier F = A + A·B",hints:["Factoriser A : A(1+B)","1+B = 1 (absorption)","A×1 = A"],answer:"A"},
+        {q:"Appliquer De Morgan : NOT(A·B) = ?",hints:["Casser la barre","Le · devient +","Complémentez A et B"],answer:"Ā + B̄"},
+        {q:"Table de vérité XOR : A=1, B=1 → ?",hints:["XOR = différent → 1","Pareil → 0","1⊕1 = ?"],answer:"0"},
+        {q:"Un MUX 4 vers 1 a combien de lignes de sélection ?",hints:["4 = 2ⁿ","n = ?","log₂(4)"],answer:"2"}
+    ],
+    quiz:[
+        {type:"mcq",q:"A·1 = ?",options:["0","1","A","Ā"],correct:2},
+        {type:"mcq",q:"A + Ā = ?",options:["0","1","A","2A"],correct:1},
+        {type:"mcq",q:"Portes universelles :",options:["AND et OR","NAND et NOR","XOR et XNOR","NOT et AND"],correct:1},
+        {type:"mcq",q:"De Morgan : NOT(A+B) =",options:["Ā+B̄","Ā·B̄","A·B","NOT(A)·B"],correct:1},
+        {type:"qa",q:"La bascule D copie l'entrée D sur Q à quel moment ?",answer:["front d'horloge","au front montant","front montant"]},
+        {type:"mcq",q:"Un demi-additionneur calcule :",options:["S = A+B et C = A·B","S = A⊕B et C = A·B","S = A·B et C = A⊕B","S et C avec retenue entrante"],correct:1},
+        {type:"mcq",q:"Karnaugh : les groupes doivent être de taille :",options:["Impaire","Première","Puissance de 2","Carrée"],correct:2},
+        {type:"mcq",q:"XOR(A,B) = 1 quand :",options:["A = B","A ≠ B","A = 0","B = 1"],correct:1},
+        {type:"mcq",q:"Bascule JK avec J=K=1 :",options:["Q = 0","Q = 1","Q bascule (toggle)","Interdit"],correct:2},
+        {type:"mcq",q:"Un décodeur 3 vers 8 a combien de sorties ?",options:["3","6","8","16"],correct:2}
+    ],
+    dragdrop:[
+        {instruction:"Associe chaque porte logique à son résultat pour A=1, B=0 :",pairs:[["AND","0"],["OR","1"],["XOR","1"],["NAND","1"]]},
+        {instruction:"Associe propriété booléenne :",pairs:[["A·0","0"],["A+1","1"],["A·Ā","0"],["A+Ā","1"]]},
+        {instruction:"Associe chaque circuit à son type :",pairs:[["Multiplexeur","Combinatoire"],["Bascule D","Séquentiel"],["Additionneur","Combinatoire"],["Compteur","Séquentiel"]]}
+    ]
+});
+</script>
+</body>
+</html>

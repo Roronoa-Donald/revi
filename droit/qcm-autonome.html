@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QCM Droit Informatique - Version Autonome</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --muted: #94a3b8;
+      --text: #e2e8f0;
+      --accent: #f59e0b;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% 10%, #1f2937, #0b1224 60%, #060915 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: 0.3px;
+    }
+    .subtitle {
+      color: var(--muted);
+      max-width: 760px;
+    }
+    .stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 1.5rem 0;
+    }
+    .pill {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fde68a;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #0b1224;
+      color: var(--text);
+      padding: 0.55rem 0.95rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: transform 0.15s ease, border 0.15s ease;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+    .card {
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .question-title {
+      font-weight: 600;
+      margin: 0 0 0.75rem;
+    }
+    .options {
+      display: grid;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.5rem 0.7rem;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .option.correct {
+      border-color: rgba(34, 197, 94, 0.6);
+      background: rgba(34, 197, 94, 0.12);
+    }
+    .option.incorrect {
+      border-color: rgba(239, 68, 68, 0.7);
+      background: rgba(239, 68, 68, 0.12);
+    }
+    .feedback {
+      margin-top: 0.6rem;
+      font-size: 0.95rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      display: none;
+    }
+    .feedback.ok {
+      border-color: rgba(34, 197, 94, 0.6);
+      color: #bbf7d0;
+      display: block;
+    }
+    .feedback.bad {
+      border-color: rgba(239, 68, 68, 0.6);
+      color: #fecaca;
+      display: block;
+    }
+    .explanation {
+      margin-top: 0.4rem;
+      color: var(--muted);
+    }
+    .open-answer {
+      display: none;
+      margin-top: 0.6rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 10px;
+      border: 1px dashed rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.08);
+      color: #fde68a;
+    }
+    .open-answer.show {
+      display: block;
+    }
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 0.7rem;
+      resize: vertical;
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>QCM Droit Informatique (Autonome)</h1>
+      <p class="subtitle">Choisissez les bonnes reponses. Certaines questions ont plusieurs bonnes reponses. Les explications sont courtes pour une assimilation rapide.</p>
+    </header>
+
+    <div class="stats">
+      <div class="pill" id="scorePill">Score : 0 / 18</div>
+      <div class="pill">Mode autonome - aucun pre-requis</div>
+    </div>
+
+    <div class="controls">
+      <button type="button" id="resetBtn">Reinitialiser le QCM</button>
+    </div>
+
+    <div id="qcmArea"></div>
+
+    <div class="card">
+      <h2 class="question-title">B - Reponses courtes</h2>
+      <div class="card" style="margin: 1rem 0;">
+        <p class="question-title">19) Quand dit-on qu'une entreprise traite des donnees personnelles ?</p>
+        <textarea placeholder="Votre reponse..."></textarea>
+        <button type="button" class="reveal-btn" data-open="19">Afficher une reponse type</button>
+        <div class="open-answer" id="open-19">
+          Une entreprise traite des donnees personnelles des qu'elle collecte, enregistre, consulte, modifie, transmet ou supprime des informations permettant d'identifier une personne, directement ou indirectement.
+        </div>
+      </div>
+      <div class="card" style="margin: 1rem 0;">
+        <p class="question-title">20) Que signifie le RGPD, quels sont ses avantages pour les entreprises et les sanctions prevues ?</p>
+        <textarea placeholder="Votre reponse..."></textarea>
+        <button type="button" class="reveal-btn" data-open="20">Afficher une reponse type</button>
+        <div class="open-answer" id="open-20">
+          Le RGPD signifie Reglement General sur la Protection des Donnees. Il renforce la confiance, structure la gouvernance des donnees et reduit les risques juridiques. En Europe, les sanctions peuvent aller jusqu'a 20 M EUR ou 4% du chiffre d'affaires mondial annuel, selon la gravite.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      {
+        id: 1,
+        text: "1) Le droit informatique est un droit fondamental / concerne seulement les internautes / differe des droits de l'homme en ligne / est souvent aborde via droit Internet et donnees personnelles",
+        options: [
+          "Le droit informatique est un droit fondamental",
+          "Le droit informatique concerne seulement les internautes",
+          "Les droits informatiques sont differents des droits de l'homme en ligne",
+          "Le droit informatique est souvent aborde via le droit de l'internet ou des donnees personnelles"
+        ],
+        correct: [3],
+        explanation: "Le droit informatique est une branche du droit. On l'aborde souvent via l'internet et la protection des donnees."
+      },
+      {
+        id: 2,
+        text: "2) Droits informatiques et droits en ligne",
+        options: [
+          "Les droits informatiques ne comportent pas le droit d'acces a l'information",
+          "Les droits sont les memes pour l'homme hors ligne et en ligne",
+          "La liberte d'expression peut etre limitee par la loi en ligne",
+          "Le droit a la vie privee est inclus dans le droit du numerique"
+        ],
+        correct: [1, 2, 3],
+        explanation: "Les droits fondamentaux s'appliquent aussi en ligne. Ils peuvent etre limites par la loi et incluent la vie privee."
+      },
+      {
+        id: 3,
+        text: "3) RGPD",
+        options: [
+          "Le RGPD oblige a proteger les donnees par des mesures adequates",
+          "Le RGPD au Togo est entre en vigueur en octobre 2018",
+          "RGPD signifie Regime General de Protection des Donnees",
+          "Le RGPD en Europe est entre en vigueur en mai 2019"
+        ],
+        correct: [0],
+        explanation: "En Europe, le RGPD est applique depuis 2018 et impose des mesures de securite."
+      },
+      {
+        id: 4,
+        text: "4) Donnees sensibles",
+        options: [
+          "Les donnees sensibles sont des donnees a caractere personnel",
+          "L'orientation sexuelle n'est pas une donnee sensible",
+          "Les donnees sensibles sont d'origine raciale, politique ou mediatique",
+          "Une sanction administrative est une donnee sensible"
+        ],
+        correct: [0],
+        explanation: "Les donnees sensibles sont une categorie de donnees personnelles (ex: opinions politiques, sante, orientation sexuelle)."
+      },
+      {
+        id: 5,
+        text: "5) Les regles du droit informatique sont compilees dans un seul code",
+        options: [
+          "Code de commerce",
+          "Code des communications electroniques et des postes",
+          "Code du numerique",
+          "Aucune bonne reponse"
+        ],
+        correct: [3],
+        explanation: "Les regles sont dispersees dans plusieurs textes, pas dans un seul code unique."
+      },
+      {
+        id: 6,
+        text: "6) Une entreprise qui met en place le RGPD",
+        options: [
+          "Accroit la confiance de ses partenaires",
+          "Est protegee pour toujours des cyberattaques",
+          "Recoit des gratifications speciales des autorites",
+          "Evite toute responsabilisation"
+        ],
+        correct: [0],
+        explanation: "La conformite renforce la confiance et la gouvernance, mais n'offre pas d'immunite."
+      },
+      {
+        id: 7,
+        text: "7) Le RGPD impose aux entreprises",
+        options: [
+          "Notifier les violations de donnees a l'autorite competente",
+          "Garantir le droit a l'oubli dans les cas prevus",
+          "Conserver les donnees indefiniment",
+          "Recueillir un consentement explicite pour tout traitement"
+        ],
+        correct: [0, 1],
+        explanation: "La notification et le droit a l'effacement existent. Le consentement n'est requis que dans certains cas."
+      },
+      {
+        id: 8,
+        text: "8) Cambridge Analytica",
+        options: [
+          "Utilisation non autorisee des donnees des utilisateurs Facebook",
+          "Manipulation electorale par profilage psychologique",
+          "Violation des droits d'auteur sur les contenus partages",
+          "Manque de transparence et de consentement"
+        ],
+        correct: [0, 1, 3],
+        explanation: "L'affaire a porte sur l'usage des donnees, le profilage et le consentement."
+      },
+      {
+        id: 9,
+        text: "9) La cybersecurite en droit de l'informatique implique",
+        options: [
+          "Des regles nationales de protection des SI",
+          "La responsabilite des entreprises en cas de faille",
+          "L'obligation d'Internet gratuit pour tous",
+          "Des politiques internes de prevention et gestion des risques"
+        ],
+        correct: [0, 1, 3],
+        explanation: "Le droit encadre la securite et la responsabilite, pas la gratuite de l'Internet."
+      },
+      {
+        id: 10,
+        text: "10) Le droit de l'informatique encadre notamment",
+        options: [
+          "Les contrats de logiciels et licences",
+          "La responsabilite des hebergeurs et FAI",
+          "La regulation des contenus numeriques",
+          "L'obligation d'utiliser son vrai nom"
+        ],
+        correct: [0, 1, 2],
+        explanation: "Il couvre les logiciels, la responsabilite et les contenus."
+      },
+      {
+        id: 11,
+        text: "11) Le droit a l'oubli numerique signifie",
+        options: [
+          "Pouvoir demander la suppression de donnees personnelles",
+          "Effacement automatique apres 5 ans",
+          "Suppression de certains resultats de recherche sous conditions",
+          "Interdiction totale de conserver des donnees"
+        ],
+        correct: [0, 2],
+        explanation: "Il permet l'effacement ou le dereferencement sous conditions, pas un effacement automatique."
+      },
+      {
+        id: 12,
+        text: "12) La securisation repose seulement sur un antivirus",
+        options: ["Vrai", "Faux"],
+        correct: [1],
+        explanation: "La securite exige des mesures techniques, humaines et organisationnelles."
+      },
+      {
+        id: 13,
+        text: "13) Le droit d'acces a l'information est inclus dans le droit du numerique",
+        options: ["Vrai", "Faux"],
+        correct: [0],
+        explanation: "L'acces a l'information est un droit reconnu dans l'environnement numerique."
+      },
+      {
+        id: 14,
+        text: "14) Le defi juridique du numerique n'est pas considerable",
+        options: ["Vrai", "Faux"],
+        correct: [1],
+        explanation: "Le numerique pose des defis majeurs en droit (responsabilite, donnees, etc.)."
+      },
+      {
+        id: 15,
+        text: "15) Le defi juridique du numerique n'est pas considerable",
+        options: ["Vrai", "Faux"],
+        correct: [1],
+        explanation: "Le droit doit s'adapter aux nouveaux usages et risques."
+      },
+      {
+        id: 16,
+        text: "16) La loi sur la liberte de la presse ne concerne pas le droit du numerique",
+        options: ["Vrai", "Faux"],
+        correct: [1],
+        explanation: "Les regles relatives a la presse et a la publication s'appliquent aussi en ligne."
+      },
+      {
+        id: 17,
+        text: "17) Nomophobie, selfitisme et desinformation sont des addictions",
+        options: ["Vrai", "Faux"],
+        correct: [1],
+        explanation: "Nomophobie et selfitisme sont des addictions, la desinformation est un phenomene."
+      },
+      {
+        id: 18,
+        text: "18) L'identification d'un utilisateur ne pose pas de problemes juridiques",
+        options: ["Vrai", "Faux"],
+        correct: [1],
+        explanation: "L'identification implique des contraintes legales (vie privee, preuve, juridiction)."
+      }
+    ];
+
+    const qcmArea = document.getElementById("qcmArea");
+    const scorePill = document.getElementById("scorePill");
+    const resetBtn = document.getElementById("resetBtn");
+    const validated = new Set();
+    let score = 0;
+
+    function renderQuestions() {
+      qcmArea.innerHTML = "";
+      QUESTIONS.forEach((q) => {
+        const isMulti = q.correct.length > 1;
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.qid = q.id;
+
+        const title = document.createElement("p");
+        title.className = "question-title";
+        title.textContent = q.text;
+
+        const options = document.createElement("div");
+        options.className = "options";
+
+        q.options.forEach((opt, idx) => {
+          const option = document.createElement("label");
+          option.className = "option";
+
+          const input = document.createElement("input");
+          input.type = isMulti ? "checkbox" : "radio";
+          input.name = `q${q.id}`;
+          input.value = idx;
+
+          const span = document.createElement("span");
+          span.textContent = `${String.fromCharCode(65 + idx)}. ${opt}`;
+
+          option.appendChild(input);
+          option.appendChild(span);
+          options.appendChild(option);
+        });
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "Valider";
+        btn.addEventListener("click", () => validateQuestion(q.id));
+
+        const feedback = document.createElement("div");
+        feedback.className = "feedback";
+        feedback.id = `feedback-${q.id}`;
+        feedback.setAttribute("aria-live", "polite");
+
+        card.appendChild(title);
+        card.appendChild(options);
+        card.appendChild(btn);
+        card.appendChild(feedback);
+        qcmArea.appendChild(card);
+      });
+    }
+
+    function validateQuestion(qId) {
+      if (validated.has(qId)) return;
+      const q = QUESTIONS.find((item) => item.id === qId);
+      const card = qcmArea.querySelector(`[data-qid="${qId}"]`);
+      const inputs = Array.from(card.querySelectorAll("input"));
+      const selected = inputs.filter((i) => i.checked).map((i) => Number(i.value));
+      const correct = q.correct;
+
+      const isCorrect =
+        selected.length === correct.length &&
+        selected.every((idx) => correct.includes(idx));
+
+      inputs.forEach((input) => {
+        const option = input.parentElement;
+        const idx = Number(input.value);
+        if (correct.includes(idx)) option.classList.add("correct");
+        if (input.checked && !correct.includes(idx)) option.classList.add("incorrect");
+        input.disabled = true;
+      });
+
+      const feedback = card.querySelector(`#feedback-${qId}`);
+      feedback.classList.remove("ok", "bad");
+      feedback.classList.add(isCorrect ? "ok" : "bad");
+      feedback.innerHTML =
+        (isCorrect ? "Correct." : "Incorrect.") +
+        ` <span class="explanation">${q.explanation}</span>`;
+
+      validated.add(qId);
+      if (isCorrect) score += 1;
+      updateScore();
+    }
+
+    function updateScore() {
+      scorePill.textContent = `Score : ${score} / ${QUESTIONS.length}`;
+    }
+
+    function resetQuiz() {
+      validated.clear();
+      score = 0;
+      updateScore();
+      renderQuestions();
+    }
+
+    document.querySelectorAll(".reveal-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.open;
+        const target = document.getElementById(`open-${id}`);
+        target.classList.toggle("show");
+        btn.textContent = target.classList.contains("show")
+          ? "Masquer la reponse type"
+          : "Afficher une reponse type";
+      });
+    });
+
+    resetBtn.addEventListener("click", resetQuiz);
+    renderQuestions();
+  </script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Authentification, Gestion des Identités &amp;amp; Contrôle d’Accès | Cybersécurité B2</title>
+<meta name="description" content="Chapitre 5 du cours Cybersécurité B2 : Stockage sécurisé de mots de passe (Argon2id, bcrypt, salage et étirement), MFA/TOTP (RFC 6238), architecture des jetons JWT (RFC 7519) et modèles d’autorisation DAC, MAC, RBAC et ABAC. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/Cyber%20securite%20B2/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Authentification, Gestion des Identités &amp;amp; Contrôle d’Accès | Cybersécurité B2">
+<meta property="og:description" content="Chapitre 5 du cours Cybersécurité B2 : Stockage sécurisé de mots de passe (Argon2id, bcrypt, salage et étirement), MFA/TOTP (RFC 6238), architecture des jetons JWT (RFC 7519) et modèles d’autorisation DAC, MAC, RBAC et ABAC. Notions fondamentales, ateliers Python interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="Cyber securite B2nav"><div class="Cyber securite B2nav__in">
+  <a class="Cyber securite B2nav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="Cyber securite B2nav__sep" aria-hidden="true">/</span>
+  <a class="Cyber securite B2nav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B2</a>
+  <div class="Cyber securite B2nav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="Cyber securite B2nav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="Cyber securite B2wrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Authentification, Gestion des Identités &amp; Contrôle d’Accès</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une base de données d’utilisateurs contenant 500 000 comptes est dérobée lors d’une brèche de sécurité. Si les mots de passe y sont stockés en clair ou avec un simple SHA-256 non salé, les pirates casseront 90 % d’entre eux en quelques heures à l’aide de tables arc-en-ciel (rainbow tables) et de plateformes de calcul GPU. Comment stocker les empreintes de manière indéchiffrable grâce au salage et aux algorithmes à mémoire dure comme Argon2id ? Comment sécuriser les APIs REST sans état avec des jetons JWT signés sans tomber dans le piège de la faille alg=none ? Comment orchestrer les autorisations des utilisateurs avec des matrices de rôles (RBAC) ? Ce module détaille la gestion de l’identité et de l’accès (IAM).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le rôle indispensable du salage cryptographique unique contre les attaques par dictionnaire et tables précalculées ;</li>
+      <li>comparer les algorithmes de dérivation de clé modernes résistants au matériel dédié (Argon2id, bcrypt, PBKDF2) ;</li>
+      <li>expliquer le fonctionnement d’un second facteur d’authentification par code temporaire TOTP (RFC 6238) ;</li>
+      <li>décortiquer la structure interne d’un jeton JWT (Header, Payload, Signature) et contrer la vulnérabilité alg=none ;</li>
+      <li>distinguer et implémenter les modèles de contrôle d’accès discrétionnaire (DAC), obligatoire (MAC) et basé sur les rôles (RBAC).</li>
+    </ol>
+  </div>
+
+<h2>1. Stockage des mots de passe : Salage, Épreuvage &amp; Fonctions de dérivation (KDF)</h2>
+
+<p>Stocker un mot de passe avec une fonction de hachage rapide standard (MD5, SHA-1, ou même SHA-256 pur) est une grave erreur : des grappes de processeurs graphiques (GPU) modernes testent des dizaines de milliards de combinaisons par seconde.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">1. Le Salage cryptographique (Salt)</h4>
+    <p>Une chaîne aléatoire unique d’au moins 16 octets générée pour chaque utilisateur et concaténée au mot de passe avant hachage :</p>
+    <p><code>hash = KDF(mot_de_passe + sel_unique)</code></p>
+    <p>Le sel est stocké en clair avec l’empreinte. Il rend caduques toutes les tables arc-en-ciel précalculées     et garantit que deux utilisateurs ayant le même mot de passe auront deux empreintes radicalement différentes.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">2. L’Épreuvage &amp; Résistance mémoire (Argon2id)</h4>
+    <p>Pour contrer les fermes de calcul GPU et ASIC, les fonctions modernes imposent un coût calculatoire et mémoire configurable :</p>
+    <ul>
+      <li><strong>Argon2id :</strong> Standard recommandé mondialement (vainqueur du Password Hashing Competition), combinant résistance aux attaques par canal auxiliaire et aux ASICs.</li>
+      <li><strong>bcrypt :</strong> Standard historique robuste basé sur Blowfish avec coût temporel exponentiel.</li>
+      <li><strong>PBKDF2 :</strong> Recommandé par le NIST (avec &ge; 600 000 itérations de SHA-256).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Authentification multifacteur (MFA) &amp; Algorithme TOTP (RFC 6238)</h2>
+
+<p>L’authentification robuste combine au moins deux facteurs indépendants issus de catégories distinctes :</p>
+<ul>
+  <li><strong>Facteur de connaissance :</strong> Ce que je sais (mot de passe, code secret).</li>
+  <li><strong>Facteur de possession :</strong> Ce que j’ai (smartphone, clé matérielle FIDO2 / YubiKey, carte à puce).</li>
+  <li><strong>Facteur d’inhérence :</strong> Ce que je suis (empreinte digitale, scan rétinien, reconnaissance faciale).</li>
+</ul>
+  <div class="box box--info">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Fonctionnement mathématique du TOTP (Time-Based One-Time Password)</div>
+<p>Le protocole <strong>TOTP</strong> (RFC 6238) utilisé par Google Authenticator ou FreeOTP calcule un code à 6 chiffres à partir d’un secret partagé <i>K</i> et du temps Unix courant <i>T</i> (par pas de 30 secondes) :</p><pre><code>// 1. Calcul du compteur de pas de temps de 30 secondes :
+C = floor(timestamp_actuel / 30)
+
+// 2. Calcul du HMAC-SHA1 de ce compteur avec la clé secrète partagée :
+HMAC_res = HMAC_SHA1(K, C)
+
+// 3. Tronquage dynamique pour extraire un code numérique à 6 chiffres</code></pre><p>Puisque le secret <i>K</i> n’est jamais retransmis sur le réseau après l’enrôlement initial (QR code), l’interception d’un code unique ne permet pas à un attaquant de prédire les codes futurs.</p>
+  </div>
+
+<h2>3. Architecture des jetons JWT (RFC 7519) &amp; Pièges de sécurité</h2>
+
+<p>Les architectures d’API microservices et applications mobiles utilisent des jetons <strong>JWT</strong> (JSON Web Token) pour transmettre des informations d’identité de façon compacte et autonome (stateless).</p>
+<p>Un JWT est composé de trois blocs distincts séparés par des points et encodés en Base64URL :</p>
+<pre><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTYiLCJ1c2VyIjoiYWxpY2UiLCJleHAiOjE3MDAwMDAwMDB9.s1gn4tur3...</code></pre>
+<table class="table">
+  <thead><tr><th>Partie</th><th>Nom</th><th>Contenu typique</th><th>Objectif</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Partie 1</strong></td><td>En-tête (Header)</td><td><code>{"alg": "HS256", "typ": "JWT"}</code></td><td>Indique l’algorithme cryptographique de signature utilisé.</td></tr>
+    <tr><td><strong>Partie 2</strong></td><td>Charge utile (Payload)</td><td><code>{"sub": "alice", "role": "admin", "exp": 1750000000}</code></td><td>Revendications (claims) : identifiant utilisateur, rôles, date d’expiration.</td></tr>
+    <tr><td><strong>Partie 3</strong></td><td>Signature (Signature)</td><td><code>HMACSHA256(base64Url(Header) + "." + base64Url(Payload), secret)</code></td><td>Garantit que le payload n’a pas été falsifié par le client.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--warning">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> La faille critique de l’algorithme « alg=none »</div>
+<p>La spécification JWT autorise un mode non signé où <code>"alg": "none"</code>. Si la bibliothèque backend accepte ce paramètre sans vérification stricte, un attaquant peut modifier son rôle en <code>"role": "admin"</code>, supprimer la signature, et obtenir tous les privilèges ! Un validateur de sécurité doit <strong>formellement rejeter</strong> tout jeton déclarant <code>alg: none</code>.</p>
+  </div>
+
+<h2>4. Modèles de contrôle d’accès : DAC, MAC, RBAC &amp; ABAC</h2>
+
+<p>Une fois l’identité prouvée, le système applique un modèle formel d’autorisation pour décider de l’accès aux objets :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">DAC (Discretionary Access Control)</h4>
+    <p>Le propriétaire d’une ressource décide souverainement de qui a accès et avec quels droits (ex. permissions de fichiers UNIX <code>chmod 755</code>). Simple, mais propice aux erreurs de configuration humaine.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">MAC (Mandatory Access Control)</h4>
+    <p>L’autorité centrale du système impose des règles strictes basées sur des niveaux de classification (ex. Public, Secret Défense). Ni le créateur ni l’utilisateur ne peuvent modifier les droits (ex. SELinux, AppArmor).</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">RBAC (Role-Based Access Control)</h4>
+    <p>Les permissions sont associées à des rôles (ex. <i>Lecteur, Gestionnaire, Administrateur</i>), et les utilisateurs sont rattachés à des rôles. Modèle de référence dans 95 % des applications d’entreprise.</p>
+  </div>
+  <div class="card">
+    <h4 class="card-title">ABAC (Attribute-Based Access Control)</h4>
+    <p>Évalue dynamiquement un ensemble d’attributs contextuels : utilisateur (département), ressource (sensibilité), action (export), environnement (heure, adresse IP, localisation géographique).</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="cs2-c5-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="Azerty123;sel_unique_42;3">
+  <script type="text/plain" data-lab-starter>import sys, hashlib
+
+ligne = sys.stdin.read().strip()
+
+# À compléter : calculer le hachage itératif avec sel
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Dérivation itérative de mot de passe avec sel (Key Stretching)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Dérivation itérative de mot de passe avec sel (Key Stretching)</p>
+    <div class="lab__brief"><p>Pour ralentir les attaques par table arc-en-ciel et force brute sur GPU, les fonctions de dérivation de clé modernes (Argon2, PBKDF2) appliquent un hachage itératif renforcé par un sel cryptographique unique.
+
+Entrée : <code>mot_de_passe;sel;iterations</code> (ex. <code>Azerty123;sel_unique_42;10</code>).
+
+Algorithme :
+1. Première itération : $h_1 = \text{sha256}(mot\_de\_passe + sel)$.
+2. Pour chaque étape $k$ de 2 à $iterations$ inclus : $h_k = \text{sha256}(h_{k-1} + sel)$ (où $h_{k-1}$ est la chaîne hexadécimale en minuscules de l’étape précédente concaténée au sel ASCII).
+3. Sortie : <code>Cle: &lt;h_final&gt; | Sel: &lt;sel&gt; | Iterations: &lt;iterations&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Azerty123;sel_unique_42;3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Cle: 01e9866dcf0c6e5864a596c3bf533d1094094bdddf255073a9689ea798116769 | Sel: sel_unique_42 | Iterations: 3</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Lis l entrée standard avec input().strip() ou sys.stdin.</li>
+        <li>Traite les cas selon la spécification de l exercice.</li>
+        <li>Affiche le résultat exactement sous la forme attendue.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c5-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTc1MDAwMDAwMH0.signatureFactice;1700000000">
+  <script type="text/plain" data-lab-starter>import sys, json, base64
+
+ligne = sys.stdin.read().strip()
+
+# À compléter : décoder et valider le jeton JWT
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Validateur de jeton JWT et détection de faille alg=none</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Validateur de jeton JWT et détection de faille alg=none</p>
+    <div class="lab__brief"><p>Un jeton JWT (JSON Web Token) est composé de 3 parties encodées en Base64URL : <code>header.payload.signature</code>.
+
+Entrée : <code>jwt_string;timestamp_actuel</code>
+Traitement :
+1. Vérifier la présence des 3 segments séparés par un point. Si incorrect &rarr; <code>REJET: format JWT invalide</code>.
+2. Décoder le Header (base64url avec padding adéquat `=`). Si le champ <code>"alg"</code> vaut <code>"none"</code> (ou est manquant) &rarr;    <code>REJET: algorithme non securise (alg=none)</code>.
+3. Décoder le Payload (base64url). Extraire <code>"sub"</code> (ou <code>"user"</code>), <code>"role"</code> et <code>"exp"</code> (timestamp d’expiration).
+4. Si <code>timestamp_actuel &gt; exp</code> &rarr; <code>REJET: jeton expire (exp=&lt;exp&gt;, now=&lt;now&gt;)</code>.
+5. Sinon &rarr; <code>VALIDE: utilisateur=&lt;sub&gt;, role=&lt;role&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTc1MDAwMDAwMH0.signatureFactice;1700000000</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VALIDE: utilisateur=alice, role=admin</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Lis l entrée standard avec input().strip() ou sys.stdin.</li>
+        <li>Traite les cas selon la spécification de l exercice.</li>
+        <li>Affiche le résultat exactement sous la forme attendue.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cs2-c5-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="ADMIN:read,write,delete|USER:read&#10;alice:ADMIN|bob:USER&#10;bob write">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin if l.strip()]
+
+# À compléter : évaluer la permission selon la matrice RBAC
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Moteur de contrôle d’accès basé sur les rôles (RBAC)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Moteur de contrôle d’accès basé sur les rôles (RBAC)</p>
+    <div class="lab__brief"><p>Dans le modèle RBAC (Role-Based Access Control), les permissions sont associées à des rôles, et les utilisateurs reçoivent un ou plusieurs rôles.
+
+Entrée :
+- Ligne 1 : Définition des rôles <code>ROLE:perm1,perm2|ROLE:perm3...</code> (ex. <code>ADMIN:read,write,delete|USER:read</code>).
+- Ligne 2 : Affectation des utilisateurs <code>USER:ROLE|USER:ROLE...</code> (ex. <code>alice:ADMIN|bob:USER</code>).
+- Ligne 3 : Requête d’accès sous la forme <code>USER action</code> (ex. <code>bob write</code>).
+
+Sortie :
+- Si autorisé : <code>ACCES ACCORDE (&lt;USER&gt; en tant que &lt;ROLE&gt; possede &lt;action&gt;)</code>
+- Si refusé : <code>ACCES REFUSE (&lt;USER&gt; en tant que &lt;ROLE&gt; ne possede pas &lt;action&gt;)</code>
+- Si l’utilisateur est inconnu : <code>UTILISATEUR INCONNU</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ADMIN:read,write,delete|USER:read
+alice:ADMIN|bob:USER
+bob write</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ACCES REFUSE (bob en tant que USER ne possede pas write)</pre></div>
+    </div>
+    <p class="lab__note">Exemple de référence.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Lis l entrée standard avec input().strip() ou sys.stdin.</li>
+        <li>Traite les cas selon la spécification de l exercice.</li>
+        <li>Affiche le résultat exactement sous la forme attendue.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est le rôle fondamental du sel cryptographique (Salt) lors du stockage des mots de passe ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Rendre inopérantes les tables arc-en-ciel (rainbow tables) précalculées et garantir que deux mots de passe identiques produisent des empreintes distinctes</button>
+        <button class="opt">Chiffrer le mot de passe pour qu’il puisse être relu en clair par l’administrateur</button>
+        <button class="opt">Réduire la taille de l’empreinte stockée sur le disque dur</button>
+        <button class="opt">Permettre la réinitialisation automatique du mot de passe par SMS</button>
+      </div>
+      <div class="q__exp">Le sel est une valeur aléatoire unique par compte qui modifie l’entrée de la fonction de hachage. Les dictionnaires et tables de correspondance précalculées deviennent inutilisables car chaque utilisateur nécessite son propre calcul dédié.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi l’algorithme de hachage de mot de passe Argon2id est-il aujourd’hui recommandé plutôt qu’un simple SHA-256 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce qu’il est intentionnellement lent et consomme une quantité importante de mémoire vive (mémoire dure), paralysant les attaques par GPU et circuits ASIC</button>
+        <button class="opt">Parce que le SHA-256 a été mathématiquement cassé et ne produit plus d’empreintes</button>
+        <button class="opt">Parce qu’Argon2id fonctionne sans aucun processeur physique</button>
+        <button class="opt">Parce qu’il permet de se connecter sans avoir besoin de taper de mot de passe</button>
+      </div>
+      <div class="q__exp">SHA-256 est optimisé pour être extrêmement rapide (idéal pour vérifier l’intégrité d’un gros fichier). À l’inverse, une fonction KDF de mot de passe comme Argon2id doit être coûteuse en temps et en RAM pour rendre la force brute économiquement prohibitive.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un jeton JWT valide, que garantit la troisième partie (la signature cryptographique) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Que le contenu du payload n’a pas été falsifié ni altéré depuis son émission par le serveur</button>
+        <button class="opt">Que les données du payload sont chiffrées et illisibles par le client</button>
+        <button class="opt">Que le jeton sera éternellement valide sans jamais expirer</button>
+        <button class="opt">Que la connexion réseau est protégée par un pare-feu matériel</button>
+      </div>
+      <div class="q__exp">Un JWT standard n’est pas chiffré (le payload en Base64URL est lisible en clair). En revanche, la signature prouve l’intégrité et l’authenticité : toute altération d’un claim (comme le rôle) invalidera la signature.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel modèle de contrôle d’accès permet d’autoriser un accès en évaluant des règles dynamiques telles que « autoriser si heure entre 8h et 18h ET connexion depuis la France » ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ABAC (Attribute-Based Access Control)</button>
+        <button class="opt">DAC (Discretionary Access Control)</button>
+        <button class="opt">RBAC (Role-Based Access Control)</button>
+        <button class="opt">MAC (Mandatory Access Control)</button>
+      </div>
+      <div class="q__exp">Le modèle ABAC évalue les attributs contextuels du sujet, de la ressource, de l’action et de l’environnement pour autoriser ou refuser dynamiquement l’accès.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser le même sel global (pepper) pour tous les comptes au lieu de générer un sel aléatoire distinct par utilisateur.</li>
+      <li>Faire confiance aux données contenues dans un JWT sans vérifier la signature avec la clé secrète ou la clé publique du serveur.</li>
+      <li>Accepter un jeton JWT avec le champ d’en-tête "alg": "none" sous prétexte qu’aucun algorithme n’est spécifié.</li>
+      <li>Négliger la révocation des jetons JWT : comme ils sont sans état, un JWT volé reste utilisable jusqu’à son expiration si aucune liste noire n’existe.</li>
+      <li>Confondre un jeton JWT signé (JWS, lisible en clair) avec un jeton chiffré (JWE, dont le payload est opaque).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour sécuriser l’authentification et l’accès d’une API REST</div>
+    <ol>
+      <li>Hacher et saler les identifiants avec Argon2id ou bcrypt en calibrant le coût calculatoire sur le serveur (au moins 300 ms par hachage).</li>
+      <li>Activer le MFA obligatoire pour les comptes à privilèges avec validation de codes TOTP (RFC 6238).</li>
+      <li>Émettre des jetons JWT à durée de vie courte (ex. 15 minutes) signés avec une clé asymétrique robuste (RS256 ou Ed25519) et forcer la vérification de la date d’expiration.</li>
+      <li>Structurer les autorisations avec le modèle RBAC au niveau des routes et des contrôleurs d’accès aux entités métiers.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le salage aléatoire individuel neutralise définitivement les tables arc-en-ciel lors d’une fuite de base de données.</li>
+      <li>Argon2id est le standard de référence mondial pour le hachage de mots de passe grâce à sa mémoire dure résistante aux attaques matérielles.</li>
+      <li>Le MFA s’appuie sur au moins deux facteurs distincts (connaissance, possession, inhérence) et le protocole TOTP sur des pas de 30 secondes.</li>
+      <li>Un jeton JWT comprend Header, Payload et Signature ; la signature doit être rigoureusement vérifiée et l’algorithme "none" formellement banni.</li>
+      <li>Le contrôle d’accès d’entreprise repose majoritairement sur le modèle RBAC (rôles et permissions) complété par l’ABAC pour les règles contextuelles.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends l’effet mathématique du salage unique sur les attaques par force brute.</li>
+      <li>Je sais expliquer pourquoi SHA-256 pur ne convient pas pour stocker des mots de passe.</li>
+      <li>Je maîtrise le calcul du compteur de temps d’un code TOTP sur des tranches de 30 secondes.</li>
+      <li>Je connais la structure des trois parties d’un JWT et les vulnérabilités classiques associées (alg=none).</li>
+      <li>Je sais concevoir une matrice de droits RBAC associant utilisateurs, rôles et permissions.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Salage cryptographique (Salt)</li><li>Fonctions de dérivation de clé (KDF)</li><li>Algorithmes Argon2id, bcrypt, PBKDF2</li><li>Authentification multi-facteurs (MFA / 2FA)</li><li>Algorithme TOTP (RFC 6238)</li><li>Structure du JSON Web Token (JWT)</li><li>Attaque JWT alg=none</li><li>Contrôle d’accès discrétionnaire (DAC)</li><li>Contrôle d’accès obligatoire (MAC)</li><li>Contrôle d’accès basé sur les rôles (RBAC)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois le rôle du salage et la structure des trois parties d’un JWT.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur le mécanisme de dérivation de clé et la matrice des rôles RBAC.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu maîtrises les principes de gestion des identités et du contrôle d’accès.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise totale : passe à la détection d’intrusions, au SIEM et à la réponse à incident au module 6.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Détection d’Intrusions (NIDS/SIEM), Analyse de Traces &amp; Réponse aux Incidents <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours de Cybersécurité B2, les guides de l’ANSSI, les référentiels du NIST (SP 800-61), de l’OWASP et les documentations Snort et Nmap.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

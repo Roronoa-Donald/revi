@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Dénombrement et recomptage | Probabilités B2</title>
+<meta name="description" content="Chapitre 2 du cours de probabilités B2 : Principe multiplicatif, arrangements, combinaisons, permutations avec répétition, binôme de Newton. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/probabilites/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Dénombrement et recomptage | Probabilités B2">
+<meta property="og:description" content="Chapitre 2 du cours de probabilités B2 : Principe multiplicatif, arrangements, combinaisons, permutations avec répétition, binôme de Newton. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="probabilitesnav"><div class="probabilitesnav__in">
+  <a class="probabilitesnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="probabilitesnav__sep" aria-hidden="true">/</span>
+  <a class="probabilitesnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-dice"></use></svg> Probabilités B2</a>
+  <div class="probabilitesnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="probabilitesnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="probabiliteswrap">
+<p class="crumb"><a href="../index.html">Probabilités B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Dénombrement et recomptage</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Sur un univers équiprobable, calculer une probabilité se ramène à compter des cas. Encore faut-il compter juste : distinguer l’ordre, gérer les répétitions, reconnaître quand on choisit un sous-ensemble plutôt qu’une suite ordonnée.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>appliquer le principe multiplicatif et lister les cas d’un arbre ;</li>
+      <li>distinguer arrangements et combinaisons ;</li>
+      <li>compter les permutations avec répétition (anagrammes) ;</li>
+      <li>utiliser le coefficient binomial et la formule du binôme.</li>
+    </ol>
+  </div>
+
+<h2>1. Principe multiplicatif et arbres</h2>
+
+<p>Si une étape offre <code>m</code> choix et la suivante <code>n</code> choix, il y a <code>m × n</code> chemins. C’est le <strong>principe multiplicatif</strong> : il se répète jusqu’au produit de tous les niveaux. Un menu (3 entrées, 4 plats) offre 12 combinaisons.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> L’arbre, outil de comptage</div>
+    <p>Un <strong>arbre</strong> dessine une expérience par étapes : chaque branche est un choix. Le nombre de chemins complets est le nombre de résultats ; on multiplie les branches plutôt que de les énumérer une à une.</p>
+  </div>
+<pre><code>entrees = 3
+plats = 4
+print(entrees * plats)   # 12</code></pre>
+
+<h2>2. Arrangements et combinaisons</h2>
+
+<p>Un <strong>arrangement</strong> de <code>k</code> objets parmi <code>n</code> tient compte de l’ordre : <code>A(n,k) = n!/(n−k)! = n·(n−1)···(n−k+1)</code>. Une <strong>combinaison</strong> ignore l’ordre : <code>C(n,k) = A(n,k)/k! = n!/(k!(n−k)!)</code>.</p>
+<pre><code>from math import factorial, comb
+
+# Arrangement : 3 premières places parmi 5 chevaux.
+print(factorial(5) // factorial(2))   # 60
+
+# Combinaison : choisir 2 chevaux parmi 5, sans ordre.
+print(comb(5, 2))                      # 10</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — oublier de diviser par k!</div>
+    <p>Passer de l’arrangement à la combinaison demande de <strong>diviser par k!</strong>, car chaque sous-ensemble de <code>k</code> objets a été compté <code>k!</code> fois (toutes les permutations internes). Même sans l’écrire, l’ordre reste compté si l’on garde l’arrangement.</p>
+  </div>
+
+<h2>3. Permutations avec répétition</h2>
+
+<p>Combien d’<strong>anagrammes distincts</strong> le mot <code>AABB</code> a-t-il ? Les permutations des 4 lettres sont <code>4!</code>, mais échanger deux A identiques donne le même mot. La formule divise par les factorielles des effectifs :</p>
+<pre><code>from math import factorial
+from collections import Counter
+
+total = factorial(4)
+for effectif in Counter("AABB").values():
+    total //= factorial(effectif)
+print(total)   # 6</code></pre>
+<p>Avec des lettres toutes distinctes (<code>ABCD</code>), chaque effectif vaut 1 et l’on retrouve <code>4! = 24</code>.</p>
+
+<h2>4. Coefficients binomiaux et binôme</h2>
+
+<p>Le nombre <code>C(n,k)</code> est aussi appelé <strong>coefficient binomial</strong>. Il apparaît dans la formule du <strong>binôme de Newton</strong> : <code>(a+b)ⁿ = Σ C(n,k)·aᵏ·bⁿ⁻ᵏ</code>. On le lit dans le triangle de Pascal, où chaque case est la somme des deux au-dessus.</p>
+<pre><code>from math import comb
+
+n = 4
+for k in range(n + 1):
+    print(comb(n, k))
+# 1 4 6 4 1 — ligne n = 4 du triangle de Pascal</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Compter, c’est choisir</div>
+    <p>À l’oral : « on choisit 2 objets parmi 5 » se traduit toujours par <code>C(5,2)</code>. « on range 2 objets parmi 5 » (place, podium, mot de passe) se traduit par <code>A(5,2)</code>. Identifier si l’ordre compte est la moitié du travail.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="pb2-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;3">
+  <script type="text/plain" data-lab-starter>from math import factorial
+
+n = int(input())
+k = int(input())
+
+# À compléter : afficher A(n,k) = n! / (n-k)!.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Arrangements</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter les arrangements de k objets parmi n : A(n,k) = n!/(n−k)!.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux entiers : <code>n</code> puis <code>k</code>. Affiche le nombre d’<strong>arrangements</strong> <code>A(n,k) = n!/(n−k)!</code> (l’ordre compte, sans répétition).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>60</pre></div>
+    </div>
+    <p class="lab__note">5 × 4 × 3 = 60.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>A(n,k) = n·(n−1)·…·(n−k+1) : c’est le quotient n! / (n−k)!.</li>
+        <li>La fonction factorial du module math calcule n! ; attention à ne pas oublier le cas k = 0 (résultat 1).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pb2-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;2">
+  <script type="text/plain" data-lab-starter>from math import factorial
+
+n = int(input())
+k = int(input())
+
+# À compléter : afficher C(n,k) = n! / (k! (n-k)!).
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Combinaisons</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter les combinaisons de k objets parmi n : C(n,k) = n!/(k!(n−k)!).</p>
+    <div class="lab__brief"><p>Le programme reçoit deux entiers : <code>n</code> puis <code>k</code>. Affiche le nombre de <strong>combinaisons</strong> <code>C(n,k)</code> (l’ordre ne compte pas, sans répétition).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>10</pre></div>
+    </div>
+    <p class="lab__note">Dix façons de choisir 2 objets parmi 5.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Divise l’arrangement A(n,k) par k! pour oublier l’ordre : C(n,k) = A(n,k) / k!.</li>
+        <li>La fonction comb(n, k) du module math donne directement le coefficient binomial.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pb2-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="ABC">
+  <script type="text/plain" data-lab-starter>from math import factorial
+from collections import Counter
+
+mot = input()
+
+# À compléter : afficher le nombre d’anagrammes distincts.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Permutations avec répétition</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Compter les anagrammes distincts d’un mot : n!/(r₁!·r₂!·…).</p>
+    <div class="lab__brief"><p>Le programme reçoit un mot (une ligne, sans espace). Affiche le nombre d’<strong>anagrammes distincts</strong>, c’est-à-dire le nombre de permutations des lettres en tenant compte des répétitions : <code>n! / (r₁!·r₂!·…)</code> où chaque <code>rᵢ</code> est le nombre d’occurrences d’une lettre.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ABC</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>6</pre></div>
+    </div>
+    <p class="lab__note">Trois lettres distinctes : 3! = 6 anagrammes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Compte d’abord les occurrences de chaque lettre avec Counter(mot).</li>
+        <li>Divise la factorielle de la longueur par le produit des factorielles de chaque effectif.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Le principe multiplicatif dit que…</p>
+      <div class="opts">
+        <button class="opt">on additionne les choix</button>
+        <button class="opt" data-correct="1">on multiplie les choix des étapes</button>
+        <button class="opt">on divise les choix</button>
+      </div>
+      <div class="q__exp">m choix puis n choix donnent m × n chemins.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand utilise-t-on un arrangement ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Quand l’ordre compte</button>
+        <button class="opt">Quand l’ordre ne compte pas</button>
+        <button class="opt">Jamais</button>
+      </div>
+      <div class="q__exp">A(n,k) tient compte de l’ordre des k objets choisis.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand utilise-t-on une combinaison ?</p>
+      <div class="opts">
+        <button class="opt">Quand l’ordre compte</button>
+        <button class="opt" data-correct="1">Quand l’ordre ne compte pas</button>
+        <button class="opt">Toujours</button>
+      </div>
+      <div class="q__exp">C(n,k) ignore l’ordre : c’est un choix de sous-ensemble.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Formule de C(n,k) ?</p>
+      <div class="opts">
+        <button class="opt">n!/(n−k)!</button>
+        <button class="opt" data-correct="1">n!/(k!(n−k)!)</button>
+        <button class="opt">n!·k!</button>
+      </div>
+      <div class="q__exp">On divise l’arrangement par k! pour oublier l’ordre.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d’anagrammes pour AAB ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">3</button>
+        <button class="opt">6</button>
+        <button class="opt">2</button>
+      </div>
+      <div class="q__exp">3!/2! = 6/2 = 3 anagrammes distincts.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le coefficient binomial C(n,k) sert dans…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">le binôme de Newton</button>
+        <button class="opt">la dérivée</button>
+        <button class="opt">l’intégrale</button>
+      </div>
+      <div class="q__exp">(a+b)ⁿ = Σ C(n,k) aᵏ bⁿ⁻ᵏ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d’anagrammes pour ABCD ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">24</button>
+        <button class="opt">12</button>
+        <button class="opt">4</button>
+      </div>
+      <div class="q__exp">Lettres distinctes : 4! = 24.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi diviser par les factorielles des effectifs ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour compter les répétitions comme identiques</button>
+        <button class="opt">Pour accélérer</button>
+        <button class="opt">Pour l’ordre</button>
+      </div>
+      <div class="q__exp">Les permutations d’éléments identiques donnent le même mot.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre arrangement (ordre) et combinaison (pas d’ordre).</li>
+      <li>Oublier de diviser par <code>k!</code> en passant de l’arrangement à la combinaison.</li>
+      <li>Traiter des éléments répétés comme s’ils étaient distincts.</li>
+      <li>Additionner les branches d’un arbre au lieu de les multiplier.</li>
+      <li>Utiliser <code>C(n,k)</code> là où l’ordre compte (mot de passe, podium).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Compter sans se tromper</div>
+    <ol>
+      <li><strong>Représenter</strong> l’expérience par un arbre ou un schéma étape par étape.</li>
+      <li><strong>Décider</strong> si l’ordre compte : arrangement si oui, combinaison sinon.</li>
+      <li><strong>Repérer</strong> les répétitions et diviser par les factorielles des effectifs.</li>
+      <li><strong>Écrire</strong> le calcul en factorielles avant d’évaluer.</li>
+      <li><strong>Contrôler</strong> par un petit cas compté à la main.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Principe multiplicatif : les choix successifs se multiplient.</li>
+      <li>Arrangement A(n,k) = n!/(n−k)! : l’ordre compte.</li>
+      <li>Combinaison C(n,k) = n!/(k!(n−k)!) : l’ordre ne compte pas.</li>
+      <li>Permutations avec répétition : n! divisé par les factorielles des effectifs.</li>
+      <li>C(n,k) est le coefficient du binôme de Newton, lu sur le triangle de Pascal.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais dire si l’ordre compte dans un énoncé.</li>
+      <li>J’écris un arrangement sans le confondre avec une combinaison.</li>
+      <li>Je gère les répétitions en divisant par les factorielles.</li>
+      <li>Je reconnais un coefficient binomial dans une formule.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>principe multiplicatif</li><li>arbre</li><li>factorielle</li><li>arrangement</li><li>combinaison</li><li>coefficient binomial</li><li>permutation avec répétition</li><li>anagramme</li><li>binôme de Newton</li><li>triangle de Pascal</li><li>sous-ensemble</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois la différence arrangement / combinaison.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les permutations avec répétition.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu écris les factorielles correctement.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe aux variables aléatoires, chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Variables aléatoires discrètes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de probabilités (fondements, dénombrement, variables aléatoires discrètes et continues).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

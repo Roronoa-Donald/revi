@@ -1,0 +1,224 @@
+/**
+ * Pages « examens » et « exercices » du cours « Téléphonie VoIP B3 ».
+ */
+'use strict';
+
+const { ic, crumb, box } = require('../../../../scripts/course-kit');
+const { chnav, disclaimer } = require('./helpers');
+
+/* ======================== Examens Blancs ======================== */
+
+function examens(course) {
+  const crumbs = crumb(course, [
+    { label: 'Accueil', href: '../index.html' },
+    { label: 'Sommaire', href: '../sommaire.html' },
+    { label: 'Examens blancs' }
+  ]);
+
+  const body = [
+    crumbs,
+    '  <h1>Examens Blancs &amp; Épreuves Corrigées — Téléphonie VoIP B3</h1>',
+    '  <p class="lead">Deux épreuves académiques complètes d’ingénierie et d’administration ToIP conformes au cursus Bachelor 3 (IT / RSI) : numérisation du signal, codecs, signalisation SIP/SDP, transport RTP, configuration d\'IPBX Asterisk, dimensionnement de faisceaux par la loi d\'Erlang B, qualité de service (QoS) et sécurisation des communications d\'entreprise.</p>',
+    '',
+    '  <h2>Épreuve 1 : Contrôle Continu (CC) — Durée 1 h 30 (Barème sur 20 points)</h2>',
+    box('standard', 'Sujet du Contrôle Continu — Numérisation Vocale, Protocoles &amp; Déploiement Asterisk', [
+      '<h4>Partie 1 : Numérisation Vocale, Théorème de Nyquist &amp; Codecs (6 points)</h4>',
+      '<ol>',
+      '  <li>Énoncez le théorème de Nyquist-Shannon. Pourquoi la fréquence d\'échantillonnage de la voix téléphonique classique (bande 300 - 3 400 Hz) a-t-elle été fixée à 8 000 Hz ? Expliquez le principe de la compression logarithmique A-law et µ-law dans la norme ITU-T G.711. (3 pts)</li>',
+      '  <li>Une entreprise déploie un lien WAN pour relier un site distant de 40 collaborateurs téléphonant simultanément. Comparez la bande passante réseau totale consommée si les communications utilisent : (a) le codec G.711 (64 kbps, payload 20 ms), (b) le codec G.729 (8 kbps, payload 20 ms). Les en-têtes réseau IP (20B), UDP (8B) et RTP (12B) totalisent 40 octets par paquet. (3 pts)</li>',
+      '</ol>',
+      '<h4>Partie 2 : Protocoles de Signalisation &amp; Médias SIP, SDP &amp; RTP (7 points)</h4>',
+      '<ol>',
+      '  <li>Tracez le diagramme de séquence complet de l\'établissement et de la fermeture d\'un appel réussi entre le terminal Alice et le terminal Bob via un serveur proxy SIP (méthodes INVITE, 100 Trying, 180 Ringing, 200 OK, ACK, flux RTP direct, BYE, 200 OK). Quels sont les rôles respectifs des couches SIP, SDP et RTP ? (4 pts)</li>',
+      '  <li>Un analyseur réseau capture le paquet SDP suivant : <code>m=audio 16384 RTP/AVP 8 101</code> suivi de <code>a=rtpmap:8 PCMA/8000</code> et <code>a=rtpmap:101 telephone-event/8000</code>. Décrivez précisément ce qui a été négocié pour le média (type, port, protocole de transport, codec et gestion des touches DTMF). (3 pts)</li>',
+      '</ol>',
+      '<h4>Partie 3 : Déploiement &amp; Administration Asterisk (7 points)</h4>',
+      '<ol>',
+      '  <li>Dans le fichier de configuration <code>sip.conf</code>, expliquez la différence fondamentale entre les valeurs de directive <code>type=friend</code>, <code>type=peer</code> et <code>type=user</code>. Que signifie la directive <code>host=dynamic</code> et pourquoi la directive <code>dtmfmode=rfc2833</code> est-elle fortement recommandée ? (3 pts)</li>',
+      '  <li>Rédigez dans <code>extensions.conf</code> le plan d\'appel permettant : (a) de décrocher l\'appel sur l\'extension d\'accueil 600, (b) de jouer un fichier audio de bienvenue, (c) de faire sonner le poste SIP/101 pendant 20 secondes, (d) en cas de non-réponse, de rediriger l\'appel vers la boîte vocale 101 via l\'application <code>VoiceMail</code>, (e) de raccrocher proprement. (4 pts)</li>',
+      '</ol>'
+    ].join('\n')),
+    '',
+    box('solution', 'Corrigé type &amp; Barème détaillé du Contrôle Continu', [
+      '<h4>Corrigé Partie 1 (6 points)</h4>',
+      '<ul>',
+      '  <li><strong>Théorème de Nyquist &amp; G.711 (3 pts) :</strong> ' +
+      '  - Le théorème de Nyquist-Shannon stipule que pour restituer fidèlement un signal analogique sans repliement de spectre (aliasing), la fréquence d\'échantillonnage doit être au moins le double de la fréquence maximale du signal : <code>Fe &ge; 2 * Fmax</code>. ' +
+      '  - La bande passante de la voix humaine en téléphonie standard s\'étend de 300 à 3 400 Hz (Fmax = 3 400 Hz). La fréquence théorique minimale est 6 800 Hz. La norme internationale a fixé <strong>Fe = 8 000 Hz</strong> pour intégrer une marge de filtrage analogique anti-repliement. ' +
+      '  - Les lois de compression A-law (Europe, ITU-T G.711A) et µ-law (USA/Japon, G.711U) appliquent une quantification logarithmique non linéaire non uniforme : les signaux de faible amplitude (plus fréquents et sensibles à l\'oreille) sont quantifiés avec des pas très fins, tandis que les fortes amplitudes ont des pas plus larges, réduisant le signal de 13/14 bits linéaires à 8 bits par échantillon (8 000 éch/s * 8 bits = 64 kbps).</li>',
+      '  <li><strong>Calcul de bande passante réseau (3 pts) :</strong> ' +
+      '  - Durée de paquetisation = 20 ms -> 50 paquets/seconde (1000 / 20). ' +
+      '  - En-têtes réseau par paquet : IP (20B) + UDP (8B) + RTP (12B) = 40 octets = 320 bits. ' +
+      '  - <em>Cas G.711 (64 kbps) :</em> Charge utile = (64 000 * 0.02) / 8 = 160 octets. Taille du paquet = 160 + 40 = 200 octets. Débit par appel = 200 * 8 * 50 = 80 000 bps = <strong>80.0 kbps</strong>. Pour 40 appels : 40 * 80.0 = <strong>3 200 kbps (3.2 Mbps)</strong>. ' +
+      '  - <em>Cas G.729 (8 kbps) :</em> Charge utile = (8 000 * 0.02) / 8 = 20 octets. Taille du paquet = 20 + 40 = 60 octets. Débit par appel = 60 * 8 * 50 = 24 000 bps = <strong>24.0 kbps</strong>. Pour 40 appels : 40 * 24.0 = <strong>960 kbps (0.96 Mbps)</strong>. ' +
+      '  - Gain : G.729 économise 70% de bande passante sur le lien WAN.</li>',
+      '</ul>',
+      '<h4>Corrigé Partie 2 (7 points)</h4>',
+      '<ul>',
+      '  <li><strong>Flux d\'appel SIP / SDP / RTP (4 pts) :</strong> ' +
+      '  - 1. Alice -> Proxy : <code>INVITE</code> (avec proposition SDP). ' +
+      '  - 2. Proxy -> Alice : <code>100 Trying</code> (prise en compte). ' +
+      '  - 3. Proxy -> Bob : <code>INVITE</code> (relais de l\'invitation). ' +
+      '  - 4. Bob -> Proxy -> Alice : <code>180 Ringing</code> (le combiné de Bob sonne). ' +
+      '  - 5. Bob décroche -> Proxy -> Alice : <code>200 OK</code> (avec réponse SDP confirmant codec et port). ' +
+      '  - 6. Alice -> Bob : <code>ACK</code> (accusé de réception direct ou via proxy). ' +
+      '  - 7. <strong>Flux Média RTP bidirectionnel direct :</strong> La voix circule directement entre Alice et Bob sur les ports UDP négociés sans passer par le proxy (sauf NAT traversal). ' +
+      '  - 8. Raccrochage : <code>BYE</code> envoyé par celui qui raccroche, acquitté par <code>200 OK</code>. ' +
+      '  - <em>Rôles :</em> SIP contrôle et gère la signalisation (qui appelle qui, où et comment), SDP décrit les médias et paramètres de session (codecs, adresses IP, ports), RTP transporte les échantillons audio réels en temps réel.</li>',
+      '  <li><strong>Analyse de session SDP (3 pts) :</strong> ' +
+      '  - <code>m=audio 16384 RTP/AVP 8 101</code> : flux audio reçu sur le port UDP 16384, utilisant le profil RTP/AVP, acceptant les charges utiles (payload types) 8 et 101. ' +
+      '  - <code>a=rtpmap:8 PCMA/8000</code> : charge utile 8 mappée sur le codec G.711 A-law (PCMA) avec une fréquence d\'échantillonnage de 8 kHz. ' +
+      '  - <code>a=rtpmap:101 telephone-event/8000</code> : charge utile 101 réservée aux signaux DTMF hors-bande (RFC 2833 / 4733), garantissant que les touches pressées par l\'utilisateur ne seront pas déformées par la compression vocale.</li>',
+      '</ul>',
+      '<h4>Corrigé Partie 3 (7 points)</h4>',
+      '<ul>',
+      '  <li><strong>Directives sip.conf (3 pts) :</strong> ' +
+      '  - <code>type=peer</code> : utilisé pour les passerelles ou postes appelants (authentification par IP ou username sortant). ' +
+      '  - <code>type=user</code> : accepte uniquement les appels entrants (authentification basée sur le champ From). ' +
+      '  - <code>type=friend</code> : combine peer et user, permettant au poste d\'émettre et de recevoir des appels en interne (indispensable pour les téléphones d\'utilisateurs). ' +
+      '  - <code>host=dynamic</code> : l\'adresse IP du poste n\'est pas fixe ; Asterisk attend que le client envoie une requête <code>REGISTER</code> pour enregistrer son IP et son port temporaires dans la table de localisation. ' +
+      '  - <code>dtmfmode=rfc2833</code> : achemine les touches DTMF dans des paquets d\'événements RTP dédiés, évitant que la compression vocale ne dégrade les tonalités DTMF dans les menus vocaux (SVI).</li>',
+      '  <li><strong>Plan d\'appel extensions.conf (4 pts) :</strong><pre><code>[accueil]\nexten =&gt; 600,1,Answer()\nexten =&gt; 600,n,Playback(bienvenue)\nexten =&gt; 600,n,Dial(SIP/101,20)\nexten =&gt; 600,n,GotoIf($["${DIALSTATUS}" = "BUSY"]?messagerie:unavail)\nexten =&gt; 600,n(messagerie),VoiceMail(101@default,b)\nexten =&gt; 600,n,Hangup()\nexten =&gt; 600,n(unavail),VoiceMail(101@default,u)\nexten =&gt; 600,n,Hangup()</code></pre></li>',
+      '</ul>'
+    ].join('\n')),
+    '',
+    '  <h2>Épreuve 2 : Examen Final (EF) — Durée 2 h 00 (Barème sur 20 points)</h2>',
+    box('standard', 'Sujet de l\'Examen Final — Ingénierie ToIP, Dimensionnement Erlang B, QoS &amp; Sécurité', [
+      '<h4>Dossier 1 : Ingénierie de Trafic &amp; Dimensionnement par la Loi d\'Erlang B (6 points)</h4>',
+      '<p>Un centre d\'appels enregistre un volume moyen de 300 appels entrants par heure pendant l\'heure de pointe. La durée moyenne d\'une conversation est de 180 secondes (3 minutes). Les appels non servis sont immédiatement rejetés (perdus sans file d\'attente).</p>',
+      '<ol>',
+      '  <li>Calculez l\'intensité de trafic offert <code>A</code> en Erlangs. (2 pts)</li>',
+      '  <li>La direction fixe un taux d\'appels perdus maximal (Grade of Service, GoS) de 1.0% (probabilité de blocage B &le; 0.01). En appliquant la formule récursive d\'Erlang B (ou vos tables de dimensionnement), déterminez le nombre minimal de canaux téléphoniques simultanés <code>N</code> nécessaires sur le trunk SIP opérateur. (2 pts)</li>',
+      '  <li>Si le trunk utilise le codec G.711 avec paquetisation de 20 ms (80 kbps par canal avec en-têtes réseau), quelle bande passante WAN symétrique minimale (en Mbps) doit être réservée exclusivement pour la téléphonie avec une marge de sécurité de 20% ? (2 pts)</li>',
+      '</ol>',
+      '<h4>Dossier 2 : Qualité de Service (QoS) &amp; Traversée de NAT (7 points)</h4>',
+      '<ol>',
+      '  <li>Pourquoi le trafic voix ToIP est-il extrêmement intolérant au jitter (gigue) et aux pertes de paquets par rapport au trafic de données bureautiques ? Donnez les seuils maximaux recommandés (délai unidirectionnel, gigue, perte). (2 pts)</li>',
+      '  <li>Décrivez la mise en œuvre de la QoS de bout en bout : (a) au niveau réseau local (802.1Q Voice VLAN, marquage 802.1p CoS 5), (b) au niveau routage IP (marquage DSCP EF 46 pour RTP, CS3 / AF31 pour SIP, file d\'attente prioritaire LLQ). (3 pts)</li>',
+      '  <li>Expliquez pourquoi le passage à travers un routeur NAT pose problème pour la voix sur IP (problème du One-Way Audio). Comment le protocole STUN résout-il cette difficulté et dans quel cas l\'utilisation d\'un serveur relais TURN devient-elle obligatoire ? Pourquoi faut-il impérativement désactiver le SIP ALG sur les routeurs ? (2 pts)</li>',
+      '</ol>',
+      '<h4>Dossier 3 : Fonctions Avancées, Trunks Inter-Sites &amp; Sécurité ToIP (7 points)</h4>',
+      '<ol>',
+      '  <li>Comparez l\'utilisation d\'un trunk IAX2 par rapport à un trunk SIP pour interconnecter deux serveurs Asterisk distants. Quels sont les avantages décisifs d\'IAX2 en environnement multi-NAT ? (2 pts)</li>',
+      '  <li>Dans le fichier <code>queues.conf</code>, décrivez les stratégies de distribution <code>ringall</code> et <code>leastrecent</code>. Quel est l\'impact opérationnel de chacune sur la charge de travail des téléconseillers ? (2 pts)</li>',
+      '  <li>Détaillez les vecteurs d\'attaque fréquents contre les serveurs Asterisk (scans SIP avec outils type sipvicious, attaques brute-force sur les mots de passe de comptes SIP). Expliquez comment mettre en place une défense en profondeur combinant Fail2ban, chiffrement TLS/SRTP et segmentation réseau. (3 pts)</li>',
+      '</ol>'
+    ].join('\n')),
+    '',
+    box('solution', 'Corrigé type &amp; Barème détaillé de l\'Examen Final', [
+      '<h4>Corrigé Dossier 1 (6 points)</h4>',
+      '<ul>',
+      '  <li><strong>Trafic offert en Erlangs (2 pts) :</strong> ' +
+      '  - <code>A = (Nb_appels * Durée_sec) / 3600 = (300 * 180) / 3600 = 54 000 / 3600 = <strong>15.00 Erlangs</strong></code>.</li>',
+      '  <li><strong>Dimensionnement Erlang B (2 pts) :</strong> ' +
+      '  - Pour A = 15.0 E et GoS &le; 1.0% (B &le; 0.01) : ' +
+      '  - À N = 23 canaux : B &approx; 0.019 (1.9% &gt; 1%). ' +
+      '  - À N = 24 canaux : B &approx; 0.012 (1.2% &gt; 1%). ' +
+      '  - À N = <strong>24 canaux</strong> : B(24, 15) &approx; 0.0099 soit 0.99% &le; 1.0%. ' +
+      '  - Il faut donc provisionner <strong>24 canaux simultanés</strong> sur le trunk SIP.</li>',
+      '  <li><strong>Bande passante WAN requise (2 pts) :</strong> ' +
+      '  - 24 canaux * 80 kbps/canal = 1 920 kbps = 1.92 Mbps. ' +
+      '  - Avec 20% de marge de sécurité : 1.92 * 1.20 = <strong>2.304 Mbps symétriques</strong> réservés.</li>',
+      '</ul>',
+      '<h4>Corrigé Dossier 2 (7 points)</h4>',
+      '<ul>',
+      '  <li><strong>Tolérance et seuils ToIP (2 pts) :</strong> ' +
+      '  - La voix humaine est interactive et temps réel : les paquets en retard ne peuvent pas être retransmis (UDP sans ACK). Le buffer de gigue (jitter buffer) ne peut compenser que des micro-variations. ' +
+      '  - Seuils recommandés ITU-T G.114 : Délai unidirectionnel (One-Way Latency) &le; <strong>150 ms</strong>, Gigue (Jitter) &le; <strong>30 ms</strong>, Pertes de paquets &le; <strong>1.0%</strong>.</li>',
+      '  <li><strong>Mise en œuvre de la QoS (3 pts) :</strong> ' +
+      '  - <em>Réseau local (LAN) :</em> Ségrégation physique ou logique via 802.1Q Voice VLAN dédié (isolation des broadcasts PC et vers). Balisage 802.1p au niveau trame avec CoS = 5 (Voice). Détection automatique des téléphones via LLDP-MED ou CDP. ' +
+      '  - <em>Routage IP (WAN) :</em> Marquage DiffServ couche 3 dans le champ ToS : DSCP EF (Expedited Forwarding, valeur décimale 46, hex 0xB8) pour les flux RTP, DSCP CS3 (24) ou AF31 (26) pour la signalisation SIP. ' +
+      '  - Politiques d\'ordonnancement : configuration d\'une file prioritaire stricte à faible latence (LLQ - Low Latency Queueing) qui transmet immédiatement les paquets EF avant tout autre trafic.</li>',
+      '  <li><strong>Problématique du NAT &amp; STUN/TURN/SIP ALG (2 pts) :</strong> ' +
+      '  - <em>One-Way Audio :</em> Les téléphones insèrent leur adresse IP privée locale dans les champs <code>Contact:</code> SIP et <code>c=IN IP4</code> SDP. Le destinataire externe tente de répondre vers cette adresse privée non routable sur Internet, provoquant un silence unilatéral (la voix n\'arrive pas). ' +
+      '  - <em>STUN :</em> Le client interroge un serveur STUN public qui lui renvoie son adresse IP publique et son port externe mappé, lui permettant de remplacer son IP privée dans les messages SDP. ' +
+      '  - <em>TURN :</em> Si le routeur applique un NAT symétrique (le port change pour chaque destination distante), STUN échoue ; un serveur relais TURN doit obligatoirement relayer l\'intégralité des flux RTP. ' +
+      '  - <em>SIP ALG :</em> Les routeurs intègrent souvent un module d\'inspection SIP Application Layer Gateway mal implémenté qui altère ou corrompt les en-têtes SIP sans recalculer les longueurs de contenu, provoquant des échecs d\'enregistrement et de transferts. Il est impératif de le <strong>désactiver</strong>.</li>',
+      '</ul>',
+      '<h4>Corrigé Dossier 3 (7 points)</h4>',
+      '<ul>',
+      '  <li><strong>Trunk IAX2 vs SIP (2 pts) :</strong> ' +
+      '  - SIP utilise le port 5060 pour la signalisation et une plage dynamique de ports UDP (10000-20000) pour chaque flux RTP, compliquant la traversée des pare-feux et du NAT. ' +
+      '  - IAX2 (Inter-Asterisk eXchange) multiplexe la signalisation et l\'ensemble des communications audio sur un port UDP unique (<strong>4569/UDP</strong>), traverse nativement le NAT sans serveur relais, consomme moins de surcharge d\'en-tête et supporte l\'agrégation de flux (trunking) pour économiser la bande passante.</li>',
+      '  <li><strong>Stratégies queues.conf (2 pts) :</strong> ' +
+      '  - <code>ringall :</code> Fait sonner simultanément tous les postes des agents disponibles. Réduit le temps d\'attente de l\'appelant mais peut créer de la frustration entre téléconseillers (course au décroché). ' +
+      '  - <code>leastrecent :</code> Distribue l\'appel à l\'agent dont le dernier appel terminé est le plus ancien dans le temps. Équilibre équitablement la charge de travail et prévient l\'épuisement des agents les plus rapides.</li>',
+      '  <li><strong>Sécurisation &amp; Durcissement ToIP (3 pts) :</strong> ' +
+      '  - <em>Fail2ban :</em> Analyse en continu les journaux d\'authentification Asterisk (<code>/var/log/asterisk/messages</code>) ; dès qu\'une IP source accumule plusieurs échecs consécutifs (codes 401 Unauthorized ou 403 Forbidden), Fail2ban génère une règle iptables de blocage immédiat sur le port 5060/UDP. ' +
+      '  - <em>Chiffrement TLS &amp; SRTP :</em> Utilisation de SIPS (SIP over TLS sur le port 5061/TCP) pour empêcher l\'interception des identifiants et des métadonnées d\'appel, couplé à SRTP (Secure Real-time Transport Protocol, RFC 3711) avec clés AES-128 pour chiffrer la voix transportée contre les écoutes illégales. ' +
+      '  - <em>Mesures complémentaires :</em> Utilisation d\'identifiants et mots de passe forts aléatoires non calqués sur les numéros de postes, désactivation du contexte <code>guest</code> (autorisant les appels anonymes) et filtrage par listes de contrôle d\'accès (ACL <code>permit=</code> / <code>deny=</code>).</li>',
+      '</ul>'
+    ].join('\n')),
+    '',
+    chnav({ href: 'formules.html', label: 'Consulter le mémento technique' }, { href: 'exercices.html', label: 'Consulter les ateliers de code' }),
+    '',
+    disclaimer()
+  ].join('\n\n');
+
+  return {
+    'chapitres/examens.html': {
+      title: 'Examens blancs & épreuves corrigées — ' + course.brand,
+      description: 'Sujets officiels d\'examens CC et EF avec corrigés types détaillés et barèmes pour le cours Téléphonie VoIP B3.',
+      active: 'examens',
+      body
+    }
+  };
+}
+
+/* ======================== Exercices ======================== */
+
+function exercices(course, chapterList) {
+  const crumbs = crumb(course, [
+    { label: 'Accueil', href: '../index.html' },
+    { label: 'Sommaire', href: '../sommaire.html' },
+    { label: 'Ateliers de code' }
+  ]);
+
+  const listHtml = chapterList.map(chapitre => [
+    '  <h2>Module ' + chapitre.n + ' — ' + chapitre.title + '</h2>',
+    '  <p class="lead">' + chapitre.toc + '</p>',
+    '  <div class="grid grid-3">',
+    '    <div class="card">',
+    '      <span class="badge">Atelier 1</span>',
+    '      <h4>Exercice ' + chapitre.n + '.1</h4>',
+    '      <p>Prise en main progressive des notions fondamentales avec entrées/sorties standard et validation unitaire.</p>',
+    '      <p><a class="btn" href="chapitre' + chapitre.n + '.html">Ouvrir dans le Chapitre ' + chapitre.n + '</a></p>',
+    '    </div>',
+    '    <div class="card">',
+    '      <span class="badge">Atelier 2</span>',
+    '      <h4>Exercice ' + chapitre.n + '.2</h4>',
+    '      <p>Mise en pratique approfondie sur un cas d\'ingénierie représentatif d\'un déploiement de production.</p>',
+    '      <p><a class="btn" href="chapitre' + chapitre.n + '.html">Ouvrir dans le Chapitre ' + chapitre.n + '</a></p>',
+    '    </div>',
+    '    <div class="card">',
+    '      <span class="badge">Atelier 3</span>',
+    '      <h4>Exercice ' + chapitre.n + '.3</h4>',
+    '      <p>Défi avancé de niveau examen simulant un scénario complexe d\'automatisation ou d\'analyse de télémétrie.</p>',
+    '      <p><a class="btn" href="chapitre' + chapitre.n + '.html">Ouvrir dans le Chapitre ' + chapitre.n + '</a></p>',
+    '    </div>',
+    '  </div>'
+  ].join('\n')).join('\n\n');
+
+  const body = [
+    crumbs,
+    '  <h1>Catalogue des 18 Ateliers de Code Interactifs — Téléphonie VoIP B3</h1>',
+    '  <p class="lead">L\'ensemble des 18 ateliers de programmation pratique en Python 3 intégrés au cours, avec éditeur Monaco, tests automatisés cachés, correction instantanée et aide intelligente du tuteur pédagogique.</p>',
+    '',
+    listHtml,
+    '',
+    chnav({ href: 'examens.html', label: 'Consulter les examens blancs' }, { href: '../atelier.html', label: 'Ouvrir le bac à sable libre' }),
+    '',
+    disclaimer()
+  ].join('\n\n');
+
+  return {
+    'chapitres/exercices.html': {
+      title: 'Catalogue des exercices — ' + course.brand,
+      description: 'Inventaire des 18 ateliers de code interactifs Python 3 du cours Téléphonie VoIP B3.',
+      active: 'exercices',
+      body
+    }
+  };
+}
+
+module.exports = { examens, exercices };

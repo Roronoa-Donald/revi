@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preparation Web - Progression</title>
+  <meta name="description" content="Progression des projets Preparation Web.">
+  <link rel="stylesheet" href="preparation-web/assets/css/style.css">
+  <style>
+    .state-card {
+      max-width: 560px; margin: 24px auto; padding: 28px 24px;
+      text-align: center; border-radius: 20px;
+      background: #ffffff; border: 1px solid #e4e4e4;
+      box-shadow: rgba(0,0,0,0.05) 0px 4px 14px 0px;
+    }
+    .state-card .state-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .state-card h3,
+    .state-card .state-title { font-size: 1.05rem; margin-bottom: 8px; color: #141414; }
+    .state-card p { font-size: 0.88rem; color: #57534e; margin-bottom: 18px; }
+    .state-card .state-cta {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 48px; padding: 12px 24px; border-radius: 60px;
+      background: #29cc57; color: #14320f; font-weight: 800; font-size: 0.9rem;
+      text-decoration: none; box-shadow: #22a94c 0px 4px 0px 0px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .state-card .state-cta:hover { transform: translateY(2px); box-shadow: #22a94c 0px 2px 0px 0px; }
+    .state-card .state-cta:active { transform: translateY(4px); box-shadow: none; }
+    .state-card.is-offline { border-color: rgba(161, 98, 7, 0.35); background: #FEF3C7; }
+    .state-card.is-offline h3,
+    .state-card.is-offline .state-title { color: #a16207; }
+    .skeleton-row { height: 54px; border-radius: 12px; margin-bottom: 10px;
+      background: linear-gradient(90deg, #f0eeec 0%, #e4e4e4 50%, #f0eeec 100%);
+      background-size: 200% 100%; animation: shimmer 1.4s ease-in-out infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+<body>
+  <main class="workspace" style="max-width: 980px; margin: 0 auto;">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Preparation Web</span>
+        <h1>Progression detaillee</h1>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-button" href="preparation-web/index.html">Retour atelier</a>
+        <a class="ghost-button" href="index.html">Portail</a>
+      </div>
+    </header>
+
+    <section class="leaderboard-section">
+      <div class="section-heading">
+        <span class="eyebrow">Progression</span>
+        <h2>Etat des 12 projets</h2>
+      </div>
+
+      <div id="stateLoading" aria-live="polite">
+        <div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row"></div>
+      </div>
+
+      <div id="progressTimeline" class="progress-timeline" hidden></div>
+      <div id="progressList" class="progress-list" hidden></div>
+    </section>
+  </main>
+
+  <script src="preparation-web/assets/js/projects.js"></script>
+  <script>
+    (function() {
+      const timeline = document.getElementById('progressTimeline');
+      const list = document.getElementById('progressList');
+      const loading = document.getElementById('stateLoading');
+      const projects = window.PREPARATION_PROJECTS || [];
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+      }
+
+      function showState(icon, title, text, ctaHref, ctaLabel, offline) {
+        loading.hidden = true;
+        const div = document.createElement('div');
+        div.className = 'state-card' + (offline ? ' is-offline' : '');
+        div.innerHTML =
+          '<div class="state-icon">' + icon + '</div>' +
+          '<p class="state-title">' + esc(title) + '</p>' +
+          '<p>' + esc(text) + '</p>' +
+          (ctaHref ? '<a class="state-cta" href="' + esc(ctaHref) + '">' + esc(ctaLabel) + '</a>' : '');
+        document.querySelector('.leaderboard-section').prepend(div);
+      }
+
+      function loadLocalProgress() {
+        const keys = Object.keys(localStorage).filter((key) => key.startsWith('preparation-web-progress-v1'));
+        let best = null;
+        let bestTime = 0;
+        keys.forEach((key) => {
+          try {
+            const data = JSON.parse(localStorage.getItem(key));
+            const time = new Date(data.savedAt || 0).getTime();
+            if (time > bestTime) { best = data; bestTime = time; }
+          } catch (e) { /* ignore */ }
+        });
+        return (best && best.progress) || {};
+      }
+
+      function render(progress) {
+        loading.hidden = true;
+        timeline.hidden = false;
+        list.hidden = false;
+        const nodes = projects.map((project) => {
+          const done = progress[project.id] && progress[project.id].completed;
+          return '<span class="progress-node ' + (done ? 'is-done' : '') + '"></span>';
+        }).join('');
+        timeline.innerHTML = nodes;
+        timeline.style.gridTemplateColumns = 'repeat(' + projects.length + ', minmax(18px, 1fr))';
+
+        list.innerHTML = projects.map((project) => {
+          const entry = progress[project.id] || {};
+          const status = entry.completed ? 'valide' : 'en cours';
+          return '<div class="progress-row">' +
+            '<strong>' + esc(project.id) + '</strong>' +
+            '<div><div>' + esc(project.title) + '</div><span>' + esc(project.track) + ' · ' + status + '</span></div>' +
+            '<div class="progress-status">' + (entry.completed ? 'OK' : '...') + '</div>' +
+            '</div>';
+        }).join('');
+      }
+
+      async function loadProgress() {
+        let progress = {};
+        try {
+          const response = await fetch('/api/preparation/status', { credentials: 'include' });
+          const status = await response.json();
+
+          if (!status.enabled) {
+            showState('\u{1F6E0}\uFE0F', 'Section actuellement indisponible',
+              "L'atelier Preparation Web est desactive pour le moment. Reviens plus tard.",
+              '/index.html', 'Retour au portail');
+            return;
+          }
+          if (!status.authenticated) {
+            showState('\u{1F511}', 'Connexion requise',
+              "Active ta cl\u00e9 d'acc\u00e8s pour voir ta progression d\u00e9taill\u00e9e.",
+              '/_auth/login.html?redirect=%2Fpreparation-progression.html', 'Se connecter');
+            return;
+          }
+          if (!status.unlocked) {
+            showState('\u{1F512}', 'Section verrouill\u00e9e',
+              "Saisis le mot de passe de section dans l'atelier pour d\u00e9bloquer ta progression.",
+              '/preparation-web/index.html', "Ouvrir l'atelier");
+            return;
+          }
+
+          try {
+            const resp = await fetch('/api/preparation/progress', { credentials: 'include' });
+            const data = await resp.json();
+            if (data && data.progress) {
+              data.progress.forEach((row) => { progress[row.projectId] = row; });
+            }
+            render(progress);
+          } catch (e) {
+            progress = loadLocalProgress();
+            render(progress);
+            showState('\u{1F4F4}', 'Mode hors ligne', 'Impossible de joindre le serveur : affichage de ta progression locale.', null, null, true);
+          }
+        } catch (e) {
+          progress = loadLocalProgress();
+          if (Object.keys(progress).length) {
+            render(progress);
+            showState('\u{1F4F4}', 'Mode hors ligne', 'Serveur injoignable : affichage de ta progression locale.', null, null, true);
+          } else {
+            showState('\u26A0\uFE0F', 'Impossible de charger', 'V\u00e9rifie ta connexion internet puis recharge la page.', '/preparation-web/index.html', 'Retour atelier');
+          }
+        }
+      }
+
+      loadProgress();
+    })();
+  </script>
+</body>
+</html>

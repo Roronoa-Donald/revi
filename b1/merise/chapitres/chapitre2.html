@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2 — Modèle Conceptuel de Données (MCD) | RD MERISE</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <div class="reading-progress" id="reading-progress"></div>
+
+    <nav class="glass-nav"><div class="nav-inner">
+        <a href="../index.html" class="nav-logo"><i class="fa-solid fa-database"></i> RD MERISE</a>
+        <ul class="nav-links">
+            <li><a href="chapitre1.html">SI & MERISE</a></li>
+            <li><a href="chapitre2.html" class="active">MCD</a></li>
+            <li><a href="chapitre3.html">MLD</a></li>
+            <li><a href="chapitre4.html">Extensions</a></li>
+            <li><a href="chapitre5.html">Flux</a></li>
+            <li><a href="chapitre6.html">MCT</a></li>
+            <li><a href="formules.html">CheatSheet</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+            <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+        </div>
+    </div></nav>
+
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <div class="mobile-nav-panel" id="mobile-nav">
+        <div class="mobile-nav-header"><span><i class="fa-solid fa-database"></i> Menu</span><button id="mobile-nav-close" class="mobile-nav-close"><i class="fa-solid fa-xmark"></i></button></div>
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Accueil</a>
+        <a href="chapitre1.html"><i class="fa-solid fa-building"></i> 1. SI & MERISE</a>
+        <a href="chapitre2.html" class="active"><i class="fa-solid fa-diagram-project"></i> 2. MCD</a>
+        <a href="chapitre3.html"><i class="fa-solid fa-table"></i> 3. MLD</a>
+        <a href="chapitre4.html"><i class="fa-solid fa-puzzle-piece"></i> 4. Extensions & Normalisation</a>
+        <a href="chapitre5.html"><i class="fa-solid fa-arrows-spin"></i> 5. Flux</a>
+        <a href="chapitre6.html"><i class="fa-solid fa-gears"></i> 6. MCT</a>
+        <hr style="border-color:var(--glass-border);margin:.8rem 0">
+        <a href="formules.html"><i class="fa-solid fa-scroll"></i> CheatSheet</a>
+        <a href="cartes.html"><i class="fa-solid fa-clone"></i> Flashcards</a>
+        <a href="simulateur-examen.html"><i class="fa-solid fa-award"></i> Simulateur</a>
+        <a href="../exercices/exercices.html"><i class="fa-solid fa-dumbbell"></i> Exercices</a>
+    </div>
+
+    <main id="main-content">
+        <div class="hero-section">
+            <div class="hero-badge"><i class="fa-solid fa-diagram-project"></i> Module 2</div>
+            <h1>Modèle Conceptuel de <span class="highlight">Données (MCD)</span></h1>
+            <p>Le cœur de MERISE : propriétés, entités, identifiants, associations, cardinalités — tout ce qu'il faut pour construire un MCD solide.</p>
+        </div>
+
+        <div class="content-wrapper">
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION 1 : Propriété -->
+            <!-- ═══════════════════════════════════════ -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fas fa-bullseye"></i> Objectifs du chapitre</h2>
+                <div class="info-box">
+                    <ul>
+                        <li>Construire un MCD avec entités et associations</li>
+                        <li>Déterminer les cardinalités (0,n / 1,1 / 1,n / 0,1)</li>
+                        <li>Gérer les associations ternaires et réflexives</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-tag"></i> I. La Propriété (ou Attribut)</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> Définition</h4>
+                    <p>Une <strong>propriété</strong> est une donnée élémentaire du système d'information. C'est la plus petite unité d'information ayant un sens. Chaque propriété est caractérisée par un <strong>nom</strong> et un <strong>type de domaine de valeur</strong>.</p>
+                </div>
+
+                <h3>Exemples de propriétés</h3>
+                <table class="merise-table">
+                    <thead><tr><th>Nom propriété</th><th>Type</th><th>Signification</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>Code_client</code></td><td>Alphanumérique</td><td>Code unique de chaque client</td></tr>
+                        <tr><td><code>Code_produit</code></td><td>Alphanumérique</td><td>Code propre à chaque produit</td></tr>
+                        <tr><td><code>Prix_unitaire</code></td><td>Numérique</td><td>Prix unitaire du produit</td></tr>
+                        <tr><td><code>Tel_client</code></td><td>Alphanumérique</td><td>Numéro téléphonique du client</td></tr>
+                        <tr><td><code>Date_commande</code></td><td>Date</td><td>Date de la commande</td></tr>
+                        <tr><td><code>Désignation</code></td><td>Alphanumérique</td><td>Nom commercial du produit</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div><strong>Propriété élémentaire</strong> : Une propriété doit être <strong>atomique</strong> (indivisible). Par exemple, « Adresse client » n'est PAS élémentaire car on peut la décomposer en : Rue, Code postal, Ville. Il faut alors créer 3 propriétés séparées.</div>
+                </div>
+            </section>
+
+            <!-- Analogie grammaticale -->
+            <section class="chapter-section reveal-on-scroll">
+                <div class="concept-card" style="border-left-color: #e74c3c;">
+                    <h4>📖 Analogie : le MCD comme une phrase en français</h4>
+                    <p>Construire un MCD, c'est comme construire une <strong>phrase</strong> :</p>
+                    <ul>
+                        <li><strong>Entité = Nom</strong> (le sujet/objet) → CLIENT, PRODUIT, COMMANDE</li>
+                        <li><strong>Association = Verbe</strong> (l'action) → passe, contient, livre</li>
+                        <li><strong>Propriété = Adjectif</strong> (la description) → nom, prix, date</li>
+                        <li><strong>Cardinalité = Quantité</strong> (combien ?) → un, plusieurs</li>
+                    </ul>
+                    <p>Exemple : <em>« Un <strong>CLIENT</strong> (entité) <strong>passe</strong> (association) <strong>plusieurs</strong> (cardinalité) <strong>COMMANDES</strong> (entité) »</em><br>
+                    Si vous savez faire une phrase, vous savez modéliser un MCD ! 🎯</p>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION 2 : Entité -->
+            <!-- ═══════════════════════════════════════ -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-square"></i> II. L'Entité</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> Définition</h4>
+                    <p>Une <strong>entité</strong> est la représentation d'un « objet » du système d'information, concret ou abstrait, qui possède une existence propre et un intérêt pour le système. Une entité regroupe un <strong>ensemble de propriétés</strong>.</p>
+                </div>
+
+                <h3>Les 3 types d'entités</h3>
+                <table class="merise-table">
+                    <thead><tr><th>Type</th><th>Description</th><th>Exemple</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Entité individu</strong></td><td>Représente une personne</td><td>Client, Employé, Étudiant</td></tr>
+                        <tr><td><strong>Entité objet concret</strong></td><td>Représente un objet physique</td><td>Produit, Machine, Bâtiment</td></tr>
+                        <tr><td><strong>Entité objet abstrait</strong></td><td>Représente un concept</td><td>Commande, Facture, Matière</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Représentation graphique</h3>
+                <p>Une entité est représentée par un <strong>rectangle</strong> divisé en deux parties :</p>
+
+                <div class="diagram-container">
+                    <div class="entity-box">
+                        <div class="entity-name">CLIENT</div>
+                        <div class="entity-attrs">
+                            <span class="pk">Code_client</span><br>
+                            Nom_client<br>
+                            Prénom_client<br>
+                            Tel_client<br>
+                            Adresse_client
+                        </div>
+                    </div>
+                    <div style="margin:0 2rem;text-align:center;color:var(--text-muted);font-size:.8rem">
+                        ← Nom de l'entité en haut<br><br>
+                        ← Identifiant souligné<br>
+                        ← Propriétés en dessous
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> Occurrence d'une entité</h4>
+                    <p>Chaque « ligne » ou « instance » de l'entité est une <strong>occurrence</strong>. Par exemple, le client « Dupont Jean, 0612345678 » est une occurrence de l'entité CLIENT.</p>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION 3 : Identifiant -->
+            <!-- ═══════════════════════════════════════ -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-key"></i> III. L'Identifiant</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> Définition</h4>
+                    <p>L'<strong>identifiant</strong> est la propriété (ou groupe de propriétés) dont la valeur permet de <strong>distinguer de manière unique</strong> chaque occurrence d'une entité. Il est <strong>souligné</strong> dans le MCD.</p>
+                </div>
+
+                <div class="example-box">
+                    <i class="fa-solid fa-flask"></i>
+                    <div>
+                        <strong>Exemples :</strong><br>
+                        • ÉTUDIANT → <u>Matricule</u> (chaque étudiant a un matricule unique)<br>
+                        • PRODUIT → <u>Code_produit</u><br>
+                        • COMMANDE → <u>Num_commande</u>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div><strong>Règle :</strong> L'identifiant doit être <strong>stable</strong> (ne change pas dans le temps), <strong>non ambigu</strong> et <strong>minimal</strong> (le moins de propriétés possible).</div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION 4 : Association -->
+            <!-- ═══════════════════════════════════════ -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-link"></i> IV. L'Association</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> Définition</h4>
+                    <p>Une <strong>association</strong> est un lien (ou relation) entre deux ou plusieurs entités. Elle représente un <strong>fait</strong> ou un <strong>événement</strong> qui lie les entités entre elles. Une association peut porter des propriétés propres.</p>
+                </div>
+
+                <h3>Représentation graphique</h3>
+                <p>Une association est représentée par un <strong>ovale</strong> (ou losange) relié aux entités participantes :</p>
+
+                <div class="diagram-container">
+                    <div class="entity-box">
+                        <div class="entity-name">CLIENT</div>
+                        <div class="entity-attrs">
+                            <span class="pk">Code_client</span><br>
+                            Nom_client<br>
+                            Adresse
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+                        <span class="card-badge">1,n</span>
+                        <span class="diagram-arrow">───</span>
+                    </div>
+                    <div class="assoc-box">PASSER</div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+                        <span class="card-badge">0,n</span>
+                        <span class="diagram-arrow">───</span>
+                    </div>
+                    <div class="entity-box">
+                        <div class="entity-name">COMMANDE</div>
+                        <div class="entity-attrs">
+                            <span class="pk">Num_commande</span><br>
+                            Date_commande<br>
+                            Montant
+                        </div>
+                    </div>
+                </div>
+
+                <p>Lecture : « Un client <strong>passe</strong> des commandes. Une commande est passée par un client. »</p>
+
+                <h3>L'association peut avoir des propriétés</h3>
+                <div class="example-box">
+                    <i class="fa-solid fa-flask"></i>
+                    <div>
+                        <strong>Exemple</strong> : L'association ACHETER entre CLIENT et PRODUIT peut porter la propriété <code>Quantité</code> (combien de ce produit ce client a acheté).
+                    </div>
+                </div>
+
+                <h3>Dimension d'une association</h3>
+                <table class="merise-table">
+                    <thead><tr><th>Dimension</th><th>Nombre d'entités</th><th>Exemple</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Binaire</strong></td><td>2 entités</td><td>CLIENT — PASSER — COMMANDE</td></tr>
+                        <tr><td><strong>Ternaire</strong></td><td>3 entités</td><td>ÉTUDIANT — NOTER — MATIÈRE + SEMESTRE</td></tr>
+                        <tr><td><strong>Réflexive</strong></td><td>1 entité (liée à elle-même)</td><td>PERSONNE — ÊTRE_PARENT_DE — PERSONNE</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION 5 : Cardinalités -->
+            <!-- ═══════════════════════════════════════ -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-arrows-left-right"></i> V. Les Cardinalités</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> Définition</h4>
+                    <p>Les <strong>cardinalités</strong> expriment le nombre minimum et maximum de fois qu'une occurrence d'une entité peut participer à une association. Elles s'écrivent sous la forme <strong>(min, max)</strong>.</p>
+                </div>
+
+                <h3>Les 4 cardinalités possibles</h3>
+                <table class="merise-table">
+                    <thead><tr><th>Cardinalité</th><th>Signification</th><th>Exemple</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="card-badge">0,1</span></td>
+                            <td>Au minimum 0, au maximum 1. Participation <strong>optionnelle et unique</strong>.</td>
+                            <td>Un employé <em>peut</em> avoir 0 ou 1 bureau</td>
+                        </tr>
+                        <tr>
+                            <td><span class="card-badge">1,1</span></td>
+                            <td>Exactement 1. Participation <strong>obligatoire et unique</strong>.</td>
+                            <td>Un employé travaille dans exactement 1 service</td>
+                        </tr>
+                        <tr>
+                            <td><span class="card-badge">0,n</span></td>
+                            <td>Au minimum 0, au maximum plusieurs. Participation <strong>optionnelle et multiple</strong>.</td>
+                            <td>Un client <em>peut</em> passer 0 ou plusieurs commandes</td>
+                        </tr>
+                        <tr>
+                            <td><span class="card-badge">1,n</span></td>
+                            <td>Au minimum 1, au maximum plusieurs. Participation <strong>obligatoire et multiple</strong>.</td>
+                            <td>Un professeur enseigne au moins 1 matière</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="tip-box">
+                    <i class="fa-solid fa-brain"></i>
+                    <div><strong>Comment lire les cardinalités ?</strong> On les lit <strong>du point de vue de l'entité</strong>. Pour chaque entité, on se demande : « Une occurrence de cette entité participe au minimum combien de fois et au maximum combien de fois à l'association ? »</div>
+                </div>
+
+                <h3>Exemple complet détaillé</h3>
+                <div class="diagram-container">
+                    <div class="entity-box">
+                        <div class="entity-name">EMPLOYÉ</div>
+                        <div class="entity-attrs">
+                            <span class="pk">Matricule</span><br>
+                            Nom<br>
+                            Prénom
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+                        <span class="card-badge">1,1</span>
+                        <span class="diagram-arrow">───</span>
+                    </div>
+                    <div class="assoc-box">TRAVAILLER</div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+                        <span class="card-badge">1,n</span>
+                        <span class="diagram-arrow">───</span>
+                    </div>
+                    <div class="entity-box">
+                        <div class="entity-name">SERVICE</div>
+                        <div class="entity-attrs">
+                            <span class="pk">Num_service</span><br>
+                            Nom_service
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div>
+                        <strong>Lecture :</strong><br>
+                        • Côté EMPLOYÉ <span class="card-badge">1,1</span> : Un employé travaille dans <strong>exactement 1</strong> service (min=1, max=1).<br>
+                        • Côté SERVICE <span class="card-badge">1,n</span> : Un service emploie <strong>au moins 1</strong> employé, potentiellement <strong>plusieurs</strong> (min=1, max=n).
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION 6 : Règles de gestion -->
+            <!-- ═══════════════════════════════════════ -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-scale-balanced"></i> VI. Les Règles de Gestion</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> Définition</h4>
+                    <p>Les <strong>règles de gestion</strong> (RG) sont des phrases en langage naturel qui décrivent les contraintes métier du système. Elles permettent de déterminer les entités, les associations et surtout les <strong>cardinalités</strong> du MCD.</p>
+                </div>
+
+                <div class="example-box">
+                    <i class="fa-solid fa-flask"></i>
+                    <div>
+                        <strong>Exemple — Gestion d'une bibliothèque :</strong><br>
+                        RG1 : Un livre est écrit par un ou plusieurs auteurs.<br>
+                        RG2 : Un auteur peut avoir écrit plusieurs livres.<br>
+                        RG3 : Un adhérent peut emprunter au maximum 3 livres.<br>
+                        RG4 : Un livre ne peut être emprunté que par un seul adhérent à la fois.<br><br>
+                        <strong>→ Entités :</strong> LIVRE, AUTEUR, ADHÉRENT<br>
+                        <strong>→ Associations :</strong> ÉCRIRE (LIVRE-AUTEUR), EMPRUNTER (LIVRE-ADHÉRENT)<br>
+                        <strong>→ Cardinalités :</strong> LIVRE-ÉCRIRE <span class="card-badge">1,n</span>, AUTEUR-ÉCRIRE <span class="card-badge">1,n</span>, ADHÉRENT-EMPRUNTER <span class="card-badge">0,3</span>, LIVRE-EMPRUNTER <span class="card-badge">0,1</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION 7 : Dictionnaire des données -->
+            <!-- ═══════════════════════════════════════ -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-book"></i> VII. Le Dictionnaire des Données</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> Définition</h4>
+                    <p>Le <strong>dictionnaire des données</strong> est un document qui recense <strong>toutes les propriétés</strong> du système d'information avec leur nom, type, taille, et entité d'appartenance. C'est le premier travail avant de construire le MCD.</p>
+                </div>
+
+                <h3>Exemple de dictionnaire</h3>
+                <table class="merise-table">
+                    <thead><tr><th>Code</th><th>Libellé</th><th>Type</th><th>Taille</th><th>Entité</th><th>Observation</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>matricule</code></td><td>Matricule étudiant</td><td>AN</td><td>8</td><td>ÉTUDIANT</td><td>Identifiant</td></tr>
+                        <tr><td><code>nom_etud</code></td><td>Nom étudiant</td><td>A</td><td>30</td><td>ÉTUDIANT</td><td></td></tr>
+                        <tr><td><code>prenom_etud</code></td><td>Prénom étudiant</td><td>A</td><td>30</td><td>ÉTUDIANT</td><td></td></tr>
+                        <tr><td><code>sexe</code></td><td>Sexe</td><td>A</td><td>1</td><td>ÉTUDIANT</td><td>M ou F</td></tr>
+                        <tr><td><code>date_naiss</code></td><td>Date de naissance</td><td>D</td><td>-</td><td>ÉTUDIANT</td><td></td></tr>
+                        <tr><td><code>code_mat</code></td><td>Code matière</td><td>AN</td><td>5</td><td>MATIÈRE</td><td>Identifiant</td></tr>
+                        <tr><td><code>lib_mat</code></td><td>Libellé matière</td><td>A</td><td>40</td><td>MATIÈRE</td><td></td></tr>
+                        <tr><td><code>coef</code></td><td>Coefficient</td><td>N</td><td>2</td><td>MATIÈRE</td><td></td></tr>
+                        <tr><td><code>note</code></td><td>Note obtenue</td><td>N</td><td>5,2</td><td>COMPOSER</td><td>Propriété de l'association</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div><strong>Types :</strong> A = Alphabétique, N = Numérique, AN = Alphanumérique, D = Date, B = Booléen.</div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION 8 : Dépendances Fonctionnelles -->
+            <!-- ═══════════════════════════════════════ -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-arrow-right-arrow-left"></i> VIII. Les Dépendances Fonctionnelles (DF)</h2>
+
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-circle-info"></i> Définition</h4>
+                    <p>On dit qu'un attribut B est en <strong>dépendance fonctionnelle</strong> de A (noté A → B) si, pour chaque valeur de A, on peut connaître <strong>exactement une</strong> valeur de B.</p>
+                </div>
+
+                <div class="example-box">
+                    <i class="fa-solid fa-flask"></i>
+                    <div>
+                        <strong>Exemples :</strong><br>
+                        • <code>Matricule → Nom_étudiant</code> : Si je connais le matricule, je connais exactement un nom. ✅<br>
+                        • <code>Nom_étudiant → Matricule</code> : Deux étudiants peuvent avoir le même nom. ❌ (pas une DF)<br>
+                        • <code>Num_commande → Date_commande</code> : Chaque commande a exactement une date. ✅<br>
+                        • <code>(Matricule, Code_mat) → Note</code> : Pour un étudiant et une matière, il y a exactement une note. ✅ (DF composée)
+                    </div>
+                </div>
+
+                <h3>Propriétés des DF</h3>
+                <table class="merise-table">
+                    <thead><tr><th>Propriété</th><th>Explication</th><th>Notation</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>DF élémentaire</strong></td><td>A → B est élémentaire si aucun sous-ensemble de A ne détermine B</td><td>(A,B) → C élémentaire si ni A→C ni B→C</td></tr>
+                        <tr><td><strong>DF directe</strong></td><td>A → B est directe s'il n'existe pas de C tel que A → C et C → B</td><td>Pas de transitivité</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="tip-box">
+                    <i class="fa-solid fa-brain"></i>
+                    <div><strong>Lien avec le MCD :</strong> Les DF permettent de vérifier que chaque propriété est bien rangée dans la bonne entité. Si A → B, alors A et B doivent être dans la même entité (ou A est l'identifiant).</div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════ -->
+            <!-- SECTION 9 : Construction complète MCD -->
+            <!-- ═══════════════════════════════════════ -->
+            <section class="chapter-section reveal-on-scroll">
+                <h2><i class="fa-solid fa-hammer"></i> IX. Construire un MCD — Méthode complète</h2>
+
+                <div class="norm-step">
+                    <span class="step-num">1</span>
+                    <strong>Recueillir les règles de gestion</strong> — Lister toutes les contraintes métier en phrases simples.
+                </div>
+                <div class="norm-step">
+                    <span class="step-num">2</span>
+                    <strong>Établir le dictionnaire des données</strong> — Lister toutes les propriétés avec leur type.
+                </div>
+                <div class="norm-step">
+                    <span class="step-num">3</span>
+                    <strong>Identifier les entités</strong> — Regrouper les propriétés qui décrivent un même « objet ».
+                </div>
+                <div class="norm-step">
+                    <span class="step-num">4</span>
+                    <strong>Choisir les identifiants</strong> — Pour chaque entité, choisir la propriété qui identifie de manière unique.
+                </div>
+                <div class="norm-step">
+                    <span class="step-num">5</span>
+                    <strong>Identifier les associations</strong> — Déterminer les liens entre entités à partir des règles de gestion.
+                </div>
+                <div class="norm-step">
+                    <span class="step-num">6</span>
+                    <strong>Déterminer les cardinalités</strong> — Pour chaque entité dans chaque association, fixer le (min, max).
+                </div>
+                <div class="norm-step">
+                    <span class="step-num">7</span>
+                    <strong>Vérifier avec les DF</strong> — Contrôler que les propriétés sont dans les bonnes entités.
+                </div>
+
+                <h3>Exemple complet — Gestion des commandes</h3>
+                <div class="concept-card">
+                    <h4><i class="fa-solid fa-clipboard-list"></i> Règles de gestion</h4>
+                    <p>
+                        RG1: Un client est identifié par un code, a un nom, prénom et téléphone.<br>
+                        RG2: Un produit est identifié par un code, a une désignation et un prix unitaire.<br>
+                        RG3: Un client peut passer plusieurs commandes.<br>
+                        RG4: Une commande est passée par un seul client.<br>
+                        RG5: Une commande concerne un ou plusieurs produits (avec une quantité par produit).<br>
+                        RG6: Un produit peut apparaître dans plusieurs commandes.
+                    </p>
+                </div>
+
+                <h3>MCD résultant</h3>
+                <div class="diagram-container" style="flex-wrap:wrap;">
+                    <div class="entity-box">
+                        <div class="entity-name">CLIENT</div>
+                        <div class="entity-attrs">
+                            <span class="pk">Code_client</span><br>
+                            Nom_client<br>
+                            Prénom_client<br>
+                            Tel_client
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+                        <span class="card-badge">1,n</span>
+                        <span class="diagram-arrow">───</span>
+                    </div>
+                    <div class="assoc-box">PASSER</div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+                        <span class="card-badge">1,1</span>
+                        <span class="diagram-arrow">───</span>
+                    </div>
+                    <div class="entity-box">
+                        <div class="entity-name">COMMANDE</div>
+                        <div class="entity-attrs">
+                            <span class="pk">Num_cmd</span><br>
+                            Date_cmd
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+                        <span class="card-badge">1,n</span>
+                        <span class="diagram-arrow">───</span>
+                    </div>
+                    <div class="assoc-box" style="font-size:.75rem">CONCERNER<br><small style="color:var(--text-muted)">Quantité</small></div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+                        <span class="card-badge">0,n</span>
+                        <span class="diagram-arrow">───</span>
+                    </div>
+                    <div class="entity-box">
+                        <div class="entity-name">PRODUIT</div>
+                        <div class="entity-attrs">
+                            <span class="pk">Code_produit</span><br>
+                            Désignation<br>
+                            Prix_unitaire
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-box" style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(59,130,246,0.05));border-left:4px solid var(--success);">
+                    <i class="fa-solid fa-brain" style="color:var(--success);"></i>
+                    <div>
+                        <strong>🧠 Mnémotechnique — MCD en 3 lettres</strong><br>
+                        <strong>« E.A.P — Entité, Association, Propriété »</strong>
+                        <ul style="margin:0.5rem 0 0 1rem;">
+                            <li><strong>E</strong>ntité → le rectangle = un « objet » du monde réel (Client, Produit, Commande)</li>
+                            <li><strong>A</strong>ssociation → l'ovale/losange = le lien entre entités (Passer, Contenir)</li>
+                            <li><strong>P</strong>ropriété → les attributs listés dans chaque boîte. L'identifiant est <u>souligné</u></li>
+                        </ul>
+                        <p style="font-size:0.88rem;opacity:0.8;margin-top:0.5rem;"><strong>Cardinalités :</strong> 0,1 / 0,n / 1,1 / 1,n. Lisez toujours « Un [entité] peut [verbe] <em>combien</em> de [autre entité] ? »</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ZONE EXERCICES -->
+            <article class="glass-card" id="interactive-exercise">
+                <h2><i class="fa-solid fa-dumbbell" style="color:var(--accent);margin-right:0.5rem;"></i>Exercices Interactifs</h2>
+                <p style="color:var(--text-muted);">Chargement des exercices...</p>
+            </article>
+
+            <!-- Nav -->
+            <div class="chapter-nav">
+                <a href="chapitre1.html"><i class="fa-solid fa-arrow-left"></i> Module 1 — SI & MERISE</a>
+                <a href="chapitre3.html">Module 3 — MLD <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </main>
+
+    <div class="xp-bar-container">
+        <span class="xp-level">Débutant</span>
+        <div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div>
+        <span class="xp-text">0 XP</span>
+    </div>
+
+    <script src="../assets/js/chapter-exercises.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/gamification.js"></script>
+    <script src="../assets/js/download.js"></script>
+</body>
+</html>

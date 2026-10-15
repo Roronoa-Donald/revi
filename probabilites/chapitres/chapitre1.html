@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Fondements du calcul des probabilités | Probabilités B2</title>
+<meta name="description" content="Chapitre 1 du cours de probabilités B2 : Univers et événements, axiomes de Kolmogorov, probabilité conditionnelle, indépendance. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/probabilites/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Fondements du calcul des probabilités | Probabilités B2">
+<meta property="og:description" content="Chapitre 1 du cours de probabilités B2 : Univers et événements, axiomes de Kolmogorov, probabilité conditionnelle, indépendance. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="probabilitesnav"><div class="probabilitesnav__in">
+  <a class="probabilitesnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="probabilitesnav__sep" aria-hidden="true">/</span>
+  <a class="probabilitesnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-dice"></use></svg> Probabilités B2</a>
+  <div class="probabilitesnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="probabilitesnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="probabiliteswrap">
+<p class="crumb"><a href="../index.html">Probabilités B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements du calcul des probabilités</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lancer un dé, tirer une carte, tester un patient : chaque expérience a des issues possibles, et l’on veut mesurer la chance qu’un événement survienne. Avant de calculer, il faut décrire l’univers, les événements et les règles que toute probabilité doit respecter.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>décrire une expérience par son univers et ses événements ;</li>
+      <li>appliquer les axiomes de Kolmogorov et les formules de la réunion et du complément ;</li>
+      <li>calculer une probabilité conditionnelle P(A|B) ;</li>
+      <li>reconnaître deux événements indépendants.</li>
+    </ol>
+  </div>
+
+<h2>1. Univers, événements et axiomes</h2>
+
+<p>Une expérience aléatoire a un ensemble d’issues : l’<strong>univers</strong> <code>Ω</code>. Un <strong>événement</strong> est une partie de <code>Ω</code>. Par exemple, au lancer d’un dé à six faces, <code>Ω = {1, 2, 3, 4, 5, 6}</code> et « obtenir un nombre pair » est l’événement <code>A = {2, 4, 6}</code>.</p>
+<p>Une probabilité <code>P</code> associe à chaque événement un nombre entre 0 et 1 et respecte les trois <strong>axiomes de Kolmogorov</strong> : <code>P(Ω) = 1</code> ; <code>P(A) ≥ 0</code> ; et pour des événements incompatibles <code>P(A ∪ B) = P(A) + P(B)</code>.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-scale"></use></svg> Équiprobabilité : on compte</div>
+    <p>Quand toutes les issues ont la même chance, <code>P(A) = card(A)/card(Ω)</code> : le nombre de cas favorables divisé par le nombre de cas possibles. C’est le pont entre probabilités et dénombrement (chapitre 2).</p>
+  </div>
+<pre><code>from math import gcd
+
+n = 6  # issues de l'univers
+k = 3  # cas favorables
+g = gcd(k, n)
+print(f"{k // g}/{n // g}")   # 1/2</code></pre>
+
+<h2>2. Complément, réunion, intersection</h2>
+
+<p>L’<strong>événement contraire</strong> de <code>A</code>, noté <code>Ā</code>, a pour probabilité <code>P(Ā) = 1 − P(A)</code>. Pour deux événements quelconques, la formule de la réunion évite de compter deux fois l’intersection : <code>P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</code>.</p>
+<pre><code>pA, pB, pAB = 0.5, 0.4, 0.2
+p_union = pA + pB - pAB
+print(f"{p_union:.4f}")   # 0.7000</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la double soustraction oubliée</div>
+    <p>Additionner <code>P(A)</code> et <code>P(B)</code> sans retirer <code>P(A ∩ B)</code> compte deux fois les issues communes : la probabilité obtenue peut même dépasser 1. Retire l’intersection <strong>une seule fois</strong>.</p>
+  </div>
+
+<h2>3. Probabilité conditionnelle</h2>
+
+<p>Savoir que <code>B</code> est réalisé change l’univers : il se réduit à <code>B</code>. La <strong>probabilité conditionnelle</strong> de <code>A</code> sachant <code>B</code> est <code>P(A|B) = P(A ∩ B)/P(B)</code>, définie seulement si <code>P(B) ≠ 0</code>.</p>
+<pre><code>pAB, pB = 0.2, 0.5
+pA_sachant_B = pAB / pB
+print(f"{pA_sachant_B:.4f}")   # 0.4000</code></pre>
+<p>On en tire la formule de multiplication <code>P(A ∩ B) = P(A|B) · P(B)</code>, base des arbres de probabilité et de la formule des probabilités totales.</p>
+
+<h2>4. Indépendance</h2>
+
+<p>Deux événements sont <strong>indépendants</strong> quand la réalisation de l’un ne change rien à la probabilité de l’autre : <code>P(A|B) = P(A)</code>, ce qui équivaut à <code>P(A ∩ B) = P(A) · P(B)</code>.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Indépendant ≠ incompatible</div>
+    <p>Deux événements <strong>incompatibles</strong> ne peuvent pas se produire ensemble (<code>P(A ∩ B) = 0</code>). Deux événements <strong>indépendants</strong> n’influencent pas leurs probabilités respectives : deux lancers de dé le sont, alors qu’ils ne sont pas incompatibles.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="pb2-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="6&#10;3">
+  <script type="text/plain" data-lab-starter>from math import gcd
+
+n = int(input())
+k = int(input())
+
+# À compléter : afficher la fraction réduite de la probabilité k/n.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Probabilité d’un événement</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la probabilité d’un événement sur un univers fini équiprobable.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux entiers : <code>n</code> (nombre d’issues de l’univers) puis <code>k</code> (nombre de cas favorables). Sur un univers équiprobable, la probabilité vaut <code>k/n</code>. Affiche cette probabilité sous forme de <strong>fraction réduite</strong> <code>p/q</code> (par exemple <code>1/2</code>).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
+3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1/2</pre></div>
+    </div>
+    <p class="lab__note">Trois cas favorables sur six : la moitié.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Réduire une fraction demande de diviser numérateur et dénominateur par leur pgcd : gcd(k, n).</li>
+        <li>Une fois le pgcd g obtenu, affiche f"{k // g}/{n // g}".</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pb2-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="0.5&#10;0.4&#10;0.2">
+  <script type="text/plain" data-lab-starter>pA = float(input())
+pB = float(input())
+pAB = float(input())
+
+# À compléter : afficher P(A∪B) avec 4 décimales.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Formule de la réunion</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la formule P(A∪B) = P(A) + P(B) − P(A∩B).</p>
+    <div class="lab__brief"><p>Le programme reçoit trois nombres décimaux, un par ligne : <code>pA</code>, <code>pB</code> et <code>pAB</code> (probabilité de l’intersection). Affiche <code>P(A∪B)</code> arrondie à 4 décimales.</p><p>Rappel : <code>P(A∪B) = P(A) + P(B) − P(A∩B)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>0.5
+0.4
+0.2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.7000</pre></div>
+    </div>
+    <p class="lab__note">0,5 + 0,4 − 0,2 = 0,7.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Additionne pA et pB, puis retranche une seule fois pAB : sans cela, on compte deux fois l’intersection.</li>
+        <li>Pour 4 décimales, utilise une f-string : print(f"{resultat:.4f}").</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pb2-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="0.2&#10;0.5">
+  <script type="text/plain" data-lab-starter>pAB = float(input())
+pB = float(input())
+
+# À compléter : afficher la probabilité conditionnelle P(A|B).
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Probabilité conditionnelle</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer P(A|B) à partir de P(A∩B) et P(B).</p>
+    <div class="lab__brief"><p>Le programme reçoit deux nombres décimaux : <code>pAB</code> (probabilité de <code>A∩B</code>) puis <code>pB</code> (probabilité de <code>B</code>). Affiche <code>P(A|B) = P(A∩B)/P(B)</code> arrondie à 4 décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>0.2
+0.5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.4000</pre></div>
+    </div>
+    <p class="lab__note">Deux chances sur cinq dans l’univers restreint.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La probabilité conditionnelle est le rapport pAB / pB.</li>
+        <li>Le dénominateur est la probabilité de la condition B : c’est elle qui réduit l’univers.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que décrit l’univers d’une expérience aléatoire ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Ses résultats possibles</button>
+        <button class="opt">Sa durée</button>
+        <button class="opt">Sa probabilité</button>
+      </div>
+      <div class="q__exp">L’univers Ω rassemble toutes les issues possibles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut P(Ω) ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">1</button>
+        <button class="opt">1/2</button>
+      </div>
+      <div class="q__exp">Le premier axiome de Kolmogorov impose P(Ω) = 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Formule du complément ?</p>
+      <div class="opts">
+        <button class="opt">P(Ā) = P(A)</button>
+        <button class="opt" data-correct="1">P(Ā) = 1 − P(A)</button>
+        <button class="opt">P(Ā) = 1 + P(A)</button>
+      </div>
+      <div class="q__exp">A et Ā partitionnent Ω : leurs probabilités somment à 1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Formule de la réunion ?</p>
+      <div class="opts">
+        <button class="opt">P(A) + P(B)</button>
+        <button class="opt" data-correct="1">P(A) + P(B) − P(A∩B)</button>
+        <button class="opt">P(A)·P(B)</button>
+      </div>
+      <div class="q__exp">Il faut retirer une fois l’intersection comptée deux fois.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Définition de P(A|B) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">P(A∩B)/P(B)</button>
+        <button class="opt">P(A)/P(B)</button>
+        <button class="opt">P(A)·P(B)</button>
+      </div>
+      <div class="q__exp">Conditionner par B réduit l’univers à B.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Deux événements indépendants vérifient…</p>
+      <div class="opts">
+        <button class="opt">P(A∩B) = 0</button>
+        <button class="opt" data-correct="1">P(A∩B) = P(A)·P(B)</button>
+        <button class="opt">P(A) = P(B)</button>
+      </div>
+      <div class="q__exp">L’indépendance équivaut à la factorisation de l’intersection.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Deux événements incompatibles vérifient…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">P(A∩B) = 0</button>
+        <button class="opt">P(A∩B) = P(A)·P(B)</button>
+        <button class="opt">P(A∪B) = 1</button>
+      </div>
+      <div class="q__exp">Incompatibles = disjoints : l’intersection est vide.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur un univers équiprobable, P(A) vaut…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">card(A)/card(Ω)</button>
+        <button class="opt">card(Ω)/card(A)</button>
+        <button class="opt">card(A)</button>
+      </div>
+      <div class="q__exp">Cas favorables sur cas possibles.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Additionner <code>P(A)</code> et <code>P(B)</code> sans retirer <code>P(A ∩ B)</code>.</li>
+      <li>Confondre <code>P(A|B)</code> et <code>P(B|A)</code> : ce sont deux quantités différentes.</li>
+      <li>Conditionner par un événement de probabilité nulle.</li>
+      <li>Croire que « indépendant » signifie « incompatible ».</li>
+      <li>Oublier de réduire les fractions avant de conclure.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Calculer une probabilité proprement</div>
+    <ol>
+      <li><strong>Décrire</strong> l’expérience et poser l’univers Ω.</li>
+      <li><strong>Écrire</strong> l’événement cherché comme une partie de Ω.</li>
+      <li><strong>Choisir</strong> la formule : équiprobabilité, réunion, complément, conditionnelle.</li>
+      <li><strong>Conditionner</strong> s’il y a une information donnée (formule P(A|B)).</li>
+      <li><strong>Vérifier</strong> que le résultat reste entre 0 et 1, et réduire la fraction.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un événement est une partie de l’univers Ω ; P(Ω) = 1 et P(A) ≥ 0.</li>
+      <li>Équiprobabilité : P(A) = card(A)/card(Ω).</li>
+      <li>Complément : P(Ā) = 1 − P(A) ; réunion : P(A∪B) = P(A)+P(B)−P(A∩B).</li>
+      <li>Conditionnelle : P(A|B) = P(A∩B)/P(B).</li>
+      <li>Indépendance : P(A∩B) = P(A)·P(B), à ne pas confondre avec l’incompatibilité.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je pose l’univers et l’événement avant tout calcul.</li>
+      <li>J’applique la bonne formule (réunion, complément, conditionnelle).</li>
+      <li>Je distingue P(A|B) de P(B|A).</li>
+      <li>Je vérifie que mon résultat est une probabilité entre 0 et 1.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>univers</li><li>événement</li><li>axiomes de Kolmogorov</li><li>équiprobabilité</li><li>complément</li><li>réunion</li><li>intersection</li><li>probabilité conditionnelle</li><li>indépendance</li><li>incompatibilité</li><li>probabilités totales</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends la définition de P(A|B) avant de continuer.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les formules de réunion et de complément.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu conditionnes sans confondre les deux sens.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au dénombrement, chapitre 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Dénombrement et recomptage <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de probabilités (fondements, dénombrement, variables aléatoires discrètes et continues).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Filtrage Dynamique avec Suivi d’État (Stateful Inspection) &amp;amp; Table Conntrack | Firewall &amp; Sécurité Réseau B3</title>
+<meta name="description" content="Chapitre 2 du cours Firewall &amp; Sécurité Réseau B3 : Machine à états finis TCP (RFC 793), module netfilter conntrack, états NEW/ESTABLISHED/RELATED/INVALID, gestion des timeouts et détection des scans furtifs (Xmas, Null). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-firewall/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Filtrage Dynamique avec Suivi d’État (Stateful Inspection) &amp;amp; Table Conntrack | Firewall &amp; Sécurité Réseau B3">
+<meta property="og:description" content="Chapitre 2 du cours Firewall &amp; Sécurité Réseau B3 : Machine à états finis TCP (RFC 793), module netfilter conntrack, états NEW/ESTABLISHED/RELATED/INVALID, gestion des timeouts et détection des scans furtifs (Xmas, Null). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-firewallnav"><div class="b3-firewallnav__in">
+  <a class="b3-firewallnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-firewallnav__sep" aria-hidden="true">/</span>
+  <a class="b3-firewallnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Firewall &amp; Sécurité Réseau B3</a>
+  <div class="b3-firewallnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-firewallnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-firewallwrap">
+<p class="crumb"><a href="../index.html">Firewall & Sécurité Réseau B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Filtrage Dynamique avec Suivi d’État (Stateful Inspection) &amp; Table Conntrack</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Pour pallier les failles critiques du filtrage stateless, la 2e génération de pare-feux a introduit l’inspection dynamique avec suivi d’état (Stateful Packet Inspection). Plutôt que de traiter chaque paquet de manière aveugle, le pare-feu reconstruit la conversation réseau dans une table en mémoire vive appelée table de suivi des connexions (Connection Tracking ou conntrack). Lorsqu’un paquet arrive, le pare-feu vérifie s’il correspond à une session active légitimement initiée ou s’il respecte les transitions rigoureuses du protocole TCP (RFC 793). En tant qu’ingénieur sécurité B3, maîtriser la machine à états finis, le dimensionnement des tables en RAM, la purge des timeouts et la détection des paquets illégaux exploités par les attaquants (scans Xmas, Null ou désynchronisation conntrack) est indispensable pour protéger le réseau contre les attaques d’évasion.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser la machine à états finis du protocole TCP (handshake 3 voies, transfert de données, fermeture bidirectionnelle) ;</li>
+      <li>comprendre le fonctionnement interne de la table de suivi des connexions conntrack sous Linux netfilter ;</li>
+      <li>différencier précisément les 4 états logiques d’un paquet : NEW, ESTABLISHED, RELATED et INVALID ;</li>
+      <li>configurer et auditer les délais d’expiration (timeouts) pour prévenir l’épuisement de la mémoire vive (RAM) ;</li>
+      <li>détecter et neutraliser les balayages de ports furtifs et anomalies de drapeaux TCP (Xmas Tree, Null Scan, FIN Scan) ;</li>
+      <li>développer en Python 3 des simulateurs de table conntrack, des gestionnaires de purge temporelle et des détecteurs d’anomalies.</li>
+    </ol>
+  </div>
+
+<h2>1. La Révolution du Stateful Inspection &amp; la Machine à États TCP</h2>
+
+<p>L’inspection avec état repose sur l’observation continue du cycle de vie des sessions réseau. Pour le protocole TCP (défini par la <strong>RFC 793</strong>), le pare-feu suit la négociation à trois voies (3-Way Handshake) :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Étape SYN (Initialisation)</h4>
+    <p>Le client envoie un paquet avec le drapeau <code>SYN</code>. Le pare-feu alloue une entrée temporaire dans sa table avec l’état <code>NEW</code> (phase SYN_SENT).</p>
+  </div>
+  <div class="card">
+    <h4>2. Étape SYN-ACK (Réponse)</h4>
+    <p>Le serveur répond avec les drapeaux <code>SYN,ACK</code>. Le pare-feu vérifie la cohérence du numéro d’acquittement et maintient l’état <code>NEW</code> (phase SYN_RCVD).</p>
+  </div>
+  <div class="card">
+    <h4>3. Étape ACK (Validation)</h4>
+    <p>Le client confirme avec un <code>ACK</code>. Le handshake est conclu : la session bascule à l’état <code>ESTABLISHED</code>. Les échanges de données ultérieurs sont admis automatiquement.</p>
+  </div>
+</div>
+<p>Tout paquet reçu avec le drapeau ACK sans que le handshake préalable n’ait été enregistré dans la table est classifié <code>INVALID</code> et immédiatement rejeté (DROP), neutralisant totalement l’attaque par paquets ACK forgés.</p>
+
+<h2>2. Architecture &amp; États Logiques de la Table Netfilter Conntrack</h2>
+
+<p>Le sous-système <strong>netfilter conntrack</strong> du noyau Linux associe à chaque flux un tuple bidirectionnel <code>(IP_src, IP_dst, Port_src, Port_dst, Proto)</code> et lui attribue un état logique :</p>
+<table class="table">
+  <thead>
+    <tr><th>État Conntrack</th><th>Définition &amp; Signification Technique</th><th>Comportement Pare-feu Standard</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>NEW</code></td><td>Premier paquet observant l’ouverture d’une nouvelle connexion valide (ex: TCP SYN ou premier paquet UDP sortant).</td><td>Évalué contre le jeu complet des règles d’accès (ACLs) pour décider de l’autorisation.</td></tr>
+    <tr><td><code>ESTABLISHED</code></td><td>Paquet appartenant à une session déjà validée et enregistrée dans les deux sens de communication.</td><td>Accepté immédiatement en tête de chaîne sans réévaluation des règles (gain de performance majeur).</td></tr>
+    <tr><td><code>RELATED</code></td><td>Paquet initiant une nouvelle connexion mais techniquement liée à une session existante (ex: canal de données passif FTP, messages d’erreur ICMP).</td><td>Accepté si la connexion parente est active (géré par des modules d’aide conntrack helpers).</td></tr>
+    <tr><td><code>INVALID</code></td><td>Paquet ne correspondant à aucune session connue ou présentant des drapeaux corrompus/contradictoires.</td><td>Rejeté impérativement (DROP) et journalisé pour analyse d’intrusion.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Gestion de la RAM, Timeouts &amp; Détection de Scans Furtifs</h2>
+
+<p>Chaque entrée conntrack consomme environ 300 octets de mémoire noyau. Pour éviter le déni de service par saturation de la table (State Table Exhaustion), chaque protocole possède des délais de purge stricts :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Délais d’Expiration Standards</h4>
+    <ul>
+      <li><code>TCP:ESTABLISHED</code> : jusqu’à 432 000 s (5 jours par défaut) ou réduit à 3600 s en environnement durci.</li>
+      <li><code>TCP:SYN_SENT</code> : 60 à 120 s (si aucun SYN-ACK ne répond).</li>
+      <li><code>UDP:GENERIC</code> : 30 s (protocole sans connexion, état maintenu brièvement).</li>
+      <li><code>ICMP:ECHO</code> : 10 à 30 s (attente de la réponse Ping).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Balayages Furtifs &amp; Drapeaux Illégaux</h4>
+    <ul>
+      <li><strong>Xmas Tree Scan :</strong> FIN, PSH et URG activés simultanément pour forcer une réponse RST des ports fermés (Nmap <code>-sX</code>).</li>
+      <li><strong>Null Scan :</strong> Aucun drapeau activé (flags = 0), violation directe de la RFC 793 (Nmap <code>-sN</code>).</li>
+      <li><strong>SYN-FIN Anomaly :</strong> SYN et FIN activés ensemble pour tromper les vieux moteurs d’inspection.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="fw3-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="PACKET id=1 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=SYN&#10;PACKET id=2 src=192.168.1.10 dst=10.0.0.2 sport=80 dport=54321 flags=SYN_ACK&#10;PACKET id=3 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=ACK">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : suivre les sessions TCP et classifier l'état conntrack
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Machine à états TCP conntrack (NEW, ESTABLISHED, INVALID)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le moteur conntrack de suivi de sessions TCP selon la RFC 793 et classifier les paquets reçus.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des événements réseau décrivant des paquets TCP au format :<br>
+<code>PACKET id=&lt;id&gt; src=&lt;ip&gt; dst=&lt;ip&gt; sport=&lt;p&gt; dport=&lt;p&gt; flags=&lt;SYN|SYN_ACK|ACK|FIN|RST|DATA&gt;</code>.<br><br>
+Règles de transition d'état conntrack par session identifiée par son quadruplet bidirectionnel <code>{min(ip1:p1, ip2:p2) &lt;-&gt; max(ip1:p1, ip2:p2)}</code> :<br>
+1. Un premier paquet avec <code>flags=SYN</code> initie une session : état = <code>NEW</code> (phase de négociation).<br>
+2. La réponse avec <code>flags=SYN_ACK</code> dans le sens inverse : état = <code>NEW</code> (attente du handshake 3-voies).<br>
+3. Le paquet de confirmation avec <code>flags=ACK</code> clôture le handshake : la session devient <code>ESTABLISHED</code>.<br>
+4. Tout paquet ultérieur (<code>DATA</code>, <code>ACK</code>) sur une session connue en <code>ESTABLISHED</code> : état = <code>ESTABLISHED</code>.<br>
+5. Un paquet <code>FIN</code> ou <code>RST</code> sur une session <code>ESTABLISHED</code> est classifié <code>ESTABLISHED</code> et ferme la session (supprimée de la table après traitement).<br>
+6. Tout paquet (<code>ACK</code>, <code>DATA</code>, <code>FIN</code>, <code>RST</code>, <code>SYN_ACK</code>) reçu hors d'une session active ou sans handshake préalable est classifié <code>INVALID</code>.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>CONNTRACK id={id} state={NEW|ESTABLISHED|INVALID}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PACKET id=1 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=SYN
+PACKET id=2 src=192.168.1.10 dst=10.0.0.2 sport=80 dport=54321 flags=SYN_ACK
+PACKET id=3 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=ACK</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CONNTRACK id=1 state=NEW
+CONNTRACK id=2 state=NEW
+CONNTRACK id=3 state=ESTABLISHED</pre></div>
+    </div>
+    <p class="lab__note">Handshake complet à 3 voies TCP.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Normaliser la clé de session pour identifier la connexion dans les deux sens.</li>
+        <li>Suivre les étapes du handshake : SYN -&gt; SYN_ACK -&gt; ACK avant de passer en ESTABLISHED.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="SESSION id=S1 proto=TCP state=ESTABLISHED last_seen=1000&#10;SESSION id=S2 proto=UDP state=GENERIC last_seen=4800&#10;PURGE now=5000">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : purger les sessions expirées selon leur protocole et délai
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Purge et gestion des délais d’expiration (Timeouts) conntrack</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Gérer la durée de vie des entrées conntrack selon le protocole et leur dernier timestamp d’activité.</p>
+    <div class="lab__brief"><p>Un pare-feu stateful alloue de la mémoire pour chaque session. Pour prévenir l'épuisement de la RAM, les entrées inactives doivent expirer selon des délais stricts (RFC et bonnes pratiques Linux netfilter) :<br>
+- <code>TCP:ESTABLISHED</code> : timeout = <code>3600</code> secondes.<br>
+- <code>TCP:SYN_SENT</code> : timeout = <code>60</code> secondes.<br>
+- <code>UDP:GENERIC</code> : timeout = <code>30</code> secondes.<br>
+- <code>ICMP:ECHO</code> : timeout = <code>10</code> secondes.<br><br>
+Le script lit sur l'entrée standard :<br>
+1. Des entrées de session : <code>SESSION id=&lt;id&gt; proto=&lt;TCP|UDP|ICMP&gt; state=&lt;state&gt; last_seen=&lt;secondes&gt;</code>.<br>
+2. Une commande finale : <code>PURGE now=&lt;secondes&gt;</code>.<br><br>
+Une session expire si <code>(now - last_seen) &gt; timeout</code>.<br>
+Le script doit afficher la liste des sessions purgées dans l'ordre de leur déclaration, puis le nombre restant :<br>
+<code>PURGED: {id1}, {id2}, ...</code> (ou <code>PURGED: NONE</code> si aucune)<br>
+<code>REMAINING: {nb_restantes} sessions actives</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SESSION id=S1 proto=TCP state=ESTABLISHED last_seen=1000
+SESSION id=S2 proto=UDP state=GENERIC last_seen=4800
+PURGE now=5000</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PURGED: S1, S2
+REMAINING: 0 sessions actives</pre></div>
+    </div>
+    <p class="lab__note">S1 inactive depuis 4000s (&gt; 3600s) et S2 inactive depuis 200s (&gt; 30s) : toutes purgées.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Associer chaque couple (proto, state) à sa durée limite.</li>
+        <li>Calculer l’inactivité : now - last_seen.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="fw3-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="PROBE src=192.168.1.100 dst=10.0.0.1 dport=22 flags=FIN,PSH,URG">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser les flags TCP et classifier l'attaque ou scan
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur de balayages furtifs (Scans Xmas, Null, FIN &amp; Syn-Fin)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter les combinaisons illégales de flags TCP caractéristiques des outils de reconnaissance furtive.</p>
+    <div class="lab__brief"><p>Les attaquants exploitent les spécifications de la RFC 793 pour contourner les pare-feux stateless et cartographier les ports ouverts via des combinaisons atypiques de flags TCP.<br>
+Le script lit sur l'entrée standard des paquets suspects :<br>
+<code>PROBE src=&lt;ip&gt; dst=&lt;ip&gt; dport=&lt;port&gt; flags=&lt;liste_flags_separes_par_virgule&gt;</code>.<br><br>
+Règles d'analyse et de classification :<br>
+1. <code>SYN,FIN</code> : Paquet contradictoire demandant l'ouverture et la fermeture simultanées -> <code>SYN_FIN_ANOMALY</code> (Danger élevé).<br>
+2. <code>FIN,PSH,URG</code> (dans n'importe quel ordre) : Arbre de Noël allumé -> <code>XMAS_TREE_SCAN</code> (Sonde Nmap -sX).<br>
+3. <code>NONE</code> (aucun flag activé) : Paquet fantôme -> <code>NULL_SCAN</code> (Sonde Nmap -sN).<br>
+4. Uniquement <code>FIN</code> : Paquet de fin isolé sans handshake -> <code>FIN_SCAN</code> (Sonde Nmap -sF).<br>
+5. Toute autre combinaison standard (ex: <code>SYN</code> seul, <code>ACK</code> seul, <code>SYN,ACK</code>) -> <code>TRAFIC_STANDARD</code>.<br><br>
+Pour chaque ligne, afficher :<br>
+<code>SCAN_ALERT: {src} -> {dst}:{dport} [{flags}] => {CLASSIFICATION}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PROBE src=192.168.1.100 dst=10.0.0.1 dport=22 flags=FIN,PSH,URG</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SCAN_ALERT: 192.168.1.100 -&gt; 10.0.0.1:22 [FIN,PSH,URG] =&gt; XMAS_TREE_SCAN</pre></div>
+    </div>
+    <p class="lab__note">Sonde de type Xmas Scan avec FIN, PSH et URG actifs.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découper la chaîne flags par virgule et manipuler un set de flags.</li>
+        <li>Comparer les ensembles pour gérer l’ordre des flags dans Xmas Scan.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel événement déclenche le passage d’une session TCP à l’état conntrack ESTABLISHED ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">La réception du paquet ACK final du client concluant le 3-Way Handshake</button>
+        <button class="opt">L’émission du premier paquet SYN par le client</button>
+        <button class="opt">La réception de la réponse SYN-ACK émise par le serveur</button>
+        <button class="opt">La fermeture de la connexion par un paquet RST</button>
+      </div>
+      <div class="q__exp">C’est la réception de l’ACK de confirmation confirmant que le client et le serveur sont synchronisés qui fait basculer la session en ESTABLISHED.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi place-t-on la règle autorisant l’état ESTABLISHED,RELATED en toute première ligne d’un pare-feu ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Pour optimiser les performances : plus de 90% des paquets en transit appartiennent à des sessions déjà validées et sont traités immédiatement</button>
+        <button class="opt">Parce que le noyau Linux refuse de démarrer si cette règle n’est pas en position 1</button>
+        <button class="opt">Pour permettre aux paquets SYN de traverser sans être filtrés</button>
+        <button class="opt">Pour désactiver le chiffrement TLS sur les paquets de retour</button>
+      </div>
+      <div class="q__exp">Placer cette règle en tête évite d’évaluer la liste complète des règles pour chaque paquet d’une session établie, ce qui réduit drastiquement l’utilisation du CPU.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi correspond l’état conntrack RELATED ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">À une nouvelle connexion logiquement liée à une session existante (ex: canal de données passif FTP ou erreur ICMP)</button>
+        <button class="opt">À une connexion suspecte qui doit être mise en quarantaine</button>
+        <button class="opt">À un paquet ayant subi une altération de somme de contrôle (Checksum)</button>
+        <button class="opt">À une session redirigée vers un proxy de cache web</button>
+      </div>
+      <div class="q__exp">L’état RELATED identifie les flux secondaires associés à une connexion maître autorisée (géré par les helpers du noyau).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si la table conntrack d’un pare-feu atteint sa capacité maximale (nf_conntrack_max) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le pare-feu rejette les nouvelles connexions (« table full, dropping packet ») provoquant un déni de service global</button>
+        <button class="opt">Le pare-feu bascule automatiquement en mode routage non filtré</button>
+        <button class="opt">Le système redémarre instantanément sans sauvegarder les logs</button>
+        <button class="opt">Les paquets sont compressés pour libérer de la mémoire</button>
+      </div>
+      <div class="q__exp">Lorsque la table est saturée, le noyau ne peut plus allouer de mémoire pour de nouvelles sessions et rejette tous les paquets entrants non enregistrés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quels drapeaux TCP sont simultanément activés dans un balayage de type Xmas Tree Scan ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">FIN, PSH et URG</button>
+        <button class="opt">SYN, ACK et RST</button>
+        <button class="opt">Uniquement le drapeau ACK</button>
+        <button class="opt">Tous les drapeaux à 0 (aucun drapeau)</button>
+      </div>
+      <div class="q__exp">Le Xmas scan allume les drapeaux FIN, PSH et URG (comme les guirlandes d’un sapin de Noël) pour observer le comportement de la pile TCP cible selon la RFC 793.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’objectif de la commande sysctl net.ipv4.tcp_syncookies = 1 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Mitiger les attaques SYN Flood en encodant les informations de session dans le numéro de séquence initial sans allouer d’état mémoire</button>
+        <button class="opt">Autoriser le stockage de cookies HTTP dans le pare-feu</button>
+        <button class="opt">Augmenter la taille du tampon d’émission des cartes réseau</button>
+        <button class="opt">Forcer la déconnexion automatique des utilisateurs inactifs</button>
+      </div>
+      <div class="q__exp">Les SYN Cookies permettent au serveur de répondre aux demandes d’ouverture TCP sans consommer de mémoire conntrack tant que le client n’a pas renvoyé l’ACK final.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment le pare-feu stateful classe-t-il un paquet TCP contenant uniquement le drapeau FIN reçu en dehors de toute connexion active ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">INVALID</button>
+        <button class="opt">ESTABLISHED</button>
+        <button class="opt">NEW</button>
+        <button class="opt">RELATED</button>
+      </div>
+      <div class="q__exp">Un paquet de fermeture reçu sans connexion préalable ne correspond à aucune session connue et doit être classé INVALID.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de mémoire vive consomme approximativement une entrée dans la table conntrack du noyau Linux ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Environ 300 octets</button>
+        <button class="opt">Environ 4 mégaoctets</button>
+        <button class="opt">Exactement 1 bit</button>
+        <button class="opt">Plus de 64 kilo-octets</button>
+      </div>
+      <div class="q__exp">Une entrée conntrack (structure nf_conn) occupe environ 300 octets de mémoire noyau non swappable.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier d’autoriser l’état RELATED, ce qui bloque silencieusement les protocoles à canaux multiples comme FTP ou les messages ICMP Time Exceeded.</li>
+      <li>Conserver le délai par défaut de 5 jours pour TCP_ESTABLISHED sur un serveur à très fort trafic, entraînant le crash de netfilter par saturation de la table.</li>
+      <li>Ne pas rejeter explicitement l’état INVALID, laissant passer des paquets orphelins ou corrompus.</li>
+      <li>Confondre le statut protocolaire d’un paquet TCP (champ Flags) et son état logique dans la table conntrack.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Durcissement &amp; Dimensionnement Conntrack</div>
+    <ol>
+      <li>1. Dimensionner la capacité maximale de la table conntrack via <code>/proc/sys/net/netfilter/nf_conntrack_max</code> selon la RAM disponible (ex: 262 144 entrées pour 8 Go de RAM).</li>
+      <li>2. Ajuster la taille de la table de hachage <code>nf_conntrack_buckets = nf_conntrack_max / 4</code> pour maintenir une chaîne de hachage courte et préserver la latence.</li>
+      <li>3. Réduire les délais d’expiration agressifs (ex: baisser <code>nf_conntrack_tcp_timeout_established</code> de 432000s à 3600s) pour accélérer la libération des sessions mortes.</li>
+      <li>4. Placer la règle d’acceptation conntrack <code>ESTABLISHED,RELATED</code> en toute première position des règles de filtrage.</li>
+      <li>5. Ajouter une règle de blocage immédiat pour tout paquet classifié <code>INVALID</code>.</li>
+      <li>6. Activer la protection anti-SYN flood (<code>net.ipv4.tcp_syncookies = 1</code>) pour résister aux attaques par inondation de requêtes d’ouverture.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le filtrage stateful surveille le contexte bidirectionnel de chaque session via une table d’état en mémoire RAM.</li>
+      <li>Le handshake TCP à 3 voies (SYN -> SYN-ACK -> ACK) régit la transition logique de NEW vers ESTABLISHED.</li>
+      <li>Les 4 états conntrack majeurs sont NEW (ouverture), ESTABLISHED (en cours), RELATED (associé) et INVALID (anormal).</li>
+      <li>La gestion des timeouts évite la saturation de la table conntrack et protège contre les attaques DoS mémoire.</li>
+      <li>Les combinaisons illégales de drapeaux TCP (scans Xmas, Null, SYN-FIN) doivent être bloquées avec le statut INVALID.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Le cycle de vie du 3-way handshake TCP selon la RFC 793 est parfaitement maîtrisé.</li>
+      <li>Les 4 états conntrack (NEW, ESTABLISHED, RELATED, INVALID) sont compris et appliqués dans les règles.</li>
+      <li>Le calcul de dimensionnement de la table conntrack et des buckets de hachage est assimilé.</li>
+      <li>La gestion des timeouts par protocole (TCP, UDP, ICMP) est comprise.</li>
+      <li>La détection des scans furtifs Nmap (Xmas, Null, FIN) est implémentée.</li>
+      <li>Les 3 ateliers de programmation interactive en Python 3 (fw3-c2-e1 à fw3-c2-e3) sont validés.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Stateful Packet Inspection</li><li>Table de suivi conntrack</li><li>Handshake TCP 3-voies</li><li>États NEW et ESTABLISHED</li><li>États RELATED et INVALID</li><li>Timeouts de session</li><li>Scans furtifs Xmas & Null</li><li>Protection SYN Flood & Syncookies</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Niveau initial : vous confondez les états conntrack et les drapeaux TCP, ou ignorez l’importance de l’état INVALID.</div>
+      <div class="bandrow bandrow--medium">Niveau opérationnel : vous configurez les règles avec suivi d’état, optimisez l’ordre ESTABLISHED,RELATED et filtrez les scans furtifs.</div>
+      <div class="bandrow bandrow--high">Maîtrise B3 : vous dimensionnez les buckets et timeouts conntrack pour des millions de sessions et durcissez la pile réseau face aux attaques d’évasion.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Politiques de Sécurité, Listes de Contrôle d’Accès (ACL) &amp; NAT <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours Module 1 & Module 3 (Enseignant : AGOUTOCO-POKO Caleb Benaja, L3-ASI, 2025/2026), RFC 793 (Transmission Control Protocol), RFC 1918 et documentation officielle Linux Netfilter.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

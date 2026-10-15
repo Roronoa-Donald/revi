@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 10 — Complexité | Algorithmique B1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>:root{--accent:#10b981;--accent-light:#34d399;--accent-dark:#059669;--accent-glow:rgba(16,185,129,0.25)}.dark{--accent:#34d399;--accent-light:#6ee7b7;--accent-dark:#10b981;--accent-glow:rgba(52,211,153,0.25)}</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Aller au contenu</a>
+<div class="reading-progress" id="reading-progress"></div>
+<nav class="glass-nav"><div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><i class="fas fa-microchip"></i> AlgoBot</a>
+    <ul class="nav-links">
+        <li><a href="../index.html">Accueil</a></li><li><a href="chapitre9.html">Ch.9</a></li>
+        <li><a href="chapitre10.html" class="active">Ch.10</a></li>
+        <li><a href="formules.html">Formules</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+</div></nav>
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>🤖 AlgoBot</span><button class="mobile-nav-close" id="mobile-nav-close"><i class="fas fa-times"></i></button></div>
+    <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+    <a href="chapitre1.html"><i class="fas fa-book-open"></i> Ch.1 — Variables</a>
+    <a href="chapitre2.html"><i class="fas fa-book-open"></i> Ch.2 — Conditions</a>
+    <a href="chapitre3.html"><i class="fas fa-book-open"></i> Ch.3 — Boucles</a>
+    <a href="chapitre4.html"><i class="fas fa-book-open"></i> Ch.4 — Tableaux</a>
+    <a href="chapitre5.html"><i class="fas fa-book-open"></i> Ch.5 — Fonctions</a>
+    <a href="chapitre6.html"><i class="fas fa-book-open"></i> Ch.6 — Tri</a>
+    <a href="chapitre7.html"><i class="fas fa-book-open"></i> Ch.7 — Recherche</a>
+    <a href="chapitre8.html"><i class="fas fa-book-open"></i> Ch.8 — Récursivité</a>
+    <a href="chapitre9.html"><i class="fas fa-book-open"></i> Ch.9 — Structures</a>
+    <a href="chapitre10.html" class="active"><i class="fas fa-book-open"></i> Ch.10 — Complexité</a>
+    <a href="formules.html"><i class="fas fa-calculator"></i> Formules</a>
+    <a href="../exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a>
+</div>
+
+<section class="hero-section" id="main-content">
+    <div class="hero-badge"><i class="fas fa-tachometer-alt"></i> Chapitre 10</div>
+    <h1>La <span class="highlight">Complexité</span> algorithmique</h1>
+    <p>Mesurer l'efficacité : notation Grand O, complexité temporelle vs spatiale, analyser un algorithme.</p>
+</section>
+
+<main class="content-wrapper">
+    <!-- 10.1 Pourquoi -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-bullseye"></i> Objectifs du chapitre</h2>
+        <div class="info-box">
+            <ul>
+                <li>Lire et écrire dans des fichiers texte</li>
+                <li>Connaître les modes d'ouverture (lecture, écriture, ajout)</li>
+                <li>Traiter un fichier ligne par ligne</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-question-circle"></i> 10.1 — Pourquoi mesurer la complexité ?</h2>
+        <div class="analogy-box"><span class="icon">🏎️</span><div><strong>Analogie — Les voitures :</strong> Deux voitures vont de Paris à Lyon. L'une prend l'autoroute (rapide mais péage), l'autre les routes nationales (lent mais gratuit). La complexité mesure le « coût » d'un algorithme : combien de temps (temporel) et combien de mémoire (spatial).</div></div>
+        <div class="concept-card"><h4>🎯 Ce qu'on mesure</h4>
+            <ul>
+                <li><strong>Complexité temporelle</strong> : combien d'opérations en fonction de n ?</li>
+                <li><strong>Complexité spatiale</strong> : combien de mémoire en fonction de n ?</li>
+                <li>On s'intéresse au <strong>pire cas</strong> (garantie de performance)</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 10.2 Notation Grand O -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-chart-line"></i> 10.2 — La notation Grand O</h2>
+        <div class="concept-card"><h4>📐 Définition</h4>
+            <p>O(f(n)) décrit le <strong>comportement asymptotique</strong> : comment le nombre d'opérations évolue quand n grandit. On ignore les constantes et les termes de moindre importance.</p>
+        </div>
+
+        <div class="example-box"><span>📝</span><div><strong>Simplification :</strong><br>
+        3n² + 5n + 10 → on garde le terme dominant → <strong>O(n²)</strong><br>
+        100n + 2000 → <strong>O(n)</strong><br>
+        7 → <strong>O(1)</strong> (constant)</div></div>
+
+        <div class="mnemonic-box"><span class="icon">🧠</span><div><strong>Mnémo — Règles de simplification :</strong><br>
+        1️⃣ Ignorer les <strong>constantes</strong> : O(3n) = O(n)<br>
+        2️⃣ Garder le <strong>terme dominant</strong> : O(n² + n) = O(n²)<br>
+        3️⃣ Pire cas par défaut<br>
+        « <strong>C</strong>onstantes dehors, <strong>D</strong>ominant dedans » = <strong>CD</strong></div></div>
+    </section>
+
+    <!-- 10.3 Les classes -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-layer-group"></i> 10.3 — Les principales classes de complexité</h2>
+        <table class="styled-table">
+            <thead><tr><th>Notation</th><th>Nom</th><th>Exemple</th><th>n=1000</th></tr></thead>
+            <tbody>
+                <tr><td><strong>O(1)</strong></td><td>Constant</td><td>Accès T[i]</td><td>1</td></tr>
+                <tr><td><strong>O(log n)</strong></td><td>Logarithmique</td><td>Recherche dichotomique</td><td>~10</td></tr>
+                <tr><td><strong>O(n)</strong></td><td>Linéaire</td><td>Recherche séquentielle</td><td>1 000</td></tr>
+                <tr><td><strong>O(n log n)</strong></td><td>Quasi-linéaire</td><td>Tri fusion</td><td>~10 000</td></tr>
+                <tr><td><strong>O(n²)</strong></td><td>Quadratique</td><td>Tri bulle/sélection</td><td>1 000 000</td></tr>
+                <tr><td><strong>O(2ⁿ)</strong></td><td>Exponentielle</td><td>Fibonacci récursif</td><td>🔥 Infaisable</td></tr>
+            </tbody>
+        </table>
+
+        <div class="mnemonic-box"><span class="icon">🧠</span><div><strong>Mnémo — Ordre de vitesse (du plus rapide au plus lent) :</strong><br>
+        « <strong>C</strong>ourir <strong>L</strong>entement <strong>L</strong>ine <strong>Q</strong>uand <strong>Q</strong>uatre <strong>E</strong>xplosent »<br>
+        O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)<br>
+        <strong>C</strong>onstant → <strong>L</strong>og → <strong>L</strong>inéaire → quasi-lin<strong>Q</strong> → <strong>Q</strong>uadratique → <strong>E</strong>xponentiel</div></div>
+    </section>
+
+    <!-- 10.4 Analyser -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-magnifying-glass"></i> 10.4 — Comment analyser un algorithme</h2>
+
+        <h3>Règles pratiques</h3>
+        <table class="styled-table">
+            <thead><tr><th>Structure</th><th>Complexité</th></tr></thead>
+            <tbody>
+                <tr><td>Instruction simple (affectation, comparaison)</td><td>O(1)</td></tr>
+                <tr><td>Boucle <strong>Pour</strong> de 1 à n</td><td>O(n)</td></tr>
+                <tr><td>Deux boucles <strong>imbriquées</strong> (n × n)</td><td>O(n²)</td></tr>
+                <tr><td>Division par 2 à chaque étape</td><td>O(log n)</td></tr>
+                <tr><td>Séquence (l'une après l'autre)</td><td>Max des deux</td></tr>
+            </tbody>
+        </table>
+
+        <div class="example-box"><span>📝</span><div><strong>Exemple — Analyse :</strong>
+        <pre>somme ← 0              // O(1)
+Pour i de 1 à n Faire   // O(n) ×
+    somme ← somme + T[i] //   O(1)
+FinPour
+Pour i de 1 à n Faire   // O(n) ×
+    Pour j de 1 à n Faire //   O(n)
+        ...              //     O(1)
+    FinPour
+FinPour</pre>
+        Total : O(1) + O(n) + O(n²) = <strong>O(n²)</strong> (terme dominant)</div></div>
+    </section>
+
+    <!-- 10.5 Complexité spatiale -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-memory"></i> 10.5 — Complexité spatiale</h2>
+        <div class="concept-card"><h4>💾 Mémoire utilisée</h4>
+            <p>La complexité spatiale mesure la <strong>mémoire supplémentaire</strong> utilisée par l'algorithme (hors données d'entrée).</p>
+        </div>
+        <table class="styled-table">
+            <thead><tr><th>Algorithme</th><th>Complexité spatiale</th></tr></thead>
+            <tbody>
+                <tr><td>Recherche séquentielle</td><td>O(1) — juste i et trouvé</td></tr>
+                <tr><td>Tri par sélection</td><td>O(1) — en place</td></tr>
+                <tr><td>Récursion profondeur n</td><td>O(n) — pile d'appels</td></tr>
+            </tbody>
+        </table>
+        <div class="tip-box"><span>💡</span><div><strong>En place :</strong> Un tri « en place » ne crée pas de nouveau tableau. Il réarrange les éléments dans le tableau d'origine → O(1) en espace.</div></div>
+    </section>
+
+    <!-- 10.6 Récap cours entier -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-map"></i> 10.6 — Récapitulatif du cours</h2>
+        <div class="concept-card"><h4>🎯 Aide-mémoire final</h4>
+            <table class="styled-table">
+                <thead><tr><th>Chapitre</th><th>Concept clé</th><th>Mnémo</th></tr></thead>
+                <tbody>
+                    <tr><td>1. Variables</td><td>ETS, ERCBC, TIP</td><td>Entrée-Traitement-Sortie</td></tr>
+                    <tr><td>2. Conditions</td><td>Si/SinonSi/Selon</td><td>ET strict, OU généreux</td></tr>
+                    <tr><td>3. Boucles</td><td>Pour/TantQue/Répéter</td><td>P=Prévisible, TQ avant, R après</td></tr>
+                    <tr><td>4. Tableaux</td><td>1D/2D, parcours</td><td>T.I.P.</td></tr>
+                    <tr><td>5. Fonctions</td><td>Procédure vs Fonction</td><td>F=Fournit, P=Pas de résultat</td></tr>
+                    <tr><td>6. Tri</td><td>Sélection/Bulles/Insertion</td><td>S.B.I.</td></tr>
+                    <tr><td>7. Recherche</td><td>Séquentielle/Dichotomie</td><td>G.M.D.</td></tr>
+                    <tr><td>8. Récursivité</td><td>Base + Progression</td><td>Poupées russes, LIFO</td></tr>
+                    <tr><td>9. Structures</td><td>Pile/File/Liste</td><td>LIFO/FIFO/Train</td></tr>
+                    <tr><td>10. Complexité</td><td>Grand O</td><td>CD + CLLQQE</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-tools"></i> Méthode : Analyser la Complexité d'un Algorithme</h2>
+        <div class="card" style="border-left:4px solid var(--accent);padding:1.5rem">
+            <p><strong>Étape 1 :</strong> Identifier les boucles</p>
+            <ul><li>Pas de boucle → O(1)</li><li>1 boucle de 1 à N → O(n)</li><li>2 boucles imbriquées de 1 à N → O(n²)</li><li>Boucle qui divise par 2 → O(log n)</li></ul>
+            <p style="margin-top:1rem"><strong>Étape 2 :</strong> Appliquer les règles de combinaison</p>
+            <ul><li>Séquentiel : O(f) puis O(g) → O(max(f,g))</li><li>Imbriqué : O(f) dans O(g) → O(f × g)</li><li>Ignorer les constantes : O(3n) = O(n)</li><li>Garder le terme dominant : O(n² + n) = O(n²)</li></ul>
+            <p style="margin-top:1rem"><strong>Étape 3 :</strong> Cas courants à reconnaître</p>
+            <table style="width:100%;font-size:0.85rem;border-collapse:collapse;margin-top:0.5rem">
+                <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.3rem">Accès direct (tableau[i])</td><td style="color:var(--accent);font-weight:700">O(1)</td></tr>
+                <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.3rem">Recherche dichotomique</td><td style="color:var(--accent);font-weight:700">O(log n)</td></tr>
+                <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.3rem">Parcours simple</td><td style="color:var(--accent);font-weight:700">O(n)</td></tr>
+                <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.3rem">Tri efficace (fusion)</td><td style="color:var(--accent);font-weight:700">O(n log n)</td></tr>
+                <tr style="border-bottom:1px solid var(--border)"><td style="padding:0.3rem">Tri basique (sélection, bulles)</td><td style="color:var(--accent);font-weight:700">O(n²)</td></tr>
+                <tr><td style="padding:0.3rem">Fibonacci naïf</td><td style="color:#ef4444;font-weight:700">O(2ⁿ) ⚠️</td></tr>
+            </table>
+            <p style="margin-top:1rem"><strong>Étape 4 :</strong> Vérifier avec un exemple concret</p>
+            <ul><li>Pour n = 1000 : O(n²) = 1 000 000 opérations</li><li>Pour n = 1000 : O(log n) = ~10 opérations seulement !</li></ul>
+        </div>
+    </section>
+
+    <!-- Exercices -->
+    <section class="chapter-section reveal-on-scroll">
+        <h2><i class="fas fa-dumbbell"></i> Exercices interactifs</h2>
+        <div id="chapter-exercises"></div>
+    </section>
+
+    <div class="chapter-nav">
+        <a href="chapitre9.html"><i class="fas fa-arrow-left"></i> Ch.9 — Structures de données</a>
+        <a href="formules.html">Formules <i class="fas fa-arrow-right"></i></a>
+    </div>
+</main>
+
+<div class="xp-bar-container"><span class="xp-level">Débutant</span><div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div><span class="xp-text">0 XP</span></div>
+
+<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/gamification.js"></script>
+<script src="../../assets/js/chapter-exercises.js"></script>
+<script src="../../assets/js/download.js"></script>
+<script>
+GameEngine.configure({ storageKey: 'b1_algo_progress', badges: [
+    { id: 'first_step', name: 'Premier Pas', icon: '🏁', desc: 'Complete ton premier exercice', xp: 10 },
+    { id: 'ch10', name: 'Analyste', icon: '📈', desc: 'Termine la Complexité', xp: 20 },
+    { id: 'half_way', name: 'Mi-Parcours', icon: '🎯', desc: '50% terminé', xp: 35 },
+    { id: 'legend', name: 'Légende Algo', icon: '🏆', desc: 'Cours 100% terminé', xp: 100 }
+], levels: [
+    { min: 0, title: 'Débutant' }, { min: 30, title: 'Apprenti Codeur' },
+    { min: 80, title: 'Algorithmicien Jr.' }, { min: 150, title: 'Développeur Logique' },
+    { min: 250, title: 'Maître de la Complexité' }, { min: 400, title: 'Architecte Algo' }
+] });
+GameEngine.init();
+
+ChapterExercises.init({
+    guided: [
+        { q: "Que signifie O(1) ?", hints: ["Temps constant", "Ne dépend pas de n"], answer: "constant" },
+        { q: "3n² + 7n + 100 se simplifie en O(___)", hints: ["Terme dominant", "n²"], answer: "n²" },
+        { q: "Complexité d'une boucle Pour de 1 à n ?", hints: ["Proportionnel à n", "O(n)"], answer: "o(n)" },
+        { q: "Complexité de 2 boucles imbriquées n × n ?", hints: ["n au carré", "O(n²)"], answer: "o(n²)" },
+        { q: "Division par 2 à chaque étape = O(___)", hints: ["Logarithme", "log n"], answer: "log n" }
+    ],
+    quiz: [
+        { type: "mcq", q: "O(n) signifie :", options: ["Constant", "Linéaire", "Quadratique", "Logarithmique"], correct: 1 },
+        { type: "mcq", q: "Lequel est le plus rapide ?", options: ["O(n²)", "O(n)", "O(log n)", "O(n log n)"], correct: 2 },
+        { type: "qa", q: "Les 2 règles de simplification : C___ et D___", answer: ["constantes dominant", "cd"] },
+        { type: "mcq", q: "Recherche séquentielle est en :", options: ["O(1)", "O(log n)", "O(n)", "O(n²)"], correct: 2 },
+        { type: "mcq", q: "Tri à bulles pire cas :", options: ["O(n)", "O(n log n)", "O(n²)", "O(2ⁿ)"], correct: 2 },
+        { type: "qa", q: "Recherche dichotomique = O(___)", answer: ["log n"] },
+        { type: "mcq", q: "Un algorithme « en place » signifie :", options: ["O(1) en espace", "O(n) en espace", "O(1) en temps", "Pas de boucle"], correct: 0 },
+        { type: "mcq", q: "Fibonacci récursif naïf est en :", options: ["O(n)", "O(n²)", "O(2ⁿ)", "O(log n)"], correct: 2 },
+        { type: "qa", q: "Pour n=1000, O(n²) donne combien d'opérations ?", answer: ["1000000", "1 000 000"] },
+        { type: "mcq", q: "Ordre correct du plus rapide au plus lent :", options: ["O(1) < O(log n) < O(n) < O(n²)", "O(n) < O(1) < O(n²) < O(log n)", "O(n²) < O(n) < O(log n) < O(1)", "O(log n) < O(1) < O(n) < O(n²)"], correct: 0 }
+    ],
+    dragdrop: [
+        { instruction: "Associe notation et type :", pairs: [["O(1)", "Constant"], ["O(log n)", "Logarithmique"], ["O(n)", "Linéaire"], ["O(n²)", "Quadratique"], ["O(2ⁿ)", "Exponentiel"]] },
+        { instruction: "Associe algorithme et complexité :", pairs: [["Accès T[i]", "O(1)"], ["Recherche séquentielle", "O(n)"], ["Recherche dichotomique", "O(log n)"], ["Tri sélection", "O(n²)"]] },
+        { instruction: "Simplifie ces expressions :", pairs: [["5n + 3", "O(n)"], ["2n² + n", "O(n²)"], ["42", "O(1)"], ["n³ + n² + n", "O(n³)"]] }
+    ]
+});
+</script>
+</body>
+</html>

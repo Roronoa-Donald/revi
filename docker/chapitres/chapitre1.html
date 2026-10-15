@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Fondements des Conteneurs, Isolation Linux &amp;amp; Architecture Docker | Docker B2</title>
+<meta name="description" content="Chapitre 1 du cours Docker B2 : Origine de la conteneurisation, comparaison rigoureuse VM vs Conteneur, primitives du noyau Linux (Namespaces, Cgroups, chroot/pivot_root), composants du moteur Docker (CLI, dockerd, containerd, containerd-shim, runc) et standards OCI. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/docker/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Fondements des Conteneurs, Isolation Linux &amp;amp; Architecture Docker | Docker B2">
+<meta property="og:description" content="Chapitre 1 du cours Docker B2 : Origine de la conteneurisation, comparaison rigoureuse VM vs Conteneur, primitives du noyau Linux (Namespaces, Cgroups, chroot/pivot_root), composants du moteur Docker (CLI, dockerd, containerd, containerd-shim, runc) et standards OCI. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="dockernav"><div class="dockernav__in">
+  <a class="dockernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="dockernav__sep" aria-hidden="true">/</span>
+  <a class="dockernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Docker B2</a>
+  <div class="dockernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="dockernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="dockerwrap">
+<p class="crumb"><a href="../index.html">Docker B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements des Conteneurs, Isolation Linux &amp; Architecture Docker</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Pendant des décennies, le déploiement d’applications en entreprise souffrait du syndrome classique « mais pourtant ça marchait sur ma machine ! ». Deux approches coexistaient : le déploiement direct sur serveur physique (générant des conflits inextricables de versions de bibliothèques et de dépendances) ou la virtualisation lourde par hyperviseur (VMware, VirtualBox), où chaque instance duplique un système d’exploitation complet de plusieurs gigaoctets avec son propre noyau et des minutes de temps de démarrage. L’avènement de Docker en 2013 a révolutionné cette industrie en démocratisant les fonctionnalités d’isolation natives du noyau Linux. Ce premier module pose les fondations théoriques et architecturales indispensables : comprendre comment le système d’exploitation isole les processus sans hyperviseur et comment s’articulent les briques internes de la pile Docker moderne conforme aux standards ouverts OCI.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre l’évolution historique de l’hébergement applicatif (bare-metal, VM, conteneurs) ;</li>
+      <li>comparer avec précision les architectures et coûts de ressources entre machine virtuelle et conteneur ;</li>
+      <li>maîtriser le fonctionnement des 6 Namespaces fondamentaux du noyau Linux (PID, NET, MNT, IPC, UTS, USER) ;</li>
+      <li>comprendre le rôle des Control Groups (cgroups v1 et v2) dans la régulation CPU, mémoire et E/S ;</li>
+      <li>décortiquer l’architecture modulaire de Docker : du client CLI jusqu’au runtime OCI runc via containerd ;</li>
+      <li>exécuter et inspecter ses premiers conteneurs en ligne de commande de manière méthodique.</li>
+    </ol>
+  </div>
+
+<h2>1. De la Machine Virtuelle au Conteneur Léger</h2>
+
+<p>Pour comprendre la valeur ajoutée de Docker, il est essentiel d’opposer la virtualisation système à la virtualisation au niveau du système d’exploitation :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Machine Virtuelle (Virtualisation Lourde)</h4>
+    <ul>
+      <li><strong>Hyperviseur :</strong> Type 1 (KVM, ESXi) ou Type 2 (VirtualBox) qui émule du matériel virtuel (CPU, RAM, contrôleurs disques).</li>
+      <li><strong>Guest OS complet :</strong> Chaque VM embarque son propre noyau Linux ou Windows, ses démons systèmes (systemd, udev), et ses pilotes.</li>
+      <li><strong>Empreinte :</strong> Plusieurs gigaoctets par instance, démarrage en plusieurs dizaines de secondes, overhead CPU/RAM de 10 à 25 %.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Conteneur Docker (Isolation Noyau Légère)</h4>
+    <ul>
+      <li><strong>Moteur de conteneurisation :</strong> Pas d’émulation matérielle ni d’hyperviseur.</li>
+      <li><strong>Partage du noyau :</strong> Tous les conteneurs s’exécutent directement sur le noyau de la machine hôte.</li>
+      <li><strong>Empreinte :</strong> Quelques mégaoctets, démarrage quasi instantané en quelques millisecondes, performances quasi natives (overhead &lt; 1 %).</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Un conteneur est un processus Linux isolé</div>
+<p>Contrairement à une idée reçue tenace, un conteneur n’est pas une « petite machine virtuelle ». Sur le serveur hôte, un conteneur n’est rien d’autre qu’un <strong>processus Linux standard</strong> auquel le noyau a appliqué des filtres de visibilité (Namespaces) et des plafonds de ressources (Cgroups).</p>
+  </div>
+
+<h2>2. Les Primitives du Noyau Linux : Namespaces &amp; Cgroups</h2>
+
+<p>Docker ne réinvente pas l’isolation : il orchestre avec élégance des fonctionnalités intégrées au noyau Linux depuis les années 2000 :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Primitive Noyau</th>
+      <th>Type</th>
+      <th>Fonction &amp; Espace Isolé</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>PID Namespace</strong></td>
+      <td>Isolation</td>
+      <td>Isole l’arborescence des processus. Le processus principal du conteneur se voit comme PID 1 (processus initial), alors qu’il possède un PID standard (ex: 28412) sur l’hôte.</td>
+    </tr>
+    <tr>
+      <td><strong>NET Namespace</strong></td>
+      <td>Isolation</td>
+      <td>Fournit au conteneur sa propre pile réseau : interface de boucle locale <code>lo</code>, interface virtuelle <code>eth0</code>, table de routage et ports TCP/UDP dédiés.</td>
+    </tr>
+    <tr>
+      <td><strong>MNT Namespace</strong></td>
+      <td>Isolation</td>
+      <td>Isole les points de montage du système de fichiers. Combiné à <code>pivot_root</code>, le conteneur ne voit que son propre système de fichiers racine sans accéder à l’arborescence de l’hôte.</td>
+    </tr>
+    <tr>
+      <td><strong>IPC Namespace</strong></td>
+      <td>Isolation</td>
+      <td>Isole les mécanismes de communication inter-processus (mémoire partagée POSIX, sémaphores, files de messages).</td>
+    </tr>
+    <tr>
+      <td><strong>UTS Namespace</strong></td>
+      <td>Isolation</td>
+      <td>Permet au conteneur de définir son propre nom d’hôte (hostname) et nom de domaine indépendant de la machine physique.</td>
+    </tr>
+    <tr>
+      <td><strong>USER Namespace</strong></td>
+      <td>Isolation</td>
+      <td>Mappe les UID/GID : permet d’être root (UID 0) à l’intérieur du conteneur tout en étant un simple utilisateur non-privilégié (ex: UID 100000) sur la machine hôte.</td>
+    </tr>
+    <tr>
+      <td><strong>Cgroups (Control Groups)</strong></td>
+      <td>Régulation</td>
+      <td>Contrôle et plafonne l’utilisation des ressources matérielles : limitation de mémoire vive (RAM), quotas de temps processeur (CPU) et débits disques (I/O).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Architecture Interne du Moteur Docker et Standards OCI</h2>
+
+<p>À l’origine, Docker était un démon monolithique écrit en Go. Pour favoriser la standardisation industrielle, l’architecture a été scindée en briques modulaires sous l’égide de l’<strong>Open Container Initiative (OCI)</strong> :</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>1. Client CLI &amp; Docker Daemon</h4>
+    <p>Le client <code>docker</code> transmet les ordres utilisateur via l’API REST (par défaut via la socket UNIX <code>/var/run/docker.sock</code>).     Le démon <code>dockerd</code> gère les images, les volumes de stockage, les réseaux virtuels et l’authentification.</p>
+  </div>
+  <div class="card">
+    <h4>2. containerd &amp; containerd-shim</h4>
+    <p><code>containerd</code> est le superviseur industriel de conteneurs. Il gère le cycle de vie et le téléchargement des images.     Pour chaque conteneur actif, un processus léger <code>containerd-shim</code> reste actif pour gérer les entrées/sorties et préserver     le conteneur si le démon Docker doit redémarrer (Live Restore).</p>
+  </div>
+  <div class="card">
+    <h4>3. runc (OCI Runtime)</h4>
+    <p><code>runc</code> est l’implémentation de référence universelle du standard OCI. Écrit en Go, il dialogue directement     avec les appels système du noyau Linux pour configurer les namespaces, appliquer les cgroups et exécuter le binaire de l’application.</p>
+  </div>
+</div>
+  <div class="box box--important">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> La Socket Docker et Risque de Sécurité</div>
+<p>Le fichier <code>/var/run/docker.sock</code> est le point d’accès direct à l’API Docker. Tout utilisateur ayant un accès en écriture sur cette socket (ou membre du groupe système <code>docker</code>) peut instantanément s’octroyer les privilèges superutilisateur root sur l’hôte physique en lançant un conteneur privilégié qui monte la racine du système (<code>-v /:/host</code>). Ne montez JAMAIS la socket Docker dans des conteneurs non fiables.</p>
+  </div>
+
+<h2>4. Premières Manipulations et Commandes de Base</h2>
+
+<p>Pour démarrer avec le client Docker, quatre commandes fondamentales constituent le socle du quotidien :</p>
+<ul>
+  <li><code>docker run --rm hello-world</code> : télécharge une image minimale, crée le conteneur, l’exécute et le détruit automatiquement après affichage.</li>
+  <li><code>docker ps -a</code> : liste l’intégralité des conteneurs (actifs et arrêtés) avec leur identifiant (CONTAINER ID), leur statut et leurs ports.</li>
+  <li><code>docker images</code> : affiche les images locales stockées dans le cache du démon avec leurs tags et leur taille.</li>
+  <li><code>docker inspect &lt;id_conteneur&gt;</code> : inspecte l’objet conteneur et renvoie l’intégralité de sa configuration bas niveau au format JSON.</li>
+</ul>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="dk2-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="PID&#10;NET&#10;MEM_LIMIT&#10;INCONNU_TEST">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : classifier chaque mécanisme en Namespace ou Cgroup
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Analyseur de primitives d’isolation Linux (Namespaces vs Cgroups)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer les primitives du noyau Linux sous-jacentes à Docker : Namespaces (vue isolée) et Cgroups (limitation des ressources).</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des noms de mécanismes d'isolation du noyau Linux (un par ligne).<br>
+Selon les fondements de la conteneurisation :<br>
+- <strong>Namespaces (Isolation de l'espace de visibilité)</strong> :<br>
+  * <code>PID</code> -&gt; <code>Arborescence des processus isolée (le conteneur voit son propre PID 1)</code><br>
+  * <code>NET</code> -&gt; <code>Interfaces reseau, tables de routage et ports isoles</code><br>
+  * <code>MNT</code> -&gt; <code>Points de montage de systeme de fichiers et arborescence racine</code><br>
+  * <code>IPC</code> -&gt; <code>Communications inter-processus (memoire partagee, files de messages)</code><br>
+  * <code>UTS</code> -&gt; <code>Nom d'hote (hostname) et nom de domaine NIS</code><br>
+  * <code>USER</code> -&gt; <code>Mappage des identifiants UID et GID (root dans le conteneur vs utilisateur standard sur l'hote)</code><br>
+- <strong>Cgroups (Contrôle et limitation des ressources)</strong> :<br>
+  * <code>CPU_LIMIT</code> -&gt; <code>Plafond de temps de calcul CPU (quotas CFS)</code><br>
+  * <code>MEM_LIMIT</code> -&gt; <code>Plafond de memoire vive RAM et gestion de l'OOM-Killer</code><br>
+  * <code>IO_THROTTLE</code> -&gt; <code>Debit maximal en lecture et ecriture sur les disques blocs</code><br>
+Pour chaque entrée, afficher :<br>
+<code>&lt;MECANISME&gt; -&gt; PRIMITIVE: &lt;NAMESPACE|CGROUP&gt; | &lt;DESCRIPTION&gt;</code><br>
+Si le mécanisme n'est pas reconnu :<br>
+<code>&lt;MECANISME&gt; -&gt; INCONNU</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PID
+NET
+MEM_LIMIT
+INCONNU_TEST</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PID -&gt; PRIMITIVE: NAMESPACE | Arborescence des processus isolée (le conteneur voit son propre PID 1)
+NET -&gt; PRIMITIVE: NAMESPACE | Interfaces reseau, tables de routage et ports isoles
+MEM_LIMIT -&gt; PRIMITIVE: CGROUP | Plafond de memoire vive RAM et gestion de l'OOM-Killer
+INCONNU_TEST -&gt; INCONNU</pre></div>
+    </div>
+    <p class="lab__note">PID et NET sont des Namespaces Linux, MEM_LIMIT est un cgroup de gestion de mémoire.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Utiliser un dictionnaire associant chaque code à son type et sa description.</li>
+        <li>Gérer la casse pour accepter les noms en majuscules.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="5 50 128&#10;4000 1024">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer l'empreinte VM vs Docker et les gains
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Comparateur d’empreinte mémoire et stockage : VM vs Conteneur</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Quantifier l’overhead de virtualisation lourde (Hyperviseur + Guest OS complet) face à la conteneurisation légère.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+- Première ligne : <code>&lt;NbInstances&gt; &lt;TailleAppMo&gt; &lt;RamAppMo&gt;</code> (ressources nécessaires à l'application seule).<br>
+- Deuxième ligne : <code>&lt;TailleGuestOsMo&gt; &lt;RamGuestOsMo&gt;</code> (ressources consommées par l'OS invité dans une machine virtuelle).<br>
+Dans une architecture de conteneurs Docker, le kernel de l'hôte est partagé (0 Mo d'overhead Guest OS par conteneur).<br>
+Calculer :<br>
+1. <strong>VM</strong> :<br>
+   - Disque total VM = <code>NbInstances * (TailleAppMo + TailleGuestOsMo)</code><br>
+   - RAM totale VM = <code>NbInstances * (RamAppMo + RamGuestOsMo)</code><br>
+2. <strong>DOCKER</strong> :<br>
+   - Disque total Docker = <code>NbInstances * TailleAppMo</code><br>
+   - RAM totale Docker = <code>NbInstances * RamAppMo</code><br>
+3. <strong>GAINS</strong> :<br>
+   - Gain disque = <code>Disque VM - Disque Docker</code><br>
+   - Gain RAM = <code>RAM VM - RAM Docker</code><br>
+Afficher :<br>
+<code>ARCHITECTURE VM: Disque &lt;Dvm&gt; Mo | RAM &lt;Rvm&gt; Mo</code><br>
+<code>ARCHITECTURE DOCKER: Disque &lt;Ddoc&gt; Mo | RAM &lt;Rdoc&gt; Mo</code><br>
+<code>ECONOMIE DOCKER: Disque -&lt;GainD&gt; Mo | RAM -&lt;GainR&gt; Mo</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5 50 128
+4000 1024</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ARCHITECTURE VM: Disque 20250 Mo | RAM 5760 Mo
+ARCHITECTURE DOCKER: Disque 250 Mo | RAM 640 Mo
+ECONOMIE DOCKER: Disque -20000 Mo | RAM -5120 Mo</pre></div>
+    </div>
+    <p class="lab__note">5 instances : 20 Go et 5 Go de RAM économisés grâce à Docker.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Chaque VM duplique un système d’exploitation complet (Guest OS), tandis que Docker partage le noyau hôte.</li>
+        <li>Suivre rigoureusement le gabarit textuel d’affichage.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="dk2-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="CLI&#10;DOCKERD&#10;RUNC">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : classifier chaque brique logicielle de l'architecture Docker
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Inspecteur des composants de l’architecture Docker (Daemon, Containerd, Runc)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier le rôle de chaque brique logicielle composant la stack Docker moderne conforme OCI.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des identifiants d'opérations système (un par ligne).<br>
+Selon l'architecture interne de Docker :<br>
+- <code>CLI</code> : <code>docker (client) -&gt; Interprete les commandes utilisateur et communique via l'API REST (socket UNIX)</code><br>
+- <code>DOCKERD</code> : <code>dockerd (daemon) -&gt; Gestionnaire haut niveau des images, volumes, reseaux et authentification</code><br>
+- <code>CONTAINERD</code> : <code>containerd -&gt; Superviseur de conteneurs (cycle de vie, distribution d'images et snapshots)</code><br>
+- <code>SHIM</code> : <code>containerd-shim -&gt; Processus leger maintenant les E/S et l'etat sans dependre du daemon</code><br>
+- <code>RUNC</code> : <code>runc (OCI runtime) -&gt; Cree les namespaces et cgroups, puis execute le binaire conteneurise</code><br>
+Pour chaque opération, afficher :<br>
+<code>&lt;ID&gt; -&gt; &lt;COMPOSANT&gt; | &lt;ROLE&gt;</code><br>
+Si l'opération n'est pas listée :<br>
+<code>&lt;ID&gt; -&gt; INCONNU</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CLI
+DOCKERD
+RUNC</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CLI -&gt; docker (client) | Interprete les commandes utilisateur et communique via l'API REST (socket UNIX)
+DOCKERD -&gt; dockerd (daemon) | Gestionnaire haut niveau des images, volumes, reseaux et authentification
+RUNC -&gt; runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le binaire conteneurise</pre></div>
+    </div>
+    <p class="lab__note">De l’interface de commande au runtime bas niveau conforme OCI.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>dockerd délègue à containerd, qui invoque runc pour démarrer le processus puis laisse containerd-shim.</li>
+        <li>Respecter strictement le format de sortie.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la différence architecturale majeure entre une Machine Virtuelle et un Conteneur Docker ?</p>
+      <div class="opts">
+        <button class="opt">La VM n’a pas besoin de processeur physique</button>
+        <button class="opt" data-correct="1">La VM virtualise le matériel et embarque son propre système d’exploitation invité complet, tandis que le conteneur partage le noyau de l’hôte</button>
+        <button class="opt">Le conteneur est codé en Java alors que la VM est codée en assembleur</button>
+        <button class="opt">Il n’y a aucune différence, ce sont deux dénominations commerciales identiques</button>
+      </div>
+      <div class="q__exp">Une VM duplique un OS invité complet avec son propre noyau au-dessus d’un hyperviseur. Le conteneur s’exécute directement sur l’OS hôte et partage son noyau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mécanisme du noyau Linux permet d’attribuer au processus principal d’un conteneur l’identifiant PID 1 tout en conservant son vrai PID sur la machine hôte ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le PID Namespace</button>
+        <button class="opt">Le contrôleur Cgroups de mémoire</button>
+        <button class="opt">Le pilote Wi-Fi du noyau</button>
+        <button class="opt">L’hyperviseur KVM</button>
+      </div>
+      <div class="q__exp">Le PID Namespace crée une arborescence de processus cloisonnée et indépendante où le premier processus lancé reçoit le PID 1 à l’intérieur du conteneur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi servent les Control Groups (Cgroups) dans l’infrastructure de conteneurs Linux ?</p>
+      <div class="opts">
+        <button class="opt">À chiffrer les disques durs avec une clé AES-256</button>
+        <button class="opt" data-correct="1">À limiter, contrôler et comptabiliser la quantité de ressources matérielles (CPU, mémoire RAM, E/S disques) allouée aux processus</button>
+        <button class="opt">À traduire les noms de domaine en adresses IP publiques</button>
+        <button class="opt">À compiler le code source des applications automatiquement</button>
+      </div>
+      <div class="q__exp">Alors que les namespaces isolent la visibilité des ressources, les cgroups régulent quantitativement l’allocation des ressources physiques (plafond de RAM, part de CPU).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel composant logiciel bas niveau conforme aux spécifications de l’OCI (Open Container Initiative) est responsable de la création effective des namespaces et du démarrage du processus conteneurisé ?</p>
+      <div class="opts">
+        <button class="opt">docker-compose</button>
+        <button class="opt" data-correct="1">runc</button>
+        <button class="opt">VirtualBox</button>
+        <button class="opt">kubelet</button>
+      </div>
+      <div class="q__exp">runc est le runtime OCI de référence : il interagit directement avec les primitives du noyau Linux pour instancier le conteneur selon la spécification OCI.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi le processus « containerd-shim » reste-t-il actif pour chaque conteneur en cours d’exécution ?</p>
+      <div class="opts">
+        <button class="opt">Pour miner des cryptomonnaies en arrière-plan</button>
+        <button class="opt" data-correct="1">Pour maintenir ouverts les flux stdin/stdout/stderr et l’état du conteneur sans dépendre du démon Docker, permettant de redémarrer le démon sans couper les conteneurs</button>
+        <button class="opt">Pour vérifier la validité de la licence commerciale Docker Desktop</button>
+        <button class="opt">Pour émuler une carte graphique 3D virtuelle</button>
+      </div>
+      <div class="q__exp">containerd-shim découple le conteneur du démon dockerd : si dockerd plante ou est mis à jour, les conteneurs continuent de tourner sans interruption.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un utilisateur non-root a un accès complet en écriture au fichier socket « /var/run/docker.sock » ?</p>
+      <div class="opts">
+        <button class="opt">Il peut uniquement afficher la version de Docker</button>
+        <button class="opt" data-correct="1">Il dispose virtuellement d’un accès superutilisateur root complet sur l’ensemble de la machine hôte physique</button>
+        <button class="opt">Le système Linux refuse d’exécuter la moindre commande</button>
+        <button class="opt">La vitesse du processeur est réduite de moitié</button>
+      </div>
+      <div class="q__exp">Contrôler la socket Docker permet de lancer un conteneur privilégié montant le disque hôte (-v /:/host) et modifiant le fichier /etc/shadow pour prendre le contrôle total de l’hôte.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel Namespace Linux permet au conteneur de disposer de sa propre table de routage et de ses propres ports TCP/UDP indépendants ?</p>
+      <div class="opts">
+        <button class="opt">UTS Namespace</button>
+        <button class="opt" data-correct="1">NET Namespace</button>
+        <button class="opt">IPC Namespace</button>
+        <button class="opt">MNT Namespace</button>
+      </div>
+      <div class="q__exp">Le NET Namespace fournit une pile réseau complètement étanche, incluant ses propres interfaces réseau, règles de filtrage et ports d’écoute.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande CLI Docker permet d’afficher la configuration bas niveau d’un conteneur au format JSON (adresses IP, points de montage, statut) ?</p>
+      <div class="opts">
+        <button class="opt">docker log</button>
+        <button class="opt" data-correct="1">docker inspect</button>
+        <button class="opt">docker top</button>
+        <button class="opt">docker status</button>
+      </div>
+      <div class="q__exp">docker inspect retourne l’état complet, la configuration réseau, les montages et les limites de ressources du conteneur au format JSON structuré.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Penser qu’un conteneur est une VM : un conteneur ne peut pas faire tourner un noyau différent de l’hôte (ex: pas de noyau Windows natif sur hôte Linux).</li>
+      <li>Oublier le flag --rm lors de tests rapides en ligne de commande, ce qui accumule des conteneurs arrêtés inutiles sur le disque.</li>
+      <li>Donner les droits sudo ou l’accès au groupe docker à des utilisateurs non sécurisés sans mesurer l’impact d’élévation de privilèges.</li>
+      <li>Confondre le rôle de dockerd (orchestrateur haut niveau) et runc (exécuteur bas niveau de conteneurs).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Démarrage et d’Inspection d’un Conteneur Docker</div>
+    <ol>
+      <li>Étape 1 — Vérifier le statut du service Docker : S’assurer que le démon dockerd est actif avec la commande « systemctl status docker » ou « docker info ».</li>
+      <li>Étape 2 — Télécharger une image officielle : Rapatrier l’image minimale Alpine Linux avec « docker pull alpine:3.18 ».</li>
+      <li>Étape 3 — Lancer un conteneur interactif : Exécuter « docker run -it --name mon_test alpine:3.18 /bin/sh » pour obtenir une invite de commande isolée.</li>
+      <li>Étape 4 — Observer l’isolation des processus : Taper « ps aux » à l’intérieur du conteneur et constater que seul le shell /bin/sh s’exécute avec le PID 1.</li>
+      <li>Étape 5 — Observer l’isolation depuis l’hôte : Ouvrir un second terminal sur la machine hôte et chercher le processus avec « pgrep -a sh » pour voir son vrai PID système.</li>
+      <li>Étape 6 — Nettoyer les ressources : Quitter le conteneur avec « exit » et détruire le conteneur arrêté avec « docker rm mon_test ».</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un conteneur Docker est un processus Linux isolé partageant le noyau hôte, sans couche d’émulation matérielle ni Guest OS.</li>
+      <li>Les Namespaces créent des cloisons virtuelles d’espace de noms (PID, NET, MNT, IPC, UTS, USER).</li>
+      <li>Les Cgroups (Control Groups) plafonnent et mesurent la consommation matérielle (CPU, RAM, débits E/S).</li>
+      <li>L’architecture moderne découple le client CLI, le démon dockerd, le superviseur containerd et le runtime OCI runc.</li>
+      <li>Le composant containerd-shim permet aux conteneurs de continuer à tourner sans interruption même si le démon Docker redémarre.</li>
+      <li>L’accès en écriture à /var/run/docker.sock équivaut à un accès root complet sur le système hôte.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer pourquoi un conteneur démarre en quelques millisecondes comparé à une machine virtuelle.</li>
+      <li>Je connais la liste et le rôle précis des 6 Namespaces fondamentaux du noyau Linux.</li>
+      <li>Je comprends la différence fonctionnelle entre un Namespace (visibilité) et un Cgroup (allocation quantitative).</li>
+      <li>Je sais décrire le parcours d’une commande depuis docker CLI jusqu’à runc.</li>
+      <li>Je comprends le rôle de containerd-shim dans la résilience des conteneurs.</li>
+      <li>Je sais utiliser docker run, docker ps, docker images et docker inspect.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Virtualisation lourde vs Conteneurs</li><li>Partage du noyau Linux (Host Kernel)</li><li>Namespaces Linux (PID, NET, MNT, IPC, UTS, USER)</li><li>Control Groups (Cgroups v1 et v2)</li><li>Architecture modulaire Docker Engine</li><li>Superviseur containerd &amp; containerd-shim</li><li>Runtime bas niveau OCI runc</li><li>Socket UNIX /var/run/docker.sock</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la distinction VM vs Conteneur, les Namespaces et les Cgroups.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bon socle acquis. Approfondissez l’architecture modulaire de Docker et le rôle de runc.</div>
+      <div class="bandrow bandrow--good">7/8 : Excellente compréhension des mécanismes du noyau Linux et de la pile Docker.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous maîtrisez les fondements de la conteneurisation au niveau des experts système.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Images, Layers &amp; Registres Docker <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la documentation officielle Docker Engine, la spécification Open Container Initiative (OCI), le standard Docker Compose et le guide de sécurité CIS Docker Benchmark.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 7 — Structures et fichiers | Langage C &amp; C++ B1</title>
+<meta name="description" content="Chapitre 7 du cours Langage C & C++ B1 : struct, typedef, champs, structures et fonctions, fopen/fclose, fprintf/fscanf et modes d'ouverture. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="7">
+
+<nav class="cnav"><div class="cnav__in">
+  <a class="cnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="cnav__sep" aria-hidden="true">/</span>
+  <a class="cnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> C &amp; C++ B1</a>
+  <div class="cnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre6.html">Ch. 6</a>
+    <a href="chapitre7.html" class="is-active">Ch. 7</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="cwrap">
+  <p class="crumb"><a href="../index.html">C &amp; C++ B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 7</p>
+  <h1>Chapitre 7 — Structures et fichiers</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 7</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--time">B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un étudiant, c'est un nom <em>et</em> des notes. Gérer trois tableaux parallèles (noms, notes…) devient
+    vite ingérable. La <em>structure</em> regroupe des données hétérogènes sous un même type. Et pour survivre à
+    la fermeture du programme, ces données doivent pouvoir être écrites dans un <em>fichier</em>.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Déclarer une structure et accéder à ses champs ;</li>
+      <li>utiliser <code>typedef</code> pour alléger l'écriture ;</li>
+      <li>passer une structure à une fonction ;</li>
+      <li>ouvrir, écrire et lire un fichier avec <code>fopen</code>/<code>fprintf</code>/<code>fscanf</code> ;</li>
+      <li>toujours tester le retour de <code>fopen</code> et fermer le fichier.</li>
+    </ol>
+  </div>
+
+  <h2>1. Déclarer une structure</h2>
+  <p><strong>Définition.</strong> Une structure est un type composé : elle regroupe plusieurs variables nommées
+  (<em>champs</em>) sous un même nom de type.</p>
+  <pre><code><span class="k">struct</span> Point {
+    <span class="k">int</span> x;
+    <span class="k">int</span> y;
+};
+
+<span class="k">struct</span> Point p = {3, 4};
+printf("(%d, %d)\n", p.x, p.y);   <span class="c">/* (3, 4) */</span>
+p.x = 10;                         <span class="c">/* modifier un champ */</span></code></pre>
+
+  <table>
+    <tr><th>Écriture</th><th>Sens</th></tr>
+    <tr><td><code>struct Point p;</code></td><td>Déclare une variable de type <code>struct Point</code>.</td></tr>
+    <tr><td><code>p.x</code></td><td>Accède au champ <code>x</code> (opérateur point).</td></tr>
+    <tr><td><code>p-&gt;x</code></td><td>Accède à <code>x</code> via un pointeur vers la structure (flèche).</td></tr>
+    <tr><td><code>{3, 4}</code></td><td>Initialise les champs dans l'ordre de déclaration.</td></tr>
+  </table>
+
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p>Une structure est une fiche cartonnée : elle a plusieurs cases (les champs), chacune étiquetée. On range
+    la fiche entière d'un bloc, mais on remplit chaque case séparément en la nommant.</p>
+  </div>
+
+  <h2>2. typedef : donner un nom court</h2>
+  <pre><code><span class="k">typedef struct</span> {
+    <span class="k">char</span> nom[50];
+    <span class="k">double</span> note;
+} Etudiant;
+
+Etudiant e = {"Ali", 15.5};
+printf("%s : %.2f\n", e.nom, e.note);</code></pre>
+  <p><code>typedef</code> crée un synonyme : on écrit <code>Etudiant</code> au lieu de <code>struct Etudiant</code>
+  partout. C'est la convention la plus courante en C moderne.</p>
+
+  <h2>3. Structures et fonctions</h2>
+  <p>Une structure se passe en paramètre et se renvoie comme n'importe quel type. Par valeur, la fonction reçoit
+  une <em>copie</em> complète de la structure.</p>
+  <pre><code><span class="k">typedef struct</span> {
+    <span class="k">int</span> largeur;
+    <span class="k">int</span> hauteur;
+} Rectangle;
+
+<span class="k">int</span> aire(Rectangle r) {
+    <span class="k">return</span> r.largeur * r.hauteur;
+}
+
+<span class="k">int</span> main(void) {
+    Rectangle rect = {6, 7};
+    printf("Aire : %d\n", aire(rect));   <span class="c">/* 42 */</span>
+    <span class="k">return</span> 0;
+}</code></pre>
+
+  <h2>4. Lire et écrire un fichier</h2>
+  <p><strong>Définition.</strong> Un fichier est ouvert par <code>fopen</code>, qui renvoie un pointeur de type
+  <code>FILE *</code>, ou <code>NULL</code> en cas d'échec. Il faut toujours tester ce retour, puis fermer avec
+  <code>fclose</code>.</p>
+  <pre><code>#include &lt;stdio.h&gt;
+
+int main(void) {
+    FILE *f = fopen("notes.txt", "w");
+    if (f == NULL) {
+        printf("Ouverture impossible.\n");
+        return 1;
+    }
+    fprintf(f, "Ali 15\n");
+    fprintf(f, "Sara 18\n");
+    fclose(f);
+
+    f = fopen("notes.txt", "r");
+    if (f == NULL) return 1;
+    char nom[50];
+    int note;
+    while (fscanf(f, "%49s %d", nom, &amp;note) == 2) {
+        printf("%s : %d\n", nom, note);
+    }
+    fclose(f);
+    return 0;
+}</code></pre>
+
+  <table>
+    <tr><th>Mode</th><th>Effet</th></tr>
+    <tr><td><code>"r"</code></td><td>Lire ; échoue si le fichier n'existe pas.</td></tr>
+    <tr><td><code>"w"</code></td><td>Écrire ; crée ou <strong>écrase</strong> le fichier.</td></tr>
+    <tr><td><code>"a"</code></td><td>Ajouter à la fin, sans effacer.</td></tr>
+    <tr><td><code>"r+"</code></td><td>Lire et écrire le fichier existant.</td></tr>
+  </table>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le mode <code>"w"</code> efface</div>
+    <p>Ouvrir en <code>"w"</code> un fichier existant le vide <em>immédiatement</em>. Pour conserver le contenu
+    et ajouter des lignes, c'est <code>"a"</code> qu'il faut. Et toujours fermer avec <code>fclose</code> :
+    sinon les dernières écritures peuvent ne jamais atteindre le disque.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="c-c7-e1"
+     data-language="c"
+     data-height="300"
+     data-stdin="2 7">
+  <script type="text/plain" data-lab-starter>#include <stdio.h>
+
+struct Point {
+    int x;
+    int y;
+};
+
+int main(void) {
+    struct Point p;
+    scanf("%d %d", &p.x, &p.y);
+
+    /* À compléter : afficher « Point(x, y) ». */
+
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Structurer un point</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déclarer une structure et accéder à ses champs.</p>
+    <div class="lab__brief"><p>Complétez le programme pour stocker deux coordonnées dans une structure <code>Point</code> et les afficher sous la forme <code>Point(x, y)</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2 7</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Point(2, 7)</pre></div>
+    </div>
+    <p class="lab__note">Coordonnées x = 2 et y = 7.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un champ de structure s’atteint en écrivant le nom de la variable, un point, puis le nom du champ.</li>
+        <li>Les deux champs sont lus sur une seule ligne : la lecture les sépare, l’affichage doit les recomposer dans l’ordre demandé.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="c-c7-e2"
+     data-language="c"
+     data-height="300"
+     data-stdin="Marie 18.25">
+  <script type="text/plain" data-lab-starter>#include <stdio.h>
+
+struct Etudiant {
+    char nom[64];
+    double note;
+};
+
+int main(void) {
+    struct Etudiant e;
+    scanf("%63s %lf", e.nom, &e.note);
+
+    /* À compléter : afficher le nom puis la note. */
+
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Fiche d’un étudiant</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Combiner une chaîne et un décimal dans une même structure.</p>
+    <div class="lab__brief"><p>Complétez le programme pour lire un nom et une note, les ranger dans une structure <code>Etudiant</code>, puis afficher le nom et la note avec deux décimales, comme dans l’exemple.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Marie 18.25</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Nom : Marie
+Note : 18.25</pre></div>
+    </div>
+    <p class="lab__note">Nom et note affichés sur deux lignes.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un champ de type tableau de caractères n’a pas besoin du symbole d’adresse dans la lecture : il est déjà une adresse.</li>
+        <li>La note est un décimal : son affichage doit fixer le nombre de décimales pour être identique quelle que soit la valeur.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="c-c7-e3"
+     data-language="c"
+     data-height="300"
+     data-stdin="6 7">
+  <script type="text/plain" data-lab-starter>#include <stdio.h>
+
+struct Rectangle {
+    int largeur;
+    int hauteur;
+};
+
+int aire(struct Rectangle r) {
+    /* À compléter : renvoyer l'aire. */
+    return 0;
+}
+
+int main(void) {
+    struct Rectangle rect;
+    scanf("%d %d", &rect.largeur, &rect.hauteur);
+    printf("Aire : %d\n", aire(rect));
+    return 0;
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Structure passée à une fonction</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> C</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Passer une structure en paramètre et calculer à partir de ses champs.</p>
+    <div class="lab__brief"><p>Complétez la fonction <code>aire</code> qui reçoit un rectangle et renvoie le produit de sa largeur par sa hauteur. Le programme lit les deux dimensions et affiche <code>Aire : &lt;valeur&gt;</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>6 7</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Aire : 42</pre></div>
+    </div>
+    <p class="lab__note">6 × 7 = 42.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le paramètre est une copie complète de la structure : ses champs s’atteignent avec le point, exactement comme dans le programme principal.</li>
+        <li>La fonction doit renvoyer la valeur ; l’affichage, lui, reste à la charge de l’appelant.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Comment accéder au champ <code>x</code> d'une structure <code>p</code> ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1"><code>p.x</code></button>
+        <button class="opt"><code>p-&gt;x</code></button>
+        <button class="opt"><code>p[x]</code></button>
+      </div>
+      <div class="q__exp">Le point s'utilise sur une structure ; la flèche sur un pointeur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert <code>typedef</code> ?</p>
+      <div class="opts">
+        <button class="opt">À allouer de la mémoire</button>
+        <button class="opt" data-correct="1">À créer un synonyme de type</button>
+        <button class="opt">À ouvrir un fichier</button>
+      </div>
+      <div class="q__exp">Il évite d'écrire <code>struct</code> à chaque fois.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie <code>fopen</code> en cas d'échec ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1"><code>NULL</code></button>
+        <button class="opt">-1</button>
+      </div>
+      <div class="q__exp">L'échec se teste en comparant à <code>NULL</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mode ajoute sans effacer ?</p>
+      <div class="opts">
+        <button class="opt"><code>"w"</code></button>
+        <button class="opt" data-correct="1"><code>"a"</code></button>
+        <button class="opt"><code>"r"</code></button>
+      </div>
+      <div class="q__exp"><code>"a"</code> = append.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle fonction ferme un fichier ?</p>
+      <div class="opts">
+        <button class="opt"><code>fend</code></button>
+        <button class="opt" data-correct="1"><code>fclose</code></button>
+        <button class="opt"><code>fileclose</code></button>
+      </div>
+      <div class="q__exp"><code>fclose(f);</code> libère le fichier et vide les tampons.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment accéder au champ <code>note</code> via un pointeur <code>p</code> vers une structure ?</p>
+      <div class="opts">
+        <button class="opt"><code>p.note</code></button>
+        <button class="opt" data-correct="1"><code>p-&gt;note</code></button>
+        <button class="opt"><code>*p.note</code></button>
+      </div>
+      <div class="q__exp">La flèche combine le déréférencement et l'accès au champ.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong><code>fopen</code> non testé</strong> : utiliser un <code>NULL</code> fait planter le programme.</li>
+      <li><strong><code>fclose</code> oublié</strong> : écritures perdues.</li>
+      <li><strong>Mode <code>"w"</code> au lieu de <code>"a"</code></strong> : données écrasées.</li>
+      <li><strong>Confondre <code>.</code> et <code>-&gt;</code></strong>.</li>
+      <li><strong>Chaîne trop courte</strong> dans une structure : le nom est tronqué.</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Modéliser avec une structure</div>
+    <ol>
+      <li><strong>Repérer l'entité</strong> : étudiant, article, point.</li>
+      <li><strong>Lister ses attributs</strong> et leur type.</li>
+      <li><strong>Déclarer</strong> la structure (avec <code>typedef</code>).</li>
+      <li><strong>Écrire des fonctions</strong> qui prennent la structure en paramètre.</li>
+      <li><strong>Persister</strong> dans un fichier si les données doivent survivre.</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une structure regroupe des champs de types différents.</li>
+      <li><code>p.champ</code> (valeur) ; <code>p-&gt;champ</code> (pointeur).</li>
+      <li><code>typedef</code> allège l'écriture.</li>
+      <li><code>fopen</code> renvoie <code>FILE *</code> ou <code>NULL</code> ; toujours tester et <code>fclose</code>.</li>
+      <li>Modes : <code>r</code> lire, <code>w</code> écraser, <code>a</code> ajouter.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je déclare et initialise une structure.</li>
+      <li>Je distingue le point de la flèche.</li>
+      <li>Je teste le retour de <code>fopen</code>.</li>
+      <li>Je choisis le bon mode d'ouverture.</li>
+      <li>Je ferme toujours le fichier.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><code>struct</code></li><li>champs et opérateur point</li><li><code>typedef</code></li>
+      <li>flèche <code>-&gt;</code></li><li><code>FILE *</code></li><li><code>fopen</code>/<code>fclose</code></li>
+      <li>modes <code>r</code>/<code>w</code>/<code>a</code></li><li><code>fprintf</code>/<code>fscanf</code></li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 4.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 4.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible les modes d'ouverture.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : tu peux passer au chapitre 8.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre6.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 6</a>
+    <a class="btn btn--primary" href="chapitre8.html">Chapitre 8 — Introduction au C++ <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports de cours B1 (INF-1003) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

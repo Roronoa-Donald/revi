@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Fondements : risque, menaces, vulnérabilités | Cybersécurité B1</title>
+<meta name="description" content="Chapitre 1 du cours de Cybersécurité B1 : Cybersécurité vs sécurité informatique, la formule du risque, la triade CIA, l'histoire des incidents. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-cyber/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Fondements : risque, menaces, vulnérabilités | Cybersécurité B1">
+<meta property="og:description" content="Chapitre 1 du cours de Cybersécurité B1 : Cybersécurité vs sécurité informatique, la formule du risque, la triade CIA, l'histoire des incidents. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="cynav"><div class="cynav__in">
+  <a class="cynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="cynav__sep" aria-hidden="true">/</span>
+  <a class="cynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> Cybersécurité B1</a>
+  <div class="cynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="cynav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="cywrap">
+<p class="crumb"><a href="../index.html">Cybersécurité B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Fondements : risque, menaces, vulnérabilités</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Tu entres en salle de supervision : un serveur de paie, un Wi-Fi visiteurs, une clé USB perdue. Tout le monde parle de « risque » sans le calculer. Ce chapitre donne le vocabulaire et la formule qui permettent de dire « autorisé » ou « refusé » — et pourquoi la triade CIA est le premier bilan qu'un analyste dresse.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>distinguer cybersécurité et sécurité informatique ;</li>
+      <li>calculer un risque avec la formule menace × vulnérabilité × impact ;</li>
+      <li>classer une menace selon la composante CIA qu'elle viole ;</li>
+      <li>relier les incidents célèbres aux leçons qu'ils ont laissées.</li>
+    </ol>
+  </div>
+
+<h2>1. Cybersécurité vs sécurité informatique</h2>
+
+<p>Les deux termes s'utilisent l'un pour l'autre, mais ils ne couvrent pas le même terrain. La <strong>sécurité informatique</strong> protège les systèmes, les réseaux, les données et les applications contre les accès non autorisés, les perturbations, les modifications ou les destructions : c'est le volet <em>technique</em>. La <strong>cybersécurité</strong> englobe la sécurité informatique et s'étend aux actifs numériques dans un contexte global : infrastructures critiques, sécurité opérationnelle, sensibilisation des utilisateurs, lutte contre la cybercriminalité.</p>\n<p>La règle à retenir : la sécurité informatique est un <strong>sous-ensemble</strong> de la cybersécurité. Un pare-feu relève de la première ; la politique de mobilité et la simulation de phishing relèvent de la seconde.</p>\n<table>
+    <tr><th></th><th>Sécurité informatique</th><th>Cybersécurité</th></tr>
+    <tr><td>Périmètre</td><td>les systèmes (serveurs, réseaux, applications)</td><td>tous les actifs numériques, y compris humains</td></tr>
+    <tr><td>Approche</td><td>technique</td><td>stratégique, organisationnelle et humaine</td></tr>
+    <tr><td>Exemple de mesure</td><td>chiffrement du disque</td><td>charte informatique, formation, conformité</td></tr>
+  </table>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « le sous-ensemble et l'ensemble »</div>
+    <p>Tout ce qui est sécurité informatique est cybersécurité ; la réciproque est fausse. Quand un sujet de question parle d'utilisateurs, de règles ou de sanctions : cybersécurité. Quand il parle de ports, de fichiers ou de correctifs : sécurité informatique.</p>
+  </div>
+
+<h2>2. Menace, vulnérabilité, risque</h2>
+
+<p>Un <strong>risque</strong> est un événement ou une action potentiellement dommageable qui peut compromettre un système ou une organisation : intentionnelle (attaque), accidentelle (erreur humaine) ou naturelle (inondation). Une <strong>vulnérabilité</strong> est une faiblesse — technique (logiciel non mis à jour), organisationnelle (pas de politique d'accès) ou humaine (manque de sensibilisation) — qu'une menace peut exploiter. Le <strong>risque</strong> combine les deux avec l'impact :</p>\n<pre><code>Risque = Menace × Vulnérabilité × Impact</code></pre>\n<p>Trois facteurs nuls donnent un risque nul : la menace la plus féroce ne fait rien à un système sans vulnérabilité, et la plus belle faille n'intéresse personne sans impact. C'est pourquoi une analyse de risque commence toujours par la liste des actifs et de leur valeur.</p>\n  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Les trois familles de menaces à connaître</div>
+    <ul>
+      <li><strong>Naturelles</strong> : incendie, inondation, séisme — pas d'intention, mais un impact réel.</li>
+      <li><strong>Humaines</strong> : intentionnelles (piratage, sabotage) ou accidentelles (perte d'un appareil, erreur de manipulation).</li>
+      <li><strong>Technologiques</strong> : panne matérielle, bug logiciel, défaillance réseau.</li>
+    </ul>
+  </div>
+
+<h2>3. La triade CIA</h2>
+
+<p>Toute décision de sécurité vise à protéger trois propriétés, notées <strong>CIA</strong> — rien à voir avec l'agence :</p>\n<ul>\n  <li><strong>Confidentialité</strong> : l'information n'est accessible qu'aux personnes autorisées ;</li>\n  <li><strong>Intégrité</strong> : l'information n'est pas altérée sans autorisation ;</li>\n  <li><strong>Disponibilité</strong> : l'information et les systèmes restent accessibles quand il faut.</li>\n</ul>\n<p>Une fuite de dossier médical viole la confidentialité. Une facture modifiée en vol, l'intégrité. Un ransomware qui chiffre tout, la disponibilité. Un même incident peut violer plusieurs composantes à la fois — mais l'analyse commence par nommer la première atteinte.</p>\n  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — CIA est un bilan, pas une liste de solutions</div>
+    <p>Un chiffrement protège la confidentialité, pas la disponibilité ; une sauvegarde protège la disponibilité, pas la confidentialité. Toujours demander : quelle composante est violee, et quelle mesure la restaure ?</p>
+  </div>
+
+<h2>4. L'histoire apprend</h2>
+
+<p>Les grands incidents racontent tous une leçon : chaque attaque a exploité une vulnérabilité connue et non traitée, ou un utilisateur pris en confiance.</p>\n<table>
+    <tr><th>Incident</th><th>Mécanisme</th><th>Leçon</th></tr>
+    <tr><td>Ver Morris (1988)</td><td>premier ver Internet,.failles Unix</td><td>le réseau propage à la vitesse des failles</td></tr>
+    <tr><td>ILOVEYOU (2000)</td><td>virus par pièce jointe de courriel</td><td>l'humain est la porte d'entrée</td></tr>
+    <tr><td>CryptoLocker (2013)</td><td>ransomware à rançon</td><td>la sauvegarde hors ligne est vitale</td></tr>
+    <tr><td>WannaCry (2017)</td><td>ver exploitant une faille Windows non corrigée</td><td>le patch management sauve des hôpitaux</td></tr>
+    <tr><td>Log4Shell (2021)</td><td>faille dans une bibliothèque omniprésente</td><td>la chaîne logicielle est une surface d'attaque</td></tr>
+  </table>\n  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « actif, menace, faille, mesure »</div>
+    <p>Toute analyse de risque se rédige dans cet ordre : <strong>actif</strong> (ce que l'on protège), <strong>menace</strong> (qui/quoi attaque), <strong>vulnérabilité</strong> (par où), <strong>mesure</strong> (quelle défense). Une phrase de risque qui ne contient pas les quatre est incomplète.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="cy-c1-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;1 2&#10;3 3&#10;2 1&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=1; i<=n; i++)); do
+  read -r menace vuln
+  # À compléter : niveau de risque pour chaque actif.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur de risque</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la formule Risque = Menace × Vulnérabilité × Impact sur une liste d’actifs.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « menace vulnérabilité » (deux entiers de 1 à 3). Pour chaque actif il calcule la somme et affiche <code>actif K : niveau</code>, où K est le numéro de la ligne (à partir de 1) et niveau vaut <code>Faible</code> (somme 2 ou 3), <code>Moyenne</code> (somme 4 ou 5) ou <code>Critique</code> (somme 6).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1 2
+3 3
+2 1
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>actif 1 : Faible
+actif 2 : Critique
+actif 3 : Faible</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le numéro de l’actif est déjà la variable i de la boucle : inutile de le lire.</li>
+        <li>Trois plages de somme : 2-3, 4-5, 6. Un if/elif/else suffit après avoir calculé somme=$((menace + vuln)).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c1-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="5&#10;C stockage&#10;I interception&#10;C divulgation&#10;D ransomware&#10;D coupure&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+for ((i=0; i<n; i++)); do
+  read -r lettre menace
+  # À compléter : afficher la ligne, puis compter les lettres distinctes.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Police de la triade CIA</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer des menaces selon la composante de la triade CIA qu’elles violent, puis dresser le bilan.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « lettre menace » : lettre vaut C (confidentialité), I (intégrité) ou D (disponibilité). Pour chaque ligne il affiche <code>lettre : menace</code>. Enfin il affiche <code>bilan : X/n protégées</code>, X étant le nombre de lettres <em>distinctes</em> rencontrées : une menace n’est contenue que si la composante visée est protégée.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+C stockage
+I interception
+C divulgation
+D ransomware
+D coupure
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>C : stockage
+I : interception
+C : divulgation
+D : ransomware
+D : coupure
+bilan : 3/5 protégées</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Trois drapeaux (un par lettre) valent mieux qu’un tableau : ils passent à 1 quand la lettre apparaît.</li>
+        <li>Le nombre de lettres distinctes est la somme des trois drapeaux à la fin.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="cy-c1-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="5&#10;2017 WannaCry&#10;2013 CryptoLocker&#10;1988 Morris&#10;2021 Log4Shell&#10;2024 XZ Utils&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+min_annee=9999
+max_annee=0
+for ((i=0; i<n; i++)); do
+  read -r annee nom
+  # À compléter : réafficher la ligne et retenir les bornes.
+done
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Historique des incidents</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Relire une chronologie d’incidents célèbres et en extraire les bornes, pour ancrer les dates du cours.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « annee nom » (année <code>&lt;</code> 9999, nom sans espace). Il réaffiche chaque ligne telle quelle, puis conclut par trois lignes : <code>plus ancien : annee nom</code>, <code>plus recent : annee nom</code> et <code>enseignement : les incidents s'enchaînent, la vigilance aussi</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+2017 WannaCry
+2013 CryptoLocker
+1988 Morris
+2021 Log4Shell
+2024 XZ Utils
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>2017 WannaCry
+2013 CryptoLocker
+1988 Morris
+2021 Log4Shell
+2024 XZ Utils
+plus ancien : 1988 Morris
+plus recent : 2024 XZ Utils
+enseignement : les incidents s'enchaînent, la vigilance aussi</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Garde la ligne complète (année et nom) dans une variable, pas seulement l’année : l’affichage final la réclame.</li>
+        <li>Deux comparaisons par ligne : -lt pour le plus ancien, -gt pour le plus récent.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">La sécurité informatique est…</p>
+      <div class="opts">
+        <button class="opt">un synonyme de cybersécurité</button>
+        <button class="opt" data-correct="1">un sous-ensemble de la cybersécurité</button>
+        <button class="opt">un domaine rival</button>
+      </div>
+      <div class="q__exp">Elle en est le cœur technique ; la cybersécurité englobe en plus l'organisationnel et l'humain.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un logiciel non mis à jour est…</p>
+      <div class="opts">
+        <button class="opt">une menace</button>
+        <button class="opt" data-correct="1">une vulnérabilité</button>
+        <button class="opt">un risque</button>
+      </div>
+      <div class="q__exp">C'est une faiblesse exploitable : une vulnérabilité. La menace est l'attaquant qui l'exploite.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Risque = Menace × Vulnérabilité × …</p>
+      <div class="opts">
+        <button class="opt">Probabilité</button>
+        <button class="opt" data-correct="1">Impact</button>
+        <button class="opt">Coût</button>
+      </div>
+      <div class="q__exp">La formule du cours combine la menace, la vulnérabilité et l'impact.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un dossier médical rendu public viole…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la confidentialité</button>
+        <button class="opt">l'intégrité</button>
+        <button class="opt">la disponibilité</button>
+      </div>
+      <div class="q__exp">Des informations réservées sont accessibles à des personnes non autorisées : confidentialité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un ransomware qui chiffre les fichiers viole d'abord…</p>
+      <div class="opts">
+        <button class="opt">la confidentialité</button>
+        <button class="opt">l'intégrité</button>
+        <button class="opt" data-correct="1">la disponibilité</button>
+      </div>
+      <div class="q__exp">Les données ne sont plus accessibles : c'est l'atteinte à la disponibilité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une erreur de manipulation supprimant une base est…</p>
+      <div class="opts">
+        <button class="opt">une menace naturelle</button>
+        <button class="opt" data-correct="1">une menace humaine accidentelle</button>
+        <button class="opt">une vulnérabilité technique</button>
+      </div>
+      <div class="q__exp">Menace humaine, mais non intentionnelle : elle se traite par procédures et sauvegardes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">WannaCry (2017) a exploité…</p>
+      <div class="opts">
+        <button class="opt">un mot de passe faible</button>
+        <button class="opt" data-correct="1">une faille Windows non corrigée</button>
+        <button class="opt">une pièce jointe de courriel</button>
+      </div>
+      <div class="q__exp">Le ver a propagé EternalBlue sur des systèmes sans le correctif de mars 2017.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le premier bilan d'un analyste devant un incident est…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la triade CIA</button>
+        <button class="opt">le budget</button>
+        <button class="opt">l'organigramme</button>
+      </div>
+      <div class="q__exp">Confidentialité, intégrité, disponibilité : quelle composante est violee ?</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Confondre menace et vulnérabilité</strong> : la menace attaque, la vulnérabilité est attaquée.</li>
+      <li><strong>Croire qu'un seul produit suffit</strong> : la formule du risque a trois facteurs, la défense a plusieurs couches.</li>
+      <li><strong>Nommer « CIA » sans l'appliquer</strong> : toute description d'incident doit nommer la composante violee.</li>
+      <li><strong>Négliger les menaces accidentelles</strong> : l'erreur humaine coûte autant que l'attaque.</li>
+      <li><strong>Ignorer l'histoire</strong> : WannaCry, c'est aujourd'hui encore une faille non corrigée quelque part.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Analyser un risque en quatre phrases</div>
+    <ol>
+      <li><strong>Nommer l'actif</strong> et ce qu'il vaut pour l'organisation.</li>
+      <li><strong>Identifier la menace</strong> : qui ou quoi, intentionnelle ou non.</li>
+      <li><strong>Chercher la vulnérabilité</strong> exploitable : technique, organisationnelle ou humaine.</li>
+      <li><strong>Écrire le risque</strong> avec la formule, puis choisir la mesure qui casse un facteur.</li>
+      <li><strong>Vérifier la triade</strong> : quelle composante CIA la mesure protège, et laquelle reste exposée.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La sécurité informatique est le sous-ensemble technique de la cybersécurité, qui ajoute l'organisationnel et l'humain.</li>
+      <li>Risque = Menace × Vulnérabilité × Impact : annuler un facteur suffit à annuler le risque.</li>
+      <li>Les menaces sont naturelles, humaines (intentionnelles ou accidentelles) ou technologiques.</li>
+      <li>La triade CIA — confidentialité, intégrité, disponibilité — structure le bilan de tout incident.</li>
+      <li>L'histoire des incidents (Morris, ILOVEYOU, WannaCry, Log4Shell) prouve que les failles connues non corrigées reviennent.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je distingue cybersécurité et sécurité informatique avec un exemple chacun.</li>
+      <li>Je calcule un niveau de risque avec la formule et j'explique chaque facteur.</li>
+      <li>Je classe une attaque selon la composante CIA qu'elle viole.</li>
+      <li>Je raconte un incident célèbre et sa leçon en une phrase.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>cybersécurité</li><li>sécurité informatique</li><li>menace</li><li>vulnérabilité</li><li>risque</li><li>confidentialité</li><li>intégrité</li><li>disponibilité</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Redéfinis les six notions de base sans notes, puis refais la formule du risque.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Classe dix incidents par composante CIA violee en cinq minutes.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : rédige une analyse de risque complète pour un actif de ton choix.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 2, les menaces et les attaques.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Menaces et attaques : malwares, phishing, réseau <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le support « Introduction à la Cybersécurité B1 IT 2024-2025 » (modules 1 à 7).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

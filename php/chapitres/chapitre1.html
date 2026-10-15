@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Objets et classes | PHP POO B2</title>
+<meta name="description" content="Chapitre 1 du cours de PHP objet B2 : Pourquoi modéliser, déclarer une classe, le constructeur, $this, méthodes et instanciation. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/php/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Objets et classes | PHP POO B2">
+<meta property="og:description" content="Chapitre 1 du cours de PHP objet B2 : Pourquoi modéliser, déclarer une classe, le constructeur, $this, méthodes et instanciation. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="phpnav"><div class="phpnav__in">
+  <a class="phpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phpnav__sep" aria-hidden="true">/</span>
+  <a class="phpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP POO B2</a>
+  <div class="phpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="phpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="phpwrap">
+<p class="crumb"><a href="../index.html">PHP POO B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Objets et classes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>En procédural, on range les données dans des tableaux et on les fait circuler de fonction en fonction : personne ne garantit qu’un « client » a bien un nom, un solde et un historique. La programmation orientée objet réunit les données et les opérations qui les concernent dans une même entité : la classe.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>expliquer l’intérêt d’une classe par rapport à un tableau associatif ;</li>
+      <li>déclarer une classe avec propriétés, constructeur et méthodes ;</li>
+      <li>utiliser $this pour atteindre l’état de l’objet courant ;</li>
+      <li>instancier un objet et appeler ses méthodes.</li>
+    </ol>
+  </div>
+
+<h2>1. Pourquoi passer à l’objet</h2>
+
+<p>Un tableau associatif (<code>["nom" =&gt; "Ada", "solde" =&gt; 100]</code>) transporte bien des données, mais rien ne l’empêche d’oublier une clé ou d’accepter un solde négatif. Une <strong>classe</strong> décrit la forme d’une donnée : quelles propriétés elle possède et quelles opérations ont le droit de la modifier.</p>
+<p>La classe est le <strong>moule</strong>, l’objet est la <strong>pièce</strong> produite. Un objet de la classe <code>CompteBancaire</code> connaît son titulaire et son solde, et sait se décrire ou retirer de l’argent. Deux objets différents ont chacun leur propre état.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Une classe = données + comportements</div>
+    <p>Les <strong>propriétés</strong> (variables) décrivent l’état ; les <strong>méthodes</strong> (fonctions) décrivent les actions. En les réunissant, on peut raisonner sur le « client » ou le « compte » comme sur une entité complète plutôt que sur une série de tableaux.</p>
+  </div>
+
+<h2>2. Déclarer une classe et son constructeur</h2>
+
+<p>On déclare une classe avec le mot-clé <code>class</code>. Le <strong>constructeur</strong> <code>__construct()</code> est appelé automatiquement à la création de l’objet : c’est l’endroit naturel pour ranger les valeurs reçues.</p>
+<pre><code>&lt;?php
+class Point {
+    private $x;
+    private $y;
+
+    public function __construct(int $x, int $y) {
+        $this-&gt;x = $x;
+        $this-&gt;y = $y;
+    }
+}</code></pre>
+<p><code>$this</code> représente l’objet en cours de construction ou d’utilisation. Écrire <code>$this-&gt;x = $x</code> range l’argument dans la propriété <code>x</code> de <em>cet</em> objet — pas dans une variable globale.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la flèche, pas le point</div>
+    <p>En PHP, on atteint un membre avec <code>-&gt;</code> (<code>$this-&gt;x</code>), jamais avec le point qui reste la concaténation de chaînes. Confondre <code>$this.x</code> et <code>$this-&gt;x</code> est l’erreur numéro un des débutants venus de JavaScript ou de Python.</p>
+  </div>
+
+<h2>3. Méthodes et état</h2>
+
+<p>Une méthode lit et modifie l’état de l’objet. Elle accède aux propriétés via <code>$this</code> et peut renvoyer un résultat avec <code>return</code>.</p>
+<pre><code>public function afficher(): string {
+    return "(" . $this-&gt;x . ", " . $this-&gt;y . ")";
+}</code></pre>
+<p>Le type de retour (<code>: string</code>) documente le contrat : la méthode promet une chaîne. PHP vérifie cette promesse à l’exécution et lève une erreur si le contrat n’est pas tenu.</p>
+
+<h2>4. Instancier et utiliser un objet</h2>
+
+<p>On crée un objet avec <code>new</code>, ce qui déclenche le constructeur. On appelle ensuite ses méthodes avec la même flèche.</p>
+<pre><code>$p = new Point(3, 4);
+echo $p-&gt;afficher();     // (3, 4)
+echo $p-&gt;x;              // interdit : x est privé</code></pre>
+<p>Une propriété privée n’est accessible que depuis l’intérieur de la classe : c’est le chapitre 2 qui explique comment l’ouvrir proprement avec des getters et des setters.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php2-c1-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="3&#10;4">
+  <script type="text/plain" data-lab-starter><?php
+class Point {
+    private $x;
+    private $y;
+
+    // À compléter : le constructeur range les deux coordonnées.
+
+    // À compléter : afficher() renvoie "(x, y)".
+}
+
+$x = (int) trim(fgets(STDIN));
+$y = (int) trim(fgets(STDIN));
+// À compléter : créer le point et afficher ses coordonnées.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Premier objet</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Créer une classe, un constructeur et une méthode, puis instancier.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux lignes : <code>x</code> puis <code>y</code> (entiers). Écris une classe <code>Point</code> avec un constructeur qui range les deux coordonnées et une méthode <code>afficher()</code> qui renvoie la chaîne <code>(x, y)</code>. Instancie le point et affiche le résultat.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>(3, 4)</pre></div>
+    </div>
+    <p class="lab__note">Deux entiers lus, un couple affiché.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le constructeur s’écrit __construct(int $x, int $y) et affecte $this-&gt;x et $this-&gt;y.</li>
+        <li>Deux valeurs se concatènent avec le point : '(' . $this-&gt;x . ', ' . $this-&gt;y . ')'.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c1-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="3&#10;10&#10;20&#10;30">
+  <script type="text/plain" data-lab-starter><?php
+class Panier {
+    private $total = 0;
+
+    // À compléter : ajouter() cumule puis renvoie $this.
+    // À compléter : total() renvoie le cumul.
+}
+
+$n = (int) trim(fgets(STDIN));
+// À compléter : lire n prix, les ajouter, afficher "total : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Enchaîner les appels</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Faire renvoyer $this par une méthode pour enchaîner les appels.</p>
+    <div class="lab__brief"><p>Le programme reçoit <code>n</code>, puis <code>n</code> prix (entiers). Écris une classe <code>Panier</code> dont la méthode <code>ajouter(int $prix)</code> cumule le prix et renvoie <code>$this</code>, et dont la méthode <code>total()</code> renvoie le total. Ajoute les prix, puis affiche <code>total : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+10
+20
+30</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>total : 60</pre></div>
+    </div>
+    <p class="lab__note">Trois prix cumulés.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une méthode qui renvoie $this permet d’enchaîner : $panier-&gt;ajouter(10)-&gt;ajouter(20).</li>
+        <li>Le type de retour d’une méthode renvoyant l’objet courant s’écrit : self.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c1-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="25">
+  <script type="text/plain" data-lab-starter><?php
+class Age {
+    private $valeur;
+
+    // À compléter : le constructeur range max(0, age).
+    // À compléter : valeur() renvoie l'âge.
+}
+
+$age = (int) trim(fgets(STDIN));
+// À compléter : créer l'objet et afficher "age : X".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Constructeur qui valide</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Assainir une valeur dans le constructeur.</p>
+    <div class="lab__brief"><p>Le programme reçoit un âge (entier, éventuellement négatif). Écris une classe <code>Age</code> dont le constructeur ramène toute valeur négative à <code>0</code>, et une méthode <code>valeur()</code> qui renvoie l’âge. Affiche <code>age : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>25</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>age : 25</pre></div>
+    </div>
+    <p class="lab__note">Valeur positive conservée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une expression ternaire choisit la valeur : $age &lt; 0 ? 0 : $age.</li>
+        <li>L’objet s’instancie directement dans l’affichage : (new Age($age))-&gt;valeur().</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la différence entre classe et objet ?</p>
+      <div class="opts">
+        <button class="opt">Aucune</button>
+        <button class="opt" data-correct="1">La classe est le moule, l’objet l’instance</button>
+        <button class="opt">L’objet est le moule</button>
+      </div>
+      <div class="q__exp">La classe décrit la forme ; new en produit des objets (instances) distincts.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand le constructeur est-il exécuté ?</p>
+      <div class="opts">
+        <button class="opt">À la déclaration de la classe</button>
+        <button class="opt" data-correct="1">À la création avec new</button>
+        <button class="opt">Jamais</button>
+      </div>
+      <div class="q__exp">__construct() s’exécute à chaque new, pour initialiser l’objet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que représente $this ?</p>
+      <div class="opts">
+        <button class="opt">La classe</button>
+        <button class="opt" data-correct="1">L’objet courant</button>
+        <button class="opt">Le constructeur</button>
+      </div>
+      <div class="q__exp">$this est l’instance en cours d’utilisation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment atteint-on une propriété en PHP ?</p>
+      <div class="opts">
+        <button class="opt">$this.x</button>
+        <button class="opt" data-correct="1">$this->x</button>
+        <button class="opt">$this::x</button>
+      </div>
+      <div class="q__exp">La flèche -> atteint membres et méthodes : $this->x.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait le point en PHP ?</p>
+      <div class="opts">
+        <button class="opt">Il accède à un membre</button>
+        <button class="opt" data-correct="1">Il concatène des chaînes</button>
+        <button class="opt">Il compare</button>
+      </div>
+      <div class="q__exp">Le point est l’opérateur de concaténation, pas d’accès aux membres.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une propriété private est accessible…</p>
+      <div class="opts">
+        <button class="opt">partout</button>
+        <button class="opt" data-correct="1">seulement dans la classe</button>
+        <button class="opt">depuis les fonctions</button>
+      </div>
+      <div class="q__exp">private réserve l’accès au code de la classe elle-même.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que promet `: string` après un nom de méthode ?</p>
+      <div class="opts">
+        <button class="opt">Rien</button>
+        <button class="opt" data-correct="1">Un type de retour</button>
+        <button class="opt">Un paramètre</button>
+      </div>
+      <div class="q__exp">C’est la déclaration du type renvoyé : le contrat est vérifié.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Deux objets d’une même classe partagent-ils leur état ?</p>
+      <div class="opts">
+        <button class="opt">Oui</button>
+        <button class="opt" data-correct="1">Non, chacun a le sien</button>
+        <button class="opt">Seulement en static</button>
+      </div>
+      <div class="q__exp">Chaque instance porte ses propres valeurs de propriétés.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre <code>.</code> (concaténation) et <code>-&gt;</code> (accès aux membres).</li>
+      <li>Oublier <code>$this-&gt;</code> et écrire une variable locale au lieu d’une propriété.</li>
+      <li>Déclarer une propriété sans visibilité ni valeur et la lire avant toute affectation.</li>
+      <li>Croire que le constructeur retourne une valeur : il initialise, il ne renvoie rien.</li>
+      <li>Oublier qu’une propriété privée est inaccessible depuis l’extérieur de la classe.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Écrire une classe propre</div>
+    <ol>
+      <li><strong>Nommer</strong> l’entité métier en pensant à l’objet, pas à la table de données.</li>
+      <li><strong>Lister l’état</strong> : quelles propriétés décrivent un objet complet ?</li>
+      <li><strong>Écrire le constructeur</strong> qui range ces propriétés à partir d’arguments typés.</li>
+      <li><strong>Définir les méthodes</strong> qui lisent ou transforment l’état via <code>$this</code>.</li>
+      <li><strong>Tester en petit</strong> : instancier deux objets et vérifier qu’ils sont indépendants.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une classe réunit des propriétés (état) et des méthodes (comportements).</li>
+      <li><code>new</code> crée un objet et déclenche <code>__construct()</code>.</li>
+      <li><code>$this</code> désigne l’objet courant ; on atteint ses membres avec <code>-&gt;</code>.</li>
+      <li>Le point <code>.</code> concatène des chaînes, il n’accède pas aux membres.</li>
+      <li>La visibilité <code>private</code> réserve l’accès au code de la classe.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je distingue classe, objet et instance.</li>
+      <li>Je déclare une classe avec propriétés, constructeur et méthodes.</li>
+      <li>J’utilise $this et -> sans les confondre avec le point.</li>
+      <li>J’instancie deux objets et je vérifie qu’ils sont indépendants.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>classe</li><li>objet</li><li>instance</li><li>constructeur</li><li>$this</li><li>méthode</li><li>propriété</li><li>visibilité</li><li>new</li><li>type de retour</li><li>concaténation</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Réécris la classe Point de zéro avant de continuer.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à distinguer -> et le point de concaténation.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : ta classe a un état clair et des méthodes typées.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe à l’encapsulation, chapitre 2.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Encapsulation, constantes et membres statiques <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de PHP objet (classes, héritage, namespaces, PDO, projet ToDo List).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Gérer les objets AD DS | Administration Windows B1</title>
+<meta name="description" content="Chapitre 6 du cours B1 : Console Utilisateurs et ordinateurs, unités d’organisation, utilisateurs (UPN, options), groupes, jointure au domaine. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-admin-windows/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Gérer les objets AD DS | Administration Windows B1">
+<meta property="og:description" content="Chapitre 6 du cours B1 : Console Utilisateurs et ordinateurs, unités d’organisation, utilisateurs (UPN, options), groupes, jointure au domaine. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="awnav"><div class="awnav__in">
+  <a class="awnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="awnav__sep" aria-hidden="true">/</span>
+  <a class="awnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Administration Windows B1</a>
+  <div class="awnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="awnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="awwrap">
+<p class="crumb"><a href="../index.html">Administration Windows B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Gérer les objets AD DS</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le domaine existe : il est vide. Maintenant il faut le peupler — des unités d’organisation pour ranger, des utilisateurs pour se connecter, des groupes pour distribuer les droits. Ce chapitre suit la console « Utilisateurs et ordinateurs Active Directory » du support, avec les exemples réels (unité TRI, utilisateur iziti), jusqu’à la jointure du poste client au domaine.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>peupler l’Active Directory depuis la console Utilisateurs et ordinateurs ;</li>
+      <li>créer des unités d’organisation et y créer des utilisateurs ;</li>
+      <li>paramétrer un compte : UPN, changement de mot de passe, horaires, propriétés ;</li>
+      <li>créer des groupes (sécurité ou distribution) et joindre un poste au domaine.</li>
+    </ol>
+  </div>
+
+<h2>1. La console et les unités d’organisation</h2>
+
+<p>Pour peupler l’Active Directory, on lance la console <strong>Utilisateurs et ordinateurs Active Directory</strong>. La première brique est l’<strong>unité d’organisation</strong> (UO) : un conteneur qui range les objets par service, par site ou par projet — comme l’unité « TRI » du support, dans laquelle on crée ensuite l’utilisateur.</p>
+<p>Créer une UO : clic droit sur le domaine ou sur une UO existante → Nouveau → <strong>Unité d’organisation</strong>. Bien pensée, la structure d’UO rend visibles les règles d’administration : une UO par service, des sous-UO pour les postes, les groupes, les comptes de service.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — tout mettre à la racine</div>
+    <p>Un domaine sans UO devient un tiroir géant : impossible d’appliquer des stratégies fines ni de s’y retrouver. L’UO est le premier geste d’administration, pas une option décorative.</p>
+  </div>
+
+<h2>2. Créer et paramétrer des utilisateurs</h2>
+
+<p>Pour créer un utilisateur dans l’unité « TRI » : clic droit sur l’unité → Nouveau → <strong>Utilisateur</strong>. On remplit le formulaire (nom, prénom, nom d’ouverture de session), puis le mot de passe et ses options.</p>
+<p>Deux moyens d’ouvrir une session (chapitre 2) : le <strong>UPN</strong>, forme d’adresse e-mail — <code>iziti@ntic.ma</code> — et la forme <code>DOMAINE\login</code>. L’option « <strong>l’utilisateur doit changer le mot de passe à la prochaine ouverture de session</strong> » force ce changement à la première connexion : réflexe de sécurité pour tout compte neuf.</p>
+<p>Les <strong>propriétés</strong> de l’utilisateur (clic droit → Propriétés) offrent bien plus : dans l’onglet <strong>Compte</strong> se trouvent la partie liée à l’ouverture de session et les <strong>horaires d’accès</strong> (restriction des horaires de connexion). Le tout existe aussi en <strong>PowerShell</strong> (New-ADUser, Set-ADUser, Get-ADUser) — chaque geste de la console a son équivalent de commande.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Le cycle d’un compte neuf</div>
+    <p>Créer (formulaire) → mot de passe + « doit changer » → propriétés (horaires, compte) → test de connexion. Quatre gestes, dans cet ordre, pour chaque utilisateur.</p>
+  </div>
+
+<h2>3. Les groupes : droits, types et étendues</h2>
+
+<p>Les <strong>groupes</strong> sont créés pour donner des droits sur des fichiers, imprimantes, bases de données, etc. Il existe deux <strong>types</strong> de groupes : les groupes de <strong>sécurité</strong>, qui reçoivent des droits, et les groupes de <strong>distribution</strong>, utiles seulement à la diffusion (listes de diffusion).</p>
+<p>Créer un groupe : sélectionner l’unité, clic droit → Nouveau → <strong>Groupe</strong>, choisir le type et l’<strong>étendue</strong>. Dans le cas d’un groupe d’utilisateurs du support, on choisit l’étendue <strong>Globale</strong> — le choix courant pour regrouper des utilisateurs du même domaine.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Droits aux groupes, pas aux utilisateurs</div>
+    <p>On donne le droit au <strong>groupe</strong> et on ajoute l’utilisateur au groupe : c’est la règle d’or. Les comptes restent propres, les droits se retirent en une suppression de membre, et l’audit se lit sur les groupes.</p>
+  </div>
+
+<h2>4. Joindre un poste au domaine et profils itinérants</h2>
+
+<p>Pour joindre un poste client au domaine, on commence par s’assurer que le client reçoit en <strong>serveur DNS</strong> celui du domaine Active Directory — sans DNS, personne ne trouve le contrôleur. Puis on change l’appartenance de la machine (Système → Modifier les paramètres → Domaine) avec un compte autorisé, et on redémarre : la connexion se fait alors en <code>DOMAINE\login</code> ou en UPN.</p>
+<p>Le support présente enfin les <strong>profils itinérants</strong> : synchroniser le profil d’un utilisateur sur le serveur pour rendre ses données accessibles depuis n’importe quel poste du domaine. Un profil itinérant bien configuré suit l’utilisateur de machine en machine.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le PowerShell d’AD en un clin d’œil</div>
+    <p>Le support illustre chaque geste de la console par sa commande : New-ADUser pour créer, Get-ADUser pour afficher les propriétés, les cmdlets groupes pour l’appartenance. Réfléchir console + PowerShell, toujours.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="aw-c6-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;iziti utilisateur&#10;poste-compta ordinateur&#10;grp-ventes groupe&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r objet classe
+  # À compléter : la classe attendue, la comparaison, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Les classes d’objets AD DS</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Classer chaque objet dans sa classe : utilisateur, ordinateur, groupe, contrôleur.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « objet classe » : classe est un code parmi <code>utilisateur</code>, <code>ordinateur</code>, <code>groupe</code> ou <code>controleur</code>. Objets du support : iziti, ilham → <code>utilisateur</code> ; poste-compta, portable-dir → <code>ordinateur</code> ; grp-ventes, grp-info → <code>groupe</code> ; SRV-DC1, SRV-DC2 → <code>controleur</code>. Pour chaque ligne il affiche <code>objet : OK</code> ou <code>objet : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+iziti utilisateur
+poste-compta ordinateur
+grp-ventes groupe
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>iziti : OK
+poste-compta : OK
+grp-ventes : OK
+correctes : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur l’objet : iziti/ilham → utilisateur, poste/portable → ordinateur, grp → groupe, SRV-DC → controleur.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aw-c6-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;iziti iziti@ntic.ma oui&#10;ilham NTIC\\ilham non&#10;demo demo@ntic.ma non&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+upn=0
+init=0
+for ((i=0; i<n; i++)); do
+  read -r utilisateur identifiant changement
+  # À compléter : forme UPN ou domaine, l'option de changement, les compteurs.
+done
+# À compléter : les deux bilans.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Créer les utilisateurs : UPN et options de compte</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider l’UPN de chaque utilisateur et signaler l’option de mot de passe.</p>
+    <div class="lab__brief"><p>Le support crée les utilisateurs dans l’unité puis distingue les deux formes de session : <strong>UPN</strong> (forme adresse e-mail, contient une arobase) et <code>DOMAINE\login</code>. Le script lit <strong>n lignes</strong> « utilisateur upn changement » : upn est l’identifiant saisi, changement vaut <code>oui</code> (doit changer son mot de passe à la prochaine ouverture) ou <code>non</code>. Pour chaque utilisateur il affiche <code>utilisateur : upn-valide</code> si l’UPN contient une arobase, sinon <code>utilisateur : forme-domaine</code> ; et il note <code>utilisateur : init-mdp</code> en plus si changement vaut oui. Enfin <code>upn : X/n</code> et <code>a-initialiser : Y</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+iziti iziti@ntic.ma oui
+ilham NTIC\\ilham non
+demo demo@ntic.ma non
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>iziti : upn-valide
+iziti : init-mdp
+ilham : forme-domaine
+demo : upn-valide
+upn : 2/3
+a-initialiser : 1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’arobase dans une variable : case "$identifiant" in *@*) forme UPN ;; *) forme domaine ;;</li>
+        <li>changement = oui → ligne init-mdp en plus et compteur ; les deux bilans après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aw-c6-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;grp-ventes securite globale&#10;liste-clients distribution globale&#10;2&#10;pc1 ad-dns&#10;pc2 8.8.8.8&#10;">
+  <script type="text/plain" data-lab-starter>read -r g
+droits=0
+for ((i=0; i<g; i++)); do
+  read -r groupe type etendue
+  # À compléter : verdict selon le type, compteur des groupes à droits.
+done
+read -r n
+j=0
+for ((i=0; i<n; i++)); do
+  read -r poste dns
+  # À compléter : jointure selon le DNS, compteur.
+done
+# À compléter : les deux bilans.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Groupes : droits, type et étendue</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décider quels groupes peuvent recevoir des droits et compter les jointures au domaine.</p>
+    <div class="lab__brief"><p>Le script lit d’abord <strong>g lignes</strong> « groupe type etendue » : type vaut <code>securite</code> (peut recevoir des droits sur fichiers, imprimantes, bases) ou <code>distribution</code> (diffusion seulement) ; etendue vaut <code>globale</code>, <code>locale</code> ou <code>universelle</code>. Puis il lit <strong>n lignes</strong> « poste dns » pour les jointures au domaine : un poste rejoint le domaine si son serveur DNS est celui du domaine (<code>ad-dns</code>). Il affiche pour chaque groupe <code>groupe : droits</code> ou <code>groupe : diffusion</code>, pour chaque poste <code>poste : joint</code> ou <code>poste : dns a corriger</code>, puis <code>groupes-droits : X</code> et <code>jointures : Y/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+grp-ventes securite globale
+liste-clients distribution globale
+2
+pc1 ad-dns
+pc2 8.8.8.8
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>grp-ventes : droits
+liste-clients : diffusion
+pc1 : joint
+pc2 : dns a corriger
+groupes-droits : 1
+jointures : 1/2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>type = securite → « droits » et compteur ; distribution → « diffusion ».</li>
+        <li>dns = ad-dns → « joint » et compteur ; sinon « dns a corriger » ; bilans après les deux boucles.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Utilisateurs et ordinateurs Active Directory</button>
+        <button class="opt">Gestionnaire des tâches</button>
+        <button class="opt">Gestion du stockage</button>
+      </div>
+      <div class="q__exp">C’est la console du support pour créer UO, utilisateurs et groupes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">l’unité d’organisation</button>
+        <button class="opt">le groupe de sécurité</button>
+        <button class="opt">le profil itinérant</button>
+      </div>
+      <div class="q__exp">L’UO contient les objets ; on la crée avant les comptes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">iziti@ntic.ma</button>
+        <button class="opt">NTIC\iziti</button>
+        <button class="opt">iziti_NTIC</button>
+      </div>
+      <div class="q__exp">UPN = forme d’adresse e-mail ; l’autre forme est DOMAINE\login.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">force le changement à la première connexion</button>
+        <button class="opt">bloque le compte</button>
+        <button class="opt">supprime le mot de passe</button>
+      </div>
+      <div class="q__exp">Réflexe de sécurité pour tout compte neuf.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">les restrictions d’horaires d’accès</button>
+        <button class="opt">de changer l’UPN du domaine</button>
+        <button class="opt">de créer une UO</button>
+      </div>
+      <div class="q__exp">Il regroupe l’ouverture de session et les horaires d’accès.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">à la diffusion (listes)</button>
+        <button class="opt">à donner des droits</button>
+        <button class="opt">à joindre le domaine</button>
+      </div>
+      <div class="q__exp">Seuls les groupes de sécurité reçoivent des droits.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">que le DNS du client pointe vers le domaine</button>
+        <button class="opt">que le pare-feu est éteint</button>
+        <button class="opt">que l’UO existe</button>
+      </div>
+      <div class="q__exp">Le client localise le contrôleur par DNS : premier contrôle du support.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">de suivre le profil de l’utilisateur de poste en poste</button>
+        <button class="opt">de partager des imprimantes</button>
+        <button class="opt">de créer des groupes</button>
+      </div>
+      <div class="q__exp">Le profil est synchronisé sur le serveur pour être accessible depuis tout poste du domaine.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Créer les utilisateurs avant les UO : rien pour les ranger, structure à refaire.</li>
+      <li>Donner des droits à des utilisateurs isolés : passer par des groupes de sécurité.</li>
+      <li>Confondre groupe de sécurité (droits) et groupe de distribution (diffusion).</li>
+      <li>Joindre un poste au domaine sans corriger son DNS : le domaine reste introuvable.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Peupler un domaine proprement</div>
+    <ol>
+      <li>Dessiner les UO (services, sites), puis créer les groupes de sécurité.</li>
+      <li>Créer les comptes : UPN propre, « doit changer » activé, horaires si besoin.</li>
+      <li>Joindre les postes : DNS d’abord, appartenance au domaine ensuite, test de connexion enfin.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La console Utilisateurs et ordinateurs AD peuple le domaine : UO d’abord.</li>
+      <li>Utilisateur = formulaire + UPN (iziti@ntic.ma) + « doit changer » + propriétés (horaires).</li>
+      <li>Groupes de sécurité pour les droits, de distribution pour la diffusion ; étendue Globale courante.</li>
+      <li>Jointure au domaine : DNS du client vers le domaine, puis changement d’appartenance ; profils itinérants pour suivre les utilisateurs.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je crée UO, utilisateur et groupe dans le bon ordre.</li>
+      <li>Je distingue les deux formes de session et l’option de premier changement.</li>
+      <li>Je choisis le type de groupe selon le besoin (droits ou diffusion).</li>
+      <li>Je connais les prérequis de la jointure au domaine et le rôle des profils itinérants.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Utilisateurs et ordinateurs AD</li><li>unité d’organisation</li><li>UPN</li><li>changement de mot de passe forcé</li><li>horaires d’accès</li><li>groupe de sécurité / distribution</li><li>étendue Globale</li><li>profil itinérant</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — rejoue le cycle d’un compte neuf sur une VM de TP.</div>
+      <div class="bandrow bandrow--mid">50–69 % — refais les exercices UPN/groupes jusqu’au sans-faute.</div>
+      <div class="bandrow bandrow--good">70–89 % — solide : structure un domaine fictif complet (UO, comptes, groupes).</div>
+      <div class="bandrow bandrow--top">≥ 95 % — maîtrise : le cours est acquis, enchaîne les examens blancs.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de scripts <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les supports B1 « Base de l’Administration Windows » (IT_B1A et IT_B1B) du Dr Abasse KPEGOUNI : introduction à l’administration Windows, installation du serveur Active Directory AD DS, gestion des objets AD DS (unités d’organisation, utilisateurs, groupes).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

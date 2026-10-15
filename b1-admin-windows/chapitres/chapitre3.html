@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Configuration initiale du serveur | Administration Windows B1</title>
+<meta name="description" content="Chapitre 3 du cours B1 : Gestionnaire de serveur, pare-feu, renommage, adresse IP statique, activation, accès à distance. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-admin-windows/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Configuration initiale du serveur | Administration Windows B1">
+<meta property="og:description" content="Chapitre 3 du cours B1 : Gestionnaire de serveur, pare-feu, renommage, adresse IP statique, activation, accès à distance. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="awnav"><div class="awnav__in">
+  <a class="awnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="awnav__sep" aria-hidden="true">/</span>
+  <a class="awnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Administration Windows B1</a>
+  <div class="awnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="awnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="awwrap">
+<p class="crumb"><a href="../index.html">Administration Windows B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Configuration initiale du serveur</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B1 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le serveur vient d’être installé : il n’a pas encore de nom sérieux, pas d’adresse IP fixe, son pare-feu bloque tout et il n’est pas activé. Un serveur mal configuré à la naissance provoque des pannes incompréhensibles des semaines plus tard. Ce chapitre déroule la liste des réglages de première main, graphiquement et en ligne de commande, comme aux TP.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>se repérer dans le Gestionnaire de serveur (tableau de bord, serveur local, outils, notifications) ;</li>
+      <li>gérer le pare-feu sur ses trois profils : domaine, privé, public ;</li>
+      <li>renommer le serveur et configurer une adresse IP statique (GUI et PowerShell) ;</li>
+      <li>activer Windows et la communication à distance.</li>
+    </ol>
+  </div>
+
+<h2>1. Le Gestionnaire de serveur : point central d’administration</h2>
+
+<p>Le <strong>Gestionnaire de serveur</strong> est un composant majeur de Windows Server : point central d’administration, il affiche les informations de configuration et de sécurité, permet d’ajouter des rôles et fonctionnalités, de lancer des commandes PowerShell et de créer des tâches de configuration.</p>
+<ul>
+    <li><strong>Tableau de bord</strong> : ajouter des rôles et fonctionnalités (IIS, DHCP, AD DS, DNS…), ajouter d’autres serveurs à gérer, créer des groupes de serveurs (ex. « Serveur Paris », « Serveur Stockage ») ;</li>
+    <li><strong>Serveur local</strong> : propriétés de la machine — nom, domaine ou groupe de travail, pare-feu, bureau à distance, cartes réseau, fuseau horaire ;</li>
+    <li>menus <strong>Gérer</strong> (rôles et fonctionnalités, groupes de serveurs) et <strong>Outils</strong> (toutes les consoles d’administration) ;</li>
+    <li><strong>Centre de notifications</strong> : erreurs et actions à suivre après l’installation d’un rôle.</li>
+  </ul>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Le réflexe notifications</div>
+    <p>Après toute installation de rôle, le centre de notifications indique les actions restantes (ex. « promouvoir ce serveur en contrôleur de domaine » au chapitre 5). L’ignorer, c’est laisser un rôle à moitié configuré.</p>
+  </div>
+
+<h2>2. Pare-feu : trois profils à maîtriser</h2>
+
+<p>Par défaut, le pare-feu est <strong>activé</strong> — et l’on oublie généralement sa présence. Beaucoup de « pannes » de réplication ou de service viennent de lui : le réflexe est de vérifier si le problème ne provient pas du pare-feu avant de chercher plus loin.</p>
+<p>Trois profils existent : <strong>domaine, privé et public</strong>. Toute manipulation doit cibler les trois. Trois façons de faire :</p>
+<pre><code>Console : Pare-feu Windows avec fonctions avancées
+  → Propriétés du pare-feu → État : Désactivé (par profil)
+Invite de commande :
+  netsh advfirewall set allprofiles state off
+  (réactiver : state on)
+PowerShell :
+  Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — désactiver un seul profil</div>
+    <p>Le support est formel : « il faut bien penser à désactiver le pare-feu pour les 3 profils ». Un profil oublié = un service qui tombe selon le réseau de connexion de l’utilisateur. En production, on crée des règles précises plutôt que d’éteindre le pare-feu.</p>
+  </div>
+
+<h2>3. Renommer la machine et fixer l’adresse IP</h2>
+
+<p><strong>Renommer le serveur</strong> — graphiquement : serveur local → cliquer sur le nom actuel → Modifier → nouveau nom → redémarrer. En ligne de commande :</p>
+<pre><code>netdom renamecomputer NOMACTUEL /NewName:NOUVEAUNOM
+shutdown /r /t 0 /c "changement de nom"</code></pre>
+<p><strong>Adresse IP statique</strong> — graphiquement : serveur local → Ethernet → Propriétés → Protocole internet version 4 → adresse, masque, passerelle, DNS. En PowerShell, on reparte de l’index d’interface (<strong>ifIndex</strong>) obtenu par <code>Get-NetAdapter</code> ou <code>Get-NetIPInterface</code> :</p>
+<pre><code>New-NetIPAddress -InterfaceIndex 12 -IPAddress 192.168.1.203 `
+  -PrefixLength 24 -DefaultGateway 192.168.1.1
+Remove-NetIPAddress -InterfaceIndex 12 -IPAddress 10.10.10.10   # ancienne
+Set-DnsClientServerAddress -InterfaceIndex 12 -ServerAddresses 8.8.8.8
+ipconfig /all                                                    # vérification</code></pre>
+<p>Deux précisions du support : ajouter une adresse sur une carte en DHCP désactive le DHCP ; l’<strong>ActiveStore</strong> applique l’adresse immédiatement, le <strong>PersistentStore</strong> la sauvegarde pour après redémarrage (au démarrage, le contenu du PersistentStore est recopié dans l’ActiveStore).</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Modifier le mot de passe administrateur</div>
+    <p>En invite de commande : <code>net user administrateur *</code> — saisir puis confirmer le nouveau mot de passe. Réflexe de première configuration.</p>
+  </div>
+
+<h2>4. Activer Windows et la communication à distance</h2>
+
+<p><strong>Activer Windows</strong> — graphiquement : Panneau de configuration → Système et sécurité → Système → « Modifier la clé de produit » (activation par Internet ; configurer le proxy si besoin). En ligne de commande, deux procédures :</p>
+<pre><code>slmgr.vbs /ipk XXXXX-XXXXX-XXXXX-XXXXX-XXXXX   # installer la clé
+slmgr.vbs /ato                                 # activer en ligne
+sconfig → 11 (Activation) → 2 (Activer Windows) # équivalent sconfig</code></pre>
+<p><strong>Communication à distance</strong> — graphiquement : serveur local → Bureau à distance → Activer. En PowerShell, <code>Enable-PSRemoting -Force</code> active l’exécution de commandes PowerShell depuis un autre ordinateur ; l’utilitaire <code>sconfig</code> propose aussi le menu 7 (Bureau à distance : désactivé par défaut → saisir 7, puis A pour activer, puis le niveau de sécurité). Le test se fait depuis une autre machine avec l’outil « Connexion Bureau à distance ».</p>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> La check-list de première main</div>
+    <p>Nom net, IP statique vérifiée par ipconfig /all, DNS renseigné, pare-feu maîtrisé sur les trois profils, Windows activé, accès distant testé depuis une autre machine. Six points — aucun serveur ne doit passer en production sans eux.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="aw-c3-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;roles tableaudebord&#10;renommer serveurlocal&#10;parefeu outils&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r action onglet
+  # À compléter : l'onglet attendu, la comparaison, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Le Gestionnaire de serveur : qui fait quoi ?</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Rattacher chaque action à l’onglet du Gestionnaire de serveur.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « action onglet » : onglet est un code parmi <code>tableaudebord</code>, <code>serveurlocal</code>, <code>notifications</code> ou <code>outils</code>. Actions du support : ajouter des rôles et fonctionnalités, créer un groupe de serveurs → <code>tableaudebord</code> ; renommer la machine, configurer la carte réseau, activer le bureau à distance → <code>serveurlocal</code> ; lire les messages d’erreur après l’installation d’un rôle → <code>notifications</code> ; ouvrir la console Pare-feu avec fonctions avancées → <code>outils</code>. Pour chaque ligne il affiche <code>action : OK</code> ou <code>action : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+roles tableaudebord
+renommer serveurlocal
+parefeu outils
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>roles : OK
+renommer : OK
+parefeu : OK
+correctes : 3/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur l’action : roles/groupes → tableaudebord, renommer/carte/bureau → serveurlocal, erreurs → notifications, parefeu → outils.</li>
+        <li>Le bilan sort une seule fois, après la boucle.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aw-c3-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="domaine actif&#10;prive inactif&#10;public actif&#10;">
+  <script type="text/plain" data-lab-starter>ok=0
+for ((i=1; i<=3; i++)); do
+  read -r profil etat
+  # À compléter : verdict par profil, compteur des actifs.
+done
+# À compléter : bilan + verdict final si rien à désactiver.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Pare-feu : les trois profils</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier que les trois profils du pare-feu sont traités comme l’exige le support.</p>
+    <div class="lab__brief"><p>Le support est formel : « il faut bien penser à désactiver le pare-feu pour les 3 profils » (domaine, privé, public). Le script lit <strong>3 lignes</strong> « profil etat » dans cet ordre (domaine, prive, public) ; etat vaut <code>actif</code> ou <code>inactif</code>. Pour chaque profil il affiche <code>profil : a desactiver</code> s’il est actif, sinon <code>profil : ok</code>, puis <code>a desactiver : X/3</code> — et si les trois profils sont inactifs, une dernière ligne <code>pare-feu pret</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>domaine actif
+prive inactif
+public actif
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>domaine : a desactiver
+prive : ok
+public : a desactiver
+a desactiver : 2/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>etat = actif → « a desactiver » et compteur incrémenté ; sinon « ok ».</li>
+        <li>Après la boucle : si ok = 0, afficher « pare-feu pret ».</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="aw-c3-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;12 192.168.1.203 24&#10;13 192.168.999.1 24&#10;14 10.10.10.10 40&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+ok=0
+for ((i=0; i<n; i++)); do
+  read -r index ip prefixe
+  # À compléter : découper l'ip en 4 octets, contrôler, le préfixe, le compteur.
+done
+# À compléter : le bilan.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Adresse IP statique : valider avant d’appliquer</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Contrôler les adresses IPv4 et préfixes avant la commande New-NetIPAddress.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « index ip prefixe » : index est le numéro d’interface (ifIndex), ip une adresse IPv4 à quatre octets séparés par des points, prefixe la longueur du masque (0 à 32). Une adresse est valide si ses quatre octets sont numériques et compris entre 0 et 255, et si le préfixe est entre 0 et 32. Pour chaque ligne il affiche <code>index : valide</code> ou <code>index : refusee</code>, puis <code>adresses : X/n</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+12 192.168.1.203 24
+13 192.168.999.1 24
+14 10.10.10.10 40
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>12 : valide
+13 : refusee
+14 : refusee
+adresses : 1/3</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Découpage : IFS="." read -r o1 o2 o3 o4 &lt;&lt;&lt; "$ip" ; chaque octet doit matcher 0-9+ et valoir au plus 255.</li>
+        <li>Une valeur non numérique ou &gt; 255, un préfixe hors 0-32 : refusee.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">le Gestionnaire de serveur</button>
+        <button class="opt">le Gestionnaire des tâches</button>
+        <button class="opt">le Panneau de configuration</button>
+      </div>
+      <div class="q__exp">Il affiche les informations, permet d’ajouter des rôles, de gérer les serveurs et d’accéder aux outils.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">dans le tableau de bord du Gestionnaire de serveur</button>
+        <button class="opt">dans l’Observateur d’événements</button>
+        <button class="opt">dans la SAM</button>
+      </div>
+      <div class="q__exp">Le tableau de bord permet d’ajouter des serveurs et de les regrouper en unités logiques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">domaine, privé, public</button>
+        <button class="opt">local, distant, hybride</button>
+        <button class="opt">inbound, outbound, proxy</button>
+      </div>
+      <div class="q__exp">Toute manipulation du pare-feu doit couvrir les trois profils.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False</button>
+        <button class="opt">net stop parefeu</button>
+        <button class="opt">Disable-Firewall -All</button>
+      </div>
+      <div class="q__exp">Équivalent netsh : netsh advfirewall set allprofiles state off.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">netdom renamecomputer NOMACTUEL /NewName:NOUVEAUNOM</button>
+        <button class="opt">rename serveur</button>
+        <button class="opt">set-hostname only</button>
+      </div>
+      <div class="q__exp">Puis redémarrer (shutdown /r) pour appliquer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Get-NetAdapter (colonne ifIndex)</button>
+        <button class="opt">ipconfig /flushdns</button>
+        <button class="opt">net user</button>
+      </div>
+      <div class="q__exp">Get-NetAdapter ou Get-NetIPInterface ; l’ifIndex sert aux commandes de configuration.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">applique immédiatement l’adresse IP définie</button>
+        <button class="opt">sauvegarde après redémarrage seulement</button>
+        <button class="opt">est un magasin d’applications</button>
+      </div>
+      <div class="q__exp">Le PersistentStore sauvegarde pour le redémarrage ; au boot, PersistentStore recopie dans ActiveStore.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">undefined</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">slmgr.vbs /ato</button>
+        <button class="opt">net user administrateur *</button>
+        <button class="opt">ipconfig /renew</button>
+      </div>
+      <div class="q__exp">/ipk installe la clé, /ato tente l’activation en ligne ; sconfig menu 11 exécute la même commande.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier un profil du pare-feu : le service tombe seulement sur ce profil, panne intermittente garantie.</li>
+      <li>Ajouter une seconde IP sans supprimer l’ancienne : Remove-NetIPAddress est obligatoire pour remplacer.</li>
+      <li>Confondre ActiveStore et PersistentStore : l’un applique maintenant, l’autre retient après reboot.</li>
+      <li>Oublier de redémarrer après un changement de nom : le nouveau nom n’est pas encore actif.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Configurer un serveur de première main</div>
+    <ol>
+      <li>Ouvrir le Gestionnaire de serveur et passer en revue serveur local + notifications.</li>
+      <li>Traiter pare-feu (3 profils), nom, IP statique, DNS — dans cet ordre, avec vérification ipconfig /all.</li>
+      <li>Terminer par l’activation et l’accès à distance, testés depuis une autre machine.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le Gestionnaire de serveur concentre tableau de bord, serveur local, outils et notifications.</li>
+      <li>Le pare-feu a trois profils (domaine, privé, public) : netsh, PowerShell ou console pour les traiter.</li>
+      <li>Nom et IP se changent graphiquement ou en commande (netdom, New-NetIPAddress avec l’ifIndex).</li>
+      <li>Activation (slmgr, sconfig) et accès à distance (bureau à distance, Enable-PSRemoting) closent la configuration.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je situe chaque action dans le bon onglet du Gestionnaire de serveur.</li>
+      <li>Je connais trois façons de traiter le pare-feu et ses trois profils.</li>
+      <li>Je sais fixer une IP statique en PowerShell et la vérifier.</li>
+      <li>Je distingue slmgr /ipk, slmgr /ato et le menu 11 de sconfig.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Gestionnaire de serveur</li><li>tableau de bord</li><li>profils de pare-feu</li><li>netdom renamecomputer</li><li>ifIndex</li><li>New-NetIPAddress</li><li>ActiveStore / PersistentStore</li><li>slmgr.vbs /ato</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — refais la visite du Gestionnaire de serveur, puis les exercices.</div>
+      <div class="bandrow bandrow--mid">50–69 % — rejoue l’exercice des profils de pare-feu jusqu’au sans-faute.</div>
+      <div class="bandrow bandrow--good">70–89 % — solide : déroule la configuration initiale de tête sur une VM.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — maîtrise : passe à Active Directory.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Active Directory : domaine, arbre, forêt <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les supports B1 « Base de l’Administration Windows » (IT_B1A et IT_B1B) du Dr Abasse KPEGOUNI : introduction à l’administration Windows, installation du serveur Active Directory AD DS, gestion des objets AD DS (unités d’organisation, utilisateurs, groupes).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

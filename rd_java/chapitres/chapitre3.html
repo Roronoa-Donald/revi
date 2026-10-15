@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Tableaux, ArrayList et méthodes | Java B2</title>
+<meta name="description" content="Chapitre 3 du cours de Java B2 : Tableaux à taille fixe, parcours, ArrayList, méthodes et paramètres. Théorie, exemples détaillés, exercices Java exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/rd_java/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Tableaux, ArrayList et méthodes | Java B2">
+<meta property="og:description" content="Chapitre 3 du cours de Java B2 : Tableaux à taille fixe, parcours, ArrayList, méthodes et paramètres. Théorie, exemples détaillés, exercices Java exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rd_javanav"><div class="rd_javanav__in">
+  <a class="rd_javanav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rd_javanav__sep" aria-hidden="true">/</span>
+  <a class="rd_javanav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Java B2</a>
+  <div class="rd_javanav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rd_javanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rd_javawrap">
+<p class="crumb"><a href="../index.html">Java B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Tableaux, ArrayList et méthodes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dès qu’il y a plusieurs valeurs, il faut une structure pour les ranger et un moyen de les parcourir. Tableaux et listes stockent les données ; les méthodes les traitent par blocs nommés et réutilisables.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>déclarer et parcourir un tableau de taille fixe ;</li>
+      <li>utiliser une ArrayList quand la taille varie ;</li>
+      <li>extraire une portion de logique dans une méthode ;</li>
+      <li>passer des paramètres et renvoyer un résultat.</li>
+    </ol>
+  </div>
+
+<h2>1. Tableaux à taille fixe</h2>
+
+<p>Un <strong>tableau</strong> range un nombre fixe de valeurs du même type, indexées de 0 à <code>n-1</code>. On le déclare avec sa taille puis on remplit chaque case.</p>
+<pre><code>int[] valeurs = new int[3];
+valeurs[0] = 10;
+valeurs[1] = 20;
+valeurs[2] = 30;
+
+for (int i = 0; i &lt; valeurs.length; i++) {
+    System.out.println(valeurs[i]);
+}</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — dépasser la taille</div>
+    <p>Accéder à <code>valeurs[3]</code> d’un tableau de trois cases lève une <code>ArrayIndexOutOfBoundsException</code>. La boucle s’arrête donc à <code>i &lt; valeurs.length</code>, jamais à <code>i &lt;= valeurs.length</code>.</p>
+  </div>
+
+<h2>2. ArrayList quand la taille varie</h2>
+
+<p>Une <code>ArrayList</code> s’agrandit toute seule. Elle ne stocke que des objets : les entiers passent par la classe enveloppe <code>Integer</code>, et Java fait la conversion automatiquement.</p>
+<pre><code>import java.util.ArrayList;
+
+ArrayList&lt;Integer&gt; notes = new ArrayList&lt;&gt;();
+notes.add(15);
+notes.add(12);
+System.out.println(notes.size());   // 2
+System.out.println(notes.get(0));   // 15</code></pre>
+<p>On parcourt une liste avec une boucle indexée ou un <code>for-each</code> : <code>for (int note : notes) { … }</code>.</p>
+
+<h2>3. Extraire une méthode</h2>
+
+<p>Une <strong>méthode</strong> regroupe un traitement sous un nom. Elle reçoit des <strong>paramètres</strong> et peut renvoyer une valeur avec <code>return</code>.</p>
+<pre><code>static int somme(int[] valeurs) {
+    int total = 0;
+    for (int v : valeurs) {
+        total += v;
+    }
+    return total;
+}</code></pre>
+<p>Le type de retour (<code>int</code> ici) fait partie du contrat. Une méthode qui ne renvoie rien se déclare <code>void</code>.</p>
+
+<h2>4. Algorithmes simples sur les tableaux</h2>
+
+<p>Deux algorithmes reviennent sans cesse : le <strong>maximum</strong> et le <strong>parcours inversé</strong>. Pour le maximum, on initialise avec la première valeur — surtout pas avec 0, sinon des valeurs négatives seraient ignorées.</p>
+<pre><code>int max = valeurs[0];
+for (int i = 1; i &lt; valeurs.length; i++) {
+    if (valeurs[i] &gt; max) {
+        max = valeurs[i];
+    }
+}</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Un seul passage suffit</div>
+    <p>La plupart de ces traitements se font en un seul parcours, en gardant l’information utile dans une variable (le maximum vu, le total, l’état précédent). Pas besoin de trier ni de mémoriser tout.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="java2-c3-e1"
+     data-language="java"
+     data-height="300"
+     data-stdin="5&#10;3&#10;9&#10;2&#10;7&#10;4">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[] valeurs = new int[n];
+        for (int i = 0; i < n; i++) {
+            valeurs[i] = sc.nextInt();
+        }
+
+        // À compléter : parcourir le tableau et afficher "max : " suivi du maximum.
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Maximum d’un tableau</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parcourir un tableau pour en extraire le maximum.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> entiers. Affichez <code>max : X</code> où <code>X</code> est la plus grande valeur du tableau.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+3
+9
+2
+7
+4</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>max : 9</pre></div>
+    </div>
+    <p class="lab__note">La plus grande valeur est 9.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Initialise le maximum avec la première valeur (valeurs[0]), pas avec 0 : des valeurs négatives seraient mal comparées.</li>
+        <li>Boucle à partir de l’indice 1 et remplace le maximum dès qu’une valeur est plus grande.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="java2-c3-e2"
+     data-language="java"
+     data-height="300"
+     data-stdin="3&#10;1&#10;2&#10;3">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[] valeurs = new int[n];
+        for (int i = 0; i < n; i++) {
+            valeurs[i] = sc.nextInt();
+        }
+
+        // À compléter : afficher les valeurs de la dernière à la première,
+        // séparées par un espace, sans espace final.
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Inverser un tableau</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parcourir un tableau dans le sens inverse et assembler une sortie.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> entiers. Affichez-les dans l’<strong>ordre inverse</strong>, séparés par des espaces, sur une seule ligne.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1
+2
+3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>3 2 1</pre></div>
+    </div>
+    <p class="lab__note">Ordre inversé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parcours le tableau de n-1 à 0 avec une boucle décrémentée.</li>
+        <li>Un StringBuilder accumule la sortie ; n’ajoute l’espace qu’après le premier élément écrit.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="java2-c3-e3"
+     data-language="java"
+     data-height="300"
+     data-stdin="17">
+  <script type="text/plain" data-lab-starter>import java.util.Scanner;
+
+public class Main {
+    static boolean estPremier(int n) {
+        // À compléter : renvoyer true si n est premier, false sinon.
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        System.out.println(estPremier(n) ? "premier" : "non premier");
+    }
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Nombre premier</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Java</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une méthode et tester un nombre premier.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>. Affichez <code>premier</code> si <code>n</code> est un nombre premier, sinon <code>non premier</code>. Rappel : 1 n’est pas premier.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>17</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>premier</pre></div>
+    </div>
+    <p class="lab__note">17 n’a aucun diviseur autre que 1 et lui-même.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un nombre est premier s’il est supérieur ou égal à 2 et n’a aucun diviseur jusqu’à sa racine.</li>
+        <li>Une boucle d = 2 ; d * d &lt;= n teste les diviseurs ; si n % d == 0, le nombre n’est pas premier.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Un tableau a…</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">une taille fixe</button>
+        <button class="opt">une taille variable</button>
+        <button class="opt">aucune taille</button>
+      </div>
+      <div class="q__exp">new int[n] alloue exactement n cases.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Premier indice d’un tableau ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">0</button>
+        <button class="opt">1</button>
+        <button class="opt">−1</button>
+      </div>
+      <div class="q__exp">Les indices vont de 0 à length−1.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait valeurs.length ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Renvoie la taille</button>
+        <button class="opt">Trie</button>
+        <button class="opt">Copie</button>
+      </div>
+      <div class="q__exp">length donne le nombre de cases du tableau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand préférer ArrayList ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Quand la taille varie</button>
+        <button class="opt">Quand elle est fixe</button>
+        <button class="opt">Jamais</button>
+      </div>
+      <div class="q__exp">ArrayList s’agrandit dynamiquement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type stocke une ArrayList de nombres ?</p>
+      <div class="opts">
+        <button class="opt">int</button>
+        <button class="opt" data-correct="1">Integer</button>
+        <button class="opt">double</button>
+      </div>
+      <div class="q__exp">Les collections stockent des objets : Integer pour les entiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment renvoyer un résultat ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">return</button>
+        <button class="opt">break</button>
+        <button class="opt">print</button>
+      </div>
+      <div class="q__exp">return transmet la valeur à l’appelant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut le type d’une méthode qui ne renvoie rien ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">void</button>
+        <button class="opt">null</button>
+        <button class="opt">int</button>
+      </div>
+      <div class="q__exp">void signifie « aucune valeur renvoyée ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment initialiser un maximum ?</p>
+      <div class="opts">
+        <button class="opt">Avec 0</button>
+        <button class="opt" data-correct="1">Avec la première valeur</button>
+        <button class="opt">Avec length</button>
+      </div>
+      <div class="q__exp">La première valeur évite d’ignorer des valeurs négatives.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Dépasser la taille d’un tableau (<code>ArrayIndexOutOfBoundsException</code>).</li>
+      <li>Initialiser un maximum à 0 au lieu de la première valeur.</li>
+      <li>Oublier d’importer <code>ArrayList</code>.</li>
+      <li>Utiliser <code>==</code> pour comparer deux chaînes au lieu de <code>.equals()</code>.</li>
+      <li>Écrire une méthode avec un type de retour et oublier le <code>return</code>.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Travailler avec des collections de valeurs</div>
+    <ol>
+      <li><strong>Choisir</strong> la structure : tableau si la taille est fixe, ArrayList sinon.</li>
+      <li><strong>Parcourir</strong> avec une boucle indexée ou un for-each.</li>
+      <li><strong>Extraire</strong> le traitement répété dans une méthode nommée.</li>
+      <li><strong>Renvoyer</strong> le résultat avec le bon type.</li>
+      <li><strong>Tester</strong> les cas limites : tableau vide, valeurs négatives, un seul élément.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un tableau a une taille fixe, indexée de 0 à length−1.</li>
+      <li>ArrayList s’agrandit ; elle stocke des objets (Integer pour les entiers).</li>
+      <li>Une méthode regroupe un traitement, reçoit des paramètres et renvoie une valeur.</li>
+      <li>void signifie qu’aucune valeur n’est renvoyée.</li>
+      <li>Maximum et inversion se calculent en un seul passage.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je parcours un tableau sans dépasser ses bornes.</li>
+      <li>Je distingue tableau et ArrayList.</li>
+      <li>J’écris une méthode avec paramètres et type de retour.</li>
+      <li>J’initialise correctement un maximum.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>tableau</li><li>indice</li><li>length</li><li>ArrayList</li><li>Integer</li><li>for-each</li><li>méthode</li><li>paramètre</li><li>return</li><li>void</li><li>maximum</li><li>parcours inversé</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Réécris un parcours de tableau avec sa borne correcte.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à extraire une méthode de somme.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu choisis la bonne structure et tu la parcours.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe aux classes, chapitre 4.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Classes, objets et encapsulation <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de Java (modules 1 à 12 : syntaxe, contrôle du flux, tableaux, objets, collections, exceptions).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

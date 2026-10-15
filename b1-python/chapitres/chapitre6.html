@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<!-- impeccable-disable repeated-container-text : l'encadré de révision énumère plusieurs usages du mot-clé raise, pas un message redondant. -->
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Débogage et bonnes pratiques | Python B1</title>
+<meta name="description" content="Chapitre 6 du cours Python B1 : types d'erreurs, techniques de débogage, try/except, bibliothèques, docstrings, PEP 8 et bonnes pratiques. Théorie, exemples, exercices 5 niveaux, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="6">
+
+<nav class="pynav"><div class="pynav__in">
+  <a class="pynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="pynav__sep" aria-hidden="true">/</span>
+  <a class="pynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Python B1</a>
+  <div class="pynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html">Ch. 2</a>
+    <a href="chapitre3.html">Ch. 3</a>
+    <a href="chapitre4.html">Ch. 4</a>
+    <a href="chapitre5.html">Ch. 5</a>
+    <a href="chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="pywrap">
+  <p class="crumb"><a href="../index.html">Python B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+  <h1>Chapitre 6 — Débogage et bonnes pratiques</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 30</span>
+    <span class="tag tag--time">Contenu protégé</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Ton script plante au pire moment : <code>ZeroDivisionError</code> devant le client. Tu ne peux pas
+    simplement « ne plus diviser par zéro » : il faut <em>anticiper</em> l'erreur et garder le programme vivant.
+    Le métier ne consiste pas à écrire du code qui marche une fois, mais du code qui <strong>résiste</strong>.
+    Ce chapitre t'apprend à lire une erreur, à la reproduire, à la corriger, et à écrire du code lisible —
+    exactement ce que l'examen évalue (exercice 4 : gestion d'exceptions et bonnes pratiques).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <ol>
+      <li>Distinguer erreur de syntaxe, d'exécution et de logique ;</li>
+      <li>lire une <em>traceback</em> et localiser la ligne fautive ;</li>
+      <li>utiliser <code>try/except/else/finally</code> correctement ;</li>
+      <li>lever une erreur volontairement avec <code>raise</code> ;</li>
+      <li>importer et utiliser une bibliothèque ;</li>
+      <li>écrire une docstring et appliquer les règles de lisibilité (PEP 8).</li>
+    </ol>
+  </div>
+
+  <h2>1. Les trois types d'erreurs</h2>
+  <table>
+    <tr><th>Type</th><th>Quand ?</th><th>Exemple</th><th>Exception</th></tr>
+    <tr><td>Syntaxe</td><td>Avant l'exécution</td><td><code>if x = 3:</code></td><td><code>SyntaxError</code></td></tr>
+    <tr><td>Exécution</td><td>Pendant l'exécution</td><td><code>10 / 0</code></td><td><code>ZeroDivisionError</code></td></tr>
+    <tr><td>Logique</td><td>Aucune erreur… mais mauvais résultat</td><td>moyenne = somme au lieu de somme/n</td><td>Aucune (le plus dangereux)</td></tr>
+  </table>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p>La syntaxe, c'est une faute de grammaire : Python refuse d'exécuter.
+    L'exécution, c'est une action impossible (diviser par zéro) : Python s'arrête au moment du crash.
+    La logique, c'est un raisonnement faux qui donne un résultat plausible — le pire, car rien ne prévient.</p>
+  </div>
+
+  <h2>2. Lire une traceback</h2>
+  <pre><code>def moyenne(notes):
+    return sum(notes) / len(notes)
+
+print(moyenne([]))</code></pre>
+  <div class="out">Traceback (most recent call last):
+  File "essai.py", line 4, in &lt;module&gt;
+    print(moyenne([]))
+  File "essai.py", line 2, in moyenne
+    return sum(notes) / len(notes)
+ZeroDivisionError: division by zero</div>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Lire une traceback dans le bon sens</div>
+    <p>Lis <strong>la dernière ligne</strong> d'abord : c'est le <em>type</em> et le <em>message</em> de l'erreur.
+    Puis remonte : la trace te montre le <em>chemin d'appel</em> jusqu'à la ligne fautive
+    (<code>return sum(notes) / len(notes)</code>, car <code>len([])</code> vaut 0).</p>
+  </div>
+
+  <h2>3. Gérer les exceptions : try / except</h2>
+  <pre><code>def division(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        print("Erreur : division par zéro impossible.")
+        return None
+
+print(division(10, 0))
+print(division(10, 2))</code></pre>
+  <div class="out">Erreur : division par zéro impossible.
+None
+5.0</div>
+  <table>
+    <tr><th>Clause</th><th>Quand s'exécute-t-elle ?</th></tr>
+    <tr><td><code>try</code></td><td>Le code surveillé.</td></tr>
+    <tr><td><code>except Type:</code></td><td>Si une exception de ce type est levée.</td></tr>
+    <tr><td><code>else</code></td><td>Si aucune exception — code de succès.</td></tr>
+    <tr><td><code>finally</code></td><td>Toujours, succès ou échec (nettoyage).</td></tr>
+  </table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Le piège du except trop large</div>
+    <p><code>except:</code> ou <code>except Exception:</code> attrape <strong>tout</strong>, y compris tes propres bugs,
+    et masque la cause. Capture le type <em>précis</em> (<code>ZeroDivisionError</code>, <code>ValueError</code>,
+    <code>FileNotFoundError</code>) — sinon tu caches l'erreur au lieu de la gérer.</p>
+  </div>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> raise — signaler un problème</div>
+    <p>Pour refuser une valeur invalide, on <em>lève</em> soi-même une erreur :
+    <code>if n &lt; 0: raise ValueError("n doit être positif")</code>. C'est ainsi qu'on protège une fonction
+    d'entrées impossibles.</p>
+  </div>
+
+  <h2>4. Techniques de débogage de base</h2>
+  <ul>
+    <li><strong>Reproduire</strong> l'erreur avec le plus petit exemple possible.</li>
+    <li><strong>print ciblés</strong> : afficher les valeurs intermédiaires aux endroits suspects.</li>
+    <li><strong>Débogueur de l'IDE</strong> : point d'arrêt (<em>breakpoint</em>), exécution pas à pas, inspection des variables.</li>
+    <li><strong>Isoler</strong> : tester une fonction seule, hors du grand programme.</li>
+    <li><strong>Lire le message</strong> : Python donne souvent le type exact et la ligne.</li>
+  </ul>
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Utilité IT</div>
+    <p>En production, une erreur non gérée fait tomber le service. Les <code>try/except</code> et la journalisation
+    (<em>logging</em>) sont la base de la fiabilité. Un développeur qui sait lire une traceback résout en minutes
+    ce qui prend des heures à d'autres.</p>
+  </div>
+
+  <h2>5. Bibliothèques, docstrings, PEP 8</h2>
+  <pre><code>import statistics
+
+def moyenne(notes):
+    """Retourne la moyenne d'une liste de notes (0.0 si vide)."""
+    return statistics.mean(notes) if notes else 0.0
+</code></pre>
+  <table>
+    <tr><th>Bonne pratique</th><th>Pourquoi</th></tr>
+    <tr><td>Noms explicites (<code>total_notes</code>, pas <code>t</code>)</td><td>Lisibilité</td></tr>
+    <tr><td>Une fonction = une responsabilité</td><td>Testabilité</td></tr>
+    <tr><td>Docstring pour chaque fonction</td><td>Documentation utilisable par <code>help()</code></td></tr>
+    <tr><td>Espaces autour des opérateurs, <code>snake_case</code></td><td>Convention PEP 8</td></tr>
+    <tr><td>Commentaires sur le <em>pourquoi</em></td><td>Le code dit déjà le <em>quoi</em></td></tr>
+  </table>
+
+  <h2>6. Exemples travaillés</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple A</span><span class="badge badge--n1">Très simple</span></div>
+    <p>Identifier le type d'erreur : <code>print(5 + "a")</code></p>
+    <details><summary>Réponse</summary><div class="sol"><code>TypeError</code> (exécution) : on ne peut pas additionner un <code>int</code> et un <code>str</code>.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple B</span><span class="badge badge--n2">Intermédiaire</span></div>
+    <p><strong>Énoncé (sujet type).</strong> Le programme <code>def division(a,b): return a/b</code> puis
+    <code>print(division(10, 0))</code> plante. Identifie l'erreur et corrige-la.</p>
+    <pre><code>def division(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return "Erreur : division par zéro."</code></pre>
+    <p><strong>Analyse.</strong> L'erreur est <code>ZeroDivisionError</code> (exécution). Le <code>try/except</code>
+    cible le bon type et fournit un message personnalisé.</p>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple C</span><span class="badge badge--n3">Difficile</span></div>
+    <p><strong>Énoncé.</strong> Fonction robuste qui convertit une saisie en entier, en gérant un texte invalide.</p>
+    <pre><code>def lire_entier(prompt):
+    while True:
+        saisie = input(prompt)
+        try:
+            return int(saisie)
+        except ValueError:
+            print("Valeur invalide, réessaie.")
+</code></pre>
+    <p><strong>Pourquoi boucler ?</strong> Une saisie invalide n'est pas exceptionnelle : on redemande plutôt que
+    de planter. C'est le motif <em>« valider jusqu'à obtenir une valeur correcte »</em>.</p>
+  </div>
+
+  <h2>7. Exercices (5 niveaux)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Niveau 1 — Acquisition</span></div>
+    <p><strong>1.</strong> Quel type d'erreur pour <code>if x = 3:</code> ? <strong>2.</strong> Pour <code>10/0</code> ?
+    <strong>3.</strong> Que fait <code>finally</code> ?</p>
+    <details><summary>Correction</summary><div class="sol">1. <code>SyntaxError</code>. &nbsp; 2. <code>ZeroDivisionError</code>. &nbsp;
+    3. Il s'exécute toujours, erreur ou non.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Niveau 2 — Application</span></div>
+    <p><strong>4.</strong> Écris une fonction <code>safe_int(s)</code> qui retourne l'entier ou <code>None</code> si la chaîne n'est pas un nombre.</p>
+    <details><summary>Correction</summary><div class="sol"><pre><code>def safe_int(s):
+    try:
+        return int(s)
+    except ValueError:
+        return None</code></pre></div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Niveau 3 — Raisonnement</span></div>
+    <p><strong>5.</strong> Pourquoi <code>except:</code> (nu) est-il une mauvaise pratique ?</p>
+    <p><strong>6.</strong> Un programme calcule un bon résultat la moitié du temps. Quelle catégorie d'erreur ?</p>
+    <details><summary>Correction</summary><div class="sol">5. Il attrape toutes les exceptions, y compris les bugs qu'on voudrait voir se manifester <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> il masque la cause réelle.
+    6. Erreur de <em>logique</em> : aucune exception, mais le résultat est faux.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n4">Niveau 4 — Examen</span></div>
+    <p><strong>7.</strong> (sujet type) Comprends et corrige <code>def division(a,b): return a/b</code> puis
+    <code>print(division(10,0))</code> : (a) identifie l'erreur, (b) corrige avec <code>try/except</code>,
+    (c) ajoute un message personnalisé.</p>
+    <details><summary>Correction détaillée</summary><div class="sol">
+      (a) <code>ZeroDivisionError</code> — la division par zéro est interdite.
+      (b) entourer la division d'un <code>try/except ZeroDivisionError</code>.
+      (c) retourner/afficher « Division par zéro impossible ».
+      <pre><code>def division(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        print("Erreur : division par zéro impossible.")
+        return None</code></pre>
+      Barème : bonne identification du type, capteur exact, message clair.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n5">Niveau 5 — Challenge</span></div>
+    <p><strong>8.</strong> Écris <code>lire_note()</code> qui demande une note entre 0 et 20 et la retourne,
+    en redemandant tant que la saisie est invalide (non numérique ou hors bornes), en levant
+    <code>ValueError</code> si hors bornes.</p>
+    <details><summary>Correction</summary><div class="sol"><pre><code>def lire_note():
+    while True:
+        try:
+            n = float(input("Note (0-20) ? "))
+            if not 0 &lt;= n &lt;= 20:
+                raise ValueError("Note hors bornes")
+            return n
+        except ValueError as e:
+            print("Invalide :", e)</code></pre></div></details>
+  </div>
+<!-- code-labs:start -->
+  <h2>8. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="py-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="5&#10;12&#10;15&#10;14&#10;9&#10;18">
+  <script type="text/plain" data-lab-starter>n = int(input())
+notes = []
+for i in range(n):
+    notes.append(int(input()))
+
+# Ce programme se termine anormalement : trouvez pourquoi, puis corrigez.
+print(notes[0], "-", notes[len(notes)])
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Réparer une erreur d’indice</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Lire un message d’erreur, localiser la faute et la corriger.</p>
+    <div class="lab__brief"><p>Le programme ci-dessous se termine anormalement. Trouvez la cause, corrigez-la, puis affichez la première et la dernière note de la liste, séparées par un tiret et des espaces.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+12
+15
+14
+9
+18</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>12 - 18</pre></div>
+    </div>
+    <p class="lab__note">La première note est 12, la dernière 18.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un indice valide commence à zéro : demandez-vous ce que renvoie len pour une liste de n éléments, et quel est le dernier indice atteignable.</li>
+        <li>Python accepte aussi des indices négatifs : ils comptent à partir de la fin.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="4&#10;10&#10;abc&#10;5&#10;3.5">
+  <script type="text/plain" data-lab-starter>n = int(input())
+
+# À compléter : additionner ce qui est numérique, compter le reste.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Entrées robustes</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Traiter des données invalides sans interrompre le programme.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n lignes. Chaque ligne contient soit un entier, soit autre chose. Affichez la somme des lignes qui sont bien des entiers, puis le nombre de lignes écartées.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+10
+abc
+5
+3.5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>15
+2</pre></div>
+    </div>
+    <p class="lab__note">10 et 5 sont valides ; abc et 3.5 sont écartés.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Tout ce qui n’est pas un entier littéral fait échouer la conversion : cela concerne aussi les nombres à virgule.</li>
+        <li>Il faut deux compteurs distincts : ce qui entre dans la somme et ce qui est écarté.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="9">
+  <script type="text/plain" data-lab-starter>import math
+
+
+def racine(n):
+    # À compléter : refuser un nombre négatif.
+    return math.sqrt(n)
+
+
+valeur = int(input())
+# À compléter : afficher le résultat ou le message d'erreur.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Valider un argument</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n5">Niveau 5 — Challenge</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Refuser une entrée invalide et rattraper le refus dans le programme principal.</p>
+    <div class="lab__brief"><p>Écrivez <code>racine(n)</code> qui renvoie la racine carrée de n et signale par une exception de type <code>ValueError</code> un nombre négatif. Le programme lit un entier : si la valeur est refusée, il affiche <code>erreur</code>, sinon la racine avec deux décimales.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>9</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>3.00</pre></div>
+    </div>
+    <p class="lab__note">La racine carrée de 9 vaut 3.00.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Signaler une entrée inacceptable et la rattraper relèvent de deux instructions différentes : l’une déclenche l’alarme, l’autre l’intercepte.</li>
+        <li>La racine carrée d’un nombre négatif n’existe pas dans les réels : le module de calcul refuse de la produire.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>9. QCM — niveau examen</h2>
+  <div class="qcm" data-mastery="1">
+    <div class="q">
+      <p class="q__stem"><code>if x = 3:</code> provoque…</p>
+      <div class="opts">
+        <button class="opt">ZeroDivisionError</button>
+        <button class="opt" data-correct="1">SyntaxError</button>
+        <button class="opt">NameError</button>
+      </div>
+      <div class="q__exp">Erreur de syntaxe : <code>=</code> affecte, on compare avec <code>==</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de bloc gère une exception ?</p>
+      <div class="opts">
+        <button class="opt">if / else</button>
+        <button class="opt" data-correct="1">try / except</button>
+        <button class="opt">for / while</button>
+      </div>
+      <div class="q__exp"><code>try/except</code> capture les exceptions d'exécution.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait <code>finally</code> ?</p>
+      <div class="opts">
+        <button class="opt">Rien si une erreur survient</button>
+        <button class="opt" data-correct="1">S'exécute toujours</button>
+        <button class="opt">Ignore l'erreur</button>
+      </div>
+      <div class="q__exp">Le bloc <code>finally</code> s'exécute dans tous les cas.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un programme donne toujours un résultat faux, sans jamais planter. C'est une erreur…</p>
+      <div class="opts">
+        <button class="opt">de syntaxe</button>
+        <button class="opt" data-correct="1">de logique</button>
+        <button class="opt">d'exécution</button>
+      </div>
+      <div class="q__exp">Aucune exception levée, mais le résultat est incorrect <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> erreur logique.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que capture <code>except ZeroDivisionError:</code> ?</p>
+      <div class="opts">
+        <button class="opt">Toutes les erreurs</button>
+        <button class="opt" data-correct="1">Uniquement la division par zéro</button>
+        <button class="opt">Aucune</button>
+      </div>
+      <div class="q__exp">Cibler le type précis évite de masquer les autres bugs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mot-clé lève volontairement une erreur ?</p>
+      <div class="opts">
+        <button class="opt">throw</button>
+        <button class="opt" data-correct="1">raise</button>
+        <button class="opt">except</button>
+      </div>
+      <div class="q__exp"><code>raise</code> signale une condition invalide.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le principal danger d'un <code>except:</code> nu ?</p>
+      <div class="opts">
+        <button class="opt">Il ralentit le programme</button>
+        <button class="opt" data-correct="1">Il masque des bugs inattendus</button>
+        <button class="opt">Il est interdit en Python</button>
+      </div>
+      <div class="q__exp">Attraper trop large cache la cause réelle des erreurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie <code>int("abc")</code> ?</p>
+      <div class="opts">
+        <button class="opt">0</button>
+        <button class="opt" data-correct="1">Il lève ValueError</button>
+        <button class="opt">None</button>
+      </div>
+      <div class="q__exp">Une chaîne non numérique lève <code>ValueError</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle bonne pratique améliore la lisibilité ?</p>
+      <div class="opts">
+        <button class="opt">Des noms courts comme <code>a</code>, <code>b</code></button>
+        <button class="opt" data-correct="1">Des noms explicites et une docstring</button>
+        <button class="opt">Tout sur une seule ligne</button>
+      </div>
+      <div class="q__exp">Lisibilité = noms clairs + documentation + une responsabilité par fonction.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la première étape pour déboguer ?</p>
+      <div class="opts">
+        <button class="opt">Réécrire tout le programme</button>
+        <button class="opt" data-correct="1">Reproduire l'erreur avec un exemple minimal</button>
+        <button class="opt">Ajouter des <code>except:</code> partout</button>
+      </div>
+      <div class="q__exp">Isoler et reproduire permet de comprendre la cause avant de corriger.</div>
+    </div>
+  </div>
+
+  <h2>10. Erreurs classiques</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><code>except:</code> nu qui masque les bugs.</li>
+      <li>Confondre erreur de logique et erreur d'exécution.</li>
+      <li>Ne pas relancer le programme après correction (l'erreur « disparaît » dans l'IDE).</li>
+      <li>Croire qu'une traceback indique la dernière ligne exécutée : elle indique la <em>ligne fautive</em> en dernier.</li>
+      <li>Oublier <code>raise</code> pour signaler une entrée invalide.</li>
+    </ul>
+  </div>
+
+  <h2>11. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Corriger une erreur — boucle en 5 temps</div>
+    <ol>
+      <li><strong>Lire</strong> la dernière ligne de la traceback (type + message).</li>
+      <li><strong>Remonter</strong> à la ligne fautive.</li>
+      <li><strong>Reproduire</strong> avec le plus petit exemple.</li>
+      <li><strong>Corriger</strong> (typage, gestion, logique).</li>
+      <li><strong>Re-tester</strong> et vérifier la gestion du cas limite (0, vide, None).</li>
+    </ol>
+  </div>
+
+  <h2>12. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>3 erreurs : syntaxe (avant), exécution (pendant), logique (silencieuse).</li>
+      <li><code>try/except Type/else/finally</code> ; cibler le type précis.</li>
+      <li><code>raise</code> pour signaler une entrée invalide.</li>
+      <li>Déboguer = reproduire + isoler + observer.</li>
+      <li>PEP 8 + docstrings = code maintenable.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais lire une traceback et nommer l'exception.</li>
+      <li>Je sais écrire un <code>try/except</code> ciblé avec message personnalisé.</li>
+      <li>Je sais distinguer erreur de logique et d'exécution.</li>
+      <li>Je sais lever une erreur avec <code>raise</code>.</li>
+      <li>Je sais écrire une fonction lisible et documentée.</li>
+    </ul>
+    <h3>Les 10 notions à connaître absolument</h3>
+    <ol>
+      <li>SyntaxError</li><li>erreur d'exécution</li><li>erreur de logique</li><li>traceback</li>
+      <li><code>try</code></li><li><code>except Type</code></li><li><code>finally</code></li><li><code>raise</code></li>
+      <li>docstring</li><li>PEP 8</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Flashcards</a> <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo</a></p>
+  </div>
+
+  <h2>13. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Lecture du score</div>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 3.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais l'exemple B et les niveaux 1-2.</div>
+      <div class="bandrow bandrow--good">70–89 % — Travaille try/except ciblé et raise.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Passe à l'examen blanc.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Chapitre 6 maîtrisé (≥ 95 %).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre5.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 5</a>
+    <a class="btn btn--primary" href="simulateur-examen.html">Examen blanc <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail. Sources :
+  supports B1 INF-1001 (module 6) et sujet d'examen 2024-2025 (exercice exceptions).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

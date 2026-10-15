@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Erreurs et exceptions | PHP POO B2</title>
+<meta name="description" content="Chapitre 5 du cours de PHP objet B2 : Erreurs PHP, lancer et attraper une exception, exceptions personnalisées, finally et multi-catch. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/php/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Erreurs et exceptions | PHP POO B2">
+<meta property="og:description" content="Chapitre 5 du cours de PHP objet B2 : Erreurs PHP, lancer et attraper une exception, exceptions personnalisées, finally et multi-catch. Théorie, exemples détaillés, exercices PHP exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="phpnav"><div class="phpnav__in">
+  <a class="phpnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phpnav__sep" aria-hidden="true">/</span>
+  <a class="phpnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP POO B2</a>
+  <div class="phpnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="phpnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="phpwrap">
+<p class="crumb"><a href="../index.html">PHP POO B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<h1>Chapitre 5 — Erreurs et exceptions</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 5</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un programme qui plante au premier cas imprévu n’est pas fiable. Une exception transporte un message au lieu de stopper net : le code qui sait quoi faire l’attrape, celui qui ne sait pas la laisse remonter. C’est ainsi qu’une application reste debout même quand l’entrée est mauvaise.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>distinguer une erreur PHP d’une exception ;</li>
+      <li>lancer une exception avec throw et l’intercepter avec try/catch ;</li>
+      <li>créer une exception personnalisée qui étend Exception ;</li>
+      <li>utiliser finally et attraper plusieurs types dans un même catch.</li>
+    </ol>
+  </div>
+
+<h2>1. Erreur et exception</h2>
+
+<p>Une <strong>erreur</strong> (<code>Warning</code>, <code>Notice</code>, <code>Fatal error</code>) signale un problème dans le code : division par zéro, appel d’une méthode inexistante, type inattendu. Une <strong>exception</strong> est un objet qu’on <em>choisit</em> de lancer pour signaler une situation anormale et la laisser à un autre niveau décider quoi en faire.</p>
+<p>La différence est le contrôle : l’erreur est subie, l’exception se déclenche avec <code>throw</code> et peut être capturée avec <code>try/catch</code>.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Exception est un objet</div>
+    <p>Une exception possède un message (<code>getMessage()</code>), un code, le fichier et la ligne. La lancer ne l’affiche pas : tant que personne ne l’attrape, PHP termine le script avec un message d’erreur non capturé.</p>
+  </div>
+
+<h2>2. Lancer et attraper</h2>
+
+<p>On protège le code risqué dans un bloc <code>try</code> et on prévoit la suite dans un bloc <code>catch</code>. <code>throw</code> déclenche l’exception ; le premier <code>catch</code> compatible la reçoit.</p>
+<pre><code>function diviser(int $a, int $b): int {
+    if ($b === 0) {
+        throw new Exception("division par zéro");
+    }
+    return intdiv($a, $b);
+}
+
+try {
+    echo diviser(10, 0);
+} catch (Exception $e) {
+    echo "erreur : " . $e->getMessage();
+}</code></pre>
+<p>Le code du <code>catch</code> n’est exécuté que si une exception est lancée ; jamais deux fois, et jamais sans <code>throw</code>.</p>
+
+<h2>3. Exceptions personnalisées</h2>
+
+<p>Une <strong>exception personnalisée</strong> est une classe qui étend <code>Exception</code>. On peut l’attraper précisément : un <code>catch (SoldeInsuffisant $e)</code> ne réagit qu’à ce type.</p>
+<pre><code>class SoldeInsuffisant extends Exception {}
+
+function retirer(float $solde, float $montant): float {
+    if ($montant > $solde) {
+        throw new SoldeInsuffisant("solde insuffisant");
+    }
+    return $solde - $montant;
+}</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — attraper trop large</div>
+    <p><code>catch (Exception $e)</code> attrape <strong>tout</strong>, y compris des erreurs qu’on ne savait pas prévoir. Préférer des types précis permet de distinguer un problème métier (« solde insuffisant ») d’un problème technique inattendu.</p>
+  </div>
+
+<h2>4. finally et multi-catch</h2>
+
+<p>Plusieurs types peuvent être regroupés dans un seul <code>catch</code> avec le tube (<code>|</code>). Le bloc <code>finally</code>, enfin, s’exécute dans tous les cas — succès ou exception — ce qui le rend idéal pour fermer une ressource.</p>
+<pre><code>try {
+    verifier($saisie);
+} catch (InvalidArgumentException | RangeException $e) {
+    echo "saisie invalide";
+} finally {
+    echo "controle termine";
+}</code></pre>
+<p>L’ordre compte : PHP teste les <code>catch</code> dans l’ordre écrit. Un type fils doit donc être attrapé avant un type parent, sinon il est masqué.</p>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php2-c5-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="10&#10;2">
+  <script type="text/plain" data-lab-starter><?php
+function diviser(int $a, int $b): int {
+    // À compléter : lever une Exception si $b === 0, sinon renvoyer la division entière.
+}
+
+$a = (int) trim(fgets(STDIN));
+$b = (int) trim(fgets(STDIN));
+// À compléter : essayer puis afficher "resultat : X" ou "erreur : message".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Attraper une exception</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Protéger un calcul risqué par un bloc try/catch.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux entiers <code>a</code> puis <code>b</code>. Écris une fonction <code>diviser(int $a, int $b): int</code> qui lève une <code>Exception</code> de message <code>division par zéro</code> quand <code>b</code> vaut 0. Affiche <code>resultat : X</code> au succès, ou <code>erreur : division par zéro</code> si l’exception est attrapée.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10
+2</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>resultat : 5</pre></div>
+    </div>
+    <p class="lab__note">Cas nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>On lève une erreur avec throw new Exception('division par zéro');.</li>
+        <li>Le résultat se calcule avec intdiv($a, $b) ; le bloc catch (Exception $e) récupère le message via $e-&gt;getMessage().</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c5-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="100&#10;30">
+  <script type="text/plain" data-lab-starter><?php
+// À compléter : class SoldeInsuffisant extends Exception {}
+
+function retirer(int $solde, int $montant): int {
+    // À compléter : lever SoldeInsuffisant si $montant > $solde, sinon renvoyer le reste.
+}
+
+$solde = (int) trim(fgets(STDIN));
+$montant = (int) trim(fgets(STDIN));
+// À compléter : try/catch et affichage.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Exception personnalisée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Étendre Exception et intercepter précisément son type.</p>
+    <div class="lab__brief"><p>Déclare une exception <code>SoldeInsuffisant</code> qui étend <code>Exception</code>. Le programme reçoit un solde puis un montant (entiers). La fonction <code>retirer</code> renvoie le solde restant ou lève <code>SoldeInsuffisant</code>. Affiche <code>reste : X</code> ou <code>erreur : solde insuffisant</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>100
+30</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>reste : 70</pre></div>
+    </div>
+    <p class="lab__note">Retrait autorisé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une exception personnalisée est une classe qui hérite : class SoldeInsuffisant extends Exception {}.</li>
+        <li>On peut lancer une instance avec throw new SoldeInsuffisant('solde insuffisant');.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php2-c5-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="7">
+  <script type="text/plain" data-lab-starter><?php
+try {
+    $v = trim(fgets(STDIN));
+    // À compléter : lever InvalidArgumentException si non numérique, RangeException si négatif.
+    echo 'valeur : ' . $v . "\n";
+} catch (InvalidArgumentException | RangeException $e) {
+    // À compléter : afficher "saisie invalide".
+} finally {
+    // À compléter : afficher "controle termine".
+}
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Attraper plusieurs types et conclure</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Regrouper plusieurs exceptions dans un catch et exécuter un finally.</p>
+    <div class="lab__brief"><p>Le programme reçoit une saisie. Si elle n’est pas numérique, lève une <code>InvalidArgumentException</code> ; si elle est négative, une <code>RangeException</code>. Attrape les deux types dans un même <code>catch</code> et affiche <code>saisie invalide</code>. Sinon affiche <code>valeur : X</code>. Un bloc <code>finally</code> ajoute toujours <code>controle termine</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>7</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>valeur : 7
+controle termine</pre></div>
+    </div>
+    <p class="lab__note">Saisie valide suivie du finally.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Plusieurs types se regroupent avec un tube : catch (InvalidArgumentException | RangeException $e).</li>
+        <li>Le bloc finally s’exécute dans tous les cas, après le try ou le catch.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Comment lance-t-on une exception ?</p>
+      <div class="opts">
+        <button class="opt">raise</button>
+        <button class="opt" data-correct="1">throw</button>
+        <button class="opt">catch</button>
+      </div>
+      <div class="q__exp">On lance avec throw new Exception(…).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait un bloc catch ?</p>
+      <div class="opts">
+        <button class="opt">Il exécute toujours</button>
+        <button class="opt" data-correct="1">Il reçoit l’exception lancée</button>
+        <button class="opt">Il lève l’exception</button>
+      </div>
+      <div class="q__exp">catch intercepte une exception du type indiqué.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une exception personnalisée…</p>
+      <div class="opts">
+        <button class="opt">est indépendante</button>
+        <button class="opt" data-correct="1">étend Exception</button>
+        <button class="opt">est une interface</button>
+      </div>
+      <div class="q__exp">Elle hérite d’Exception pour être attrapable précisément.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quand s’exécute finally ?</p>
+      <div class="opts">
+        <button class="opt">Seulement en cas d’erreur</button>
+        <button class="opt" data-correct="1">Dans tous les cas</button>
+        <button class="opt">Jamais</button>
+      </div>
+      <div class="q__exp">finally s’exécute après le try ou le catch, quoi qu’il arrive.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait `catch (A | B $e)` ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Attrape A ou B</button>
+        <button class="opt">Attrape seulement A</button>
+        <button class="opt">Lève A et B</button>
+      </div>
+      <div class="q__exp">Le tube regroupe plusieurs types dans un même catch.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment lire le message d’une exception ?</p>
+      <div class="opts">
+        <button class="opt">$e->message</button>
+        <button class="opt" data-correct="1">$e->getMessage()</button>
+        <button class="opt">$e.message</button>
+      </div>
+      <div class="q__exp">On appelle la méthode getMessage() de l’objet exception.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Attraper (Exception $e) attrape…</p>
+      <div class="opts">
+        <button class="opt">seulement Exception</button>
+        <button class="opt" data-correct="1">tous les types du langage</button>
+        <button class="opt">rien</button>
+      </div>
+      <div class="q__exp">Exception est la racine : elle attrape très large, parfois trop.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait une exception non attrapée ?</p>
+      <div class="opts">
+        <button class="opt">Elle est ignorée</button>
+        <button class="opt" data-correct="1">Elle termine le script avec une erreur</button>
+        <button class="opt">Elle devient un warning</button>
+      </div>
+      <div class="q__exp">Sans catch, PHP affiche une erreur fatale "Uncaught".</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre erreur (subie) et exception (lancée volontairement).</li>
+      <li>Utiliser <code>catch (Exception $e)</code> là où un type précis serait plus sûr.</li>
+      <li>Oublier <code>$e-&gt;getMessage()</code> et tenter <code>$e-&gt;message</code>.</li>
+      <li>Placer un <code>catch</code> parent avant un fils : le fils devient inatteignable.</li>
+      <li>Croire que <code>finally</code> ne s’exécute qu’en cas d’exception.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Rendre un programme robuste</div>
+    <ol>
+      <li><strong>Repérer</strong> le point où une situation invalide doit être signalée.</li>
+      <li><strong>Lancer</strong> une exception typée avec un message clair (le plus précis possible).</li>
+      <li><strong>Protéger</strong> l’appel dans un try et prévoir les types attendus dans les catch.</li>
+      <li><strong>Réagir</strong> : corriger, journaliser, ou laisser remonter selon le niveau.</li>
+      <li><strong>Nettoyer</strong> dans finally (fermeture de ressource, remise en état).</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une erreur est subie ; une exception se lance avec throw et s’attrape avec catch.</li>
+      <li>Une exception est un objet : message via getMessage(), plus code, fichier et ligne.</li>
+      <li>Une exception personnalisée étend Exception pour être attrapée précisément.</li>
+      <li><code>catch (A | B $e)</code> regroupe plusieurs types ; l’ordre des catch importe.</li>
+      <li><code>finally</code> s’exécute dans tous les cas, succès comme échec.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais quand lancer une exception plutôt que retourner un code d’erreur.</li>
+      <li>J’écris un try/catch qui lit le message de l’exception.</li>
+      <li>Je crée une exception personnalisée et l’attrape précisément.</li>
+      <li>J’utilise finally et le multi-catch à bon escient.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>erreur</li><li>exception</li><li>throw</li><li>try</li><li>catch</li><li>getMessage</li><li>exception personnalisée</li><li>extends Exception</li><li>multi-catch</li><li>finally</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends throw, try et catch sur un exemple minimal.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi à écrire une exception personnalisée.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu choisis des types de catch précis.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe à PDO et à l’architecture, chapitre 6.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — PDO, dépôt de données et architecture <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique de PHP objet (classes, héritage, namespaces, PDO, projet ToDo List).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

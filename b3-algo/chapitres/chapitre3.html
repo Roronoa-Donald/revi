@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Files de Priorité, Tas Binaires &amp;amp; Tri par Tas (Heapsort) | Algorithmique B3</title>
+<meta name="description" content="Chapitre 3 du cours Algorithmique B3 : Structure de tas binaire (Heap), stockage compact en tableau 1D, tamisage ascendant (sift-up) et descendant (sift-down), files de priorité, algorithme Heapify en temps linéaire O(n) et tri par tas (Heapsort) in-place en O(n log n). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-algo/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Files de Priorité, Tas Binaires &amp;amp; Tri par Tas (Heapsort) | Algorithmique B3">
+<meta property="og:description" content="Chapitre 3 du cours Algorithmique B3 : Structure de tas binaire (Heap), stockage compact en tableau 1D, tamisage ascendant (sift-up) et descendant (sift-down), files de priorité, algorithme Heapify en temps linéaire O(n) et tri par tas (Heapsort) in-place en O(n log n). Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-algonav"><div class="b3-algonav__in">
+  <a class="b3-algonav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-algonav__sep" aria-hidden="true">/</span>
+  <a class="b3-algonav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algorithmique B3</a>
+  <div class="b3-algonav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-algonav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-algowrap">
+<p class="crumb"><a href="../index.html">Algorithmique B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Files de Priorité, Tas Binaires &amp; Tri par Tas (Heapsort)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans de nombreux systèmes d’exploitation et moteurs temps réel (planificateurs de processus CFS, gestionnaires d’événements discrets, algorithmes de routage réseau), les éléments ne doivent pas être traités dans l’ordre strict de leur arrivée (FIFO), mais selon un niveau d’urgence ou de priorité. Maintenir une liste triée rend l’insertion coûteuse en O(n), tandis qu’une liste non triée rend l’extraction du maximum lente en O(n). Le tas binaire (Binary Heap) résout ce problème avec une élégance structurelle remarquable : un arbre binaire presque complet encodé directement dans un tableau 1D sans aucun pointeur explicite. Ce chapitre étudie la mécanique du tamisage, la construction du tas en temps linéaire O(n), et le tri par tas (Heapsort) qui garantit une complexité optimale en O(n log n) in-place sans mémoire auxiliaire.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre la structure d’un arbre binaire presque complet et son encodage arithmétique en tableau 1D ;</li>
+      <li>définir l’invariant de Tas-Max (Max-Heap) et de Tas-Min (Min-Heap) ;</li>
+      <li>implémenter les opérations primitives de tamisage : sift-up (ascendant) et sift-down (descendant) ;</li>
+      <li>concevoir une file de priorité complète offrant insertion et extraction du maximum en O(log n) ;</li>
+      <li>démontrer pourquoi la construction de tas (Heapify) s’exécute en temps linéaire O(n) et non O(n log n) ;</li>
+      <li>maîtriser le tri par tas (Heapsort) in-place et quantifier rigoureusement ses permutations.</li>
+    </ol>
+  </div>
+
+<h2>1. Représentation Tabulaire d’un Tas Binaire</h2>
+
+<p>Un <strong>tas binaire</strong> est un arbre binaire presque complet : tous les niveaux sont entièrement remplis, sauf éventuellement le dernier qui est rempli de gauche à droite sans trou. Cette régularité permet de stocker l’arbre dans un simple <strong>tableau 1D</strong> indexé à partir de 0.</p>
+<div class="grid grid-3">
+  <div class="card">
+    <h4>Parent d’un nœud</h4>
+    <p>Pour un nœud à l’indice $i &gt; 0$ :<br>    $$\text{parent}(i) = \left\lfloor \frac{i - 1}{2} \right\rfloor$$</p>
+  </div>
+  <div class="card">
+    <h4>Fils gauche</h4>
+    <p>Pour un nœud à l’indice $i$ :<br>    $$\text{gauche}(i) = 2i + 1$$<br>    (existe si $2i + 1 &lt; n$).</p>
+  </div>
+  <div class="card">
+    <h4>Fils droit</h4>
+    <p>Pour un nœud à l’indice $i$ :<br>    $$\text{droite}(i) = 2i + 2$$<br>    (existe si $2i + 2 &lt; n$).</p>
+  </div>
+</div>
+<h4>Invariant du Tas-Max</h4>
+<p>Pour tout indice $i &gt; 0$, la clé du parent est supérieure ou égale à celle de ses enfants :<br>$$A[\text{parent}(i)] \ge A[i]$$</p>
+<p>Conséquence immédiate : la <strong>racine</strong> située à l’indice 0 détient toujours l’élément maximal du tas, accessible en temps constant $O(1)$.</p>
+
+<h2>2. Tamisage et Opérations sur File de Priorité</h2>
+
+<p>Le maintien de l’invariant de tas repose sur deux mouvements fondamentaux :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Tamisage Ascendant (Sift-Up / Percole-Up)</h4>
+    <p>Lors d’une insertion, on ajoute le nouvel élément à la fin du tableau (indice $n$).     Tant qu’il est plus grand que son parent, on l’échange avec lui en remontant vers la racine.<br>    Complexité : $O(h) = O(\log n)$ comparaisons et échanges.</p>
+  </div>
+  <div class="card">
+    <h4>Tamisage Descendant (Sift-Down / Percole-Down)</h4>
+    <p>Lors de l’extraction du maximum, on retire $A[0]$, on place le dernier élément $A[n-1]$ à la racine,     puis on le compare à ses deux enfants. On l’échange avec le plus grand des deux tant qu’il est inférieur.<br>    Complexité : $O(h) = O(\log n)$.</p>
+  </div>
+</div>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Heapify Linéaire en O(n)</div>
+<p>Pour transformer un tableau arbitraire de taille $n$ en un tas-max, on applique <code>sift-down</code> sur tous les nœuds internes de bas en haut, de l’indice $\lfloor n/2 \rfloor - 1$ jusqu’à 0.</p>
+<p>Bien qu’un nœud puisse descendre de $\log n$ niveaux, la majorité des nœuds se situent près des feuilles (où la hauteur résiduelle est faible). La somme géométrique converge :</p>
+<p>$$\sum_{h=0}^{\lfloor \log n \rfloor} \frac{n}{2^{h+1}} \cdot O(h) = O(n)$$</p>
+<p>La construction complète d’un tas se fait donc en temps <strong>linéaire $O(n)$</strong>, ce qui est strictement plus rapide que $n$ insertions successives ($O(n \log n)$).</p>
+  </div>
+
+<h2>3. Tri par Tas in-place (Heapsort)</h2>
+
+<p>L’algorithme Heapsort exploite la structure de tas pour trier un tableau directement en place, sans aucune mémoire auxiliaire ($O(1)$ espace mémoire) :</p>
+<ol>
+  <li><strong>Phase 1 : Construction du tas (Heapify)</strong> : transformation du tableau en Tas-Max en $O(n)$.</li>
+  <li><strong>Phase 2 : Extraction et réduction</strong> : pour $i$ allant de $n-1$ jusqu’à 1 :<br>  - Échanger le maximum $A[0]$ avec le dernier élément non trié $A[i]$ (qui se retrouve à sa place définitive) ;<br>  - Appliquer <code>sift-down</code> sur la racine pour restaurer le tas sur le sous-tableau réduit de taille $i$.</li>
+</ol>
+<p>Complexité globale garantie : <strong>$O(n \log n)$</strong> dans le meilleur des cas, en moyenne et au pire des cas. Contrairement à Quicksort, Heapsort ne souffre d’aucun pire cas quadratique en $O(n^2)$.</p>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="al3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="TAS nom=tas_parfait VALEURS=90,50,70,30,40,60,65&#10;TAS nom=tas_invalide VALEURS=80,40,60,50,20">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : vérifier la propriété de Tas-Max sur la représentation tabulaire
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur de propriété de Tas-Max (Max-Heap)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si un tableau 1D indexé à 0 représentant un arbre binaire presque complet respecte la propriété structurelle de Tas-Max.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>TAS nom=&lt;nom&gt; VALEURS=&lt;v0,v1,v2,...&gt;</code>.<br>
+Dans un tas binaire indexé à partir de 0, pour chaque élément à l’indice $i$ :<br>
+- Fils gauche à l'indice $2i + 1$<br>
+- Fils droit à l'indice $2i + 2$<br>
+Propriété de Tas-Max : pour tout parent $i$, $A[i] \ge A[2i+1]$ et $A[i] \ge A[2i+2]$ (si les enfants existent).<br>
+Si valide :<br>
+<code>TAS_MAX: &lt;nom&gt; | VALIDE : OUI | TAILLE: &lt;taille&gt; | RACINE: &lt;valeur_racine&gt;</code><br>
+Si non valide (dès la première violation rencontrée en parcourant les indices $i=0, 1, 2...$) :<br>
+<code>TAS_MAX: &lt;nom&gt; | VALIDE : NON | VIOLATION: index=&lt;i&gt; (pere=&lt;val_pere&gt;) &lt; fils=&lt;val_fils&gt; (index=&lt;idx_fils&gt;)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TAS nom=tas_parfait VALEURS=90,50,70,30,40,60,65
+TAS nom=tas_invalide VALEURS=80,40,60,50,20</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TAS_MAX: tas_parfait | VALIDE : OUI | TAILLE: 7 | RACINE: 90
+TAS_MAX: tas_invalide | VALIDE : NON | VIOLATION: index=1 (pere=40) &lt; fils=50 (index=3)</pre></div>
+    </div>
+    <p class="lab__note">tas_parfait respecte 90 &gt;= 50,70; 50 &gt;= 30,40; 70 &gt;= 60,65. tas_invalide échoue car index 1 (40) &lt; fils gauche index 3 (50).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Parcourir i de 0 jusqu’à (taille - 2) // 2.</li>
+        <li>Tester d’abord le fils gauche (2*i + 1), puis le fils droit (2*i + 2).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="SEQUENCE nom=queue1&#10;INSERT 10&#10;INSERT 30&#10;INSERT 20&#10;INSERT 40&#10;EXTRACT_MAX&#10;FIN">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter les opérations sift-up et sift-down
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Entassement et file de priorité (Sift-Up et Sift-Down)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter les mécanismes fondamentaux d’une file de priorité : insertion avec tamisage ascendant et extraction du maximum avec tamisage descendant.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard une séquence d’instructions :<br>
+<code>SEQUENCE nom=&lt;nom&gt;</code><br>
+Suivi de commandes :<br>
+- <code>INSERT &lt;v&gt;</code> : ajoute $v$ à la fin du tas puis effectue un tamisage ascendant (sift-up). Compter le nombre d’échanges.<br>
+- <code>EXTRACT_MAX</code> : retire la racine, place le dernier élément à la racine puis effectue un tamisage descendant (sift-down en échangeant avec le plus grand des enfants). Compter le nombre d’échanges.<br>
+Terminé par <code>FIN</code>.<br>
+Pour chaque commande, afficher :<br>
+<code>INSERT &lt;v&gt; -&gt; SWAPS: &lt;nb&gt; | TAS: &lt;v0,v1,...&gt;</code><br>
+<code>EXTRACT_MAX -&gt; EXTRAIT: &lt;v&gt; | SWAPS: &lt;nb&gt; | TAS: &lt;v0,v1,...&gt;</code> (si vide : <code>EXTRAIT: VIDE</code>)<br>
+En fin de séquence :<br>
+<code>BILAN: nom=&lt;nom&gt; | TAILLE: &lt;n&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SEQUENCE nom=queue1
+INSERT 10
+INSERT 30
+INSERT 20
+INSERT 40
+EXTRACT_MAX
+FIN</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>INSERT 10 -&gt; SWAPS: 0 | TAS: 10
+INSERT 30 -&gt; SWAPS: 1 | TAS: 30, 10
+INSERT 20 -&gt; SWAPS: 0 | TAS: 30, 10, 20
+INSERT 40 -&gt; SWAPS: 2 | TAS: 40, 30, 20, 10
+EXTRACT_MAX -&gt; EXTRAIT: 40 | SWAPS: 1 | TAS: 30, 10, 20
+BILAN: nom=queue1 | TAILLE: 3</pre></div>
+    </div>
+    <p class="lab__note">L’insertion de 40 remonte 2 fois jusqu’à la racine. L’extraction remplace la racine par 10 puis descend d’un cran en échangeant avec 30.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour le sift-up : tant que index &gt; 0 et val &gt; parent, permuter avec parent = (index - 1) // 2.</li>
+        <li>Pour le sift-down : comparer avec les deux enfants et permuter avec le maximum des deux tant que nécessaire.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="HEAPSORT nom=exemple VALEURS=4,10,3,5,1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter Heapsort in-place avec comptage rigoureux des échanges
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Tri par tas in-place (Heapsort) et comptage des échanges</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Implémenter le tri par tas (Heapsort) in-place en deux phases : construction linéaire du tas-max (heapify) puis extraction successive des éléments.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>HEAPSORT nom=&lt;nom&gt; VALEURS=&lt;v0,v1,v2,...&gt;</code>.<br>
+Algorithme Heapsort in-place :<br>
+1. <strong>Phase Heapify</strong> : transformer le tableau en Tas-Max de bas en haut en appelant <code>sift-down</code> pour $i$ allant de $(n // 2) - 1$ jusqu'à 0. Compter les échanges effectués durant cette phase.<br>
+2. <strong>Phase de Tri</strong> : pour $i$ allant de $n-1$ à 1 : échanger $A[0]$ et $A[i]$ (1 échange), puis appliquer <code>sift-down</code> sur la racine pour un tas réduit de taille $i$. Compter chaque échange supplémentaire.<br>
+Afficher :<br>
+<code>HEAPSORT: nom=&lt;nom&gt; | HEAPIFY: &lt;tas&gt; | SWAPS_HEAPIFY: &lt;nb&gt; | TRIE: &lt;tableau_trie&gt; | SWAPS_TOTAUX: &lt;nb&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HEAPSORT nom=exemple VALEURS=4,10,3,5,1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>HEAPSORT: nom=exemple | HEAPIFY: 10, 5, 3, 4, 1 | SWAPS_HEAPIFY: 2 | TRIE: 1, 3, 4, 5, 10 | SWAPS_TOTAUX: 9</pre></div>
+    </div>
+    <p class="lab__note">Heapify effectue 2 échanges. Le tri effectue 7 échanges supplémentaires (4 permutations de tête + 3 descentes), soit 9 au total.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le tamisage descendant de la phase de tri doit être borné par la taille résiduelle i.</li>
+        <li>Chaque échange entre la racine et A[i] compte pour 1 dans les échanges de tri.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans un tas binaire indexé à 0, quel est l’indice du parent du nœud situé à l’indice 6 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">2</button>
+        <button class="opt">3</button>
+        <button class="opt">1</button>
+        <button class="opt">5</button>
+      </div>
+      <div class="q__exp">La formule du parent est (i - 1) // 2. Pour i = 6, (6 - 1) // 2 = 5 // 2 = 2.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité temporelle asymptotique pour construire un tas-max à partir d’un tableau non ordonné de n éléments avec Heapify ?</p>
+      <div class="opts">
+        <button class="opt">O(1)</button>
+        <button class="opt">O(log n)</button>
+        <button class="opt" data-correct="1">O(n)</button>
+        <button class="opt">O(n log n)</button>
+      </div>
+      <div class="q__exp">Grâce au tamisage descendant de bas en haut (Bottom-up Heapify), la somme géométrique des hauteurs converge vers une complexité linéaire O(n).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où se situe le minimum absolu dans un Tas-Max ?</p>
+      <div class="opts">
+        <button class="opt">À la racine indice 0</button>
+        <button class="opt" data-correct="1">Nécessairement parmi les feuilles de l’arbre (indices >= n // 2)</button>
+        <button class="opt">Au dernier indice n - 1 obligatoirement</button>
+        <button class="opt">Au fils gauche de la racine</button>
+      </div>
+      <div class="q__exp">Dans un Tas-Max, chaque parent est supérieur à ses descendants. Le minimum ne peut donc pas avoir d’enfants et se trouve obligatoirement parmi les feuilles.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la complexité spatiale auxiliaire de l’algorithme Heapsort ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">O(1)</button>
+        <button class="opt">O(log n)</button>
+        <button class="opt">O(n)</button>
+        <button class="opt">O(n^2)</button>
+      </div>
+      <div class="q__exp">Heapsort effectue tous les tamisages et permutations directement dans le tableau d’origine (in-place), sans allouer de mémoire auxiliaire : complexité spatiale O(1).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un tableau [90, 50, 70, 40, 60], pourquoi ce tableau ne forme-t-il PAS un Tas-Max valide ?</p>
+      <div class="opts">
+        <button class="opt">90 n’est pas le maximum</button>
+        <button class="opt" data-correct="1">Le nœud 50 à l’indice 1 a pour fils droit 60 à l’indice 4, violant 50 >= 60</button>
+        <button class="opt">70 est plus grand que 50</button>
+        <button class="opt">Il manque des éléments</button>
+      </div>
+      <div class="q__exp">À l’indice 1 (valeur 50), son fils droit est à l’indice 2*1 + 2 = 4 (valeur 60). Comme 50 < 60, l’invariant de Tas-Max est violé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien d’échanges au maximum effectue l’opération d’insertion (sift-up) dans un tas contenant 1000 éléments ?</p>
+      <div class="opts">
+        <button class="opt">1 échange</button>
+        <button class="opt" data-correct="1">Environ 10 échanges</button>
+        <button class="opt">Environ 500 échanges</button>
+        <button class="opt">1000 échanges</button>
+      </div>
+      <div class="q__exp">La hauteur d’un tas à 1000 éléments est floor(log2(1000)) = 9. L’élément peut au maximum remonter de la feuille à la racine, soit environ 9 à 10 échanges.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle structure de données est couramment utilisée pour implémenter une file de priorité efficace dans les bibliothèques standards (comme heapq en Python) ?</p>
+      <div class="opts">
+        <button class="opt">Une table de hachage</button>
+        <button class="opt" data-correct="1">Un tas binaire (Heap)</button>
+        <button class="opt">Une liste simplement chaînée</button>
+        <button class="opt">Une pile LIFO</button>
+      </div>
+      <div class="q__exp">Les modules standard comme heapq en Python ou PriorityQueue en Java utilisent des tas binaires sous forme de tableau 1D.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle propriété de stabilité possède l’algorithme de tri par tas (Heapsort) ?</p>
+      <div class="opts">
+        <button class="opt">Il est stable</button>
+        <button class="opt" data-correct="1">Il n’est pas stable car les échanges à longue distance peuvent inverser l’ordre d’éléments égaux</button>
+        <button class="opt">Il est stable uniquement si le tableau est trié à l’envers</button>
+        <button class="opt">Il est récursif pur</button>
+      </div>
+      <div class="q__exp">Heapsort n’est pas un tri stable : les permutations entre la racine et les éléments de queue déplacent des clés égales sans préserver leur ordre initial.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre un tas binaire avec un ABR : dans un tas, il n’y a pas de relation d’ordre entre le fils gauche et le fils droit.</li>
+      <li>Oublier de vérifier l’existence du fils droit (2*i + 2 < n) avant de le comparer au fils gauche.</li>
+      <li>Vouloir chercher un élément arbitraire dans un tas : c’est une opération en O(n) car le tas n’est pas totalement ordonné.</li>
+      <li>Confondre l’indice du premier nœud non-feuille : pour une taille n, les feuilles commencent dès l’indice floor(n/2).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Gestion d’un Tas Binaire</div>
+    <ol>
+      <li>Calculer systématiquement les indices parent (i-1)//2 et enfants 2*i+1, 2*i+2 avec des opérations entières rapides.</li>
+      <li>Toujours vérifier que l’indice de l’enfant ne dépasse pas la taille active n du tas avant d’y accéder.</li>
+      <li>Pour le sift-down, toujours identifier d’abord le plus grand des deux enfants avant de comparer avec le parent.</li>
+      <li>Ne pas utiliser n insertions successives pour créer un tas : utiliser l’algorithme de Heapify ascendant en O(n).</li>
+      <li>Dans Heapsort, décrémenter la taille active du tas à chaque itération pour figer les maxima extraits en fin de tableau.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un tas binaire est un arbre binaire presque complet stocké sans pointeur dans un tableau 1D.</li>
+      <li>L’invariant de Tas-Max impose que chaque parent soit supérieur ou égal à ses enfants ; la racine détient le maximum.</li>
+      <li>L’insertion utilise le tamisage ascendant (sift-up) en O(log n).</li>
+      <li>L’extraction du maximum utilise le tamisage descendant (sift-down) en O(log n).</li>
+      <li>La construction d’un tas à partir d’un tableau non ordonné (Heapify) se fait en temps linéaire O(n).</li>
+      <li>Heapsort trie un tableau en place avec une complexité garantie en O(n log n) et un coût spatial auxiliaire O(1).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais calculer l’indice du père et des deux fils d’un nœud dans un tableau 1D.</li>
+      <li>Je sais détecter si un tableau satisfait la propriété de Tas-Max.</li>
+      <li>Je sais dérouler les permutations de sift-up et sift-down sur un exemple.</li>
+      <li>Je sais expliquer pourquoi Heapify s’exécute en O(n) et non O(n log n).</li>
+      <li>Je sais décrire le fonctionnement complet de Heapsort in-place.</li>
+      <li>Je connais la différence entre Tas-Max (extraction de max) et Tas-Min (Dijkstra).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Tas binaire presque complet (Binary Heap)</li><li>Représentation compacte en tableau 1D (parent, fils)</li><li>Invariant de Tas-Max (racine = maximum en O(1))</li><li>Tamisage ascendant (sift-up) pour insertion en O(log n)</li><li>Tamisage descendant (sift-down) pour extraction en O(log n)</li><li>Construction de tas linéaire Heapify en O(n)</li><li>Tri par tas (Heapsort) in-place en O(n log n)</li><li>File de priorité à clé dynamique (Priority Queue)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez l’indexation 1D des tas et l’invariant de Tas-Max.</div>
+      <div class="bandrow bandrow--medium">Entre 5/8 et 7/8 : Bonnes bases, revoyez le fonctionnement in-place de Heapsort et la preuve de Heapify en O(n).</div>
+      <div class="bandrow bandrow--high">8/8 : Parfait ! La mécanique des tas binaires et le tri par tas sont maîtrisés à 100%.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Algorithmes Gloutons &amp; Théorie des Graphes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours magistral ALGO_B3, l’ouvrage de référence Introduction à l’Algorithmique (Cormen, Leiserson, Rivest, Stein - CLRS) et les standards académiques universitaires de Licence 3 Informatique.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

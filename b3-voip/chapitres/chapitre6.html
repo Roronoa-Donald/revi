@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 6 — Fonctions Avancées, Trunks Inter-Sites &amp; Sécurité ToIP | Téléphonie VoIP B3</title>
+<meta name="description" content="Module 6 du cours Téléphonie VoIP B3 : Gestion des files d'attente ACD (queues.conf, stratégies ringall, leastrecent, roundrobin), interconnexion d'IPBX par trunks SIP et IAX2, routage au moindre coût LCR (Least Cost Routing), chiffrement de la signalisation (SIP TLS) et des flux voix (SRTP), détection des attaques brute-force SIP et bannissement dynamique avec Fail2ban. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-voip/chapitres/chapitre6.html">
+<meta property="og:title" content="Module 6 — Fonctions Avancées, Trunks Inter-Sites &amp; Sécurité ToIP | Téléphonie VoIP B3">
+<meta property="og:description" content="Module 6 du cours Téléphonie VoIP B3 : Gestion des files d'attente ACD (queues.conf, stratégies ringall, leastrecent, roundrobin), interconnexion d'IPBX par trunks SIP et IAX2, routage au moindre coût LCR (Least Cost Routing), chiffrement de la signalisation (SIP TLS) et des flux voix (SRTP), détection des attaques brute-force SIP et bannissement dynamique avec Fail2ban. Notions clés, démonstrations, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-voipnav"><div class="b3-voipnav__in">
+  <a class="b3-voipnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-voipnav__sep" aria-hidden="true">/</span>
+  <a class="b3-voipnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-phone"></use></svg> Téléphonie VoIP B3</a>
+  <div class="b3-voipnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-voipnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-voipwrap">
+<p class="crumb"><a href="../index.html">Téléphonie VoIP B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Fonctions Avancées, Trunks Inter-Sites & Sécurité ToIP</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 45</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>L'entreprise étend ses activités à l'international, ouvrant un centre de support technique multisite et exposant son infrastructure ToIP sur Internet. Des tentatives répétées d'intrusion et de piratage téléphonique (Toll Fraud / SIP Vicious) sont détectées sur les ports SIP, tandis que les coûts des communications inter-filiales augmentent fortement. En tant qu'ingénieur VoIP expert, vous devez relever ces défis stratégiques : configurer des files d'attente ACD (queues.conf) avec distribution équitable des appels, interconnecter les sites par trunks SIP et IAX2 avec moteur de routage au moindre coût (Least Cost Routing - LCR), chiffrer la signalisation (SIP TLS) et les flux audio (SRTP), et déployer une défense active automatisée avec Fail2ban contre les attaques brute-force.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>Configurer et superviser des files d'attente ACD dans queues.conf (stratégies ringall, leastrecent, roundrobin, pénalités et timeouts).</li>
+      <li>Concevoir une architecture multi-sites en interconnectant des IPBX par trunks SIP et IAX2 (évaluation des avantages du protocole IAX2 sur port 4569/UDP).</li>
+      <li>Mettre en œuvre un moteur de routage au moindre coût LCR (Least Cost Routing) pour optimiser les coûts des communications selon les indicatifs internationaux.</li>
+      <li>Durcir la sécurité de la plateforme ToIP : chiffrement TLS de la signalisation (port 5061), chiffrement SRTP des médias audio et défense active Fail2ban.</li>
+    </ol>
+  </div>
+
+<h2>1. Centres de Contacts & Files d'Attente ACD (queues.conf)</h2>
+
+<p>Pour les services de support technique, les services commerciaux ou les centres de relation client, la simple sonnerie de poste individuel ne suffit pas : les appels entrants doivent être mis en attente avec musique et distribués équitablement aux téléconseillers disponibles via un système <strong>ACD (Automatic Call Distribution)</strong>.</p>
+<div class="card">
+  <h4>Configuration d'une File d'Attente dans /etc/asterisk/queues.conf</h4>
+  <pre><code>[support-technique]
+musicclass=default
+strategy=leastrecent
+timeout=15
+retry=2
+wrapuptime=10
+maxlen=20
+member => SIP/101
+member => SIP/102
+member => SIP/103</code></pre>
+  <p>Les stratégies de distribution (<code>strategy</code>) clés sont :</p>
+  <ul>
+    <li><code>ringall :</code> Fait sonner simultanément tous les postes des agents disponibles jusqu'à ce que le premier décroche.</li>
+    <li><code>leastrecent :</code> Attribue l'appel à l'agent disponible dont la dernière communication terminée remonte au plus longtemps, équilibrant parfaitement la charge de travail de l'équipe.</li>
+    <li><code>roundrobin :</code> Distribue les appels à tour de rôle en suivant l'ordre séquentiel des membres déclarés.</li>
+    <li><code>fewestcalls :</code> Sélectionne l'agent ayant traité le plus petit nombre d'appels depuis le début de la vacation.</li>
+    <li><code>random :</code> Sélectionne un agent au hasard parmi ceux qui sont disponibles.</li>
+  </ul>
+</div>
+
+<h2>2. Interconnexion Multi-Sites : Trunks SIP & IAX2 et Routage LCR</h2>
+
+<p>Lorsqu'une entreprise dispose de plusieurs filiales ou sites géographiques distants (ex: Paris, Dakar, New York), les commutateurs IPBX peuvent être interconnectés directement sur le réseau IP sans passer par le réseau téléphonique public commuté, éliminant ainsi les frais de communication inter-sites.</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Trunks SIP Inter-Sites</h4>
+    <ul>
+      <li><strong>Protocole standardisé :</strong> Interopérable avec n'importe quel équipement tiers ou opérateur télécoms public.</li>
+      <li><strong>Deux canaux distincts :</strong> Signalisation sur le port 5060/UDP et flux voix sur une plage de ports UDP dynamiques (10000-20000).</li>
+      <li><strong>Complexité pare-feu :</strong> Nécessite l'ouverture de larges plages de ports et une gestion rigoureuse de la traversée de NAT.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Trunks IAX2 (Inter-Asterisk eXchange)</h4>
+    <ul>
+      <li><strong>Port unique 4569/UDP :</strong> Multiplexe la signalisation et toutes les communications audio sur un seul port.</li>
+      <li><strong>Traversée native du NAT :</strong> Traverse les routeurs et pare-feux sans nécessiter STUN, TURN ou passerelle ALG.</li>
+      <li><strong>Agrégation de flux (Trunking) :</strong> Regroupe plusieurs appels dans un seul paquet IP, réduisant drastiquement l'overhead.</li>
+    </ul>
+  </div>
+</div>
+<div class="card">
+  <h4>Routage au Moindre Coût (Least Cost Routing - LCR)</h4>
+  <p>Le routage <strong>LCR</strong> analyse le préfixe du numéro composé par l'utilisateur (ex: <code>0033</code> pour la France, <code>00221</code> pour le Sénégal, <code>001</code> pour les USA) et sélectionne dynamiquement parmi plusieurs opérateurs télécoms (Trunks SIP) celui qui propose le tarif à la minute le plus avantageux, réduisant la facture télécoms de l'entreprise de 30 à 60%.</p>
+</div>
+
+<h2>3. Sécurité & Durcissement ToIP : TLS, SRTP & Défense Active Fail2ban</h2>
+
+<p>Un serveur de téléphonie exposé sur Internet ou raccordé au réseau d'entreprise constitue une cible de choix pour les cybercriminels : piratage de lignes pour émettre des appels frauduleux vers des numéros surtaxés à l'international (phénomène de <em>Toll Fraud</em>), écoute illégale des conversations et attaques par déni de service.</p>
+<div class="card">
+  <h4>Chiffrement de Bout en Bout : SIP TLS &amp; SRTP</h4>
+  <ul>
+    <li><strong>Chiffrement de la signalisation (SIPS / TLS sur port 5061/TCP) :</strong> Sécurise les échanges d'identifiants, mots de passe et métadonnées d'appels par certificats X.509, empêchant toute interception par écoute passive (sniffing).</li>
+    <li><strong>Chiffrement des flux voix (SRTP - RFC 3711) :</strong> Chiffre la charge utile des paquets audio en temps réel à l'aide de clés symétriques AES (typiquement AES-128-CM), rendant toute capture Wireshark inaudible.</li>
+  </ul>
+</div>
+<div class="card">
+  <h4>Défense Active contre les Attaques Brute-Force avec Fail2ban</h4>
+  <p>Les outils automatisés de scan (tels que <em>sipvicious</em> / <em>svwar</em>) bombardent continuellement le port 5060/UDP de requêtes d'enregistrement pour deviner les mots de passe des comptes SIP. Asterisk consigne ces échecs dans ses journaux avec les codes <code>401 Unauthorized</code> ou <code>403 Forbidden</code>.</p>
+  <p>L'outil de sécurité <strong>Fail2ban</strong> surveille en temps réel le fichier <code>/var/log/asterisk/messages</code> :</p>
+  <ul>
+    <li>Dès qu'une adresse IP source cumule un nombre d'échecs dépassant le seuil (ex: <code>maxretry = 3</code>), Fail2ban génère automatiquement une règle pare-feu <code>iptables</code> bloquant l'IP attaquante :</li>
+  </ul>
+  <pre><code>iptables -I INPUT -s &lt;IP_ATTAQUANTE&gt; -p udp --dport 5060 -j DROP</code></pre>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="vo3-c6-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="STRATEGY=leastrecent&#10;AGENT=101 STATUS=AVAILABLE LAST_CALL_TS=1600000500&#10;AGENT=102 STATUS=IN_CALL LAST_CALL_TS=1600000100&#10;AGENT=103 STATUS=AVAILABLE LAST_CALL_TS=1600000200&#10;AGENT=104 STATUS=PAUSED LAST_CALL_TS=1600000050">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la stratégie de distribution ACD d'Asterisk
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Simulateur de File d'Attente ACD Asterisk (Queue Strategies)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler la distribution automatique d'appels ACD selon les stratégies ringall, leastrecent et roundrobin.</p>
+    <div class="lab__brief"><p>Dans un centre de contacts Asterisk (fichier queues.conf), les appels entrants sont distribués aux agents membres selon une stratégie définie :</p><ul><li><code>ringall</code> : fait sonner simultanément tous les postes des agents disponibles (statut AVAILABLE).</li><li><code>leastrecent</code> : sélectionne l'agent disponible dont le dernier appel terminé remonte au plus longtemps (LAST_CALL_TS le plus ancien/faible).</li><li><code>roundrobin</code> : attribue les appels à tour de rôle parmi les agents disponibles selon un pointeur circulaire.</li></ul>
+<p>Statuts d'un agent :</p><ul><li><code>AVAILABLE</code> : prêt à recevoir un appel.</li><li><code>IN_CALL</code> : en ligne, ne peut recevoir d'appel.</li><li><code>PAUSED</code> : en pause, ne reçoit aucun appel.</li></ul>
+<p>Format d'entrée :<br>Première ligne : <code>STRATEGY=<ringall|leastrecent|roundrobin></code><br>Lignes suivantes décrivant les agents de la file :<br><code>AGENT=<id> STATUS=<AVAILABLE|IN_CALL|PAUSED> LAST_CALL_TS=<timestamp_entier></code></p>
+<p>Règles de sélection :<br>1. Filtrer les agents dont <code>STATUS == "AVAILABLE"</code>.<br>2. Si aucun agent disponible -> afficher <code>AUCUN_AGENT_DISPONIBLE | ACTION:ATTENTE</code>.<br>3. Selon la stratégie :<br>   - <code>ringall</code> -> lister tous les IDs des agents disponibles séparés par des virgules (dans l'ordre d'apparition).<br>   - <code>leastrecent</code> -> choisir l'unique agent ayant le <code>LAST_CALL_TS</code> minimal. En cas d'égalité, prendre le premier dans l'ordre d'apparition.<br>   - <code>roundrobin</code> -> choisir le premier agent disponible dans l'ordre d'apparition.</p>
+<p>Format de sortie :<br>STRATEGY:<nom> | AGENTS_DISPOS:<nb> | SELECTION:<id(s)></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STRATEGY=leastrecent
+AGENT=101 STATUS=AVAILABLE LAST_CALL_TS=1600000500
+AGENT=102 STATUS=IN_CALL LAST_CALL_TS=1600000100
+AGENT=103 STATUS=AVAILABLE LAST_CALL_TS=1600000200
+AGENT=104 STATUS=PAUSED LAST_CALL_TS=1600000050</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STRATEGY:leastrecent | AGENTS_DISPOS:2 | SELECTION:103
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Pour leastrecent, choisissez l'agent dont la dernière fin d'appel est la plus ancienne.</li>
+        <li>Passez l'agent sélectionné en statut occupé et appliquez le wrapuptime après l'appel.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vo3-c6-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="TRUNK=TrunkA PREFIX=0033 RATE_MIN=2.0 CONN_FEE=0.0&#10;TRUNK=TrunkB PREFIX=0033 RATE_MIN=1.2 CONN_FEE=5.0&#10;TRUNK=TrunkC PREFIX=00221 RATE_MIN=18.0 CONN_FEE=0.0&#10;TRUNK=TrunkD PREFIX=00221 RATE_MIN=15.0 CONN_FEE=10.0&#10;---&#10;CALL_ID=C1 DEST=0033140203040 DURATION_SEC=120&#10;CALL_ID=C2 DEST=0033140203040 DURATION_SEC=30&#10;CALL_ID=C3 DEST=00221706438029 DURATION_SEC=180">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter le moteur LCR et sélectionner le trunk le plus économique
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Moteur de Routage LCR (Least Cost Routing) Multi-Trunks</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les préfixes d'appels internationaux et sélectionner l'opérateur télécoms offrant le tarif optimal à la minute.</p>
+    <div class="lab__brief"><p>Le routage au moindre coût (Least Cost Routing, LCR) permet à un IPBX d'acheminer chaque appel sortant vers le fournisseur SIP proposant le tarif le plus bas pour la destination composée. Chaque règle de tarification opérateur associe :</p><ul><li>Un préfixe de destination (ex: '0033' pour France, '00221' pour Sénégal, '001' pour USA).</li><li>Un coût à la minute en centimes (ex: 1.5 c€/min).</li><li>Un coût d'établissement d'appel (connection fee, ex: 3.0 c€).</li></ul>
+<p>Pour un appel de durée <code>D</code> secondes :<br><code>cout_appel = connection_fee + rate_per_min * (D / 60.0)</code>.</p>
+<p>Format d'entrée :<br>Section 1 : Déclaration des trunks et tarifs sous la forme :<br><code>TRUNK=<nom> PREFIX=<prefixe> RATE_MIN=<tarif_min> CONN_FEE=<frais_connexion></code><br>Ligne de séparation : <code>---</code><br>Section 2 : Appels à router sous la forme :<br><code>CALL_ID=<id> DEST=<numero_compose> DURATION_SEC=<duree></code></p>
+<p>Règles de décision :<br>1. Pour chaque appel, identifier tous les trunks dont le <code>PREFIX</code> correspond au début du numéro <code>DEST</code> (longest prefix match si préfixes de longueurs différentes, ou évaluer tous les trunks matchant).<br>2. Pour chaque trunk éligible, calculer le coût total de l'appel :<br>   <code>cost = conn_fee + rate_min * (duration_sec / 60.0)</code>.<br>3. Sélectionner le trunk offrant le coût minimal. En cas d'égalité parfaite de coût, choisir le premier dans l'ordre alphabétique du nom de trunk.<br>4. Si aucun trunk ne correspond au préfixe, afficher <code>STATUT:ECHEC_ROUTAGE</code>.</p>
+<p>Format de sortie :<br>Pour chaque appel :<br><code>CALL:<id> | DEST:<numero> | DUREE:<d>s | TRUNK_CHOISI:<nom> | COUT:<cout:.2f>c€</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TRUNK=TrunkA PREFIX=0033 RATE_MIN=2.0 CONN_FEE=0.0
+TRUNK=TrunkB PREFIX=0033 RATE_MIN=1.2 CONN_FEE=5.0
+TRUNK=TrunkC PREFIX=00221 RATE_MIN=18.0 CONN_FEE=0.0
+TRUNK=TrunkD PREFIX=00221 RATE_MIN=15.0 CONN_FEE=10.0
+---
+CALL_ID=C1 DEST=0033140203040 DURATION_SEC=120
+CALL_ID=C2 DEST=0033140203040 DURATION_SEC=30
+CALL_ID=C3 DEST=00221706438029 DURATION_SEC=180</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CALL:C1 | DEST:0033140203040 | DUREE:120s | TRUNK_CHOISI:TrunkA | COUT:4.00c€
+CALL:C2 | DEST:0033140203040 | DUREE:30s | TRUNK_CHOISI:TrunkA | COUT:1.00c€
+CALL:C3 | DEST:00221706438029 | DUREE:180s | TRUNK_CHOISI:TrunkC | COUT:54.00c€
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Appliquez le principe du plus long préfixe correspondant (longest prefix match).</li>
+        <li>Retenez le trunk actif proposant le coût à la minute le plus faible.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="vo3-c6-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="MAX_FAILURES=3&#10;TIMESTAMP=100 IP=198.51.100.22 EXTENSION=100 STATUS_CODE=401&#10;TIMESTAMP=102 IP=198.51.100.22 EXTENSION=101 STATUS_CODE=401&#10;TIMESTAMP=103 IP=192.168.1.50 EXTENSION=200 STATUS_CODE=200&#10;TIMESTAMP=104 IP=198.51.100.22 EXTENSION=102 STATUS_CODE=403&#10;TIMESTAMP=105 IP=198.51.100.22 EXTENSION=103 STATUS_CODE=401">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : détecter les attaques brute-force SIP et générer les règles de bannissement
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Détecteur d'Attaques Brute-Force SIP &amp; Générateur Fail2ban</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser les journaux d'authentification Asterisk, détecter les attaques brute-force et générer des règles pare-feu iptables.</p>
+    <div class="lab__brief"><p>Les serveurs VoIP exposés sur Internet subissent de nombreuses attaques automatisées par scan SIP (outils sipvicious, friendly-scanner) testant des mots de passe en boucle. Lors d'une tentative frauduleuse, Asterisk retourne un code <code>401 Unauthorized</code> ou <code>403 Forbidden</code>. Pour neutraliser ces attaques, un système de défense active (Fail2ban) analyse les journaux de sécurité :</p><ul><li>Si une adresse IP source génère plus de <code>MAX_FAILURES</code> tentatives en échec (codes 401 ou 403) dans une fenêtre temporelle donnée, elle est bannie immédiatement.</li><li>La règle générée applique une commande de blocage : <code>iptables -I INPUT -s <IP> -p udp --dport 5060 -j DROP</code>.</li></ul>
+<p>Format d'entrée :<br>Première ligne : <code>MAX_FAILURES=<seuil></code><br>Lignes suivantes représentant des journaux d'événements de sécurité SIP :<br><code>TIMESTAMP=<sec> IP=<ip_source> EXTENSION=<ext_visée> STATUS_CODE=<code_http_sip></code></p>
+<p>Règles de traitement :<br>1. Compter les échecs (status_code == 401 ou status_code == 403) par adresse IP.<br>2. Lorsqu'une IP atteint ou dépasse le seuil <code>MAX_FAILURES</code>, elle bascule en statut <code>BANNI</code>.<br>3. Pour chaque ligne analysée, afficher l'état de l'IP.<br>4. Dès qu'un bannissement est prononcé pour la première fois pour une IP, afficher la règle firewall correspondante.</p>
+<p>Format de sortie :<br>Pour chaque ligne d'événement :<br>IP:<ip> | CODE:<status_code> | ECHECS:<nb_echecs_cumules> | ETAT:<OK|BANNI><br>(Si nouvellement bannie, afficher sur la ligne suivante :<br>ACTION:BAN | IP:<ip> | REGLE:iptables -I INPUT -s <ip> -p udp --dport 5060 -j DROP)</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MAX_FAILURES=3
+TIMESTAMP=100 IP=198.51.100.22 EXTENSION=100 STATUS_CODE=401
+TIMESTAMP=102 IP=198.51.100.22 EXTENSION=101 STATUS_CODE=401
+TIMESTAMP=103 IP=192.168.1.50 EXTENSION=200 STATUS_CODE=200
+TIMESTAMP=104 IP=198.51.100.22 EXTENSION=102 STATUS_CODE=403
+TIMESTAMP=105 IP=198.51.100.22 EXTENSION=103 STATUS_CODE=401</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IP:198.51.100.22 | CODE:401 | ECHECS:1 | ETAT:OK
+IP:198.51.100.22 | CODE:401 | ECHECS:2 | ETAT:OK
+IP:192.168.1.50 | CODE:200 | ECHECS:0 | ETAT:OK
+IP:198.51.100.22 | CODE:403 | ECHECS:3 | ETAT:BANNI
+ACTION:BAN | IP:198.51.100.22 | REGLE:iptables -I INPUT -s 198.51.100.22 -p udp --dport 5060 -j DROP
+IP:198.51.100.22 | CODE:401 | ECHECS:4 | ETAT:BANNI
+</pre></div>
+    </div>
+    <p class="lab__note">Cas d'usage nominal.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comptabilisez les échecs d'authentification 401 Unauthorized et 403 Forbidden par adresse IP.</li>
+        <li>Dès que le seuil maxretry est atteint, émettez une règle de bannissement DROP.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans le fichier queues.conf d'Asterisk, quelle stratégie de distribution attribue chaque nouvel appel à l'agent dont la dernière communication terminée est la plus ancienne ?</p>
+      <div class="opts">
+        <button class="opt">ringall</button>
+        <button class="opt" data-correct="1">leastrecent</button>
+        <button class="opt">roundrobin</button>
+        <button class="opt">fewestcalls</button>
+      </div>
+      <div class="q__exp">leastrecent sélectionne l'agent ayant eu le plus long temps de repos depuis son dernier appel, garantissant un équilibre parfait de la charge.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l'avantage décisif du protocole IAX2 par rapport au protocole SIP pour interconnecter deux serveurs Asterisk distants à travers des routeurs NAT ?</p>
+      <div class="opts">
+        <button class="opt">IAX2 ne supporte que la vidéo</button>
+        <button class="opt" data-correct="1">IAX2 transporte à la fois la signalisation et tous les flux voix sur un port UDP unique (4569/UDP)</button>
+        <button class="opt">IAX2 nécessite une adresse IP publique statique par téléphone</button>
+        <button class="opt">IAX2 est un protocole standard de l'ITU-T</button>
+      </div>
+      <div class="q__exp">IAX2 multiplexe l'ensemble des canaux de signalisation et de voix sur le port 4569/UDP unique, éliminant totalement les problèmes de traversée de pare-feu et de NAT.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole standardisé assure le chiffrement symétrique en temps réel de la charge utile des paquets audio vocaux contre les écoutes illégales ?</p>
+      <div class="opts">
+        <button class="opt">HTTPS</button>
+        <button class="opt" data-correct="1">SRTP (Secure RTP)</button>
+        <button class="opt">SSH</button>
+        <button class="opt">IPsec AH</button>
+      </div>
+      <div class="q__exp">SRTP (Secure Real-time Transport Protocol, RFC 3711) chiffre les trames audio en utilisant l'algorithme AES (typiquement AES-128).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur quel port TCP la signalisation SIPS (SIP over TLS) écoute-t-elle par défaut pour garantir la confidentialité des identifiants et des métadonnées d'appel ?</p>
+      <div class="opts">
+        <button class="opt">Port 5060/TCP</button>
+        <button class="opt" data-correct="1">Port 5061/TCP</button>
+        <button class="opt">Port 443/TCP</button>
+        <button class="opt">Port 8443/TCP</button>
+      </div>
+      <div class="q__exp">Par convention IETF RFC 3261, SIP en clair utilise le port 5060 (UDP/TCP), et SIPS sécurisé par TLS utilise le port 5061/TCP.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment appelle-t-on le mécanisme économique qui compare automatiquement les tarifs opérateurs selon le préfixe du numéro composé pour acheminer l'appel sortant au moindre coût ?</p>
+      <div class="opts">
+        <button class="opt">ACD (Automatic Call Distribution)</button>
+        <button class="opt" data-correct="1">LCR (Least Cost Routing)</button>
+        <button class="opt">STUN (Session Traversal)</button>
+        <button class="opt">CTI (Computer Telephony Integration)</button>
+      </div>
+      <div class="q__exp">Le routage au moindre coût (Least Cost Routing, LCR) sélectionne dynamiquement le trunk le plus avantageux financièrement selon la destination.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel code de réponse SIP indique un échec d'authentification par mot de passe et est surveillé par Fail2ban pour détecter les attaques par force brute ?</p>
+      <div class="opts">
+        <button class="opt">100 Trying</button>
+        <button class="opt">180 Ringing</button>
+        <button class="opt">200 OK</button>
+        <button class="opt" data-correct="1">401 Unauthorized (ou 403 Forbidden)</button>
+      </div>
+      <div class="q__exp">Le code 401 Unauthorized (et 403 Forbidden) signale un échec de mot de passe ; leur répétition anormale depuis une même IP caractérise une attaque brute-force.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une file d'attente queues.conf, à quoi sert le paramètre wrapuptime (ex: wrapuptime=15) ?</p>
+      <div class="opts">
+        <button class="opt">À limiter la durée maximale de l'appel à 15 minutes</button>
+        <button class="opt" data-correct="1">À accorder un temps de repos de 15 secondes à l'agent après la fin d'un appel avant de lui renvoyer un nouvel appel</button>
+        <button class="opt">À faire sonner le poste pendant 15 secondes</button>
+        <button class="opt">À bloquer la file si plus de 15 personnes attendent</button>
+      </div>
+      <div class="q__exp">Le wrapuptime est le délai de grâce (en secondes) alloué à l'opérateur après un appel pour rédiger ses notes de dossier avant d'être à nouveau sollicité.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi est-il dangereux de configurer le chiffrement audio SRTP sans chiffrer préalablement la signalisation d'appel avec SIP TLS ?</p>
+      <div class="opts">
+        <button class="opt">Car les téléphones plantent immédiatement</button>
+        <button class="opt" data-correct="1">Car les clés symétriques de déchiffrement SRTP sont échangées en clair dans le corps SDP des messages SIP</button>
+        <button class="opt">Car le codec G.711 refuse le chiffrement</button>
+        <button class="opt">Car la loi interdit le chiffrement partiel</button>
+      </div>
+      <div class="q__exp">Dans la négociation SDES, les clés secrètes SRTP transitent en clair dans l'attribut a=crypto du SDP. Sans TLS, un attaquant capture la clé et déchiffre la voix instantanément.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Laisser le contexte par défaut [default] accessible aux appels anonymes (allowguest=yes), permettant aux pirates d'utiliser l'IPBX comme passerelle de piratage international.</li>
+      <li>Oublier de configurer un mot de passe complexe pour les trunks IAX2 ou SIP inter-sites.</li>
+      <li>Ne pas activer de délai de repos (wrapuptime) entre deux appels dans les files d'attente ACD, épuisant les agents du centre d'appels.</li>
+      <li>Activer SRTP sans chiffrement préalable de la signalisation (SIP TLS) : les clés de chiffrement circulant en clair dans le SDP, la protection devient totalement caduque.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’Ingénierie : Sécurisation & Optimisation ToIP d’Entreprise</div>
+    <ol>
+      <li>Dimensionner et ordonnancer les files ACD : choisir la stratégie de distribution (leastrecent pour équité, ringall pour réactivité) avec gestion stricte des wrapuptime et timeouts.</li>
+      <li>Mettre en œuvre le routage LCR : concevoir les règles de préfixes dans le Dialplan pour aiguiller les appels sortants vers les trunks les plus économiques.</li>
+      <li>Activer le chiffrement SIPS et SRTP : bannir la signalisation SIP en clair sur Internet, imposer TLS 5061 et activer le chiffrement SRTP des flux audio.</li>
+      <li>Automatiser le bannissement avec Fail2ban : configurer la prison asterisk dans Fail2ban avec filtres regex sur les rejets 401/403 et seuil de réessais strict.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les files d'attente ACD (queues.conf) distribuent les flux entrants selon des stratégies adaptées : ringall, leastrecent, roundrobin ou fewestcalls.</li>
+      <li>Les trunks IAX2 multiplexent signalisation et voix sur le port 4569/UDP unique, offrant une traversée de NAT et une économie de bande passante idéales inter-sites.</li>
+      <li>Le routage au moindre coût (LCR) compare les tarifs à la minute selon le préfixe composé et optimise automatiquement la facture télécoms de l'entreprise.</li>
+      <li>La sécurité ToIP repose sur le chiffrement SIPS (TLS 5061) et SRTP (AES-128), interdisant l'écoute passive des conversations sur le réseau.</li>
+      <li>La protection active contre les attaques brute-force associe la détection des échecs 401/403 dans les logs Asterisk au bannissement iptables par Fail2ban.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Quelle est la différence opérationnelle entre les stratégies de file d'attente ringall et leastrecent ?</li>
+      <li>Pourquoi le protocole IAX2 est-il supérieur au protocole SIP pour interconnecter deux serveurs Asterisk distants à travers le NAT ?</li>
+      <li>Comment fonctionne le moteur de routage LCR et sur quel critère sélectionne-t-il le trunk sortant ?</li>
+      <li>Quels protocoles assurent respectivement le chiffrement de la signalisation et le chiffrement de la voix en ToIP ?</li>
+      <li>Comment Fail2ban protège-t-il un IPBX Asterisk contre les attaques de type scan SIP (sipvicious) ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>ACD :</strong> Automatic Call Distribution : système de distribution automatique et équitable des appels entrants aux agents disponibles.</li><li><strong>Trunk IAX2 :</strong> Liaison inter-IPBX propriétaire Asterisk multiplexant voix et signalisation sur le port unique 4569/UDP.</li><li><strong>LCR (Least Cost Routing) :</strong> Algorithme d'aiguillage dynamique choisissant le trunk opérateur le moins cher selon le préfixe du numéro.</li><li><strong>SRTP (RFC 3711) :</strong> Secure Real-time Transport Protocol : protocole chiffrant la charge utile des paquets voix avec l'algorithme AES.</li><li><strong>Toll Fraud :</strong> Piratage de commutateurs téléphoniques pour émettre massivement des appels frauduleux vers des numéros surtaxés.</li><li><strong>Fail2ban :</strong> Démon de sécurité analysant les journaux applicatifs pour bannir automatiquement les IPs suspectes via iptables.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Score < 60 % : Notions de trunks, ACD et sécurité ToIP à consolider. Relisez attentivement les sections et refaites le test.</div>
+      <div class="bandrow bandrow--mid">Score 60-74 % : Principes généraux acquis. Entraînez-vous sur les stratégies de files d'attente et la configuration IAX2.</div>
+      <div class="bandrow bandrow--mid">Score 75-84 % : Bonne maîtrise pratique. Approfondissez le routage LCR et la mise en œuvre de Fail2ban.</div>
+      <div class="bandrow bandrow--high">Score 85-94 % : Niveau solide. Vous maîtrisez le durcissement sécuritaire et les fonctions avancées d'IPBX d'entreprise.</div>
+      <div class="bandrow bandrow--high">Score ≥ 95 % : Maîtrise d'architecte ToIP & Communications Unifiées. Félicitations pour l'accomplissement du cours !</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels B3-IT / B3-RSI Téléphonie Voix sur IP (Auteur : M. Pape Moussa SONKO, Élève Ingénieur en Systèmes et Réseaux), Normes IETF RFC 3261 (SIP), RFC 4566 (SDP), RFC 3550 (RTP), RFC 5389 (STUN), Recommandations ITU-T G.107, G.711, G.729, Documentation officielle Asterisk.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Gestion Avancée du Stockage : LVM, RAID Logiciel &amp;amp; Inodes | Linux Avancé B3</title>
+<meta name="description" content="Chapitre 3 du cours Linux Avancé B3 : Architecture LVM (Physical Extents, VG, LV, snapshots COW), tolérance aux pannes RAID mdadm (RAID 1, 5, 6), table d’inodes et diagnostic de saturation sous ext4/XFS. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-linux/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Gestion Avancée du Stockage : LVM, RAID Logiciel &amp;amp; Inodes | Linux Avancé B3">
+<meta property="og:description" content="Chapitre 3 du cours Linux Avancé B3 : Architecture LVM (Physical Extents, VG, LV, snapshots COW), tolérance aux pannes RAID mdadm (RAID 1, 5, 6), table d’inodes et diagnostic de saturation sous ext4/XFS. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-linuxnav"><div class="b3-linuxnav__in">
+  <a class="b3-linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-linuxnav__sep" aria-hidden="true">/</span>
+  <a class="b3-linuxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Linux Avancé B3</a>
+  <div class="b3-linuxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-linuxwrap">
+<p class="crumb"><a href="../index.html">Linux Avancé B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Gestion Avancée du Stockage : LVM, RAID Logiciel &amp; Inodes</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans les environnements d’entreprise virtualisés ou cloud, le stockage de données ne peut pas reposer sur de simples partitions disques rigides et statiques (sda1, sda2). Une saturation d’espace imprévue sur /var ou /home exigerait un arrêt de service inacceptable pour redimensionner manuellement les partitions. L’ingénieur de niveau Bachelor 3 doit maîtriser les technologies d’abstraction de stockage sous Linux : LVM (Logical Volume Manager) pour agréger des disques physiques en pools extensibles, provisionner des volumes logiques à la demande et capturer des instantanés cohérents (snapshots COW) ; le sous-système RAID logiciel mdadm pour garantir la continuité d’activité face aux pannes matérielles de disques ; et la gestion interne des systèmes de fichiers modernes (ext4, XFS) pour diagnostiquer les incidents complexes d’épuisement de table d’inodes.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>maîtriser l’architecture en trois couches de LVM : Physical Volumes (PV), Volume Groups (VG) et Logical Volumes (LV) ;</li>
+      <li>comprendre le mécanisme d’allocation des Physical Extents (PE) et le calcul précis de capacité de stockage ;</li>
+      <li>exploiter les snapshots LVM Copy-on-Write (COW) pour effectuer des sauvegardes de bases de données à chaud sans indisponibilité ;</li>
+      <li>concevoir et administrer des grappes RAID logicielles avec mdadm (RAID 1, RAID 5, RAID 6) et gérer les disques de rechange (spares) ;</li>
+      <li>analyser la structure interne des systèmes de fichiers journalisés (superblocs, groupes de blocs, tables d’inodes) ;</li>
+      <li>développer en Python 3 des calculateurs d’allocation LVM, des simulateurs de résilience RAID et des détecteurs de saturation d’inodes.</li>
+    </ol>
+  </div>
+
+<h2>1. Architecture LVM : Des Disques Physiques aux Physical Extents</h2>
+
+<p>LVM (Logical Volume Manager) intercale une couche d’abstraction matérielle entre les disques physiques et les systèmes de fichiers :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Trois Piliers de LVM</h4>
+    <ul>
+      <li><strong>PV (Physical Volume) :</strong> Disque brut (<code>/dev/nvme0n1</code>) ou partition RAID (<code>/dev/md0</code>) initialisé via <code>pvcreate</code>.</li>
+      <li><strong>VG (Volume Group) :</strong> Pool de stockage agrégé unifiant plusieurs PV via <code>vgcreate</code>. Le VG est découpé en blocs élémentaires de taille fixe appelés <strong>Physical Extents (PE)</strong> (généralement 4 Mo par défaut).</li>
+      <li><strong>LV (Logical Volume) :</strong> Partition virtuelle découpée dans le VG via <code>lvcreate</code>, allouant un certain nombre de PE. Un LV apparaît comme un périphérique bloc standard (<code>/dev/mapper/vg_data-lv_app</code>) formatable avec n’importe quel système de fichiers.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>La Mécanique des Physical Extents (PE)</h4>
+    <p>La capacité totale d’un Volume Group est déterminée par :</p>
+    <p style="text-align:center;font-weight:bold;">$\text{Total PE} = \frac{\sum \text{Taille PV}}{\text{Taille PE}}$</p>
+    <p>Lorsqu’un volume logique de 20 Go est créé avec des PE de 4 Mo :</p>
+    <p>$\text{Nombre de PE} = \frac{20 \times 1024 \text{ Mo}}{4 \text{ Mo}} = 5\,120 \text{ PE}$.</p>
+    <p>Ce découpage par blocs permet d’agrandir un volume à chaud (<code>lvextend</code>) en lui rattachant simplement de nouveaux PE disponibles.</p>
+  </div>
+</div>
+
+<h2>2. Snapshots LVM Copy-on-Write (COW) &amp; Sauvegardes à Chaud</h2>
+
+<p>Un <strong>snapshot LVM</strong> fige l’état instantané d’un volume logique à un instant $T_0$ sans dupliquer les données immédiatement :</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Mécanisme du Copy-on-Write (COW)</div>
+<ul>,  <li>À la création du snapshot (<code>lvcreate -s -n lv_snap -L 5G /dev/vg0/lv_db</code>), aucun bloc n’est recopié. Le snapshot est instantané et consomme 0 Mo d’espace réel.</li>,  <li>Tant que les blocs du volume d’origine ne changent pas, le snapshot lit les blocs directement sur le volume parent.</li>,  <li>Dès qu’une application (ex: PostgreSQL) modifie un bloc sur le volume d’origine, le pilote LVM <strong>copie d’abord l’ancien bloc intact</strong> dans l’espace réservé du snapshot avant d’autoriser l’écriture du nouveau bloc.</li>,  <li>L’outil de sauvegarde lit le snapshot pour archiver une image figée et cohérente de la base de données, tandis que la production continue d’écrire sans aucune pause.</li>,</ul>
+  </div>
+
+<h2>3. RAID Logiciel sous Linux avec mdadm : Niveaux 1, 5, 6 &amp; Résilience</h2>
+
+<p>Le pilote noyau <code>md</code> (Multiple Device) et l’utilitaire <code>mdadm</code> fournissent une redondance matérielle sans nécessiter de contrôleur RAID physique propriétaire onéreux :</p>
+<table class="table">
+  <thead>
+    <tr><th>Niveau RAID</th><th>Disques Min.</th><th>Tolérance aux Pannes</th><th>Capacité Utile</th><th>Comportement &amp; Risque</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>RAID 1</code></td>
+      <td>2</td>
+      <td>$N - 1$ disques</td>
+      <td>1 disque ($C$)</td>
+      <td>Miroir complet. Excellente vitesse en lecture, mais 50% de perte de capacité brute.</td>
+    </tr>
+    <tr>
+      <td><code>RAID 5</code></td>
+      <td>3</td>
+      <td><strong>1 seul disque</strong></td>
+      <td>$(N - 1) \times C$</td>
+      <td>Parité distribuée. Risque critique : si un second disque tombe en panne pendant la reconstruction, <strong>100% des données sont perdues</strong>.</td>
+    </tr>
+    <tr>
+      <td><code>RAID 6</code></td>
+      <td>4</td>
+      <td><strong>2 disques simultanés</strong></td>
+      <td>$(N - 2) \times C$</td>
+      <td>Double parité Reed-Solomon. Recommandé en entreprise pour les gros volumes disques (&gt; 4 To).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>4. Systèmes de Fichiers : Tables d’Inodes &amp; Diagnostic de Saturation</h2>
+
+<p>Dans un système de fichiers Unix (ext4, XFS), les données et les métadonnées sont rigoureusement séparées :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Structure d’un Inode (Index Node)</h4>
+    <p>Chaque fichier ou répertoire est représenté par un numéro d’inode contenant :</p>
+    <ul>
+      <li>Le type de fichier et les permissions Unix (rwxr-xr-x)</li>
+      <li>L’UID propriétaire et le GID de groupe</li>
+      <li>Les horodatages (atime, mtime, ctime)</li>
+      <li>Les pointeurs vers les blocs de données physiques du disque</li>
+      <li><strong>Le nom du fichier n’est pas dans l’inode</strong> : il est stocké dans le répertoire parent !</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Le Piège Classique de la Saturation d’Inodes</h4>
+    <p>Une commande <code>df -h</code> peut afficher <strong>80 Go d’espace libre</strong>, alors que le serveur refuse d’écrire le moindre fichier avec l’erreur <code>No space left on device</code> !</p>
+    <p>La commande <code>df -i</code> révèle l’origine :</p>
+    <p>Si des millions de micro-fichiers de sessions ou de spools ont été générés, la <strong>table d’inodes est saturée à 100%</strong>, empêchant toute création de nouveau fichier.</p>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="LVM_REQ vg=vg_data pe_size_mb=4 total_pv_gb=100 lv_target_gb=20">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer les allocations d'extents LVM
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Calculateur d’allocation LVM Physical Extents (PE) et dimensionnement VG</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l’allocation exacte d’extents physiques (PE) dans un groupe de volumes LVM.</p>
+    <div class="lab__brief"><p>Sous Linux, <strong>LVM (Logical Volume Manager)</strong> découpe les disques physiques (PV - Physical Volumes) en blocs de taille fixe appelés <strong>Physical Extents (PE)</strong> (généralement 4 Mo par défaut), qui sont ensuite alloués aux volumes logiques (LV - Logical Volumes).<br><br>
+Le script lit sur l'entrée standard des requêtes d'allocation au format :<br>
+<code>LVM_REQ vg=&lt;nom&gt; pe_size_mb=&lt;taille&gt; total_pv_gb=&lt;taille_pv&gt; lv_target_gb=&lt;taille_lv&gt;</code>.<br><br>
+Formules :<br>
+1. <code>total_pe = (total_pv_gb * 1024) // pe_size_mb</code>.<br>
+2. <code>needed_pe = (lv_target_gb * 1024 + pe_size_mb - 1) // pe_size_mb</code> (arrondi supérieur strict).<br>
+3. Évaluation :<br>
+- Si <code>needed_pe &le; total_pe</code> : <code>status=ALLOCATED pe_count={needed_pe} remaining_pe={total_pe - needed_pe}</code><br>
+- Sinon : <code>status=INSUFFICIENT_SPACE pe_count={needed_pe} deficit_pe={needed_pe - total_pe}</code><br><br>
+Pour chaque ligne, afficher :<br>
+<code>LVM_AUDIT vg={vg} status={status} pe_used={pe_count} pe_free_or_deficit={valeur}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>LVM_REQ vg=vg_data pe_size_mb=4 total_pv_gb=100 lv_target_gb=20</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LVM_AUDIT vg=vg_data status=ALLOCATED pe_used=5120 pe_free_or_deficit=20480</pre></div>
+    </div>
+    <p class="lab__note">100 Go = 25600 PE de 4 Mo. Pour 20 Go = 5120 PE requis. Reste 20480 PE libres.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertir les gigaoctets en mégaoctets en multipliant par 1024.</li>
+        <li>Utiliser la division entière (A + B - 1) // B pour obtenir l’arrondi au plafond du nombre de PE.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="RAID_CONF device=md0 level=RAID5 total=4 active=3 failed=1 spares=1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser l'état de la grappe RAID mdadm
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur d’état et de résilience de grappe RAID mdadm</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Diagnostiquer la santé d’un volume RAID logiciel Linux (mdadm) et déclencher la reconstruction automatique avec disque spare.</p>
+    <div class="lab__brief"><p>Le sous-système <code>mdadm</code> sous Linux gère les grappes RAID logicielles (RAID 1 miroir, RAID 5 parité simple, RAID 6 double parité).<br><br>
+Tolérance aux pannes :<br>
+- <code>RAID1</code> : tolère jusqu'à <code>(total - 1)</code> pannes. Dégradé si <code>failed &ge; 1</code> et <code>active &ge; 1</code> ; FAILED si <code>active == 0</code>.<br>
+- <code>RAID5</code> : tolère 1 panne. OPTIMAL si <code>failed == 0</code> ; DEGRADED si <code>failed == 1</code> ; FAILED si <code>failed &ge; 2</code>.<br>
+- <code>RAID6</code> : tolère 2 pannes. OPTIMAL si <code>failed == 0</code> ; DEGRADED si <code>1 &le; failed &le; 2</code> ; FAILED si <code>failed &ge; 3</code>.<br><br>
+Actions :<br>
+- Si l'état est <code>DEGRADED</code> et que des disques de réserve sont disponibles (<code>spares &gt; 0</code>), l'action est <code>REBUILD_SPARE</code>.<br>
+- Si l'état est <code>DEGRADED</code> sans spare (<code>spares == 0</code>), l'action est <code>WARNING_NO_SPARE</code>.<br>
+- Si l'état est <code>FAILED</code>, l'action est <code>CRITICAL_DATA_LOSS</code>.<br>
+- Si l'état est <code>OPTIMAL</code>, l'action est <code>NONE</code>.<br><br>
+Le script lit sur l'entrée standard des états au format :<br>
+<code>RAID_CONF device=&lt;mdX&gt; level=&lt;RAID1|RAID5|RAID6&gt; total=&lt;t&gt; active=&lt;a&gt; failed=&lt;f&gt; spares=&lt;s&gt;</code>.<br><br>
+Afficher pour chaque grappe :<br>
+<code>RAID_DIAG dev={device} level={level} state={OPTIMAL|DEGRADED|FAILED} action={action}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RAID_CONF device=md0 level=RAID5 total=4 active=3 failed=1 spares=1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RAID_DIAG dev=md0 level=RAID5 state=DEGRADED action=REBUILD_SPARE</pre></div>
+    </div>
+    <p class="lab__note">RAID 5 avec un disque en panne mais un spare disponible : état dégradé et reconstruction déclenchée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer l’état de santé selon le niveau RAID et le nombre de disques défaillants (failed).</li>
+        <li>Associer l’action adéquate selon la disponibilité des disques de rechange (spares).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="FS_METRICS mount=/var/spool blocks_total=10000 blocks_used=2000 inodes_total=50000 inodes_used=48000">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser l'utilisation des blocs et des inodes
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Analyseur de table d’inodes et détection de saturation de système de fichiers</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Diagnostiquer la saturation de disques Linux en distinguant la pénurie d’espace bloc de l’épuisement d’inodes.</p>
+    <div class="lab__brief"><p>Un système de fichiers Linux (ext4, XFS) peut devenir en lecture seule ou refuser toute écriture pour deux raisons distinctes :<br>
+1. <strong>Saturation d’espace disque (Blocks Full)</strong> : les gigaoctets alloués sont pleins.<br>
+2. <strong>Épuisement de la table d’inodes (Inodes Exhaustion)</strong> : le nombre maximal d’entrées de métadonnées est atteint suite à la création massive de millions de micro-fichiers, alors même qu’il reste de l’espace libre en gigaoctets !<br><br>
+Le script lit sur l'entrée standard des métriques au format :<br>
+<code>FS_METRICS mount=&lt;point&gt; blocks_total=&lt;bt&gt; blocks_used=&lt;bu&gt; inodes_total=&lt;it&gt; inodes_used=&lt;iu&gt;</code>.<br><br>
+Règles :<br>
+- <code>block_pct = (blocks_used * 100) // blocks_total</code><br>
+- <code>inode_pct = (inodes_used * 100) // inodes_total</code><br>
+Statut :<br>
+- Si <code>inode_pct &ge; 90 and block_pct &lt; 60</code> : <code>status=ALERT diag=INODE_EXHAUSTION</code>.<br>
+- Si <code>block_pct &ge; 90 and inode_pct &lt; 90</code> : <code>status=ALERT diag=DISK_SPACE_FULL</code>.<br>
+- Si <code>block_pct &ge; 90 and inode_pct &ge; 90</code> : <code>status=CRITICAL diag=TOTAL_EXHAUSTION</code>.<br>
+- Sinon : <code>status=HEALTHY diag=NORMAL</code>.<br><br>
+Afficher pour chaque point de montage :<br>
+<code>FS_STATUS mount={mount} block_pct={b}% inode_pct={i}% status={status} diag={diag}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FS_METRICS mount=/var/spool blocks_total=10000 blocks_used=2000 inodes_total=50000 inodes_used=48000</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>FS_STATUS mount=/var/spool block_pct=20% inode_pct=96% status=ALERT diag=INODE_EXHAUSTION</pre></div>
+    </div>
+    <p class="lab__note">Seulement 20% d’espace disque utilisé mais 96% des inodes saturés.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer les pourcentages avec la division entière ou un arrondi entier.</li>
+        <li>Vérifier les conditions d’épuisement asymétrique d’inodes (fréquent avec les sessions PHP ou spools mail).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans l’architecture LVM, qu’est-ce qu’un « Physical Extent » (PE) ?</p>
+      <div class="opts">
+        <button class="opt">Un câble SATA reliant le disque à la carte mère</button>
+        <button class="opt" data-correct="1">Le bloc élémentaire de taille fixe (généralement 4 Mo) qui compose la granularité d’allocation d’un Volume Group</button>
+        <button class="opt">Une partition de boot réservée à GRUB2</button>
+        <button class="opt">Un protocole réseau pour monter des disques iSCSI</button>
+      </div>
+      <div class="q__exp">LVM découpe l’espace des disques physiques en petits blocs de taille fixe appelés Physical Extents (PE). Toute allocation de volume logique se fait par multiples entiers de PE.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment fonctionne un snapshot LVM Copy-on-Write (COW) lors de la modification d’une donnée sur le volume parent ?</p>
+      <div class="opts">
+        <button class="opt">Il duplique l’intégralité du disque à chaque écriture</button>
+        <button class="opt" data-correct="1">Il copie l’ancien bloc intact dans l’espace réservé du snapshot avant d’autoriser l’écriture du nouveau bloc sur le volume d’origine</button>
+        <button class="opt">Il compresse le disque avec l’algorithme gzip</button>
+        <button class="opt">Il bloque toutes les écritures sur le serveur jusqu’à la fin de la sauvegarde</button>
+      </div>
+      <div class="q__exp">Le principe Copy-on-Write ne copie que les blocs modifiés : l’ancien bloc inchangé est d’abord sauvegardé dans la réserve du snapshot, permettant de reconstituer l’état historique figé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de pannes simultanées de disques une grappe en RAID 6 avec 6 disques physiques peut-elle supporter sans perte de données ?</p>
+      <div class="opts">
+        <button class="opt">1 panne</button>
+        <button class="opt" data-correct="1">2 pannes</button>
+        <button class="opt">3 pannes</button>
+        <button class="opt">5 pannes</button>
+      </div>
+      <div class="q__exp">Le RAID 6 utilise deux blocs de parité distincts (double parité) et tolère de manière garantie la défaillance simultanée de jusqu’à 2 disques quel que soit le nombre total de disques.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où le nom d’un fichier sous Linux est-il physiquement stocké ?</p>
+      <div class="opts">
+        <button class="opt">Dans son inode directement</button>
+        <button class="opt" data-correct="1">Dans le bloc de données de son répertoire parent, associé à son numéro d’inode</button>
+        <button class="opt">Dans le secteur d’amorçage MBR</button>
+        <button class="opt">Dans le fichier /etc/fstab</button>
+      </div>
+      <div class="q__exp">L’inode ne contient ni le nom ni le chemin du fichier. Les répertoires sous Unix sont de simples tables associant des noms de fichiers à des numéros d’inodes.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que signifie un système qui refuse de créer un nouveau fichier avec « No space left on device » alors que « df -h » indique 50 Go d’espace libre ?</p>
+      <div class="opts">
+        <button class="opt">Le processeur est en surchauffe</button>
+        <button class="opt" data-correct="1">La table d’inodes du système de fichiers est saturée à 100% (constatable avec df -i)</button>
+        <button class="opt">Le câble réseau est débranché</button>
+        <button class="opt">La mémoire swap est désactivée</button>
+      </div>
+      <div class="q__exp">Si un grand nombre de petits fichiers a consommé tous les inodes alloués lors du formatage, aucun nouveau fichier ne peut être créé même s’il reste des gigaoctets de blocs disques libres.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande permet d’étendre à chaud un système de fichiers ext4 après avoir agrandi son volume logique LVM ?</p>
+      <div class="opts">
+        <button class="opt">xfs_growfs</button>
+        <button class="opt" data-correct="1">resize2fs</button>
+        <button class="opt">fdisk -l</button>
+        <button class="opt">mkfs.ext4</button>
+      </div>
+      <div class="q__exp">resize2fs permet d’agrandir à chaud en ligne un système de fichiers ext4 sans démonter la partition.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il si un second disque tombe en panne sur une grappe RAID 5 alors qu’un premier disque est déjà défaillant et en cours de reconstruction ?</p>
+      <div class="opts">
+        <button class="opt">Le système passe en mode lecture seule sans aucune perte</button>
+        <button class="opt" data-correct="1">La grappe RAID bascule en échec complet (FAILED) et l’intégralité des données est définitivement perdue</button>
+        <button class="opt">Le noyau reconstruit les données à partir de la mémoire vive</button>
+        <button class="opt">Le système de fichiers ignore l’erreur automatiquement</button>
+      </div>
+      <div class="q__exp">Le RAID 5 ne dispose que d’un seul niveau de parité : la perte d’un second disque avant la fin de la reconstruction rend la reconstitution mathématique impossible, provoquant la perte irrémédiable des données.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande LVM permet d’ajouter un nouveau disque physique dans un Volume Group existant ?</p>
+      <div class="opts">
+        <button class="opt">pvcreate</button>
+        <button class="opt" data-correct="1">vgextend</button>
+        <button class="opt">lvextend</button>
+        <button class="opt">vgchange</button>
+      </div>
+      <div class="q__exp">vgextend intègre un ou plusieurs nouveaux Physical Volumes (PV) au pool de stockage d’un Volume Group (VG) existant.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de redimensionner le système de fichiers après un lvextend (la partition grandit mais l’espace reste invisible).</li>
+      <li>Laisser un snapshot LVM se remplir à 100% (le snapshot devient invalide et est immédiatement désactivé par LVM).</li>
+      <li>Utiliser du RAID 5 sur des disques modernes de très grande capacité (le risque d’erreur URE pendant la reconstruction est critique).</li>
+      <li>Rechercher le nom d’un fichier à l’intérieur de son inode (le nom n’existe que dans le bloc de données du dossier parent).</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Ingénierie : Agrandissement à Chaud d’un Système de Fichiers LVM</div>
+    <ol>
+      <li>Étape 1 : Vérifier l’espace disponible dans le Volume Group avec vgdisplay ou vgs.</li>
+      <li>Étape 2 : Si le VG est saturé, initialiser un nouveau disque physique (pvcreate /dev/sdb) et l’ajouter au groupe (vgextend vg_data /dev/sdb).</li>
+      <li>Étape 3 : Augmenter la taille du volume logique : lvextend -L +50G /dev/vg_data/lv_app.</li>
+      <li>Étape 4 : Redimensionner le système de fichiers en ligne à chaud sans interruption de service :</li>
+      <li>  - Pour ext4 : resize2fs /dev/vg_data/lv_app</li>
+      <li>  - Pour XFS : xfs_growfs /point/de/montage</li>
+      <li>Étape 5 : Vérifier avec df -h et df -i que l’espace bloc et les inodes utilisables ont bien augmenté.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>LVM sépare le stockage en trois couches : Physical Volumes (PV), Volume Groups (VG) et Logical Volumes (LV).</li>
+      <li>Le VG est découpé en blocs élémentaires de taille fixe appelés Physical Extents (PE, typiquement 4 Mo).</li>
+      <li>Les snapshots LVM Copy-on-Write (COW) permettent des sauvegardes de bases de données cohérentes sans arrêt de service.</li>
+      <li>RAID 1 tolère N-1 pannes ; RAID 5 tolère 1 panne ; RAID 6 tolère 2 pannes simultanées avec double parité.</li>
+      <li>Sur un RAID 5, la perte d’un deuxième disque pendant la reconstruction entraîne la perte totale et irréversible des données.</li>
+      <li>Un inode stocke les métadonnées et pointeurs de blocs d’un fichier ; son nom réside dans le répertoire parent.</li>
+      <li>Un système peut refuser d’écrire par saturation d’espace bloc (df -h) OU par épuisement de la table d’inodes (df -i).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer la hiérarchie LVM complète (PV, VG, LV) et le rôle des Physical Extents (PE).</li>
+      <li>Je comprends la mécanique d’un snapshot LVM Copy-on-Write et ses cas d’usage en sauvegarde.</li>
+      <li>Je connais la tolérance aux pannes exacte des architectures RAID 1, RAID 5 et RAID 6.</li>
+      <li>Je comprends le risque critique lié à la reconstruction d’une grappe RAID 5.</li>
+      <li>Je sais quelles métadonnées sont stockées dans un inode et où se trouve le nom du fichier.</li>
+      <li>Je sais diagnostiquer un blocage d’écriture dû à l’épuisement des inodes via la commande df -i.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Architecture LVM (PV, VG, LV)</li><li>Physical Extents (PE) & Logical Extents (LE)</li><li>Snapshots Copy-on-Write (COW)</li><li>Redimensionnement à chaud (lvextend, resize2fs, xfs_growfs)</li><li>RAID logiciel Linux (mdadm)</li><li>Disques de réserve (Hot Spares & Rebuild)</li><li>Structure interne des Inodes</li><li>Saturation asymétrique Inodes vs Blocs (df -i)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à articuler PV, VG et LV ou confusion entre espace bloc (Go) et table d’inodes.</div>
+      <div class="bandrow bandrow--medium">Bonne manipulation des commandes LVM et mdadm, compréhension des niveaux RAID et surveillance conjointe de df -h et df -i.</div>
+      <div class="bandrow bandrow--high">Conception avancée d’architectures de stockage résilientes, dimensionnement précis des PE, gestion experte des snapshots COW et reconstructions RAID sécurisées.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Isolation &amp; Conteneurisation Noyau : Namespaces &amp; Cgroups v2 <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle du noyau Linux (kernel.org), spécifications systemd (Lennart Poettering / Freedesktop), guides de durcissement ANSSI et CIS Benchmarks Linux.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

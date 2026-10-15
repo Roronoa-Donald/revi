@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 8 — Formulaires, sessions et PDO | PHP B1</title>
+<meta name="description" content="Chapitre 8 du cours PHP B1 : lire un formulaire, valider des données, sessions, connexion MySQL avec PDO, requêtes préparées, INSERT et SELECT. Théorie, exemples, exercices exécutables, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="8">
+
+<nav class="phnav"><div class="phnav__in">
+  <a class="phnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="phnav__sep" aria-hidden="true">/</span>
+  <a class="phnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> PHP B1</a>
+  <div class="phnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html">Ch. 2</a>
+    <a href="chapitre3.html">Ch. 3</a>
+    <a href="chapitre4.html">Ch. 4</a>
+    <a href="chapitre5.html">Ch. 5</a>
+    <a href="chapitre6.html">Ch. 6</a>
+    <a href="chapitre7.html">Ch. 7</a>
+    <a href="chapitre8.html" class="is-active">Ch. 8</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="phwrap">
+  <p class="crumb"><a href="../index.html">PHP B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 8</p>
+  <h1>Chapitre 8 — Formulaires, sessions et PDO</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 8</span>
+    <span class="tag tag--time">≈ 4 h de travail</span>
+    <span class="tag tag--time">Synthèse B1</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Voici la chaîne complète d'un site dynamique : un visiteur soumet un formulaire, PHP reçoit et valide les
+    données, les enregistre dans MySQL, puis affiche les pages en reprenant les données de la session. Ce
+    chapitre assemble tout le cours autour de trois outils : <code>$_POST</code>, <code>$_SESSION</code> et
+    <code>PDO</code>.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>lire et valider des données de formulaire ;</li>
+      <li>mémoriser des informations entre deux pages avec la session ;</li>
+      <li>se connecter à MySQL avec PDO en mode exceptions ;</li>
+      <li>exécuter SELECT et INSERT avec des requêtes préparées et parcourir les résultats.</li>
+    </ol>
+  </div>
+
+  <h2>1. Recevoir un formulaire : $_POST</h2>
+  <p><strong>Définition.</strong> Quand un formulaire HTML est soumis en méthode POST, PHP range chaque champ
+  dans le tableau superglobal <code>$_POST</code>, indexé par le nom du champ. La donnée arrive brute : la
+  validation est le travail du script.</p>
+  <pre><code><span class="c">// le formulaire a envoyé les champs "email" et "mdp"</span>
+$email = <span class="k">$_POST</span>['email'] ?? '';      <span class="c">// ?? évite le champ absent</span>
+$mdp = <span class="k">$_POST</span>['mdp'] ?? '';
+
+<span class="k">if</span> (str_contains($email, '@') &amp;&amp; strlen($mdp) &gt;= 6) {
+    <span class="c">// données acceptables : suite du traitement</span>
+} <span class="k">else</span> {
+    echo "Formulaire invalide\n";
+}</code></pre>
+  <p>Deux réflexes : l'opérateur <code>??</code> fournit une valeur par défaut quand le champ manque
+  (« Undefined array key » évité), et chaque règle de validation se traduit en condition — arobase présente,
+  longueur minimale, intervalle numérique.</p>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — ne jamais afficher une donnée brute</div>
+    <p>Une donnée venue de l'extérieur peut contenir du HTML ou du JavaScript. L'afficher telle quelle ouvre la
+    porte à l'injection XSS. Toujours passer par <code>htmlspecialchars($valeur)</code> au moment d'afficher :
+    les chevrons sont neutralisés, la donnée reste du texte.</p>
+  </div>
+
+  <h2>2. La session : se souvenir d'un visiteur</h2>
+  <p>HTTP oublie tout entre deux requêtes. La session donne au site une mémoire par visiteur : le panier, le
+  login, le compteur de pages vues. Tout passe par le tableau <code>$_SESSION</code>, disponible après
+  <code>session_start()</code>.</p>
+  <pre><code>session_start();
+
+<span class="k">if</span> (!isset(<span class="k">$_SESSION</span>['visites'])) {
+    <span class="k">$_SESSION</span>['visites'] = 0;
+}
+<span class="k">$_SESSION</span>['visites']++;
+
+echo "Visites : " . <span class="k">$_SESSION</span>['visites'] . "\n";</code></pre>
+  <p>Même réflexe que les tableaux associatifs du chapitre 7 : tester avec <code>isset</code> avant de lire ou
+  d'incrémenter. La session vit côté serveur ; le navigateur ne porte qu'un identifiant.</p>
+
+  <h2>3. Connexion à MySQL avec PDO</h2>
+  <p><strong>Définition.</strong> PDO (PHP Data Objects) est l'interface standard d'accès aux bases de données.
+  On construit un objet PDO avec le DSN (type de base, hôte, nom, encodage), un utilisateur et un mot de
+  passe.</p>
+  <pre><code><span class="k">try</span> {
+    $pdo = <span class="k">new</span> PDO(
+        'mysql:host=localhost;dbname=boutique;charset=utf8mb4',
+        'utilisateur',
+        'motdepasse',
+        [PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION]
+    );
+} <span class="k">catch</span> (PDOException $e) {
+    echo "Connexion impossible : " . $e-&gt;getMessage() . "\n";
+}</code></pre>
+  <p><code>ERRMODE_EXCEPTION</code> demande à PDO de lever une exception en cas d'erreur SQL — le bloc
+  <code>catch</code> l'attrape et affiche le message proprement. C'est le réglage par défaut de tout nouveau
+  code.</p>
+
+  <h2>4. La requête préparée : SELECT et INSERT</h2>
+  <p>Une donnée externe ne s'insère <strong>jamais</strong> directement dans le texte SQL : on prépare la
+  requête avec un emplacement <code>?</code>, puis on exécute en passant les valeurs. La donnée ne peut plus
+  modifier la requête — les injections SQL sont bloquées.</p>
+  <pre><code><span class="c">// SELECT : parcourir les résultats</span>
+$stmt = $pdo-&gt;prepare('SELECT nom, note FROM etudiants WHERE promotion = ?');
+$stmt-&gt;execute(['B1']);
+
+<span class="k">foreach</span> ($stmt <span class="k">as</span> $ligne) {
+    <span class="c">// $ligne est un tableau associatif colonne =&gt; valeur</span>
+    echo $ligne['nom'] . " : " . $ligne['note'] . "\n";
+}
+
+<span class="c">// INSERT : enregistrer une ligne</span>
+$stmt = $pdo-&gt;prepare('INSERT INTO etudiants (nom, note) VALUES (?, ?)');
+$stmt-&gt;execute([$nom, $note]);</code></pre>
+  <p>Chaque ligne de résultat arrive sous la forme d'un tableau associatif (chapitre 7) : le
+  <code>foreach</code> clé → valeur que tu maîtrises déjà visite les colonnes. La boucle de lecture d'un jeu
+  de résultats et la boucle d'un inventaire sont le même code.</p>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> La chaîne complète en résumé</div>
+    <p><strong>Valider</strong> les entrées (conditions du module 3) → <strong>préparer</strong> la requête
+    (PDO) → <strong>exécuter</strong> avec les valeurs → <strong>parcourir</strong> les résultats (foreach du
+    module 7) → <strong>afficher</strong> protégé (htmlspecialchars). Chaque maillon a été appris
+    séparément ; ici, ils s'enchaînent.</p>
+  </div>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Intuition : pourquoi le ? change tout</div>
+    <p>Avec une concaténation, la donnée devient du code SQL : une valeur saisie « ' ; DROP TABLE ... »
+    exécute quelque chose. Avec <code>?</code>, la donnée reste une donnée : le moteur l'envoie séparément de
+    la requête, et aucun caractère saisi ne peut en changer le sens. Une règle, jamais d'exception.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="php-c8-e1"
+     data-language="php"
+     data-height="300"
+     data-stdin="alice@ex.fr&#10;motdepasse">
+  <script type="text/plain" data-lab-starter><?php
+$email = trim(fgets(STDIN));
+$motDePasse = trim(fgets(STDIN));
+
+// À compléter : les deux conditions doivent être vraies ensemble.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Valider un formulaire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier des données saisies avant de les accepter.</p>
+    <div class="lab__brief"><p>Le programme reçoit deux lignes : un email et un mot de passe. Affichez <code>OK</code> si l’email contient une arobase ET le mot de passe compte au moins 6 caractères ; sinon affichez <code>Refuse</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>alice@ex.fr
+motdepasse</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>OK</pre></div>
+    </div>
+    <p class="lab__note">Arobase présente, mot de passe assez long.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>str_contains teste la présence d’une sous-chaîne, strlen la longueur d’une chaîne.</li>
+        <li>Les deux règles doivent être vraies en même temps : c’est le ET logique qui les combine.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c8-e2"
+     data-language="php"
+     data-height="300"
+     data-stdin="2&#10;Ines 19&#10;Paul 22">
+  <script type="text/plain" data-lab-starter><?php
+$n = (int)trim(fgets(STDIN));
+$personnes = [];
+for ($i = 0; $i < $n; $i++) {
+    $parts = explode(' ', trim(fgets(STDIN)));
+    $personnes[$parts[0]] = (int)$parts[1];
+}
+
+// À compléter : trouver la personne la plus âgée et l'afficher.
+echo "
+";
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Parcourir des résultats comme PDO</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n4">Niveau 4 — Examen</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Manipuler des lignes nom → valeur, comme les résultats d’une requête.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n lignes de la forme <code>nom age</code> (un mot, une espace, un entier), comme autant de lignes renvoyées par une requête. Affichez le nom et l’âge de la personne la plus âgée, séparés par une espace.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+Ines 19
+Paul 22</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Paul 22</pre></div>
+    </div>
+    <p class="lab__note">Paul est le plus âgé des deux.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un tableau associatif nom → âge joue le rôle du jeu de résultats : un foreach visite chaque ligne.</li>
+        <li>Gardez le meilleur candidat vu jusqu’ici : nom et âge avancent ensemble quand un âge supérieur apparaît.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="php-c8-e3"
+     data-language="php"
+     data-height="300"
+     data-stdin="2&#10;Lea 15&#10;Adam 18">
+  <script type="text/plain" data-lab-starter><?php
+$n = (int)trim(fgets(STDIN));
+$notes = [];
+for ($i = 0; $i < $n; $i++) {
+    $parts = explode(' ', trim(fgets(STDIN)));
+    $notes[$parts[0]] = (int)$parts[1];
+}
+
+// À compléter : vérifier chaque note et afficher le verdict.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Contrôler les données avant l’INSERT</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PHP</span>
+      <span class="badge badge--n5">Niveau 5 — Challenge</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider un lot de données avant de l’envoyer à la base.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n lignes de la forme <code>nom note</code> (un mot, une espace, un entier) destinées à une table. Avant tout INSERT, contrôlez : affichez <code>Valide</code> si toutes les notes sont comprises entre 0 et 20 inclus, sinon <code>Invalide</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+Lea 15
+Adam 18</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Valide</pre></div>
+    </div>
+    <p class="lab__note">Deux notes dans l’intervalle autorisé.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Une seule note hors bornes rend tout le lot refusable : le verdict se construit pendant le parcours.</li>
+        <li>Un drapeau booléen démarre à true et passe à false dès qu’une valeur sort de l’intervalle autorisé.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans quel tableau PHP range-t-il les champs d'un formulaire POST ?</p>
+      <div class="opts">
+        <button class="opt">$_GET</button>
+        <button class="opt" data-correct="1">$_POST</button>
+        <button class="opt">$_SESSION</button>
+      </div>
+      <div class="q__exp">$_POST, indexé par le nom de chaque champ.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert l'opérateur ?? dans $_POST['email'] ?? '' ?</p>
+      <div class="opts">
+        <button class="opt">À valider l'email</button>
+        <button class="opt" data-correct="1">À fournir une valeur par défaut si le champ manque</button>
+        <button class="opt">À convertir en chaîne</button>
+      </div>
+      <div class="q__exp">Évite l'avertissement de champ absent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle fonction à appeler avant d'utiliser $_SESSION ?</p>
+      <div class="opts">
+        <button class="opt">session_create()</button>
+        <button class="opt" data-correct="1">session_start()</button>
+        <button class="opt">session_open()</button>
+      </div>
+      <div class="q__exp">session_start() rend la session disponible.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi ERRMODE_EXCEPTION sur la connexion PDO ?</p>
+      <div class="opts">
+        <button class="opt">Pour accélérer les requêtes</button>
+        <button class="opt" data-correct="1">Pour que les erreurs SQL lèvent une exception attrapable</button>
+        <button class="opt">Pour chiffrer la connexion</button>
+      </div>
+      <div class="q__exp">Le catch affiche l'erreur proprement au lieu de continuer en silence.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi une requête préparée plutôt qu'une concaténation ?</p>
+      <div class="opts">
+        <button class="opt">Elle est plus rapide à écrire</button>
+        <button class="opt" data-correct="1">La donnée ne peut pas modifier la requête (injections bloquées)</button>
+        <button class="opt">Elle évite de se connecter</button>
+      </div>
+      <div class="q__exp">La valeur passe par le ?, séparée du texte SQL.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sous quelle forme PDO rend-il chaque ligne de résultat ?</p>
+      <div class="opts">
+        <button class="opt">Un entier</button>
+        <button class="opt" data-correct="1">Un tableau associatif colonne → valeur</button>
+        <button class="opt">Une chaîne JSON</button>
+      </div>
+      <div class="q__exp">Le foreach clé → valeur du chapitre 7 visite les colonnes.</div>
+    </div>
+  </div>
+
+  <h2>7. Erreurs classiques — récapitulatif</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Lire $_POST sans ?? ni isset</strong> : « Undefined array key » à chaque champ absent.</li>
+      <li><strong>Confiance aveugle dans les données reçues</strong> : valider longueur, format, intervalle.</li>
+      <li><strong>Afficher une donnée externe sans htmlspecialchars</strong> : faille XSS.</li>
+      <li><strong>SQL concaténé avec une variable</strong> : faille d'injection, jamais accepté.</li>
+      <li><strong>session_start() oubliée</strong> : $_SESSION vide, « Undefined variable ».</li>
+    </ul>
+  </div>
+
+  <h2>8. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Écrire un script PHP + MySQL</div>
+    <ol>
+      <li><strong>Lire</strong> les entrées ($_POST ou STDIN) avec valeurs par défaut.</li>
+      <li><strong>Valider</strong> chaque règle de l'énoncé en conditions explicites.</li>
+      <li><strong>Se connecter</strong> en try/catch avec ERRMODE_EXCEPTION.</li>
+      <li><strong>Préparer</strong> chaque requête avec ?, puis exécuter avec un tableau de valeurs.</li>
+      <li><strong>Parcourir et afficher</strong> les résultats, protégés à l'affichage.</li>
+    </ol>
+  </div>
+
+  <h2>9. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>$_POST reçoit les champs du formulaire ; ?? fournit le défaut.</li>
+      <li>Valider avant d'utiliser ; htmlspecialchars au moment d'afficher.</li>
+      <li>session_start() puis $_SESSION : mémoire par visiteur, réflexes isset.</li>
+      <li>PDO + ERRMODE_EXCEPTION en try/catch pour la connexion MySQL.</li>
+      <li>Requêtes préparées (?) pour tout SELECT ou INSERT paramétré ; lignes = tableaux associatifs.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>J'écris la trame de connexion PDO de mémoire.</li>
+      <li>Je prépare et j'exécute un SELECT paramétré proprement.</li>
+      <li>Je justifie la requête préparée face à l'injection SQL.</li>
+      <li>Je décris la chaîne complète formulaire → validation → base → affichage.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>$_POST</li><li>validation</li><li>htmlspecialchars</li><li>$_SESSION</li>
+      <li>session_start</li><li>PDO / DSN</li><li>requête préparée (?)</li><li>foreach sur résultats</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+  <h2>10. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 1 et 4, recopie les trames.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices des niveaux 3-5 de l'atelier.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible requêtes préparées et XSS.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : direction le simulateur d'examen pour te tester en conditions.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre7.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 7</a>
+    <a class="btn btn--primary" href="simulateur-examen.html">Simulateur d'examen <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : supports B1 (Cours-PHP-PDO, connexion PHP/MySQL, TP1) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

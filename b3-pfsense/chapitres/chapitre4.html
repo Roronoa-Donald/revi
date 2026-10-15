@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Segmentation Réseau : VLANs 802.1Q &amp;amp; DMZ Sécurisée | pfSense &amp; Routage B3</title>
+<meta name="description" content="Chapitre 4 du cours pfSense &amp; Routage B3 : Trunk 802.1Q, sous-interfaces FreeBSD, matrices de flux inter-VLANs, DMZ étanche, isolation zéro confiance et parade au VLAN Hopping. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-pfsense/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Segmentation Réseau : VLANs 802.1Q &amp;amp; DMZ Sécurisée | pfSense &amp; Routage B3">
+<meta property="og:description" content="Chapitre 4 du cours pfSense &amp; Routage B3 : Trunk 802.1Q, sous-interfaces FreeBSD, matrices de flux inter-VLANs, DMZ étanche, isolation zéro confiance et parade au VLAN Hopping. Notions fondamentales, ateliers de programmation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-pfsensenav"><div class="b3-pfsensenav__in">
+  <a class="b3-pfsensenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-pfsensenav__sep" aria-hidden="true">/</span>
+  <a class="b3-pfsensenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-shield"></use></svg> pfSense &amp; Routage B3</a>
+  <div class="b3-pfsensenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-pfsensenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-pfsensewrap">
+<p class="crumb"><a href="../index.html">pfSense & Routage B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<h1>Chapitre 4 — Segmentation Réseau : VLANs 802.1Q &amp; DMZ Sécurisée</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 4</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un réseau plat non segmenté est une vulnérabilité critique majeure : un poste de travail compromis par un rançongiciel peut alors se propager librement à l’ensemble des serveurs internes de l’entreprise. Dans pfSense, la micro-segmentation logique par VLANs 802.1Q permet de démultiplier les domaines de diffusion sur un lien Trunk physique unique relié aux commutateurs d’accès. L’ingénieur sécurité doit maîtriser la création des sous-interfaces sous FreeBSD, formaliser une matrice de flux stricte interdisant tout rebond d’une DMZ publique vers les réseaux de confiance, et durcir l’infrastructure contre les attaques d’évasion de couche 2 telles que le Double Tagging (VLAN Hopping).</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le mécanisme d’encapsulation de trames IEEE 802.1Q et le rôle du champ VLAN ID (VID) ;</li>
+      <li>créer et assigner des sous-interfaces VLAN logiques (ex: em0.10, igb0.20) sous pfSense/FreeBSD ;</li>
+      <li>concevoir une matrice de flux inter-VLANs zéro confiance régie par le principe du moindre privilège ;</li>
+      <li>sécuriser de manière étanche une Zone Démilitarisée (DMZ) publique hébergeant des serveurs Web/Mail ;</li>
+      <li>analyser les mécanismes d’attaque par VLAN Hopping et Double Tagging et déployer les contre-mesures ;</li>
+      <li>développer en Python 3 des validateurs d’encapsulation 802.1Q, des contrôleurs de flux DMZ et des auditeurs de double marquage.</li>
+    </ol>
+  </div>
+
+<h2>1. Standard IEEE 802.1Q &amp; Sous-Interfaces Logiques FreeBSD</h2>
+
+<p>Le protocole <strong>IEEE 802.1Q</strong> insère un champ d’étiquetage de 4 octets (Tag) au cœur de l’en-tête Ethernet standard (entre l’adresse MAC source et le champ EtherType) :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. Structure de l’En-tête 802.1Q (4 octets)</h4>
+    <ul>
+      <li><strong>TPID (Tag Protocol Identifier - 16 bits) :</strong> Valeur fixe <code>0x8100</code> indiquant la présence d’une trame étiquetée 802.1Q.</li>
+      <li><strong>PCP (Priority Code Point - 3 bits) :</strong> Niveau de priorité de qualité de service (CoS / IEEE 802.1p de 0 à 7).</li>
+      <li><strong>DEI (Drop Eligible Indicator - 1 bit) :</strong> Indicateur d’éligibilité à l’élimination en cas d’encombrement.</li>
+      <li><strong>VID (VLAN Identifier - 12 bits) :</strong> Identifiant numérique du sous-réseau logique (valeurs de 1 à 4094).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>2. Démultiplexage sous le Noyau FreeBSD</h4>
+    <p>Lorsque le lien physique (Trunk) relie le commutateur à la carte réseau de pfSense (ex: <code>igb0</code>) :</p>
+    <ol>
+      <li>Le pilote de la carte lit le VID de la trame entrante.</li>
+      <li>Le noyau FreeBSD achemine la charge utile vers la sous-interface virtuelle correspondante : <code>igb0.10</code> pour le VLAN 10, <code>igb0.20</code> pour le VLAN 20.</li>
+      <li>pfSense traite chaque sous-interface comme un port réseau totalement indépendant, avec son propre pare-feu, son serveur DHCP et sa passerelle.</li>
+    </ol>
+  </div>
+</div>
+
+<h2>2. Matrice de Flux Inter-VLANs &amp; Architecture de DMZ Publique</h2>
+
+<p>La <strong>Zone Démilitarisée (DMZ)</strong> est un sous-réseau intermédiaire conçu pour héberger des services accessibles depuis l’extérieur (serveurs HTTP, mandataires inverses Nginx, relais SMTP, passerelles DNS publiques) tout en protégeant le cœur du réseau de l’entreprise (LAN).</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Règles d’Or d’une DMZ Étanche</h4>
+    <ul>
+      <li><strong>1. Accès Externe (WAN &rarr; DMZ) :</strong> Autorisé uniquement sur les ports des services applicatifs exposés (80, 443) via redirection de ports (DNAT).</li>
+      <li><strong>2. Accès Interne (LAN &rarr; DMZ) :</strong> Autorisé pour les équipes de développement et d’administration (SSH port 22, HTTPS).</li>
+      <li><strong>3. Interdiction Stricte d’Initiation (DMZ &rarr; LAN) :</strong> <em>Un serveur DMZ ne doit JAMAIS pouvoir initier une connexion vers le LAN.</em> En cas de compromission (ex: faille RCE sur le serveur Web), l’attaquant est confiné dans la DMZ et ne peut rebondir vers les postes de travail ou l’Active Directory.</li>
+      <li><strong>4. Réponses Autorisées (Flux Retour) :</strong> Les réponses des serveurs DMZ aux requêtes initiées par le LAN passent automatiquement grâce à la table d’états (Stateful Inspection).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Exemple de Matrice de Sécurité</h4>
+    <table class="table">
+      <thead><tr><th>Source</th><th>Destination</th><th>Ports</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>WAN</td><td>DMZ (Web)</td><td>80, 443</td><td>PASS (DNAT)</td></tr>
+        <tr><td>LAN</td><td>DMZ</td><td>22, 443</td><td>PASS</td></tr>
+        <tr><td>DMZ</td><td>LAN</td><td>ALL</td><td><strong>BLOCK</strong></td></tr>
+        <tr><td>DMZ</td><td>WAN</td><td>53, 123</td><td>PASS (DNS/NTP)</td></tr>
+        <tr><td>DMZ</td><td>Base de Données</td><td>3306, 5432</td><td>PASS (Règle stricte)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h2>3. Vulnérabilités de Couche 2 : Attaques VLAN Hopping &amp; Double Tagging</h2>
+
+<p>Bien que la segmentation 802.1Q assure une isolation logique puissante, de mauvaises configurations de commutateurs permettent à des attaquants de s’affranchir des frontières du pare-feu via des attaques de <strong>VLAN Hopping</strong> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>1. L’Attaque par Double Marquage (Double Tagging)</h4>
+    <p>Cette attaque exploite la gestion du <strong>VLAN natif</strong> (trames non étiquetées) sur les liaisons Trunk :</p>
+    <ol>
+      <li>L’attaquant émet une trame encapsulant deux étiquettes 802.1Q : un tag externe égal au <em>VLAN natif du trunk</em> (ex: VID 1) et un tag interne égal au <em>VLAN cible</em> (ex: VID 20 - DMZ ou Admin).</li>
+      <li>Le premier commutateur reçoit la trame, constate que le tag externe correspond à son VLAN natif, le dépouille (strip) et diffuse la trame sur le lien Trunk sans le ré-étiqueter.</li>
+      <li>Le second commutateur reçoit la trame qui ne possède plus que le tag interne (VID 20) : il la livre directement sur le port du VLAN cible, sans que le pare-feu n’ait pu inspecter le flux !</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h4>2. Contre-Mesures de Durcissement</h4>
+    <p>Pour éliminer définitivement le risque de Double Tagging :</p>
+    <ul>
+      <li><strong>Modifier le VLAN natif par défaut :</strong> Ne jamais laisser le VLAN 1 comme VLAN natif sur les Trunks ; assigner un VLAN factice dédié sans accès (ex: VLAN 999).</li>
+      <li><strong>Étiqueter le VLAN natif (Native VLAN Tagging) :</strong> Forcer le commutateur à étiqueter explicitement même les trames du VLAN natif (commande Cisco <code>vlan dot1q tag native</code>).</li>
+      <li><strong>Désactiver le protocole DTP (Dynamic Trunking Protocol) :</strong> Forcer tous les ports d’accès en mode statique (<code>switchport mode access</code>) pour empêcher l’usurpation de négociation trunk.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="pf3-c4-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="VLAN_SUBIF parent=em0 tag=10 name=LAN subnet=192.168.10.0/24&#10;VLAN_SUBIF parent=em0 tag=20 name=DMZ subnet=192.168.20.0/24&#10;FRAME id=F1 ingress_if=em0 tag=10 payload_bytes=512&#10;FRAME id=F2 ingress_if=em0 tag=99 payload_bytes=64&#10;FRAME id=F3 ingress_if=em0 tag=0 payload_bytes=128">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : enregistrer les sous-interfaces et évaluer chaque trame
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur d'encapsulation 802.1Q et calcul de sous-interfaces VLAN</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Valider les trames 802.1Q et les mapper vers la sous-interface pfSense correspondante.</p>
+    <div class="lab__brief"><p>Dans FreeBSD/pfSense, la segmentation par <strong>VLAN 802.1Q</strong> permet de faire transiter plusieurs réseaux logiques isolés sur un même câble physique (Trunk). Chaque sous-interface est identifiée sous la forme <code>parent.tag</code> (ex: <code>em0.10</code>).<br><br>
+Le script lit sur l'entrée standard :<br>
+- Les déclarations de sous-interfaces :<br>
+  <code>VLAN_SUBIF parent=&lt;iface&gt; tag=&lt;int&gt; name=&lt;nom&gt; subnet=&lt;cidr&gt;</code><br>
+- Les trames en entrée du pare-feu :<br>
+  <code>FRAME id=&lt;nom&gt; ingress_if=&lt;iface&gt; tag=&lt;int|0&gt; payload_bytes=&lt;int&gt;</code><br>
+  (une valeur de <code>tag=0</code> désigne une trame non étiquetée / untagged).<br><br>
+Règles :<br>
+- Si <code>tag == 0</code> : rejetée par défaut sur un port trunk sans VLAN natif autorisé :<br>
+  <code>status=DROPPED subif=NONE subnet=NONE</code>.<br>
+- Si <code>tag &gt; 0</code> :<br>
+  Vérifier si une sous-interface correspond exactement à <code>parent == ingress_if</code> et <code>tag == tag</code> :<br>
+  - Si trouvée :<br>
+    <code>status=ACCEPTED subif={ingress_if}.{tag} subnet={subnet}</code>.<br>
+  - Si non trouvée :<br>
+    <code>status=DROPPED subif=UNKNOWN subnet=NONE</code>.<br><br>
+Pour chaque trame, afficher :<br>
+<code>8021Q_EVAL id={id} tag={tag} status={status} subif={subif} subnet={subnet}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VLAN_SUBIF parent=em0 tag=10 name=LAN subnet=192.168.10.0/24
+VLAN_SUBIF parent=em0 tag=20 name=DMZ subnet=192.168.20.0/24
+FRAME id=F1 ingress_if=em0 tag=10 payload_bytes=512
+FRAME id=F2 ingress_if=em0 tag=99 payload_bytes=64
+FRAME id=F3 ingress_if=em0 tag=0 payload_bytes=128</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>8021Q_EVAL id=F1 tag=10 status=ACCEPTED subif=em0.10 subnet=192.168.10.0/24
+8021Q_EVAL id=F2 tag=99 status=DROPPED subif=UNKNOWN subnet=NONE
+8021Q_EVAL id=F3 tag=0 status=DROPPED subif=NONE subnet=NONE</pre></div>
+    </div>
+    <p class="lab__note">F1 est acceptée sur em0.10, F2 a un tag inconnu, F3 est rejetée car non taguée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Stocker les VLANs sous une clé composite (parent, tag).</li>
+        <li>Traiter tag=0 comme non étiqueté (DROPPED).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c4-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="POLICY src=LAN dst=DMZ port=ANY action=PASS&#10;POLICY src=DMZ dst=LAN port=ANY action=BLOCK&#10;POLICY src=DMZ dst=WAN port=53 action=PASS&#10;FLOW id=F1 src=LAN dst=DMZ port=80 state=NEW&#10;FLOW id=F2 src=DMZ dst=LAN port=445 state=NEW&#10;FLOW id=F3 src=DMZ dst=LAN port=80 state=ESTABLISHED&#10;FLOW id=F4 src=DMZ dst=WAN port=22 state=NEW">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : charger les politiques de zones et évaluer les flux réseau
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Contrôleur de matrice de flux inter-VLANs et filtrage DMZ</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le pare-feu à état entre zones réseau (LAN, DMZ, WAN) et bloquer l'initiation illégitime DMZ vers LAN.</p>
+    <div class="lab__brief"><p>Le principe fondamental d'architecture sécurisée d'une <strong>DMZ (Zone Démilitarisée)</strong> stipule qu'un serveur DMZ ne doit <em>jamais pouvoir initier</em> une nouvelle connexion vers le réseau interne sécurisé (LAN). En revanche, le LAN peut initier des flux vers la DMZ, et la DMZ peut répondre (flux établi).<br><br>
+Le script lit sur l'entrée standard d'abord les règles de politique de sécurité :<br>
+<code>POLICY src=&lt;zone&gt; dst=&lt;zone&gt; port=&lt;int|ANY&gt; action=&lt;PASS|BLOCK&gt;</code><br>
+Puis des demandes de flux réseau :<br>
+<code>FLOW id=&lt;nom&gt; src=&lt;zone&gt; dst=&lt;zone&gt; port=&lt;int&gt; state=&lt;NEW|ESTABLISHED&gt;</code><br><br>
+Règles d'évaluation dans pfSense :<br>
+1. Si <code>state == 'ESTABLISHED'</code> :<br>
+   Le paquet appartient à une session déjà approuvée dans la table d'états :<br>
+   <code>action=PASS reason=STATE_ESTABLISHED</code>.<br>
+2. Si <code>state == 'NEW'</code> :<br>
+   Parcourir les règles <code>POLICY</code> dans l'ordre de déclaration (First-Match Wins) :<br>
+   - La règle correspond si <code>rule.src == flow.src</code> et <code>rule.dst == flow.dst</code> et (<code>rule.port == 'ANY'</code> ou <code>int(rule.port) == flow.port</code>).<br>
+   - Si correspondance : <code>action={rule.action} reason=RULE_MATCH</code>.<br>
+   - Si aucune règle ne correspond (Default Deny pfSense) :<br>
+     <code>action=BLOCK reason=DEFAULT_DENY</code>.<br><br>
+Pour chaque flux, afficher :<br>
+<code>FLOW_REPORT id={id} src={src} dst={dst} port={port} action={action} reason={reason}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POLICY src=LAN dst=DMZ port=ANY action=PASS
+POLICY src=DMZ dst=LAN port=ANY action=BLOCK
+POLICY src=DMZ dst=WAN port=53 action=PASS
+FLOW id=F1 src=LAN dst=DMZ port=80 state=NEW
+FLOW id=F2 src=DMZ dst=LAN port=445 state=NEW
+FLOW id=F3 src=DMZ dst=LAN port=80 state=ESTABLISHED
+FLOW id=F4 src=DMZ dst=WAN port=22 state=NEW</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>FLOW_REPORT id=F1 src=LAN dst=DMZ port=80 action=PASS reason=RULE_MATCH
+FLOW_REPORT id=F2 src=DMZ dst=LAN port=445 action=BLOCK reason=RULE_MATCH
+FLOW_REPORT id=F3 src=DMZ dst=LAN port=80 action=PASS reason=STATE_ESTABLISHED
+FLOW_REPORT id=F4 src=DMZ dst=WAN port=22 action=BLOCK reason=DEFAULT_DENY</pre></div>
+    </div>
+    <p class="lab__note">F1 est autorisée par la règle LAN-&gt;DMZ, F2 est bloquée (DMZ-&gt;LAN), F3 passe car déjà établie, F4 est rejetée par Default Deny.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Vérifier d'abord si state == "ESTABLISHED".</li>
+        <li>Si NEW, chercher la première règle POLICY correspondante ou appliquer DEFAULT_DENY.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="pf3-c4-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="TRUNK_CONFIG native_vlan=1 allowed_vlans=10,20,30&#10;PACKET id=PKT1 outer_tag=1 inner_tag=20 dst_ip=192.168.20.10&#10;PACKET id=PKT2 outer_tag=10 inner_tag=NONE dst_ip=192.168.10.5&#10;PACKET id=PKT3 outer_tag=99 inner_tag=NONE dst_ip=10.0.0.1&#10;PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : analyser la configuration Trunk et auditer chaque paquet
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Auditeur de fuite d'isolation réseau (VLAN Hopping &amp; Double Tagging)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter les attaques par double étiquetage 802.1Q (Double Tagging) visant à contourner l'isolation VLAN.</p>
+    <div class="lab__brief"><p>L'attaque par <strong>Double Tagging (VLAN Hopping)</strong> exploite le comportement des commutateurs qui dépouillent le tag externe du VLAN natif d'un lien Trunk, permettant au tag interne d'atteindre un VLAN cible non autorisé sans traverser le pare-feu.<br><br>
+Le script lit sur l'entrée standard d'abord la configuration du lien Trunk :<br>
+<code>TRUNK_CONFIG native_vlan=&lt;int&gt; allowed_vlans=&lt;vlan1,vlan2,...&gt;</code><br>
+Puis des paquets analysés par la sonde réseau :<br>
+<code>PACKET id=&lt;nom&gt; outer_tag=&lt;int|NONE&gt; inner_tag=&lt;int|NONE&gt; dst_ip=&lt;ip&gt;</code><br><br>
+Critères de détection et d'audit :<br>
+1. <strong>Double marquage (outer_tag != NONE et inner_tag != NONE) :</strong><br>
+   - Si <code>outer_tag == native_vlan</code> :<br>
+     Attaque confirmée par stripping du tag natif !<br>
+     <code>status=ATTACK_DETECTED type=DOUBLE_TAGGING target_vlan={inner_tag} action=ALERT_DROP</code><br>
+   - Sinon (outer_tag != native_vlan mais double tag présent) :<br>
+     <code>status=REJECTED type=INVALID_NESTED_TAG target_vlan={inner_tag} action=DROP</code><br>
+2. <strong>Simple marquage (outer_tag != NONE et inner_tag == NONE) :</strong><br>
+   - Si <code>outer_tag</code> figure dans <code>allowed_vlans</code> :<br>
+     <code>status=VALID type=STANDARD_TAGGED target_vlan={outer_tag} action=FORWARD</code><br>
+   - Sinon :<br>
+     <code>status=BLOCKED type=UNAUTHORIZED_VLAN target_vlan={outer_tag} action=DROP</code><br>
+3. <strong>Trame non étiquetée (outer_tag == NONE) :</strong><br>
+   <code>status=NATIVE type=UNTAGGED target_vlan={native_vlan} action=FORWARD</code><br><br>
+Pour chaque paquet, afficher :<br>
+<code>AUDIT_VLAN id={id} status={status} type={type} target_vlan={target_vlan} action={action}</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TRUNK_CONFIG native_vlan=1 allowed_vlans=10,20,30
+PACKET id=PKT1 outer_tag=1 inner_tag=20 dst_ip=192.168.20.10
+PACKET id=PKT2 outer_tag=10 inner_tag=NONE dst_ip=192.168.10.5
+PACKET id=PKT3 outer_tag=99 inner_tag=NONE dst_ip=10.0.0.1
+PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT_VLAN id=PKT1 status=ATTACK_DETECTED type=DOUBLE_TAGGING target_vlan=20 action=ALERT_DROP
+AUDIT_VLAN id=PKT2 status=VALID type=STANDARD_TAGGED target_vlan=10 action=FORWARD
+AUDIT_VLAN id=PKT3 status=BLOCKED type=UNAUTHORIZED_VLAN target_vlan=99 action=DROP
+AUDIT_VLAN id=PKT4 status=NATIVE type=UNTAGGED target_vlan=1 action=FORWARD</pre></div>
+    </div>
+    <p class="lab__note">PKT1 est une attaque par Double Tagging exploitant le VLAN natif 1 ; PKT2 est légitime sur VLAN 10 ; PKT3 est bloqué (VLAN 99 non autorisé).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertir allowed_vlans en un ensemble d'entiers.</li>
+        <li>Comparer outer_tag avec native_vlan lorsque deux tags sont présents.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle est la taille en octets de l’en-tête d’étiquetage inséré par la norme IEEE 802.1Q dans une trame Ethernet ?</p>
+      <div class="opts">
+        <button class="opt">2 octets</button>
+        <button class="opt" data-correct="1">4 octets</button>
+        <button class="opt">8 octets</button>
+        <button class="opt">16 octets</button>
+      </div>
+      <div class="q__exp">L’en-tête 802.1Q comprend 4 octets : 2 octets pour le TPID (0x8100) et 2 octets pour le TCI (Priority, DEI et VLAN ID de 12 bits).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de VLANs distincts peuvent être théoriquement codés sur le champ VID de 12 bits de la norme 802.1Q ?</p>
+      <div class="opts">
+        <button class="opt">256</button>
+        <button class="opt">1024</button>
+        <button class="opt" data-correct="1">4096 (dont 4094 utilisables)</button>
+        <button class="opt">65536</button>
+      </div>
+      <div class="q__exp">Un champ de 12 bits permet 2^12 = 4096 valeurs (les identifiants 0 et 4095 étant réservés, 4094 VLANs sont exploitables).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment une sous-interface VLAN est-elle nommée sous le noyau FreeBSD/pfSense pour la carte em0 sur le VLAN 30 ?</p>
+      <div class="opts">
+        <button class="opt">vlan30@em0</button>
+        <button class="opt" data-correct="1">em0.30</button>
+        <button class="opt">eth0:30</button>
+        <button class="opt">trunk0-vlan30</button>
+      </div>
+      <div class="q__exp">Sous FreeBSD/pfSense, la convention de nommage des sous-interfaces 802.1Q est <nom_interface_parente>.<vlan_id>, soit em0.30.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle règle de sécurité fondamentale régit l’accès entre une DMZ publique et le réseau interne (LAN) ?</p>
+      <div class="opts">
+        <button class="opt">Le LAN ne peut jamais communiquer avec la DMZ</button>
+        <button class="opt" data-correct="1">La DMZ ne doit jamais pouvoir initier de nouvelle connexion vers le LAN</button>
+        <button class="opt">Tout le trafic entre la DMZ et le LAN doit être non filtré pour la performance</button>
+        <button class="opt">La DMZ doit partager le même serveur DHCP que le LAN</button>
+      </div>
+      <div class="q__exp">Pour éviter qu’un pirate ayant compromis un serveur Web public ne pivote vers le système d’information interne, toute initiation DMZ vers LAN est bloquée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment un serveur Web situé en DMZ peut-il répondre aux requêtes HTTP formulées par un poste du réseau LAN ?</p>
+      <div class="opts">
+        <button class="opt">En créant une règle autorisant tout le trafic de la DMZ vers le LAN</button>
+        <button class="opt" data-correct="1">Automatiquement grâce à la table d’états (Stateful Inspection) qui autorise les paquets retour</button>
+        <button class="opt">En désactivant le pare-feu pfSense</button>
+        <button class="opt">En utilisant le protocole RIP</button>
+      </div>
+      <div class="q__exp">Le pare-feu à état conserve la trace de la session ouverte par le LAN et laisse passer les paquets réponses de la DMZ sans nécessiter de règle d’initiation.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle faille de configuration de commutateur est exploitée lors d’une attaque par Double Tagging (VLAN Hopping) ?</p>
+      <div class="opts">
+        <button class="opt">L’absence de mot de passe administrateur</button>
+        <button class="opt" data-correct="1">Le stripping (retrait) du tag externe par le switch lorsque celui-ci correspond au VLAN natif non étiqueté du Trunk</button>
+        <button class="opt">L’utilisation de câbles réseau trop longs</button>
+        <button class="opt">Une saturation de la bande passante du pare-feu</button>
+      </div>
+      <div class="q__exp">Le switch supprime le tag externe correspondant à son VLAN natif et envoie la trame sur le trunk avec le tag interne cible sans ré-inspection.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la première recommandation pour contrer l’attaque par Double Tagging sur un commutateur ?</p>
+      <div class="opts">
+        <button class="opt">Remplacer tous les câbles RJ45 par de la fibre</button>
+        <button class="opt" data-correct="1">Définir un VLAN natif dédié et inutilisé (ex: VLAN 999) différent du VLAN 1 par défaut</button>
+        <button class="opt">Augmenter le MTU à 9000 octets</button>
+        <button class="opt">Bloquer les requêtes DNS sur le port 53</button>
+      </div>
+      <div class="q__exp">Attribuer un VLAN natif fictif non affecté aux ports utilisateurs empêche les postes d’émettre des trames avec le tag externe natif requis pour l’attaque.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel protocole propriétaire Cisco de négociation automatique de port Trunk doit être impérativement désactivé sur les ports utilisateurs ?</p>
+      <div class="opts">
+        <button class="opt">CDP (Cisco Discovery Protocol)</button>
+        <button class="opt" data-correct="1">DTP (Dynamic Trunking Protocol)</button>
+        <button class="opt">VTP (VLAN Trunking Protocol)</button>
+        <button class="opt">HSRP</button>
+      </div>
+      <div class="q__exp">DTP permet à un poste malveillant de négocier un lien Trunk avec le switch si le port est en mode dynamic auto/desirable, donnant accès à tous les VLANs.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier de bloquer explicitement le flux DMZ vers LAN et faire confiance au routage par défaut.</li>
+      <li>Laisser le VLAN 1 par défaut comme VLAN natif sur les liens Trunk d’infrastructure.</li>
+      <li>Conserver le protocole DTP actif sur les ports utilisateurs d’un commutateur d’accès.</li>
+      <li>Créer des sous-interfaces VLAN dans pfSense sans avoir au préalable configuré le port du switch en Trunk 802.1Q.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Étape 1 : Définir le plan de VLANs (VID, nom, sous-réseau, niveau de confiance) en collaboration avec les équipes réseau.</li>
+      <li>Étape 2 : Configurer le port de commutateur relié à pfSense en mode Trunk 802.1Q avec un VLAN natif isolé.</li>
+      <li>Étape 3 : Créer les sous-interfaces VLAN dans Interfaces > VLANs de pfSense puis les assigner comme interfaces autonomes.</li>
+      <li>Étape 4 : Définir les serveurs DHCP et les règles de base pour chaque zone VLAN.</li>
+      <li>Étape 5 : Formaliser et implémenter la matrice de flux inter-VLANs (interdiction stricte DMZ vers LAN).</li>
+      <li>Étape 6 : Auditer la configuration des commutateurs pour désactiver DTP et activer l’étiquetage du VLAN natif.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>La norme IEEE 802.1Q insère un en-tête de 4 octets avec un identifiant de VLAN (VID) sur 12 bits.</li>
+      <li>FreeBSD associe chaque VID à une sous-interface logique dédiée (parent.VID).</li>
+      <li>Chaque sous-interface VLAN est traitée par pfSense comme un domaine de sécurité et de diffusion indépendant.</li>
+      <li>La règle d’or de la DMZ interdit strictement toute initiation de connexion de la DMZ vers le LAN.</li>
+      <li>Les flux retour légitimes de la DMZ vers le LAN sont automatiquement gérés par la table d’états.</li>
+      <li>L’attaque par Double Tagging s’appuie sur le stripping du VLAN natif et se neutralise par l’étiquetage systématique.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je comprends la structure de l’en-tête 802.1Q et la plage de valeurs du champ VID (1 à 4094).</li>
+      <li>Je sais créer et assigner une sous-interface VLAN sous pfSense.</li>
+      <li>Je sais concevoir une matrice de flux inter-VLANs étanche.</li>
+      <li>Je sais expliquer pourquoi une DMZ compromise ne peut pas rebondir vers le LAN grâce au filtrage d’état.</li>
+      <li>Je comprends la cinématique d’une attaque par Double Tagging exploitant le VLAN natif.</li>
+      <li>Je connais les trois contre-mesures de durcissement sur commutateur contre le VLAN Hopping.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>En-tête 802.1Q & Champ VID (12 bits)</li><li>Lien Trunk & Démultiplexage FreeBSD</li><li>Sous-Interfaces Logiques (parent.VID)</li><li>Architecture de DMZ Publique</li><li>Principe d’Interdiction d’Initiation DMZ &rarr; LAN</li><li>Attaque par Double Marquage (Double Tagging)</li><li>Vulnérabilité du VLAN Natif non étiqueté</li><li>Durcissement de Couche 2 (DTP, Tag Native)</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Difficultés à configurer les sous-interfaces 802.1Q ou mauvaise compréhension des flux autorisés dans une DMZ.</div>
+      <div class="bandrow bandrow--medium">Segmentation correcte des réseaux d’entreprise, écriture rigoureuse de la matrice de flux DMZ et isolation inter-VLANs.</div>
+      <div class="bandrow bandrow--high">Architecture de segmentation zéro confiance, durcissement de couche 2 contre le VLAN Hopping et conception de zones DMZ multi-niveaux.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Tunnels VPN Sécurisés : OpenVPN (SSL/TLS) &amp; IPsec Site-à-Site <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Documentation officielle Netgate pfSense, Architecture FreeBSD Packet Filter (pf), RFC 5798 (CARP/VRRP), RFC 7296 (IKEv2) et Guides de durcissement ANSSI.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

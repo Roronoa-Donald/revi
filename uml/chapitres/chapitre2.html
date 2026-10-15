@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Diagrammes de Cas d’Utilisation (Use Cases) &amp;amp; Analyse des Besoins | UML B2</title>
+<meta name="description" content="Chapitre 2 du cours UML B2 : Formalisation des exigences fonctionnelles, acteurs primaires et secondaires, frontière du système (System Boundary), relations d’inclusion (&amp;laquo;include&amp;raquo;) et d’extension (&amp;laquo;extend&amp;raquo;), spécialisation d’acteurs et détection des cas orphelins. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/uml/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Diagrammes de Cas d’Utilisation (Use Cases) &amp;amp; Analyse des Besoins | UML B2">
+<meta property="og:description" content="Chapitre 2 du cours UML B2 : Formalisation des exigences fonctionnelles, acteurs primaires et secondaires, frontière du système (System Boundary), relations d’inclusion (&amp;laquo;include&amp;raquo;) et d’extension (&amp;laquo;extend&amp;raquo;), spécialisation d’acteurs et détection des cas orphelins. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="umlnav"><div class="umlnav__in">
+  <a class="umlnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="umlnav__sep" aria-hidden="true">/</span>
+  <a class="umlnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> UML B2</a>
+  <div class="umlnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="umlnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="umlwrap">
+<p class="crumb"><a href="../index.html">UML B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Diagrammes de Cas d’Utilisation (Use Cases) &amp; Analyse des Besoins</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lors du lancement d’une application de télémédecine, les équipes métier et les développeurs se heurtent à de graves malentendus : les spécifications rédigent des centaines de pages textuelles ambiguës où les rôles des praticiens, des patients et de la Sécurité Sociale s’entrecroisent de manière chaotique. Pour borner rigoureusement le périmètre fonctionnel du système, l’architecte logiciel déploie le diagramme de cas d’utilisation UML. Ce module forme les étudiants à délimiter la frontière du système, à classifier les acteurs selon leur implication, à modéliser avec une précision mathématique les relations &laquo;include&raquo; et &laquo;extend&raquo;, et à éliminer les erreurs classiques de granularité et de cas orphelins.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>délimiter la frontière du système (System Boundary) et positionner les acteurs à l’extérieur ;</li>
+      <li>distinguer les acteurs primaires (qui initient l’action pour atteindre un objectif) et secondaires (sollicités en soutien) ;</li>
+      <li>définir la granularité optimale d’un cas d’utilisation axé sur la valeur métier observable ;</li>
+      <li>maîtriser la syntaxe et la sémantique de la relation d’inclusion obligatoire &laquo;include&raquo; ;</li>
+      <li>maîtriser la relation d’extension conditionnelle &laquo;extend&raquo; et ses points d’extension (Extension Points) ;</li>
+      <li>appliquer l’héritage (généralisation/spécialisation) entre acteurs et entre cas d’utilisation.</li>
+    </ol>
+  </div>
+
+<h2>1. Acteurs, Système et Granularité des Cas d’Utilisation</h2>
+
+<p>Un <strong>diagramme de cas d’utilisation</strong> modélise le comportement du système du point de vue de ses utilisateurs. Il se compose de trois éléments fondamentaux :</p>
+<ul>
+  <li><strong>La frontière du système (System Boundary) :</strong> Un rectangle délimitant le périmètre logiciel. Tout ce qui est à l’intérieur est développé par l’équipe ; tout ce qui est à l’extérieur constitue l’environnement.</li>
+  <li><strong>Les acteurs (Actors) :</strong> Entités externes interagissant avec le système. Un acteur n’est pas nécessairement un humain : il peut s’agir d’un serveur tiers (ex: Passerelle Bancaire, Serveur LDAP) ou d’un démon temporel (ex: Horloge Système). Représenté graphiquement par un « bonhomme fil de fer » (stickman) ou un classeur avec le stéréotype <code>&laquo;actor&raquo;</code>.</li>
+  <li><strong>Les cas d’utilisation (Use Cases) :</strong> Une ellipse contenant un verbe à l’infinitif et un complément (ex: <em>Consulter Dossier Médical</em>). Chaque cas doit représenter une unité de travail complète apportant une valeur métier mesurable à son acteur principal.</li>
+</ul>
+<div class="grid grid-2">
+  <div class="card">
+    <h4 class="card-title">Acteurs Primaires vs Secondaires</h4>
+    <ul>
+      <li><strong>Acteur Primaire :</strong> Déclenche le cas d’utilisation pour satisfaire un besoin propre (placé généralement à gauche du diagramme).</li>
+      <li><strong>Acteur Secondaire :</strong> Sollicité par le système au cours du scénario pour lui fournir un service (placé généralement à droite).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 class="card-title">Règle de Granularité (Cockburn)</h4>
+    <ul>
+      <li><strong>Niveau Objectif Utilisateur (Sea Level) :</strong> Un cas d’utilisation doit s’accomplir en une seule session ininterrompue de 2 à 20 minutes.</li>
+      <li><strong>Anti-patron :</strong> Ne jamais créer de cas d’utilisation pour un clic ou une saisie unitaire (ex: « Cliquer sur bouton Valider » est une erreur grave).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Relations entre Cas d’Utilisation : &laquo;include&raquo; vs &laquo;extend&raquo;</h2>
+
+<p>L’une des sources d’erreurs les plus fréquentes en modélisation logicielle réside dans la confusion entre les stéréotypes <code>&laquo;include&raquo;</code> et <code>&laquo;extend&raquo;</code> :</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Critère</th>
+      <th>Relation &laquo;include&raquo;</th>
+      <th>Relation &laquo;extend&raquo;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Caractère</strong></td>
+      <td><strong>Obligatoire</strong> : Le cas inclus est toujours exécuté.</td>
+      <td><strong>Optionnel / Conditionnel</strong> : Exécuté uniquement sous condition.</td>
+    </tr>
+    <tr>
+      <td><strong>Sens de la flèche</strong></td>
+      <td>Du cas de base <strong>vers</strong> le cas inclus (Base &rarr; Inclus).</td>
+      <td>Du cas d’extension <strong>vers</strong> le cas de base (Extension &rarr; Base).</td>
+    </tr>
+    <tr>
+      <td><strong>Conscience du cas de base</strong></td>
+      <td>Le cas de base sait qu’il fait appel au sous-cas.</td>
+      <td>Le cas de base ignore l’existence de l’extension (découplage total).</td>
+    </tr>
+    <tr>
+      <td><strong>Point d’ancrage</strong></td>
+      <td>Étape explicite dans le scénario textuel.</td>
+      <td>Point d’extension (<strong>Extension Point</strong>) déclaré dans le cas de base.</td>
+    </tr>
+    <tr>
+      <td><strong>Exemple type</strong></td>
+      <td><code>Effectuer Virement</code> &rarr; &laquo;include&raquo; &rarr; <code>Authentifier Client</code></td>
+      <td><code>Alerter Dépassement Plafond</code> &rarr; &laquo;extend&raquo; &rarr; <code>Effectuer Virement</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Généralisation et Cas d’Utilisation Orphelins</h2>
+
+<p>La relation de <strong>généralisation / spécialisation</strong> (flèche à triangle blanc fermé) s’applique aussi bien aux acteurs qu’aux cas d’utilisation :</p>
+<ul>
+  <li><strong>Spécialisation d’acteurs :</strong> Si <em>Médecin Spécialiste</em> hérite de <em>Praticien</em>, il hérite automatiquement du droit d’exécuter tous les cas d’utilisation accessibles à <em>Praticien</em>, tout en ayant accès à des cas spécifiques.</li>
+  <li><strong>Spécialisation de cas :</strong> Le cas <em>Régler Facture</em> peut être spécialisé en <em>Régler par Carte</em> ou <em>Régler par Virement</em>. Le cas enfant hérite du comportement global mais redéfinit la modalité d’exécution.</li>
+</ul>
+<p><strong>Règle de validation des cas orphelins :</strong> Tout cas d’utilisation situé dans le système doit être directement relié à au moins un acteur, ou être inclus / étendu par un cas lui-même relié à un acteur. Un cas d’utilisation sans aucun chemin vers un acteur est un <em>cas orphelin</em>, ce qui constitue une faute de modélisation disqualifiante.</p>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="um2-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="UC Authentifier OBLIGATOIRE&#10;UC Virement OBLIGATOIRE&#10;UC NotifierSMS OPTIONNEL&#10;RELATION Virement -&gt; Authentifier &lt;&lt;include&gt;&gt;&#10;RELATION NotifierSMS -&gt; Virement &lt;&lt;extend&gt;&gt; CONDITION=&quot;Option cochee&quot;">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : valider l'orientation et la cohérence de include et extend
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur de relations &lt;&lt;include&gt;&gt; vs &lt;&lt;extend&gt;&gt;</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la sémantique et l'orientation des dépendances &lt;&lt;include&gt;&gt; (inclusion obligatoire) et &lt;&lt;extend&gt;&gt; (extension conditionnelle).</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations de relations entre cas d'utilisation :<br>
+- <code>UC &lt;NomUC&gt; [OBLIGATOIRE|OPTIONNEL]</code><br>
+- <code>RELATION &lt;UC_Source&gt; -&gt; &lt;UC_Cible&gt; &lt;&lt;TYPE&gt;&gt; [CONDITION="&lt;texte&gt;"]</code><br>
+Règles UML Use Case :<br>
+1. <strong>Relation &lt;&lt;include&gt;&gt; :</strong> Le cas de base inclut obligatoirement le cas inclus.<br>
+   Sémantique : <code>Source (base) -&gt; Cible (inclus) &lt;&lt;include&gt;&gt;</code>. Pas de condition requise.<br>
+2. <strong>Relation &lt;&lt;extend&gt;&gt; :</strong> Le cas étendant enrichit optionnellement le cas de base sous condition.<br>
+   Sémantique : <strong>La flèche part du cas étendant VERS le cas de base</strong> : <code>Source (extension) -&gt; Cible (base) &lt;&lt;extend&gt;&gt;</code>. Une condition doit être renseignée.<br>
+Pour chaque relation, afficher :<br>
+<code>[CONFORME|ANOMALIE] &lt;Source&gt; -&gt; &lt;Cible&gt; &lt;&lt;&lt;TYPE&gt;&gt;&gt; : &lt;motif&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>UC Authentifier OBLIGATOIRE
+UC Virement OBLIGATOIRE
+UC NotifierSMS OPTIONNEL
+RELATION Virement -&gt; Authentifier &lt;&lt;include&gt;&gt;
+RELATION NotifierSMS -&gt; Virement &lt;&lt;extend&gt;&gt; CONDITION="Option cochee"</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[CONFORME] Virement -&gt; Authentifier &lt;&lt;include&gt;&gt; : Inclusion obligatoire du sous-processus
+[CONFORME] NotifierSMS -&gt; Virement &lt;&lt;extend&gt;&gt; : Extension conditionnelle valide avec garde</pre></div>
+    </div>
+    <p class="lab__note">Virement inclut Authentifier, et NotifierSMS étend Virement si option cochée.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Dans une relation &lt;&lt;extend&gt;&gt;, la flèche part TOUJOURS du cas optionnel vers le cas de base.</li>
+        <li>Une relation &lt;&lt;extend&gt;&gt; sans condition constitue une mauvaise pratique UML.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="HERITE Admin Utilisateur&#10;HERITE SuperAdmin Admin&#10;ACCES Utilisateur SeConnecter&#10;ACCES Utilisateur ModifierProfil&#10;ACCES Admin GererUtilisateurs&#10;ACCES SuperAdmin PurgerDonnees">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : propager les droits par héritage d'acteurs
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Décomposeur d'héritage d'acteurs</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer par propagation d'héritage l'ensemble des cas d'utilisation accessibles par chaque acteur du système.</p>
+    <div class="lab__brief"><p>Dans un diagramme de cas d'utilisation, un acteur spécialisé hérite de tous les cas d'utilisation des acteurs qu'il généralise.<br>
+Le script lit :<br>
+- Les héritages d'acteurs : <code>HERITE &lt;ActeurSpecialise&gt; &lt;ActeurParent&gt;</code> (ex: <code>HERITE Admin Utilisateur</code>)<br>
+- Les associations directes acteur -&gt; UC : <code>ACCES &lt;Acteur&gt; &lt;NomUC&gt;</code><br>
+Le script doit afficher pour chaque acteur (trié par ordre alphabétique) :<br>
+<code>&lt;Acteur&gt; (Directs: &lt;nbD&gt;, Total: &lt;nbT&gt;) -&gt; &lt;Liste_UC_Triee_Separee_Virgule&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HERITE Admin Utilisateur
+HERITE SuperAdmin Admin
+ACCES Utilisateur SeConnecter
+ACCES Utilisateur ModifierProfil
+ACCES Admin GererUtilisateurs
+ACCES SuperAdmin PurgerDonnees</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Admin (Directs: 1, Total: 3) -&gt; GererUtilisateurs, ModifierProfil, SeConnecter
+SuperAdmin (Directs: 1, Total: 4) -&gt; GererUtilisateurs, ModifierProfil, PurgerDonnees, SeConnecter
+Utilisateur (Directs: 2, Total: 2) -&gt; ModifierProfil, SeConnecter</pre></div>
+    </div>
+    <p class="lab__note">SuperAdmin hérite d'Admin et d'Utilisateur.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Construire l'arbre d'héritage et utiliser une fonction récursive ou fermeture transitive pour collecter tous les parents d'un acteur.</li>
+        <li>Un acteur possède ses cas directs + l'union des cas de tous ses ancêtres.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="um2-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="SYSTEM E-Commerce&#10;ACTOR Client EXTERNE&#10;ACTOR BaseDeDonnees INTERNE&#10;UC PasserCommande&#10;UC Payer&#10;LINK Client -&gt; PasserCommande">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : vérifier les anomalies et la complétude du diagramme Use Case
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Vérificateur de frontière de système et complétude Use Case</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter les anomalies structurelles dans un diagramme de cas d'utilisation : acteurs placés dans le système, cas orphelins et sous-systèmes.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
+- <code>SYSTEM &lt;NomSysteme&gt;</code><br>
+- <code>ACTOR &lt;NomActeur&gt; &lt;EXTERNE|INTERNE&gt;</code><br>
+- <code>UC &lt;NomUC&gt;</code><br>
+- <code>LINK &lt;NomActeur&gt; -&gt; &lt;NomUC&gt;</code><br>
+Règles de validation UML :<br>
+1. <strong>Règle Acteur Externe :</strong> Un acteur représente impérativement une entité <em>externe</em> au système modélisé. Si un acteur est déclaré <code>INTERNE</code> : <code>ANOMALIE: Acteur interne dans le systeme -&gt; &lt;Nom&gt;</code>.<br>
+2. <strong>Règle Cas Orphelin :</strong> Tout cas d'utilisation doit être relié à au moins un acteur (directement ou indirectement). S'il n'a aucun lien : <code>ANOMALIE: Cas d utilisation orphelin sans acteur -&gt; &lt;NomUC&gt;</code>.<br>
+3. <strong>Couverture :</strong> Calculer le pourcentage de cas d'utilisation raccordés : <code>COUVERTURE: &lt;N&gt;%</code>.<br>
+Si aucune anomalie : <code>DIAGRAMME USE CASE VALIDE</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SYSTEM E-Commerce
+ACTOR Client EXTERNE
+ACTOR BaseDeDonnees INTERNE
+UC PasserCommande
+UC Payer
+LINK Client -&gt; PasserCommande</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ANOMALIE: Acteur interne dans le systeme -&gt; BaseDeDonnees
+ANOMALIE: Cas d utilisation orphelin sans acteur -&gt; Payer
+COUVERTURE: 50%
+BILAN: 2 anomalies detectees</pre></div>
+    </div>
+    <p class="lab__note">La base de données interne n'est pas un acteur, et Payer est orphelin.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un acteur ne peut jamais être un composant interne du système informatique (règle OMG fondamentale).</li>
+        <li>Identifier l'ensemble des cas d'utilisation qui ne figurent dans aucun LINK.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Où doivent obligatoirement se situer les acteurs dans un diagramme de cas d’utilisation UML ?</p>
+      <div class="opts">
+        <button class="opt">À l’intérieur de la frontière du système (System Boundary)</button>
+        <button class="opt" data-correct="1">À l’extérieur de la frontière du système</button>
+        <button class="opt">Exclusivement dans le coin supérieur gauche du système</button>
+        <button class="opt">Directement dans l’ellipse des cas d’utilisation</button>
+      </div>
+      <div class="q__exp">Par définition formelle OMG, un acteur représente une entité externe au système informatique. Il doit donc se trouver impérativement en dehors du rectangle délimitant le système.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le sens standard de la flèche tiretée stéréotypée «include» entre deux cas d’utilisation ?</p>
+      <div class="opts">
+        <button class="opt">Du cas inclus vers le cas de base</button>
+        <button class="opt" data-correct="1">Du cas de base vers le cas inclus</button>
+        <button class="opt">Une ligne continue sans aucune flèche</button>
+        <button class="opt">Une double flèche bidirectionnelle</button>
+      </div>
+      <div class="q__exp">La flèche «include» pointe du cas client (le cas de base) vers le cas fournisseur (le sous-cas inclus obligatoire).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le sens standard de la flèche tiretée stéréotypée «extend» entre un cas d’extension et le cas de base ?</p>
+      <div class="opts">
+        <button class="opt">Du cas de base vers le cas d’extension</button>
+        <button class="opt" data-correct="1">Du cas d’extension vers le cas de base</button>
+        <button class="opt">Une ligne pleine avec un losange noir</button>
+        <button class="opt">Un trait tireté reliant les acteurs</button>
+      </div>
+      <div class="q__exp">La flèche «extend» part toujours du cas d’extension (qui enrichit le comportement) et pointe vers le cas de base qu’elle étend sous condition.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un «point d’extension» (Extension Point) dans la spécification UML ?</p>
+      <div class="opts">
+        <button class="opt">Une classe de contrôleur web</button>
+        <button class="opt" data-correct="1">Un emplacement explicite dans le déroulement du cas de base où un comportement étendu peut être inséré</button>
+        <button class="opt">Le bouton graphique sur lequel l’utilisateur clique</button>
+        <button class="opt">Une exception logicielle non interceptée</button>
+      </div>
+      <div class="q__exp">Un point d’extension est un repère formel déclaré dans le cas de base identifiant où et sous quelle condition le scénario étendu vient s’insérer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un système bancaire déclenche automatiquement chaque nuit à 02h00 la clôture des comptes. Qui est l’acteur de ce cas d’utilisation ?</p>
+      <div class="opts">
+        <button class="opt">Le directeur de l’agence</button>
+        <button class="opt">Le client titulaire du compte</button>
+        <button class="opt" data-correct="1">Un acteur temporel externe (Horloge Système / Ordonnanceur batch)</button>
+        <button class="opt">Il n’y a aucun acteur car le système est magique</button>
+      </div>
+      <div class="q__exp">Tout événement externe déclencheur est modélisé par un acteur, y compris les déclencheurs temporels comme l’Horloge Système ou un ordonnanceur de tâches.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si un acteur «Directeur» hérite d’un acteur «Employé», quelles sont ses prérogatives fonctionnelles ?</p>
+      <div class="opts">
+        <button class="opt">Il perd immédiatement tous les droits d’Employé</button>
+        <button class="opt" data-correct="1">Il a accès à tous les cas d’utilisation d’Employé, ainsi qu’aux cas d’utilisation spécifiques à Directeur</button>
+        <button class="opt">Il ne peut accéder qu’aux cas d’utilisation où Employé n’a pas accès</button>
+        <button class="opt">L’héritage entre acteurs est formellement interdit en UML 2.5</button>
+      </div>
+      <div class="q__exp">Par le principe de substitution et de généralisation, l’acteur dérivé hérite de toutes les associations et prérogatives de son parent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle erreur méthodologique commet un concepteur qui décompose «Passer Commande» en «Saisir Adresse», «Saisir Téléphone» et «Valider Panier» via des «include» ?</p>
+      <div class="opts">
+        <button class="opt">Aucune, c’est la norme stricte d’UML</button>
+        <button class="opt" data-correct="1">Une décomposition fonctionnelle abusive (Functional Decomposition), qui transforme un cas d’utilisation en micro-étapes d’IHM</button>
+        <button class="opt">Un dépassement de mémoire vive</button>
+        <button class="opt">Un abus de polymorphisme</button>
+      </div>
+      <div class="q__exp">La décomposition fonctionnelle découpe un processus en étapes algorithmiques au lieu de préserver des unités de valeur métier complètes (niveau Objectif Utilisateur).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’appelle-t-on un «cas d’utilisation orphelin» dans un diagramme de cas d’utilisation ?</p>
+      <div class="opts">
+        <button class="opt">Un cas qui n’utilise pas de base de données</button>
+        <button class="opt" data-correct="1">Un cas d’utilisation qui ne possède aucun lien (direct ou indirect via include/extend) avec un acteur</button>
+        <button class="opt">Un cas dont le nom comporte plus de 3 mots</button>
+        <button class="opt">Un cas qui hérite de plusieurs acteurs à la fois</button>
+      </div>
+      <div class="q__exp">Un cas orphelin est isolé du reste du système : aucun acteur ne peut l’initier ou en bénéficier, ce qui constitue une anomalie de modélisation.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Dessiner un acteur à l’intérieur du rectangle de la frontière du système : un acteur est TOUJOURS externe.</li>
+      <li>Inverser le sens de la flèche &laquo;extend&raquo; : la flèche part toujours du cas d’extension pour pointer vers le cas de base.</li>
+      <li>Utiliser &laquo;include&raquo; pour décomposer un cas en pseudo-étapes algorithmiques (ex: Saisir nom &rarr; include &rarr; Saisir prénom) : c’est du functional decomposition proscrit.</li>
+      <li>Confondre acteur et rôle : une même personne physique peut endosser successivement plusieurs rôles (acteurs) différents.</li>
+      <li>Laisser un cas orphelin dans le diagramme sans aucun lien direct ou indirect vers un acteur.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode d’Élaboration Rigoureuse d’un Diagramme Use Case</div>
+    <ol>
+      <li>Étape 1 — Identifier les acteurs externes : Recenser tous les profils humains et systèmes informatiques tiers interagissant avec l’application.</li>
+      <li>Étape 2 — Poser la frontière du système : Tracer le rectangle de délimitation et exclure formellement les acteurs à l’extérieur.</li>
+      <li>Étape 3 — Rédiger les cas nominaux : Définir les cas au niveau « Objectif Utilisateur » avec un verbe d’action à l’infinitif.</li>
+      <li>Étape 4 — Relier acteurs et cas : Tracer les associations directes entre acteurs primaires et leurs objectifs respectifs.</li>
+      <li>Étape 5 — Factoriser par &laquo;include&raquo; : Extraire les étapes obligatoires communes répétées dans plusieurs cas.</li>
+      <li>Étape 6 — Isoler les variantes par &laquo;extend&raquo; : Définir les fonctionnalités optionnelles ou exceptions conditionnelles avec leurs points d’extension.</li>
+      <li>Étape 7 — Contrôler la cohérence globale : Vérifier qu’aucun cas orphelin ne subsiste et que le sens des flèches tiretées est scrupuleusement respecté.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le diagramme de cas d’utilisation capture les exigences fonctionnelles sans préjuger de l’implémentation technique.</li>
+      <li>La frontière du système isole le code à développer des acteurs externes (humains, tiers logiciels, chronomètres).</li>
+      <li>La relation &laquo;include&raquo; relie un cas de base vers un sous-cas obligatoire (sens : Base &rarr; Inclus).</li>
+      <li>La relation &laquo;extend&raquo; relie un comportement optionnel vers le cas de base au niveau d’un point d’extension (sens : Extension &rarr; Base).</li>
+      <li>La généralisation d’acteurs permet d’hériter des habilitations et droits d’accès fonctionnels.</li>
+      <li>Chaque cas d’utilisation doit impérativement avoir un lien direct ou indirect vers au moins un acteur du système.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais placer la frontière du système et interdire tout acteur à l’intérieur du rectangle.</li>
+      <li>Je distingue un acteur primaire d’un acteur secondaire.</li>
+      <li>Je connais le sens exact de la flèche tiretée pour &laquo;include&raquo; (du cas appelant vers le cas inclus).</li>
+      <li>Je connais le sens exact de la flèche tiretée pour &laquo;extend&raquo; (du cas optionnel vers le cas étendu).</li>
+      <li>Je sais identifier un point d’extension (Extension Point) dans un cas de base.</li>
+      <li>Je vérifie l’absence de tout cas d’utilisation orphelin dans mon diagramme.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Frontière du système (System Boundary)</li><li>Acteurs primaires et secondaires</li><li>Granularité des cas d’utilisation</li><li>Relation d’inclusion &laquo;include&raquo;</li><li>Relation d’extension &laquo;extend&raquo;</li><li>Points d’extension (Extension Points)</li><li>Généralisation et héritage d’acteurs</li><li>Détection des cas d’utilisation orphelins</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez la distinction include/extend, le rôle des acteurs et le concept de frontière système.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bonnes bases. Portez une attention particulière au sens des flèches tiretées et aux points d’extension.</div>
+      <div class="bandrow bandrow--good">7/8 : Excellente maîtrise de l’ingénierie des exigences et des cas d’utilisation UML.</div>
+      <div class="bandrow bandrow--top">8/8 : Parfait ! Vous êtes capable de spécifier sans faille des architectures fonctionnelles complexes.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Diagramme de Classes, Visibilités, Multiplicités &amp; Relations Fortes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : la spécification officielle OMG UML 2.5.1, le standard OCL 2.4, les ouvrages de référence des trois amigos (Booch, Rumbaugh, Jacobson) et les patrons de conception GoF.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

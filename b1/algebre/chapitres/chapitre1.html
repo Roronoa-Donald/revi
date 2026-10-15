@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapitre 1 — Matrices | Algèbre Linéaire B1</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        :root { --accent: #a855f7; --accent-light: #c084fc; --accent-dark: #9333ea; --accent-glow: rgba(168,85,247,0.25); }
+        .dark { --accent: #c084fc; --accent-light: #d8b4fe; --accent-dark: #a855f7; --accent-glow: rgba(192,132,252,0.25); }
+        .matrix{display:inline-flex;flex-direction:column;border-left:2.5px solid var(--accent);border-right:2.5px solid var(--accent);padding:4px 10px;margin:6px 4px;vertical-align:middle;border-radius:4px}
+        .matrix-row{display:flex;gap:16px;justify-content:center;padding:2px 0;font-family:'JetBrains Mono',monospace;font-size:.95rem}
+        .matrix-label{font-weight:700;color:var(--accent);margin-right:6px;vertical-align:middle}
+        .math-block{background:var(--bg-card,#111827);border:1px solid var(--border,rgba(255,255,255,.06));border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0;text-align:center;font-size:1.05rem;overflow-x:auto}
+        .math-block .matrix{font-size:.88rem}
+        .augmented-sep{border-left:2px dashed var(--accent);padding-left:12px;margin-left:8px}
+        .steps-gauss .step-item{border-left:3px solid var(--accent);margin-bottom:1rem;padding-left:1rem}
+        .steps-gauss .step-item .step-num{background:var(--accent);color:#fff;border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;margin-right:8px}
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Aller au contenu</a>
+<div class="reading-progress" id="reading-progress"></div>
+<nav class="glass-nav"><div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><i class="fas fa-square-root-variable"></i> MatriBot</a>
+    <ul class="nav-links">
+        <li><a href="../index.html">Accueil</a></li><li><a href="formules.html">Formules</a></li>
+        <li><a href="cartes.html">Cartes</a></li><li><a href="simulateur-examen.html">Simulateur</a></li>
+        <li><a href="../exercices/exercices.html">Exercices</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button id="theme-toggle" aria-label="Mode sombre"><i class="fa-solid fa-moon"></i></button>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+</div></nav>
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<div class="mobile-nav-panel" id="mobile-nav">
+    <div class="mobile-nav-header"><span>📐 MatriBot</span><button class="mobile-nav-close" id="mobile-nav-close"><i class="fas fa-times"></i></button></div>
+    <a href="../index.html"><i class="fas fa-home"></i> Accueil</a>
+    <a href="chapitre1.html" class="active"><i class="fas fa-book-open"></i> Ch.1 — Matrices</a>
+    <a href="chapitre2.html"><i class="fas fa-book-open"></i> Ch.2 — Espaces vectoriels</a>
+    <a href="chapitre3.html"><i class="fas fa-book-open"></i> Ch.3 — Applications linéaires</a>
+    <a href="formules.html"><i class="fas fa-scroll"></i> Formules</a>
+    <a href="cartes.html"><i class="fas fa-layer-group"></i> Cartes</a>
+    <a href="simulateur-examen.html"><i class="fas fa-graduation-cap"></i> Simulateur</a>
+    <a href="../exercices/exercices.html"><i class="fas fa-dumbbell"></i> Exercices</a>
+</div>
+
+<section class="hero-section" id="main-content">
+    <div class="hero-badge"><i class="fas fa-table-cells"></i> Chapitre 1</div>
+    <h1>📐 Les <span class="highlight">Matrices</span></h1>
+    <p>Types, opérations, déterminant et inversion — les briques fondamentales de l'algèbre linéaire.</p>
+</section>
+
+<main class="content-wrapper">
+
+<!-- ═══ Objectifs ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-bullseye"></i> Objectifs du chapitre</h2>
+    <div class="info-box">
+        <ul>
+            <li>Connaître les 5 types de matrices (C.D.I.T.S.)</li>
+            <li>Maîtriser les opérations : addition, produit scalaire, produit matriciel</li>
+            <li>Calculer un déterminant 2×2, 3×3 (Sarrus) et par cofacteurs</li>
+            <li>Inverser une matrice par Gauss-Jordan et par la méthode des cofacteurs</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ═══ 1. Introduction ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-question-circle"></i> C'est quoi une matrice ?</h2>
+    <div class="concept-card">
+        <h4>🏫 Analogie du tableur</h4>
+        <p>Imaginez une feuille de calcul Excel : des lignes, des colonnes et des nombres dans chaque case. <strong>C'est exactement ça, une matrice !</strong></p>
+        <p>Formellement, une matrice \(A\) de taille \(n \times p\) est un tableau rectangulaire de \(n\) lignes et \(p\) colonnes :</p>
+        \[A = \begin{pmatrix} a_{11} & a_{12} & \cdots & a_{1p} \\ a_{21} & a_{22} & \cdots & a_{2p} \\ \vdots & \vdots & \ddots & \vdots \\ a_{n1} & a_{n2} & \cdots & a_{np} \end{pmatrix}\]
+        <p>On note \(a_{ij}\) le coefficient situé à la ligne \(i\) et à la colonne \(j\). L'ensemble des matrices \(n \times p\) à coefficients réels se note \(\mathcal{M}_{n,p}(\mathbb{R})\).</p>
+    </div>
+</section>
+
+<!-- ═══ 2. Types ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-shapes"></i> Types de matrices — Mnémonique C.D.I.T.S.</h2>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 Mnémonique C.D.I.T.S. — « Cinq Danseurs Italiens Très Souples »</h4>
+        <p><strong>C</strong>arrée · <strong>D</strong>iagonale · <strong>I</strong>dentité · <strong>T</strong>riangulaire · <strong>S</strong>ymétrique</p>
+    </div>
+    <div class="styled-table-container"><table class="styled-table">
+        <thead><tr><th>Type</th><th>Définition</th><th>Exemple</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Carrée</strong></td><td>\(n = p\) (autant de lignes que de colonnes)</td><td>\(\begin{pmatrix}1&2\\3&4\end{pmatrix}\) — matrice 2×2</td></tr>
+            <tr><td><strong>Diagonale</strong></td><td>Carrée, \(a_{ij}=0\) si \(i \neq j\)</td><td>\(\begin{pmatrix}5&0\\0&3\end{pmatrix}\)</td></tr>
+            <tr><td><strong>Identité</strong> \(I_n\)</td><td>Diagonale avec des 1 sur la diagonale</td><td>\(I_2 = \begin{pmatrix}1&0\\0&1\end{pmatrix}\)</td></tr>
+            <tr><td><strong>Triangulaire</strong></td><td>Sup : \(a_{ij}=0\) si \(i>j\) / Inf : \(a_{ij}=0\) si \(i&lt;j\)</td><td>\(\begin{pmatrix}1&2\\0&3\end{pmatrix}\) (sup.)</td></tr>
+            <tr><td><strong>Symétrique</strong></td><td>\(^{t}\!A = A\) (transposée = elle-même)</td><td>\(\begin{pmatrix}1&2\\2&4\end{pmatrix}\)</td></tr>
+        </tbody>
+    </table></div>
+    <div class="tip-box"><strong>💡 Astuce :</strong> La matrice <strong>nulle</strong> \(O\) (tous les coefficients = 0) est l'élément neutre de l'addition matricielle : \(A + O = A\).</div>
+</section>
+
+<!-- ═══ 3. Opérations ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-calculator"></i> Opérations sur les matrices</h2>
+
+    <h3>Addition</h3>
+    <div class="concept-card">
+        <p>Deux matrices de <strong>même taille</strong> : on additionne coefficient par coefficient.</p>
+        \[\begin{pmatrix}1&2\\3&4\end{pmatrix} + \begin{pmatrix}5&6\\7&8\end{pmatrix} = \begin{pmatrix}6&8\\10&12\end{pmatrix}\]
+    </div>
+
+    <h3>Multiplication par un scalaire</h3>
+    <div class="concept-card">
+        <p>On multiplie <strong>chaque coefficient</strong> par le scalaire \(\lambda\).</p>
+        \[3 \times \begin{pmatrix}1&2\\0&4\end{pmatrix} = \begin{pmatrix}3&6\\0&12\end{pmatrix}\]
+    </div>
+
+    <h3>Produit matriciel</h3>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 Mnémonique L.C. — « Lignes × Colonnes »</h4>
+        <p>Chaque coefficient du résultat = ligne de \(A\) × colonne de \(B\). <strong>Condition :</strong> colonnes de \(A\) = lignes de \(B\).</p>
+        <p>Si \(A\) est \(n \times \color{red}{m}\) et \(B\) est \(\color{red}{m} \times p\), alors \(AB\) est \(n \times p\).</p>
+    </div>
+    <div class="math-block">
+        \[\begin{pmatrix}1&2\\3&4\end{pmatrix} \times \begin{pmatrix}5&6\\7&8\end{pmatrix} = \begin{pmatrix}1{\cdot}5+2{\cdot}7 & 1{\cdot}6+2{\cdot}8 \\ 3{\cdot}5+4{\cdot}7 & 3{\cdot}6+4{\cdot}8\end{pmatrix} = \begin{pmatrix}19&22\\43&50\end{pmatrix}\]
+    </div>
+    <div class="warning-box"><strong>⚠️ Attention :</strong> \(AB \neq BA\) en général ! La multiplication matricielle <strong>n'est pas commutative</strong>.</div>
+
+    <!-- ─── Exercice guidé : produit 2×3 × 3×2 ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Produit de matrices de tailles différentes (2×3 × 3×2)</h4>
+        <p><strong>Énoncé :</strong> Calculer \(C = A \times B\) avec :</p>
+        \[A = \begin{pmatrix}1&2&3\\4&5&6\end{pmatrix}_{2 \times 3} \qquad B = \begin{pmatrix}7&8\\9&10\\11&12\end{pmatrix}_{3 \times 2}\]
+
+        <p><strong>Étape 1 — Vérifier la compatibilité :</strong></p>
+        <p>\(A\) est \(2 \times \color{red}{3}\) et \(B\) est \(\color{red}{3} \times 2\) → les dimensions internes correspondent (\(3 = 3\)). Le résultat \(C\) sera \(2 \times 2\). ✓</p>
+
+        <p><strong>Étape 2 — Calculer chaque coefficient « Ligne × Colonne » :</strong></p>
+        <div class="math-block">
+            \[c_{11} = \underbrace{1 \times 7}_{=7} + \underbrace{2 \times 9}_{=18} + \underbrace{3 \times 11}_{=33} = \boxed{58}\]
+        </div>
+        <div class="math-block">
+            \[c_{12} = 1 \times 8 + 2 \times 10 + 3 \times 12 = 8 + 20 + 36 = \boxed{64}\]
+        </div>
+        <div class="math-block">
+            \[c_{21} = 4 \times 7 + 5 \times 9 + 6 \times 11 = 28 + 45 + 66 = \boxed{139}\]
+        </div>
+        <div class="math-block">
+            \[c_{22} = 4 \times 8 + 5 \times 10 + 6 \times 12 = 32 + 50 + 72 = \boxed{154}\]
+        </div>
+
+        <p><strong>Résultat :</strong></p>
+        \[C = A \times B = \begin{pmatrix}58&64\\139&154\end{pmatrix}\]
+        <div class="tip-box"><strong>💡 Remarque :</strong> \(B \times A\) donnerait une matrice \(3 \times 3\) totalement différente ! Ceci illustre que \(AB \neq BA\), et même que les <strong>dimensions du résultat</strong> peuvent changer.</div>
+    </div>
+
+    <!-- ─── Exercice guidé : produit 3×3 × 3×1 ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Produit matrice × vecteur (3×3 × 3×1)</h4>
+        <p><strong>Énoncé :</strong> Calculer \(A \cdot \vec{x}\) avec :</p>
+        \[A = \begin{pmatrix}2&0&-1\\1&3&2\\-1&1&4\end{pmatrix} \qquad \vec{x} = \begin{pmatrix}3\\-1\\2\end{pmatrix}\]
+
+        <p><strong>Calcul ligne par ligne :</strong></p>
+        <div class="math-block">
+            \[\text{Ligne 1 :}\quad 2(3) + 0(-1) + (-1)(2) = 6 + 0 - 2 = \boxed{4}\]
+            \[\text{Ligne 2 :}\quad 1(3) + 3(-1) + 2(2) = 3 - 3 + 4 = \boxed{4}\]
+            \[\text{Ligne 3 :}\quad (-1)(3) + 1(-1) + 4(2) = -3 - 1 + 8 = \boxed{4}\]
+        </div>
+        <p><strong>Résultat :</strong> \(A\vec{x} = \begin{pmatrix}4\\4\\4\end{pmatrix}\). Ce produit est fondamental pour résoudre les systèmes \(A\vec{x} = \vec{b}\).</p>
+    </div>
+</section>
+
+<!-- ═══ 4. Transposée ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-retweet"></i> La transposée</h2>
+    <div class="concept-card">
+        <p>La <strong>transposée</strong> \(^{t}\!A\) s'obtient en échangeant lignes et colonnes : \((^{t}\!A)_{ij} = a_{ji}\).</p>
+        \[A = \begin{pmatrix}1&2&3\\4&5&6\end{pmatrix} \quad \Longrightarrow \quad ^{t}\!A = \begin{pmatrix}1&4\\2&5\\3&6\end{pmatrix}\]
+    </div>
+    <div class="info-box"><strong>ℹ️ Propriétés clés :</strong>
+        <ul>
+            <li>\(^{t}(A+B) = {^{t}\!A} + {^{t}\!B}\)</li>
+            <li>\(^{t}(\lambda A) = \lambda\, {^{t}\!A}\)</li>
+            <li>\(^{t}(AB) = {^{t}\!B} \cdot {^{t}\!A}\) — <strong>l'ordre s'inverse !</strong></li>
+            <li>\(^{t}({^{t}\!A}) = A\)</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ═══ 5. Déterminant ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-hashtag"></i> Le déterminant</h2>
+    <div class="tip-box"><strong>💡 Pourquoi le déterminant ?</strong> C'est <em>le</em> nombre qui dit si une matrice est inversible. \(\det(A) = 0 \Rightarrow\) non inversible. \(\det(A) \neq 0 \Rightarrow\) inversible.</div>
+
+    <h3>Déterminant 2×2</h3>
+    <div class="concept-card">
+        <p>Pour \(A = \begin{pmatrix}a&b\\c&d\end{pmatrix}\) :</p>
+        \[\boxed{\det(A) = ad - bc}\]
+        <p><strong>Exemple :</strong> \(\det\begin{pmatrix}3&1\\2&5\end{pmatrix} = 3 \times 5 - 1 \times 2 = 13\)</p>
+    </div>
+
+    <h3>Déterminant 3×3 — Règle de Sarrus</h3>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 Mnémonique Sarrus — « Diagonales ↘ moins Diagonales ↗ »</h4>
+        <p>On recopie les 2 premières colonnes à droite, puis :</p>
+        <ul>
+            <li><strong>↘ Diagonales descendantes</strong> → on <strong>additionne</strong> les 3 produits</li>
+            <li><strong>↗ Diagonales montantes</strong> → on <strong>soustrait</strong> les 3 produits</li>
+        </ul>
+    </div>
+    <p>Pour \(A = \begin{pmatrix}a&b&c\\d&e&f\\g&h&i\end{pmatrix}\) :</p>
+    <div class="math-block">
+        \[\det(A) = aei + bfg + cdh - ceg - bdi - afh\]
+    </div>
+    <p><strong>Exemple :</strong></p>
+    <div class="math-block">
+        \[\det\begin{pmatrix}1&2&3\\4&5&6\\7&8&0\end{pmatrix} = (0+84+96)-(105+0+48) = 180-153 = 27\]
+    </div>
+
+    <h3>Développement par cofacteurs</h3>
+    <div class="concept-card">
+        <p>Le cofacteur de \(a_{ij}\) est \(C_{ij} = (-1)^{i+j} M_{ij}\) où \(M_{ij}\) est le <strong>mineur</strong> (déterminant de la sous-matrice sans la ligne \(i\) et la colonne \(j\)).</p>
+        <p>Le <strong>damier des signes</strong> :</p>
+        \[\begin{pmatrix}+&-&+\\-&+&-\\+&-&+\end{pmatrix}\]
+        <p>Développement selon la ligne \(i\) : \(\det(A) = \sum_{j} a_{ij} \cdot C_{ij}\)</p>
+    </div>
+    <div class="tip-box"><strong>💡 Conseil examen :</strong> Choisissez la ligne ou colonne avec le <strong>plus de zéros</strong> pour simplifier !</div>
+
+    <!-- ─── Exercice guidé : Déterminant 3×3 par Sarrus ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Déterminant 3×3 par Sarrus, pas à pas</h4>
+        <p><strong>Énoncé :</strong> Calculer le déterminant de \(A = \begin{pmatrix}2&1&3\\0&-1&2\\1&4&-1\end{pmatrix}\)</p>
+
+        <p><strong>Étape 1 — Recopier les 2 premières colonnes à droite :</strong></p>
+        <div class="math-block">
+            \[\begin{array}{ccc|cc} 2 & 1 & 3 & 2 & 1 \\ 0 & -1 & 2 & 0 & -1 \\ 1 & 4 & -1 & 1 & 4 \end{array}\]
+        </div>
+
+        <p><strong>Étape 2 — Diagonales descendantes ↘ (on additionne) :</strong></p>
+        <div class="math-block">
+            \[\underbrace{2 \times (-1) \times (-1)}_{= 2} + \underbrace{1 \times 2 \times 1}_{= 2} + \underbrace{3 \times 0 \times 4}_{= 0} = \boxed{4}\]
+        </div>
+
+        <p><strong>Étape 3 — Diagonales montantes ↗ (on soustrait) :</strong></p>
+        <div class="math-block">
+            \[\underbrace{3 \times (-1) \times 1}_{= -3} + \underbrace{1 \times 0 \times (-1)}_{= 0} + \underbrace{2 \times 2 \times 4}_{= 16} = \boxed{13}\]
+        </div>
+
+        <p><strong>Étape 4 — Résultat :</strong></p>
+        \[\det(A) = 4 - 13 = \boxed{-9}\]
+    </div>
+
+    <!-- ─── Exercice guidé : Déterminant 3×3 par cofacteurs ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Même matrice par les cofacteurs</h4>
+        <p><strong>Énoncé :</strong> Retrouver \(\det(A) = -9\) par développement selon la <strong>1ère ligne</strong>.</p>
+        <p>\(A = \begin{pmatrix}2&1&3\\0&-1&2\\1&4&-1\end{pmatrix}\)</p>
+
+        <p><strong>Étape 1 — Identifier les signes (damier) :</strong> 1ère ligne → \(+, -, +\)</p>
+
+        <p><strong>Étape 2 — Calculer les 3 mineurs :</strong></p>
+        <div class="math-block">
+            \[M_{11} = \det\begin{pmatrix}-1&2\\4&-1\end{pmatrix} = (-1)(-1) - (2)(4) = 1 - 8 = -7\]
+        </div>
+        <div class="math-block">
+            \[M_{12} = \det\begin{pmatrix}0&2\\1&-1\end{pmatrix} = (0)(-1) - (2)(1) = 0 - 2 = -2\]
+        </div>
+        <div class="math-block">
+            \[M_{13} = \det\begin{pmatrix}0&-1\\1&4\end{pmatrix} = (0)(4) - (-1)(1) = 0 + 1 = 1\]
+        </div>
+
+        <p><strong>Étape 3 — Appliquer la formule :</strong></p>
+        <div class="math-block">
+            \[\det(A) = \underbrace{(+2)(-7)}_{= -14}\ \underbrace{- (1)(-2)}_{= +2}\ \underbrace{+ (3)(1)}_{= +3} = -14 + 2 + 3 = \boxed{-9}\]
+        </div>
+        <div class="tip-box"><strong>💡 Vérification :</strong> On retrouve bien \(-9\) par les deux méthodes (Sarrus et cofacteurs). En examen, choisissez la plus rapide !</div>
+    </div>
+
+    <!-- ─── Exercice guidé : Déterminant 4×4 par cofacteurs ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Déterminant 4×4 par cofacteurs</h4>
+        <p><strong>Énoncé :</strong> Calculer \(\det(B)\) pour :</p>
+        \[B = \begin{pmatrix}1&0&2&0\\3&1&0&-1\\0&0&1&2\\2&0&0&3\end{pmatrix}\]
+
+        <p><strong>Étape 1 — Choisir la meilleure ligne/colonne (celle avec le plus de zéros) :</strong></p>
+        <p>La <strong>2ème colonne</strong> a trois zéros ! Développons selon la colonne 2.</p>
+
+        <p><strong>Étape 2 — Seul le coefficient non nul contribue :</strong></p>
+        <p>Colonne 2 : \(a_{12}=0, \; a_{22}=1, \; a_{32}=0, \; a_{42}=0\). Seul \(a_{22} = 1\) survit.</p>
+        <div class="math-block">
+            \[\det(B) = (-1)^{2+2} \cdot 1 \cdot \det\begin{pmatrix}1&2&0\\0&1&2\\2&0&3\end{pmatrix}\]
+        </div>
+
+        <p><strong>Étape 3 — Déterminer le mineur 3×3 par Sarrus :</strong></p>
+        <div class="math-block">
+            \[\det = (1)(1)(3) + (2)(2)(2) + (0)(0)(0) - (0)(1)(2) - (2)(0)(3) - (1)(2)(0)\]
+            \[= 3 + 8 + 0 - 0 - 0 - 0 = 11\]
+        </div>
+
+        <p><strong>Résultat :</strong> \(\det(B) = 1 \times 11 = \boxed{11}\)</p>
+        <div class="tip-box"><strong>💡 Astuce :</strong> Grâce au choix de la colonne avec 3 zéros, on n'a calculé qu'<strong>un seul</strong> mineur 3×3 au lieu de quatre !</div>
+    </div>
+</section>
+
+<!-- ═══ 6. Inversion ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-undo"></i> Inversion d'une matrice</h2>
+    <div class="info-box"><strong>ℹ️ Condition :</strong> \(A\) est inversible ⟺ \(\det(A) \neq 0\). On a alors \(A \cdot A^{-1} = A^{-1} \cdot A = I\).</div>
+
+    <h3>Méthode 1 — Gauss-Jordan</h3>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 Mnémonique : « [A|I] → [I|A⁻¹] »</h4>
+        <p>On place \(A\) à gauche et \(I\) à droite dans une matrice augmentée, puis on effectue des opérations élémentaires sur les lignes jusqu'à obtenir \(I\) à gauche. Le bloc droit donne \(A^{-1}\).</p>
+    </div>
+    <p><strong>Exemple :</strong> Inverser \(A = \begin{pmatrix}2&1\\5&3\end{pmatrix}\)</p>
+    <div class="steps-gauss">
+        <div class="step-item"><span class="step-num">1</span> Former \([A|I]\) : \(\left(\begin{array}{cc|cc}2&1&1&0\\5&3&0&1\end{array}\right)\)</div>
+        <div class="step-item"><span class="step-num">2</span> \(L_1 \leftarrow \tfrac{1}{2}L_1\) : \(\left(\begin{array}{cc|cc}1&\frac{1}{2}&\frac{1}{2}&0\\5&3&0&1\end{array}\right)\)</div>
+        <div class="step-item"><span class="step-num">3</span> \(L_2 \leftarrow L_2 - 5L_1\) : \(\left(\begin{array}{cc|cc}1&\frac{1}{2}&\frac{1}{2}&0\\0&\frac{1}{2}&-\frac{5}{2}&1\end{array}\right)\)</div>
+        <div class="step-item"><span class="step-num">4</span> \(L_2 \leftarrow 2L_2\) : \(\left(\begin{array}{cc|cc}1&\frac{1}{2}&\frac{1}{2}&0\\0&1&-5&2\end{array}\right)\)</div>
+        <div class="step-item"><span class="step-num">5</span> \(L_1 \leftarrow L_1 - \tfrac{1}{2}L_2\) : \(\left(\begin{array}{cc|cc}1&0&3&-1\\0&1&-5&2\end{array}\right)\)</div>
+    </div>
+    <p>Résultat : \(A^{-1} = \begin{pmatrix}3&-1\\-5&2\end{pmatrix}\). Vérification : \(\det(A) = 6-5 = 1 \neq 0\) ✓</p>
+
+    <!-- ─── Exercice guidé : Gauss-Jordan 3×3 ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Inverse 3×3 par Gauss-Jordan, pas à pas</h4>
+        <p><strong>Énoncé :</strong> Inverser \(A = \begin{pmatrix}1&2&1\\2&5&3\\1&3&3\end{pmatrix}\)</p>
+        <p><strong>Vérification préalable :</strong> \(\det(A) = 1(15-9) - 2(6-3) + 1(6-5) = 6-6+1 = 1 \neq 0\) ✓ inversible !</p>
+
+        <p><strong>Étape 1 — Former la matrice augmentée \([A|I]\) :</strong></p>
+        <div class="math-block">
+            \[\left(\begin{array}{ccc|ccc} 1&2&1 & 1&0&0 \\ 2&5&3 & 0&1&0 \\ 1&3&3 & 0&0&1 \end{array}\right)\]
+        </div>
+
+        <div class="steps-gauss">
+            <div class="step-item"><span class="step-num">2</span> \(L_2 \leftarrow L_2 - 2L_1\) et \(L_3 \leftarrow L_3 - L_1\) :
+                \[\left(\begin{array}{ccc|ccc} 1&2&1 & 1&0&0 \\ 0&1&1 & -2&1&0 \\ 0&1&2 & -1&0&1 \end{array}\right)\]
+            </div>
+            <div class="step-item"><span class="step-num">3</span> \(L_3 \leftarrow L_3 - L_2\) :
+                \[\left(\begin{array}{ccc|ccc} 1&2&1 & 1&0&0 \\ 0&1&1 & -2&1&0 \\ 0&0&1 & 1&-1&1 \end{array}\right)\]
+            </div>
+            <div class="step-item"><span class="step-num">4</span> <strong>Remontée :</strong> \(L_2 \leftarrow L_2 - L_3\) puis \(L_1 \leftarrow L_1 - L_3\) :
+                \[\left(\begin{array}{ccc|ccc} 1&2&0 & 0&1&-1 \\ 0&1&0 & -3&2&-1 \\ 0&0&1 & 1&-1&1 \end{array}\right)\]
+            </div>
+            <div class="step-item"><span class="step-num">5</span> \(L_1 \leftarrow L_1 - 2L_2\) :
+                \[\left(\begin{array}{ccc|ccc} 1&0&0 & 6&-3&1 \\ 0&1&0 & -3&2&-1 \\ 0&0&1 & 1&-1&1 \end{array}\right)\]
+            </div>
+        </div>
+
+        <p><strong>Résultat :</strong></p>
+        \[A^{-1} = \begin{pmatrix}6&-3&1\\-3&2&-1\\1&-1&1\end{pmatrix}\]
+
+        <p><strong>Vérification :</strong> \(A \times A^{-1}\) ligne 1 : \(1(6)+2(-3)+1(1)=1\), \(1(-3)+2(2)+1(-1)=0\), \(1(1)+2(-1)+1(1)=0\) → \((1,0,0)\) ✓</p>
+    </div>
+
+    <h3>Méthode 2 — Cofacteurs</h3>
+    <div class="concept-card">
+        <p>La formule générale :</p>
+        \[\boxed{A^{-1} = \frac{1}{\det(A)} \cdot {^{t}\text{Com}(A)}}\]
+        <p>Où \(\text{Com}(A)\) est la <strong>comatrice</strong> (matrice des cofacteurs \(C_{ij}\)).</p>
+        <p><strong>Étapes :</strong> ① Calculer \(\det(A)\) — ② Calculer chaque mineur \(M_{ij}\) — ③ Appliquer le damier de signes → cofacteurs — ④ Transposer la comatrice — ⑤ Diviser par \(\det(A)\)</p>
+    </div>
+
+    <h3>Formule express 2×2</h3>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>🧠 « Permute la diag, change les signes, divise par det »</h4>
+        \[\begin{pmatrix}a&b\\c&d\end{pmatrix}^{-1} = \frac{1}{ad-bc}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}\]
+    </div>
+
+    <!-- ─── Exercice guidé : Inverse 3×3 par cofacteurs ─── -->
+    <div class="example-box">
+        <h4>✏️ Exercice guidé — Inverse 3×3 par la méthode des cofacteurs, pas à pas</h4>
+        <p><strong>Énoncé :</strong> Inverser \(A = \begin{pmatrix}2&1&3\\0&-1&2\\1&4&-1\end{pmatrix}\) par la formule \(A^{-1} = \dfrac{1}{\det(A)} \cdot {^{t}\text{Com}(A)}\).</p>
+
+        <p><strong>Étape 1 — Calculer \(\det(A)\) :</strong></p>
+        <p>On a déjà trouvé \(\det(A) = -9\) (voir exercice Sarrus ci-dessus). ✓</p>
+
+        <p><strong>Étape 2 — Calculer les 9 mineurs :</strong></p>
+        <div class="styled-table-container"><table class="styled-table">
+            <thead><tr><th>Mineur</th><th>Sous-matrice</th><th>Calcul</th><th>Valeur</th></tr></thead>
+            <tbody>
+                <tr><td>\(M_{11}\)</td><td>\(\begin{pmatrix}-1&2\\4&-1\end{pmatrix}\)</td><td>\(1-8\)</td><td>\(-7\)</td></tr>
+                <tr><td>\(M_{12}\)</td><td>\(\begin{pmatrix}0&2\\1&-1\end{pmatrix}\)</td><td>\(0-2\)</td><td>\(-2\)</td></tr>
+                <tr><td>\(M_{13}\)</td><td>\(\begin{pmatrix}0&-1\\1&4\end{pmatrix}\)</td><td>\(0+1\)</td><td>\(1\)</td></tr>
+                <tr><td>\(M_{21}\)</td><td>\(\begin{pmatrix}1&3\\4&-1\end{pmatrix}\)</td><td>\(-1-12\)</td><td>\(-13\)</td></tr>
+                <tr><td>\(M_{22}\)</td><td>\(\begin{pmatrix}2&3\\1&-1\end{pmatrix}\)</td><td>\(-2-3\)</td><td>\(-5\)</td></tr>
+                <tr><td>\(M_{23}\)</td><td>\(\begin{pmatrix}2&1\\1&4\end{pmatrix}\)</td><td>\(8-1\)</td><td>\(7\)</td></tr>
+                <tr><td>\(M_{31}\)</td><td>\(\begin{pmatrix}1&3\\-1&2\end{pmatrix}\)</td><td>\(2+3\)</td><td>\(5\)</td></tr>
+                <tr><td>\(M_{32}\)</td><td>\(\begin{pmatrix}2&3\\0&2\end{pmatrix}\)</td><td>\(4-0\)</td><td>\(4\)</td></tr>
+                <tr><td>\(M_{33}\)</td><td>\(\begin{pmatrix}2&1\\0&-1\end{pmatrix}\)</td><td>\(-2-0\)</td><td>\(-2\)</td></tr>
+            </tbody>
+        </table></div>
+
+        <p><strong>Étape 3 — Appliquer le damier de signes → Comatrice :</strong></p>
+        \[\text{Damier} = \begin{pmatrix}+&-&+\\-&+&-\\+&-&+\end{pmatrix} \qquad \text{Com}(A) = \begin{pmatrix}-7&2&1\\13&-5&-7\\5&-4&-2\end{pmatrix}\]
+
+        <p><strong>Étape 4 — Transposer la comatrice :</strong></p>
+        \[{^{t}\text{Com}(A)} = \begin{pmatrix}-7&13&5\\2&-5&-4\\1&-7&-2\end{pmatrix}\]
+
+        <p><strong>Étape 5 — Diviser par \(\det(A) = -9\) :</strong></p>
+        \[A^{-1} = \frac{1}{-9}\begin{pmatrix}-7&13&5\\2&-5&-4\\1&-7&-2\end{pmatrix} = \begin{pmatrix}\frac{7}{9}&-\frac{13}{9}&-\frac{5}{9}\\[4pt]-\frac{2}{9}&\frac{5}{9}&\frac{4}{9}\\[4pt]-\frac{1}{9}&\frac{7}{9}&\frac{2}{9}\end{pmatrix}\]
+
+        <p><strong>Vérification rapide (ligne 1 de \(A \times A^{-1}\)) :</strong></p>
+        <div class="math-block">
+            \[2 \cdot \frac{7}{9} + 1 \cdot \left(-\frac{2}{9}\right) + 3 \cdot \left(-\frac{1}{9}\right) = \frac{14-2-3}{9} = \frac{9}{9} = 1 \quad ✓\]
+        </div>
+    </div>
+
+    <h3>Gauss-Jordan vs Cofacteurs</h3>
+    <div class="styled-table-container"><table class="styled-table">
+        <thead><tr><th>Critère</th><th>Gauss-Jordan</th><th>Cofacteurs</th></tr></thead>
+        <tbody>
+            <tr><td>Taille idéale</td><td>Toutes tailles, surtout \(\geq 3\)</td><td>2×2 et 3×3</td></tr>
+            <tr><td>Approche</td><td>Algorithmique (opérations sur lignes)</td><td>Formule directe</td></tr>
+            <tr><td>Risque d'erreur</td><td>Faible si méthodique</td><td>Élevé pour \(n \geq 4\)</td></tr>
+            <tr><td>Conseil examen</td><td>✅ Universel et sûr</td><td>✅ Rapide pour 2×2</td></tr>
+        </tbody>
+    </table></div>
+</section>
+
+<!-- ═══ 7. Propriétés ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-list-check"></i> Propriétés essentielles</h2>
+    <div class="styled-table-container"><table class="styled-table">
+        <thead><tr><th>Propriété</th><th>Formule</th></tr></thead>
+        <tbody>
+            <tr><td>Déterminant du produit</td><td>\(\det(AB) = \det(A) \cdot \det(B)\)</td></tr>
+            <tr><td>Déterminant de l'inverse</td><td>\(\det(A^{-1}) = \dfrac{1}{\det(A)}\)</td></tr>
+            <tr><td>Déterminant de la transposée</td><td>\(\det({^{t}\!A}) = \det(A)\)</td></tr>
+            <tr><td>Scalaire × matrice</td><td>\(\det(\lambda A) = \lambda^n \det(A)\) pour \(A \in \mathcal{M}_n\)</td></tr>
+            <tr><td>Inverse du produit</td><td>\((AB)^{-1} = B^{-1} A^{-1}\)</td></tr>
+        </tbody>
+    </table></div>
+</section>
+
+<!-- ═══ 8. Pièges ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-exclamation-triangle"></i> Pièges classiques à l'examen</h2>
+    <div class="warning-box"><strong>⚠️ Piège n°1 — AB ≠ BA :</strong> La multiplication matricielle n'est <strong>pas commutative</strong>. Toujours respecter l'ordre !</div>
+    <div class="warning-box"><strong>⚠️ Piège n°2 — Tailles compatibles :</strong> Pour calculer \(AB\), les colonnes de \(A\) doivent égaler les lignes de \(B\). Sinon le produit <strong>n'existe pas</strong>.</div>
+    <div class="warning-box"><strong>⚠️ Piège n°3 — det = 0 :</strong> Si \(\det(A) = 0\), la matrice n'est <strong>pas inversible</strong>. Ne divisez pas par 0 !</div>
+    <div class="warning-box"><strong>⚠️ Piège n°4 — Sarrus uniquement 3×3 :</strong> La règle de Sarrus ne fonctionne <strong>que pour les matrices 3×3</strong>. Pour \(n \geq 4\), utilisez les cofacteurs.</div>
+</section>
+
+<!-- ═══ 9. Récapitulatif ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-check-circle"></i> Récapitulatif</h2>
+    <div class="concept-card" style="border-left-color:var(--accent)">
+        <h4>📝 L'essentiel du Chapitre 1</h4>
+        <ul>
+            <li><strong>C.D.I.T.S.</strong> : 5 types (Carrée, Diagonale, Identité, Triangulaire, Symétrique)</li>
+            <li><strong>L.C.</strong> : produit = Lignes × Colonnes, tailles compatibles</li>
+            <li><strong>Transposée</strong> : \(^{t}(AB) = {^{t}\!B} \cdot {^{t}\!A}\) — l'ordre s'inverse</li>
+            <li><strong>Det 2×2</strong> : \(ad - bc\) · <strong>Det 3×3</strong> : Sarrus (↘ − ↗)</li>
+            <li><strong>Inversible</strong> ⟺ \(\det \neq 0\)</li>
+            <li><strong>Gauss-Jordan</strong> : \([A|I] \to [I|A^{-1}]\) — systématique</li>
+            <li><strong>Cofacteurs</strong> : \(A^{-1} = \frac{1}{\det} \cdot {^{t}\text{Com}(A)}\) — rapide pour 2×2</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ═══ 10. Exercices ═══ -->
+<section class="chapter-section reveal-on-scroll">
+    <h2><i class="fas fa-dumbbell"></i> Exercices</h2>
+    <div id="chapter-exercises"></div>
+</section>
+
+<div class="chapter-nav">
+    <a href="../index.html" class="prev-chapter"><i class="fas fa-arrow-left"></i> Accueil</a>
+    <a href="chapitre2.html" class="next-chapter">Espaces vectoriels <i class="fas fa-arrow-right"></i></a>
+</div>
+</main>
+
+<div class="xp-bar-container">
+    <span class="xp-level">Débutant</span>
+    <div class="xp-bar"><div class="xp-bar-fill" style="width:0%"></div></div>
+    <span class="xp-text">0 XP</span>
+</div>
+<script src="../../assets/js/main.js"></script>
+<script src="../../assets/js/gamification.js"></script>
+<script src="../../assets/js/chapter-exercises.js"></script>
+<script src="../../assets/js/download.js"></script>
+<script>
+GameEngine.configure({
+    storageKey:'b1_algebre_progress',
+    badges:[
+        {id:'first_matrix',name:'Première Matrice',icon:'📊',desc:'Découvrir les matrices',xp:10},
+        {id:'gauss_fan',name:'Fan de Gauss',icon:'🔢',desc:'Maîtriser le pivot de Gauss',xp:20},
+        {id:'inverse_ninja',name:'Ninja de l\'Inverse',icon:'🥷',desc:'Inverser une matrice par 2 méthodes',xp:30},
+        {id:'perfectionist',name:'Perfectionniste',icon:'💎',desc:'10 exercices parfaits',xp:40}
+    ],
+    levels:[
+        {min:0,title:'Débutant'},{min:30,title:'Apprenti Matriciel'},{min:80,title:'Calculateur Jr.'},
+        {min:150,title:'Algébriste'},{min:250,title:'Maître des Vecteurs'},{min:400,title:'Guru Linéaire'}
+    ],
+    tips:[
+        "AB ≠ BA — la multiplication matricielle n'est pas commutative !",
+        "Pour une matrice 2×2 : permute la diag, change les signes, divise par det.",
+        "Gauss-Jordan : [A|I] → [I|A⁻¹] — systématique et efficace !",
+        "det = 0 ⟹ matrice non inversible.",
+        "Sarrus : diagonales ↘ (+), diagonales ↗ (−)."
+    ]
+});
+GameEngine.init();
+
+ChapterExercises.init({
+    guided:[
+        {q:"Quelle est la taille du produit d'une matrice (2×3) par une matrice (3×5) ?",hints:["Le résultat a autant de lignes que la 1ère","Et autant de colonnes que la 2ème","(lignes_A × colonnes_B)"],answer:"2×5"},
+        {q:"Que vaut le déterminant de la matrice [[3,1],[2,5]] ?",hints:["Formule 2×2 : ad − bc","3×5 − 1×2","15 − 2"],answer:"13"},
+        {q:"Comment s'appelle la matrice dont tous les coefficients valent 0 ?",hints:["C'est l'élément neutre de l'addition","On la note O","Matrice ..."],answer:"matrice nulle"},
+        {q:"Quelle est la transposée de la matrice ligne (1, 2, 3) ?",hints:["Les lignes deviennent des colonnes","Une ligne 1×3 devient...","Une colonne 3×1"],answer:"colonne (1, 2, 3)"},
+        {q:"Pour Gauss-Jordan, on part de [A|I]. Que doit-on obtenir à gauche ?",hints:["On veut transformer A en...","La matrice identité","I"],answer:"I"}
+    ],
+    quiz:[
+        {type:"mcq",q:"Quelle condition faut-il pour multiplier A (n×m) par B ?",options:["B doit avoir m lignes","B doit avoir n colonnes","B doit être carrée","A et B doivent avoir la même taille"],correct:0},
+        {type:"mcq",q:"AB = BA pour toutes matrices A, B ?",options:["Vrai","Faux","Seulement si A est carrée","Si A = B"],correct:1},
+        {type:"qa",q:"Quelle formule donne det d'une matrice 2×2 [[a,b],[c,d]] ?",answer:["ad-bc","ad − bc","ad - bc"]},
+        {type:"mcq",q:"Si det(A) = 0, que peut-on dire ?",options:["A est inversible","A n'est pas inversible","A est symétrique","A est diagonale"],correct:1},
+        {type:"mcq",q:"ᵗ(AB) = ?",options:["ᵗA·ᵗB","ᵗB·ᵗA","AB","BA"],correct:1},
+        {type:"qa",q:"Quelle est la formule de l'inverse par cofacteurs ?",answer:["(1/det(A)) × ᵗCom(A)","1/det × ᵗCom(A)","(1/det) ᵗCom"]},
+        {type:"mcq",q:"La méthode des cofacteurs est préférable à Gauss-Jordan pour les matrices de grande taille ?",options:["Vrai","Faux"],correct:1},
+        {type:"mcq",q:"Le signe du cofacteur C₂₃ est :",options:["+","−"],correct:1},
+        {type:"qa",q:"Que signifie 'matrice échelonnée réduite' ?",answer:["pivots = 1 et seuls non nuls de leur colonne","pivots valent 1","chaque pivot est 1 et unique dans sa colonne"]},
+        {type:"mcq",q:"Quel est le déterminant de I₃ ?",options:["0","1","3","Indéfini"],correct:1}
+    ],
+    dragdrop:[
+        {instruction:"Associe chaque type de matrice à sa propriété :",pairs:[["Identité","Diag = 1, reste = 0"],["Symétrique","ᵗA = A"],["Triangulaire sup.","0 sous la diag."],["Nulle","Tous coeff. = 0"],["Diagonale","Seuls les aᵢᵢ ≠ 0"]]},
+        {instruction:"Associe chaque méthode d'inversion à son principe :",pairs:[["Gauss-Jordan","[A|I] → [I|A⁻¹]"],["Cofacteurs","(1/det)·ᵗCom(A)"],["Formule 2×2","Permute diag, change signes, /det"]]},
+        {instruction:"Remets dans l'ordre les étapes de la méthode des cofacteurs :",pairs:[["Étape 1","Calculer det(A)"],["Étape 2","Calculer les mineurs Mᵢⱼ"],["Étape 3","Appliquer le damier de signes"],["Étape 4","Transposer la comatrice"],["Étape 5","Diviser par det(A)"]]}
+    ]
+});
+</script>
+<script>document.addEventListener("DOMContentLoaded",function(){if(typeof renderMathInElement!=="undefined"){renderMathInElement(document.body,{delimiters:[{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}],throwOnError:false})}});</script>
+</body>
+</html>

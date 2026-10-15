@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Manipulation de fichiers et recherche | Administration Linux B2</title>
+<meta name="description" content="Chapitre 2 du cours d’administration Linux B2 : Copier, déplacer, supprimer, liens symboliques, find par nom/type/taille, grep dans les journaux. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/linux/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Manipulation de fichiers et recherche | Administration Linux B2">
+<meta property="og:description" content="Chapitre 2 du cours d’administration Linux B2 : Copier, déplacer, supprimer, liens symboliques, find par nom/type/taille, grep dans les journaux. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="linuxnav"><div class="linuxnav__in">
+  <a class="linuxnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="linuxnav__sep" aria-hidden="true">/</span>
+  <a class="linuxnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Administration Linux B2</a>
+  <div class="linuxnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="linuxnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="linuxwrap">
+<p class="crumb"><a href="../index.html">Administration Linux B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<h1>Chapitre 2 — Manipulation de fichiers et recherche</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un serveur en production produit des gigaoctets de fichiers et de journaux. L’administrateur doit retrouver un fichier précis, repérer les liens cassés, et extraire d’un journal la seule ligne qui explique la panne.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>copier, déplacer et supprimer sans perdre de données ;</li>
+      <li>distinguer un lien symbolique d’un lien dur ;</li>
+      <li>chercher par nom, type et taille avec find ;</li>
+      <li>filtres un journal avec grep pour y compter les erreurs.</li>
+    </ol>
+  </div>
+
+<h2>1. Copier, déplacer, supprimer proprement</h2>
+
+<p><code>cp</code> et <code>mv</code> acceptent l’option <code>-i</code> (demander confirmation avant d’écraser) et <code>-r</code> (récursif, pour un dossier). Le réflexe d’administration est de prévisualiser une suppression avec <code>ls</code> avant de lancer <code>rm</code>.</p>
+<pre><code>cp -r /etc/nginx /root/nginx.bak   # sauvegarder un dossier
+mv rapport.txt /var/backups/       # déplacer
+rm -i ancien.log                   # demander confirmation
+find /tmp -type f -delete          # supprimer les fichiers (pas les dossiers)</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Sauvegarder avant de modifier</div>
+    <p>La règle d’or : avant de modifier un fichier de configuration, on en fait une copie horodatée. En cas d’erreur, restaurer la copie prend deux secondes ; sans elle, la machine peut être inaccessible.</p>
+  </div>
+
+<h2>2. Liens durs et liens symboliques</h2>
+
+<p>Un <strong>lien dur</strong> (<code>ln source lien</code>) est un second nom pour le <em>même</em> fichier : les deux noms partagent les mêmes données et le même numéro d’inode. Un <strong>lien symbolique</strong> (<code>ln -s source lien</code>) est un simple raccourci : il pointe vers un chemin, et si la cible disparaît, le lien devient cassé.</p>
+<pre><code>ln fichier second_nom       # lien dur : même contenu, même inode
+ln -s /etc/hosts raccourci  # lien symbolique : un raccourci vers un chemin
+ls -l raccourci             # l -&gt; indique la cible du lien symbolique</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — le lien dur ne traverse pas les systèmes de fichiers</div>
+    <p>Un lien dur ne peut pas franchir les frontières d’un système de fichiers ni pointer vers un dossier. Le lien symbolique, lui, accepte tout — y compris une cible absente, ce qui produit un <strong>lien cassé</strong> que <code>find</code> signale.</p>
+  </div>
+
+<h2>3. find : chercher par critère</h2>
+
+<p><code>find</code> parcourt une arborescence et applique des critères. Il se lit <code>find répertoire critères</code> :</p>
+<pre><code>find /tmp -name "fich*"      # par motif de nom
+find /tmp -type f            # fichier (f) ou dossier (d)
+find /var -size +10M         # plus de 10 mégaoctets
+find /etc -user root         # appartenant à root
+find / -perm -4000 -type f   # fichiers setuid (audit de sécurité)</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> find est le couteau suisse</div>
+    <p>On combine les critères sans limite : <code>find /home -type f -name "*.ssh*"</code> retrouve les clés, <code>find /var/log -mtime +7</code> les journaux vieux de plus de sept jours. Le motif de nom doit être entre guillemets, sinon le shell l’interprète avant find.</p>
+  </div>
+
+<h2>4. grep et les journaux</h2>
+
+<p>Les journaux de <code>/var/log</code> sont des fichiers texte : on les filtre avec <code>grep</code>. <code>grep -c</code> compte les lignes, <code>grep -i</code> ignore la casse, <code>grep -v</code> inverse la sélection.</p>
+<pre><code>grep "ERROR" /var/log/syslog      # lignes contenant ERROR
+grep -c "ERROR" /var/log/syslog   # combien de lignes
+grep -i "failed" /var/log/auth.log
+jourctl -p err -b                 # même idée avec journalctl (systemd)</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Lire un journal en trois temps</div>
+    <p>1) repérer le fichier concerné (<code>/var/log/syslog</code>, <code>auth.log</code>) ; 2) <strong>filtrer</strong> par niveau (<code>ERROR</code>) ; 3) <strong>compter</strong> avec <code>grep -c</code> pour décider si l’incident est isolé ou répété.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="lx2-c2-e1"
+     data-language="shell"
+     data-height="300"
+     data-stdin="2&#10;cp a.txt b.txt&#10;mv b.txt c.txt&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+c=0
+m=0
+for ((i=0; i<n; i++)); do
+  read -r op src dst
+  # À compléter : afficher l’opération et incrémenter le bon compteur.
+done
+# À compléter : le bilan des deux compteurs.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Copier ou déplacer</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Consigner les opérations de fichiers et en dresser le bilan.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « op source cible » où <code>op</code> vaut <code>cp</code> ou <code>mv</code>. Il affiche pour chaque ligne <code>copie source vers cible</code> (pour <code>cp</code>) ou <code>deplacement source vers cible</code> (pour <code>mv</code>). Il termine par <code>copies : C</code> puis <code>deplacements : D</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+cp a.txt b.txt
+mv b.txt c.txt
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>copie a.txt vers b.txt
+deplacement b.txt vers c.txt
+copies : 1
+deplacements : 1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un case sur op : cp pour une copie, mv pour un déplacement.</li>
+        <li>Les deux compteurs s’affichent dans l’ordre copies puis deplacements.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx2-c2-e2"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;install.sh&#10;notes.txt&#10;backup.sh&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+s=0
+for ((i=0; i<n; i++)); do
+  read -r fichier
+  # À compléter : ne garder que les fichiers finissant par .sh.
+done
+# À compléter : le total des scripts.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Rechercher par extension</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Filtrer une liste de fichiers et ne garder que les scripts shell.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong>, chacune un nom de fichier. Il n’affiche que ceux qui se terminent par <code>.sh</code>, dans leur ordre d’apparition, puis termine par <code>scripts : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+install.sh
+notes.txt
+backup.sh
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>install.sh
+backup.sh
+scripts : 2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le motif `*.sh` correspond à tout nom se terminant par .sh.</li>
+        <li>Si aucun fichier ne correspond, seul le bilan s’affiche, avec 0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="lx2-c2-e3"
+     data-language="shell"
+     data-height="300"
+     data-stdin="3&#10;INFO demarrage&#10;ERROR disque plein&#10;WARN memoire faible&#10;">
+  <script type="text/plain" data-lab-starter>read -r n
+e=0
+for ((i=0; i<n; i++)); do
+  read -r niveau message
+  # À compléter : comparer le niveau à ERROR et compter.
+done
+# À compléter : le total des erreurs.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Compter les erreurs d’un journal</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Parcourir un journal ligne par ligne et compter les entrées critiques.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « niveau message » où <code>niveau</code> vaut <code>INFO</code>, <code>WARN</code> ou <code>ERROR</code>. Il compte les lignes de niveau <code>ERROR</code> et affiche à la fin <code>erreurs : X</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+INFO demarrage
+ERROR disque plein
+WARN memoire faible
+</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>erreurs : 1</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>`read -r niveau message` laisse le reste de la ligne dans message.</li>
+        <li>La comparaison se fait sur le niveau seul, avec [ "$niveau" = "ERROR" ].</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle option de cp copie un dossier entier ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">-r</button>
+        <button class="opt">-l</button>
+        <button class="opt">-a</button>
+      </div>
+      <div class="q__exp">-r rend la copie récursive : dossier, sous-dossiers et fichiers.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un lien dur partage…</p>
+      <div class="opts">
+        <button class="opt">le même chemin</button>
+        <button class="opt" data-correct="1">le même inode et les mêmes données</button>
+        <button class="opt">le même propriétaire seulement</button>
+      </div>
+      <div class="q__exp">Le lien dur est un second nom pour le même fichier (même inode).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que crée ln -s source lien ?</p>
+      <div class="opts">
+        <button class="opt">un lien dur</button>
+        <button class="opt" data-correct="1">un lien symbolique</button>
+        <button class="opt">une copie</button>
+      </div>
+      <div class="q__exp">-s crée un lien symbolique, un simple raccourci de chemin.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un lien symbolique vers une cible supprimée devient…</p>
+      <div class="opts">
+        <button class="opt">un lien dur</button>
+        <button class="opt" data-correct="1">un lien cassé</button>
+        <button class="opt">inoffensif</button>
+      </div>
+      <div class="q__exp">Le symbole pointe vers un chemin absent : le lien est cassé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">find /var -size +10M cherche…</p>
+      <div class="opts">
+        <button class="opt">les fichiers de moins de 10 Mo</button>
+        <button class="opt" data-correct="1">les fichiers de plus de 10 Mo</button>
+        <button class="opt">les dossiers de 10 fichiers</button>
+      </div>
+      <div class="q__exp">Le signe + signifie « supérieur à » ; -10M serait « inférieur ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">grep -c compte…</p>
+      <div class="opts">
+        <button class="opt">les mots</button>
+        <button class="opt" data-correct="1">les lignes correspondantes</button>
+        <button class="opt">les fichiers</button>
+      </div>
+      <div class="q__exp">-c affiche le nombre de lignes qui correspondent au motif.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Où lire les traces d’une connexion en échec ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">/var/log/auth.log</button>
+        <button class="opt">/etc/passwd</button>
+        <button class="opt">/tmp</button>
+      </div>
+      <div class="q__exp">Les authentifications et échecs de connexion sont journalisés dans auth.log.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi entourer le motif de find de guillemets ?</p>
+      <div class="opts">
+        <button class="opt">pour la couleur</button>
+        <button class="opt" data-correct="1">pour empêcher le shell de l’interpréter</button>
+        <button class="opt">c’est obligatoire</button>
+      </div>
+      <div class="q__exp">Sans guillemets, le shell développe le motif (fich*) avant de lancer find.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre lien dur (même inode) et lien symbolique (raccourci de chemin).</li>
+      <li>Oublier <code>-r</code> et croire qu’un dossier a été copié alors que cp a échoué.</li>
+      <li>Négliger les motifs de <code>find</code> sans guillemets, développés par le shell.</li>
+      <li>Chercher un mot sans <code>-i</code> et manquer les lignes en casse mixte.</li>
+      <li>Modifier un fichier de configuration sans en avoir fait une copie de sauvegarde.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Retrouver une information dans un parc</div>
+    <ol>
+      <li><strong>Préciser la cible</strong> : nom exact, motif, extension ou taille ?</li>
+      <li><strong>Choisir l’outil</strong> : <code>find</code> pour les fichiers, <code>grep</code> pour les contenus.</li>
+      <li><strong>Restreindre la portée</strong> : partir d’un répertoire précis plutôt que de la racine.</li>
+      <li><strong>Vérifier le motif</strong> : guillemets autour de <code>"fich*"</code>.</li>
+      <li><strong>Rapporter</strong> : compter avec <code>grep -c</code> ou <code>find | wc -l</code>.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>cp duplique (-r pour un dossier), mv déplace ou renomme, rm supprime définitivement.</li>
+      <li>Lien dur = même inode ; lien symbolique = raccourci de chemin, cassable.</li>
+      <li>find cherche par nom (-name), type (-type), taille (-size), propriétaire (-user).</li>
+      <li>grep filtre les journaux : -c compte, -i ignore la casse, -v inverse.</li>
+      <li>Les journaux vivent dans /var/log ; auth.log trace les connexions.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sauvegarde avant de modifier un fichier de configuration.</li>
+      <li>Je distingue un lien dur d’un lien symbolique.</li>
+      <li>J’écris une commande find avec un motif entre guillemets.</li>
+      <li>Je compte les erreurs d’un journal avec grep -c.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>cp</li><li>mv</li><li>rm</li><li>lien dur</li><li>inode</li><li>lien symbolique</li><li>find</li><li>grep</li><li>journal</li><li>/var/log</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Revois cp/mv/rm et enchaîne trois copies de sauvegarde.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Trace à la main un lien dur et un lien symbolique.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : écris de mémoire quatre critères de find.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 3, droits et comptes.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Droits, permissions, utilisateurs et groupes <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique d’administration Linux (Debian) : terminal, fichiers, droits, réseau, scripts et services.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

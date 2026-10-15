@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 1 — Vecteurs et matrices | Algèbre B1</title>
+<meta name="description" content="Chapitre 1 du cours d’algèbre linéaire B1 : Vecteurs de ℝⁿ, dimensions, matrices particulières, addition et multiplication par un scalaire. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-algebre/chapitres/chapitre1.html">
+<meta property="og:title" content="Chapitre 1 — Vecteurs et matrices | Algèbre B1">
+<meta property="og:description" content="Chapitre 1 du cours d’algèbre linéaire B1 : Vecteurs de ℝⁿ, dimensions, matrices particulières, addition et multiplication par un scalaire. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="1">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="alnav"><div class="alnav__in">
+  <a class="alnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="alnav__sep" aria-hidden="true">/</span>
+  <a class="alnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-i-calculator"></use></svg> Algèbre B1</a>
+  <div class="alnav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html" class="is-active">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="alnav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="alwrap">
+<p class="crumb"><a href="../index.html">Algèbre B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 1</p>
+
+<h1>Chapitre 1 — Vecteurs et matrices</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 1</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Accès libre</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Le service scolarité te remet tes notes : trois contrôles par matière, cinq matières. Sur la feuille, ce ne sont que des nombres alignés. Dès qu’on veut calculer une moyenne pondérée, comparer deux étudiants ou transformer une image, il faut une notation qui décrive ces tableaux de nombres et les opérations qu’on peut leur appliquer. C’est exactement ce que font les vecteurs et les matrices.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>reconnaître un vecteur de ℝⁿ et le lire comme une liste ordonnée de réels ;</li>
+      <li>identifier les dimensions d’une matrice et nommer ses coefficients <code>a<sub>ij</sub></code> ;</li>
+      <li>distinguer les matrices particulières : nulle, identité, diagonale, triangulaire ;</li>
+      <li>additionner deux matrices et multiplier une matrice par un scalaire.</li>
+    </ol>
+  </div>
+
+<h2>1. Vecteurs de ℝⁿ</h2>
+
+<p><strong>Définition.</strong> Soit n un entier naturel non nul. Un <strong>vecteur</strong> de ℝⁿ est une liste ordonnée de n nombres réels :</p>
+<pre><code>u = (u₁, u₂, …, uₙ)      avec u₁, …, uₙ ∈ ℝ</code></pre>
+<p>Les nombres <code>u₁, u₂, …</code> sont les <strong>composantes</strong> (ou coordonnées) de u. L’ordre compte : dans ℝ³, le vecteur <code>(1, 2, 3)</code> n’est pas le vecteur <code>(3, 2, 1)</code>.</p>
+<p>En informatique, un vecteur se range dans un tableau à une dimension. Le passage de la notation mathématique au code est direct :</p>
+<pre><code>u = (2, −1, 4)      # le vecteur
+u = [2, -1, 4]      # le même en Python</code></pre>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Intuition</div>
+    <p>Un vecteur de ℝ² est une flèche dans le plan, un vecteur de ℝ³ une flèche dans l’espace. Au-delà de trois dimensions on ne dessine plus rien, mais les règles de calcul restent identiques : c’est tout l’intérêt de l’algèbre linéaire en informatique.</p>
+  </div>
+<p><strong>Combinaison linéaire.</strong> Soient des vecteurs <code>v₁, …, vₚ</code> de ℝⁿ et des réels <code>a₁, …, aₚ</code>. Le vecteur</p>
+<pre><code>a₁·v₁ + a₂·v₂ + … + aₚ·vₚ</code></pre>
+<p>est une <strong>combinaison linéaire</strong> de <code>v₁, …, vₚ</code>. C’est la seule opération de base de tout le cours : additionner des vecteurs et les multiplier par des nombres.</p>
+
+<h2>2. Matrices : définition et vocabulaire</h2>
+
+<p><strong>Définition.</strong> Une <strong>matrice</strong> à m lignes et n colonnes est un tableau rectangulaire de m × n nombres réels. On la note :</p>
+<pre><code>A = (a<sub>ij</sub>)      i = 1 … m (ligne),   j = 1 … n (colonne)
+
+        ⎛ a₁₁  a₁₂  …  a₁ₙ ⎞
+A  =    ⎜ a₂₁  a₂₂  …  a₂ₙ ⎟
+        ⎝ aₘ₁  aₘ₂  …  aₘₙ ⎠</code></pre>
+<p>Le nombre <code>a<sub>ij</sub></code> est le coefficient situé à la <strong>ligne i</strong> et à la <strong>colonne j</strong>. Le couple <code>(m, n)</code> est la <em>taille</em> ou la <em>dimension</em> de la matrice.</p>
+<p>Attention à l’ordre : on dit toujours « nombre de lignes × nombre de colonnes ». Une matrice <code>2 × 3</code> a 2 lignes et 3 colonnes, donc 6 coefficients — ce n’est pas la même chose qu’une matrice <code>3 × 2</code>.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> En Python : une liste de listes</div>
+    <p>Une matrice se représente naturellement par une liste de lignes, chaque ligne étant elle-même une liste.</p>
+    <pre><code>A = [[1, 2, 3],
+     [4, 5, 6]]     # 2 lignes, 3 colonnes
+
+A[0][2]   # ligne 0, colonne 2  →  3
+len(A)      # nombre de lignes  →  2
+len(A[0])   # nombre de colonnes →  3</code></pre>
+    <p>Les indices commencent à 0 : <code>A[0][0]</code> est le coefficient <code>a₁₁</code>.</p>
+  </div>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « Ligne Avant Colonne »</div>
+    <p>Pour retenir l’ordre d’écriture d’un coefficient : on dit et on écrit toujours « <strong>L</strong>igne <strong>A</strong>vant <strong>C</strong>olonne ». <code>a<sub>ij</sub></code> : i pour la ligne, j pour la colonne, comme dans l’alphabet.</p>
+  </div>
+
+<h2>3. Matrices particulières</h2>
+
+<p>Certaines matrices reviennent sans cesse : les reconnaître fait gagner du temps.</p>
+<table>
+    <tr><th>Nom</th><th>Définition</th><th>Exemple (3 × 3)</th></tr>
+    <tr><td>Matrice nulle</td><td>tous les coefficients sont nuls</td><td>0&nbsp;0&nbsp;0 / 0&nbsp;0&nbsp;0 / 0&nbsp;0&nbsp;0</td></tr>
+    <tr><td>Matrice identité I<sub>n</sub></td><td>1 sur la diagonale, 0 ailleurs</td><td>1&nbsp;0&nbsp;0 / 0&nbsp;1&nbsp;0 / 0&nbsp;0&nbsp;1</td></tr>
+    <tr><td>Matrice diagonale</td><td>nulle hors de la diagonale</td><td>2&nbsp;0&nbsp;0 / 0&nbsp;−1&nbsp;0 / 0&nbsp;0&nbsp;5</td></tr>
+    <tr><td>Matrice triangulaire</td><td>nulle au-dessus ou en dessous de la diagonale</td><td>1&nbsp;2&nbsp;3 / 0&nbsp;4&nbsp;5 / 0&nbsp;0&nbsp;6</td></tr>
+  </table>
+<p>La <strong>diagonale</strong> d’une matrice carrée est la suite des coefficients <code>a₁₁, a₂₂, …, aₙₙ</code>. Leur somme s’appelle la <strong>trace</strong> : <code>tr(A) = a₁₁ + a₂₂ + … + aₙₙ</code>. La trace est calculable uniquement pour une matrice carrée.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — « carrée » n’est pas « symétrique »</div>
+    <p>Une matrice est <strong>carrée</strong> quand elle a autant de lignes que de colonnes. Elle est <strong>symétrique</strong> quand, en plus, elle est invariante par symétrie autour de sa diagonale : <code>a<sub>ij</sub> = a<sub>ji</sub></code> pour tous i, j. Une matrice carrée n’est pas forcément symétrique — pense à <code>[[1, 2], [0, 3]]</code>.</p>
+  </div>
+
+<h2>4. Addition et multiplication par un scalaire</h2>
+
+<p><strong>Addition.</strong> Deux matrices s’additionnent coefficient par coefficient, <em>à condition d’avoir exactement les mêmes dimensions</em> :</p>
+<pre><code>(A + B)<sub>ij</sub> = a<sub>ij</sub> + b<sub>ij</sub>
+
+[1 2]   [3 0]   [4 2]
+[0 4] + [1 1] = [1 5]</code></pre>
+<p><strong>Multiplication par un scalaire.</strong> On multiplie <em>chaque</em> coefficient par le réel, appelé ici un scalaire :</p>
+<pre><code>(k · A)<sub>ij</sub> = k · a<sub>ij</sub>
+
+     [1 2]   [3  6]
+3 ·  [0 4] = [0 12]</code></pre>
+<p>Ces deux opérations donnent à l’ensemble des matrices <code>m × n</code> une structure d’espace vectoriel — la notion du chapitre 4. Retiens dès maintenant leurs propriétés :</p>
+<ul>
+    <li><code>A + B = B + A</code> (commutative) ;</li>
+    <li><code>(A + B) + C = A + (B + C)</code> (associative) ;</li>
+    <li><code>A + 0 = A</code> et <code>A + (−A) = 0</code> ;</li>
+    <li><code>k·(A + B) = k·A + k·B</code> et <code>(k + k′)·A = k·A + k′·A</code>.</li>
+  </ul>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le calcul en Python</div>
+    <pre><code>A = [[1, 2], [0, 4]]
+B = [[3, 0], [1, 1]]
+k = 3
+
+# addition : même dimensions obligatoires
+somme = [[A[i][j] + B[i][j] for j in range(2)] for i in range(2)]
+# → [[4, 2], [1, 5]]
+
+# multiplication par un scalaire
+triple = [[k * A[i][j] for j in range(2)] for i in range(2)]
+# → [[3, 6], [0, 12]]</code></pre>
+    <p>Avant toute addition, vérifie les dimensions : c’est la source d’erreur numéro un.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="al-c1-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="3&#10;1&#10;2&#10;3&#10;4&#10;5&#10;6">
+  <script type="text/plain" data-lab-starter>n = int(input())
+a = [int(input()) for _ in range(n)]
+b = [int(input()) for _ in range(n)]
+
+# À compléter : afficher la somme a + b sur une ligne, composantes séparées par un espace.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Somme de deux vecteurs</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Lire deux vecteurs de même taille et calculer leur somme composante par composante.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis les <code>n</code> composantes du vecteur <code>a</code> (une par ligne), puis les <code>n</code> composantes du vecteur <code>b</code> (une par ligne). Affichez la somme <code>a + b</code> sur une seule ligne, ses composantes séparées par un espace.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1
+2
+3
+4
+5
+6</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>5 7 9</pre></div>
+    </div>
+    <p class="lab__note">1 + 4 = 5, 2 + 5 = 7, 3 + 6 = 9.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’addition de deux vecteurs se fait composante par composante : la i-ième composante du résultat vaut a[i] + b[i].</li>
+        <li>range(n) te donne les indices de 0 à n − 1, exactement ceux des listes Python.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al-c1-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="3&#10;3&#10;1&#10;2&#10;3">
+  <script type="text/plain" data-lab-starter>k = int(input())
+n = int(input())
+v = [int(input()) for _ in range(n)]
+
+# À compléter : afficher k fois le vecteur v.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Multiplication par un scalaire</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Multiplier un vecteur par un réel lu sur l’entrée standard.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>k</code> (le scalaire), puis un entier <code>n</code>, puis les <code>n</code> composantes d’un vecteur <code>v</code> (une par ligne). Affichez le vecteur <code>k · v</code> sur une seule ligne, composantes séparées par un espace.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+3
+1
+2
+3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>3 6 9</pre></div>
+    </div>
+    <p class="lab__note">Chaque composante est multipliée par 3.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Multiplier un vecteur par un scalaire multiplie chacune de ses composantes par ce nombre.</li>
+        <li>Aucune composante n’est oubliée : la boucle doit passer par tous les indices.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="al-c1-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="3&#10;1 2 3&#10;4 5 6&#10;7 8 9">
+  <script type="text/plain" data-lab-starter>n = int(input())
+matrice = [[int(x) for x in input().split()] for _ in range(n)]
+
+# À compléter : afficher la trace, c’est-à-dire la somme des coefficients de la diagonale.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Trace d’une matrice carrée</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une matrice carrée et calculer la somme de ses coefficients diagonaux.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> lignes contenant chacune <code>n</code> entiers séparés par des espaces (la matrice). Affichez la <strong>trace</strong> de la matrice : <code>a₁₁ + a₂₂ + … + aₙₙ</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+1 2 3
+4 5 6
+7 8 9</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>15</pre></div>
+    </div>
+    <p class="lab__note">1 + 5 + 9 = 15.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Les coefficients diagonaux sont matrice[0][0], matrice[1][1], matrice[2][2], … : les deux indices sont égaux.</li>
+        <li>En Python, les indices commencent à 0 : la diagonale, c’est matrice[i][i] pour i allant de 0 à n − 1.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelles sont les dimensions d’une matrice à 3 lignes et 4 colonnes ?</p>
+      <div class="opts">
+        <button class="opt">4 × 3</button>
+        <button class="opt" data-correct="1">3 × 4</button>
+        <button class="opt">12</button>
+      </div>
+      <div class="q__exp">On écrit toujours lignes × colonnes : 3 × 4.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la notation <code>a<sub>ij</sub></code>, que désigne j ?</p>
+      <div class="opts">
+        <button class="opt">La ligne</button>
+        <button class="opt" data-correct="1">La colonne</button>
+        <button class="opt">La valeur</button>
+      </div>
+      <div class="q__exp">i = ligne, j = colonne : « Ligne Avant Colonne ».</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Deux matrices peuvent être additionnées si…</p>
+      <div class="opts">
+        <button class="opt">elles ont la même diagonale</button>
+        <button class="opt" data-correct="1">elles ont les mêmes dimensions</button>
+        <button class="opt">elles sont carrées</button>
+      </div>
+      <div class="q__exp">L’addition est coefficient par coefficient : les dimensions doivent coïncider.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce que la matrice identité I<sub>n</sub> ?</p>
+      <div class="opts">
+        <button class="opt">Des 1 partout</button>
+        <button class="opt" data-correct="1">Des 1 sur la diagonale, des 0 ailleurs</button>
+        <button class="opt">Des 0 sur la diagonale</button>
+      </div>
+      <div class="q__exp">I<sub>n</sub> joue le rôle du 1 pour le produit matriciel.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>tr(A)</code> pour A = [2 1 ; 5 3] ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">5</button>
+        <button class="opt">7</button>
+        <button class="opt">11</button>
+      </div>
+      <div class="q__exp">tr(A) = a₁₁ + a₂₂ = 2 + 3 = 5.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une matrice 2 × 5 contient combien de coefficients ?</p>
+      <div class="opts">
+        <button class="opt">7</button>
+        <button class="opt" data-correct="1">10</button>
+        <button class="opt">25</button>
+      </div>
+      <div class="q__exp">2 × 5 = 10 coefficients.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li><strong>Dimensions inversées</strong> : écrire « 2 × 3 » pour une matrice de 3 lignes et 2 colonnes.</li>
+      <li><strong>Addition impossible</strong> : additionner une <code>2 × 3</code> et une <code>3 × 2</code> parce qu’elles « font 6 » chacune.</li>
+      <li><strong>Scalaire appliqué à une seule case</strong> : oublier des coefficients dans <code>k · A</code>.</li>
+      <li><strong>Trace sur une matrice rectangle</strong> : <code>tr(A)</code> n’existe que si A est carrée.</li>
+      <li><strong>Indice 1 en Python</strong> : écrire <code>A[1][1]</code> en croyant lire <code>a₁₁</code> — c’est en réalité <code>a₂₂</code>.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Lire et manipuler une matrice</div>
+    <ol>
+      <li><strong>Repérer la taille</strong> : compter les lignes, puis les colonnes, et l’écrire <code>m × n</code>.</li>
+      <li><strong>Nommer les coefficients</strong> : <code>a<sub>ij</sub></code> pour la ligne i, la colonne j.</li>
+      <li><strong>Vérifier les dimensions</strong> avant toute opération entre deux matrices.</li>
+      <li><strong>Calculer</strong> coefficient par coefficient, ligne par ligne, pour ne rien oublier.</li>
+      <li><strong>Contrôler</strong> un cas simple : une matrice 2 × 2 à la main avant de faire confiance au programme.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Un vecteur de ℝⁿ est une liste ordonnée de n réels ; un vecteur de ℝ² est un point ou une flèche du plan.</li>
+      <li>Une matrice <code>m × n</code> est un tableau de m lignes et n colonnes ; <code>a<sub>ij</sub></code> est à la ligne i, colonne j.</li>
+      <li>Matrices particulières : nulle, identité <code>I<sub>n</sub></code>, diagonale, triangulaire.</li>
+      <li>Addition et multiplication par un scalaire se font coefficient par coefficient, mêmes dimensions exigées pour l’addition.</li>
+      <li>La trace est la somme des coefficients diagonaux d’une matrice carrée.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je donne la taille d’une matrice sans hésiter.</li>
+      <li>Je lis et j’écris un coefficient <code>a<sub>ij</sub></code> correctement.</li>
+      <li>Je reconnais au premier coup d’œil I<sub>n</sub>, une matrice nulle et une matrice diagonale.</li>
+      <li>J’additionne deux matrices et je multiplie par un scalaire sans erreur.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>vecteur de ℝⁿ</li><li>composante</li><li>matrice m × n</li><li>coefficient a<sub>ij</sub></li><li>matrice carrée</li><li>matrice identité</li><li>trace</li><li>combinaison linéaire</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends les sections 2 et 3 en recopiant les exemples à la main.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices de niveau 1 de l’atelier du chapitre 1.</div>
+      <div class="bandrow bandrow--good">70–89 % — Bon niveau : cible l’ordre des indices et les dimensions.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : passe au chapitre 2, le produit matriciel.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre2.html">Chapitre 2 — Produit de matrices, transposée et trace <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les supports B1 d’algèbre linéaire (tomes 1 et 2) et les corrigés de CC1 et CC2.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

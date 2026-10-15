@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 3 — Calcul &amp;amp; Virtualisation Azure (Azure Compute, VMSS &amp;amp; PaaS) | Cloud Azure B3</title>
+<meta name="description" content="Module 3 du cours Cloud Microsoft Azure B3 : Machines virtuelles Azure IaaS, dimensionnement par familles et séries (B, D, E, F), disques managés (Standard HDD/SSD, Premium SSD, Ultra Disk), architectures de haute disponibilité (Availability Sets avec domaines de panne et de mise à jour, Availability Zones), calcul de SLA composite, groupes de machines identiques (VMSS) avec auto-scaling et cooldown, et hébergement PaaS managé Azure App Service avec slots de déploiement et swap zéro-downtime. Notions clés, architectures Azure, ateliers de code interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b3-cloud-azure/chapitres/chapitre3.html">
+<meta property="og:title" content="Module 3 — Calcul &amp;amp; Virtualisation Azure (Azure Compute, VMSS &amp;amp; PaaS) | Cloud Azure B3">
+<meta property="og:description" content="Module 3 du cours Cloud Microsoft Azure B3 : Machines virtuelles Azure IaaS, dimensionnement par familles et séries (B, D, E, F), disques managés (Standard HDD/SSD, Premium SSD, Ultra Disk), architectures de haute disponibilité (Availability Sets avec domaines de panne et de mise à jour, Availability Zones), calcul de SLA composite, groupes de machines identiques (VMSS) avec auto-scaling et cooldown, et hébergement PaaS managé Azure App Service avec slots de déploiement et swap zéro-downtime. Notions clés, architectures Azure, ateliers de code interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="b3-cloud-azurenav"><div class="b3-cloud-azurenav__in">
+  <a class="b3-cloud-azurenav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="b3-cloud-azurenav__sep" aria-hidden="true">/</span>
+  <a class="b3-cloud-azurenav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cloud"></use></svg> Cloud Azure B3</a>
+  <div class="b3-cloud-azurenav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="b3-cloud-azurenav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="b3-cloud-azurewrap">
+<p class="crumb"><a href="../index.html">Cloud Azure B3</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Calcul &amp; Virtualisation Azure (Azure Compute, VMSS &amp; PaaS)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B3 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dans un contexte de forte croissance où une application critique subit des pics de fréquentation imprévisibles, une machine virtuelle unique finit invariablement par saturer ou tomber en panne lors d'une opération de maintenance matérielle. En tant qu'ingénieur Cloud B3, vous devez sélectionner les séries de VM adaptées au ratio CPU/mémoire, concevoir des architectures résilientes combinant Availability Sets et Availability Zones pour garantir des SLAs allant jusqu'à 99.99%, configurer l'élasticité horizontale automatique avec Azure VMSS et exploiter les slots de staging Azure App Service pour des mises en production sans interruption de service.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>dimensionner et sélectionner les séries de machines virtuelles Azure (B-series, D-series, E-series, F-series) ;</li>
+      <li>comparer les performances et cas d'usage des disques managés (Standard HDD, Standard SSD, Premium SSD, Ultra Disk) ;</li>
+      <li>comprendre l'architecture des Availability Sets (Fault Domains et Update Domains) et des Availability Zones ;</li>
+      <li>calculer la disponibilité contractuelle (SLA) d'une chaîne applicative multi-tiers en série ;</li>
+      <li>implémenter l'auto-scaling horizontal avec Azure VMSS (seuils CPU, métriques, pas de temps et cooldown) ;</li>
+      <li>maîtriser le déploiement continu PaaS sur Azure App Service avec slots de déploiement (Staging/Production) et rollback automatisé.</li>
+    </ol>
+  </div>
+
+<h2>1. Machines Virtuelles Azure IaaS : Familles, Séries et Disques Managés</h2>
+
+<p>Azure propose des centaines de gabarits (SKUs) de machines virtuelles réparties en familles spécialisées selon les exigences de calcul, de mémoire et de stockage :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Les Grandes Familles de Séries Azure</h4>
+    <ul>
+      <li><strong>B-series (Burstable) :</strong> processeurs à consommation de base économique accumulant des crédits CPU pour absorber des pointes soudaines (idéal dev/test, petits serveurs web).</li>
+      <li><strong>D-series (Usage général) :</strong> équilibre optimal entre vCPU et RAM (ratio 1:4), adapté à la majorité des applications d'entreprise et serveurs applicatifs.</li>
+      <li><strong>E-series (Mémoire intensive) :</strong> ratio élevé vCPU/RAM (1:8), conçu pour les bases de données volumineuses en mémoire (SAP HANA, SQL Server, Redis).</li>
+      <li><strong>F-series (Calcul intensif) :</strong> ratio faible (1:2) avec fréquence d'horloge processeur élevée, idéal pour l'encodage vidéo et le calcul scientifique.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Types de Disques Managés (Managed Disks)</h4>
+    <ul>
+      <li><strong>Standard HDD :</strong> disques magnétiques mécaniques économiques pour archivage et sauvegardes peu consultées (jusqu'à 500 IOPS).</li>
+      <li><strong>Standard SSD :</strong> stockage flash économique pour charges de travail légères et régulières (jusqu'à 4 000 IOPS).</li>
+      <li><strong>Premium SSD (v1/v2) :</strong> stockage SSD haute performance à faible latence (millisecondes), requis pour prétendre aux SLAs Azure de production (jusqu'à 20 000 IOPS).</li>
+      <li><strong>Ultra Disk :</strong> stockage extrême à latence inférieure à la milliseconde pour bases de données transactionnelles massives (jusqu'à 160 000 IOPS).</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2. Haute Disponibilité : Availability Sets, Zones &amp; Calcul de SLA Composite</h2>
+
+<p>Pour protéger les applications contre les pannes matérielles imprévues et les opérations de maintenance planifiée du matériel par Microsoft, Azure fournit deux mécanismes d'isolation physique :</p>
+<table class="table">
+  <thead><tr><th>Mécanisme</th><th>Principe Physique</th><th>SLA Garanti</th><th>Protection Offerte</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Availability Set (Ensemble de disponibilité)</strong></td><td>Répartit les VMs d'un même niveau sur différents racks au sein d'un même datacenter :<br>- <strong>Fault Domains (FD) :</strong> partagent l'alimentation et les switchs réseau (jusqu'à 3 FD).<br>- <strong>Update Domains (UD) :</strong> redémarrés séquentiellement lors des maintenances (jusqu'à 20 UD).</td><td>99.95%</td><td>Pannes d'un switch réseau ou d'un bloc d'alimentation de rack au sein d'un datacenter.</td></tr>
+    <tr><td><strong>Availability Zones (Zones de disponibilité)</strong></td><td>Répartit les VMs sur 2 ou 3 datacenters géographiquement et physiquement distincts d'une région, dotés de réseaux et générateurs séparés.</td><td>99.99%</td><td>Inondation, incendie ou coupure totale d'un datacenter complet.</td></tr>
+  </tbody>
+</table>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Calcul de la Disponibilité Composite Multi-Tiers</div>
+<p>Dans une architecture web classique à 3 niveaux (Front Web -&gt; API Métier -&gt; Base de Données), l'indisponibilité de n'importe quel niveau entraîne la rupture du service global. Le SLA combiné (composite) se calcule par le produit des disponibilités unitaires :<br>,<code>SLA_composite = SLA_web &times; SLA_app &times; SLA_db</code></p>,<p><em>Exemple concret :</em> Si le Web est à 99.99% (AZ), l'App à 99.95% (ASet) et la DB à 99.99% (AZ) :<br>,<code>SLA_composite = 0.9999 &times; 0.9995 &times; 0.9999 = 0.999300%</code>, soit environ 6.13 heures d'interruption maximale tolérée par an.</p>
+  </div>
+
+<h2>3. Évolutivité avec VMSS et Déploiements Zéro-Downtime PaaS sur App Service</h2>
+
+<p>L'élasticité et la modernisation du cycle de déploiement reposent sur deux technologies complémentaires :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Virtual Machine Scale Sets (VMSS)</h4>
+    <ul>
+      <li><strong>Élasticité horizontale automatique :</strong> ajoute ou supprime des instances identiques de machines virtuelles derrière un répartiteur de charge (Azure Load Balancer).</li>
+      <li><strong>Règles métriques :</strong> seuil de scale-out (ex: CPU moyen &gt; 75% sur 5 min -&gt; +2 VMs) et seuil de scale-in (ex: CPU &lt; 25% -&gt; -1 VM).</li>
+      <li><strong>Cooldown (Refroidissement) :</strong> période tampon (ex: 5 min) après un changement d'échelle empêchant de nouvelles modifications pour laisser le temps aux nouvelles VMs de démarrer et de traiter la charge.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Azure App Service &amp; Deployment Slots</h4>
+    <ul>
+      <li><strong>Hébergement PaaS Managé :</strong> exécution d'applications Web (Node.js, Python, .NET, PHP, Java) sans aucune gestion du système d'exploitation sous-jacent.</li>
+      <li><strong>Slots de déploiement (Staging / Production) :</strong> déploiement de la nouvelle version sur un slot Staging isolé avec sa propre URL de pré-production.</li>
+      <li><strong>Swap zéro-downtime :</strong> bascule instantanée au niveau du routage réseau après validation de la sonde de santé (health probe), avec rollback automatique en cas d'erreur HTTP 5xx.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="az3-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="TIER name=web vcpu=2 ram_gb=8 burst=false disk=SSD_PREM redundancy=AZONE&#10;TIER name=db vcpu=4 ram_gb=32 burst=false disk=SSD_PREM redundancy=ASET">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : classifier les séries de VM et calculer le SLA composite
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Dimensionneur de VM Azure et calcul de SLA combiné</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Sélectionner la série de machines virtuelles Azure optimale et calculer le SLA composite d’une architecture multi-tiers.</p>
+    <div class="lab__brief"><p>La conception d'une architecture résiliente sous Azure nécessite de sélectionner les séries de VM appropriées et d'évaluer la disponibilité globale (SLA) résultant de la composition des niveaux applicatifs (tiers).<br><br>
+Règles de sélection des séries Azure :<br>
+- Si <code>burst=true</code> : série <code>B-series</code> (Burstable économique)<br>
+- Sinon, selon le ratio mémoire / vCPU (<code>ram_gb / vcpu</code>) :<br>
+  - Si <code>ratio &gt;= 8.0</code> : série <code>E-series</code> (Optimisée en mémoire)<br>
+  - Si <code>ratio &lt;= 2.0</code> : série <code>F-series</code> (Optimisée en calcul)<br>
+  - Sinon : série <code>D-series</code> (Usage général)<br><br>
+Disponibilité SLA unitaire selon la redondance et le disque :<br>
+- Si <code>redundancy=AZONE</code> (Zones de disponibilité) : <code>99.99%</code><br>
+- Si <code>redundancy=ASET</code> (Availability Set) : <code>99.95%</code><br>
+- Si <code>redundancy=SINGLE</code> (VM unique) :<br>
+  - <code>disk=SSD_PREM</code> : <code>99.90%</code><br>
+  - <code>disk=SSD_STD</code> : <code>99.50%</code><br>
+  - <code>disk=HDD_STD</code> : <code>95.00%</code><br><br>
+Format d'entrée : chaque ligne déclare un tier applicatif :<br>
+<code>TIER name=&lt;nom&gt; vcpu=&lt;int&gt; ram_gb=&lt;int&gt; burst=&lt;true|false&gt; disk=&lt;disque&gt; redundancy=&lt;redondance&gt;</code><br><br>
+Format de sortie attendu :<br>
+Pour chaque tier :<br>
+<code>TIER &lt;nom&gt;: SERIES=&lt;SERIES&gt; SLA=&lt;sla_tier:.2f&gt;%</code><br>
+À la fin de la lecture, calculer le SLA composite (produit des disponibilités de chaque tier) et l'indisponibilité annuelle estimée (sur une base de 8760 heures par an) :<br>
+<code>COMPOSITE_SLA: &lt;composite:.4f&gt;% (downtime_year=&lt;downtime_hours:.2f&gt;h)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TIER name=web vcpu=2 ram_gb=8 burst=false disk=SSD_PREM redundancy=AZONE
+TIER name=db vcpu=4 ram_gb=32 burst=false disk=SSD_PREM redundancy=ASET</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TIER web: SERIES=D-series SLA=99.99%
+TIER db: SERIES=E-series SLA=99.95%
+COMPOSITE_SLA: 99.9400% (downtime_year=5.26h)</pre></div>
+    </div>
+    <p class="lab__note">Tier web en D-series avec AZone et Tier DB en E-series avec ASet.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Calculer ratio = ram_gb / vcpu si burst n'est pas actif.</li>
+        <li>Le SLA composite de tiers en série est le produit des probabilités : prod(SLA_i / 100) * 100.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="az3-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="CONFIG min=2 max=6 scale_out_cpu=75 scale_in_cpu=25 step=2 cooldown=2&#10;METRIC step=1 cpu=80&#10;METRIC step=2 cpu=85&#10;METRIC step=3 cpu=80&#10;METRIC step=4 cpu=40">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter la machine à états de l'auto-scaling VMSS
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Simulateur d'Auto-scaling VMSS</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le comportement d’un Virtual Machine Scale Set (VMSS) sous charge variable avec règles de mise à l’échelle et période de refroidissement.</p>
+    <div class="lab__brief"><p>Un groupe de machines virtuelles identiques (Azure VMSS) adapte dynamiquement son effectif aux variations de charge CPU selon des règles de scale-out et scale-in, avec un délai de refroidissement (cooldown) pour éviter les oscillations rapides.<br><br>
+Format d'entrée :<br>
+Ligne 1 : Définition des paramètres d'auto-scaling :<br>
+<code>CONFIG min=&lt;int&gt; max=&lt;int&gt; scale_out_cpu=&lt;int&gt; scale_in_cpu=&lt;int&gt; step=&lt;int&gt; cooldown=&lt;int&gt;</code><br>
+Lignes suivantes : Mesures de charge collectées par pas de temps :<br>
+<code>METRIC step=&lt;int&gt; cpu=&lt;int&gt;</code><br><br>
+Règles du moteur VMSS :<br>
+- Au démarrage, l'effectif initial est égal à <code>min</code>, et le compteur de cooldown est à 0.<br>
+- Pour chaque métrique :<br>
+  - Si le compteur de cooldown est strictement supérieur à 0 : l'action est <code>COOLDOWN_ACTIVE</code>, et le compteur est décrémenté de 1.<br>
+  - Sinon :<br>
+    - Si <code>cpu &gt;= scale_out_cpu</code> : tenter d'ajouter <code>step</code> instances sans dépasser <code>max</code>.<br>
+      Si l'effectif augmente : action <code>SCALE_OUT</code> et le compteur de cooldown est réinitialisé à <code>cooldown</code>.<br>
+      Si l'effectif était déjà à <code>max</code> : action <code>MAX_CAPACITY_REACHED</code>.<br>
+    - Sinon si <code>cpu &lt;= scale_in_cpu</code> : tenter de retirer <code>step</code> instances sans descendre sous <code>min</code>.<br>
+      Si l'effectif diminue : action <code>SCALE_IN</code> et le compteur de cooldown est réinitialisé à <code>cooldown</code>.<br>
+      Si l'effectif était déjà à <code>min</code> : action <code>MIN_CAPACITY_REACHED</code>.<br>
+    - Sinon : action <code>NONE</code>.<br><br>
+Format de sortie pour chaque métrique :<br>
+<code>STEP &lt;t&gt;: CPU=&lt;cpu&gt;% INSTANCES=&lt;count&gt; ACTION=&lt;ACTION&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CONFIG min=2 max=6 scale_out_cpu=75 scale_in_cpu=25 step=2 cooldown=2
+METRIC step=1 cpu=80
+METRIC step=2 cpu=85
+METRIC step=3 cpu=80
+METRIC step=4 cpu=40</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STEP 1: CPU=80% INSTANCES=4 ACTION=SCALE_OUT
+STEP 2: CPU=85% INSTANCES=4 ACTION=COOLDOWN_ACTIVE
+STEP 3: CPU=80% INSTANCES=4 ACTION=COOLDOWN_ACTIVE
+STEP 4: CPU=40% INSTANCES=4 ACTION=NONE</pre></div>
+    </div>
+    <p class="lab__note">Scale-out à l'étape 1 suivi de 2 étapes de cooldown effectives.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer un compteur cooldown_timer qui bloque toute nouvelle mise à l'échelle tant qu'il est supérieur à 0.</li>
+        <li>S'assurer de borner le nombre d'instances entre min et max.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="az3-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="DEPLOY_STAGE version=v1.1.0 probe=200&#10;SWAP_SLOTS auto_rollback=true&#10;STATUS">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : implémenter le cycle de swap de slots Azure App Service
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Gestionnaire de déploiement Azure App Service &amp; Slot Swap</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Simuler le déploiement sur les slots de pré-production (Staging/Production) d’Azure App Service avec vérification de sonde de santé et retour arrière (rollback).</p>
+    <div class="lab__brief"><p>Azure App Service permet les déploiements zéro-downtime grâce aux slots de déploiement. Avant de basculer (Swap) le trafic vers la nouvelle version, une sonde de santé (health check probe) valide l'intégrité de la pré-production (Staging).<br><br>
+État initial :<br>
+- Slot <code>Production</code> : version <code>v1.0.0</code>.<br>
+- Slot <code>Staging</code> : version <code>none</code> (inactif).<br><br>
+Commandes prises en charge :<br>
+1. <code>DEPLOY_STAGE version=&lt;v&gt; probe=&lt;status_code&gt;</code><br>
+   Déploie la version <code>v</code> sur le slot Staging avec le code de santé <code>status_code</code>.<br>
+   Afficher : <code>STAGE_DEPLOYED: version=&lt;v&gt; probe=&lt;status_code&gt;</code><br><br>
+2. <code>SWAP_SLOTS auto_rollback=&lt;true|false&gt;</code><br>
+   Vérifie la sonde de santé du slot Staging :<br>
+   - Si <code>probe == 200</code> :<br>
+     La bascule s'effectue avec succès. La version de Staging devient celle de Production, et l'ancienne version de Production est basculée sur Staging.<br>
+     Afficher : <code>SWAP_SUCCESS: prod=&lt;new_prod&gt; stage=&lt;new_stage&gt;</code><br>
+   - Si <code>probe != 200</code> :<br>
+     - Si <code>auto_rollback=true</code> : la bascule est annulée, Production reste inchangée et Staging est réinitialisé à <code>none</code>.<br>
+       Afficher : <code>SWAP_ABORTED: probe_failed (status=&lt;status_code&gt;), rollback to &lt;current_prod&gt;</code><br>
+     - Si <code>auto_rollback=false</code> : la bascule a lieu malgré l'anomalie.<br>
+       Afficher : <code>SWAP_WARNING: degraded_deployment (status=&lt;status_code&gt;), prod=&lt;new_prod&gt;</code><br><br>
+3. <code>STATUS</code><br>
+   Afficher : <code>CURRENT_STATE: prod=&lt;current_prod&gt; stage=&lt;current_stage&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DEPLOY_STAGE version=v1.1.0 probe=200
+SWAP_SLOTS auto_rollback=true
+STATUS</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STAGE_DEPLOYED: version=v1.1.0 probe=200
+SWAP_SUCCESS: prod=v1.1.0 stage=v1.0.0
+CURRENT_STATE: prod=v1.1.0 stage=v1.0.0</pre></div>
+    </div>
+    <p class="lab__note">Déploiement sain en staging et swap sans interruption vers production.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Gérer deux variables d'état prod_ver (initialement "v1.0.0") et stage_ver (initialement "none"), ainsi que stage_probe.</li>
+        <li>Lors du swap réussi, échanger les valeurs de prod_ver et stage_ver.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle série de machines virtuelles Azure est spécifiquement optimisée pour les applications nécessitant un ratio très élevé de mémoire RAM par vCPU (ex: 1:8) ?</p>
+      <div class="opts">
+        <button class="opt">Série F</button>
+        <button class="opt" data-correct="1">Série E</button>
+        <button class="opt">Série B</button>
+        <button class="opt">Série A</button>
+      </div>
+      <div class="q__exp">La série E (Enterprise / Memory optimized) propose un ratio vCPU/RAM d'environ 1:8, parfaitement adapté aux bases de données en mémoire comme SQL Server, PostgreSQL ou Redis.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le nombre maximal habituel de Fault Domains (domaines de panne) configurables dans un Availability Set Azure ?</p>
+      <div class="opts">
+        <button class="opt">1</button>
+        <button class="opt" data-correct="1">2 ou 3</button>
+        <button class="opt">10</button>
+        <button class="opt">20</button>
+      </div>
+      <div class="q__exp">Un Availability Set Azure supporte jusqu'à 2 ou 3 Fault Domains (selon la région), répartissant les serveurs sur des racks physiques dotés d'alimentations et de commutateurs séparés.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le SLA contractuel garanti par Microsoft pour une machine virtuelle isolée (Single VM) dotée de disques managés Premium SSD ?</p>
+      <div class="opts">
+        <button class="opt">95.0%</button>
+        <button class="opt">99.0%</button>
+        <button class="opt">99.5%</button>
+        <button class="opt" data-correct="1">99.9%</button>
+      </div>
+      <div class="q__exp">Une VM unique équipée exclusivement de disques managés Premium SSD bénéficie d'un SLA de 99.9% (contre 99.5% avec des SSD Standard et 95.0% avec des disques HDD Standard).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Soit une architecture composée d'un serveur Web (SLA 99.9%) et d'une base de données (SLA 99.9%). Quel est le SLA composite de cette application en série ?</p>
+      <div class="opts">
+        <button class="opt">99.9%</button>
+        <button class="opt" data-correct="1">99.8001%</button>
+        <button class="opt">100%</button>
+        <button class="opt">99.0%</button>
+      </div>
+      <div class="q__exp">SLA = 0.999 * 0.999 = 0.998001, soit 99.8001% (environ 17.5 heures d'indisponibilité maximale tolérée par an).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une règle d'auto-scaling pour Azure VMSS, à quoi sert le paramètre de Cooldown (refroidissement) ?</p>
+      <div class="opts">
+        <button class="opt">À faire chuter la température matérielle des processeurs du datacenter</button>
+        <button class="opt" data-correct="1">À empêcher de nouvelles opérations de mise à l'échelle pendant un délai défini afin de laisser le temps aux nouvelles instances de traiter la charge</button>
+        <button class="opt">À diviser la facture par deux pendant les heures creuses</button>
+        <button class="opt">À forcer l'arrêt automatique des VMs la nuit</button>
+      </div>
+      <div class="q__exp">Le Cooldown bloque temporairement toute nouvelle évaluation de seuil d'échelle après un scale-out ou scale-in pour laisser le temps aux serveurs nouvellement déployés d'absorber le trafic sans battement.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le bénéfice majeur d'effectuer un Swap de slots de déploiement (Staging vers Production) sur Azure App Service ?</p>
+      <div class="opts">
+        <button class="opt">La réinstallation complète de l'OS Windows Server</button>
+        <button class="opt" data-correct="1">Une bascule sans interruption de service (zéro-downtime) et la possibilité de retour arrière instantané</button>
+        <button class="opt">La suppression définitive de l'ancienne version du code source</button>
+        <button class="opt">Le passage automatique au forfait gratuit</button>
+      </div>
+      <div class="q__exp">Le Swap réoriente le trafic réseau vers le slot Staging déjà préchauffé et validé sans aucune interruption de service, tout en conservant l'ancienne version sur le slot de staging pour un rollback immédiat.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle famille de disques managés offre une latence inférieure à la milliseconde et jusqu'à 160 000 IOPS pour les charges de travail transactionnelles extrêmes ?</p>
+      <div class="opts">
+        <button class="opt">Standard HDD</button>
+        <button class="opt">Standard SSD</button>
+        <button class="opt">Premium SSD</button>
+        <button class="opt" data-correct="1">Ultra Disk</button>
+      </div>
+      <div class="q__exp">Azure Ultra Disk offre les performances de stockage les plus élevées de la plateforme Azure, avec une latence sub-milliseconde paramétrable et jusqu'à 160 000 IOPS.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle affirmation est exacte concernant les Update Domains dans un Availability Set ?</p>
+      <div class="opts">
+        <button class="opt">Tous les Update Domains sont redémarrés simultanément lors des mises à jour Azure</button>
+        <button class="opt" data-correct="1">Un seul Update Domain est mis à jour et redémarré à la fois, garantissant qu'au moins 80% des serveurs restent actifs</button>
+        <button class="opt">Les Update Domains ne s'appliquent qu'aux disques durs</button>
+        <button class="opt">Les Update Domains nécessitent une connexion VPN permanente</button>
+      </div>
+      <div class="q__exp">Microsoft redémarre les Update Domains de manière strictement séquentielle (un seul à la fois) lors des opérations de mise à jour de la couche physique, assurant la disponibilité continue des autres serveurs du groupe.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser un disque Standard HDD pour une machine virtuelle de production et s'étonner de ne bénéficier que d'un SLA de 95% sans compensation en cas de panne.</li>
+      <li>Créer des machines virtuelles individuelles sans Availability Set ni Availability Zones et espérer une continuité de service lors des maintenances Azure.</li>
+      <li>Configurer un seuil de scale-in VMSS trop agressif sans cooldown, provoquant la destruction immédiate de VMs venant à peine de démarrer.</li>
+      <li>Croire que le slot Swap nécessite d'interrompre les requêtes HTTP en cours : Azure redirige le routage réseau sans aucune déconnexion des sessions clientes existantes.</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
+    <ol>
+      <li>Qualification de la charge et choix de la série de VM : analyser le profil de charge (mémoire intensive E-series, burstable B-series, ou équilibré D-series) et sélectionner un disque Premium SSD pour débloquer les garanties de SLA.</li>
+      <li>Conception du plan de redondance et calcul du SLA : répartir les instances applicatives sur plusieurs Availability Zones ou au sein d'un Availability Set, et calculer le SLA composite pour vérifier l'alignement avec le contrat client.</li>
+      <li>Configuration de l'auto-scaling VMSS avec Cooldown : définir les seuils de déclenchement CPU et paramétrer un cooldown suffisant pour stabiliser la flotte et prévenir le phénomène de battement.</li>
+      <li>Mise en place du cycle de swap de slots sur App Service : intégrer les sondes de santé HTTP sur le slot Staging et automatiser la bascule en production sans rupture de trafic pour les utilisateurs finaux.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les séries de machines virtuelles Azure répondent à des besoins ciblés : B-series (burstable), D-series (général), E-series (mémoire) et F-series (calcul).</li>
+      <li>Les disques Premium SSD sont requis pour bénéficier des SLAs de production unitaire (99.9%).</li>
+      <li>Les Availability Sets séparent les serveurs en Fault Domains (pannes physiques) et Update Domains (mises à jour de maintenance) pour offrir 99.95% de SLA.</li>
+      <li>Les Availability Zones répartissent les VMs sur 3 datacenters indépendants d'une région pour un SLA de 99.99%.</li>
+      <li>Azure VMSS gère l'élasticité horizontale avec des règles de scale-out/in et une temporisation de cooldown, tandis qu'App Service permet le swap de slots sans downtime.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Savez-vous quelle série de VM sélectionner pour une base de données nécessitant 64 Go de RAM et 8 vCPUs ?</li>
+      <li>Comprenez-vous la différence entre un Fault Domain et un Update Domain dans un Availability Set ?</li>
+      <li>Savez-vous calculer le SLA résultant de la chaîne série Web (99.99%) + App (99.95%) + DB (99.99%) ?</li>
+      <li>Pouvez-vous expliquer pourquoi un délai de cooldown est indispensable lors d'une montée en charge VMSS ?</li>
+      <li>Savez-vous comment fonctionne la bascule de slots de déploiement (Swap) sur Azure App Service ?</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Fault Domain (Domaine de panne) :</strong> Groupe de serveurs physiques partageant la même alimentation et le même commutateur réseau au sein d'un datacenter.</li><li><strong>Update Domain (Domaine de mise à jour) :</strong> Groupe logique de machines redémarrées simultanément lors d'une opération de maintenance programmée de l'hôte physique.</li><li><strong>Composite SLA :</strong> Disponibilité globale résultant de la multiplication des SLAs de chaque composant d'une architecture en série.</li><li><strong>VMSS (Virtual Machine Scale Sets) :</strong> Service Azure de déploiement et de gestion automatisée d'un pool élastique de machines virtuelles identiques.</li><li><strong>Deployment Slot :</strong> Environnement d'hébergement autonome (ex: Staging) au sein d'un App Service permettant de tester une version avant la bascule en production.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow"><strong>Sélection rigoureuse des gabarits VM par analyse de charges réelles :</strong> Déterminer la famille de processeur et la taille idéale en mesurant les métriques IOPS et bande passante réseau d'applications critiques.</div>
+      <div class="bandrow"><strong>Architecture haute disponibilité multi-zones et multi-régions :</strong> Concevoir des architectures résilientes déployées sur 3 Availability Zones avec reprise d'activité dans une région jumelée.</div>
+      <div class="bandrow"><strong>Automatisation de l'élasticité horizontale VMSS :</strong> Écrire des règles de dimensionnement dynamique fondées sur les métriques de files d'attente ou de requêtes HTTP avec délais de refroidissement.</div>
+      <div class="bandrow"><strong>Mise en œuvre de pipelines de déploiement continu avec App Service Slots :</strong> Intégrer GitHub Actions avec un slot Staging et conditionner le swap de production à la réussite de tests d'intégration end-to-end.</div>
+      <div class="bandrow"><strong>Développement de simulateurs de haute disponibilité en Python 3 :</strong> Programmer des moteurs calculant les temps d'arrêt prévisionnels, simulant l'auto-scaling et orchestrant la bascule de slots avec rollback.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Module 4 — Réseau Virtuel Azure (Azure Virtual Network - VNet &amp; Sécurité) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : Supports de cours officiels Services Cloud AZURE B3-ASI (Enseignant : AGOUTOCO-POKO Caleb Benaja), Documentation Microsoft Learn Azure, Référentiels d'examen Microsoft Certified Azure Administrator (AZ-104) et Azure Solutions Architect Expert (AZ-305).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

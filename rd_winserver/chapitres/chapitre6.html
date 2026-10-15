@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Snapshots, clones &amp; templates | Windows Server B2</title>
+<meta name="description" content="Chapitre 6 du cours Windows Server B2 : Snapshots, clones complet/lié, templates, vMotion, cluster HA et sauvegarde Veeam. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/rd_winserver/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Snapshots, clones &amp; templates | Windows Server B2">
+<meta property="og:description" content="Chapitre 6 du cours Windows Server B2 : Snapshots, clones complet/lié, templates, vMotion, cluster HA et sauvegarde Veeam. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="rd_winservernav"><div class="rd_winservernav__in">
+  <a class="rd_winservernav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="rd_winservernav__sep" aria-hidden="true">/</span>
+  <a class="rd_winservernav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Windows Server B2</a>
+  <div class="rd_winservernav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="rd_winservernav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="rd_winserverwrap">
+<p class="crumb"><a href="../index.html">Windows Server B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<h1>Chapitre 6 — Snapshots, clones & templates</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 6</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Avant une mise à jour risquée, on prend un snapshot ; pour déployer dix serveurs identiques, on clone ou on part d’un template ; pour équilibrer la charge, on migre une VM à chaud. Ces gestes du quotidien de l’administrateur ont chacun leurs règles.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>définir un snapshot et le distinguer d’une sauvegarde ;</li>
+      <li>comparer clone complet et clone lié ;</li>
+      <li>expliquer l’usage d’un template ;</li>
+      <li>situer vMotion, le cluster HA et la sauvegarde Veeam.</li>
+    </ol>
+  </div>
+
+<h2>1. Le snapshot</h2>
+
+<p>Un <strong>snapshot</strong> (instantané) capture l’état d’une VM à un instant donné : le contenu de la mémoire, l’état du processeur et l’état des disques virtuels. Il permet de <strong>revenir en arrière</strong> en cas de problème après un changement critique.</p>
+<p>Deux précautions : les snapshots <strong>consomment de l’espace disque</strong> au fil du temps, et il ne faut <strong>pas les conserver longtemps</strong> en production.</p>
+<table><thead><tr><th>Critère</th><th>Snapshot</th><th>Sauvegarde</th></tr></thead><tbody>
+<tr><td>Conservation</td><td>Temporaire (court terme)</td><td>Long terme</td></tr>
+<tr><td>Utilité</td><td>Revenir avant/après un changement</td><td>Restaurer après une perte</td></tr>
+<tr><td>Espace disque</td><td>Consomme de plus en plus</td><td>Planifié</td></tr>
+</tbody></table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Snapshot n’est pas sauvegarde</div>
+    <p>Un snapshot vit sur le même stockage que la VM : si le stockage disparaît, le snapshot aussi. Il ne remplace jamais une sauvegarde hors site.</p>
+  </div>
+
+<h2>2. Clones complet et lié</h2>
+
+<p>Un <strong>clone</strong> est une copie d’une VM existante. Deux variantes :</p>
+<ul>
+  <li><strong>Clone complet</strong> : copie indépendante (fichiers disque et configuration). Il fonctionne même si la VM d’origine est supprimée.</li>
+  <li><strong>Clone lié</strong> (linked clone) : la nouvelle VM partage une partie de ses fichiers disque avec l’originale. Moins gourmand en espace, mais <strong>dépendant de la source</strong> : si elle est supprimée, le clone lié ne fonctionne plus.</li>
+</ul>
+<table><thead><tr><th>Critère</th><th>Clone complet</th><th>Clone lié</th></tr></thead><tbody>
+<tr><td>Indépendance</td><td>Totale</td><td>Dépend de la source</td></tr>
+<tr><td>Espace disque</td><td>Plus volumineux</td><td>Moins gourmand</td></tr>
+<tr><td>Si la source est supprimée</td><td>Continue de fonctionner</td><td>Ne fonctionne plus</td></tr>
+</tbody></table>
+
+<h2>3. Templates et vMotion</h2>
+
+<p>Un <strong>template</strong> est une VM préconfigurée et souvent figée en lecture seule : système installé, outils de base, paramètres réseau et sécurité prédéfinis. Il sert de <strong>modèle</strong> pour créer de nouvelles VM, ce qui standardise les déploiements, fait gagner du temps et garantit la cohérence.</p>
+<p><strong>vMotion</strong> migre une VM <strong>en cours d’exécution</strong> d’un hôte physique vers un autre, <strong>sans interruption de service</strong>. Exemple : une VM devenue lente parce que d’autres VM surchargent son hôte est déplacée vers un hôte moins sollicité ; les performances reviennent.</p>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> Un template, des déploiements</div>
+    <p>Un template bien tenu contient les mises à jour et les bases de sécurité à jour. Chaque VM créée en hérite : le déploiement devient reproductible plutôt qu’artisanal.</p>
+  </div>
+
+<h2>4. Cluster HA et sauvegarde Veeam</h2>
+
+<p>La fonctionnalité essentielle pour la haute disponibilité des VM est le <strong>cluster de virtualisation</strong>. Avec un <strong>cluster HA</strong>, les VM redémarrent automatiquement sur un autre hôte disponible en cas de panne, ce qui minimise l’impact des défaillances matérielles.</p>
+<p><strong>Veeam</strong> est un outil de <strong>sauvegarde automatique</strong> des VM. Il configure des sauvegardes quotidiennes et permet de restaurer rapidement une VM supprimée par erreur.</p>
+<p>Bonnes pratiques : documenter chaque action, surveiller les performances avec vCenter, prendre un snapshot avant chaque mise à jour majeure, configurer des sauvegardes automatiques et activer la HA.</p>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Plusieurs filets, pas un seul</div>
+    <p>Snapshot pour un retour immédiat, sauvegarde Veeam pour la perte durable, cluster HA pour la panne matérielle : trois protections pour trois menaces différentes. En cumuler plusieurs, c’est couvrir tous les scénarios.</p>
+  </div>
+
+<!-- code-labs:start -->
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ws2-c6-e1"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="3">
+  <script type="text/plain" data-lab-starter>$age = [int][Console]::In.ReadLine()
+
+# À compléter : afficher "snapshot : a purger" si l'âge dépasse 7 jours,
+# sinon "snapshot : conserve".
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Durée de vie d’un snapshot</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décider si un instantané doit être purgé selon son ancienneté.</p>
+    <div class="lab__brief"><p>Le script lit l’<strong>âge</strong> d’un snapshot en jours. Un snapshot ne doit pas rester longtemps en production : au-delà de 7 jours, affichez <code>snapshot : a purger</code> ; sinon <code>snapshot : conserve</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>snapshot : conserve</pre></div>
+    </div>
+    <p class="lab__note">Trois jours : encore récent.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Comparez avec -gt : ($age -gt 7).</li>
+        <li>Un snapshot récent (&lt;= 7 jours) reste tolérable en production.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws2-c6-e2"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="lie&#10;non">
+  <script type="text/plain" data-lab-starter>$type = [Console]::In.ReadLine()
+$sourceSupprimee = [Console]::In.ReadLine()
+
+# À compléter : afficher "clone : fonctionne" ou "clone : hors service"
+# selon le type et la suppression de la source.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Clone complet ou lié</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer si un clone survit à la suppression de sa VM source.</p>
+    <div class="lab__brief"><p>Le script lit le <strong>type</strong> du clone (<code>complet</code> ou <code>lie</code>), puis si la VM <strong>source</strong> a été supprimée (<code>oui</code> ou <code>non</code>). Un clone complet reste autonome ; un clone lié dépend de la source. Affichez <code>clone : fonctionne</code> ou <code>clone : hors service</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>lie
+non</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>clone : fonctionne</pre></div>
+    </div>
+    <p class="lab__note">Clone lié, source toujours présente.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un clone complet fonctionne toujours, même source supprimée.</li>
+        <li>Un clone lié ne fonctionne plus si la source est supprimée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ws2-c6-e3"
+     data-language="powershell"
+     data-height="300"
+     data-stdin="1000&#10;2&#10;300&#10;400">
+  <script type="text/plain" data-lab-starter>$capacite = [int][Console]::In.ReadLine()
+$n = [int][Console]::In.ReadLine()
+$total = 0
+for ($i = 0; $i -lt $n; $i++) {
+    # À compléter : lire la taille de la VM et l'ajouter à $total.
+}
+
+# À compléter : afficher le total, puis comparer à la capacité.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Planification de la sauvegarde Veeam</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Totaliser et comparer le volume des VM à sauvegarder à la capacité de la cible.</p>
+    <div class="lab__brief"><p>Le script lit la <strong>capacité</strong> de la cible (Go), puis un entier <code>n</code> et <code>n</code> tailles de VM (Go). Affichez <code>total : X Go</code>, puis <code>sauvegarde : planifiee</code> si le total tient dans la capacité, sinon <code>sauvegarde : capacite insuffisante</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1000
+2
+300
+400</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>total : 700 Go
+sauvegarde : planifiee</pre></div>
+    </div>
+    <p class="lab__note">700 Go sur une cible de 1000 Go.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Lisez chaque taille avec [int][Console]::In.ReadLine().</li>
+        <li>La sauvegarde tient si ($total -le $capacite).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>6. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Que capture un snapshot ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Mémoire, processeur et disques virtuels</button>
+        <button class="opt">Seulement les fichiers</button>
+        <button class="opt">Le réseau</button>
+      </div>
+      <div class="q__exp">Il enregistre l’état complet de la VM à un instant donné.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Durée de conservation d’un snapshot ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Temporaire</button>
+        <button class="opt">Long terme</button>
+        <button class="opt">Permanente</button>
+      </div>
+      <div class="q__exp">Il ne doit pas rester longtemps en production.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait un clone complet ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Copie indépendante de la VM</button>
+        <button class="opt">Partage les disques</button>
+        <button class="opt">Supprime la source</button>
+      </div>
+      <div class="q__exp">Il fonctionne même si la source est supprimée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Faiblesse d’un clone lié ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il dépend de la VM source</button>
+        <button class="opt">Il est trop gros</button>
+        <button class="opt">Il est trop lent</button>
+      </div>
+      <div class="q__exp">Si la source est supprimée, il cesse de fonctionner.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi sert un template ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Standardiser les déploiements</button>
+        <button class="opt">Sauvegarder les données</button>
+        <button class="opt">Migrer à chaud</button>
+      </div>
+      <div class="q__exp">C’est un modèle de VM préconfigurée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait vMotion ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Migrer une VM à chaud sans interruption</button>
+        <button class="opt">Éteindre un hôte</button>
+        <button class="opt">Cloner un template</button>
+      </div>
+      <div class="q__exp">La VM change d’hôte en cours d’exécution.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">En cas de panne, que fait un cluster HA ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Redémarre les VM sur un autre hôte</button>
+        <button class="opt">Efface les snapshots</button>
+        <button class="opt">Réinstalle ESXi</button>
+      </div>
+      <div class="q__exp">Les VM redémarrent automatiquement ailleurs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que permet Veeam ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Sauvegarde automatique et restauration rapide</button>
+        <button class="opt">Compiler du code</button>
+        <button class="opt">Créer des réseaux</button>
+      </div>
+      <div class="q__exp">Il sauvegarde les VM et restaure rapidement.</div>
+    </div>
+  </div>
+
+<h2>7. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre snapshot et sauvegarde : le snapshot ne protège pas d’une perte du stockage.</li>
+      <li>Conserver des snapshots pendant des semaines en production.</li>
+      <li>Supprimer la VM source d’un clone lié, qui cesse alors de fonctionner.</li>
+      <li>Se servir d’un template obsolète, sans les mises à jour de sécurité.</li>
+      <li>Compter sur un cluster HA sans surveiller les hôtes.</li>
+    </ul>
+  </div>
+
+<h2>8. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protéger et déployer des VM</div>
+    <ol>
+      <li><strong>Prendre</strong> un snapshot avant tout changement critique, puis le purger.</li>
+      <li><strong>Distinguer</strong> snapshot (court terme) et sauvegarde (long terme).</li>
+      <li><strong>Cloner</strong> ou déployer depuis un template selon le besoin.</li>
+      <li><strong>Migrer</strong> à chaud avec vMotion pour équilibrer la charge.</li>
+      <li><strong>Protéger</strong> par le cluster HA et la sauvegarde automatique Veeam.</li>
+    </ol>
+  </div>
+
+<h2>9. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Snapshot : mémoire + CPU + disques, temporaire, ne remplace pas une sauvegarde.</li>
+      <li>Clone complet : indépendant ; clone lié : dépendant de la source.</li>
+      <li>Template : VM préconfigurée qui standardise les déploiements.</li>
+      <li>vMotion : migration à chaud sans interruption.</li>
+      <li>Cluster HA et Veeam : redémarrage automatique et sauvegarde des VM.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je distingue snapshot et sauvegarde.</li>
+      <li>Je compare clone complet et clone lié.</li>
+      <li>J’explique l’intérêt d’un template.</li>
+      <li>Je situe vMotion, cluster HA et Veeam.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>snapshot</li><li>instantané</li><li>clone complet</li><li>clone lié</li><li>linked clone</li><li>template</li><li>vMotion</li><li>cluster HA</li><li>Veeam</li><li>restauration</li><li>bonnes pratiques</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>10. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends la différence snapshot / sauvegarde.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Entraîne-toi sur les clones complet / lié.</div>
+      <div class="bandrow bandrow--good">70–89 % — Solide : tu protèges et déploies des VM correctement.</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Maîtrise : le cours est bouclé, place aux examens blancs.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : le cours historique RD WinServer (modules 1 à 5 : sauvegarde, haute disponibilité, maintenance, virtualisation/VMware, snapshots/clones).</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

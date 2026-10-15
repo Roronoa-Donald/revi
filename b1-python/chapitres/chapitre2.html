@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<!-- impeccable-disable repeated-container-text : l'encadré de révision énumère plusieurs formes du même mot-clé (while/for) et non un message redondant. -->
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Structures de contrôle | Python B1</title>
+<meta name="description" content="Chapitre 2 du cours Python B1 : expressions booléennes, if/elif/else, boucles for et while, break/continue/pass. Théorie, exemples, exercices 5 niveaux, QCM corrigés.">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+  <link rel="stylesheet" href="/assets/css/code-lab.css">
+</head>
+<body data-chapter="2">
+
+<nav class="pynav"><div class="pynav__in">
+  <a class="pynav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="pynav__sep" aria-hidden="true">/</span>
+  <a class="pynav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Python B1</a>
+  <div class="pynav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="chapitre1.html">Ch. 1</a>
+    <a href="chapitre2.html" class="is-active">Ch. 2</a>
+    <a href="cartes.html">Cartes</a>
+    <a href="formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="simulateur-examen.html">Examen</a>
+  </div>
+</div></nav>
+
+<main class="pywrap">
+  <p class="crumb"><a href="../index.html">Python B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+  <h1>Chapitre 2 — Structures de contrôle : logique et automatisation</h1>
+  <div class="chapmeta">
+    <span class="tag">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30</span>
+    <span class="tag tag--time">Contenu protégé</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un client se plaint : la boutique en ligne applique une remise à tout le monde, y compris aux commandes
+    de 5 €. Ton chef te demande une règle précise : <em>remise de 10 % si le panier dépasse 100 €, sinon rien</em>,
+    puis <em>un rappel à l'utilisateur tant qu'il n'a pas saisi un montant valide</em>. Deux problèmes, deux outils :
+    les <strong>conditions</strong> (<code>if</code>) et les <strong>boucles</strong> (<code>while</code>, <code>for</code>).
+    Ce chapitre t'apprend à faire <em>« décider »</em> et <em>« répéter »</em> un programme.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <ol>
+      <li>Écrire une expression booléenne correcte avec <code>and</code>, <code>or</code>, <code>not</code> ;</li>
+      <li>choisir entre <code>if</code>, <code>elif</code> et <code>else</code> selon un énoncé ;</li>
+      <li>écrire une boucle <code>for</code> sur <code>range()</code> et sur une séquence ;</li>
+      <li>écrire une boucle <code>while</code> avec une condition de sortie garantie ;</li>
+      <li>contrôler une boucle avec <code>break</code>, <code>continue</code>, <code>pass</code> ;</li>
+      <li>diagnostiquer une boucle infinie.</li>
+    </ol>
+  </div>
+
+  <h2>1. Expressions booléennes</h2>
+  <p><strong>Définition.</strong> Une expression booléenne vaut <code>True</code> ou <code>False</code>.
+  Elle combine des comparaisons avec les opérateurs logiques.</p>
+  <table>
+    <tr><th>Opérateur</th><th>Vrai si…</th><th>Exemple</th></tr>
+    <tr><td><code>and</code></td><td>les DEUX sont vrais</td><td><code>age &gt;= 18 and age &lt; 65</code></td></tr>
+    <tr><td><code>or</code></td><td>AU MOINS UN est vrai</td><td><code>role == "admin" or role == "root"</code></td></tr>
+    <tr><td><code>not</code></td><td>l'expression est fausse</td><td><code>not est_vide</code></td></tr>
+  </table>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Niveau 1 — Intuition</div>
+    <p><code>and</code> = « il faut tout ». <code>or</code> = « il en suffit d'un ». <code>not</code> = « l'inverse ».
+    Un panier est <em>livrable</em> si <code>stock &gt; 0 and adresse_valide</code>.</p>
+  </div>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège classique</div>
+    <p>En Python on écrit <code>a &lt; b &lt; c</code> (chaîné), mais <strong>jamais</strong> <code>if x = 3</code> :
+    <code>=</code> affecte, <code>==</code> compare. <code>if x = 3:</code> lève une <code>SyntaxError</code>.</p>
+  </div>
+
+  <h2>2. Conditions : if / elif / else</h2>
+  <pre><code>if panier > 100:
+    remise = 0.10
+elif panier > 50:
+    remise = 0.05
+else:
+    remise = 0.0</code></pre>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-wrench"></use></svg> Niveau 2 — Technique</div>
+    <p>Les tests sont évalués <strong>de haut en bas</strong> et s'arrêtent au premier vrai. L'ordre des
+    <code>elif</code> change donc le résultat : mettre <code>&gt; 50</code> avant <code>&gt; 100</code> donnerait
+    une remise de 5 % à une commande de 120 €. C'est le <em>piège d'ordonnancement</em>.</p>
+  </div>
+
+  <div class="box box--it">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cpu"></use></svg> Utilité IT</div>
+    <p>Validation de formulaires, autorisations d'accès, routage de requêtes : tout système décide avec des
+    conditions. La clarté de l'ordre des <code>elif</code> est une vraie source de bugs en production.</p>
+  </div>
+
+  <h2>3. Boucle for</h2>
+  <p>La boucle <code>for</code> parcourt une <em>séquence</em> (liste, chaîne, <code>range</code>) :</p>
+  <pre><code>for i in range(5):          # 0,1,2,3,4
+    print(i)
+
+for lettre in "Python":     # P,y,t,h,o,n
+    print(lettre)
+
+total = 0
+for note in [12, 15, 9]:
+    total = total + note
+print(total, total / 3)</code></pre>
+  <div class="out">0
+1
+2
+3
+4
+P y t h o n
+36 12.0</div>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> range() — la règle exacte</div>
+    <p><code>range(début, fin, pas)</code> va de <code>début</code> <strong>inclus</strong> à <code>fin</code>
+    <strong>exclu</strong>. Donc <code>range(1, 4)</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 1, 2, 3. <code>range(0, 10, 2)</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 0,2,4,6,8.
+    Retiens : <em>« le dernier n'est jamais dedans »</em>.</p>
+  </div>
+
+  <h2>4. Boucle while</h2>
+  <pre><code>montant = -1
+while montant <= 0:
+    montant = float(input("Montant (> 0) ? "))
+print("Merci, montant accepté :", montant)</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Boucle infinie</div>
+    <p>Si la condition ne devient jamais fausse, le programme ne s'arrête jamais. Trois causes fréquentes :
+    variable jamais modifiée dans la boucle ; <code>while True:</code> sans <code>break</code> ;
+    comparaison impossible (<code>while x != 0</code> alors que x augmente).</p>
+  </div>
+  <div class="box box--intuition">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> for ou while ?</div>
+    <p><strong>for</strong> quand tu connais <em>la collection</em> à parcourir (ou un nombre de tours fixé).
+    <strong>while</strong> quand tu répètes <em>jusqu'à ce qu'une condition change</em> (saisie valide, jeu, attente réseau).</p>
+  </div>
+
+  <h2>5. Contrôle du flux : break, continue, pass</h2>
+  <table>
+    <tr><th>Mot-clé</th><th>Effet</th></tr>
+    <tr><td><code>break</code></td><td>Sort immédiatement de la boucle.</td></tr>
+    <tr><td><code>continue</code></td><td>Passe à l'itération suivante (sans terminer celle-ci).</td></tr>
+    <tr><td><code>pass</code></td><td>Ne fait rien — utile comme bouchon temporaire.</td></tr>
+  </table>
+  <pre><code>for n in range(1, 10):
+    if n == 5:
+        break          # on arrête à 5
+    if n % 2 == 0:
+        continue       # on ignore les pairs
+    print(n)           # affiche 1, 3</code></pre>
+  <div class="out">1
+3</div>
+
+  <h2>6. Exemples travaillés</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple A</span><span class="badge badge--n1">Très simple</span></div>
+    <p><strong>Énoncé.</strong> Afficher « majeur » si l'âge ≥ 18, sinon « mineur ».</p>
+    <pre><code>age = 20
+if age >= 18:
+    print("majeur")
+else:
+    print("mineur")</code></pre>
+    <div class="out">majeur</div>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple B</span><span class="badge badge--n2">Intermédiaire</span></div>
+    <p><strong>Énoncé.</strong> Calculer la somme des entiers de 1 à n (sans formule).</p>
+    <pre><code>n = 100
+total = 0
+for i in range(1, n + 1):     # +1 car la fin est exclue !
+    total += i
+print(total)</code></pre>
+    <div class="out">5050</div>
+    <p><strong>Analyse.</strong> La borne <code>n+1</code> est le piège central : <code>range(1, 100)</code>
+    s'arrête à 99 et donne 4950. Toujours vérifier la borne supérieure.</p>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="item__num">Exemple C</span><span class="badge badge--n3">Difficile</span></div>
+    <p><strong>Énoncé.</strong> Compter les voyelles d'une phrase, en ignorant les majuscules.</p>
+    <pre><code>phrase = "Bonjour Python"
+voyelles = "aeiouy"
+compteur = 0
+for c in phrase.lower():
+    if c in voyelles:
+        compteur += 1
+print(compteur)</code></pre>
+    <div class="out">4</div>
+    <p><strong>Pourquoi <code>lower()</code> ?</strong> Sans lui, « Bonjour Python » contient les majuscules
+    'B' et 'P' — ce ne sont pas des voyelles, mais le 'o' de « Bonjour » reste un 'o' : la conversion uniformise
+    la comparaison. Vérifie : B<strong>o</strong>nj<strong>o</strong><strong>u</strong>r Pyth<strong>o</strong>n <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 4.</p>
+  </div>
+
+  <h2>7. Exercices (5 niveaux)</h2>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n1">Niveau 1 — Acquisition</span></div>
+    <p><strong>1.</strong> Que vaut <code>True and (5 &gt; 3)</code> ? <strong>2.</strong> Combien de tours fait <code>for i in range(3):</code> ?
+    <strong>3.</strong> Que fait <code>continue</code> ?</p>
+    <details><summary>Correction</summary><div class="sol">1. <code>True</code>. &nbsp; 2. 3 tours (0,1,2). &nbsp; 3. Il saute à l'itération suivante sans exécuter le reste du bloc.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n2">Niveau 2 — Application</span></div>
+    <p><strong>4.</strong> Affiche tous les nombres pairs de 1 à 20. <strong>5.</strong> Affiche la table de multiplication de 7.</p>
+    <details><summary>Correction</summary><div class="sol"><pre><code>for i in range(2, 21, 2):
+    print(i)
+
+for i in range(1, 11):
+    print(f"7 x {i} = {7 * i}")</code></pre></div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n3">Niveau 3 — Raisonnement</span></div>
+    <p><strong>6.</strong> Ce code boucle-t-il ?</p>
+    <pre><code>i = 0
+while i < 5:
+    print(i)</code></pre>
+    <p><strong>7.</strong> Pourquoi <code>for i in range(5, 0, -1)</code> affiche-t-il 5,4,3,2,1 ?</p>
+    <details><summary>Correction</summary><div class="sol">6. Oui, boucle infinie : <code>i</code> n'est jamais incrémenté (il manque <code>i += 1</code>).
+    7. Le pas est -1 : on part de 5 inclus jusqu'à 0 exclu en descendant.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n4">Niveau 4 — Examen</span></div>
+    <p><strong>8.</strong> Écris un programme qui demande un mot de passe jusqu'à obtenir « python123 » (mot de passe
+    « correct »), et limite à 3 tentatives.</p>
+    <details><summary>Correction détaillée</summary><div class="sol"><pre><code>tentatives = 0
+succes = False
+while tentatives < 3 and not succes:
+    saisie = input("Mot de passe ? ")
+    tentatives += 1
+    if saisie == "python123":
+        succes = True
+print("Accès autorisé" if succes else "Accès refusé")</code></pre>
+    Barème : boucle bornée (3), condition double (saisie correcte ET tentatives), message final.
+    Piège : oublier <code>tentatives += 1</code> <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> boucle infinie.</div></details>
+  </div>
+
+  <div class="item">
+    <div class="item__head"><span class="badge badge--n5">Niveau 5 — Challenge</span></div>
+    <p><strong>9.</strong> Sans utiliser <code>min()</code>, trouve le plus petit élément d'une liste en une seule boucle.</p>
+    <details><summary>Correction</summary><div class="sol"><pre><code>nombres = [42, 7, 19, 3, 88]
+plus_petit = nombres[0]
+for n in nombres:
+    if n < plus_petit:
+        plus_petit = n
+print(plus_petit)   # 3</code></pre>
+    L'algorithme <em>« champion en cours »</em> : on initialise avec le premier, puis on remplace à chaque valeur plus petite.</div></details>
+  </div>
+<!-- code-labs:start -->
+  <h2>8. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="py-c2-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="10">
+  <script type="text/plain" data-lab-starter>n = int(input())
+
+# À compléter : accumuler les entiers de 1 à n.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Somme des entiers de 1 à n</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire une boucle d’accumulation sans utiliser sum().</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n. Affichez la somme 1 + 2 + … + n en utilisant une boucle, sans <code>sum()</code>.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>55</pre></div>
+    </div>
+    <p class="lab__note">1 + 2 + … + 10 = 55.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>La borne de fin d’un range n’est jamais atteinte : pour aller jusqu’à n, il faut lui demander n + 1.</li>
+        <li>Un accumulateur s’initialise avant la boucle : si vous l’initialisez dedans, vous repartez de zéro à chaque tour.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c2-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="3&#10;12&#10;9&#10;5">
+  <script type="text/plain" data-lab-starter>n = int(input())
+
+for i in range(n):
+    note = int(input())
+    # À compléter : choisir le bon message.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Décision d’admission</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Enchaîner des conditions dans le bon ordre à l’intérieur d’une boucle.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n notes entières. Pour chaque note, affichez sur une ligne :</p><ul><li><code>Admis</code> si elle vaut au moins 10 ;</li><li><code>Rattrapage</code> si elle est comprise entre 8 et 9 inclus ;</li><li><code>Ajourné</code> sinon.</li></ul></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+12
+9
+5</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Admis
+Rattrapage
+Ajourné</pre></div>
+    </div>
+    <p class="lab__note">12 est admis, 9 passe en rattrapage, 5 est ajourné.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’ordre des conditions change le résultat : commencez toujours par tester le cas le plus exigeant.</li>
+        <li>Un enchaînement de conditions s’écrit en cascade : la première branche satisfaite prend la main et les suivantes sont ignorées.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="py-c2-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="4729">
+  <script type="text/plain" data-lab-starter>nombre = int(input())
+
+# À compléter : additionner les chiffres du nombre.
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Somme des chiffres d’un nombre</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Décomposer un entier chiffre par chiffre et accumuler le résultat.</p>
+    <div class="lab__brief"><p>Le programme reçoit un entier positif. Affichez la somme de ses chiffres.</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4729</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>22</pre></div>
+    </div>
+    <p class="lab__note">4 + 7 + 2 + 9 = 22.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un nombre peut se parcourir caractère par caractère une fois converti en texte : chaque morceau redevient un entier pour le calcul.</li>
+        <li>Autre voie sans conversion : le reste de la division par 10 isole le dernier chiffre, et la division entière par 10 le supprime.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>9. QCM — niveau examen</h2>
+  <div class="qcm" data-mastery="1">
+    <div class="q">
+      <p class="q__stem">Combien de valeurs contient <code>range(1, 5)</code> ?</p>
+      <div class="opts">
+        <button class="opt">5</button>
+        <button class="opt" data-correct="1">4</button>
+        <button class="opt">3</button>
+      </div>
+      <div class="q__exp">1,2,3,4 <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> 4 valeurs. La borne de fin est exclue.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que vaut <code>not (3 &gt; 5)</code> ?</p>
+      <div class="opts">
+        <button class="opt">False</button>
+        <button class="opt" data-correct="1">True</button>
+        <button class="opt">Erreur</button>
+      </div>
+      <div class="q__exp"><code>3 &gt; 5</code> est <code>False</code>, et <code>not False</code> vaut <code>True</code>.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Ce code affiche : <code>for i in range(3): print(i, end=" ")</code></p>
+      <div class="opts">
+        <button class="opt">1 2 3</button>
+        <button class="opt" data-correct="1">0 1 2</button>
+        <button class="opt">0 1 2 3</button>
+      </div>
+      <div class="q__exp"><code>range(3)</code> démarre à 0 et s'arrête avant 3.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mot-clé sort d'une boucle ?</p>
+      <div class="opts">
+        <button class="opt">continue</button>
+        <button class="opt" data-correct="1">break</button>
+        <button class="opt">pass</button>
+      </div>
+      <div class="q__exp"><code>break</code> sort ; <code>continue</code> saute ; <code>pass</code> ne fait rien.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que fait ce code ? <code>x = 10; while x &gt; 0: x -= 3</code></p>
+      <div class="opts">
+        <button class="opt">Il ne s'exécute jamais</button>
+        <button class="opt" data-correct="1">Il s'arrête quand x devient ≤ 0</button>
+        <button class="opt">Boucle infinie</button>
+      </div>
+      <div class="q__exp">x décroît : 10,7,4,1,-2 <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> la condition devient fausse à -2. Pas de boucle infinie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Le programme <code>if n % 2 == 0: print("pair")</code> avec <code>n = 7</code> affiche ?</p>
+      <div class="opts">
+        <button class="opt">pair</button>
+        <button class="opt" data-correct="1">rien</button>
+        <button class="opt">SyntaxError</button>
+      </div>
+      <div class="q__exp">7 % 2 = 1 ≠ 0, la condition est fausse <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> aucune sortie.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est le résultat de la somme 1+2+…+10 ?</p>
+      <div class="opts">
+        <button class="opt">45</button>
+        <button class="opt" data-correct="1">55</button>
+        <button class="opt">50</button>
+      </div>
+      <div class="q__exp">10 × 11 / 2 = 55. Vérifie avec une boucle <code>range(1, 11)</code> (borne 11 exclue = jusqu'à 10).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans <code>if a:</code> … <code>elif b:</code> … <code>else:</code>, que se passe-t-il si a et b sont vrais ?</p>
+      <div class="opts">
+        <button class="opt">Les deux blocs s'exécutent</button>
+        <button class="opt" data-correct="1">Seul le bloc <code>if</code> s'exécute</button>
+        <button class="opt">Le bloc <code>else</code> s'exécute</button>
+      </div>
+      <div class="q__exp">L'évaluation s'arrête au premier vrai : le <code>elif</code> est ignoré.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de fois <code>"abc"</code> est-il affiché ? <code>for i in range(2): for j in range(3): print("abc")</code></p>
+      <div class="opts">
+        <button class="opt">5</button>
+        <button class="opt" data-correct="1">6</button>
+        <button class="opt">3</button>
+      </div>
+      <div class="q__exp">Boucles imbriquées : 2 × 3 = 6.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle boucle est la plus adaptée pour « répéter jusqu'à ce que l'utilisateur saisisse 'quit' » ?</p>
+      <div class="opts">
+        <button class="opt">for sur range(10)</button>
+        <button class="opt" data-correct="1">while avec condition de sortie</button>
+        <button class="opt">if / elif</button>
+      </div>
+      <div class="q__exp">On ne connaît pas le nombre d'itérations <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> <code>while</code> est le bon outil.</div>
+    </div>
+  </div>
+
+  <h2>10. Erreurs classiques</h2>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Borne de <code>range</code> oubliée (<code>n+1</code>) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg> somme ou comptage faux d'une unité.</li>
+      <li><code>=</code> au lieu de <code>==</code> dans un test.</li>
+      <li><code>else if</code> (comme en C) au lieu de <code>elif</code>.</li>
+      <li>Boucle infinie : variable non modifiée dans le <code>while</code>.</li>
+      <li>Ordre des <code>elif</code> qui rend une branche inatteignable.</li>
+    </ul>
+  </div>
+
+  <h2>11. Méthodologie de résolution</h2>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> « Compter / accumuler » et « répéter jusqu'à »</div>
+    <p><strong>Accumuler :</strong> initialise un accumulateur <em>avant</em> la boucle (<code>total = 0</code>,
+    <code>compteur = 0</code>), puis mets-le à jour <em>dans</em> la boucle. <strong>Répéter jusqu'à :</strong>
+    identifie la condition de sortie, écris-la en premier, puis le corps.</p>
+  </div>
+
+  <h2>12. Révision active</h2>
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li><code>and</code>/<code>or</code>/<code>not</code> combinent les comparaisons.</li>
+      <li><code>if/elif/else</code> : évaluation de haut en bas, arrêt au premier vrai.</li>
+      <li><code>range(début, fin_exclue, pas)</code>.</li>
+      <li><code>for</code> = parcours ; <code>while</code> = répétition conditionnelle.</li>
+      <li><code>break</code> sort, <code>continue</code> saute, <code>pass</code> ne fait rien.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais choisir un <code>for</code> plutôt qu'un <code>while</code>.</li>
+      <li>Je sais garantir qu'une boucle <code>while</code> se termine.</li>
+      <li>Je sais éviter le piège de la borne <code>range</code>.</li>
+      <li>Je sais accorder l'ordre des <code>elif</code> à l'énoncé.</li>
+      <li>Je sais écrire une boucle imbriquée et prédire le nombre de tours.</li>
+    </ul>
+    <h3>Les 10 notions à connaître absolument</h3>
+    <ol>
+      <li><code>and</code>/<code>or</code>/<code>not</code></li><li><code>==</code> vs <code>=</code></li>
+      <li><code>if/elif/else</code></li><li>ordre des tests</li><li><code>range</code> semi-ouvert</li>
+      <li>boucle <code>for</code></li><li>boucle <code>while</code> et condition de sortie</li><li><code>break</code></li>
+      <li><code>continue</code></li><li>boucles imbriquées</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Flashcards</a> <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo</a></p>
+  </div>
+
+  <h2>13. Test de maîtrise</h2>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Lecture du score du QCM</div>
+    <div class="bands">
+      <div class="bandrow bandrow--low">&lt; 50 % — Reprends sections 3-5.</div>
+      <div class="bandrow bandrow--mid">50–69 % — Refais les exercices niveaux 1-2.</div>
+      <div class="bandrow bandrow--good">70–89 % — Cible les pièges (range, ordre des elif).</div>
+      <div class="bandrow bandrow--top">≥ 95 % — Passe au chapitre 3.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Chapitre 2 maîtrisé (≥ 95 %).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="chapitre1.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Chapitre 1</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Fonctions <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail. Sources :
+  supports B1 INF-1001 (modules 2) et sujets d'examen 2024-2025.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

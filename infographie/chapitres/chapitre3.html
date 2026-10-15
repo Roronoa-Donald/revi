@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Texturing, Espace UV &amp;amp; Cartographie de Relief (Normal Mapping) | Infographie B2</title>
+<meta name="description" content="Chapitre 3 du cours Infographie B2 : Dépliage UV et coordonnées normalisées [0, 1], contraintes GPU des textures Power of Two (POT), atlas de textures (Texture Atlasing), filtrage bilinéaire et trilinéaire, cartographie de normales en espace tangent (Tangent Space Normal Maps) et encodage RVB. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/infographie/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Texturing, Espace UV &amp;amp; Cartographie de Relief (Normal Mapping) | Infographie B2">
+<meta property="og:description" content="Chapitre 3 du cours Infographie B2 : Dépliage UV et coordonnées normalisées [0, 1], contraintes GPU des textures Power of Two (POT), atlas de textures (Texture Atlasing), filtrage bilinéaire et trilinéaire, cartographie de normales en espace tangent (Tangent Space Normal Maps) et encodage RVB. Notions fondamentales, ateliers de simulation interactifs, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<nav class="infographienav"><div class="infographienav__in">
+  <a class="infographienav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
+  <span class="infographienav__sep" aria-hidden="true">/</span>
+  <a class="infographienav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-image"></use></svg> Infographie B2</a>
+  <div class="infographienav__links">
+    <a href="../sommaire.html">Sommaire</a>
+    <a href="../chapitres/chapitre1.html">Ch. 1</a>
+    <a href="../chapitres/chapitre2.html">Ch. 2</a>
+    <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+    <a href="../chapitres/chapitre4.html">Ch. 4</a>
+    <a href="../chapitres/chapitre5.html">Ch. 5</a>
+    <a href="../chapitres/chapitre6.html">Ch. 6</a>
+    <a href="../chapitres/cartes.html">Cartes</a>
+    <a href="../chapitres/formules.html">Mémo</a>
+    <a href="../exercices/exercices.html">Exercices</a>
+    <a href="../atelier.html">Atelier</a>
+    <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </div>
+  <div class="infographienav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Activer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main id="content" class="infographiewrap">
+<p class="crumb"><a href="../index.html">Infographie B2</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<h1>Chapitre 3 — Texturing, Espace UV &amp; Cartographie de Relief (Normal Mapping)</h1>
+
+<div class="chapmeta">
+    <span class="tag">Module 3</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
+    <span class="tag tag--time">Réservé B2 et plus</span>
+  </div>
+
+  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Un maillage 3D nu n’est qu’une carcasse de polygones grisâtres. Pour lui donner vie et réalisme, le pipeline graphique applique le processus de plaquage de textures (Texture Mapping). Cette opération exige d’établir une correspondance bidirectionnelle rigoureuse entre chaque sommet 3D (X, Y, Z) et un point sur une image 2D grâce aux coordonnées paramétriques UV. Pour optimiser la mémoire vidéo et les accès du processeur graphique (GPU), les textures doivent respecter des contraintes matérielles strictes : dimensions en puissances de deux (Power of Two), atlas de textures pour réduire les ruptures de rendu, et calcul d’effets de micro-reliefs via des Normal Maps encodées en espace tangent. Ce module décortique le cycle complet du texturing moderne : des calculs de coordonnées d’atlas jusqu’au décodage des normales de surface dans les shaders de pixels.</p>
+  </div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, tu seras capable de :</p>
+    <ol>
+      <li>comprendre le principe du dépliage UV (UV Unwrapping) et l’échantillonnage de texels dans l’intervalle normalisé [0.0, 1.0] ;</li>
+      <li>analyser la contrainte matérielle des textures en puissances de deux (POT : 256, 512, 1024, 2048) pour le GPU ;</li>
+      <li>concevoir et découper un atlas de textures (Texture Atlas / Sprite Sheet) pour optimiser les appels de dessin ;</li>
+      <li>distinguer les modes de filtrage de texture : Nearest Neighbor (pixels bruts), Bilinéaire et Trilinéaire ;</li>
+      <li>maîtriser le fonctionnement physique et mathématique des Normal Maps en espace tangent (TBN) ;</li>
+      <li>implémenter des décodeurs RVB vers vecteurs normaux 3D pour shaders de rendu en temps réel.</li>
+    </ol>
+  </div>
+
+<h2>1. Espace UV &amp; Contraintes Matérielles GPU (Power of Two)</h2>
+
+<p>Chaque sommet d’un maillage 3D embarque, en plus de sa position dans l’espace, un couple de coordonnées de texture <code>(u, v)</code> :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Repère Normalisé UV</h4>
+    <ul>
+      <li><strong>Axe U :</strong> Coordonnée horizontale variant de 0.0 (gauche) à 1.0 (droite).</li>
+      <li><strong>Axe V :</strong> Coordonnée verticale variant de 0.0 (bas ou haut selon les API OpenGL/DirectX) à 1.0.</li>
+      <li><strong>Indépendance de résolution :</strong> Les coordonnées UV étant normalisées, on peut remplacer une texture 512x512 par une texture 2048x2048 sans modifier le maillage 3D.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>Textures Power of Two (POT)</h4>
+    <ul>
+      <li><strong>Dimensions compatibles :</strong> <code>2^n</code> (ex: 64, 128, 256, 512, 1024, 2048, 4096).</li>
+      <li><strong>Bénéfice matériel :</strong> Adressage binaire ultra-rapide par décalage de bits (bitwise shift) au lieu de divisions coûteuses sur l’ALU du GPU.</li>
+      <li><strong>Chaîne de Mipmaps :</strong> Le GPU divise par 2 à chaque niveau jusqu’à 1x1 sans reste ni artefact de rééchantillonnage.</li>
+    </ul>
+  </div>
+</div>
+  <div class="box box--tip">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Que se passe-t-il avec une texture NPOT (Non-Power of Two) ?</div>
+<p>Les GPU récents supportent l’affichage des textures NPOT (ex: 800x600), mais avec des restrictions sévères : impossibilité de générer des chaînes de mipmaps matérielles complètes et désactivation du mode de répétition en boucle (Wrap / Repeat mode).</p>
+  </div>
+
+<h2>2. Atlas de Textures &amp; Découpage de Sprites</h2>
+
+<p>Dans un moteur de jeu ou une application graphique temps réel, chaque texture distincte implique un changement d’état sur le GPU. Pour maximiser les performances, on regroupe des dizaines d’éléments dans un <strong>atlas de textures</strong> unique :</p>
+<p>Pour une grille de <code>nb_cols</code> colonnes et <code>nb_rows</code> lignes, les coordonnées UV de la tuile située à la colonne <code>c</code> et à la ligne <code>r</code> se calculent selon :</p>
+<pre><code>u_min = (c * tuile_w) / atlas_W\nu_max = ((c + 1) * tuile_w) / atlas_W\nv_min = 1.0 - ((r + 1) * tuile_h) / atlas_H\nv_max = 1.0 - (r * tuile_h) / atlas_H</code></pre>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Modes de Filtrage : Bilinéaire et Trilinéaire</div>
+<p>Lorsque le pixel affiché à l’écran ne correspond pas exactement à un texel de la texture :</p><ul>  <li><strong>Nearest Neighbor :</strong> Prend le texel le plus proche. Produit un effet pixelisé (style rétro).</li>  <li><strong>Bilinéaire :</strong> Calcule une moyenne pondérée entre les 4 texels voisins les plus proches. Lisse les pixels.</li>  <li><strong>Trilinéaire :</strong> Réalise un filtrage bilinéaire sur les deux niveaux de mipmaps adjacents et effectue une interpolation linéaire entre les deux. Élimine toute coupure visible lors des transitions de distance.</li></ul>
+  </div>
+
+<h2>3. Cartographie de Relief : Normal Mapping en Espace Tangent</h2>
+
+<p>Le <strong>Normal Mapping</strong> est la technique reine de l’infographie 3D pour simuler des micro-détails (briques, peau, gravures, boulons) sans alourdir le nombre de polygones du maillage :</p>
+<div class="grid grid-2">
+  <div class="card">
+    <h4>Principe de Fonctionnement</h4>
+    <p>Une texture 2D stocke directement le vecteur normal 3D <code>(Nx, Ny, Nz)</code> sous forme de couleur <code>(R, V, B)</code>. Le pixel shader lit cette couleur, la convertit en vecteur, et l’utilise pour calculer les reflets et ombrages comme si la géométrie physique était bosselée.</p>
+  </div>
+  <div class="card">
+    <h4>Décodage Shader de l’Espace Tangent</h4>
+    <p>Les canaux couleur [0, 255] sont ré-étirés vers l’intervalle vectoriel [-1.0, 1.0] :</p>
+    <pre><code>Nx = (R / 255.0) * 2.0 - 1.0\nNy = (G / 255.0) * 2.0 - 1.0\nNz = (B / 255.0) * 2.0 - 1.0\nN = normalize(vec3(Nx, Ny, Nz))</code></pre>
+  </div>
+</div>
+<table class="table">
+  <thead>
+    <tr><th>Couleur RVB</th><th>Vecteur Normal résultant</th><th>Orientation physique sur la face</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>(128, 128, 255)</code></td><td><code>(0.0, 0.0, 1.0)</code></td><td>Perpendiculaire parfaite (bleu ciel classique).</td></tr>
+    <tr><td><code>(255, 128, 128)</code></td><td><code>(1.0, 0.0, 0.0)</code></td><td>Pente inclinée vers la droite (+X / axe Tangente).</td></tr>
+    <tr><td><code>(128, 255, 128)</code></td><td><code>(0.0, 1.0, 0.0)</code></td><td>Pente inclinée vers le haut (+Y / axe Bitangente).</td></tr>
+  </tbody>
+</table>
+
+<!-- code-labs:start -->
+  <h2>4. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
+  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+<div class="lab" data-lab
+     data-exercise="ig2-c3-e1"
+     data-language="python"
+     data-height="300"
+     data-stdin="1024 1024&#10;500 300&#10;2048 512">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : vérifier les dimensions POT et calculer la suggestion
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Validateur de texture Puissance de Deux (Power of Two - POT)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité des dimensions d’une texture selon la règle GPU « Power of Two » et proposer l’arrondi optimal pour les Mipmaps.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des paires d'entiers <code>&lt;Largeur&gt; &lt;Hauteur&gt;</code> en pixels (une par ligne).<br>
+Règles matérielles GPU :<br>
+- Une dimension est POT (Power of Two) si elle est une puissance exacte de 2 (ex: 64, 128, 256, 512, 1024, 2048, 4096).<br>
+- Une texture est conforme si sa Largeur ET sa Hauteur sont toutes deux POT.<br>
+- Si une dimension n'est pas POT, la suggestion GPU est la plus petite puissance de 2 supérieure ou égale à la dimension actuelle.<br>
+Afficher :<br>
+- Si conforme :<br>
+  <code>TEXTURE: &lt;L&gt;x&lt;H&gt; -&gt; POT: OUI (Compatible Mipmaps et compression materielle)</code><br>
+- Si non-conforme :<br>
+  <code>TEXTURE: &lt;L&gt;x&lt;H&gt; -&gt; POT: NON | SUGGESTION_GPU: &lt;PotL&gt;x&lt;PotH&gt;</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1024 1024
+500 300
+2048 512</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TEXTURE: 1024x1024 -&gt; POT: OUI (Compatible Mipmaps et compression materielle)
+TEXTURE: 500x300 -&gt; POT: NON | SUGGESTION_GPU: 512x512
+TEXTURE: 2048x512 -&gt; POT: OUI (Compatible Mipmaps et compression materielle)</pre></div>
+    </div>
+    <p class="lab__note">1024 et 2048x512 sont POT. 500x300 est non-POT et doit être ajusté en 512x512.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Un entier positif x est une puissance de 2 si (x &amp; (x - 1)) == 0.</li>
+        <li>Pour trouver la puissance supérieure : 2 ** math.ceil(math.log2(x)).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c3-e2"
+     data-language="python"
+     data-height="300"
+     data-stdin="ATLAS=1024x1024 CELL=256x256 COL=0 ROW=0&#10;ATLAS=1024x1024 CELL=256x256 COL=1 ROW=0&#10;ATLAS=1024x1024 CELL=256x256 COL=3 ROW=3">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : calculer les coordonnées de découpe UV pour le shader
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Calculateur de coordonnées d’atlas de sprites (Sprite Sheet UV Map)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer les coordonnées de texture UV normalisées [0, 1] d’une sous-image découpée dans un atlas 2D pour moteur de jeu.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations au format :<br>
+<code>ATLAS=&lt;W&gt;x&lt;H&gt; CELL=&lt;w&gt;x&lt;h&gt; COL=&lt;c&gt; ROW=&lt;r&gt;</code>.<br>
+L'atlas fait W par H pixels. Chaque cellule de sprite fait w par h pixels.<br>
+Les indices de grille (COL, ROW) démarrent à 0 (colonne 0 à gauche, ligne 0 en haut).<br>
+Formules dans l'espace UV standard (origine (0, 0) en bas à gauche de la texture) :<br>
+- <code>U_min = (c * w) / float(W)</code><br>
+- <code>U_max = ((c + 1) * w) / float(W)</code><br>
+- <code>V_min = 1.0 - ((r + 1) * h) / float(H)</code><br>
+- <code>V_max = 1.0 - (r * h) / float(H)</code><br>
+Afficher :<br>
+<code>FRAME (&lt;c&gt;, &lt;r&gt;) -&gt; UV: U=[&lt;U_min:.3f&gt;, &lt;U_max:.3f&gt;] | V=[&lt;V_min:.3f&gt;, &lt;V_max:.3f&gt;]</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ATLAS=1024x1024 CELL=256x256 COL=0 ROW=0
+ATLAS=1024x1024 CELL=256x256 COL=1 ROW=0
+ATLAS=1024x1024 CELL=256x256 COL=3 ROW=3</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>FRAME (0, 0) -&gt; UV: U=[0.000, 0.250] | V=[0.750, 1.000]
+FRAME (1, 0) -&gt; UV: U=[0.250, 0.500] | V=[0.750, 1.000]
+FRAME (3, 3) -&gt; UV: U=[0.750, 1.000] | V=[0.000, 0.250]</pre></div>
+    </div>
+    <p class="lab__note">La case en haut à gauche (0,0) a V entre 0.750 et 1.000 ; la case en bas à droite a V entre 0 et 0.250.</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>L’axe vertical V part de 0 en bas et monte à 1 en haut dans OpenGL/Unity.</li>
+        <li>Arrondir les coordonnées UV à 3 décimales.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" data-lab
+     data-exercise="ig2-c3-e3"
+     data-language="python"
+     data-height="300"
+     data-stdin="128 128 255&#10;255 128 128&#10;128 255 128">
+  <script type="text/plain" data-lab-starter>import sys
+
+lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+
+# À compléter : décoder le pixel RVB en vecteur normal unitaire
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Décodeur de Normal Map (Espace tangent RVB vers vecteur normal)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir les composantes RVB d’une texture de relief Normal Map en vecteur normal unitaire 3D.</p>
+    <div class="lab__brief"><p>Le script lit sur l'entrée standard des triplets entiers <code>R G B</code> dans [0, 255] représentant la couleur d'un pixel de Normal Map tangent-space.<br>
+Formules de décodage shader :<br>
+1. Transformation linéaire vers l'intervalle [-1.0, 1.0] :<br>
+   <code>Nx = (R / 255.0) * 2.0 - 1.0</code><br>
+   <code>Ny = (G / 255.0) * 2.0 - 1.0</code><br>
+   <code>Nz = (B / 255.0) * 2.0 - 1.0</code><br>
+2. Normalisation du vecteur unitaire :<br>
+   <code>norme = sqrt(Nx^2 + Ny^2 + Nz^2)</code><br>
+   Si <code>norme &gt; 0</code>, alors <code>(Nx, Ny, Nz) = (Nx/norme, Ny/norme, Nz/norme)</code>.<br>
+Afficher :<br>
+<code>NORMAL_MAP: RVB=(&lt;R&gt;, &lt;G&gt;, &lt;B&gt;) -&gt; VECTEUR_NORMAL: (&lt;Nx:.3f&gt;, &lt;Ny:.3f&gt;, &lt;Nz:.3f&gt;)</code></p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>128 128 255
+255 128 128
+128 255 128</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>NORMAL_MAP: RVB=(128, 128, 255) -&gt; VECTEUR_NORMAL: (0.004, 0.004, 1.000)
+NORMAL_MAP: RVB=(255, 128, 128) -&gt; VECTEUR_NORMAL: (1.000, 0.004, 0.004)
+NORMAL_MAP: RVB=(128, 255, 128) -&gt; VECTEUR_NORMAL: (0.004, 1.000, 0.004)</pre></div>
+    </div>
+    <p class="lab__note">La teinte bleu ciel typique d’une normal map pointe vers la caméra (axe Z).</p>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <ol>
+        <li>Le bleu neutre (128, 128, 255) correspond à une normale pointant tout droit le long de l’axe Z (0, 0, 1).</li>
+        <li>Normaliser le vecteur pour garantir une longueur de 1.0.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel intervalle de valeurs standard les coordonnées de texture UV utilisent-elles pour couvrir l’intégralité d’une image ?</p>
+      <div class="opts">
+        <button class="opt">De -1.0 à +1.0</button>
+        <button class="opt" data-correct="1">De 0.0 à 1.0</button>
+        <button class="opt">De 0 à 255</button>
+        <button class="opt">De 0 à 1024</button>
+      </div>
+      <div class="q__exp">Les coordonnées UV sont normalisées : (0, 0) correspond à un coin de la texture et (1, 1) au coin diagonalement opposé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi exige-t-on traditionnellement que les textures 3D aient des dimensions en puissances de deux (Power of Two : 512, 1024, 2048) ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Parce que le GPU calcule les adresses mémoire par de simples décalages de bits binaires et nécessite des dimensions divisibles par 2 pour générer la chaîne de mipmaps</button>
+        <button class="opt">Parce que les câbles HDMI ne supportent que les puissances de deux</button>
+        <button class="opt">Pour réduire le prix de vente de la carte graphique</button>
+        <button class="opt">Pour empêcher la copie illégale des textures</button>
+      </div>
+      <div class="q__exp">La division binaire par 2 s’effectue en un seul cycle d’horloge (bit shift), garantissant des accès mémoire ultra-rapides et des mipmaps sans reste.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’intérêt architectural majeur de concevoir un « Texture Atlas » regroupant plusieurs textures d’objets dans un seul grand fichier image ?</p>
+      <div class="opts">
+        <button class="opt">Augmenter le nombre de polygones du modèle 3D</button>
+        <button class="opt" data-correct="1">Réduire le nombre de changements de matériaux et de Draw Calls envoyés par le CPU au processeur graphique</button>
+        <button class="opt">Désactiver la carte son de la machine</button>
+        <button class="opt">Accélérer la connexion Wi-Fi</button>
+      </div>
+      <div class="q__exp">Chaque texture distincte oblige le pilote GPU à changer d’état (Texture Binding). Un atlas permet de rendre des dizaines d’objets en un seul appel groupé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de filtrage de texture interpole à la fois entre les 4 texels voisins et entre les deux niveaux de mipmaps adjacents ?</p>
+      <div class="opts">
+        <button class="opt">Nearest Neighbor</button>
+        <button class="opt">Filtrage bilinéaire</button>
+        <button class="opt" data-correct="1">Filtrage trilinéaire</button>
+        <button class="opt">Filtrage par seuillage</button>
+      </div>
+      <div class="q__exp">Le filtrage trilinéaire combine un filtrage bilinéaire sur chaque niveau de mipmap et une interpolation linéaire entre les deux niveaux consécutifs.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une Normal Map en espace tangent, quelle couleur représente une surface parfaitement plane dont la normale pointe droit vers l’extérieur ?</p>
+      <div class="opts">
+        <button class="opt">Rouge pur (255, 0, 0)</button>
+        <button class="opt">Vert pur (0, 255, 0)</button>
+        <button class="opt" data-correct="1">Bleu ciel neutre (128, 128, 255)</button>
+        <button class="opt">Noir pur (0, 0, 0)</button>
+      </div>
+      <div class="q__exp">Après décodage shader : R=128 donne Nx≈0, V=128 donne Ny≈0, et B=255 donne Nz=+1. Le vecteur est (0, 0, 1), perpendiculaire à la face.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle formule de shader convertit la composante de couleur rouge R (comprise entre 0 et 255) en composante de normale spatiale Nx (comprise entre -1.0 et +1.0) ?</p>
+      <div class="opts">
+        <button class="opt">Nx = R / 255.0</button>
+        <button class="opt" data-correct="1">Nx = (R / 255.0) * 2.0 - 1.0</button>
+        <button class="opt">Nx = R - 128.0</button>
+        <button class="opt">Nx = 1.0 - (R / 128.0)</button>
+      </div>
+      <div class="q__exp">R / 255 normalise sur [0, 1]. En multipliant par 2 puis en soustrayant 1, on remet à l’échelle sur l’intervalle symétrique [-1.0, 1.0].</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle composante géométrique manque-t-il si un maillage 3D possède des positions (X, Y, Z) et des normales (Nx, Ny, Nz) mais pas de tangentes (T) pour utiliser une Normal Map en espace tangent ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Le repère TBN ne peut pas être construit et les perturbations de la normale ne peuvent pas être alignées sur la surface</button>
+        <button class="opt">Le processeur refuse de démarrer</button>
+        <button class="opt">L’écran passe automatiquement en noir et blanc</button>
+        <button class="opt">La texture devient invisible</button>
+      </div>
+      <div class="q__exp">Le repère TBN (Tangente, Bitangente, Normale) est indispensable pour transformer le vecteur lu dans la texture tangent-space vers l’espace monde ou objet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que permet le filtrage anisotrope par rapport au filtrage trilinéaire standard ?</p>
+      <div class="opts">
+        <button class="opt">Il augmente la vitesse du ventilateur du GPU</button>
+        <button class="opt" data-correct="1">Il améliore considérablement la netteté des textures observées sous un angle de vue très rasant (ex: sol fuyant vers l’horizon)</button>
+        <button class="opt">Il compresse les fichiers MP3</button>
+        <button class="opt">Il divise la consommation électrique par deux</button>
+      </div>
+      <div class="q__exp">L’anisotropie échantillonne la texture selon une ellipse non-isotrope, évitant le flou excessif lorsque la surface est fortement inclinée par rapport à la caméra.</div>
+    </div>
+  </div>
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Utiliser des textures de dimensions arbitraires (ex: 1000x750) dans un moteur 3D temps réel, empêchant l’utilisation optimale du cache et des mipmaps.</li>
+      <li>Oublier de normaliser le vecteur normal après décodage de la Normal Map, ce qui provoque des aberrations d’intensité lumineuse.</li>
+      <li>Confondre l’espace tangent (relatif à la surface du triangle) et l’espace monde (absolu dans la scène 3D).</li>
+    </ul>
+  </div>
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole de Texturing, Dépliage UV et Décodage de Normal Maps</div>
+    <ol>
+      <li>Étape 1 — Déplier le maillage en coordonnées UV : Projeter les sommets 3D sur le plan 2D normalisé [0.0, 1.0] en minimisant l’étirement (stretching).</li>
+      <li>Étape 2 — Imposer la contrainte Power of Two (POT) : Dimensionner la texture en puissances de deux (ex: 1024x1024, 2048x2048) pour optimiser le GPU et les Mipmaps.</li>
+      <li>Étape 3 — Agencer les assets dans un Texture Atlas : Regrouper les sous-textures et calculer précisément les plages [u_min, u_max] et [v_min, v_max].</li>
+      <li>Étape 4 — Configurer le filtrage : Sélectionner le filtrage bilinéaire ou trilinéaire pour éviter l’effet de pixellisation et les ruptures de transitions.</li>
+      <li>Étape 5 — Générer la Normal Map en espace tangent : Enregistrer les perturbations de normale sous forme de triplet RVB où le bleu (0, 0, 1) code la face plane.</li>
+      <li>Étape 6 — Décoder dans le Fragment Shader : Transformer les composantes [0, 255] en vecteur unitaire [-1.0, 1.0] via la formule (RVB / 255) * 2 - 1.</li>
+    </ol>
+  </div>
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Les coordonnées de texture UV normalisées dans [0, 1] découplent la géométrie 3D de la résolution de l’image.</li>
+      <li>Les textures en puissances de deux (POT) optimisent les adresses mémoire du GPU et autorisent des chaînes de mipmaps parfaites.</li>
+      <li>L’atlas de textures regroupe plusieurs éléments pour minimiser les changements de matériaux et les Draw Calls.</li>
+      <li>Le filtrage trilinéaire interpole entre les 4 texels voisins et entre les 2 niveaux de mipmaps les plus proches.</li>
+      <li>Le bleu ciel (128, 128, 255) d’une normal map correspond au vecteur neutre (0, 0, 1) perpendiculaire à la surface.</li>
+      <li>L’espace tangent (TBN : Tangente, Bitangente, Normale) permet d’appliquer la même normal map sur des objets animés ou déformés.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais expliquer ce qu’est un texel et comment il se mappe sur un pixel de l’écran.</li>
+      <li>Je connais la règle des dimensions en puissances de deux (POT : 256, 512, 1024, 2048).</li>
+      <li>Je sais calculer les coordonnées UV de découpage d’un sous-élément dans un atlas de sprites.</li>
+      <li>Je comprends la différence entre filtrage bilinéaire et trilinéaire.</li>
+      <li>Je maîtrise la formule de transformation entre couleur RVB et vecteur normal unitaire dans un shader.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li>Dépliage UV et coordonnées paramétriques (u, v)</li><li>Textures Power of Two (POT) vs NPOT</li><li>Atlas de textures (Texture Atlasing / Spritesheets)</li><li>Filtrage bilinéaire, trilinéaire et anisotrope</li><li>Normal Mapping en espace tangent (Tangent Space)</li><li>Repère TBN (Tangente, Bitangente, Normale)</li><li>Encodage et décodage vectoriel RVB dans les shaders</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment t'auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lis ton pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low">Moins de 4/8 : Révisez les coordonnées UV normalisées, les contraintes POT et la signification du bleu dans les Normal Maps.</div>
+      <div class="bandrow bandrow--mid">De 4 à 6/8 : Bon socle de connaissances. Approfondissez le calcul de découpage d’atlas et le repère TBN.</div>
+      <div class="bandrow bandrow--good">7/8 : Très bonne maîtrise du texturing et des shaders de relief.</div>
+      <div class="bandrow bandrow--top">8/8 : Score parfait ! Vous maîtrisez les coordonnées UV et le Normal Mapping au niveau d’un ingénieur rendu 3D.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Modélisation 3D, Maillages Polygonaux &amp; Transformations TRS <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
+  Sources : les spécifications Khronos Group (OpenGL, Vulkan), les documentations officielles Blender, Unity et Unreal Engine, et les traités de référence Real-Time Rendering.</p>
+</main>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>
