@@ -316,15 +316,57 @@
   // Atelier
   // ========================
 
+  function parseAnalyseStarter(starter) {
+    var lines = String(starter || '').replace(/\r\n?/g, '\n').split('\n');
+    var headerRe = /^\[(?:cas\s*(\d+)|exemple)\b\s*(?:[—–-]\s*(.*?))?\]$/i;
+    var cases = [];
+    var currentCase = null;
+    var preamble = [];
+
+    for (var i = 0; i < lines.length; i++) {
+      var raw = lines[i];
+      var trimmed = raw.trim();
+      var match = headerRe.exec(trimmed);
+      if (match) {
+        currentCase = {
+          index: match[1] ? parseInt(match[1], 10) : (cases.length + 1),
+          label: (match[2] || '').trim(),
+          dataLines: [],
+          value: ''
+        };
+        cases.push(currentCase);
+        continue;
+      }
+      if (!currentCase) {
+        preamble.push(raw);
+        continue;
+      }
+      if (trimmed.startsWith('#')) {
+        var d = trimmed.replace(/^#\s*(?:donn[eé]es?\s*:\s*)?/i, '').trim();
+        if (d && !d.toLowerCase().startsWith('complétez') && !d.toLowerCase().startsWith('grille')) {
+          currentCase.dataLines.push(d);
+        }
+      } else if (trimmed && trimmed !== 'A_COMPLETER') {
+        currentCase.value += (currentCase.value ? '\n' : '') + raw;
+      }
+    }
+    return { preamble: preamble, cases: cases };
+  }
+
   function Lab(root) {
     this.root = root;
     this.exerciseId = root.getAttribute('data-exercise') || '';
     this.language = root.getAttribute('data-language') || 'python';
+    this.isAnalyse = this.language === 'analyse';
     this.height = parseInt(root.getAttribute('data-height'), 10) || 300;
     this.withPicker = root.getAttribute('data-languages') === '1';
     this.starter = readStarter(root);
     this.editor = null;
     this.fallback = null;
+    this.analyseCases = null;
+    this.analysePreamble = null;
+    this.rawMode = false;
+    this.rawTextarea = null;
     this.running = false;
     this.lastOutcome = null;
     this.activeTab = 'out';
@@ -341,12 +383,32 @@
   };
 
   Lab.prototype.getCode = function () {
+    if (this.isAnalyse && this.analyseCases) {
+      if (this.rawMode && this.rawTextarea) {
+        return this.rawTextarea.value;
+      }
+      return this.formatAnalyseCode();
+    }
     if (this.editor) return this.editor.getValue();
     if (this.fallback) return this.fallback.value;
     return '';
   };
 
   Lab.prototype.setCode = function (code) {
+    if (this.isAnalyse && this.analyseCases) {
+      var parsed = parseAnalyseStarter(code);
+      if (parsed.cases.length === this.analyseCases.length) {
+        for (var i = 0; i < this.analyseCases.length; i++) {
+          if (parsed.cases[i]) this.analyseCases[i].value = parsed.cases[i].value;
+        }
+      }
+      if (this.rawMode && this.rawTextarea) {
+        this.rawTextarea.value = code;
+      } else {
+        this.renderAnalyseCases();
+      }
+      return;
+    }
     if (this.editor) this.editor.setValue(code);
     else if (this.fallback) this.fallback.value = code;
   };
@@ -356,8 +418,10 @@
   Lab.prototype.mount = function () {
     this.editorWrap = document.createElement('div');
     this.editorWrap.className = 'lab__editor-wrap';
-    this.editorWrap.innerHTML =
-      '<div class="lab__loading">' + icon('code') + '<span>Préparation de l’éditeur…</span></div>';
+    if (!this.isAnalyse) {
+      this.editorWrap.innerHTML =
+        '<div class="lab__loading">' + icon('code') + '<span>Préparation de l’éditeur…</span></div>';
+    }
 
     this.bar = this.buildBar();
     this.stdinBlock = this.buildStdin();
@@ -366,6 +430,11 @@
     this.reportEl.className = 'lab__report';
     this.reportEl.hidden = true;
     this.tutorEl = this.buildTutor();
+
+    if (this.isAnalyse) {
+      this.stdinBlock.hidden = true;
+      this.consoleEl.hidden = true;
+    }
 
     this.root.appendChild(this.editorWrap);
     this.root.appendChild(this.bar);
@@ -388,20 +457,31 @@
         '</select></label>';
     }
 
-    bar.innerHTML =
-      picker +
+    var runBtn = this.isAnalyse ? '' : (
       '<button type="button" class="lab__btn lab__btn--run" data-lab-run>' +
       icon('play') + '<span>Exécuter</span></button>' +
       '<button type="button" class="lab__btn lab__btn--stop" data-lab-stop hidden>' +
-      icon('x') + '<span>Arrêter</span></button>' +
+      icon('x') + '<span>Arrêter</span></button>'
+    );
+
+    var submitLabel = this.isAnalyse ? 'Vérifier mes réponses' : 'Valider';
+    var modeBtn = this.isAnalyse
+      ? '<button type="button" class="lab__btn lab__btn--ghost" data-lab-mode title="Basculer entre formulaire et texte brut">' +
+        icon('code') + '<span>Mode texte</span></button>'
+      : '';
+
+    bar.innerHTML =
+      picker +
+      runBtn +
       (this.exerciseId
-        ? '<button type="button" class="lab__btn lab__btn--submit" data-lab-submit>' +
-          icon('check') + '<span>Valider</span></button>'
+        ? '<button type="button" class="lab__btn ' + (this.isAnalyse ? 'lab__btn--primary ' : '') + 'lab__btn--submit" data-lab-submit>' +
+          icon('check') + '<span>' + esc(submitLabel) + '</span></button>'
         : '') +
       '<button type="button" class="lab__btn lab__btn--help" data-lab-help disabled>' +
       icon('brain') + '<span>Expliquer mon erreur</span></button>' +
       '<button type="button" class="lab__btn lab__btn--ghost" data-lab-reset>' +
       icon('refresh') + '<span>Réinitialiser</span></button>' +
+      modeBtn +
       '<span class="lab__badge-provenance" data-lab-provenance></span>' +
       '<span class="lab__status" data-lab-status role="status" aria-live="polite"></span>';
 
@@ -411,6 +491,7 @@
       submit: bar.querySelector('[data-lab-submit]'),
       help: bar.querySelector('[data-lab-help]'),
       reset: bar.querySelector('[data-lab-reset]'),
+      mode: bar.querySelector('[data-lab-mode]'),
       provenance: bar.querySelector('[data-lab-provenance]'),
       status: bar.querySelector('[data-lab-status]'),
       picker: bar.querySelector('[data-lab-picker]')
@@ -708,8 +789,210 @@
     }
   };
 
+  Lab.prototype.initAnalyseForm = function () {
+    var parsed = parseAnalyseStarter(this.starter);
+    this.analysePreamble = parsed.preamble;
+    this.analyseCases = parsed.cases;
+    this.rawMode = false;
+
+    // Charger le brouillon si disponible
+    var draft = this.loadDraft();
+    if (draft && draft !== this.starter) {
+      var draftParsed = parseAnalyseStarter(draft);
+      if (draftParsed.cases.length === this.analyseCases.length) {
+        for (var d = 0; d < this.analyseCases.length; d++) {
+          if (draftParsed.cases[d] && draftParsed.cases[d].value) {
+            this.analyseCases[d].value = draftParsed.cases[d].value;
+          }
+        }
+      }
+    }
+
+    this.renderAnalyseCases();
+  };
+
+  Lab.prototype.renderAnalyseCases = function () {
+    var self = this;
+    var uid = this.uid || ('lab-' + Math.random().toString(36).slice(2, 9));
+    this.uid = uid;
+
+    var html = '<div class="lab__analyse-grid" role="region" aria-label="Étude de cas et exercices d’application">';
+    html += '<div class="lab__cases">';
+
+    for (var i = 0; i < this.analyseCases.length; i++) {
+      var c = this.analyseCases[i];
+      var inputId = uid + '-case-' + c.index;
+      var dataHtml = '';
+      if (c.dataLines && c.dataLines.length > 0) {
+        dataHtml = '<div class="lab__case-context">' +
+          '<span class="lab__case-context-tag">Données :</span> ' +
+          c.dataLines.map(function (d) { return '<code>' + esc(d) + '</code>'; }).join(' ') +
+          '</div>';
+      }
+
+      var isMultiline = Boolean(c.value && c.value.includes('\n'));
+      var inputField = isMultiline
+        ? '<textarea id="' + inputId + '" class="lab__case-input lab__case-input--multi" data-case-idx="' + i + '" ' +
+          'placeholder="Votre réponse…" rows="3" spellcheck="false">' + esc(c.value || '') + '</textarea>'
+        : '<input type="text" id="' + inputId + '" class="lab__case-input" data-case-idx="' + i + '" ' +
+          'value="' + esc(c.value || '') + '" placeholder="Votre réponse (ex: 1/4, 0.25, terme disciplinaire)…" ' +
+          'autocomplete="off" spellcheck="false" />';
+
+      html +=
+        '<div class="lab__case" data-case-index="' + c.index + '">' +
+          '<div class="lab__case-header">' +
+            '<span class="badge badge--case">Cas ' + c.index + '</span>' +
+            '<h4 class="lab__case-title">' + esc(c.label || ('Cas ' + c.index)) + '</h4>' +
+            '<span class="lab__case-indicator" data-case-indicator="' + i + '" aria-hidden="true"></span>' +
+          '</div>' +
+          dataHtml +
+          '<div class="lab__case-input-row">' +
+            '<label for="' + inputId + '" class="sr-only">Votre réponse pour le Cas ' + c.index + '</label>' +
+            inputField +
+          '</div>' +
+          '<div class="lab__case-feedback" data-case-feedback="' + i + '" hidden></div>' +
+        '</div>';
+    }
+
+    html += '</div></div>';
+    this.editorWrap.innerHTML = html;
+
+    var inputs = this.editorWrap.querySelectorAll('.lab__case-input');
+    inputs.forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        var idx = parseInt(this.getAttribute('data-case-idx'), 10);
+        self.analyseCases[idx].value = this.value;
+        self.saveDraft();
+      });
+      inp.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey && this.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          self.submit();
+        }
+      });
+    });
+
+    if (typeof window.renderMathInElement === 'function') {
+      try {
+        window.renderMathInElement(this.editorWrap, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false
+        });
+      } catch (_) {}
+    }
+  };
+
+  Lab.prototype.toggleMode = function () {
+    if (!this.isAnalyse) return;
+    this.rawMode = !this.rawMode;
+
+    if (this.rawMode) {
+      var currentCode = this.formatAnalyseCode();
+      this.editorWrap.innerHTML =
+        '<div class="lab__raw-wrap">' +
+        '<label for="' + this.uid + '-raw" class="sr-only">Grille d’analyse brute</label>' +
+        '<textarea id="' + this.uid + '-raw" class="lab__raw-textarea" spellcheck="false">' +
+        esc(currentCode) +
+        '</textarea></div>';
+
+      var textarea = this.editorWrap.querySelector('.lab__raw-textarea');
+      this.rawTextarea = textarea;
+      var self = this;
+      textarea.addEventListener('input', function () {
+        self.saveDraft();
+      });
+      if (this.controls.mode) {
+        this.controls.mode.querySelector('span').textContent = 'Mode formulaire';
+      }
+    } else {
+      if (this.rawTextarea) {
+        var rawText = this.rawTextarea.value;
+        var parsed = parseAnalyseStarter(rawText);
+        if (parsed.cases.length === this.analyseCases.length) {
+          for (var i = 0; i < this.analyseCases.length; i++) {
+            if (parsed.cases[i]) this.analyseCases[i].value = parsed.cases[i].value;
+          }
+        }
+      }
+      this.rawTextarea = null;
+      this.renderAnalyseCases();
+      if (this.controls.mode) {
+        this.controls.mode.querySelector('span').textContent = 'Mode texte';
+      }
+    }
+  };
+
+  Lab.prototype.formatAnalyseCode = function () {
+    var out = '';
+    if (this.analysePreamble && this.analysePreamble.length > 0) {
+      out += this.analysePreamble.join('\n') + '\n\n';
+    }
+    for (var i = 0; i < this.analyseCases.length; i++) {
+      var c = this.analyseCases[i];
+      out += '[Cas ' + c.index + (c.label ? ' — ' + c.label : '') + ']\n';
+      for (var d = 0; d < c.dataLines.length; d++) {
+        out += '# Données : ' + c.dataLines[d] + '\n';
+      }
+      var val = (c.value || '').trim();
+      out += (val ? val : 'A_COMPLETER') + '\n\n';
+    }
+    return out.trim() + '\n';
+  };
+
+  Lab.prototype.updateAnalyseFeedback = function (report) {
+    var results = report.results || [];
+    var casesEls = this.editorWrap.querySelectorAll('.lab__case');
+    for (var i = 0; i < casesEls.length; i++) {
+      var el = casesEls[i];
+      var indicator = el.querySelector('[data-case-indicator]');
+      var feedback = el.querySelector('[data-case-feedback]');
+      var res = results[i];
+
+      if (res && res.ok) {
+        el.classList.add('lab__case--ok');
+        el.classList.remove('lab__case--ko');
+        if (indicator) {
+          indicator.innerHTML = '<span class="lab__tag lab__tag--ok">' + icon('check') + ' Validé</span>';
+        }
+        if (feedback) {
+          feedback.hidden = true;
+          feedback.innerHTML = '';
+        }
+      } else if (res && !res.ok) {
+        el.classList.add('lab__case--ko');
+        el.classList.remove('lab__case--ok');
+        if (indicator) {
+          indicator.innerHTML = '<span class="lab__tag lab__tag--ko">' + icon('x') + ' À corriger</span>';
+        }
+        if (feedback) {
+          feedback.hidden = false;
+          feedback.innerHTML = '<p class="lab__case-hint">' + icon('warning') + ' Réponse incorrecte. Vérifiez vos calculs ou votre raisonnement.</p>';
+        }
+      } else if (report.stop && report.stop.testIndex === i) {
+        el.classList.add('lab__case--ko');
+        el.classList.remove('lab__case--ok');
+        if (indicator) {
+          indicator.innerHTML = '<span class="lab__tag lab__tag--ko">' + icon('x') + ' À corriger</span>';
+        }
+        if (feedback) {
+          feedback.hidden = false;
+          feedback.innerHTML = '<p class="lab__case-hint">' + icon('warning') + ' Réponse incorrecte pour ce cas.</p>';
+        }
+      }
+    }
+  };
+
   Lab.prototype.initEditor = function () {
     var self = this;
+
+    if (this.isAnalyse) {
+      this.initAnalyseForm();
+      this.setStatus('idle', 'Prêt — Renseignez vos réponses et cliquez sur Vérifier');
+      return;
+    }
 
     withTimeout(loadMonaco(), MONACO_TIMEOUT_MS).then(function (monaco) {
       self.editorWrap.innerHTML = '';
@@ -720,7 +1003,7 @@
 
       self.editor = monaco.editor.create(host, {
         value: self.loadDraft(),
-        language: self.language === 'analyse' ? 'plaintext' : self.language,
+        language: self.language,
         theme: 'latte',
         automaticLayout: true,
         fontSize: 13,
@@ -923,6 +1206,9 @@
 
         var report = result.data || {};
         self.renderReport(report);
+        if (self.isAnalyse && self.analyseCases) {
+          self.updateAnalyseFeedback(report);
+        }
 
         // L'erreur du premier test en échec alimente le tuteur IA.
         self.lastOutcome = report.stop
@@ -940,8 +1226,10 @@
         var allPassed = report.total > 0 && report.passed === report.total;
         self.setStatus(allPassed ? 'success' : (report.stop && report.stop.reason === 'compile_error' ? 'compile_error' : 'runtime_error'),
           allPassed
-            ? 'Exercice validé'
-            : 'Exercice à revoir : ' + report.passed + ' / ' + report.total + ' test(s) validé(s)');
+            ? (self.isAnalyse ? 'Toutes les réponses sont validées' : 'Exercice validé')
+            : (self.isAnalyse
+                ? report.passed + ' / ' + report.total + ' cas validé(s) — corrigez les cas signalés'
+                : 'Exercice à revoir : ' + report.passed + ' / ' + report.total + ' test(s) validé(s)'));
       })
       .catch(function () {
         self.setStatus('api_error', 'Impossible de joindre le serveur de correction.');
@@ -969,11 +1257,13 @@
     var stop = report.stop;
     if (stop) {
       if (stop.reason === 'wrong_output') {
+        var inputLabel = this.isAnalyse ? 'Cas concerné' : 'Entrée';
+        var inputValue = this.isAnalyse ? (stop.label || 'Cas ' + ((stop.testIndex || 0) + 1)) : (stop.input || '(aucune)');
         html += '<div class="lab__diag">' +
           '<div class="lab__diag-title">' + icon('search') +
           '<span>Premier test en échec — ' + esc(stop.label) + '</span></div>' +
           '<div class="lab__diag-grid">' +
-          this.diagCell('Entrée', stop.input || '(aucune)', 'input') +
+          this.diagCell(inputLabel, inputValue, 'input') +
           this.diagCell('Sortie attendue', stop.expected, 'expected') +
           this.diagCell('Votre sortie', stop.actual || '(vide)', 'actual') +
           '</div></div>';
@@ -1079,6 +1369,34 @@
   Lab.prototype.reset = function () {
     if (this.running) return;
     this.clearDraft();
+
+    if (this.isAnalyse && this.analyseCases) {
+      for (var i = 0; i < this.analyseCases.length; i++) {
+        this.analyseCases[i].value = '';
+      }
+      var inputs = this.editorWrap.querySelectorAll('.lab__case-input');
+      for (var j = 0; j < inputs.length; j++) {
+        inputs[j].value = '';
+      }
+      var casesEls = this.editorWrap.querySelectorAll('.lab__case');
+      for (var k = 0; k < casesEls.length; k++) {
+        casesEls[k].classList.remove('lab__case--ok', 'lab__case--ko');
+        var ind = casesEls[k].querySelector('[data-case-indicator]');
+        if (ind) ind.innerHTML = '';
+        var fb = casesEls[k].querySelector('[data-case-feedback]');
+        if (fb) { fb.hidden = true; fb.innerHTML = ''; }
+      }
+      if (this.rawTextarea) {
+        this.rawTextarea.value = this.formatAnalyseCode();
+      }
+      this.lastOutcome = null;
+      this.reportEl.hidden = true;
+      this.tutorEl.hidden = true;
+      this.setStatus('idle', 'Prêt — Réponses réinitialisées');
+      this.refreshHelpState();
+      return;
+    }
+
     this.setCode(this.starter);
     if (this.stdinEl && typeof this.initialStdin === 'string') {
       this.stdinEl.value = this.initialStdin;
@@ -1098,11 +1416,12 @@
 
   Lab.prototype.wire = function () {
     var self = this;
-    this.controls.run.addEventListener('click', function () { self.run(); });
+    if (this.controls.run) this.controls.run.addEventListener('click', function () { self.run(); });
     if (this.controls.stop) this.controls.stop.addEventListener('click', function () { self.stop(); });
     if (this.controls.submit) this.controls.submit.addEventListener('click', function () { self.submit(); });
-    this.controls.help.addEventListener('click', function () { self.explain(); });
-    this.controls.reset.addEventListener('click', function () { self.reset(); });
+    if (this.controls.help) this.controls.help.addEventListener('click', function () { self.explain(); });
+    if (this.controls.reset) this.controls.reset.addEventListener('click', function () { self.reset(); });
+    if (this.controls.mode) this.controls.mode.addEventListener('click', function () { self.toggleMode(); });
   };
 
   // ========================

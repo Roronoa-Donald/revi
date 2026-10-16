@@ -22,7 +22,7 @@ const MAX_TESTS = 4;
  * Compare la sortie obtenue avec la sortie attendue selon le mode de test.
  * Supporte : normalisation standard (par défaut), comparaison exacte, et tolérance numérique.
  */
-function matchOutputs(actualRaw, expectedRaw, test) {
+function matchOutputs(actualRaw, expectedRaw, test, exercise) {
   const opts = test || {};
   const actual = String(actualRaw || '');
   const expected = String(expectedRaw || '');
@@ -31,9 +31,40 @@ function matchOutputs(actualRaw, expectedRaw, test) {
     return actual === expected;
   }
 
+  const isAnalyse = exercise && exercise.language === 'analyse';
+
+  const normA = normalizeOutput(actual);
+  const normE = normalizeOutput(expected);
+  if (normA === normE) return true;
+
+  if (isAnalyse) {
+    const trimA = normA.trim();
+    const trimE = normE.trim();
+    if (trimA === trimE) return true;
+
+    // Tolérance à la casse pour les notions et termes disciplinaires
+    if (trimA.toLowerCase() === trimE.toLowerCase()) return true;
+
+    // Tolérance virgule / point décimal (ex: 0,25 vs 0.25)
+    if (trimA.replace(',', '.') === trimE.replace(',', '.')) return true;
+
+    // Tolérance fraction vs décimal (ex: 1/4 vs 0.25 ou 0,25)
+    if (/^-?\d+\s*\/\s*\d+$/.test(trimA) || /^-?\d+\s*\/\s*\d+$/.test(trimE)) {
+      const evalFrac = (str) => {
+        const parts = str.split('/');
+        return parts.length === 2 && Number(parts[1]) !== 0 ? Number(parts[0]) / Number(parts[1]) : NaN;
+      };
+      const valA = /^-?\d+\s*\/\s*\d+$/.test(trimA) ? evalFrac(trimA) : parseFloat(trimA.replace(',', '.'));
+      const valE = /^-?\d+\s*\/\s*\d+$/.test(trimE) ? evalFrac(trimE) : parseFloat(trimE.replace(',', '.'));
+      if (!isNaN(valA) && !isNaN(valE) && Math.abs(valA - valE) < 1e-6) {
+        return true;
+      }
+    }
+  }
+
   if (typeof opts.tolerance === 'number' && !isNaN(opts.tolerance)) {
-    const actNum = parseFloat(actual.trim());
-    const expNum = parseFloat(expected.trim());
+    const actNum = parseFloat(actual.trim().replace(',', '.'));
+    const expNum = parseFloat(expected.trim().replace(',', '.'));
     if (!isNaN(actNum) && !isNaN(expNum)) {
       return Math.abs(actNum - expNum) <= opts.tolerance;
     }
@@ -105,7 +136,7 @@ async function runTests(exercise, code, deps) {
       });
     }
 
-    const matched = matchOutputs(outcome.stdout, test.expected, test);
+    const matched = matchOutputs(outcome.stdout, test.expected, test, exercise);
     results.push({ label: test.label || `Test ${index + 1}`, ok: matched });
 
     if (!matched) {
