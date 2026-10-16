@@ -159,7 +159,7 @@ function atelier(course) {
     '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="DOC_AUDIT\ntype=API_DOC\npath=/api/v1/auth\ncodes=200,400,500">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : automatisez vos validations documentaires, linters et contrats d\'API\nimport re\n\ndef auditer_document_technique():\n    print("Zone libre Document Technique B3 : pret a executer.")\n\nif __name__ == \'__main__\':\n    auditer_document_technique()\n</script>',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-document-technique\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations</h2>',

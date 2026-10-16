@@ -104,7 +104,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du vocabulaire de la règle de droit jusqu\'à la ' +
     'responsabilité contractuelle. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de ' +
     'niveau B1 ou supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Bash</strong> à écrire et à exécuter ' +
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
     'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
     'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
@@ -125,7 +125,7 @@ function sommaire(course, chapterList) {
     'sommaire.html': {
       title: 'Sommaire — ' + course.brand,
       description: 'Sommaire du cours de Droit B1 : ' + chapterList.length +
-        ' chapitres, exercices Bash exécutables, flashcards, mémo et examens blancs.',
+        ' chapitres, études de cas d’application, flashcards, mémo et examens blancs.',
       active: 'sommaire',
       body
     }
@@ -215,7 +215,7 @@ function atelier(course) {
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
-    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois exercices Bash corrigés ' +
+    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas corrigées ' +
     'automatiquement dans la page. Une fois l\'atelier apprivoisé, ils sont la meilleure façon de vérifier ' +
     'que le mécanisme juridique est vraiment acquis.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Généralités' }),
@@ -507,284 +507,74 @@ function exercices(course) {
     '    <ol>',
     intro.map(line => '      <li>' + line + '</li>').join('\n'),
     '    </ol>',
-    '    <details><summary>Corrections</summary><div class="sol"><pre><code>' + solutions + '</code></pre></div></details>',
+    '    <details><summary>Corrections &amp; analyses juridiques détaillées</summary><div class="sol">' + solutions + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
-    '  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un projet final qui ' +
-    'outille un greffe numérique. Les scripts sont en Bash, comme à l\'atelier.</p>',
+    '  <h1>Exercices supplémentaires &amp; cas pratiques</h1>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier de synthèse juridique sur les contrats informatiques et la conformité des données.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Lit n énoncés « o/s » et affiche regle ou prerogative, puis les deux compteurs.',
-      'Lit n normes « niveau texte » (const, trait, loi, regl) et affiche leur bloc (constitutionnalite, conventionalite, legalite, reglementaire).',
-      'Lit n situations « nom situation » (naissance, vivant, deces) et affiche titulaire ou eteinte.',
-      'Lit n juridictions « degre » (1, 2, 3) et affiche la juridiction correspondante.'
+      'Distinguer une règle de droit objectif d’une prérogative individuelle (droit subjectif).',
+      'Classer les normes selon la pyramide de Kelsen : bloc de constitutionnalité, conventionalité, légalité et réglementaire.',
+      'Identifier les conditions d’acquisition et d’extinction de la personnalité juridique d’une personne physique.',
+      'Distinguer les juridictions du premier degré, du second degré et la Cour de cassation.'
     ], [
-      'read -r n',
-      'regles=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r type libelle',
-      '  if [ "$type" = "o" ]; then',
-      '    echo "$libelle : regle"',
-      '    regles=$((regles + 1))',
-      '  else',
-      '    echo "$libelle : prerogative"',
-      '  fi',
-      'done',
-      'echo "regles : $regles"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r niveau texte',
-      '  case "$niveau" in',
-      '    const) echo "$texte : constitutionnalite" ;;',
-      '    trait) echo "$texte : conventionalite" ;;',
-      '    loi) echo "$texte : legalite" ;;',
-      '    regl) echo "$texte : reglementaire" ;;',
-      '  esac',
-      'done',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r nom situation',
-      '  if [ "$situation" = "deces" ]; then',
-      '    echo "$nom : eteinte"',
-      '  else',
-      '    echo "$nom : titulaire"',
-      '  fi',
-      'done',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r degre',
-      '  case "$degre" in',
-      '    1) echo "TPI" ;;',
-      '    2) echo "Cour d Appel" ;;',
-      '    3) echo "Cour Supreme" ;;',
-      '  esac',
-      'done'
+      '<p><strong>1. Droit objectif / subjectif :</strong> Le droit objectif désigne l’ensemble des règles générales et obligatoires régissant la vie en société ; le droit subjectif est le pouvoir individuel reconnu à une personne sur une chose ou envers autrui.</p>',
+      '<p><strong>2. Pyramide des normes :</strong> Constitution (sommet), Traités internationaux ratifiés, Lois votées par le Parlement, Règlements (décrets et arrêtés du pouvoir exécutif).</p>',
+      '<p><strong>3. Personnalité juridique :</strong> Naissance d’un enfant vivant et viable (début) ; décès médicalement certifié (fin).</p>',
+      '<p><strong>4. Ordre juridictionnel :</strong> 1er degré (jugement des faits et du droit), 2nd degré (Cour d’appel - réformation éventuelle), Cour de cassation (juge de la conformité du droit uniquement).</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Calcule des dates de vigueur : lit n lois « nom jour_parution » et applique le jour franc (parution + 1), en rejetant les parutions nulles.',
-      'Registre d\'abrogations : lit n événements « texte disposition » et affiche maintenue / abrogee expresse / abrogee tacite / deja abrogee.',
-      'Double degré : lit n actes « acte affaire » et vérifie la recevabilité des appels (un jugement préalable, pas déjà appelé).',
-      'Validité des contrats : lit n contrats et ses quatre conditions, affiche valide ou le nombre de conditions manquantes.'
+      'Analyser les quatre conditions de validité d’un contrat (consentement, capacité, contenu licite et certain).',
+      'Distinguer la responsabilité contractuelle de la responsabilité délictuelle / extracontractuelle.',
+      'Identifier les trois éléments cumulatifs de la responsabilité civile (faute, dommage certain, lien de causalité direct).',
+      'Qualifier les droits patrimoniaux et moraux d’un auteur sur un logiciel développé en entreprise.'
     ], [
-      'read -r n',
-      'valides=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r nom jour',
-      '  if [ "$jour" -gt 0 ]; then',
-      '    echo "$nom : vigueur au jour $((jour + 1))"',
-      '    valides=$((valides + 1))',
-      '  else',
-      '    echo "$nom : parution invalide"',
-      '  fi',
-      'done',
-      'echo "lois : $valides/$n"',
-      '',
-      'read -r n',
-      'declare -A etat',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r texte disposition',
-      '  statut="${etat[$texte]:-}"',
-      '  if [ "$statut" != "" ]; then',
-      '    echo "$texte : deja abrogee"',
-      '  elif [ "$disposition" = "abroge" ]; then',
-      '    etat[$texte]=e ; echo "$texte : abrogee expresse"',
-      '  elif [ "$disposition" = "incompatible" ]; then',
-      '    etat[$texte]=t ; echo "$texte : abrogee tacite"',
-      '  else',
-      '    echo "$texte : maintenue"',
-      '  fi',
-      'done',
-      '',
-      'read -r n',
-      'declare -A juges',
-      'declare -A appeles',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r acte affaire',
-      '  if [ "$acte" = "jugement" ]; then',
-      '    juges[$affaire]=1 ; echo "jugement $affaire : rendu"',
-      '  elif [ -n "${juges[$affaire]:-}" ] &amp;&amp; [ -z "${appeles[$affaire]:-}" ]; then',
-      '    appeles[$affaire]=1 ; echo "appel $affaire : recevable"',
-      '  else',
-      '    echo "appel $affaire : irrecevable"',
-      '  fi',
-      'done',
-      '',
-      'read -r n',
-      'valides=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r contrat c1 c2 c3 c4',
-      '  ko=0',
-      '  for cond in "$c1" "$c2" "$c3" "$c4"; do',
-      '    [ "$cond" = "ko" ] &amp;&amp; ko=$((ko + 1))',
-      '  done',
-      '  if [ "$ko" = "0" ]; then echo "$contrat : valide" ; valides=$((valides + 1))',
-      '  else echo "$contrat : $ko manquantes"; fi',
-      'done',
-      'echo "valides : $valides/$n"'
+      '<p><strong>1. Validité du contrat :</strong> Consentement non vicié (erreur, dol, violence), capacité juridique des parties, objet licite et déterminé/déterminable.</p>',
+      '<p><strong>2. Nature de la responsabilité :</strong> Contractuelle si inexécution d’une obligation stipulée au contrat ; extracontractuelle en l’absence de lien contractuel ou en cas de préjudice tiers.</p>',
+      '<p><strong>3. Éléments constitutifs :</strong> Faute (ou fait générateur), Préjudice réel, direct et certain, Lien de causalité démontré entre le fait et le dommage.</p>',
+      '<p><strong>4. Propriété intellectuelle :</strong> Les droits patrimoniaux sur les logiciels créés par un salarié dans l’exercice de ses fonctions sont dévolus automatiquement à l’employeur (art. L. 113-9 CPI), le droit moral restant inaliénable.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Statue dans le temps : lit « vigueur n » puis n situations « nom naissance fin » et applique non-rétroactivité et effet immédiat.',
-      'Distingue absence et disparition : lit n personnes « nom jours_sans_nouvelles corps_trouve » et affiche absence, disparition ou vivant.',
-      'Litige complet : lit « seuil n » puis n litiges « nom montant cause » et applique le régime du chapitre 6 (dispense, dommages, exequatur).',
-      'Audit de la pyramide : lit n normes et affiche le bloc de chaque norme, puis le nombre de violations hiérarchiques.'
+      'Rédiger un syllogisme juridique complet appliqué à une rupture unilatérale de prestation d’hébergement web.',
+      'Déterminer les obligations du responsable de traitement au sens du RGPD (licéité, proportionnalité, notification de violation).',
+      'Résoudre un litige de concurrence déloyale par débauchage illicite de développeurs.',
+      'Évaluer la validité d’une clause limitative de responsabilité dans un contrat de service cloud.'
     ], [
-      'read -r vigueur',
-      'read -r n',
-      'nouvelles=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r nom naissance fin',
-      '  if [ "$fin" -lt "$vigueur" ]; then',
-      '    echo "$nom : loi ancienne"',
-      '  else',
-      '    echo "$nom : loi nouvelle"',
-      '    nouvelles=$((nouvelles + 1))',
-      '  fi',
-      'done',
-      'echo "nouvelles : $nouvelles/$n"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r nom jours corps',
-      '  if [ "$corps" = "introuvable" ] &amp;&amp; [ "$jours" -ge 1 ]; then',
-      '    echo "$nom : disparition"',
-      '  elif [ "$jours" -ge 1825 ]; then',
-      '    echo "$nom : absence (5 ans)"',
-      '  else',
-      '    echo "$nom : vivant"',
-      '  fi',
-      'done',
-      '',
-      'read -r seuil',
-      'read -r n',
-      'total=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r nom montant cause',
-      '  if [ "$cause" = "forcemajeure" ]; then echo "$nom : dispense"',
-      '  elif [ "$cause" = "delictuel" ]; then echo "$nom : dommages" ; total=$((total + montant))',
-      '  elif [ "$montant" -ge "$seuil" ]; then echo "$nom : dommages" ; total=$((total + montant))',
-      '  else echo "$nom : exequatur"; fi',
-      'done',
-      'echo "total : $total"',
-      '',
-      'read -r n',
-      'rang_actuel=4',
-      'violations=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r niveau texte',
-      '  case "$niveau" in',
-      '    const) rang=4 ;;',
-      '    trait) rang=3 ;;',
-      '    loi) rang=2 ;;',
-      '    regl) rang=1 ;;',
-      '    *) rang=0 ;;',
-      '  esac',
-      '  if [ "$rang" -le "$rang_actuel" ] &amp;&amp; [ "$rang" -gt 0 ]; then',
-      '    rang_actuel=$rang',
-      '  else',
-      '    violations=$((violations + 1))',
-      '  fi',
-      'done',
-      'echo "violations : $violations"'
+      '<p><strong>1. Syllogisme :</strong> Majeure (l’art. 1217 du Code civil énonce les sanctions de l’inexécution), Mineure (l’hébergeur a suspendu le service sans préavis ni manquement avéré), Conclusion (l’hébergeur doit réparer le préjudice d’exploitation subi).</p>',
+      '<p><strong>2. RGPD :</strong> Registre des traitements, recueil de consentement explicite, respect des droits des personnes et notification de fuite à la CNIL sous 72 heures.</p>',
+      '<p><strong>3. Concurrence déloyale :</strong> La liberté du travail permet le changement d’employeur, sauf manœuvres déloyales caractérisées (détournement de clientèle, pillage de savoir-faire confidentiel ou violation de clause de non-concurrence valide).</p>',
+      '<p><strong>4. Clause limitative :</strong> Valable entre professionnels, sauf faute lourde, dol ou si elle vide de sa substance l’obligation essentielle du prestataire (jurisprudence Chronopost / Faurecia).</p>'
     ].join('\n')),
 
-    '  <h2>Projet intégrateur — « greffe numérique »</h2>',
-    box('situation', 'Cahier des charges', 'play', [
-      '    <p>Le script reçoit le journal d\'un greffe : d\'abord <code>n_normes</code> normes au format ' +
-      '<code>niveau texte</code> (const, trait, loi, regl), puis <code>n_dossiers</code> dossiers au format ' +
-      '<code>degre affaire</code> (1, 2, 3). Il contrôle la pyramide (chaque norme conforme à la précédente), ' +
-      'route chaque dossier vers sa juridiction, signale les appels sans jugement préalable (doublons de ' +
-      'degré 2 sans degré 1 pour la même affaire), et produit le bilan : normes conformes, violations, ' +
-      'répartition des dossiers par juridiction.</p>'
+    '  <h2>Dossier de synthèse — Audit Juridique &amp; Conformité Numérique</h2>',
+    box('situation', 'Cahier des charges du Dossier', 'play', [
+      '    <p>Ce dossier d’étude juridique approfondie consiste à analyser les risques contractuels, la politique de protection des données (RGPD) et la protection de la propriété intellectuelle d’une entreprise éditrice de solutions SaaS.</p>'
     ].join('\n')),
-    box('objectifs', 'Fonctionnalités attendues', 'target', [
+    box('objectifs', 'Compétences juridiques évaluées', 'target', [
       '    <ol>',
-      '      <li><strong>Lire</strong> les deux blocs dans l\'ordre : normes d\'abord, dossiers ensuite.</li>',
-      '      <li><strong>Contrôler</strong> la hiérarchie des normes avec drapeau de rupture.</li>',
-      '      <li><strong>Router</strong> chaque dossier vers TPI, Cour d\'Appel ou Cour Suprême.</li>',
-      '      <strong><li>Contrôler</li></strong> la recevabilité des appels (jugement préalable exigé).',
-      '      <li><strong>Bilan</strong> : conformes, violations, compteurs par juridiction, formats exacts.</li>',
-      '    </ol>',
-      '    <p>Contraintes : tableaux associatifs pour les jugements et appels, drapeau de rupture de la pyramide, aucun bilan dans la boucle.</p>'
+      '      <li><strong>Analyse contractuelle :</strong> Identification des obligations de moyens vs de résultat et qualification des SLA.</li>',
+      '      <li><strong>Conformité RGPD :</strong> Cartographie des flux de données et clauses de sous-traitance (art. 28 RGPD).</li>',
+      '      <li><strong>Propriété intellectuelle :</strong> Cession de droits, licences open-source et protection des bases de données.</li>',
+      '      <li><strong>Responsabilité &amp; litiges :</strong> Prévention du contentieux et mécanismes de médiation.</li>',
+      '    </ol>'
     ].join('\n')),
-    box('method', 'Grille d\'auto-évaluation du projet (sur 100)', 'blocks', [
-      '    ' + bands([
-        { cls: '', text: 'Lecture des deux blocs sans mélange <strong>20</strong>' },
-        { cls: '', text: 'Contrôle de la pyramide conforme <strong>20</strong>' },
-        { cls: '', text: 'Routage des dossiers exact <strong>20</strong>' },
-        { cls: '', text: 'Recevabilité des appels correcte <strong>20</strong>' },
-        { cls: '', text: 'Bilan final lisible et complet <strong>20</strong>' }
-      ]),
-      '    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>'
-    ].join('\n')),
-    '  <details>',
-    '    <summary>Voir une solution de référence (après avoir essayé !)</summary>',
-    '    <div class="sol">',
-    '      <pre><code>' + [
-    'read -r n_normes',
-    'rang_actuel=4',
-    'conformes=0',
-    'violations=0',
-    'for ((k=0; k&lt;n_normes; k++)); do',
-    '  read -r niveau texte',
-    '  case "$niveau" in',
-    '    const) rang=4 ;;',
-    '    trait) rang=3 ;;',
-    '    loi) rang=2 ;;',
-    '    regl) rang=1 ;;',
-    '    *) rang=0 ;;',
-    '  esac',
-    '  if [ "$rang" -le "$rang_actuel" ] &amp;&amp; [ "$rang" -gt 0 ]; then',
-    '    echo "$texte : conforme"',
-    '    rang_actuel=$rang',
-    '    conformes=$((conformes + 1))',
-    '  else',
-    '    echo "$texte : viole la hierarchie"',
-    '    violations=$((violations + 1))',
-    '  fi',
-    'done',
-    'read -r n_dossiers',
-    'declare -A juges',
-    'declare -A appeles',
-    'tpi=0 ; ca=0 ; cs=0',
-    'for ((k=0; k&lt;n_dossiers; k++)); do',
-    '  read -r degre affaire',
-    '  case "$degre" in',
-    '    1) juges[$affaire]=1 ; echo "$affaire : TPI" ; tpi=$((tpi + 1)) ;;',
-    '    2) if [ -n "${juges[$affaire]:-}" ] &amp;&amp; [ -z "${appeles[$affaire]:-}" ]; then',
-    '         appeles[$affaire]=1 ; echo "$affaire : Cour d Appel" ; ca=$((ca + 1))',
-    '       else echo "$affaire : appel irrecevable"; fi ;;',
-    '    3) echo "$affaire : Cour Supreme" ; cs=$((cs + 1)) ;;',
-    '  esac',
-    'done',
-    'echo "normes conformes : $conformes"',
-    'echo "violations : $violations"',
-    'echo "TPI : $tpi / CA : $ca / CS : $cs"'
-    ].join('\n') + '</code></pre>',
-    '      Cette solution combine contrôle de la pyramide avec drapeau de rupture, routage par degré et ' +
-    'recevabilité des appels — les chapitres 2, 3 et 5 en un seul script.',
-    '    </div>',
-    '  </details>',
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../chapitres/simulateur-examen.html', label: 'Examens blancs' }),
-    disclaimer(course, 'Exercices construits d\'après le support « Introduction au Droit » (B1 IT, cdp MILILA). ')
+    disclaimer(course, 'Exercices construits à partir du programme officiel de droit du numérique B1.')
   ].join('\n\n');
 
   return {
     'exercices/exercices.html': {
-      title: 'Exercices &amp; projet intégrateur — ' + course.brand,
-      description: 'Exercices supplémentaires et projet intégrateur du cours de Droit B1 : scripts Bash ' +
-        'gradués et greffe numérique complet.',
+      title: 'Exercices &amp; dossier de synthèse — ' + course.brand,
+      description: 'Exercices supplémentaires et dossier de synthèse juridique du cours de droit B1 : contrats, responsabilité et conformité numérique.',
       active: 'exercices',
       body
     }
@@ -809,7 +599,7 @@ function render(kit, course, chapterList) {
     pages['chapitres/chapitre' + chapitre.n + '.html'] = {
       title: 'Chapitre ' + chapitre.n + ' — ' + chapitre.title + ' | ' + course.brand,
       description: 'Chapitre ' + chapitre.n + ' du cours de Droit B1 : ' + chapitre.toc +
-        ' Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.',
+        ' Théorie, exemples détaillés, études de cas d’application, QCM corrigés.',
       active: 'ch' + chapitre.n,
       dataChapter: chapitre.n,
       body

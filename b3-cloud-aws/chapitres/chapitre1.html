@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="1">
@@ -204,28 +205,45 @@ aws configure
 </div>
 
 <!-- code-labs:start -->
-  <h2>6. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="aws3-c1-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ARN_PARSE arn:aws:ec2:eu-west-3:123456789012:instance/i-0123456789abcdef0">
-  <script type="text/plain" data-lab-starter>import sys
-import re
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c1-e1) — Validateur d'ARN (Amazon Resource Name) & Parseur de Composants
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Bucket S3 global sans région ni compte]
+# Données : ARN_PARSE arn:aws:s3:::mon-bucket-production-2026
+A_COMPLETER
 
-# À compléter : analyser et valider les ARN AWS
+[Cas 2 — Rôle IAM global sans région avec compte 12 chiffres]
+# Données : ARN_PARSE arn:aws:iam::112233445566:role/AdminRole
+A_COMPLETER
+
+[Cas 3 — Partition AWS Chine avec fonction Lambda]
+# Données : ARN_PARSE arn:aws-cn:lambda:cn-north-1:987654321098:function:ProcessOrders
+A_COMPLETER
+
+[Cas 4 — Erreur préfixe ARN invalide]
+# Données : ARN_PARSE uri:aws:s3:::mon-bucket
+A_COMPLETER
+
+[Cas 5 — Erreur partition invalide]
+# Données : ARN_PARSE arn:google:compute:europe-west1:123456789012:instance/vm1
+A_COMPLETER
+
+[Cas 6 — Erreur compte invalide (pas 12 chiffres)]
+# Données : ARN_PARSE arn:aws:ec2:us-east-1:12345:instance/i-123
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur d'ARN (Amazon Resource Name) &amp; Parseur de Composants</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -249,8 +267,8 @@ Entrée STDIN : <code>ARN_PARSE &lt;arn_string&gt;</code>.<br>
 Sortie : Si valide : <code>ARN: partition=&lt;part&gt; service=&lt;svc&gt; region=&lt;reg&gt; account=&lt;acc&gt; resource=&lt;res&gt;</code>.<br>
 Si invalide : <code>INVALID_ARN: reason=&lt;raison&gt;</code> (ex: <code>BAD_PREFIX</code>, <code>INVALID_PARTITION</code>, <code>EMPTY_SERVICE</code>, <code>BAD_ACCOUNT</code>, <code>EMPTY_RESOURCE</code>, <code>BAD_SEGMENTS</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ARN_PARSE arn:aws:ec2:eu-west-3:123456789012:instance/i-0123456789abcdef0</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ARN: partition=aws service=ec2 region=eu-west-3 account=123456789012 resource=instance/i-0123456789abcdef0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ARN_PARSE arn:aws:ec2:eu-west-3:123456789012:instance/i-0123456789abcdef0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ARN: partition=aws service=ec2 region=eu-west-3 account=123456789012 resource=instance/i-0123456789abcdef0</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
@@ -265,19 +283,32 @@ Si invalide : <code>INVALID_ARN: reason=&lt;raison&gt;</code> (ex: <code>BAD_PRE
 
 <div class="lab" data-lab
      data-exercise="aws3-c1-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="AVAIL_CALC MODE=SERIE SLA=99.9,99.95">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c1-e2) — Calculateur de Disponibilité & Temps d'Arrêt Annuel (SLA Multi-AZ)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Deux zones redondantes en parallèle (99.9% chacune)]
+# Données : AVAIL_CALC MODE=PARALLELE SLA=99.9,99.9
+A_COMPLETER
 
-# À compléter : calculer la disponibilité globale et le temps d'arrêt annuel
+[Cas 2 — Trois composants critiques en série (99.99%, 99.95%, 99.9%)]
+# Données : AVAIL_CALC MODE=SERIE SLA=99.99,99.95,99.9
+A_COMPLETER
+
+[Cas 3 — Trois zones Multi-AZ en parallèle (99.5% chacune)]
+# Données : AVAIL_CALC MODE=PARALLELE SLA=99.5,99.5,99.5
+A_COMPLETER
+
+[Cas 4 — Composant unique 99.99% (SLA 4 neuf)]
+# Données : AVAIL_CALC MODE=SERIE SLA=99.99
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Calculateur de Disponibilité &amp; Temps d'Arrêt Annuel (SLA Multi-AZ)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -296,8 +327,8 @@ Sur une base de 365 jours (soit 8 760 heures = 525 600 minutes) :<br>
 Entrée STDIN : <code>AVAIL_CALC MODE=&lt;SERIE|PARALLELE&gt; SLA=&lt;pct1,pct2,...&gt;</code>.<br>
 Sortie : <code>AVAILABILITY: mode=&lt;MODE&gt; sla=&lt;pct_final:.4f&gt;% downtime_hours=&lt;h:.2f&gt; downtime_minutes=&lt;m:.1f&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>AVAIL_CALC MODE=SERIE SLA=99.9,99.95</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AVAILABILITY: mode=SERIE sla=99.8501% downtime_hours=13.14 downtime_minutes=788.1</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AVAIL_CALC MODE=SERIE SLA=99.9,99.95</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AVAILABILITY: mode=SERIE sla=99.8501% downtime_hours=13.14 downtime_minutes=788.1</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
@@ -312,19 +343,40 @@ Sortie : <code>AVAILABILITY: mode=&lt;MODE&gt; sla=&lt;pct_final:.4f&gt;% downti
 
 <div class="lab" data-lab
      data-exercise="aws3-c1-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="RESP_AUDIT SERVICE=IAAS ITEM=GUEST_OS_PATCHING">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c1-e3) — Auditeur de Responsabilité Partagée AWS (Shared Responsibility Model)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Patch de l hyperviseur physique en IaaS]
+# Données : RESP_AUDIT SERVICE=IAAS ITEM=HYPERVISOR_PATCHING
+A_COMPLETER
 
-# À compléter : classifier la responsabilité selon la matrice AWS
+[Cas 2 — Configuration des Security Groups en IaaS]
+# Données : RESP_AUDIT SERVICE=IAAS ITEM=SECURITY_GROUP_CONFIG
+A_COMPLETER
+
+[Cas 3 — Patch de l OS de base de données RDS en PaaS]
+# Données : RESP_AUDIT SERVICE=PAAS ITEM=DATABASE_OS_PATCHING
+A_COMPLETER
+
+[Cas 4 — Maintien et patch du runtime Lambda en Serverless]
+# Données : RESP_AUDIT SERVICE=SERVERLESS ITEM=RUNTIME_MAINTENANCE
+A_COMPLETER
+
+[Cas 5 — Code source et logique applicative Lambda en Serverless]
+# Données : RESP_AUDIT SERVICE=SERVERLESS ITEM=FUNCTION_CODE
+A_COMPLETER
+
+[Cas 6 — Chiffrement des données stockées dans un bucket S3]
+# Données : RESP_AUDIT SERVICE=SERVERLESS ITEM=DATA_ENCRYPTION_CONFIG
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Auditeur de Responsabilité Partagée AWS (Shared Responsibility Model)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -346,8 +398,8 @@ Règles selon le modèle de service :<br>
 Entrée STDIN : <code>RESP_AUDIT SERVICE=&lt;IAAS|PAAS|SERVERLESS&gt; ITEM=&lt;tâche_de_sécurité&gt;</code>.<br>
 Sortie : <code>SHARED_RESP: service=&lt;svc&gt; item=&lt;item&gt; responsible=&lt;AWS|CUSTOMER&gt; scope=&lt;OF_THE_CLOUD|IN_THE_CLOUD&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RESP_AUDIT SERVICE=IAAS ITEM=GUEST_OS_PATCHING</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SHARED_RESP: service=IAAS item=GUEST_OS_PATCHING responsible=CUSTOMER scope=IN_THE_CLOUD</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RESP_AUDIT SERVICE=IAAS ITEM=GUEST_OS_PATCHING</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SHARED_RESP: service=IAAS item=GUEST_OS_PATCHING responsible=CUSTOMER scope=IN_THE_CLOUD</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
@@ -521,6 +573,29 @@ Sortie : <code>SHARED_RESP: service=&lt;svc&gt; item=&lt;item&gt; responsible=&l
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

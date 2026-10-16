@@ -138,54 +138,36 @@ function sommaire(course, chapterList) {
 /* ======================== Atelier ======================== */
 
 function atelier(course) {
-  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier de code' }]);
+  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier d’analyse' }]);
 
   const defaultCode = [
-    '# Atelier de Code Interactif — Hacking Éthique & Pentest B3',
-    '# Simulation d\'audit automatisé de sécurité et calcul de score CVSS v3.1',
-    '',
-    'def calculer_cvss_v31(av, ac, pr, ui, c, i, a):',
-    '    av_map = {"N": 0.85, "A": 0.62, "L": 0.55, "P": 0.20}',
-    '    ac_map = {"L": 0.77, "H": 0.44}',
-    '    pr_map = {"N": 0.85, "L": 0.62, "H": 0.27}',
-    '    ui_map = {"N": 0.85, "R": 0.62}',
-    '    cia_map = {"N": 0.0, "L": 0.22, "H": 0.56}',
-    '',
-    '    exploitability = 8.22 * av_map[av] * ac_map[ac] * pr_map[pr] * ui_map[ui]',
-    '    iss = 1.0 - ((1.0 - cia_map[c]) * (1.0 - cia_map[i]) * (1.0 - cia_map[a]))',
-    '    impact = 6.42 * iss',
-    '',
-    '    if impact <= 0.0:',
-    '        base_score = 0.0',
-    '    else:',
-    '        import math',
-    '        base_score = min(10.0, math.ceil(round(impact + exploitability, 4) * 10.0) / 10.0)',
-    '',
-    '    sev = "CRITICAL" if base_score >= 9.0 else ("HIGH" if base_score >= 7.0 else ("MEDIUM" if base_score >= 4.0 else "LOW"))',
-    '    return exploitability, impact, base_score, sev',
-    '',
-    '# Test avec une faille RCE critique à distance non-authentifiée (ex: Log4Shell)',
-    'exp, imp, score, severity = calculer_cvss_v31("N", "L", "N", "N", "H", "H", "H")',
-    'print(f"=== Évaluation CVSS v3.1 ===")',
-    'print(f"Sous-score Exploitabilité : {exp:.2f}")',
-    'print(f"Sous-score Impact          : {imp:.2f}")',
-    'print(f"Base Score CVSS v3.1       : {score:.1f} / 10.0")',
-    'print(f"Niveau de sévérité         : {severity}")',
-    ''
+    '# Grille d\'analyse libre — Hacking Éthique & Pentest',
+    '# Évaluation de vulnérabilités et notation CVSS v3.1',
+    '#',
+    '[Cas 1 — Audit d\'injection RCE non-authentifiée]',
+    'VECTEUR_ATTAQUE: Network (AV:N)',
+    'COMPLEXITE: Low (AC:L)',
+    'PRIVILEGES_REQUIS: None (PR:N)',
+    'INTERACTION_UTILISATEUR: None (UI:N)',
+    'IMPACT_CONFIDENTIALITE: High (C:H)',
+    'IMPACT_INTEGRITE: High (I:H)',
+    'IMPACT_DISPONIBILITE: High (A:H)',
+    'SCORE_BASE_CVSS: 9.8 (CRITICAL)',
+    'RECOMMANDATION_URGENTE: Déploiement immédiat du correctif de sécurité et segmentation réseau.'
   ].join('\n');
 
   const body = [
     crumbs,
     '  <h1>Atelier de Code Interactif — Hacking Éthique &amp; Pentest B3</h1>',
-    '  <p class="lead">Bac à sable d\'expérimentation en Python 3 pour prototyper vos outils offensifs et défensifs : analyseurs d\'en-têtes HTTP, calculateurs de scores CVSS v3.1, filtres de sous-domaines, parsers de paquets TCP et détecteurs de vulnérabilités OWASP.</p>',
+    '  <p class="lead">Bac à sable d\'expérimentation selon les grilles d’analyse pour prototyper vos outils offensifs et défensifs : analyseurs d\'en-têtes HTTP, calculateurs de scores CVSS v3.1, filtres de sous-domaines, parsers de paquets TCP et détecteurs de vulnérabilités OWASP.</p>',
     '',
     '  <div class="lab"',
     '       data-lab',
     '       data-exercise-id="atelier-hk3"',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="CVSS_CALC AV=N AC=L PR=N UI=N C=H I=H A=H">',
-    '    <script type="text/plain" data-lab-starter>' + defaultCode + '</script>',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-hacking\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '  </div>',
     '',
     chnav({ href: 'sommaire.html', label: 'Consulter le sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Accéder au Module 1' }),
@@ -195,7 +177,7 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code interactif — ' + course.brand,
+      title: 'Atelier d’analyse interactif — ' + course.brand,
       description: 'Console interactive Python 3 pour concevoir et tester des scripts de sécurité offensive, audit de vulnérabilités et parsing réseau.',
       active: 'atelier',
       body

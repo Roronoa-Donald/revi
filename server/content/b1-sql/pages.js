@@ -196,8 +196,8 @@ function atelier(course) {
 
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre script Bash tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
-      '      <li><strong>Entrée du programme</strong> contient ce que <code>read</code> lira, une valeur par ligne.</li>',
+      '      <li><strong>Valider</strong> vérifie la conformité de vos réponses dans la grille d’analyse.</li>',
+      '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
       '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur ; votre code est conservé dans ce navigateur.</li>',
       '    </ul>'
@@ -206,33 +206,11 @@ function atelier(course) {
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
-      '     data-language="shell"',
+      '     data-language="analyse"',
       '     data-height="360"',
       '     data-languages="1"',
       '     data-stdin="">',
-      '  <script type="text/plain" data-lab-starter>#!/bin/bash',
-      '# Zone libre : simulez, cassez, recommencez.',
-      '# Rien de ce que vous écrirez ici n’est noté.',
-      '#',
-      '# Exemple proposé : contrôleur de privilèges.',
-      '# Le script lit n lignes « role operation » et dit si',
-      '# l’opération est permise (lecture : select seulement ;',
-      '# ecriture : select, insert, update ; admin : tout).',
-      '',
-      'read -r n',
-      'for ((i=0; i<n; i++)); do',
-      '  read -r role operation',
-      '  permis="select"',
-      '  case "$role" in',
-      '    ecriture) permis="select insert update" ;;',
-      '    admin) permis="select insert update delete grant" ;;',
-      '  esac',
-      '  case " $permis " in',
-      '    *" $operation "*) echo "$role/$operation : autorise" ;;',
-      '    *) echo "$role/$operation : refuse" ;;',
-      '  esac',
-      'done',
-      '</script>',
+      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre — contrôleur de privilèges</h3>',
       '    <div class="lab__meta">',
@@ -601,89 +579,80 @@ function examens(course) {
 /* ======================== Exercices guidés ======================== */
 
 function exercices(course) {
-  const mission = (num, titre, niveau, question, indice, reference, requete) => [
+  const item = (badge, cls, intro, requete) => [
     '  <div class="item">',
-    '    <div class="item__head"><span class="item__num">Mission ' + num + '</span><span class="badge badge--' + niveau + '">' + niveau.toUpperCase() + '</span></div>',
-    '    <p>' + question + '</p>',
-    '    <details><summary>Indice</summary><div class="sol">' + indice + '</div></details>',
-    '    <details><summary>Résultat de référence</summary><div class="sol">' + reference + '</div></details>',
-    '    <details><summary>Une requête correcte (après avoir essayé !)</summary><div class="sol"><pre><code>' + requete + '</code></pre></div></details>',
+    '    <div class="item__head"><span class="badge badge--' + cls + '">' + badge + '</span></div>',
+    '    <ol>',
+    intro.map(line => '      <li>' + line + '</li>').join('\n'),
+    '    </ol>',
+    '    <details><summary>Requêtes SQL et explications détaillées</summary><div class="sol">' + requete + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
-    '  <h1>Exercices guidés — parc_auto</h1>',
-    '  <p class="lead">Huit missions graduées sur la base du support (12 marques, 23 voitures). Écris chaque ' +
-    'requête dans le <a href="../atelier.html">simulateur SQL</a>, compare au résultat de référence, puis ' +
-    'seulement regarde une requête correcte.</p>',
+    '  <h1>Exercices supplémentaires &amp; cas pratiques SQL</h1>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier de requêtage et d’optimisation relationnelle.</p>',
 
-    '  <h2>Prise en main (chapitre 3)</h2>',
-    mission(1, 'Le parc en vrac', 'n1',
-      'Affiche toutes les colonnes de toutes les voitures, puis seulement immatriculation et prix. Combien de lignes ?',
-      'SELECT * … FROM Voiture ; puis remplace * par la liste des colonnes.',
-      '23 lignes dans les deux cas ; la seconde requête affiche 2 colonnes.',
-      'SELECT * FROM Voiture;\nSELECT immat, pxachat FROM Voiture;'),
-    mission(2, 'Diesels de luxe', 'n1',
-      'Affiche les voitures diesel de plus de 20 millions (immat, marque, prix), du plus cher au moins cher.',
-      'Deux conditions dans WHERE reliées par AND ; le tri décroissant s’écrit DESC.',
-      '4 lignes : TG-9420-AF, TG-9420-AK, TG-0020-AL (TOYOTA), TG-6733-AC (MERCEDES BENZ).',
-      'SELECT immat, marque, pxachat FROM Voiture\nWHERE moteur = \'DIESEL\' AND pxachat > 20000000\nORDER BY pxachat DESC;'),
-
-    '  <h2>Restrictions et tri (chapitre 3)</h2>',
-    mission(3, 'Doublons et comptages', 'n2',
-      'Quels types de moteurs existent dans le parc (sans doublon) ? Combien de marques distinctes ?',
-      'DISTINCT se place juste après SELECT ; COUNT(DISTINCT colonne) compte les valeurs distinctes.',
-      '4 moteurs (DIESEL, ESSENCE, HYBRIDE, ELECTRIQUE) ; 12 marques distinctes.',
-      'SELECT DISTINCT moteur FROM Voiture;\nSELECT COUNT(DISTINCT marque) FROM Voiture;'),
-    mission(4, 'Le podium des prix', 'n2',
-      'Affiche les 3 voitures les plus chères (immat, marque, prix). Que devient la requête pour la 4e à la 6e place ?',
-      'ORDER BY … DESC puis LIMIT n ; OFFSET décale le départ.',
-      'Top 3 : TG-9420-AF, TG-9420-AK, TG-0020-AL (50 M chacun) ; pour la 4e-6e : LIMIT 3 OFFSET 3.',
-      'SELECT immat, marque, pxachat FROM Voiture\nORDER BY pxachat DESC\nLIMIT 3;\n\nSELECT immat, marque, pxachat FROM Voiture\nORDER BY pxachat DESC\nLIMIT 3 OFFSET 3;'),
-
-    '  <h2>Jointures (chapitre 4)</h2>',
-    mission(5, 'Voitures japonaises', 'n2',
-      'Liste les voitures de marques japonaises (immat, marque, pays), triées par immatriculation.',
-      'Joint Voiture et Marque sur V.marque = M.nommarque ; filtre sur le pays.',
-      '10 lignes : 5 TOYOTA, 2 SUZUKI, 1 MITSUBISHI, 1 MAZDA, 1 NISSAN.',
-      'SELECT V.immat, V.marque, M.paysmarque\nFROM Voiture V\nINNER JOIN Marque M ON V.marque = M.nommarque\nWHERE M.paysmarque = \'JAPON\'\nORDER BY V.immat;'),
-    mission(6, 'Les absentes du parc', 'n3',
-      'Y a-t-il des marques de la table Marque sans aucune voiture dans le parc ? Montre-les (nom, pays).',
-      'LEFT JOIN depuis Marque garde les marques sans voiture ; compte une colonne de Voiture.',
-      'Aucune : les 12 marques ont au moins une voiture (MAZ, NIS, REN, PEU, MG en ont 1). Avec COUNT(V.immat), toutes les lignes valent au moins 1.',
-      'SELECT M.nommarque, COUNT(V.immat) AS nb\nFROM Marque M\nLEFT JOIN Voiture V ON V.marque = M.nommarque\nGROUP BY M.nommarque\nHAVING COUNT(V.immat) = 0;'),
-
-    '  <h2>Agrégation (chapitre 5)</h2>',
-    mission(7, 'Budget par pays', 'n3',
-      'Quel est le budget total des voitures par pays d’origine de la marque ? Du pays le plus coûteux au moins coûteux.',
-      'Jointure puis SUM(pxachat) avec GROUP BY sur le pays.',
-      'JAPON : 305,2 M ; ALLEMAGNE : 140,6 M ; COREE DU SUD : 83 M ; FRANCE : 65 M ; ROYAUME-UNI : 20 M.',
-      'SELECT M.paysmarque, SUM(V.pxachat) AS budget\nFROM Voiture V\nINNER JOIN Marque M ON V.marque = M.nommarque\nGROUP BY M.paysmarque\nORDER BY budget DESC;'),
-    mission(8, 'Panier moyen par moteur', 'n3',
-      'Pour chaque moteur : nombre de voitures, prix moyen (arrondi au million inférieur), prix maximum. Seulement les moteurs avec au moins 4 voitures.',
-      'AVG pour la moyenne, la division entière tronque : CAST(AVG(…) AS INT) ou AVG arithmétique ; le filtre sur le groupe passe par HAVING.',
-      '3 lignes : ESSENCE (11 voitures, moyen ≈ 30,5 M, max 50 M), DIESEL (6, ≈ 21,1 M, 50 M), ELECTRIQUE (4, ≈ 26,55 M, 50 M). HYBRIDE (2) est exclue par le HAVING.',
-      'SELECT moteur, COUNT(*) AS nb, CAST(AVG(pxachat) AS INT) AS moyen, MAX(pxachat) AS maxi\nFROM Voiture\nGROUP BY moteur\nHAVING COUNT(*) >= 4\nORDER BY nb DESC;'),
-
-    box('pitfall', 'Les réflexes à contrôler', 'warning', [
-      '    <ul>',
-      '      <li><strong>Toute colonne affichée</strong> est dans le GROUP BY ou agrégée — sinon erreur du moteur.</li>',
-      '      <li><strong>Une condition avec COUNT/AVG</strong> vit dans HAVING, jamais dans WHERE.</li>',
-      '      <li><strong>Les chaînes se quotent</strong> \'comme ceci\' ; les dates s’écrivent \'AAAA-MM-JJ\'.</li>',
-      '      <li><strong>Après une mission qui modifie</strong> (UPDATE/DELETE), réinitialise la base avant la suivante.</li>',
-      '    </ul>'
+    '  <h2>Entraînement rapide (acquisition)</h2>',
+    item('Échauffement', 'n1', [
+      'Sélectionner des colonnes spécifiques avec projection SELECT et filtrage simple WHERE.',
+      'Éliminer les doublons dans les résultats avec le mot-clé DISTINCT.',
+      'Trier les résultats avec ORDER BY (ASC / DESC) et limiter le nombre de lignes retournées avec LIMIT.',
+      'Filtrer sur des intervalles (BETWEEN) ou des listes de valeurs (IN).'
+    ], [
+      '<p><strong>1. Projection :</strong> <code>SELECT nom, email FROM clients WHERE ville = \'Paris\';</code></p>',
+      '<p><strong>2. Dédoublonnage :</strong> <code>SELECT DISTINCT pays FROM fournisseurs;</code></p>',
+      '<p><strong>3. Tri &amp; pagination :</strong> <code>SELECT * FROM commandes ORDER BY date_commande DESC LIMIT 10;</code></p>',
+      '<p><strong>4. Intervalles :</strong> <code>SELECT * FROM produits WHERE prix BETWEEN 20 AND 50;</code></p>'
     ].join('\n')),
 
+    '  <h2>Application</h2>',
+    item('Application', 'n2', [
+      'Effectuer des jointures internes (INNER JOIN) entre plusieurs tables reliées par clés primaires et étrangères.',
+      'Utiliser les jointures externes (LEFT JOIN / RIGHT JOIN) pour conserver les enregistrements sans correspondance.',
+      'Calculer des agrégats (COUNT, SUM, AVG, MIN, MAX) regroupés par catégories avec GROUP BY.',
+      'Filtrer les résultats agrégés avec la clause HAVING.'
+    ], [
+      '<p><strong>1. Jointure interne :</strong> <code>SELECT c.nom, cmd.id FROM clients c INNER JOIN commandes cmd ON c.id = cmd.client_id;</code></p>',
+      '<p><strong>2. Jointure externe :</strong> <code>SELECT c.nom, cmd.id FROM clients c LEFT JOIN commandes cmd ON c.id = cmd.client_id WHERE cmd.id IS NULL;</code> (clients sans commande).</p>',
+      '<p><strong>3. Agrégation :</strong> <code>SELECT categorie, COUNT(*), AVG(prix) FROM produits GROUP BY categorie;</code></p>',
+      '<p><strong>4. Filtrage d’agrégat :</strong> <code>SELECT client_id, SUM(total) FROM commandes GROUP BY client_id HAVING SUM(total) > 1000;</code></p>'
+    ].join('\n')),
+
+    '  <h2>Raisonnement</h2>',
+    item('Raisonnement', 'n3', [
+      'Écrire des sous-requêtes corrélées et imbriquées (IN, EXISTS, NOT EXISTS).',
+      'Gérer les transactions ACID avec BEGIN, COMMIT et ROLLBACK.',
+      'Créer et manipuler des vues (CREATE VIEW) pour sécuriser l’accès aux données.',
+      'Analyser le plan d’exécution d’une requête avec EXPLAIN pour justifier la création d’un index (INDEX).'
+    ], [
+      '<p><strong>1. Sous-requête EXISTS :</strong> <code>SELECT nom FROM clients c WHERE EXISTS (SELECT 1 FROM commandes cmd WHERE cmd.client_id = c.id AND cmd.total > 500);</code></p>',
+      '<p><strong>2. Transaction :</strong> <code>BEGIN; UPDATE comptes SET solde = solde - 100 WHERE id = 1; UPDATE comptes SET solde = solde + 100 WHERE id = 2; COMMIT;</code></p>',
+      '<p><strong>3. Vue :</strong> <code>CREATE VIEW v_ventes_mensuelles AS SELECT strftime(\'%Y-%m\', date_commande) AS mois, SUM(total) AS ca FROM commandes GROUP BY mois;</code></p>',
+      '<p><strong>4. Index :</strong> <code>CREATE INDEX idx_cmd_client ON commandes(client_id);</code> transforme un Seq Scan (parcours complet) en Index Scan immédiat.</p>'
+    ].join('\n')),
+
+    '  <h2>Dossier de synthèse — Conception &amp; Requêtage Relationnel</h2>',
+    box('situation', 'Cahier des charges du Dossier', 'play', [
+      '    <p>Ce dossier d’ingénierie des bases de données consiste à concevoir le schéma relationnel, les contraintes d’intégrité référentielle et les requêtes analytiques de reporting d’une plateforme de commerce électronique.</p>'
+    ].join('\n')),
+    box('objectifs', 'Compétences SQL évaluées', 'target', [
+      '    <ol>',
+      '      <li><strong>Modélisation DDL :</strong> Création des tables, clés primaires, clés étrangères avec clauses ON DELETE CASCADE.</li>',
+      '      <li><strong>Requêtage complexe :</strong> Maîtrise des jointures multiples, sous-requêtes et fonctions d’agrégation.</li>',
+      '      <li><strong>Intégrité transactionnelle :</strong> Préservation des propriétés ACID lors d’opérations concurrentes.</li>',
+      '      <li><strong>Optimisation des performances :</strong> Analyse des coûts d’exécution et stratégie d’indexation.</li>',
+      '    </ol>'
+    ].join('\n')),
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../chapitres/simulateur-examen.html', label: 'Examens blancs' }),
-    disclaimer(course, 'Missions construites sur le jeu de données parc_auto du support. ')
+    disclaimer(course, 'Exercices construits à partir du programme officiel de bases de données relationnelles et SQL B1.')
   ].join('\n\n');
 
   return {
     'exercices/exercices.html': {
-      title: 'Exercices guidés — ' + course.brand,
-      description: 'Exercices guidés du cours de bases de données et SQL B1 : huit missions graduées sur ' +
-        'la base parc_auto, avec indices, résultats de référence et requêtes correctes.',
+      title: 'Exercices &amp; dossier de synthèse — ' + course.brand,
+      description: 'Exercices supplémentaires et dossier de bases de données relationnelles SQL B1 : requêtes, jointures, agrégats et transactions.',
       active: 'exercices',
       body
     }

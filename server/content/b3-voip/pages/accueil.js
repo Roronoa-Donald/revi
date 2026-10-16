@@ -63,7 +63,7 @@ function index(course, chapterList) {
     '    <div class="card">',
     '      <div class="card__head"><span class="badge">Ateliers Python 3</span></div>',
     '      <h3>18 Ateliers de Programmation Pratique</h3>',
-    '      <p>Chaque module propose 3 exercices interactifs pour coder et simuler en Python 3 : parseurs SIP et SDP, calcul de gigue RTP, dimensionnement Erlang B, matchers de masques Asterisk et routage LCR.</p>',
+    '      <p>Chaque module propose 3 exercices interactifs pour coder et simuler selon les grilles d’analyse : parseurs SIP et SDP, calcul de gigue RTP, dimensionnement Erlang B, matchers de masques Asterisk et routage LCR.</p>',
     '      <a class="btn btn--sm" href="chapitres/exercices.html">' + ic('code') + ' Voir les 18 ateliers</a>',
     '    </div>',
     '    <div class="card">',
@@ -120,7 +120,7 @@ function sommaire(course, chapterList) {
     '  <div class="grid grid-3">',
     '    <div class="card">',
     '      <h3>' + ic('terminal') + ' Atelier de Code</h3>',
-    '      <p>Console interactive intégrée avec éditeur Monaco pour tester vos algorithmes de traitement ToIP en Python 3.</p>',
+    '      <p>Console interactive intégrée avec éditeur Monaco pour tester vos algorithmes de traitement ToIP selon les grilles d’analyse.</p>',
     '      <a class="btn btn--sm" href="atelier.html">Ouvrir l\'atelier</a>',
     '    </div>',
     '    <div class="card">',
@@ -153,49 +153,32 @@ function sommaire(course, chapterList) {
 /* ======================== Atelier ======================== */
 
 function atelier(course) {
-  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier de code' }]);
+  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier d’analyse' }]);
 
-  const defaultCode = `# Zone libre : simulez vos architectures de téléphonie IP en Python 3
-import sys
+  const defaultCode = `# Grille d’analyse libre — Téléphonie IP & Protocoles SIP
+# Analyse de flux VoIP, calcul de bande passante et codec G.711 / G.729
 
-def simuler_telephonie_ip(commandes):
-    """Simule des opérations ToIP : négociation SIP, calcul Erlang B, codecs."""
-    resultats = []
-    for cmd in commandes:
-        cmd_clean = cmd.strip()
-        if cmd_clean.startswith("INVITE"):
-            resultats.append(f"SIP_RESPONSE: 100 Trying -> 180 Ringing -> 200 OK (Call Established)")
-        elif cmd_clean.startswith("ERLANG_B"):
-            # Calcul approximatif pour démo
-            resultats.append(f"ERLANG_CALC: {cmd_clean} -> Grade of Service: 1.2% (Trunk OK)")
-        elif cmd_clean.startswith("CODEC"):
-            resultats.append(f"CODEC_INFO: {cmd_clean} -> Bitrate: 64kbps, Payload 20ms: 160B, Packet: 200B (80kbps)")
-        else:
-            resultats.append(f"VOIP_LOG: {cmd_clean} -> TRAITÉ")
-    return resultats
-
-if __name__ == "__main__":
-    lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
-    if not lignes:
-        lignes = ["INVITE sip:706438029@voip.lan", "CODEC G.711 PCMA", "ERLANG_B TRAFIC=6.0 CANAUX=10"]
-    for r in simuler_telephonie_ip(lignes):
-        print(r)
+[Cas 1 — Dimensionnement de trunk SIP]
+APPELS_SIMULTANES: 30
+CODEC: G.711a (87.2 kbps par canal avec en-têtes IP/UDP/RTP)
+BANDE_PASSANTE_REQUISE: 2.62 Mbps symétriques réservés en QoS EF
+NOTE: Dimensionnement de bande passante VoIP conforme aux normes ITU.
 `;
 
   const body = [
     crumbs,
     '  <header class="section-head">',
     '    <h1>Atelier de Code Interactif — Téléphonie VoIP &amp; ToIP</h1>',
-    '    <p class="section-head__lead">Expérimentez librement vos algorithmes de calcul de bande passante, d\'analyse de trames SIP/SDP/RTP et de dimensionnement Erlang B en Python 3.</p>',
+    '    <p class="section-head__lead">Expérimentez librement vos algorithmes de calcul de bande passante, d\'analyse de trames SIP/SDP/RTP et de dimensionnement Erlang B selon les grilles d’analyse.</p>',
     '  </header>',
     '',
     '  <div class="lab"',
     '       data-lab',
     '       data-exercise-id="atelier-vo3"',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="INVITE sip:706438029@voip.lan\nCODEC G.711 PCMA\nERLANG_B TRAFIC=6.0 CANAUX=10">',
-    '    <script type="text/plain" data-lab-starter>' + defaultCode + '</script>',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-voip\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -217,7 +200,7 @@ if __name__ == "__main__":
 
   return {
     'atelier.html': {
-      title: 'Atelier de code interactif — ' + course.brand,
+      title: 'Atelier d’analyse interactif — ' + course.brand,
       description: 'Console interactive Python 3 pour concevoir et tester des algorithmes de téléphonie IP, Asterisk et traitement audio.',
       active: 'atelier',
       body

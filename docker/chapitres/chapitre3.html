@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -218,33 +219,50 @@ CMD ["/app/monapp"]</code></pre>
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="dk2-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="# Mon Dockerfile de production&#10;FROM node:18-alpine&#10;ADD package.json .&#10;RUN npm install&#10;COPY . .&#10;CMD [&quot;node&quot;, &quot;server.js&quot;]">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c3-e1) — Validateur et linter de bonnes pratiques Dockerfile
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Dockerfile parfaitement conforme]
+# Données : FROM python:3.11-slim
+# Données : WORKDIR /app
+# Données : COPY requirements.txt .
+# Données : RUN pip install --no-cache-dir -r requirements.txt
+# Données : COPY . .
+# Données : USER 1001
+# Données : CMD ["python", "app.py"]
+A_COMPLETER
 
-# À compléter : analyser et auditer le Dockerfile
+[Cas 2 — Anti-pattern apt-get update isolé]
+# Données : FROM debian:bullseye
+# Données : RUN apt-get update
+# Données : RUN apt-get install -y curl
+# Données : CMD ["bash"]
+A_COMPLETER
+
+[Cas 3 — Erreur critique absence de FROM initial]
+# Données : WORKDIR /app
+# Données : COPY . .
+# Données : CMD ["sh"]
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur et linter de bonnes pratiques Dockerfile</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser statiquement les instructions d’un Dockerfile et détecter les anti-patterns courants.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard les lignes d'un Dockerfile.<br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
 Règles d'audit et de conformité :<br>
 1. Première instruction non-commentaire : DOIT être <code>FROM</code> (ou <code>ARG</code>). Si absent : <code>ERREUR_CRITIQUE: Dockerfile doit debuter par FROM</code>.<br>
 2. <strong>Anti-pattern ADD</strong> : si une ligne commence par <code>ADD</code> avec un fichier local simple (.txt, .js, .py, etc. sans .tar/.gz/.zip ni URL http) : afficher <code>AVERTISSEMENT [Ligne N]: Preferer COPY a ADD pour les fichiers locaux</code>.<br>
@@ -252,13 +270,13 @@ Règles d'audit et de conformité :<br>
 4. Si aucun problème n'est détecté : afficher <code>AUDIT_DOCKERFILE: CONFORME (Aucun anti-pattern detecte)</code>.<br>
 Sinon, afficher <code>AUDIT_DOCKERFILE: NON_CONFORME (&lt;K&gt; avertissement(s))</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre># Mon Dockerfile de production
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre># Mon Dockerfile de production
 FROM node:18-alpine
 ADD package.json .
 RUN npm install
 COPY . .
 CMD ["node", "server.js"]</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AVERTISSEMENT [Ligne 3]: Preferer COPY a ADD pour les fichiers locaux
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AVERTISSEMENT [Ligne 3]: Preferer COPY a ADD pour les fichiers locaux
 AUDIT_DOCKERFILE: NON_CONFORME (1 avertissement(s))</pre></div>
     </div>
     <p class="lab__note">ADD est déconseillé pour copier de simples fichiers locaux.</p>
@@ -274,26 +292,40 @@ AUDIT_DOCKERFILE: NON_CONFORME (1 avertissement(s))</pre></div>
 
 <div class="lab" data-lab
      data-exercise="dk2-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ENTRYPOINT: python, app.py&#10;CMD: --port, 8080&#10;CLI_ARGS: NONE">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c3-e2) — Distributeur de commandes CMD vs ENTRYPOINT
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — CMD seul sans ENTRYPOINT]
+# Données : ENTRYPOINT: NONE
+# Données : CMD: nginx, -g, daemon off;
+# Données : CLI_ARGS: NONE
+A_COMPLETER
 
-# À compléter : combiner ENTRYPOINT, CMD et arguments CLI
+[Cas 2 — CMD seul écrasé par commande CLI (ex: docker run ... bash)]
+# Données : ENTRYPOINT: NONE
+# Données : CMD: node, index.js
+# Données : CLI_ARGS: bash
+A_COMPLETER
+
+[Cas 3 — ENTRYPOINT seul sans CMD]
+# Données : ENTRYPOINT: /entrypoint.sh
+# Données : CMD: NONE
+# Données : CLI_ARGS: NONE
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Distributeur de commandes CMD vs ENTRYPOINT</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la ligne de commande finale exacte exécutée dans le conteneur selon la présence de ENTRYPOINT, CMD et arguments CLI.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard trois lignes :<br>
-1. <code>ENTRYPOINT: &lt;liste d'arguments séparés par des virgules ou NONE&gt;</code><br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas. <code>ENTRYPOINT: &lt;liste d'arguments séparés par des virgules ou NONE&gt;</code><br>
 2. <code>CMD: &lt;liste d'arguments séparés par des virgules ou NONE&gt;</code><br>
 3. <code>CLI_ARGS: &lt;arguments passés à docker run séparés par des virgules ou NONE&gt;</code><br>
 Règles d'évaluation du runtime Docker :<br>
@@ -303,10 +335,10 @@ Règles d'évaluation du runtime Docker :<br>
 Afficher la commande résultante (arguments joints par des espaces) :<br>
 <code>COMMANDE_FINALE: &lt;cmd1&gt; &lt;cmd2&gt; ...</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ENTRYPOINT: python, app.py
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ENTRYPOINT: python, app.py
 CMD: --port, 8080
 CLI_ARGS: NONE</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>COMMANDE_FINALE: python app.py --port 8080</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>COMMANDE_FINALE: python app.py --port 8080</pre></div>
     </div>
     <p class="lab__note">ENTRYPOINT et CMD sont combinés par défaut.</p>
     <details class="lab__hints">
@@ -321,26 +353,40 @@ CLI_ARGS: NONE</pre></div>
 
 <div class="lab" data-lab
      data-exercise="dk2-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="MONOLITHIC: golang:1.21 800 + 150 + 10 + 20&#10;STAGE_BUILD: golang:1.21 980 -&gt; EXPORT: 20&#10;STAGE_FINAL: alpine:3.18 7 + IMPORT: 20">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (dk2-c3-e3) — Optimiseur de cache et build Multi-Stage
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Application Java Quarkus / GraalVM vers distroless]
+# Données : MONOLITHIC: graalvm:jdk17 1200 + 300 + 50 + 40
+# Données : STAGE_BUILD: graalvm:jdk17 1590 -> EXPORT: 40
+# Données : STAGE_FINAL: gcr.io/distroless/static 2 + IMPORT: 40
+A_COMPLETER
 
-# À compléter : calculer les gains d'un build multi-stage
+[Cas 2 — Application Node.js avec bundle frontend]
+# Données : MONOLITHIC: node:20 1000 + 250 + 30 + 10
+# Données : STAGE_BUILD: node:20 1290 -> EXPORT: 10
+# Données : STAGE_FINAL: nginx:alpine 25 + IMPORT: 10
+A_COMPLETER
+
+[Cas 3 — Build léger C Rust vers scratch]
+# Données : MONOLITHIC: rust:1.75 1400 + 200 + 20 + 8
+# Données : STAGE_BUILD: rust:1.75 1628 -> EXPORT: 8
+# Données : STAGE_FINAL: scratch 0 + IMPORT: 8
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Optimiseur de cache et build Multi-Stage</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Quantifier l’allègement drastique d’image obtenu par le pattern Multi-Stage Build face à une construction monolithique.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
-- Ligne 1 : <code>MONOLITHIC: &lt;NomBase&gt; &lt;TailleBaseMo&gt; + &lt;OutilsDevMo&gt; + &lt;CodeMo&gt; + &lt;BinaireProduitMo&gt;</code>.<br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
 - Ligne 2 : <code>STAGE_BUILD: &lt;NomBaseBuild&gt; &lt;TailleTotalBuildMo&gt; -&gt; EXPORT: &lt;BinaireProduitMo&gt;</code>.<br>
 - Ligne 3 : <code>STAGE_FINAL: &lt;NomBaseLegere&gt; &lt;TailleBaseLegereMo&gt; + IMPORT: &lt;BinaireProduitMo&gt;</code>.<br>
 Calculer :<br>
@@ -353,10 +399,10 @@ Afficher :<br>
 <code>IMAGE_MULTI_STAGE: &lt;Tmulti&gt; Mo</code><br>
 <code>GAIN_SECURITE_ET_TAILLE: -&lt;Red&gt; Mo (&lt;Pct:.1f&gt;% economises)</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MONOLITHIC: golang:1.21 800 + 150 + 10 + 20
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MONOLITHIC: golang:1.21 800 + 150 + 10 + 20
 STAGE_BUILD: golang:1.21 980 -&gt; EXPORT: 20
 STAGE_FINAL: alpine:3.18 7 + IMPORT: 20</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IMAGE_MONOLITHIQUE: 980 Mo
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IMAGE_MONOLITHIQUE: 980 Mo
 IMAGE_MULTI_STAGE: 27 Mo
 GAIN_SECURITE_ET_TAILLE: -953 Mo (97.2% economises)</pre></div>
     </div>
@@ -536,6 +582,29 @@ GAIN_SECURITE_ET_TAILLE: -953 Mo (97.2% economises)</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

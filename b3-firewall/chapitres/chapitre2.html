@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="2">
@@ -136,34 +137,49 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="fw3-c2-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PACKET id=1 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=SYN&#10;PACKET id=2 src=192.168.1.10 dst=10.0.0.2 sport=80 dport=54321 flags=SYN_ACK&#10;PACKET id=3 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=ACK">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c2-e1) — Machine à états TCP conntrack (NEW, ESTABLISHED, INVALID)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Paquet DATA légitime après handshake puis fermeture FIN]
+# Données : PACKET id=1 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=SYN
+# Données : PACKET id=2 src=203.0.113.1 dst=10.0.0.5 sport=443 dport=4000 flags=SYN_ACK
+# Données : PACKET id=3 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=ACK
+# Données : PACKET id=4 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=DATA
+# Données : PACKET id=5 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=FIN
+# Données : PACKET id=6 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=DATA
+A_COMPLETER
 
-# À compléter : suivre les sessions TCP et classifier l'état conntrack
+[Cas 2 — Attaque par paquets orphelins ACK et RST sans handshake]
+# Données : PACKET id=10 src=198.51.100.22 dst=10.0.0.1 sport=60000 dport=22 flags=ACK
+# Données : PACKET id=11 src=198.51.100.22 dst=10.0.0.1 sport=60000 dport=22 flags=RST
+A_COMPLETER
+
+[Cas 3 — Multiples sessions concurrentes avec rejet hors session]
+# Données : PACKET id=A1 src=10.1.1.1 dst=8.8.8.8 sport=1000 dport=53 flags=SYN
+# Données : PACKET id=B1 src=10.2.2.2 dst=1.1.1.1 sport=2000 dport=80 flags=SYN
+# Données : PACKET id=A2 src=8.8.8.8 dst=10.1.1.1 sport=53 dport=1000 flags=SYN_ACK
+# Données : PACKET id=A3 src=10.1.1.1 dst=8.8.8.8 sport=1000 dport=53 flags=ACK
+# Données : PACKET id=C1 src=172.16.0.4 dst=10.1.1.1 sport=3000 dport=22 flags=DATA
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Machine à états TCP conntrack (NEW, ESTABLISHED, INVALID)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le moteur conntrack de suivi de sessions TCP selon la RFC 793 et classifier les paquets reçus.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard des événements réseau décrivant des paquets TCP au format :<br>
-<code>PACKET id=&lt;id&gt; src=&lt;ip&gt; dst=&lt;ip&gt; sport=&lt;p&gt; dport=&lt;p&gt; flags=&lt;SYN|SYN_ACK|ACK|FIN|RST|DATA&gt;</code>.<br><br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles de transition d'état conntrack par session identifiée par son quadruplet bidirectionnel <code>{min(ip1:p1, ip2:p2) &lt;-&gt; max(ip1:p1, ip2:p2)}</code> :<br>
 1. Un premier paquet avec <code>flags=SYN</code> initie une session : état = <code>NEW</code> (phase de négociation).<br>
 2. La réponse avec <code>flags=SYN_ACK</code> dans le sens inverse : état = <code>NEW</code> (attente du handshake 3-voies).<br>
@@ -174,10 +190,10 @@ Règles de transition d'état conntrack par session identifiée par son quadrupl
 Pour chaque ligne, afficher :<br>
 <code>CONNTRACK id={id} state={NEW|ESTABLISHED|INVALID}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PACKET id=1 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=SYN
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PACKET id=1 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=SYN
 PACKET id=2 src=192.168.1.10 dst=10.0.0.2 sport=80 dport=54321 flags=SYN_ACK
 PACKET id=3 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=ACK</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CONNTRACK id=1 state=NEW
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CONNTRACK id=1 state=NEW
 CONNTRACK id=2 state=NEW
 CONNTRACK id=3 state=ESTABLISHED</pre></div>
     </div>
@@ -194,19 +210,36 @@ CONNTRACK id=3 state=ESTABLISHED</pre></div>
 
 <div class="lab" data-lab
      data-exercise="fw3-c2-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SESSION id=S1 proto=TCP state=ESTABLISHED last_seen=1000&#10;SESSION id=S2 proto=UDP state=GENERIC last_seen=4800&#10;PURGE now=5000">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c2-e2) — Purge et gestion des délais d’expiration (Timeouts) conntrack
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Sessions mixtes avec conservation ICMP active et TCP expirés]
+# Données : SESSION id=S10 proto=TCP state=ESTABLISHED last_seen=3000
+# Données : SESSION id=S11 proto=ICMP state=ECHO last_seen=7195
+# Données : SESSION id=S12 proto=TCP state=SYN_SENT last_seen=7100
+# Données : PURGE now=7200
+A_COMPLETER
 
-# À compléter : purger les sessions expirées selon leur protocole et délai
+[Cas 2 — Aucune session expirée]
+# Données : SESSION id=A1 proto=TCP state=ESTABLISHED last_seen=1000
+# Données : SESSION id=A2 proto=UDP state=GENERIC last_seen=1020
+# Données : PURGE now=1030
+A_COMPLETER
+
+[Cas 3 — Toutes les sessions conservées et expirées en chaîne]
+# Données : SESSION id=U1 proto=UDP state=GENERIC last_seen=100
+# Données : SESSION id=T1 proto=TCP state=SYN_SENT last_seen=100
+# Données : SESSION id=I1 proto=ICMP state=ECHO last_seen=100
+# Données : PURGE now=200
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Purge et gestion des délais d’expiration (Timeouts) conntrack</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -217,18 +250,17 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 - <code>TCP:SYN_SENT</code> : timeout = <code>60</code> secondes.<br>
 - <code>UDP:GENERIC</code> : timeout = <code>30</code> secondes.<br>
 - <code>ICMP:ECHO</code> : timeout = <code>10</code> secondes.<br><br>
-Le script lit sur l'entrée standard :<br>
-1. Des entrées de session : <code>SESSION id=&lt;id&gt; proto=&lt;TCP|UDP|ICMP&gt; state=&lt;state&gt; last_seen=&lt;secondes&gt;</code>.<br>
+Analysez les paramètres du problème pour chaque cas. Des entrées de session : <code>SESSION id=&lt;id&gt; proto=&lt;TCP|UDP|ICMP&gt; state=&lt;state&gt; last_seen=&lt;secondes&gt;</code>.<br>
 2. Une commande finale : <code>PURGE now=&lt;secondes&gt;</code>.<br><br>
 Une session expire si <code>(now - last_seen) &gt; timeout</code>.<br>
-Le script doit afficher la liste des sessions purgées dans l'ordre de leur déclaration, puis le nombre restant :<br>
+Indiquez pour chaque cas la liste des sessions purgées dans l'ordre de leur déclaration, puis le nombre restant :<br>
 <code>PURGED: {id1}, {id2}, ...</code> (ou <code>PURGED: NONE</code> si aucune)<br>
 <code>REMAINING: {nb_restantes} sessions actives</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SESSION id=S1 proto=TCP state=ESTABLISHED last_seen=1000
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SESSION id=S1 proto=TCP state=ESTABLISHED last_seen=1000
 SESSION id=S2 proto=UDP state=GENERIC last_seen=4800
 PURGE now=5000</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PURGED: S1, S2
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PURGED: S1, S2
 REMAINING: 0 sessions actives</pre></div>
     </div>
     <p class="lab__note">S1 inactive depuis 4000s (&gt; 3600s) et S2 inactive depuis 200s (&gt; 30s) : toutes purgées.</p>
@@ -244,27 +276,37 @@ REMAINING: 0 sessions actives</pre></div>
 
 <div class="lab" data-lab
      data-exercise="fw3-c2-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PROBE src=192.168.1.100 dst=10.0.0.1 dport=22 flags=FIN,PSH,URG">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c2-e3) — Détecteur de balayages furtifs (Scans Xmas, Null, FIN & Syn-Fin)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Détection Null scan et Syn-Fin anomaly]
+# Données : PROBE src=198.51.100.5 dst=10.0.0.10 dport=80 flags=NONE
+# Données : PROBE src=198.51.100.6 dst=10.0.0.10 dport=443 flags=SYN,FIN
+A_COMPLETER
 
-# À compléter : analyser les flags TCP et classifier l'attaque ou scan
+[Cas 2 — Détection FIN scan isolé et trafic standard]
+# Données : PROBE src=203.0.113.8 dst=10.0.0.2 dport=3306 flags=FIN
+# Données : PROBE src=10.0.0.20 dst=172.16.0.5 dport=80 flags=SYN
+A_COMPLETER
+
+[Cas 3 — Variante Xmas scan avec ordre désordonné des flags]
+# Données : PROBE src=192.0.2.1 dst=192.168.1.1 dport=8080 flags=URG,FIN,PSH
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Détecteur de balayages furtifs (Scans Xmas, Null, FIN &amp; Syn-Fin)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Détecter les combinaisons illégales de flags TCP caractéristiques des outils de reconnaissance furtive.</p>
     <div class="lab__brief"><p>Les attaquants exploitent les spécifications de la RFC 793 pour contourner les pare-feux stateless et cartographier les ports ouverts via des combinaisons atypiques de flags TCP.<br>
-Le script lit sur l'entrée standard des paquets suspects :<br>
-<code>PROBE src=&lt;ip&gt; dst=&lt;ip&gt; dport=&lt;port&gt; flags=&lt;liste_flags_separes_par_virgule&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles d'analyse et de classification :<br>
 1. <code>SYN,FIN</code> : Paquet contradictoire demandant l'ouverture et la fermeture simultanées -> <code>SYN_FIN_ANOMALY</code> (Danger élevé).<br>
 2. <code>FIN,PSH,URG</code> (dans n'importe quel ordre) : Arbre de Noël allumé -> <code>XMAS_TREE_SCAN</code> (Sonde Nmap -sX).<br>
@@ -274,8 +316,8 @@ Règles d'analyse et de classification :<br>
 Pour chaque ligne, afficher :<br>
 <code>SCAN_ALERT: {src} -> {dst}:{dport} [{flags}] => {CLASSIFICATION}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PROBE src=192.168.1.100 dst=10.0.0.1 dport=22 flags=FIN,PSH,URG</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SCAN_ALERT: 192.168.1.100 -&gt; 10.0.0.1:22 [FIN,PSH,URG] =&gt; XMAS_TREE_SCAN</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PROBE src=192.168.1.100 dst=10.0.0.1 dport=22 flags=FIN,PSH,URG</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SCAN_ALERT: 192.168.1.100 -&gt; 10.0.0.1:22 [FIN,PSH,URG] =&gt; XMAS_TREE_SCAN</pre></div>
     </div>
     <p class="lab__note">Sonde de type Xmas Scan avec FIN, PSH et URG actifs.</p>
     <details class="lab__hints">
@@ -450,6 +492,29 @@ Pour chaque ligne, afficher :<br>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

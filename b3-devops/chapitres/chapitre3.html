@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -158,33 +159,54 @@ $$f(f(x)) = f(x)$$
 <p>Si un opérateur modifie manuellement un groupe de sécurité en production, l’infrastructure entre en état de <strong>Drift (Dérive)</strong>. Un moteur d’IaC moderne détecte ce désalignement lors du <code>plan</code> et restaure la configuration déclarée lors du <code>apply</code> pour garantir la convergence absolue vers l’état de référence.</p>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="do3-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="FROM python:3.11-slim&#10;WORKDIR /app&#10;COPY requirements.txt .&#10;RUN pip install -r requirements.txt&#10;COPY . .&#10;USER appuser&#10;CMD [&quot;python&quot;, &quot;main.py&quot;]">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c3-e1) — Auditeur d’optimisation de Dockerfile (Layer Caching & Multi-Stage)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Dockerfile naïf avec base lourde et cache invalidé]
+# Données : FROM python:3.11
+# Données : WORKDIR /app
+# Données : COPY . .
+# Données : RUN pip install -r requirements.txt
+# Données : CMD ["python", "main.py"]
+A_COMPLETER
 
-# À compléter : analyser le Dockerfile et détecter les anti-patterns
+[Cas 2 — Compilation Go sans étape multi-stage]
+# Données : FROM golang:1.20-alpine
+# Données : WORKDIR /src
+# Données : COPY . .
+# Données : RUN go build -o app
+# Données : USER nonroot
+# Données : CMD ["./app"]
+A_COMPLETER
+
+[Cas 3 — Multi-stage complet avec base alpine et utilisateur dédié]
+# Données : FROM golang:1.20-alpine AS builder
+# Données : COPY . .
+# Données : RUN go build -o myapp
+# Données : FROM alpine:3.18
+# Données : COPY --from=builder /myapp /myapp
+# Données : USER 1000
+# Données : CMD ["/myapp"]
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Auditeur d’optimisation de Dockerfile (Layer Caching &amp; Multi-Stage)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Détecter les anti-patterns courants dans la rédaction d’un Dockerfile et calculer son score de conformité aux bonnes pratiques de conteneurisation.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard les lignes successives d'un Dockerfile (format <code>INSTRUCTION argument...</code>) :<br><br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...</code>) :<br><br>
 Règles d'audit (score de départ : 100 points) :<br>
 1. <strong>Image de base lourde (-20 pts) :</strong> si une instruction <code>FROM</code> utilise une image complète (contient <code>python:</code>, <code>node:</code>, <code>golang:</code>, <code>ubuntu:</code>) SANS contenir <code>slim</code> ou <code>alpine</code> -&gt; alerte <code>BASE_IMAGE_VOLUMINEUSE</code>.<br>
 2. <strong>Invalidation prématurée du cache (-30 pts) :</strong> si une instruction <code>COPY . .</code> ou <code>COPY . /</code> apparaît chronologiquement <strong>avant</strong> une instruction d'installation de dépendances (contenant <code>npm install</code> ou <code>pip install</code>) -&gt; alerte <code>CACHE_DEPENDANCES_INVALIDE</code>.<br>
@@ -198,14 +220,14 @@ Qualification du score :<br>
 Afficher :<br>
 <code>AUDIT_DOCKERFILE: SCORE=&lt;score&gt;/100 | NIVEAU=&lt;NIVEAU&gt; | ALERTES=[&lt;alertes ou AUCUNE&gt;]</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FROM python:3.11-slim
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FROM python:3.11-slim
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
 USER appuser
 CMD ["python", "main.py"]</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT_DOCKERFILE: SCORE=100/100 | NIVEAU=OPTIMAL | ALERTES=[AUCUN]</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT_DOCKERFILE: SCORE=100/100 | NIVEAU=OPTIMAL | ALERTES=[AUCUN]</pre></div>
     </div>
     <p class="lab__note">Image slim, dépendances copiées avant le code complet, compte non-root : Dockerfile parfait.</p>
     <details class="lab__hints">
@@ -220,26 +242,38 @@ CMD ["python", "main.py"]</pre></div>
 
 <div class="lab" data-lab
      data-exercise="do3-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="IMAGE nom=api_auth LAYERS=L_node:150,L_express:30,L_auth:10&#10;IMAGE nom=api_users LAYERS=L_node:150,L_express:30,L_users:15&#10;IMAGE nom=worker LAYERS=L_node:150,L_queues:40">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c3-e2) — Calculateur d’empreinte disque des couches d’images partagées
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Deux images identiques sous des noms différents]
+# Données : IMAGE nom=service_v1 LAYERS=L1:100,L2:50
+# Données : IMAGE nom=service_v1_backup LAYERS=L1:100,L2:50
+A_COMPLETER
 
-# À compléter : dédoublonner les couches et calculer le gain d'espace
+[Cas 2 — Images totalement disjointes sans partage]
+# Données : IMAGE nom=front_nginx LAYERS=LN:40,LA:10
+# Données : IMAGE nom=db_postgres LAYERS=LP:200,LD:50
+A_COMPLETER
+
+[Cas 3 — Microservices avec couches partagées étagées]
+# Données : IMAGE nom=svc_a LAYERS=base:50,mid:30,code_a:10
+# Données : IMAGE nom=svc_b LAYERS=base:50,mid:30,code_b:12
+# Données : IMAGE nom=svc_c LAYERS=base:50,code_c:8
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Calculateur d’empreinte disque des couches d’images partagées</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Quantifier l’économie d’espace disque permise par le système de couches immuables (layer sharing) du démon Docker sur un hôte.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard la composition en couches de plusieurs images :<br>
-<code>IMAGE nom=&lt;nom&gt; LAYERS=&lt;hash1:taille,hash2:taille,...&gt;</code>.<br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...&gt;</code>.<br>
 Chaque couche possède un identifiant de hachage et une taille en Mo (ex: <code>L_base:120,L_node:80,L_app:15</code>).<br><br>
 Pour chaque image :<br>
 - Calculer sa taille brute apparente = somme de ses couches.<br>
@@ -252,10 +286,10 @@ Pour l’ensemble du parc :<br>
 Afficher la synthèse :<br>
 <code>SYNTHESE_DOCKER: BRUT_CUMULE=&lt;brut&gt;Mo | REEL_SUR_HOTE=&lt;reel&gt;Mo | ECONOMIE=&lt;eco&gt;Mo (-&lt;pct:.1f&gt;%)</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>IMAGE nom=api_auth LAYERS=L_node:150,L_express:30,L_auth:10
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>IMAGE nom=api_auth LAYERS=L_node:150,L_express:30,L_auth:10
 IMAGE nom=api_users LAYERS=L_node:150,L_express:30,L_users:15
 IMAGE nom=worker LAYERS=L_node:150,L_queues:40</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IMAGE: api_auth -&gt; TAILLE=190Mo
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IMAGE: api_auth -&gt; TAILLE=190Mo
 IMAGE: api_users -&gt; TAILLE=195Mo
 IMAGE: worker -&gt; TAILLE=190Mo
 SYNTHESE_DOCKER: BRUT_CUMULE=575Mo | REEL_SUR_HOTE=245Mo | ECONOMIE=330Mo (-57.4%)</pre></div>
@@ -273,26 +307,40 @@ SYNTHESE_DOCKER: BRUT_CUMULE=575Mo | REEL_SUR_HOTE=245Mo | ECONOMIE=330Mo (-57.4
 
 <div class="lab" data-lab
      data-exercise="do3-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SERVICE nom=web depends_on=api&#10;SERVICE nom=api depends_on=database,redis&#10;SERVICE nom=database depends_on=NONE&#10;SERVICE nom=redis depends_on=NONE">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c3-e3) — Résolveur d’ordre de démarrage de services Docker Compose (depends_on)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Cycle d’interblocage direct entre deux services]
+# Données : SERVICE nom=service_a depends_on=service_b
+# Données : SERVICE nom=service_b depends_on=service_a
+A_COMPLETER
 
-# À compléter : tri topologique et détection de cycle
+[Cas 2 — Graphe en diamant classique web, front, cache, bdd]
+# Données : SERVICE nom=nginx depends_on=app1,app2
+# Données : SERVICE nom=app1 depends_on=db
+# Données : SERVICE nom=app2 depends_on=db
+# Données : SERVICE nom=db depends_on=NONE
+A_COMPLETER
+
+[Cas 3 — Services indépendants tous sans dépendances]
+# Données : SERVICE nom=worker_b depends_on=NONE
+# Données : SERVICE nom=worker_a depends_on=NONE
+# Données : SERVICE nom=worker_c depends_on=NONE
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Résolveur d’ordre de démarrage de services Docker Compose (depends_on)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la séquence de démarrage topologique valide d’un fichier docker-compose.yml en résolvant les dépendances et en détectant les cycles bloquants.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard la liste des services et leurs dépendances :<br>
-<code>SERVICE nom=&lt;nom&gt; depends_on=&lt;s1,s2,...|NONE&gt;</code>.<br><br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code>.<br><br>
 Règles :<br>
 - Un service ne peut démarrer que lorsque TOUS les services mentionnés dans sa directive <code>depends_on</code> ont déjà démarré.<br>
 - Si plusieurs services sont éligibles à démarrer au même moment, les ordonner par <strong>ordre alphabétique</strong> de leur nom pour garantir un résultat déterministe.<br>
@@ -301,11 +349,11 @@ Règles :<br>
 - Sinon, afficher la séquence ordonnée :<br>
   <code>DOCKER_COMPOSE: ORDRE_DEMARRAGE=[&lt;s1, s2, ...&gt;]</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SERVICE nom=web depends_on=api
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SERVICE nom=web depends_on=api
 SERVICE nom=api depends_on=database,redis
 SERVICE nom=database depends_on=NONE
 SERVICE nom=redis depends_on=NONE</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DOCKER_COMPOSE: ORDRE_DEMARRAGE=[database, redis, api, web]</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DOCKER_COMPOSE: ORDRE_DEMARRAGE=[database, redis, api, web]</pre></div>
     </div>
     <p class="lab__note">database et redis démarrent en premier (alphabétiquement database puis redis), puis api, puis web.</p>
     <details class="lab__hints">
@@ -481,6 +529,29 @@ SERVICE nom=redis depends_on=NONE</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

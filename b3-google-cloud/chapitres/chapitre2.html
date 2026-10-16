@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="2">
@@ -194,27 +195,32 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="gcp3-c2-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="BIND role=roles/storage.objectViewer member=user:alice@cloud.corp&#10;CHECK_ROLE member=user:alice@cloud.corp role=roles/storage.objectViewer&#10;AUDIT_PRIMITIVE_ROLES">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c2-e1) — Évaluateur de Politiques et Liaisons IAM (Bindings & Least Privilege)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Détection d accès refusé pour rôle non attribué]
+# Données : BIND role=roles/compute.viewer member=user:bob@corp.com
+# Données : CHECK_ROLE member=user:bob@corp.com role=roles/compute.admin
+A_COMPLETER
 
-# À compléter : implémenter la gestion des bindings IAM et audit de moindre privilège
+[Cas 2 — Audit signalant des rôles primitifs dangereux en production]
+# Données : BIND role=roles/editor member=user:dev@corp.com
+# Données : BIND role=roles/owner member=serviceAccount:ci@proj.iam.gserviceaccount.com
+# Données : AUDIT_PRIMITIVE_ROLES
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Évaluateur de Politiques et Liaisons IAM (Bindings &amp; Least Privilege)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -226,7 +232,7 @@ Classification des rôles :<br>
 - Rôles prédéfinis : débutent par <code>roles/</code> et comportent un point (ex: <code>roles/storage.objectViewer</code>, <code>roles/compute.instanceAdmin.v1</code>) (statut : <code>PREDEFINED_RECOMMENDED</code>).<br><br>
 Commandes lues sur STDIN :<br>
 1. <code>BIND role=&lt;role&gt; member=&lt;type:id&gt;</code> :<br>
-   Associe le membre au rôle et affiche :<br>
+   Associe le membre au rôle et Indiquez :<br>
    <code>BIND_OK: role=&lt;role&gt; member=&lt;member&gt; type=&lt;status&gt;</code>.<br>
 2. <code>CHECK_ROLE member=&lt;member&gt; role=&lt;role&gt;</code> :<br>
    - Si le membre possède le rôle : <code>ACCESS: GRANTED member=&lt;member&gt; role=&lt;role&gt;</code>.<br>
@@ -235,10 +241,10 @@ Commandes lues sur STDIN :<br>
    - Si aucun membre n'a de rôle primitif : <code>AUDIT: OK (zero primitive roles in use)</code>.<br>
    - Sinon : <code>AUDIT: WARNING primitive_count=&lt;N&gt; members=&lt;m1,m2,...&gt;</code> (liste ordonnée).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BIND role=roles/storage.objectViewer member=user:alice@cloud.corp
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BIND role=roles/storage.objectViewer member=user:alice@cloud.corp
 CHECK_ROLE member=user:alice@cloud.corp role=roles/storage.objectViewer
 AUDIT_PRIMITIVE_ROLES</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED_RECOMMENDED
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BIND_OK: role=roles/storage.objectViewer member=user:alice@cloud.corp type=PREDEFINED_RECOMMENDED
 ACCESS: GRANTED member=user:alice@cloud.corp role=roles/storage.objectViewer
 AUDIT: OK (zero primitive roles in use)</pre></div>
     </div>
@@ -256,19 +262,28 @@ AUDIT: OK (zero primitive roles in use)</pre></div>
 
 <div class="lab" data-lab
      data-exercise="gcp3-c2-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CUSTOM_ROLE_LINT id=devCustomStorage stage=GA perms=storage.buckets.get,storage.objects.list,storage.objects.get">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c2-e2) — Générateur et Linter de Rôles Personnalisés (Custom Roles)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Rejet stage invalide]
+# Données : CUSTOM_ROLE_LINT id=roleDev stage=PRODUCTION perms=compute.instances.get
+A_COMPLETER
 
-# À compléter : implémenter le linter de Custom Roles IAM
+[Cas 2 — Rejet permission mal formée]
+# Données : CUSTOM_ROLE_LINT id=roleDev stage=GA perms=compute.instances,storage.buckets.get
+A_COMPLETER
+
+[Cas 3 — Rejet permission d organisation au niveau projet]
+# Données : CUSTOM_ROLE_LINT id=roleSec stage=BETA perms=compute.instances.list,resourcemanager.organizations.setIamPolicy
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Générateur et Linter de Rôles Personnalisés (Custom Roles)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -287,8 +302,8 @@ Sorties :<br>
 - Si permission mal formée (ne comporte pas exactement 2 points) : <code>ROLE_LINT: id=&lt;id&gt; status=INVALID reason=MALFORMED_PERMISSION perm=&lt;p&gt;</code><br>
 - Si permission d'organisation interdite : <code>ROLE_LINT: id=&lt;id&gt; status=INVALID reason=FORBIDDEN_ORG_PERMISSION perm=&lt;p&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CUSTOM_ROLE_LINT id=devCustomStorage stage=GA perms=storage.buckets.get,storage.objects.list,storage.objects.get</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ROLE_LINT: id=devCustomStorage stage=GA perms_count=3 status=VALID</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CUSTOM_ROLE_LINT id=devCustomStorage stage=GA perms=storage.buckets.get,storage.objects.list,storage.objects.get</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROLE_LINT: id=devCustomStorage stage=GA perms_count=3 status=VALID</pre></div>
     </div>
     <p class="lab__note">Rôle personnalisé conforme avec 3 permissions atomiques Cloud Storage.</p>
     <details class="lab__hints">
@@ -303,19 +318,24 @@ Sorties :<br>
 
 <div class="lab" data-lab
      data-exercise="gcp3-c2-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="AUDIT_SA email=gke-app@proj-prod.iam.gserviceaccount.com auth_mode=WORKLOAD_IDENTITY&#10;AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-abc-123 age_days=45">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c2-e3) — Gouvernance des Comptes de Service et Rotation de Clés
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Clé de compte de service expirée dépassant 90 jours]
+# Données : AUDIT_SA email=backup-sa@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-xyz-999 age_days=120
+A_COMPLETER
 
-# À compléter : implémenter l'audit de sécurité des comptes de service
+[Cas 2 — Clé exactement au seuil de 90 jours]
+# Données : AUDIT_SA email=ci-runner@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-limit-90 age_days=90
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Gouvernance des Comptes de Service et Rotation de Clés</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -335,9 +355,9 @@ Commandes lues sur STDIN :<br>
 2. <code>AUDIT_SA email=&lt;sa_email&gt; auth_mode=SERVICE_ACCOUNT_KEY key_id=&lt;id&gt; age_days=&lt;N&gt;</code> :<br>
    <code>SA_AUDIT: email=&lt;email&gt; key_id=&lt;id&gt; age_days=&lt;N&gt; status=&lt;ACTIVE_COMPLIANT|EXPIRED_REQUIRES_ROTATION&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>AUDIT_SA email=gke-app@proj-prod.iam.gserviceaccount.com auth_mode=WORKLOAD_IDENTITY
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AUDIT_SA email=gke-app@proj-prod.iam.gserviceaccount.com auth_mode=WORKLOAD_IDENTITY
 AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-abc-123 age_days=45</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SA_AUDIT: email=gke-app@proj-prod.iam.gserviceaccount.com mode=WORKLOAD_IDENTITY status=HIGHLY_SECURE risk=ZERO
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SA_AUDIT: email=gke-app@proj-prod.iam.gserviceaccount.com mode=WORKLOAD_IDENTITY status=HIGHLY_SECURE risk=ZERO
 SA_AUDIT: email=legacy-app@proj-prod.iam.gserviceaccount.com key_id=key-abc-123 age_days=45 status=ACTIVE_COMPLIANT</pre></div>
     </div>
     <p class="lab__note">Comparatif d un compte fédéré sans clé et d un compte avec clé conforme récente.</p>
@@ -482,6 +502,29 @@ SA_AUDIT: email=legacy-app@proj-prod.iam.gserviceaccount.com key_id=key-abc-123 
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

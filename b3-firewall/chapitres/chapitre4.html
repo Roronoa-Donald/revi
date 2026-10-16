@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -137,27 +138,38 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="fw3-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="FLOW id=F1 src_zone=WAN dst_zone=DMZ dport=443&#10;FLOW id=F2 src_zone=DMZ dst_zone=LAN dport=3306">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c4-e1) — Contrôleur de conformité des flux de sécurité DMZ
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Tentative de connexion WAN directe vers le LAN]
+# Données : FLOW id=W1 src_zone=WAN dst_zone=LAN dport=22
+# Données : FLOW id=W2 src_zone=WAN dst_zone=DMZ dport=80
+A_COMPLETER
 
-# À compléter : auditer la matrice de flux inter-zones
+[Cas 2 — Flux applicatif LAN vers base de données DMZ et service non autorisé]
+# Données : FLOW id=L1 src_zone=LAN dst_zone=DMZ dport=3306
+# Données : FLOW id=L2 src_zone=LAN dst_zone=DMZ dport=139
+# Données : FLOW id=D1 src_zone=DMZ dst_zone=WAN dport=443
+# Données : FLOW id=D2 src_zone=DMZ dst_zone=WAN dport=22
+A_COMPLETER
+
+[Cas 3 — Navigation LAN vers Internet WAN légitime et interdite]
+# Données : FLOW id=N1 src_zone=LAN dst_zone=WAN dport=80
+# Données : FLOW id=N2 src_zone=LAN dst_zone=WAN dport=6667
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Contrôleur de conformité des flux de sécurité DMZ</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -171,14 +183,13 @@ Matrice de conformité des flux initiés :<br>
 4. <code>LAN -&gt; WAN</code> : Autorisé pour la navigation <code>80, 443, 53</code> -> <code>CONFORME</code> (sinon <code>SERVICE_NON_AUTORISE</code>).<br>
 5. <code>DMZ -&gt; WAN</code> : Autorisé uniquement pour les mises à jour et DNS <code>80, 443, 53</code> -> <code>CONFORME</code> (sinon <code>SERVICE_NON_AUTORISE</code>).<br>
 6. <code>WAN -&gt; LAN</code> : Toujours <code>VIOLATION_WAN_VERS_LAN_INTERDIT</code>.<br><br>
-Le script lit sur l'entrée standard des flux au format :<br>
-<code>FLOW id=&lt;id&gt; src_zone=&lt;WAN|LAN|DMZ&gt; dst_zone=&lt;WAN|LAN|DMZ&gt; dport=&lt;port&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque flux, afficher :<br>
 <code>AUDIT flow={id} status={CONFORME | motif_rejet}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FLOW id=F1 src_zone=WAN dst_zone=DMZ dport=443
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FLOW id=F1 src_zone=WAN dst_zone=DMZ dport=443
 FLOW id=F2 src_zone=DMZ dst_zone=LAN dport=3306</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT flow=F1 status=CONFORME
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT flow=F1 status=CONFORME
 AUDIT flow=F2 status=VIOLATION_CRITIQUE_DMZ_VERS_LAN</pre></div>
     </div>
     <p class="lab__note">F1 est conforme (HTTPS public en DMZ), F2 est une violation critique majeure de DMZ vers LAN.</p>
@@ -194,19 +205,28 @@ AUDIT flow=F2 status=VIOLATION_CRITIQUE_DMZ_VERS_LAN</pre></div>
 
 <div class="lab" data-lab
      data-exercise="fw3-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="TOPOLOGY nom=Siege_Banque firewalls=2 zones=LAN,DMZ,WAN constructeurs=2">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c4-e2) — Évaluateur d’architectures et topologies pare-feu
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Petite entreprise avec un seul pare-feu 3 pattes]
+# Données : TOPOLOGY nom=PME_Site firewalls=1 zones=LAN,DMZ,WAN constructeurs=1
+A_COMPLETER
 
-# À compléter : classifier la topologie et attribuer le score de résilience
+[Cas 2 — Routeur basique sans DMZ]
+# Données : TOPOLOGY nom=Agence_Locale firewalls=1 zones=LAN,WAN constructeurs=1
+A_COMPLETER
+
+[Cas 3 — Back-to-back avec équipements du même fabricant]
+# Données : TOPOLOGY nom=Campus_Univ firewalls=2 zones=LAN,DMZ,WAN constructeurs=1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Évaluateur d’architectures et topologies pare-feu</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -221,13 +241,12 @@ Modèles d'architecture :<br>
 3. <strong>Back-to-Back (Pare-feux en cascade avec DMZ sandwich)</strong> : au moins 2 pare-feux distincts encadrant la DMZ.<br>
    - Si <code>constructeurs &gt;= 2</code> : <code>ARCHITECTURE=BACK_TO_BACK_HETEROGENE</code>, <code>SCORE=9/10</code>, <code>VERDICT=EXCELLENT_DEFENSE_EN_PROFONDEUR</code>.<br>
    - Si <code>constructeurs == 1</code> : <code>ARCHITECTURE=BACK_TO_BACK_HOMOGENE</code>, <code>SCORE=8/10</code>, <code>VERDICT=TRES_BON_VULNERABILITE_COMMUNE_POSSIBLE</code>.<br><br>
-Le script lit sur l'entrée standard des descriptions d'infrastructures :<br>
-<code>TOPOLOGY nom=&lt;nom&gt; firewalls=&lt;nb&gt; zones=&lt;liste_zones&gt; constructeurs=&lt;nb&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque ligne, afficher :<br>
 <code>TOPOLOGY_AUDIT nom={nom} arch={ARCHITECTURE} score={SCORE} verdict={VERDICT}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TOPOLOGY nom=Siege_Banque firewalls=2 zones=LAN,DMZ,WAN constructeurs=2</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TOPOLOGY_AUDIT nom=Siege_Banque arch=BACK_TO_BACK_HETEROGENE score=9/10 verdict=EXCELLENT_DEFENSE_EN_PROFONDEUR</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TOPOLOGY nom=Siege_Banque firewalls=2 zones=LAN,DMZ,WAN constructeurs=2</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TOPOLOGY_AUDIT nom=Siege_Banque arch=BACK_TO_BACK_HETEROGENE score=9/10 verdict=EXCELLENT_DEFENSE_EN_PROFONDEUR</pre></div>
     </div>
     <p class="lab__note">Double pare-feu hétérogène (ex: Fortinet en frontal + Cisco en interne) : standard bancaire.</p>
     <details class="lab__hints">
@@ -242,19 +261,29 @@ Pour chaque ligne, afficher :<br>
 
 <div class="lab" data-lab
      data-exercise="fw3-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ACCESS_REQ id=R1 user=alice target_zone=PROD port=22 via_bastion=NON mfa_valid=OUI&#10;ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=OUI">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c4-e3) — Passerelle d’administration sécurisée et Bastion SSH / Jump Host
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Connexion directe avec port non SSH]
+# Données : ACCESS_REQ id=T1 user=bob target_zone=PROD port=80 via_bastion=NON mfa_valid=NON
+A_COMPLETER
 
-# À compléter : contrôler la politique d'accès d'administration
+[Cas 2 — Échec MFA lors de la tentative de connexion au bastion]
+# Données : ACCESS_REQ id=T2 user=charlie target_zone=BASTION port=22 via_bastion=NON mfa_valid=NON
+# Données : ACCESS_REQ id=T3 user=charlie target_zone=BASTION port=22 via_bastion=NON mfa_valid=OUI
+A_COMPLETER
+
+[Cas 3 — Passage par bastion mais sans validation MFA vers PROD]
+# Données : ACCESS_REQ id=T4 user=david target_zone=PROD port=22 via_bastion=OUI mfa_valid=NON
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Passerelle d’administration sécurisée et Bastion SSH / Jump Host</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -270,14 +299,13 @@ Règles de validation :<br>
 3. Si la cible <code>target_zone == 'BASTION'</code> :<br>
    a) Si <code>mfa_valid == 'OUI'</code> : <code>PERMIT</code>, motif <code>AUTHENTIFICATION_BASTION_OK</code>.<br>
    b) Sinon : <code>DENY</code>, motif <code>MFA_REQUIS</code>.<br><br>
-Le script lit sur l'entrée standard des requêtes :<br>
-<code>ACCESS_REQ id=&lt;id&gt; user=&lt;login&gt; target_zone=&lt;PROD|BASTION&gt; port=&lt;p&gt; via_bastion=&lt;OUI|NON&gt; mfa_valid=&lt;OUI|NON&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque ligne, afficher :<br>
 <code>BASTION_GATEWAY req={id} decision={PERMIT|DENY} motif={MOTIF}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ACCESS_REQ id=R1 user=alice target_zone=PROD port=22 via_bastion=NON mfa_valid=OUI
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACCESS_REQ id=R1 user=alice target_zone=PROD port=22 via_bastion=NON mfa_valid=OUI
 ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=OUI</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BASTION_GATEWAY req=R1 decision=DENY motif=ACCES_DIRECT_INTERDIT_PASSER_PAR_BASTION
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BASTION_GATEWAY req=R1 decision=DENY motif=ACCES_DIRECT_INTERDIT_PASSER_PAR_BASTION
 BASTION_GATEWAY req=R2 decision=PERMIT motif=SESSION_BASTION_VALIDEE</pre></div>
     </div>
     <p class="lab__note">R1 tente une connexion directe non autorisée ; R2 transite par le bastion avec MFA.</p>
@@ -453,6 +481,29 @@ BASTION_GATEWAY req=R2 decision=PERMIT motif=SESSION_BASTION_VALIDEE</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

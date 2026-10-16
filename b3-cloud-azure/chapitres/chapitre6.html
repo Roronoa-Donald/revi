@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -146,27 +147,42 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="az3-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=450&#10;EVENT rg=rg-prod op=DeleteDisk status=Failed duration_ms=1200&#10;EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=300&#10;EVENT rg=rg-dev op=RestartVM status=Success duration_ms=150&#10;KQL where status == &quot;Failed&quot; | summarize count() by op | order by count_ desc | take 2">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c6-e1) — Interpréteur de requêtes Log Analytics KQL
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Requête sur les opérations de sécurité en échec]
+# Données : EVENT rg=rg-sec op=RevokeKey status=Failed duration_ms=200
+# Données : EVENT rg=rg-sec op=RevokeKey status=Failed duration_ms=220
+# Données : EVENT rg=rg-sec op=RevokeKey status=Failed duration_ms=210
+# Données : EVENT rg=rg-sec op=RotateSecret status=Failed duration_ms=180
+# Données : KQL where status == "Failed" | summarize count() by op | order by count_ desc | take 2
+A_COMPLETER
 
-# À compléter : analyser les événements et exécuter la requête KQL
+[Cas 2 — Requête sur les succès avec take 3]
+# Données : EVENT rg=rg-prod op=StartVM status=Success duration_ms=100
+# Données : EVENT rg=rg-prod op=StartVM status=Success duration_ms=120
+# Données : EVENT rg=rg-prod op=AttachDisk status=Success duration_ms=250
+# Données : EVENT rg=rg-prod op=CreateNic status=Success duration_ms=180
+# Données : KQL where status == "Success" | summarize count() by op | order by count_ desc | take 3
+A_COMPLETER
+
+[Cas 3 — Aucun événement ne correspondant au filtre]
+# Données : EVENT rg=rg-prod op=StartVM status=Success duration_ms=100
+# Données : KQL where status == "Failed" | summarize count() by op | order by count_ desc | take 5
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Interpréteur de requêtes Log Analytics KQL</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -188,12 +204,12 @@ En-tête : <code>op | count_</code><br>
 Chaque ligne : <code>&lt;op&gt; | &lt;count_&gt;</code><br>
 (Si aucun événement ne correspond : afficher uniquement l'en-tête).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=450
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=450
 EVENT rg=rg-prod op=DeleteDisk status=Failed duration_ms=1200
 EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=300
 EVENT rg=rg-dev op=RestartVM status=Success duration_ms=150
 KQL where status == "Failed" | summarize count() by op | order by count_ desc | take 2</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>op | count_
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>op | count_
 RestartVM | 2
 DeleteDisk | 1</pre></div>
     </div>
@@ -211,19 +227,38 @@ DeleteDisk | 1</pre></div>
 
 <div class="lab" data-lab
      data-exercise="az3-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="BUDGET amount=1000 currency=EUR&#10;ALERT_RULE metric=CPU threshold=80 severity=Sev1&#10;ALERT_RULE metric=SPEND_ACTUAL threshold_pct=80 severity=Sev2&#10;RECORD metric=CPU value=85.5&#10;RECORD metric=SPEND_ACTUAL value=750.0">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c6-e2) — Gestionnaire d'alertes Azure Monitor et suivi budgétaire
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — CPU au-dessus du seuil et dépense réelle sous le seuil]
+# Données : BUDGET amount=1200 currency=EUR
+# Données : ALERT_RULE metric=CPU threshold=75 severity=Sev1
+# Données : ALERT_RULE metric=SPEND_ACTUAL threshold_pct=85 severity=Sev2
+# Données : RECORD metric=CPU value=92.0
+# Données : RECORD metric=SPEND_ACTUAL value=800.0
+A_COMPLETER
 
-# À compléter : surveiller les seuils CPU et budgétaires Azure
+[Cas 2 — Dépassement prévisionnel 100% et dépense réelle à 90%]
+# Données : BUDGET amount=500 currency=EUR
+# Données : ALERT_RULE metric=SPEND_ACTUAL threshold_pct=90 severity=Sev1
+# Données : ALERT_RULE metric=SPEND_FORECAST threshold_pct=100 severity=Sev1
+# Données : RECORD metric=SPEND_ACTUAL value=460.0
+# Données : RECORD metric=SPEND_FORECAST value=550.0
+A_COMPLETER
+
+[Cas 3 — Toutes les métriques conformes sous les seuils]
+# Données : BUDGET amount=2000 currency=EUR
+# Données : ALERT_RULE metric=CPU threshold=90 severity=Sev0
+# Données : RECORD metric=CPU value=45.0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Gestionnaire d'alertes Azure Monitor et suivi budgétaire</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -255,12 +290,12 @@ Règles de déclenchement :<br>
     <code>ALERT_FIRED: metric=SPEND_FORECAST val=&lt;value:.2f&gt;EUR threshold=&lt;seuil_euros:.2f&gt;EUR (pct=&lt;threshold_pct&gt;%) severity=&lt;SevX&gt; action=NOTIFY_FINOPS</code><br>
   - Sinon : <code>ALERT_OK: metric=SPEND_FORECAST val=&lt;value:.2f&gt;EUR</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BUDGET amount=1000 currency=EUR
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BUDGET amount=1000 currency=EUR
 ALERT_RULE metric=CPU threshold=80 severity=Sev1
 ALERT_RULE metric=SPEND_ACTUAL threshold_pct=80 severity=Sev2
 RECORD metric=CPU value=85.5
 RECORD metric=SPEND_ACTUAL value=750.0</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ALERT_FIRED: metric=CPU val=85.5% threshold=80% severity=Sev1 action=TRIGGER_ACTION_GROUP
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALERT_FIRED: metric=CPU val=85.5% threshold=80% severity=Sev1 action=TRIGGER_ACTION_GROUP
 ALERT_OK: metric=SPEND_ACTUAL val=750.00EUR</pre></div>
     </div>
     <p class="lab__note">Alerte CPU déclenchée à 85.5% et dépense sous le seuil des 80% (800 EUR).</p>
@@ -276,19 +311,37 @@ ALERT_OK: metric=SPEND_ACTUAL val=750.00EUR</pre></div>
 
 <div class="lab" data-lab
      data-exercise="az3-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PARAM name=env type=string&#10;RESOURCE name=vnet01 type=Microsoft.Network/virtualNetworks dependsOn=[]&#10;RESOURCE name=nic01 type=Microsoft.Network/networkInterfaces dependsOn=[vnet01]&#10;RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c6-e3) — Linter et ordonnanceur de gabarit Bicep / ARM
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Gabarit conforme App Service Plan et WebApp]
+# Données : PARAM name=location type=string
+# Données : PARAM name=sku type=string
+# Données : RESOURCE name=appServicePlan type=Microsoft.Web/serverfarms dependsOn=[]
+# Données : RESOURCE name=webApp type=Microsoft.Web/sites dependsOn=[appServicePlan]
+A_COMPLETER
 
-# À compléter : analyser le gabarit IaC, détecter les cycles et déterminer l'ordre d'exécution
+[Cas 2 — Dépendance manquante non déclarée]
+# Données : RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[storageAccount01]
+A_COMPLETER
+
+[Cas 3 — Dépendance circulaire détectée entre deux ressources]
+# Données : RESOURCE name=resA type=TypeA dependsOn=[resB]
+# Données : RESOURCE name=resB type=TypeB dependsOn=[resA]
+A_COMPLETER
+
+[Cas 4 — Ressources indépendantes triées alphabétiquement]
+# Données : RESOURCE name=storage01 type=Microsoft.Storage/storageAccounts dependsOn=[]
+# Données : RESOURCE name=kv01 type=Microsoft.KeyVault/vaults dependsOn=[]
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Linter et ordonnanceur de gabarit Bicep / ARM</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -308,11 +361,11 @@ Contrôles de cohérence :<br>
 3. Si le gabarit est valide : déterminer l'ordre d'exécution (tri topologique déterministe où chaque ressource intervient après ses dépendances ; en cas d'indépendance mutuelle, tri alphabétique par nom de ressource) :<br>
    <code>LINT_SUCCESS: resources_count=&lt;N&gt; params_count=&lt;M&gt; execution_order=[&lt;res1&gt;, &lt;res2&gt;, ...]</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PARAM name=env type=string
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PARAM name=env type=string
 RESOURCE name=vnet01 type=Microsoft.Network/virtualNetworks dependsOn=[]
 RESOURCE name=nic01 type=Microsoft.Network/networkInterfaces dependsOn=[vnet01]
 RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LINT_SUCCESS: resources_count=3 params_count=1 execution_order=[vnet01, nic01, vm01]</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LINT_SUCCESS: resources_count=3 params_count=1 execution_order=[vnet01, nic01, vm01]</pre></div>
     </div>
     <p class="lab__note">Gabarit valide déployant dans l'ordre vnet01 puis nic01 puis vm01.</p>
     <details class="lab__hints">
@@ -487,6 +540,29 @@ RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

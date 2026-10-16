@@ -43,7 +43,7 @@ module.exports = {
         '</div>',
         box('standard', 'Exponentiation Modulaire Rapide (Square-and-Multiply)', [
           '<p>Calculer $a^b \\pmod m$ pour des entiers de plusieurs milliers de bits ne peut pas se faire en calculant d\'abord $a^b$ (qui contiendrait des millions de chiffres). L\'algorithme d\'<strong>exponentiation modulaire rapide</strong> effectue des carrés successifs combinés à des réductions modulaires à chaque étape, ramenant la complexité de $O(b)$ à $O(\\log_2 b)$ multiplications modulaires.</p>',
-          '<pre><code>def mod_exp(base, exp, mod):\n    res = 1\n    base = base % mod\n    while exp > 0:\n        if exp % 2 == 1:\n            res = (res * base) % mod\n        base = (base * base) % mod\n        exp //= 2\n    return res</code></pre>'
+          '<pre><code>ALGORITHME ExponentiationModulaireRapide(base, exp, mod) :\n  résultat ← 1\n  base ← base MOD mod\n  Tant que exp &gt; 0 faire :\n    Si exp est impair Alors :\n      résultat ← (résultat * base) MOD mod\n    base ← (base * base) MOD mod\n    exp ← exp DIV 2\n  Retourner résultat</code></pre>'
         ])
       ].join('\n')
     },

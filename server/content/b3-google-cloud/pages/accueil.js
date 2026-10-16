@@ -143,20 +143,20 @@ function atelier(course) {
     crumb(course, [
       { label: 'Accueil', href: 'index.html' },
       { label: 'Sommaire', href: 'sommaire.html' },
-      { label: 'Atelier de code' }
+      { label: 'Atelier d’analyse' }
     ]),
     '  <header class="section-head">',
     '    <h1 class="section-head__title">Atelier de Code — Bac à Sable Google Cloud</h1>',
-    '    <p class="section-head__lead">Expérimentez librement vos algorithmes d\'allocation de ressources, de validation de politiques IAM et de modélisation réseau GCP en Python 3.</p>',
+    '    <p class="section-head__lead">Expérimentez librement vos algorithmes d\'allocation de ressources, de validation de politiques IAM et de modélisation réseau GCP selon les grilles d’analyse.</p>',
     '  </header>',
     '',
     '  <div class="lab"',
     '       data-lab',
     '       data-exercise-id="atelier-gcp3"',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="gcloud compute instances list\ngcloud iam service-accounts list\ngcloud storage buckets list">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos architectures et automatisations Google Cloud en Python 3\nimport sys\nimport re\n\ndef simuler_architecture_gcp(commandes):\n    """Simule l\'exécution de commandes d\'infrastructure et d\'audit Google Cloud."""\n    resultats = []\n    for cmd in commandes:\n        cmd_clean = cmd.strip()\n        if cmd_clean.startswith("gcloud"):\n            resultats.append(f"GCP_CLI_EXEC: {cmd_clean} -> STATUS=SUCCESS (executed in active project)")\n        else:\n            resultats.append(f"GCP_LOG: {cmd_clean} -> PROCESSED")\n    return resultats\n\nif __name__ == "__main__":\n    lignes = [l.strip() for l in sys.stdin if l.strip()]\n    for r in simuler_architecture_gcp(lignes):\n        print(r)\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -179,7 +179,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Bac à sable Google Cloud Platform — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos implémentations et automatisations Google Cloud Platform.',
+      description: 'Bac à sable interactif par cas d’application pour tester vos implémentations et automatisations Google Cloud Platform.',
       active: 'atelier',
       body
     }

@@ -99,7 +99,7 @@ module.exports = {
         '<p>Formulée en 1961 par le mathématicien John Little dans le cadre de la théorie des files d’attente, la <strong>Loi de Little</strong> s’applique rigoureusement aux systèmes Kanban à l’équilibre :</p>',
         '<div class="card">',
         '  <h4>Équation Fondamentale de Little</h4>',
-        '  <p style="font-size:1.15rem; text-align:center;"><strong>$WIP = Throughput \times Cycle\_Time$</strong> &nbsp;&nbsp;&hArr;&nbsp;&nbsp; <strong>$Cycle\_Time = \frac{WIP}{Throughput}$</strong></p>',
+        '  <p style="font-size:1.15rem; text-align:center;"><strong>$WIP = Throughput \\\\times Cycle\_Time$</strong> &nbsp;&nbsp;&hArr;&nbsp;&nbsp; <strong>$Cycle\_Time = \\\\frac{WIP}{Throughput}$</strong></p>',
         '  <p><strong>Conséquence managériale cruciale :</strong> Pour réduire le délai de livraison (Cycle Time) d’une équipe, il existe deux leviers mathématiques :</p>',
         '  <ol>',
         '    <li>Augmenter le débit (Throughput), ce qui exige des embauches ou des automatisations lourdes.</li>',
@@ -142,7 +142,7 @@ module.exports = {
     'Lead Time vs Cycle Time vs Wait Time',
     'Débit d’écoulement (Throughput)',
     'Diagramme de Flux Cumulé (CFD)',
-    'Loi de Little ($WIP = TH \times CT$)',
+    'Loi de Little ($WIP = TH \\\\times CT$)',
     'Théorie des Contraintes & Goulot d’Étranglement'
   ],
   pitfalls: [

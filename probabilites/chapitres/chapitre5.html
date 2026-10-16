@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 5 — Variables aléatoires continues | Probabilités B2</title>
-<meta name="description" content="Chapitre 5 du cours de probabilités B2 : Densité, loi uniforme, loi exponentielle, loi normale et lecture d’une table. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 5 du cours de probabilités B2 : Densité, loi uniforme, loi exponentielle, loi normale et lecture d’une table. Théorie, exemples détaillés, études de cas mathématiques, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/probabilites/chapitres/chapitre5.html">
 <meta property="og:title" content="Chapitre 5 — Variables aléatoires continues | Probabilités B2">
-<meta property="og:description" content="Chapitre 5 du cours de probabilités B2 : Densité, loi uniforme, loi exponentielle, loi normale et lecture d’une table. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 5 du cours de probabilités B2 : Densité, loi uniforme, loi exponentielle, loi normale et lecture d’une table. Théorie, exemples détaillés, études de cas mathématiques, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -87,14 +88,8 @@
 <h2>2. Loi uniforme et loi exponentielle</h2>
 
 <p>La <strong>loi uniforme</strong> sur <code>[a, b]</code> répartit la probabilité également : <code>F(x) = (x − a)/(b − a)</code>. La <strong>loi exponentielle</strong> de paramètre <code>λ &gt; 0</code>, souvent utilisée pour une durée de vie, a pour répartition <code>P(X ≥ x) = e^(−λx)</code>.</p>
-<pre><code>from math import exp
-
-# Uniforme : P(X ≤ milieu).
-a, b, x = 1.0, 5.0, 3.0
-print(f"{(x - a) / (b - a):.4f}")   # 0.5000
-
-# Exponentielle : P(X >= x).
-print(f"{exp(-2 * 3):.4f}")          # 0.0025</code></pre>
+<div class="math-block">$$\text{Loi Uniforme : } F(x) = \frac{x - a}{b - a} \qquad \text{Loi Exponentielle : } \mathbb{P}(X \ge x) = e^{-\lambda x}$$</div>
+<div class="box box--formula"><div class="box__title">Exemples continus usuels</div><p><strong>Uniforme</strong> sur $[1, 5]$ au point médian $x = 3$ :</p>$$F(3) = \frac{3 - 1}{5 - 1} = \frac{2}{4} = 0{,}5000$$<p><strong>Exponentielle</strong> de paramètre $\lambda = 2$ pour $x = 3$ :</p>$$\mathbb{P}(X \ge 3) = e^{-2 \times 3} = e^{-6} \approx 0{,}0025$$</div>
   <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Sans mémoire</div>
     <p>La loi exponentielle est <strong>sans mémoire</strong> : savoir que l’événement n’est pas encore arrivé ne change rien à la loi des temps restants. C’est le pendant continu de la loi de Poisson, qui compte les événements.</p>
@@ -103,13 +98,8 @@ print(f"{exp(-2 * 3):.4f}")          # 0.0025</code></pre>
 <h2>3. Loi normale et standardisation</h2>
 
 <p>La <strong>loi normale</strong> <code>N(μ, σ)</code> est en cloche, centrée en <code>μ</code> et d’écart-type <code>σ</code>. On se ramène à la <strong>normale centrée réduite</strong> <code>N(0, 1)</code> par la <strong>standardisation</strong> <code>Z = (X − μ)/σ</code>.</p>
-<pre><code>from math import erf, sqrt
-
-def phi(z):
-    return 0.5 * (1 + erf(z / sqrt(2)))
-
-print(f"{phi(0):.4f}")      # 0.5000
-print(f"{phi(1.96):.4f}")   # 0.9750</code></pre>
+<div class="math-block">$$Z = \frac{X - \mu}{\sigma} \sim \mathcal{N}(0, 1) \qquad \Phi(z) = \mathbb{P}(Z \le z)$$</div>
+<div class="box box--formula"><div class="box__title">Valeurs remarquables de la loi normale centrée réduite</div>$$\Phi(0) = 0{,}5000 \qquad \Phi(1{,}96) \approx 0{,}9750 \qquad \Phi(1) \approx 0{,}8413$$</div>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Repères à connaître</div>
     <p>Autour de la moyenne : <code>P(μ−σ ≤ X ≤ μ+σ) ≈ 0,68</code>, <code>≈ 0,95</code> pour <code>±2σ</code>, <code>≈ 0,997</code> pour <code>±3σ</code>. Le quantile <code>1,96</code> coupe 97,5 % de la masse à sa gauche.</p>
@@ -118,48 +108,55 @@ print(f"{phi(1.96):.4f}")   # 0.9750</code></pre>
 <h2>4. Lire une table de la loi normale</h2>
 
 <p>La <strong>table</strong> donne <code>Φ(z) = P(Z ≤ z)</code> pour <code>z ≥ 0</code>. Pour <code>z &lt; 0</code>, on utilise la symétrie : <code>Φ(−z) = 1 − Φ(z)</code>. Pour une probabilité d’intervalle : <code>P(a ≤ Z ≤ b) = Φ(b) − Φ(a)</code>.</p>
-<pre><code>from math import erf, sqrt
-
-def phi(z):
-    return 0.5 * (1 + erf(z / sqrt(2)))
-
-# P(-1 <= Z <= 2) = Φ(2) - Φ(-1) = Φ(2) - (1 - Φ(1))
-print(f"{phi(2) - (1 - phi(1)):.4f}")   # 0.8186</code></pre>
-<p>La calculatrice ou <code>erf</code> remplacent la table : le principe reste la standardisation puis la lecture de <code>Φ</code>.</p>
+<div class="math-block">$$\mathbb{P}(a \le Z \le b) = \Phi(b) - \Phi(a) \qquad \text{avec } \Phi(-z) = 1 - \Phi(z)$$</div>
+<div class="box box--formula"><div class="box__title">Exemple de calcul d’intervalle sur $\mathcal{N}(0, 1)$</div><p>Calculons $\mathbb{P}(-1 \le Z \le 2)$ :</p>$$\mathbb{P}(-1 \le Z \le 2) = \Phi(2) - \Phi(-1) = \Phi(2) - (1 - \Phi(1))$$$$= 0{,}9772 - (1 - 0{,}8413) = 0{,}9772 - 0{,}1587 = 0{,}8185$$</div>
+<p>La table statistique donne directement $\Phi(z)$ pour toute valeur positive centrée réduite.</p>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="pb2-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="0&#10;2&#10;1">
-  <script type="text/plain" data-lab-starter>a = float(input())
-b = float(input())
-x = float(input())
+  <script type="text/plain" data-lab-starter># Grille de calcul (pb2-c5-e1) — Loi uniforme continue
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : afficher F(x) avec 4 décimales.
+[Cas 1 — Milieu d’un autre intervalle]
+# Données : 1
+# Données : 5
+# Données : 3
+A_COMPLETER
+
+[Cas 2 — Sous la borne inférieure]
+# Données : 0
+# Données : 10
+# Données : 0
+A_COMPLETER
+
+[Cas 3 — Au-dessus de la borne supérieure]
+# Données : 0
+# Données : 10
+# Données : 12
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Loi uniforme continue</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer P(X ≤ x) pour X uniforme sur [a, b].</p>
-    <div class="lab__brief"><p>Le programme reçoit trois décimaux : <code>a</code>, <code>b</code> (bornes, avec <code>a &lt; b</code>) puis <code>x</code>. Pour une loi uniforme continue sur <code>[a, b]</code>, la fonction de répartition vaut <code>F(x) = (x−a)/(b−a)</code>, ramenée à 0 si <code>x &lt; a</code> et à 1 si <code>x &gt; b</code>. Affiche <code>F(x)</code> avec 4 décimales.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère trois décimaux : <code>a</code>, <code>b</code> (bornes, avec <code>a &lt; b</code>) puis <code>x</code>. Pour une loi uniforme continue sur <code>[a, b]</code>, la fonction de répartition vaut <code>F(x) = (x−a)/(b−a)</code>, ramenée à 0 si <code>x &lt; a</code> et à 1 si <code>x &gt; b</code>. Indiquez <code>F(x)</code> avec 4 décimales.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>0
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0
 2
 1</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.5000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0.5000</pre></div>
     </div>
     <p class="lab__note">Le point 1 est le milieu de [0, 2].</p>
     <details class="lab__hints">
@@ -174,30 +171,41 @@ x = float(input())
 
 <div class="lab" data-lab
      data-exercise="pb2-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="1&#10;1">
-  <script type="text/plain" data-lab-starter>from math import exp
+  <script type="text/plain" data-lab-starter># Grille de calcul (pb2-c5-e2) — Loi exponentielle
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-lam = float(input())
-x = float(input())
+[Cas 1 — Deux fois un demi]
+# Données : 2
+# Données : 0.5
+A_COMPLETER
 
-# À compléter : afficher P(X >= x) avec 4 décimales.
+[Cas 2 — Petit taux]
+# Données : 0.5
+# Données : 4
+A_COMPLETER
+
+[Cas 3 — Taux élevé]
+# Données : 3
+# Données : 2
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Loi exponentielle</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer P(X ≥ x) = e^(−λx) pour une loi exponentielle.</p>
-    <div class="lab__brief"><p>Le programme reçoit un décimal <code>lambda</code> (λ &gt; 0) puis un décimal <code>x</code> (positif). Affiche la probabilité de dépassement <code>P(X ≥ x) = e^(−λx)</code> avec 4 décimales.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère un décimal <code>lambda</code> (λ &gt; 0) puis un décimal <code>x</code> (positif). Indiquez la probabilité de dépassement <code>P(X ≥ x) = e^(−λx)</code> avec 4 décimales.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1
 1</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.3679</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0.3679</pre></div>
     </div>
     <p class="lab__note">e⁻¹ ≈ 0,3679.</p>
     <details class="lab__hints">
@@ -212,34 +220,43 @@ x = float(input())
 
 <div class="lab" data-lab
      data-exercise="pb2-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="0">
-  <script type="text/plain" data-lab-starter>from math import erf, sqrt
+  <script type="text/plain" data-lab-starter># Grille de calcul (pb2-c5-e3) — Loi normale centrée réduite
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-z = float(input())
+[Cas 1 — Quantile 1,96]
+# Données : 1.96
+A_COMPLETER
 
-# À compléter : afficher Φ(z) avec 4 décimales.
+[Cas 2 — Un écart-type en dessous]
+# Données : -1
+A_COMPLETER
+
+[Cas 3 — Deux écarts-types]
+# Données : 2
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Loi normale centrée réduite</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer Φ(z) = P(Z ≤ z) pour la loi normale centrée réduite.</p>
-    <div class="lab__brief"><p>Le programme reçoit un décimal <code>z</code>. Affiche la probabilité <code>Φ(z) = P(Z ≤ z)</code> de la loi normale centrée réduite, arrondie à 4 décimales. On la calcule par la fonction d’erreur : <code>Φ(z) = 0,5 · (1 + erf(z/√2))</code>.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère un décimal <code>z</code>. Indiquez la probabilité <code>Φ(z) = P(Z ≤ z)</code> de la loi normale centrée réduite, arrondie à 4 décimales. On la calcule par la fonction d’erreur : <code>Φ(z) = 0,5 · (1 + erf(z/√2))</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>0</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.5000</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0.5000</pre></div>
     </div>
     <p class="lab__note">Φ(0) = 0,5 par symétrie.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>La fonction erf du module math donne la fonction d’erreur ; divise z par sqrt(2).</li>
+        <li>Effectuez le calcul arithmétique correspondant.</li>
         <li>La formule complète est 0.5 * (1 + erf(z / sqrt(2))).</li>
       </ol>
     </details>
@@ -399,6 +416,29 @@ z = float(input())
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

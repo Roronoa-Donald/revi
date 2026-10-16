@@ -34,11 +34,11 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> L’<strong>étendue</strong> est la différence entre la plus grande et ' +
           'la plus petite valeur :</p>',
-          '<pre><code>e = x<sub>max</sub> − x<sub>min</sub></code></pre>',
+          '<div class="math-block">$e = x_{\\\\max} - x_{\\\\min}$</div>',
           '<p>C’est la mesure de dispersion la plus simple, et la plus fragile : elle ne dépend que de deux ' +
           'valeurs. Une seule mesure aberrante suffit à la faire exploser.</p>',
           '<p><strong>Écart interquartile.</strong> Plus robuste, il mesure la largeur des 50 % centraux :</p>',
-          '<pre><code>EI = Q3 − Q1</code></pre>',
+          '<div class="math-block">$EI = Q_3 - Q_1$</div>',
           '<p>Sur la série (2, 4, 4, 5, 7, 8, 9, 11, 12, 15) du chapitre 3 : ' +
           '<code>EI = 11,25 − 4 = 7,25</code>. La moitié centrale des valeurs tient dans un intervalle de ' +
           'largeur 7,25.</p>',
@@ -53,12 +53,12 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> La <strong>variance</strong> est la moyenne des carrés des écarts à ' +
           'la moyenne :</p>',
-          '<pre><code>V = (1/N) · Σ n<sub>i</sub> (x<sub>i</sub> − x̄)²</code></pre>',
+          '<div class="math-block">$V = \\\\frac{1}{N} \\\\sum_{i=1}^k n_i (x_i - \\\\bar{x})^2$</div>',
           '<p>On met les écarts au carré pour deux raisons : les écarts négatifs et positifs s’annulent sinon, ' +
           'et le carré donne plus de poids aux écarts importants.</p>',
           '<p><strong>Formule de König.</strong> Calculer chaque écart à la moyenne est long. La formule de ' +
           'König donne le même résultat en une seule passe :</p>',
-          '<pre><code>V = (1/N) · Σ n<sub>i</sub> · x<sub>i</sub>²  −  x̄²</code></pre>',
+          '<div class="math-block">$V = \\\\frac{1}{N} \\\\sum_{i=1}^k n_i x_i^2 - \\\\bar{x}^2 \\\\quad (\\\\text{Formule de König-Huygens})$</div>',
           box('mnemo', 'Mnémotechnique — « König : carrés d’abord, moyenne au carré ensuite »', 'pin',
             '    <p>Deux termes seulement : la <em>moyenne des carrés</em> moins le <em>carré de la moyenne</em>. ' +
             'Ne jamais oublier de retrancher le second : une variance fausse d’un facteur x̄² est l’erreur la ' +
@@ -78,7 +78,7 @@ module.exports = [
           '<p><strong>Problème de la variance :</strong> elle s’exprime en <em>unités au carré</em>. Une ' +
           'variance de longueur est en mm², ce qui ne se compare à rien de concret.</p>',
           '<p><strong>Définition.</strong> L’<strong>écart-type</strong> est la racine carrée de la variance :</p>',
-          '<pre><code>σ = √V</code></pre>',
+          '<div class="math-block">$\\\\sigma = \\\\sqrt{V}$</div>',
           '<p>Il s’exprime donc dans l’unité des données (mm, euros, points) et se lit comme un écart moyen ' +
           'à la moyenne. Reprenons l’exemple : <code>σ = √1,4275 ≈ 1,195</code>, soit environ 1,2 point ' +
           'd’écart à la moyenne de 3,15.</p>',
@@ -96,7 +96,7 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> Le <strong>coefficient de variation</strong> compare l’écart-type à ' +
           'la moyenne :</p>',
-          '<pre><code>CV = σ / x̄          (exprimé souvent en pourcentage, si x̄ &gt; 0)</code></pre>',
+          '<div class="math-block">$CV = \\\\frac{\\\\sigma}{\\\\bar{x}} \\\\times 100\,\%$</div>',
           '<p>C’est un nombre <strong>sans unité</strong>, ce qui permet de comparer deux séries d’unités ou ' +
           'de niveaux très différents :</p>',
           '<table>\n' +
@@ -278,18 +278,9 @@ module.exports = [
           '<p><strong>Détection des valeurs aberrantes.</strong> On appelle valeur aberrante toute valeur hors ' +
           'de l’intervalle :</p>',
           '<pre><code>[Q1 − 1,5 × EI ; Q3 + 1,5 × EI]</code></pre>',
-          box('tech', 'Les cinq valeurs, en Python', 'terminal',
-          '    <pre><code>def quantile(valeurs, p):\n' +
-          '    r = (len(valeurs) + 1) * p\n' +
-          '    bas = int(r)\n' +
-          '    if bas == r:\n' +
-          '        return valeurs[bas - 1]\n' +
-          '    return valeurs[bas - 1] + (r - bas) * (valeurs[bas] - valeurs[bas - 1])\n' +
-          '\n' +
-          'v = sorted(valeurs)\n' +
-          'cinq = (v[0], quantile(v, 0.25), quantile(v, 0.5), quantile(v, 0.75), v[-1])</code></pre>\n' +
-          '    <p>La même fonction sert pour la médiane (p = 0,5) et pour les quartiles : un seul outil, ' +
-          'trois usages.</p>')
+          box('standard', 'Méthode de calcul des cinq nombres de Tukey', 'calculator',
+            '    <div class="box--formula"><div class="formula-label">Résumé à 5 nombres &amp; Barrières de Tukey</div><div class="math-block">$$\\text{Min} = x_{(1)}, \\quad Q_1 = x_{\\left(\\frac{n+1}{4}\\right)}, \\quad \\text{Med} = x_{\\left(\\frac{n+1}{2}\\right)}, \\quad Q_3 = x_{\\left(\\frac{3(n+1)}{4}\\right)}, \\quad \\text{Max} = x_{(n)}$$</div></div>\n' +
+            '    <p>L’écart interquartile vaut $EI = Q_3 - Q_1$. Toute valeur située en dehors des barrières $[Q_1 - 1{,}5 \\cdot EI \\;;\\; Q_3 + 1{,}5 \\cdot EI]$ est qualifiée de valeur atypique (outlier).</p>')
         ].join('\n')
       }
     ],
@@ -381,7 +372,7 @@ module.exports = [
           '<strong>double</strong> : un couple (x, y) par individu. On la représente par un ' +
           '<strong>nuage de points</strong> dans le plan.</p>',
           '<p><strong>Point moyen.</strong> Le couple formé des deux moyennes :</p>',
-          '<pre><code>G = ( x̄ ; ȳ )        x̄ = Σ x / n        ȳ = Σ y / n</code></pre>',
+          '<div class="math-block">$G(\\\\bar{x}, \\\\bar{y}) \\\\quad \\\\text{avec } \\\\bar{x} = \\\\frac{1}{n} \\\\sum x_i, \\\\quad \\\\bar{y} = \\\\frac{1}{n} \\\\sum y_i$</div>',
           '<p>C’est le centre de gravité du nuage. Toutes les quantités du chapitre se calculent par rapport ' +
           'à lui : c’est la référence de la liaison.</p>',
           box('intuition', 'Lire un nuage de points', 'compass',
@@ -396,7 +387,7 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> La <strong>covariance</strong> mesure comment deux caractères ' +
           'varient ensemble :</p>',
-          '<pre><code>cov(x, y) = (1/n) · Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)</code></pre>',
+          '<div class="math-block">$\\\\operatorname{cov}(X, Y) = \\\\frac{1}{n} \\\\sum_{i=1}^n (x_i - \\\\bar{x})(y_i - \\\\bar{y})$</div>',
           '<p>Chaque individu contribue par le produit de ses deux écarts à la moyenne :</p>',
           '<ul>\n' +
           '    <li>si x et y sont tous deux au-dessus (ou tous deux en dessous) de leur moyenne, le produit est ' +
@@ -407,7 +398,7 @@ module.exports = [
           '<strong>proche de zéro</strong>.</li>\n' +
           '  </ul>',
           '<p><strong>Formule de calcul rapide</strong> (même principe que König) :</p>',
-          '<pre><code>cov(x, y) = (1/n) · Σ x<sub>i</sub>y<sub>i</sub>  −  x̄ · ȳ</code></pre>',
+          '<div class="math-block">$\\\\operatorname{cov}(X, Y) = \\\\frac{1}{n} \\\\sum_{i=1}^n x_i y_i - \\\\bar{x} \\\\bar{y}$</div>',
           box('pitfall', 'Piège — la covariance dépend des unités', 'warning',
             '    <p>Une covariance de 0,2 ou de 2 000 ne dit rien en soi : elle change si l’on passe des ' +
             'centimètres aux mètres. Impossible donc de comparer deux covariances d’unités différentes — ' +
@@ -419,7 +410,7 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> Le <strong>coefficient de corrélation linéaire</strong> de Pearson ' +
           'est la covariance divisée par le produit des deux écarts-types :</p>',
-          '<pre><code>r = cov(x, y) / (σ<sub>x</sub> · σ<sub>y</sub>)</code></pre>',
+          '<div class="math-block">$r = \\\\frac{\\\\operatorname{cov}(X, Y)}{\\\\sigma_x \\\\sigma_y} \\\\quad (-1 \\\\le r \\\\le 1)$</div>',
           '<p>Ce nombre est <strong>toujours entre −1 et 1</strong>. C’est son principal intérêt avec ' +
           'l’absence d’unité :</p>',
           '<table>\n' +

@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 6 — Ordonnancement PERT / CPM &amp;amp; Flots de Réseaux | Recherche Opérationnelle B2</title>
-<meta name="description" content="Chapitre 6 du cours Recherche Opérationnelle B2 : Réseaux sans cycle, dates au plus tôt et au plus tard, marges totales, chemin critique, flot maximum et algorithme de Ford-Fulkerson. Modèles mathématiques, algorithmes d’optimisation, ateliers Python exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 6 du cours Recherche Opérationnelle B2 : Réseaux sans cycle, dates au plus tôt et au plus tard, marges totales, chemin critique, flot maximum et algorithme de Ford-Fulkerson. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/RD-RO/chapitres/chapitre6.html">
 <meta property="og:title" content="Chapitre 6 — Ordonnancement PERT / CPM &amp;amp; Flots de Réseaux | Recherche Opérationnelle B2">
-<meta property="og:description" content="Chapitre 6 du cours Recherche Opérationnelle B2 : Réseaux sans cycle, dates au plus tôt et au plus tard, marges totales, chemin critique, flot maximum et algorithme de Ford-Fulkerson. Modèles mathématiques, algorithmes d’optimisation, ateliers Python exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 6 du cours Recherche Opérationnelle B2 : Réseaux sans cycle, dates au plus tôt et au plus tard, marges totales, chemin critique, flot maximum et algorithme de Ford-Fulkerson. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -83,14 +84,17 @@
 <h2>1. Graphes d’ordonnancement : MPM et PERT / CPM</h2>
 
 <p>Pour piloter un projet complexe, deux formalismes de graphes ont été développés dans les années 1950 :</p>
-<pre><code>// 1. Méthode PERT / CPM (Program Evaluation and Review Technique - 1958 US Navy)
-- Historiquement : Potentiel-Étapes (les sommets sont des événements, les arcs sont les tâches).
-- Nécessite parfois des tâches fictives (dummy activities) de durée nulle pour représenter des antériorités complexes.
-
-// 2. Méthode des Potentiels METRA (MPM - Bernard Roy, France 1958)
-- Potentiel-Tâches : chaque sommet représente une tâche avec sa durée d_i.
-- Les arcs orientés (i &rarr; j) représentent les contraintes de précédence : j ne peut débuter que si i est achevée.
-- Structure canonique : plus naturelle, plus facile à coder et sans tâche fictive !</code></pre>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Comparaison des deux formalismes de réseaux</div>
+<div class="box--formula">
+  <span class="formula-label">1. Méthode PERT / CPM (US Navy, 1958) — Potentiel-Étapes</span>
+  <p>Les <strong>sommets</strong> représentent des événements (jalons) et les <strong>arcs</strong> représentent les tâches. Requiert parfois des tâches fictives (durée nulle) pour modéliser des antériorités complexes.</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">2. Méthode MPM (Bernard Roy, France 1958) — Potentiel-Tâches</span>
+  <p>Chaque <strong>sommet</strong> représente une tâche réelle avec sa durée $d_i$. Les <strong>arcs orientés</strong> $(i \to j)$ représentent directement les dépendances logiques sans jamais recourir à des tâches fictives.</p>
+</div>
+  </div>
   <div class="box box--info">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Le graphe doit être un DAG (Directed Acyclic Graph)</div>
 <p>Un réseau d’ordonnancement physique ne peut comporter aucun cycle : une tâche ne peut jamais être son propre ancêtre ! La présence d’un circuit indique une boucle logique impossible à planifier.</p>
@@ -130,17 +134,26 @@
 <h2>4. Flots dans les Réseaux & Algorithme de Ford-Fulkerson</h2>
 
 <p>Un réseau de transport est un graphe orienté $G = (V, E)$ doté d’une <strong>source $s$</strong>, d’un <strong>puits $t$</strong>, et où chaque arc $(u, v)$ possède une capacité maximale $c(u, v) \ge 0$. Un flot $f$ doit respecter deux lois fondamentales :</p>
-<pre><code>// 1. Contrainte de capacité : 0 &le; f(u, v) &le; c(u, v)  pour tout arc
-// 2. Conservation du flux : pour tout sommet intermédiaire v &ne; {s, t} :
-&sum; f(u, v) [flux entrant] = &sum; f(v, w) [flux sortant]
-
-// L’Algorithme de Ford-Fulkerson (1956)
-1. Initialiser le flot à zéro sur tous les arcs : f(u, v) = 0.
-2. Tant qu’il existe une chaîne augmentante P reliant s à t dans le graphe résiduel :
-   - Calculer la capacité résiduelle : r(u, v) = c(u, v) - f(u, v)
-   - Trouver le goulot d’étranglement : &Delta; = min { r(u, v) | (u, v) &isin; P }
-   - Augmenter le flot de &Delta; le long de P : f(u, v) &larr; f(u, v) + &Delta;
-3. Quand aucune chaîne augmentante n’existe : le flot total est MAXIMUM !</code></pre>
+  <div class="box box--formula">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Lois de conservation du flot & Algorithme de Ford-Fulkerson</div>
+<div class="box--formula">
+  <span class="formula-label">1. Lois de conservation de Kirchhoff</span>
+  <div class="math-block">$$0 \le f(u, v) \le c(u, v) \quad \text{et} \quad \sum_{u} f(u, v) = \sum_{w} f(v, w) \quad (\forall v \notin \{s, t\})$$</div>
+</div>
+<div class="box--formula">
+  <span class="formula-label">2. Algorithme de Ford-Fulkerson (1956)</span>
+  <ol>
+    <li>Initialiser le flot : $f(u, v) = 0$ sur chaque arc du réseau.</li>
+    <li>Tant qu’il existe une chaîne augmentante $P$ de $s$ à $t$ dans le graphe résiduel :</li>
+    <ul>
+      <li>Capacité résiduelle : $r(u, v) = c(u, v) - f(u, v)$.</li>
+      <li>Goulot d’étranglement : $\delta = \min \{ r(u, v) \mid (u, v) \in P \}$.</li>
+      <li>Augmentation : $f(u, v) \leftarrow f(u, v) + \delta$ le long des arcs directs de $P$.</li>
+    </ul>
+    <li>Arrêt lorsqu’il n’existe plus aucune chaîne augmentante $\implies$ le flot est <strong>maximal</strong> !</li>
+  </ol>
+</div>
+  </div>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Théorème du Flot Maximum / Coupe Minimale (Max-Flow Min-Cut)</div>
 <p>Une <em>coupe</em> $(S, T)$ sépare la source $s \in S$ du puits $t \in T$. Sa capacité est la somme des capacités des arcs allant de $S$ vers $T$.</p>
@@ -148,34 +161,42 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="ro2-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="A:AUCUN,3 | B:A,4 | C:A,2 | D:B-C,5">
-  <script type="text/plain" data-lab-starter>ligne = input().strip()
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c6-e1) — Dates au plus tôt (Forward Pass PERT/CPM)
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : calculer les dates au plus tôt (ES) de chaque tâche
+[Cas 1 — Chaîne linéaire simple]
+# Données : A:AUCUN,4 | B:A,5 | C:B,6
+A_COMPLETER
+
+[Cas 2 — Deux branches parallèles convergeant vers une tâche]
+# Données : A:AUCUN,5 | B:AUCUN,8 | C:A-B,3
+A_COMPLETER
+
+[Cas 3 — Graphe à 5 nœuds]
+# Données : A:AUCUN,2 | B:A,3 | C:A,5 | D:B,4 | E:C-D,2
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Dates au plus tôt (Forward Pass PERT/CPM)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la date de début au plus tôt de chaque tâche et la durée totale du projet.</p>
-    <div class="lab__brief"><p>Dans un réseau d’ordonnancement sans cycle (DAG), la date de début au plus tôt $ES(i)$ d’une tâche $i$ est la date minimale à laquelle tous ses prédécesseurs immédiats sont achevés :<br>$$ES(i) = \max_{p \in Pred(i)} (ES(p) + d_p)$$<br>(avec $ES(racine) = 0$).</p><p>Lit sur l’entrée standard la liste des tâches au format :<br><code>nom:preds,duree | nom:preds,duree | ...</code><br>où <code>preds</code> est une liste de noms séparés par des tirets (ex. <code>A-B</code>) ou <code>AUCUN</code>.<br>Affiche :<br><code>DATES_ES: &lt;nom&gt;=&lt;ES&gt;,... DUREE_PROJET=&lt;Duree&gt;</code>.</p></div>
+    <div class="lab__brief"><p>Dans un réseau d’ordonnancement sans cycle (DAG), la date de début au plus tôt $ES(i)$ d’une tâche $i$ est la date minimale à laquelle tous ses prédécesseurs immédiats sont achevés :<br>$$ES(i) = \max_{p \in Pred(i)} (ES(p) + d_p)$$<br>(avec $ES(racine) = 0$).</p><p>Analysez les paramètres du problème pour chaque cas...</code><br>où <code>preds</code> est une liste de noms séparés par des tirets (ex. <code>A-B</code>) ou <code>AUCUN</code>.<br>Indiquez :<br><code>DATES_ES: &lt;nom&gt;=&lt;ES&gt;,... DUREE_PROJET=&lt;Duree&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>A:AUCUN,3 | B:A,4 | C:A,2 | D:B-C,5</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DATES_ES: A=0,B=3,C=3,D=7 DUREE_PROJET=12</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>A:AUCUN,3 | B:A,4 | C:A,2 | D:B-C,5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DATES_ES: A=0,B=3,C=3,D=7 DUREE_PROJET=12</pre></div>
     </div>
     <p class="lab__note">ES(A)=0. ES(B)=0+3=3. ES(C)=0+3=3. ES(D)=max(3+4, 3+2)=7. Fin D = 7+5=12.</p>
     <details class="lab__hints">
@@ -190,26 +211,37 @@
 
 <div class="lab" data-lab
      data-exercise="ro2-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="A:0,3,3 | B:3,7,4 | C:3,7,2 | D:7,12,5">
-  <script type="text/plain" data-lab-starter>ligne = input().strip()
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c6-e2) — Marges totales & Chemin critique
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : calculer MT = LF - ES - duree et lister les tâches critiques
+[Cas 1 — Toutes les tâches sont critiques (projet mono-branche)]
+# Données : A:0,4,4 | B:4,9,5 | C:9,12,3
+A_COMPLETER
+
+[Cas 2 — Deux tâches avec marge positive]
+# Données : A:0,5,5 | B:0,5,2 | C:2,8,3 | D:5,10,5
+A_COMPLETER
+
+[Cas 3 — Projet à 4 tâches avec bifurcation]
+# Données : X:0,2,2 | Y:2,6,4 | Z:2,6,1 | W:6,8,2
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Marges totales &amp; Chemin critique</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la marge totale de chaque tâche et identifier le chemin critique du projet.</p>
-    <div class="lab__brief"><p>La <strong>marge totale</strong> d’une tâche $i$ mesure le retard maximal qu’elle peut prendre sans retarder la date de fin globale du projet :<br>$$MT(i) = LF(i) - ES(i) - d_i$$où $ES$ est la date au plus tôt, $LF$ la date au plus tard d’achèvement, et $d_i$ la durée de la tâche.<br>Une tâche est dite <strong>critique</strong> si sa marge totale est nulle ($MT = 0$).</p><p>Lit sur l’entrée standard une ligne au format :<br><code>nom:ES,LF,duree | nom:ES,LF,duree | ...</code>.<br>Calcule la marge totale de chaque tâche.<br>Affiche :<br><code>MARGES: nom=MT,... CRITIQUES: &lt;liste des tâches critiques séparées par des tirets&gt;</code>.</p></div>
+    <div class="lab__brief"><p>La <strong>marge totale</strong> d’une tâche $i$ mesure le retard maximal qu’elle peut prendre sans retarder la date de fin globale du projet :<br>$$MT(i) = LF(i) - ES(i) - d_i$$où $ES$ est la date au plus tôt, $LF$ la date au plus tard d’achèvement, et $d_i$ la durée de la tâche.<br>Une tâche est dite <strong>critique</strong> si sa marge totale est nulle ($MT = 0$).</p><p>Analysez les paramètres du problème pour chaque cas...</code>.<br>Calcule la marge totale de chaque tâche.<br>Indiquez :<br><code>MARGES: nom=MT,... CRITIQUES: &lt;liste des tâches critiques séparées par des tirets&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>A:0,3,3 | B:3,7,4 | C:3,7,2 | D:7,12,5</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MARGES: A=0,B=0,C=2,D=0 CRITIQUES: A-B-D</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>A:0,3,3 | B:3,7,4 | C:3,7,2 | D:7,12,5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MARGES: A=0,B=0,C=2,D=0 CRITIQUES: A-B-D</pre></div>
     </div>
     <p class="lab__note">MT(A)=3-0-3=0, MT(B)=7-3-4=0, MT(C)=7-3-2=2, MT(D)=12-7-5=0. Tâches critiques : A, B, D.</p>
     <details class="lab__hints">
@@ -224,26 +256,37 @@
 
 <div class="lab" data-lab
      data-exercise="ro2-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="s-a:10,2 | a-t:8,1 | s-b:5,0 | b-t:5,0 ; CHAINE: s-a-t">
-  <script type="text/plain" data-lab-starter>ligne = input().strip()
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c6-e3) — Goulot d’étranglement de Ford-Fulkerson
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : trouver la capacité résiduelle minimale de la chaîne et mettre à jour le flot
+[Cas 1 — Chaîne à trois arcs avec saturation exacte]
+# Données : s-1:15,5 | 1-2:10,2 | 2-t:8,4 ; CHAINE: s-1-2-t
+A_COMPLETER
+
+[Cas 2 — Chaîne saturée dès le premier arc]
+# Données : s-A:6,3 | A-t:12,1 ; CHAINE: s-A-t
+A_COMPLETER
+
+[Cas 3 — Graphe avec réseau maillé]
+# Données : s-u:20,10 | u-v:14,4 | v-t:18,12 ; CHAINE: s-u-v-t
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Goulot d’étranglement de Ford-Fulkerson</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la capacité résiduelle d’une chaîne augmentante et mettre à jour le flot dans un réseau.</p>
-    <div class="lab__brief"><p>Dans l’algorithme de Ford-Fulkerson pour la recherche du <strong>flot maximal</strong>, chaque arc $(u, v)$ possède une capacité $c(u, v)$ et un flot actuel $f(u, v)$. La capacité résiduelle est $r(u, v) = c(u, v) - f(u, v)$.</p><p>Pour une chaîne augmentante $P = (s, v_1, v_2, \dots, t)$, la valeur maximale de flot que l’on peut pousser est déterminée par le <strong>goulot d’étranglement</strong> (bottleneck capacity) :<br>$$\Delta = \min_{(u, v) \in P} r(u, v)$$</p><p>Lit sur l’entrée standard :<br><code>u1-v1:cap1,flot1 | u2-v2:cap2,flot2 | ... ; CHAINE: s-v1-v2-...-t</code>.<br>Calcule $\Delta$ et les nouvelles capacités résiduelles des arcs de la chaîne.<br>Affiche :<br><code>DELTA=&lt;Delta&gt; ARCS_MAJ: u1-v1=&lt;nouveau_flot&gt;,...</code>.</p></div>
+    <div class="lab__brief"><p>Dans l’algorithme de Ford-Fulkerson pour la recherche du <strong>flot maximal</strong>, chaque arc $(u, v)$ possède une capacité $c(u, v)$ et un flot actuel $f(u, v)$. La capacité résiduelle est $r(u, v) = c(u, v) - f(u, v)$.</p><p>Pour une chaîne augmentante $P = (s, v_1, v_2, \dots, t)$, la valeur maximale de flot que l’on peut pousser est déterminée par le <strong>goulot d’étranglement</strong> (bottleneck capacity) :<br>$$\Delta = \min_{(u, v) \in P} r(u, v)$$</p><p>Analysez les paramètres du problème pour chaque cas... ; CHAINE: s-v1-v2-...-t</code>.<br>Calcule $\Delta$ et les nouvelles capacités résiduelles des arcs de la chaîne.<br>Indiquez :<br><code>DELTA=&lt;Delta&gt; ARCS_MAJ: u1-v1=&lt;nouveau_flot&gt;,...</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>s-a:10,2 | a-t:8,1 | s-b:5,0 | b-t:5,0 ; CHAINE: s-a-t</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DELTA=7 ARCS_MAJ: s-a=9,a-t=8</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>s-a:10,2 | a-t:8,1 | s-b:5,0 | b-t:5,0 ; CHAINE: s-a-t</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DELTA=7 ARCS_MAJ: s-a=9,a-t=8</pre></div>
     </div>
     <p class="lab__note">Sur la chaîne s-a-t : r(s-a) = 10 - 2 = 8, r(a-t) = 8 - 1 = 7. Delta = min(8, 7) = 7. Nouveaux flots : s-a = 2+7 = 9, a-t = 1+7 = 8.</p>
     <details class="lab__hints">
@@ -410,7 +453,7 @@
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="../atelier.html">Atelier de code <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier d’analyse <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
@@ -418,6 +461,29 @@
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

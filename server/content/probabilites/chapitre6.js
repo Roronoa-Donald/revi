@@ -32,7 +32,8 @@ module.exports = {
         '<p>Pour une variable <code>X</code> <strong>positive</strong> d’espérance finie et un seuil ' +
         '<code>a &gt; 0</code> : <code>P(X ≥ a) ≤ E(X)/a</code>. Plus le seuil est grand devant l’espérance, ' +
         'plus la probabilité de dépasser <code>a</code> est petite.</p>',
-        '<pre><code>esperance, a = 4.0, 8.0\nprint(f"{esperance / a:.4f}")   # 0.5000</code></pre>',
+        '<div class="math-block">$$\\mathbb{P}(X \\ge a) \\le \\frac{\\mathbb{E}(X)}{a} \\quad (\\text{pour } X \\ge 0 \\text{ et } a > 0)$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de borne de Markov</div><p>Si $\\mathbb{E}(X) = 4{,}0$ et pour le seuil $a = 8{,}0$ :</p>$$\\mathbb{P}(X \\ge 8{,}0) \\le \\frac{4{,}0}{8{,}0} = 0{,}5000$$</div>',
         box('tech', 'Une borne, pas une égalité', 'scale',
           '    <p>L’inégalité fournit un <strong>majorant</strong> souvent grossier : la vraie probabilité ' +
           'peut être bien plus petite. Sa force est d’être <em>universelle</em> : elle ne suppose rien d’autre ' +
@@ -45,8 +46,9 @@ module.exports = {
         '<p>Pour toute variable d’espérance <code>E(X)</code> et de variance <code>V(X)</code>, et pour tout ' +
         '<code>ε &gt; 0</code> : <code>P(|X − E(X)| ≥ ε) ≤ V(X)/ε²</code>. Elle majore la probabilité de ' +
         's’écarter de la moyenne.</p>',
-        '<pre><code>variance, epsilon = 4.0, 2.0\nprint(f"{variance / (epsilon ** 2):.4f}")   # 1.0000</code></pre>',
-        box('pitfall', 'Piège — oublier le carré de ε', 'warning',
+        '<div class="math-block">$$\\mathbb{P}(|X - \\mathbb{E}(X)| \\ge \\varepsilon) \\le \\frac{\\mathbb{V}(X)}{\\varepsilon^2} \\quad (\\text{pour tout } \\varepsilon > 0)$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de borne de Bienaymé-Tchebychev</div><p>Pour $\\mathbb{V}(X) = 4{,}0$ et $\\varepsilon = 2{,}0$ :</p>$$\\mathbb{P}(|X - \\mathbb{E}(X)| \\ge 2{,}0) \\le \\frac{4{,}0}{(2{,}0)^2} = \\frac{4{,}0}{4{,}0} = 1{,}0000$$</div>',
+        box('pitfall', 'Piège — oublier de diviser par ε²', 'warning',
           '    <p>La borne est <code>V(X)/ε²</code> : l’écart <code>ε</code> intervient <strong>au carré</strong>' +
           '. Doubler la tolérance divise la borne par 4. Une borne supérieure à 1 n’apprend rien (toute ' +
           'probabilité vaut au plus 1).</p>')
@@ -59,7 +61,8 @@ module.exports = {
         '<code>σ²</code>. Leur moyenne <code>M̄ₙ = (X₁ + … + Xₙ)/n</code> a pour espérance <code>μ</code> et ' +
         'pour variance <code>σ²/n</code>. La <strong>loi des grands nombres</strong> dit que <code>M̄ₙ</code> ' +
         'converge vers <code>μ</code> : la variance tend vers 0 quand <code>n</code> grandit.</p>',
-        '<pre><code>sigma2, n = 4.0, 100\nprint(f"{sigma2 / n:.4f}")   # 0.0400 : la dispersion fond</code></pre>',
+        '<div class="math-block">$$\\mathbb{E}(\\overline{X}_n) = \\mu \\qquad \\text{et} \\qquad \\mathbb{V}(\\overline{X}_n) = \\frac{\\sigma^2}{n} \\xrightarrow[n \\to +\\infty]{} 0$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple d’échantillonnage ($n = 100$)</div><p>Pour $\\sigma^2 = 4{,}0$ et $n = 100$ observations :</p>$$\\mathbb{V}(\\overline{X}_{100}) = \\frac{4{,}0}{100} = 0{,}0400 \\quad (\\sigma_{\\overline{X}} = 0{,}2000)$$</div>',
         '<p>C’est pourquoi, en statistique, plus l’échantillon est grand, plus la moyenne observée est proche ' +
         'de l’espérance théorique.</p>'
       ].join('\n')
@@ -71,8 +74,8 @@ module.exports = {
         'et identiquement distribuées, la somme <code>Sₙ = X₁ + … + Xₙ</code> se comporte, après ' +
         'standardisation, comme une loi normale. Sa moyenne vaut <code>nμ</code> et son écart-type ' +
         '<code>σ√n</code>, donc :</p>',
-        '<pre><code>Sₙ standardisée : Z = (Sₙ − nμ) / (σ√n)  ≈  N(0, 1)</code></pre>',
-        '<pre><code>from math import erf, sqrt\n\nn, mu, sigma, x = 100, 0.5, 1.0, 55.0\nz = (x - n * mu) / (sigma * sqrt(n))\nP = 0.5 * (1 + erf(z / sqrt(2)))\nprint(f"z = {z:.4f}")   # z = 0.5000\nprint(f"P = {P:.4f}")   # P = 0.6915</code></pre>',
+        '<div class="math-block">$$Z_n = \\frac{S_n - n\\mu}{\\sigma \\sqrt{n}} \\xrightarrow[\\mathcal{L}]{n \\to +\\infty} \\mathcal{N}(0, 1)$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple d’application du TCL</div><p>Pour $n = 100$, $\\mu = 0{,}5$, $\\sigma = 1{,}0$ et un seuil $S_{100} \\le 55{,}0$ :</p>$$z = \\frac{55{,}0 - 100 \\times 0{,}5}{1{,}0 \\times \\sqrt{100}} = \\frac{5{,}0}{10{,}0} = 0{,}5000$$$$\\mathbb{P}(S_{100} \\le 55{,}0) \\approx \\Phi(0{,}5) \\approx 0{,}6915$$</div>',
         box('intuition', 'Pourquoi la cloche est partout', 'lightbulb',
           '    <p>Une somme de beaucoup de petites contributions indépendantes « s’oublie » : seul comptent ' +
           'l’effet moyen et l’effet aléatoire cumulé, qui se répartit en cloche. D’où l’omniprésence de la loi ' +

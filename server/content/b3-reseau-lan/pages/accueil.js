@@ -154,13 +154,13 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable Réseau LAN Avancé</h1>',
-    '  <p class="lead">Expérimentez et validez vos scripts d\'ingénierie réseau en Python 3 : simulation de coût STP, calcul d\'agrégation LACP, préemption VRRP et analyse QoS.</p>',
+    '  <p class="lead">Expérimentez et validez vos scripts d\'ingénierie réseau selon les grilles d’analyse : simulation de coût STP, calcul d\'agrégation LACP, préemption VRRP et analyse QoS.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="SPEED 10Gbps\nSPEED 1Gbps\nSPEED 100Mbps">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos algorithmes de commutation et routage LAN en Python 3\nimport sys\n\ndef calculer_cout_stp(debit_str):\n    """Calcul du coût Spanning Tree standard IEEE 802.1D-2004 / 802.1w."""\n    table = {\n        \'10Mbps\': 2000000,\n        \'100Mbps\': 200000,\n        \'1Gbps\': 20000,\n        \'10Gbps\': 2000,\n        \'40Gbps\': 500,\n        \'100Gbps\': 200\n    }\n    return table.get(debit_str, 20000)\n\nif __name__ == "__main__":\n    for ligne in sys.stdin:\n        ligne = ligne.strip()\n        if not ligne:\n            continue\n        parts = ligne.split()\n        if parts[0] == \'SPEED\':\n            debit = parts[1]\n            print(f"PORT speed={debit} stp_cost={calculer_cout_stp(debit)}")\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -183,7 +183,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire Réseau libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos algorithmes de commutation et protocoles LAN.',
+      description: 'Bac à sable interactif par cas d’application pour tester vos algorithmes de commutation et protocoles LAN.',
       active: 'atelier',
       body
     }

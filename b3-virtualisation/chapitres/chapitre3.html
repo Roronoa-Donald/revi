@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -157,27 +158,30 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="vrt3-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="DATASTORE=ds-san-01 DS_SIZE_GB=1000 DISKS=vm1:200:THICK_EAGER,vm2:300:THIN:30,vm3:400:THIN:20&#10;DATASTORE=ds-nfs-02 DS_SIZE_GB=500 DISKS=vm4:400:THICK_LAZY,vm5:200:THIN:50">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c3-e1) — Dimensionneur de Datastores VMFS & Provisionnement de Disques (Thin vs Thick)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Surallocation logique saine sous 80% physique]
+# Données : DATASTORE=ds-overcommit DS_SIZE_GB=1000 DISKS=vmA:600:THIN:25,vmB:600:THIN:25,vmC:400:THIN:20
+# Données : DATASTORE=ds-overflow DS_SIZE_GB=400 DISKS=vm1:300:THICK_EAGER,vm2:200:THICK_LAZY
+A_COMPLETER
 
-# À compléter : analyser le Datastore, calculer l'espace logique et physique et qualifier le statut
+[Cas 2 — Datastore franchissant pile le seuil d'alerte 80%]
+# Données : DATASTORE=ds-limit DS_SIZE_GB=1000 DISKS=vm1:820:THICK_EAGER
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Dimensionneur de Datastores VMFS &amp; Provisionnement de Disques (Thin vs Thick)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -202,9 +206,9 @@ Lignes : <code>DATASTORE=&lt;nom&gt; DS_SIZE_GB=&lt;n&gt; DISKS=&lt;vm1:taille:t
 Format de sortie :<br>
 <code>DATASTORE:&lt;nom&gt; | LOGICAL:&lt;log_gb&gt;GB (&lt;log_pct:.1f&gt;%) | PHYSICAL:&lt;phy_gb:.1f&gt;GB (&lt;phy_pct:.1f&gt;%) | STATUT:&lt;statut&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DATASTORE=ds-san-01 DS_SIZE_GB=1000 DISKS=vm1:200:THICK_EAGER,vm2:300:THIN:30,vm3:400:THIN:20
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DATASTORE=ds-san-01 DS_SIZE_GB=1000 DISKS=vm1:200:THICK_EAGER,vm2:300:THIN:30,vm3:400:THIN:20
 DATASTORE=ds-nfs-02 DS_SIZE_GB=500 DISKS=vm4:400:THICK_LAZY,vm5:200:THIN:50</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DATASTORE:ds-san-01 | LOGICAL:900GB (90.0%) | PHYSICAL:370.0GB (37.0%) | STATUT:NOMINAL
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DATASTORE:ds-san-01 | LOGICAL:900GB (90.0%) | PHYSICAL:370.0GB (37.0%) | STATUT:NOMINAL
 DATASTORE:ds-nfs-02 | LOGICAL:600GB (120.0%) | PHYSICAL:500.0GB (100.0%) | STATUT:ALERTE_SATURATION
 </pre></div>
     </div>
@@ -221,19 +225,25 @@ DATASTORE:ds-nfs-02 | LOGICAL:600GB (120.0%) | PHYSICAL:500.0GB (100.0%) | STATU
 
 <div class="lab" data-lab
      data-exercise="vrt3-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="HOSTS=4 RAW_CAPACITY_TB=50.0 POLICY=FTT=1_RAID5 VM_DATA_TB=15.0&#10;HOSTS=3 RAW_CAPACITY_TB=60.0 POLICY=FTT=1_RAID1 VM_DATA_TB=20.0&#10;HOSTS=3 RAW_CAPACITY_TB=40.0 POLICY=FTT=1_RAID5 VM_DATA_TB=10.0">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c3-e2) — Calculateur de Capacité Utile vSAN & Politiques SPBM (FTT / RAID-1 / RAID-5)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — FTT=2 avec RAID-6 et dépassement de capacité]
+# Données : HOSTS=6 RAW_CAPACITY_TB=100.0 POLICY=FTT=2_RAID6 VM_DATA_TB=40.0
+# Données : HOSTS=6 RAW_CAPACITY_TB=80.0 POLICY=FTT=2_RAID1 VM_DATA_TB=25.0
+A_COMPLETER
 
-# À compléter : implémenter les multiplicateurs SPBM, le slack space 20% et le contrôle d'hôtes vSAN
+[Cas 2 — Hôtes insuffisants pour FTT=2 RAID-6]
+# Données : HOSTS=5 RAW_CAPACITY_TB=100.0 POLICY=FTT=2_RAID6 VM_DATA_TB=20.0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Calculateur de Capacité Utile vSAN &amp; Politiques SPBM (FTT / RAID-1 / RAID-5)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -261,10 +271,10 @@ Lignes : <code>HOSTS=&lt;nb&gt; RAW_CAPACITY_TB=&lt;to&gt; POLICY=&lt;nom&gt; VM
 Format de sortie :<br>
 <code>POLICY:&lt;nom&gt; | MULTIPLIER:&lt;mult:.2f&gt;x | CONSUMED:&lt;consumed_raw_tb:.2f&gt;TB | REMAINING:&lt;remaining_tb:.2f&gt;TB | STATUT:&lt;statut&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HOSTS=4 RAW_CAPACITY_TB=50.0 POLICY=FTT=1_RAID5 VM_DATA_TB=15.0
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HOSTS=4 RAW_CAPACITY_TB=50.0 POLICY=FTT=1_RAID5 VM_DATA_TB=15.0
 HOSTS=3 RAW_CAPACITY_TB=60.0 POLICY=FTT=1_RAID1 VM_DATA_TB=20.0
 HOSTS=3 RAW_CAPACITY_TB=40.0 POLICY=FTT=1_RAID5 VM_DATA_TB=10.0</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>POLICY:FTT=1_RAID5 | MULTIPLIER:1.33x | CONSUMED:20.00TB | REMAINING:20.00TB | STATUT:HEALTHY
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>POLICY:FTT=1_RAID5 | MULTIPLIER:1.33x | CONSUMED:20.00TB | REMAINING:20.00TB | STATUT:HEALTHY
 POLICY:FTT=1_RAID1 | MULTIPLIER:2.00x | CONSUMED:40.00TB | REMAINING:8.00TB | STATUT:HEALTHY
 ERROR:INVALID_HOST_COUNT
 </pre></div>
@@ -282,19 +292,33 @@ ERROR:INVALID_HOST_COUNT
 
 <div class="lab" data-lab
      data-exercise="vrt3-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="POLICY=RR PATHS=vmhba1:C0:T0:L0,vmhba2:C0:T0:L0 THRESHOLD=1000&#10;IO=1000&#10;IO=1000&#10;IO=500">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (vrt3-c3-e3) — Moteur d'Arbitrage Multipathing MPIO (Round Robin & Fixed)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Politique FIXED avec panne et rétablissement du chemin préféré]
+# Données : POLICY=FIXED PATHS=hba1,hba2 PREFERRED=hba1 THRESHOLD=1000
+# Données : IO=2000
+# Données : FAIL=hba1
+# Données : IO=1500
+# Données : RECOVER=hba1
+# Données : IO=500
+A_COMPLETER
 
-# À compléter : implémenter la distribution des I/O selon les politiques Round Robin et Fixed
+[Cas 2 — Round Robin avec panne d'un chemin pendant le flux]
+# Données : POLICY=RR PATHS=p1,p2,p3 THRESHOLD=100
+# Données : IO=100
+# Données : IO=100
+# Données : FAIL=p3
+# Données : IO=200
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Moteur d'Arbitrage Multipathing MPIO (Round Robin &amp; Fixed)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -312,11 +336,11 @@ Format de sortie :<br>
 Pour chaque chemin, afficher le nombre total d'I/O reçues :<br>
 <code>PATH:&lt;p1&gt;=&lt;total_io&gt; | PATH:&lt;p2&gt;=&lt;total_io&gt; | ... | CURRENT_ACTIVE:&lt;chemin_courant&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POLICY=RR PATHS=vmhba1:C0:T0:L0,vmhba2:C0:T0:L0 THRESHOLD=1000
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>POLICY=RR PATHS=vmhba1:C0:T0:L0,vmhba2:C0:T0:L0 THRESHOLD=1000
 IO=1000
 IO=1000
 IO=500</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PATH:vmhba1:C0:T0:L0=1500 | PATH:vmhba2:C0:T0:L0=1000 | CURRENT_ACTIVE:vmhba1:C0:T0:L0
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PATH:vmhba1:C0:T0:L0=1500 | PATH:vmhba2:C0:T0:L0=1000 | CURRENT_ACTIVE:vmhba1:C0:T0:L0
 </pre></div>
     </div>
     <p class="lab__note">Round Robin alternant par tranche de 1000 I/O entre deux chemins.</p>
@@ -491,6 +515,29 @@ IO=500</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

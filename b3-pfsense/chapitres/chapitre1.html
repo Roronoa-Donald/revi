@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="1">
@@ -150,44 +151,49 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="pf3-c1-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="IFACE_CONFIG iface=lan ip=192.168.1.1/24">
-  <script type="text/plain" data-lab-starter>import sys
-import ipaddress
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c1-e1) — Validateur d’assignation d’interfaces et calcul de sous-réseau CIDR
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Sous-réseau WAN public de classe C restreint /29]
+# Données : IFACE_CONFIG iface=wan ip=203.0.113.10/29
+A_COMPLETER
 
-# À compléter : analyser la configuration CIDR de l'interface
+[Cas 2 — Interface DMZ en /28]
+# Données : IFACE_CONFIG iface=opt1 ip=10.0.50.1/28
+A_COMPLETER
+
+[Cas 3 — Configuration multi-interfaces simultanées]
+# Données : IFACE_CONFIG iface=wan ip=198.51.100.2/30
+# Données : IFACE_CONFIG iface=lan ip=172.16.0.1/16
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur d’assignation d’interfaces et calcul de sous-réseau CIDR</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité de l’attribution IP d’une interface pfSense et calculer l’adresse réseau et de diffusion (Broadcast).</p>
     <div class="lab__brief"><p>Dans pfSense, chaque interface physique ou virtuelle (WAN, LAN, OPT) est configurée avec une adresse IPv4 et un masque de sous-réseau au format CIDR.<br><br>
-Le script lit sur l'entrée standard des lignes au format :<br>
-<code>IFACE_CONFIG iface=&lt;wan|lan|opt1&gt; ip=&lt;ip/prefix&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles de calcul (avec le module <code>ipaddress</code>) :<br>
 - Extraire l'adresse de réseau (<code>network_address</code>) et l'adresse de broadcast (<code>broadcast_address</code>).<br>
 - Calculer le nombre d'adresses d'hôtes utilisables : <code>usable_hosts = net.num_addresses - 2</code> (si prefix &lt; 31, sinon 0).<br><br>
 Pour chaque interface, afficher :<br>
 <code>IFACE_REPORT iface={iface} ip={ip} net={network_address} bcast={broadcast_address} hosts={usable_hosts}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>IFACE_CONFIG iface=lan ip=192.168.1.1/24</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IFACE_REPORT iface=lan ip=192.168.1.1 net=192.168.1.0 bcast=192.168.1.255 hosts=254</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>IFACE_CONFIG iface=lan ip=192.168.1.1/24</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IFACE_REPORT iface=lan ip=192.168.1.1 net=192.168.1.0 bcast=192.168.1.255 hosts=254</pre></div>
     </div>
     <p class="lab__note">Réseau 192.168.1.0/24 avec 254 hôtes utilisables.</p>
     <details class="lab__hints">
@@ -202,27 +208,35 @@ Pour chaque interface, afficher :<br>
 
 <div class="lab" data-lab
      data-exercise="pf3-c1-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="GUI_RULE action=pass iface=lan proto=tcp src=192.168.1.0/24 dst=any port=443">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c1-e2) — Convertisseur de règles pfSense WebGUI vers syntaxe native FreeBSD PF (pf.conf)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Blocage total de tout trafic sur le WAN]
+# Données : GUI_RULE action=block iface=wan proto=any src=any dst=any port=any
+A_COMPLETER
 
-# À compléter : convertir la règle WebGUI en syntaxe native pf.conf
+[Cas 2 — Autorisation DNS UDP spécifique]
+# Données : GUI_RULE action=pass iface=opt1 proto=udp src=10.0.1.0/24 dst=1.1.1.1 port=53
+A_COMPLETER
+
+[Cas 3 — Trafic TCP sans restriction de port]
+# Données : GUI_RULE action=pass iface=lan proto=tcp src=192.168.1.10 dst=10.0.0.5 port=any
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Convertisseur de règles pfSense WebGUI vers syntaxe native FreeBSD PF (pf.conf)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Traduire une déclaration de règle de pare-feu de l’interface graphique pfSense en directive syntaxique native Packet Filter.</p>
     <div class="lab__brief"><p>pfSense repose sur le moteur de filtrage de paquets <strong>Packet Filter (PF)</strong> de FreeBSD. Dans pfSense, les règles sont saisies via la WebGUI mais compilées dans le fichier système <code>/tmp/rules.debug</code>.<br><br>
-Le script lit sur l'entrée standard des déclarations de règles au format :<br>
-<code>GUI_RULE action=&lt;pass|block&gt; iface=&lt;lan|wan|opt1&gt; proto=&lt;tcp|udp|any&gt; src=&lt;ip|any&gt; dst=&lt;ip|any&gt; port=&lt;int|any&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles de génération PF :<br>
 - Syntax : <code>{action} in on {iface} [proto {proto}] from {src} to {dst} [port {port}]</code>.<br>
 - Si <code>proto == 'any'</code>, omettre la clause <code>proto</code>.<br>
@@ -230,8 +244,8 @@ Règles de génération PF :<br>
 Pour chaque ligne, afficher :<br>
 <code>PF_CONF_RULE {règle_générée}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>GUI_RULE action=pass iface=lan proto=tcp src=192.168.1.0/24 dst=any port=443</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PF_CONF_RULE pass in on lan proto tcp from 192.168.1.0/24 to any port 443</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GUI_RULE action=pass iface=lan proto=tcp src=192.168.1.0/24 dst=any port=443</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PF_CONF_RULE pass in on lan proto tcp from 192.168.1.0/24 to any port 443</pre></div>
     </div>
     <p class="lab__note">Règle autorisant le trafic HTTPS sortant du LAN.</p>
     <details class="lab__hints">
@@ -246,28 +260,35 @@ Pour chaque ligne, afficher :<br>
 
 <div class="lab" data-lab
      data-exercise="pf3-c1-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="DHCP_CHECK subnet=192.168.1.0/24 pool_start=192.168.1.100 pool_end=192.168.1.200 static_ip=192.168.1.50">
-  <script type="text/plain" data-lab-starter>import sys
-import ipaddress
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c1-e3) — Auditeur de plage DHCP pfSense et détection de conflit de baux statiques
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Bail statique en plein milieu de la plage dynamique (conflit)]
+# Données : DHCP_CHECK subnet=192.168.1.0/24 pool_start=192.168.1.100 pool_end=192.168.1.200 static_ip=192.168.1.150
+A_COMPLETER
 
-# À compléter : vérifier le pool DHCP et l'absence de conflit statique
+[Cas 2 — Adresse statique hors du sous-réseau configuré]
+# Données : DHCP_CHECK subnet=10.0.0.0/24 pool_start=10.0.0.10 pool_end=10.0.0.50 static_ip=10.0.1.5
+A_COMPLETER
+
+[Cas 3 — Plage dynamique hors sous-réseau]
+# Données : DHCP_CHECK subnet=172.16.10.0/24 pool_start=172.16.20.10 pool_end=172.16.20.50 static_ip=172.16.10.5
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Auditeur de plage DHCP pfSense et détection de conflit de baux statiques</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité de la plage DHCP dynamique et détecter les conflits avec les baux statiques (Static Mappings).</p>
     <div class="lab__brief"><p>Sous pfSense, le démon DHCP (ISC DHCPD ou Kea) distribue les adresses IP dynamiques. Une bonne pratique réseau stricte impose que les réservations statiques (Static Mappings) soient situées <strong>hors de la plage dynamique (pool)</strong> mais au sein du même sous-réseau.<br><br>
-Le script lit sur l'entrée standard des vérifications au format :<br>
-<code>DHCP_CHECK subnet=&lt;cidr&gt; pool_start=&lt;ip&gt; pool_end=&lt;ip&gt; static_ip=&lt;ip&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles :<br>
 1. Vérifier si <code>pool_start</code>, <code>pool_end</code> et <code>static_ip</code> appartiennent au sous-réseau <code>subnet</code>.<br>
    Si l'un d'eux est hors du sous-réseau : <code>status=INVALID_SUBNET_OUT_OF_BOUNDS</code>.<br>
@@ -279,8 +300,8 @@ Règles :<br>
 Pour chaque ligne, afficher :<br>
 <code>DHCP_AUDIT subnet={subnet} static_ip={static_ip} status={status}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DHCP_CHECK subnet=192.168.1.0/24 pool_start=192.168.1.100 pool_end=192.168.1.200 static_ip=192.168.1.50</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DHCP_AUDIT subnet=192.168.1.0/24 static_ip=192.168.1.50 status=VALID_SCOPE</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DHCP_CHECK subnet=192.168.1.0/24 pool_start=192.168.1.100 pool_end=192.168.1.200 static_ip=192.168.1.50</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DHCP_AUDIT subnet=192.168.1.0/24 static_ip=192.168.1.50 status=VALID_SCOPE</pre></div>
     </div>
     <p class="lab__note">IP statique 192.168.1.50 en dehors de la plage 100-200 : configuration optimale.</p>
     <details class="lab__hints">
@@ -457,6 +478,29 @@ Pour chaque ligne, afficher :<br>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

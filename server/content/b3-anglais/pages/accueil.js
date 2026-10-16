@@ -155,7 +155,7 @@ function atelier(course) {
     '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="CHECK_VOCAB The website is broken and the database is slow\nCHECK_VOCAB We patched the codebase yesterday">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos analyseurs de documentation et algorithmes linguistiques en Python 3\nimport sys\n\ndef simuler_analyse_technique_anglais(commandes):\n    """Simule l\'audit et la vérification de conformité de communications techniques."""\n    resultats = []\n    for cmd in commandes:\n        resultats.append(f"ANALYSIS_OK: {cmd}")\n    return resultats\n\nif __name__ == "__main__":\n    cmds = [l.strip() for l in sys.stdin if l.strip()]\n    for r in simuler_analyse_technique_anglais(cmds):\n        print(r)\n</script>',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-anglais\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',

@@ -154,13 +154,13 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable pfSense &amp; Routage</h1>',
-    '  <p class="lead">Expérimentez et validez vos scripts d\'ingénierie sécurité en Python 3 : simulation de filtrage pf, contrôle d\'état TCP, routage Multi-WAN et élection de cluster CARP.</p>',
+    '  <p class="lead">Expérimentez et validez vos scripts d\'ingénierie sécurité selon les grilles d’analyse : simulation de filtrage pf, contrôle d\'état TCP, routage Multi-WAN et élection de cluster CARP.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="RULE action=pass dir=in proto=tcp src=192.168.1.0/24 dst=any port=443\nPACKET proto=tcp src=192.168.1.50 dst=1.1.1.1 port=443">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos règles de pare-feu et algorithmes de routage en Python 3\nimport sys\n\ndef evaluer_regle_filtrage(regles, paquet_proto, paquet_port):\n    for r in regles:\n        if r[\'proto\'] == paquet_proto and (r[\'port\'] == \'any\' or int(r[\'port\']) == paquet_port):\n            return f"MATCH {r[\'action\'].upper()} (Rule: {r[\'name\']})"\n    return "DEFAULT DENY (Blocage automatique pf)"\n\nif __name__ == "__main__":\n    regles_test = [\n        {\'name\': \'Allow_HTTPS\', \'action\': \'pass\', \'proto\': \'tcp\', \'port\': 443},\n        {\'name\': \'Allow_DNS\', \'action\': \'pass\', \'proto\': \'udp\', \'port\': 53}\n    ]\n    print(evaluer_regle_filtrage(regles_test, \'tcp\', 443))\n    print(evaluer_regle_filtrage(regles_test, \'tcp\', 22))\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -183,7 +183,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire Réseau libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos règles et algorithmes de routage pfSense.',
+      description: 'Bac à sable interactif par cas d’application pour tester vos règles et algorithmes de routage pfSense.',
       active: 'atelier',
       body
     }

@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body>
@@ -57,82 +58,72 @@
   <p class="lead">Toutes les formes matricielles, formules d’intersection, règles de pivotage, théorèmes de dualité, équations de transport et lois d’ordonnancement réunies sur une seule page de référence.</p>
 
   <h2>1. Forme Canonique &amp; Forme Standard</h2>
-<pre><code>// Forme Canonique (Primal MAX)
-MAX Z = c1*x1 + c2*x2 + ... + cn*xn
-sous :
-  a_i1*x1 + a_i2*x2 + ... + a_in*xn &le; b_i  (i = 1..m)
-  x_j &ge; 0  (j = 1..n)
-
-// Forme Standard
-- Contrainte &le; : ajouter variable d’écart s_i &ge; 0 &rarr; &sum; a_ij*x_j + s_i = b_i
-- Contrainte &ge; : soustraire variable d’excès e_k &ge; 0 &rarr; &sum; a_kj*x_j - e_k = b_k
-- Contrainte =  : contrainte stricte maintenue &rarr; &sum; a_lj*x_j = b_l</code></pre>
+  <div class="box--formula">
+    <div class="formula-label">Forme Canonique (Primal MAX)</div>
+    <div class="math-block">$$\max Z = \mathbf{c}^T \mathbf{x} \quad \text{sous} \quad A\mathbf{x} \le \mathbf{b}, \quad \mathbf{x} \ge \mathbf{0}$$</div>
+  </div>
+  <div class="box--formula">
+    <div class="formula-label">Mise sous forme standard (Variables d’écart et d’excès)</div>
+    <div class="math-block">$$\begin{cases} \sum_{j=1}^n a_{ij} x_j + s_i = b_i, & s_i \ge 0 \quad (\text{contrainte } \le) \\[4pt] \sum_{j=1}^n a_{kj} x_j - e_k = b_k, & e_k \ge 0 \quad (\text{contrainte } \ge) \end{cases}$$</div>
+  </div>
 
   <h2>2. Géométrie &amp; Règle de Cramer (2 variables)</h2>
-<pre><code>// Intersection de deux droites frontières actives
-L1 : a1 * x1 + b1 * x2 = c1
-L2 : a2 * x1 + b2 * x2 = c2
-
-Déterminant principal : &Delta; = a1 * b2 - a2 * b1
-Si &Delta; &ne; 0 :
-  x1 = (c1 * b2 - c2 * b1) / &Delta;
-  x2 = (a1 * c2 - a2 * c1) / &Delta;
-Si &Delta; = 0 : droites parallèles ou confondues.</code></pre>
+  <div class="box--formula">
+    <div class="formula-label">Intersection de deux droites actives &amp; Déterminant</div>
+    <div class="math-block">$$\Delta = a_1 b_2 - a_2 b_1, \qquad x_1^* = \frac{c_1 b_2 - c_2 b_1}{\Delta}, \qquad x_2^* = \frac{a_1 c_2 - a_2 c_1}{\Delta} \quad (\Delta \ne 0)$$</div>
+  </div>
 
   <h2>3. Algorithme du Simplexe (Tableau de Dantzig)</h2>
-<pre><code>// 1. Critère de Dantzig (Variable entrante)
-k = argmax { &Delta;j | &Delta;j &gt; 0 }  (coût réduit le plus strictement positif)
-Arrêt optimal : ssi tous les &Delta;j &le; 0.
-
-// 2. Règle du ratio minimum (Variable sortante)
-&theta; = min { b_i / a_ik | a_ik &gt; 0 }
-La ligne r correspondant à &theta; sort de la base.
-Arrêt non borné : ssi tous les a_ik &le; 0 dans la colonne pivot.
-
-// 3. Opération de pivot de Gauss-Jordan (sur pivot p = A[r][k])
-Ligne pivot : Lr &larr; Lr / p
-Autres lignes : Li &larr; Li - A[i][k] * Lr</code></pre>
+  <div class="box--formula">
+    <div class="formula-label">Critère de Dantzig (Variable entrante)</div>
+    <div class="math-block">$$k = \operatorname{argmax} \{ \Delta_j \mid \Delta_j > 0 \} \quad (\text{optimal si tous les } \Delta_j \le 0)$$</div>
+  </div>
+  <div class="box--formula">
+    <div class="formula-label">Règle du ratio minimum (Variable sortante)</div>
+    <div class="math-block">$$\theta = \min_{i} \left\{ \frac{b_i}{a_{ik}} \;\middle|\; a_{ik} > 0 \right\} \quad (\text{non borné si } \forall i, \; a_{ik} \le 0)$$</div>
+  </div>
+  <div class="box--formula">
+    <div class="formula-label">Opération de pivot de Gauss-Jordan</div>
+    <div class="math-block">$$L_r \leftarrow \frac{L_r}{p}, \qquad L_i \leftarrow L_i - a_{ik} L_r \quad (\forall i \ne r)$$</div>
+  </div>
 
   <h2>4. Théorie de la Dualité &amp; Prix d’Ombre</h2>
-<pre><code>// Transposition Primal / Dual
-PRIMAL (MAX)                 DUAL (MIN)
-MAX Z = c^T * x      &harr;      MIN W = b^T * y
-sous A * x &le; b              sous A^T * y &ge; c
-avec x &ge; 0                   avec y &ge; 0
-
-// Théorèmes fondamentaux
-1. Théorème faible : Z(x) &le; W(y) pour tous x et y réalisables.
-2. Théorème fort   : à l’optimum, Z(x*) = W(y*) (gap nul).
-3. Écarts complémentaires : y_i* * s_i* = 0  et  x_j* * e_j* = 0
-
-// Prix d’ombre (Shadow price)
-y_i* = &part;Z* / &part;b_i (gain marginal apporté par une unité de ressource i).</code></pre>
+  <div class="box--formula">
+    <div class="formula-label">Transposition Primal / Dual</div>
+    <div class="math-block">$$\max Z = \mathbf{c}^T \mathbf{x} \; (A\mathbf{x} \le \mathbf{b}, \mathbf{x} \ge \mathbf{0}) \iff \min W = \mathbf{b}^T \mathbf{y} \; (A^T \mathbf{y} \ge \mathbf{c}, \mathbf{y} \ge \mathbf{0})$$</div>
+  </div>
+  <div class="box--formula">
+    <div class="formula-label">Théorème fort de dualité &amp; Écarts complémentaires</div>
+    <div class="math-block">$$Z(\mathbf{x}^*) = W(\mathbf{y}^*), \qquad y_i^* \cdot s_i^* = 0, \qquad x_j^* \cdot e_j^* = 0$$</div>
+  </div>
+  <div class="box--formula">
+    <div class="formula-label">Prix d’ombre (Shadow Price)</div>
+    <div class="math-block">$$y_i^* = \frac{\partial Z^*}{\partial b_i}$$</div>
+  </div>
 
   <h2>5. Problème de Transport &amp; Méthode MODI</h2>
-<pre><code>// Matrice équilibrée
-&sum;_{i=1}^m O_i = &sum;_{j=1}^n D_j  (sinon : ajouter une entité fictive à coût nul)
+  <div class="box--formula">
+    <div class="formula-label">Condition d’équilibre logistique</div>
+    <div class="math-block">$$\sum_{i=1}^m O_i = \sum_{j=1}^n D_j$$</div>
+  </div>
+  <div class="box--formula">
+    <div class="formula-label">Potentiels MODI &amp; Coûts marginaux</div>
+    <div class="math-block">$$u_i + v_j = c_{ij} \quad (\text{cases de base}), \qquad \Delta_{ij} = c_{ij} - (u_i + v_j) \quad (\text{optimal ssi } \forall i,j, \; \Delta_{ij} \ge 0)$$</div>
+  </div>
 
-// Potentiels de lignes (u_i) et de colonnes (v_j)
-Pour chaque cellule de base (occupée) : u_i + v_j = c_ij  (poser u_1 = 0)
-
-// Évaluation des cellules vides
-&Delta;_ij = c_ij - (u_i + v_j)
-- Solution optimale ssi tous les &Delta;_ij &ge; 0.
-- Si min &Delta;_ij &lt; 0 : cycle du marchepied (stepping-stone) avec transfert &theta;.</code></pre>
-
-  <h2>6. Ordonnancement PERT / CPM &amp; Ford-Fulkerson</h2>
-<pre><code>// PERT / MPM (Calcul aller-retour)
-Forward pass  : ES(j) = max_{p &isin; Pred(j)} (ES(p) + d_p),   EF(j) = ES(j) + d_j
-Durée projet  : max EF(t)
-Backward pass : LF(i) = min_{s &isin; Succ(i)} LS(s),           LS(i) = LF(i) - d_i
-Marge Totale  : MT(i) = LF(i) - ES(i) - d_i = LS(i) - ES(i)
-Marge Libre   : ML(i) = min_{s} ES(s) - ES(i) - d_i
-Chemin critique : ensemble des tâches de marge totale nulle (MT = 0).
-
-// Flots de Ford-Fulkerson
-Capacité résiduelle : r(u, v) = c(u, v) - f(u, v)
-Goulot d’étranglement d’une chaîne augmentante : &Delta; = min r(u, v)
-Théorème Max-Flow Min-Cut : Valeur maximale du Flot = Capacité de la Coupe minimale.</code></pre>
+  <h2>6. Ordonnancement PERT / CPM &amp; Flots</h2>
+  <div class="box--formula">
+    <div class="formula-label">Calcul aller-retour (Dates au plus tôt et au plus tard)</div>
+    <div class="math-block">$$ES_j = \max_{p \in \operatorname{Pred}(j)} (ES_p + d_p), \qquad LF_i = \min_{s \in \operatorname{Succ}(i)} (LS_s)$$</div>
+  </div>
+  <div class="box--formula">
+    <div class="formula-label">Marges et Chemin critique</div>
+    <div class="math-block">$$MT_i = LF_i - ES_i - d_i, \qquad \text{Chemin critique : } \{ i \mid MT_i = 0 \}$$</div>
+  </div>
+  <div class="box--formula">
+    <div class="formula-label">Théorème Max-Flow Min-Cut (Ford-Fulkerson)</div>
+    <div class="math-block">$$\max |f| = \min_{(S, T)} \operatorname{cap}(S, T)$$</div>
+  </div>
 
   <div class="chnav">
     <a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Cartes de révision</a>
@@ -141,6 +132,29 @@ Théorème Max-Flow Min-Cut : Valeur maximale du Flot = Capacité de la Coupe mi
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

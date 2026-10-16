@@ -28,7 +28,7 @@ function render(kit, course, chapterList) {
     pages['chapitres/chapitre' + chapitre.n + '.html'] = {
       title: 'Chapitre ' + chapitre.n + ' — ' + chapitre.title + ' | ' + course.brand,
       description: 'Chapitre ' + chapitre.n + ' du cours de probabilités B2 : ' + chapitre.toc +
-        ' Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.',
+        ' Théorie, exemples détaillés, études de cas mathématiques, QCM corrigés.',
       active: 'ch' + chapitre.n,
       dataChapter: chapitre.n,
       body

@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 6 — Configuration de base du commutateur | CCNA 1 B1</title>
-<meta name="description" content="Chapitre 6 du cours de CCNA 1 B1 : Mots de passe console et vty, enable secret, utilisateurs locaux, SSH (hostname, ip domain-name, crypto key) ; IPv4 de gestion (SVI, ip address, no shutdown, ip default-gateway) ; commandes de confort. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 6 du cours de CCNA 1 B1 : Mots de passe console et vty, enable secret, utilisateurs locaux, SSH (hostname, ip domain-name, crypto key) ; IPv4 de gestion (SVI, ip address, no shutdown, ip default-gateway) ; commandes de confort. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b1-ccna1/chapitres/chapitre6.html">
 <meta property="og:title" content="Chapitre 6 — Configuration de base du commutateur | CCNA 1 B1">
-<meta property="og:description" content="Chapitre 6 du cours de CCNA 1 B1 : Mots de passe console et vty, enable secret, utilisateurs locaux, SSH (hostname, ip domain-name, crypto key) ; IPv4 de gestion (SVI, ip address, no shutdown, ip default-gateway) ; commandes de confort. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 6 du cours de CCNA 1 B1 : Mots de passe console et vty, enable secret, utilisateurs locaux, SSH (hostname, ip domain-name, crypto key) ; IPv4 de gestion (SVI, ip address, no shutdown, ip default-gateway) ; commandes de confort. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -101,41 +102,54 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>3. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>3. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="cc-c6-e1"
-     data-language="shell"
+     data-language="analyse"
      data-height="300"
      data-stdin="2&#10;passwordlogin passwordlogin&#10;transportinput enablesecret&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
-ok=0
-for ((i=0; i<n; i++)); do
-  read -r protection commande
-  # À compléter : le couple juste ? Compter.
-done
-# À compléter : le bilan.
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c6-e1) — Sécuriser les accès
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Les quatre]
+# Données : 4
+# Données : passwordlogin passwordlogin
+# Données : loginlocal loginlocal
+# Données : enablesecret enablesecret
+# Données : transportinput transportinput
+A_COMPLETER
+
+[Cas 2 — Deux erreurs]
+# Données : 2
+# Données : loginlocal passwordlogin
+# Données : enablesecret transportinput
+A_COMPLETER
+
+[Cas 3 — Série mixte]
+# Données : 3
+# Données : enablesecret enablesecret
+# Données : passwordlogin transportinput
+# Données : transportinput transportinput
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Sécuriser les accès</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Associer chaque protection de la CLI à sa commande de configuration.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « protection commande » : commande est un code parmi <code>passwordlogin</code> (mot de passe simple + login), <code>loginlocal</code> (noms d'utilisateurs locaux), <code>enablesecret</code> ou <code>transportinput</code>. Protections du support : <code>passwordlogin</code> protège console et vty avec un mot de passe partagé ; <code>loginlocal</code> exige un couple utilisateur/mot de passe local ; <code>enablesecret</code> protège le mode enable ; <code>transportinput</code> choisit les protocoles vty (ssh, telnet, all). Pour chaque ligne il affiche <code>protection : OK</code> ou <code>protection : ERREUR</code>, puis <code>conformes : X/n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « protection commande » : commande est un code parmi <code>passwordlogin</code> (mot de passe simple + login), <code>loginlocal</code> (noms d'utilisateurs locaux), <code>enablesecret</code> ou <code>transportinput</code>. Protections du support : <code>passwordlogin</code> protège console et vty avec un mot de passe partagé ; <code>loginlocal</code> exige un couple utilisateur/mot de passe local ; <code>enablesecret</code> protège le mode enable ; <code>transportinput</code> choisit les protocoles vty (ssh, telnet, all). Pour chaque ligne il Indiquez <code>protection : OK</code> ou <code>protection : ERREUR</code>, puis <code>conformes : X/n</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
 passwordlogin passwordlogin
 transportinput enablesecret
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>passwordlogin : OK
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>passwordlogin : OK
 transportinput : ERREUR
 conformes : 1/2</pre></div>
     </div>
@@ -151,34 +165,52 @@ conformes : 1/2</pre></div>
 
 <div class="lab" data-lab
      data-exercise="cc-c6-e2"
-     data-language="shell"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;1 svi&#10;2 ipaddress&#10;4 gateway&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
-ok=0
-for ((i=0; i<n; i++)); do
-  read -r etape commande
-  # À compléter : la commande est-elle à sa place ?
-done
-# À compléter : le bilan.
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c6-e2) — IPv4 sur le commutateur
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Ordre parfait]
+# Données : 5
+# Données : 1 svi
+# Données : 2 ipaddress
+# Données : 3 noshutdown
+# Données : 4 gateway
+# Données : 5 nameserver
+A_COMPLETER
+
+[Cas 2 — Deux inversions]
+# Données : 3
+# Données : 1 svi
+# Données : 2 gateway
+# Données : 3 ipaddress
+A_COMPLETER
+
+[Cas 3 — Cœur de config]
+# Données : 3
+# Données : 2 ipaddress
+# Données : 3 noshutdown
+# Données : 4 gateway
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — IPv4 sur le commutateur</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Dérouler la configuration IPv4 de gestion : SVI, adresse/masque, no shutdown, passerelle.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « etape commande » : etape est un numéro de 1 à 5 et commande un code parmi <code>svi</code>, <code>ipaddress</code>, <code>noshutdown</code>, <code>gateway</code> ou <code>nameserver</code>. Étapes du support : 1 <code>interface vlan 1</code> (la SVI), 2 <code>ip address</code> (adresse + masque), 3 <code>no shutdown</code>, 4 <code>ip default-gateway</code> (obligatoire pour parler hors du sous-réseau), 5 <code>ip name-server</code> (facultatif, DNS). Pour chaque ligne il affiche <code>etape N : OK</code> ou <code>etape N : NON</code>, puis <code>justes : X/n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « etape commande » : etape est un numéro de 1 à 5 et commande un code parmi <code>svi</code>, <code>ipaddress</code>, <code>noshutdown</code>, <code>gateway</code> ou <code>nameserver</code>. Étapes du support : 1 <code>interface vlan 1</code> (la SVI), 2 <code>ip address</code> (adresse + masque), 3 <code>no shutdown</code>, 4 <code>ip default-gateway</code> (obligatoire pour parler hors du sous-réseau), 5 <code>ip name-server</code> (facultatif, DNS). Pour chaque ligne il Indiquez <code>etape N : OK</code> ou <code>etape N : NON</code>, puis <code>justes : X/n</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 1 svi
 2 ipaddress
 4 gateway
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>etape 1 : OK
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>etape 1 : OK
 etape 2 : OK
 etape 4 : OK
 justes : 3/3</pre></div>
@@ -195,34 +227,48 @@ justes : 3/3</pre></div>
 
 <div class="lab" data-lab
      data-exercise="cc-c6-e3"
-     data-language="shell"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;s1 std&#10;s2 st&#10;s3 -&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
-ok=0
-for ((i=0; i<n; i++)); do
-  read -r session reglages
-  # À compléter : analyser la suite de réglages.
-done
-# À compléter : le bilan.
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c6-e3) — Le confort du laboratoire
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Parfaites]
+# Données : 2
+# Données : lab1 std
+# Données : lab2 std
+A_COMPLETER
+
+[Cas 2 — Sans timeout]
+# Données : 2
+# Données : lab1 sd
+# Données : lab2 std
+A_COMPLETER
+
+[Cas 3 — Aucun réglage]
+# Données : 3
+# Données : lab1 -
+# Données : lab2 d
+# Données : lab3 t
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Le confort du laboratoire</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler les trois commandes de confort : logging synchronous, exec-timeout, no ip domain-lookup.</p>
-    <div class="lab__brief"><p>Le script lit d'abord <strong>n</strong> (nombre de sessions console), puis <strong>n lignes</strong> « session reglages » où reglages est une suite de codes sans espace : <code>s</code> = logging synchronous activé, <code>t</code> = exec-timeout à 0 (jamais déconnecté), <code>d</code> = no ip domain-lookup, le tiret <code>-</code> = aucun réglage. Effets du support : sans <code>s</code>, les messages syslog s'invitent en pleine saisie ; sans <code>t</code>, la session expire après 5 minutes ; sans <code>d</code>, une commande mal tapée bloque une minute sur une résolution DNS. Pour chaque session il affiche <code>session : fluide</code> si les trois réglages sont présents, sinon <code>session : gene (motif X)</code> où X vaut <code>syslog</code>, <code>timeout</code> ou <code>dns</code> (premier motif manquant dans l'ordre s, t, d). Il termine par <code>sessions fluides : X/n</code>.</p></div>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Effets du support : sans <code>s</code>, les messages syslog s'invitent en pleine saisie ; sans <code>t</code>, la session expire après 5 minutes ; sans <code>d</code>, une commande mal tapée bloque une minute sur une résolution DNS. Pour chaque session il Indiquez <code>session : fluide</code> si les trois réglages sont présents, sinon <code>session : gene (motif X)</code> où X vaut <code>syslog</code>, <code>timeout</code> ou <code>dns</code> (premier motif manquant dans l'ordre s, t, d). Il termine par <code>sessions fluides : X/n</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 s1 std
 s2 st
 s3 -
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>s1 : fluide
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>s1 : fluide
 s2 : gene (motif dns)
 s3 : gene (motif syslog)
 sessions fluides : 1/3</pre></div>
@@ -386,6 +432,29 @@ sessions fluides : 1/3</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

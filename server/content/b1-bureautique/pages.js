@@ -103,7 +103,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du premier clic dans le ruban jusqu\'au diaporama ' +
     'chronométré. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Bash</strong> à écrire et à exécuter ' +
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
     'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
     'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
@@ -124,7 +124,7 @@ function sommaire(course, chapterList) {
     'sommaire.html': {
       title: 'Sommaire — ' + course.brand,
       description: 'Sommaire du cours de Bureautique B1 : ' + chapterList.length +
-        ' chapitres, exercices Bash exécutables, flashcards, mémo et examens blancs.',
+        ' chapitres, études de cas d’application, flashcards, mémo et examens blancs.',
       active: 'sommaire',
       body
     }
@@ -213,7 +213,7 @@ function atelier(course) {
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
-    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois exercices Bash corrigés ' +
+    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas corrigées ' +
     'automatiquement dans la page. Une fois l\'atelier apprivoisé, ils sont la meilleure façon de vérifier ' +
     'que le mécanisme est vraiment acquis.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Word : l\'interface et la saisie' }),
@@ -510,297 +510,74 @@ function exercices(course) {
     '    <ol>',
     intro.map(line => '      <li>' + line + '</li>').join('\n'),
     '    </ol>',
-    '    <details><summary>Corrections</summary><div class="sol"><pre><code>' + solutions + '</code></pre></div></details>',
+    '    <details><summary>Corrections &amp; formules bureautiques</summary><div class="sol">' + solutions + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
-    '  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque séance, puis un projet final qui ' +
-    'outille le secrétariat entier. Les scripts sont en Bash, comme à l\'atelier.</p>',
+    '  <h1>Exercices supplémentaires &amp; cas pratiques</h1>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier de modélisation financière et d’automatisation sous tableur.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Lit n lignes « groupe onglet » et valide le classement Word, puis le compteur Accueil.',
-      'Lit n lignes « alignement bord » et valide les quatre alignements, puis le compteur justifie.',
-      'Lit n lignes « valeur type » (texte/nombre) et aligne comme Excel, puis les deux compteurs.',
-      'Lit n lignes « mode usage » de PowerPoint et valide les couples, puis le compteur diaporama.'
+      'Distinguer les références relatives (A1), absolues ($A$1) et mixtes ($A1 ou A$1) lors du recopiage de formule.',
+      'Utiliser les fonctions arithmétiques de base (SOMME, MOYENNE, MIN, MAX, NB, NBVAL).',
+      'Appliquer une règle de mise en forme conditionnelle pour surligner les valeurs supérieures à un seuil.',
+      'Paramétrer les styles de paragraphe, tables des matières automatiques et sauts de section sous traitement de texte.'
     ], [
-      'read -r n',
-      'ok=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r groupe onglet',
-      '  case "$groupe" in',
-      '    police|paragraphe|styles) attendu="accueil" ;;',
-      '    tableaux|symbole) attendu="insertion" ;;',
-      '    zoom|macros) attendu="affichage" ;;',
-      '  esac',
-      '  if [ "$onglet" = "$attendu" ]; then',
-      '    echo "$groupe : OK" ; ok=$((ok + 1))',
-      '  else',
-      '    echo "$groupe : ERREUR"',
-      '  fi',
-      'done',
-      'echo "accueil confirmes : $ok/$n"',
-      '',
-      'read -r n',
-      'just=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r alignement bord',
-      '  case "$alignement" in',
-      '    gauche) attendu="gauche" ;;',
-      '    droite) attendu="droite" ;;',
-      '    centre) attendu="centre" ;;',
-      '    justifie) attendu="lesdeux" ;;',
-      '  esac',
-      '  if [ "$bord" = "$attendu" ]; then',
-      '    echo "$alignement : OUI"',
-      '    if [ "$alignement" = "justifie" ]; then just=$((just + 1)) ; fi',
-      '  else',
-      '    echo "$alignement : NON"',
-      '  fi',
-      'done',
-      'echo "justifies : $just"',
-      '',
-      'read -r n',
-      't=0 ; c=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r valeur type',
-      '  if [ "$type" = "texte" ]; then',
-      '    echo "$valeur : aligne a gauche" ; t=$((t + 1))',
-      '  else',
-      '    echo "$valeur : aligne a droite" ; c=$((c + 1))',
-      '  fi',
-      'done',
-      'echo "textes : $t / chiffres : $c"',
-      '',
-      'read -r n',
-      'd=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r mode usage',
-      '  case "$mode" in',
-      '    normal) attendu="edition" ;;',
-      '    trieuse) attendu="vueglobale" ;;',
-      '    diaporama) attendu="projection" ;;',
-      '    commentaire) attendu="notes" ;;',
-      '  esac',
-      '  if [ "$usage" = "$attendu" ]; then',
-      '    echo "$mode : OUI"',
-      '    if [ "$mode" = "diaporama" ]; then d=$((d + 1)) ; fi',
-      '  else',
-      '    echo "$mode : NON"',
-      '  fi',
-      'done',
-      'echo "diaporama confirmes : $d"'
+      '<p><strong>1. Références :</strong> $A$1 fige colonne et ligne au déplacement ; $A1 fige la colonne seule ; A$1 fige la ligne seule.</p>',
+      '<p><strong>2. Fonctions de base :</strong> =SOMME(A1:A10) totalise la plage ; =NBVAL compte les cellules non vides.</p>',
+      '<p><strong>3. Mise en forme conditionnelle :</strong> Sélection de la plage &rarr; Règle "Valeur > seuil" &rarr; Format personnalisé de remplissage.</p>',
+      '<p><strong>4. Traitement de texte :</strong> Les styles Titre 1, Titre 2 génèrent automatiquement la table des matières dynamique.</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Lit n notes puis calcule SOMME, MOYENNE, MAX et MIN au format des formules Excel.',
-      'Lit n cellules « contenu type » (nombre/texte/vide) et sort NB, NBVAL et le nombre de vides.',
-      'Lit n lignes « chaine op a b » et reproduit Gauche, Droite et STXT (position 1 = première lettre).',
-      'Lit n lignes « plage resultat » (somme/moyenne/max/min + valeur) et valide chaque formule.'
+      'Construire des formules conditionnelles imbriquées avec SI, ET, OU.',
+      'Rechercher des correspondances exactes dans des tables de référence avec RECHERCHEV ou le couple INDEX / EQUIV.',
+      'Concevoir un tableau croisé dynamique (TCD) avec champs de lignes, colonnes, filtres et valeurs calculées.',
+      'Créer des graphiques de comparaison adaptés (histogrammes, secteurs, courbes de tendance temporelles).'
     ], [
-      'read -r n',
-      'somme=0 ; max=0 ; min=999999',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r note',
-      '  somme=$((somme + note))',
-      '  [ "$note" -gt "$max" ] &amp;&amp; max=$note',
-      '  [ "$note" -lt "$min" ] &amp;&amp; min=$note',
-      'done',
-      'echo "=SOMME(...) -> $somme"',
-      'echo "=MOYENNE(...) -> $((somme / n))"',
-      'echo "=MAX(...) -> $max"',
-      'echo "=MIN(...) -> $min"',
-      '',
-      'read -r n',
-      'nb=0 ; nbval=0 ; vides=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r contenu type',
-      '  if [ "$type" = "vide" ]; then vides=$((vides + 1))',
-      '  else',
-      '    nbval=$((nbval + 1))',
-      '    [ "$type" = "nombre" ] &amp;&amp; nb=$((nb + 1))',
-      '  fi',
-      'done',
-      'echo "NB : $nb / NBVAL : $nbval / vides : $vides"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r chaine op a b',
-      '  case "$op" in',
-      '    gauche) echo "\\${chaine:0:a}" ;;',
-      '    droite) echo "\\${chaine: -a}" ;;',
-      '    stxt) echo "\\${chaine:a-1:b}" ;;',
-      '  esac',
-      'done',
-      '',
-      'read -r n',
-      'ok=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r plage resultat',
-      '  case "$resultat" in',
-      '    somme|moyenne|max|min) echo "$plage : formule valide ($resultat)" ; ok=$((ok + 1)) ;;',
-      '    *) echo "$plage : il manque le signe =" ;;',
-      '  esac',
-      'done',
-      'echo "validees : $ok/$n"'
+      '<p><strong>1. Formule conditionnelle :</strong> =SI(ET(A2>=10; B2="Validé"); "Admis"; "Ajourné").</p>',
+      '<p><strong>2. Recherche exacte :</strong> =RECHERCHEV(cle; table_ref; 3; FAUX) ou =INDEX(plage_retour; EQUIV(cle; plage_recherche; 0)).</p>',
+      '<p><strong>3. Tableau croisé dynamique :</strong> Glisser les catégories en Lignes, les périodes en Colonnes et la somme des montants en Valeurs.</p>',
+      '<p><strong>4. Choix graphique :</strong> Histogramme pour comparer des catégories discrètes ; courbe pour illustrer une évolution continue.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Lit n lignes « agent ca » et applique la commission à paliers du support (10/15/20 %), verdict de masse salariale compris.',
-      'Lit n lignes « eleve note » et applique le SI imbriqué des mentions, puis le taux de réussite.',
-      'Lit n lignes « valeur critere » et répond pour NB.SI, SOMME.SI et MOYENNE.SI simulés.',
-      'Lit n lignes « diapo duree » et simule le minutage du diaporama, alerte si le total dépasse la durée impartie.'
+      'Concevoir un tableau de bord de gestion automatisé avec segments interactifs et indicateurs de performance (KPI).',
+      'Mettre en place une validation des données stricte pour interdire les saisies incohérentes dans une grille partagée.',
+      'Sécuriser un classeur : verrouillage de cellules de formules, protection de feuille par mot de passe et masquer les données sensibles.',
+      'Automatiser des traitements répétitifs par création de macros enregistrées ou formulaires de saisie.'
     ], [
-      'read -r n',
-      'tot=0 ; masse=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r agent ca',
-      '  if [ "$ca" -ge 50000 ]; then taux=20',
-      '  elif [ "$ca" -ge 10000 ]; then taux=15',
-      '  else taux=10',
-      '  fi',
-      '  echo "$agent : $taux%"',
-      '  tot=$((tot + taux))',
-      '  masse=$((masse + ca * taux / 100))',
-      'done',
-      'echo "taux moyen : $((tot / n))%"',
-      'echo "masse : $masse"',
-      '',
-      'read -r n',
-      'recus=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r eleve note',
-      '  if [ "$note" -ge 16 ]; then m="tres bien"',
-      '  elif [ "$note" -ge 14 ]; then m="bien"',
-      '  elif [ "$note" -ge 10 ]; then m="passe"',
-      '  else m="rattrapage"',
-      '  fi',
-      '  echo "$eleve : $m"',
-      '  [ "$note" -ge 10 ] &amp;&amp; recus=$((recus + 1))',
-      'done',
-      'echo "taux de reussite : $((recus * 100 / n))%"',
-      '',
-      'read -r n',
-      'compte=0 ; somme=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r valeur critere',
-      '  if [ "$critere" = "retenu" ]; then',
-      '    echo "$valeur : compte" ; compte=$((compte + 1)) ; somme=$((somme + valeur))',
-      '  else',
-      '    echo "$valeur : ecarte"',
-      '  fi',
-      'done',
-      'echo "NB.SI : $compte"',
-      'echo "SOMME.SI : $somme"',
-      'if [ "$compte" -gt 0 ]; then echo "MOYENNE.SI : $((somme / compte))" ; else echo "MOYENNE.SI : erreur division zero" ; fi',
-      '',
-      'read -r n',
-      'impartie=0 ; total=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r diapo duree',
-      '  if [ "$k" = "0" ]; then impartie=$duree ; continue ; fi',
-      '  echo "$diapo : \\${duree}s"',
-      '  total=$((total + duree))',
-      'done',
-      'echo "total : $total / impartie : $impartie"',
-      'if [ "$total" -le "$impartie" ]; then',
-      '  echo "diaporama : dans les temps"',
-      'else',
-      '  echo "diaporama : depasse de $((total - impartie))s"',
-      'fi'
+      '<p><strong>1. Dashboard KPI :</strong> Cartes de scores reliées à des formules SOMME.SI.ENS, jauges de progression et segments dynamiques.</p>',
+      '<p><strong>2. Validation des données :</strong> Données &rarr; Validation des données &rarr; Liste déroulante ou Nombre entier compris entre min et max.</p>',
+      '<p><strong>3. Protection :</strong> Déverrouiller uniquement les cellules de saisie, verrouiller les formules, puis Activer la protection de la feuille.</p>',
+      '<p><strong>4. Automatisation :</strong> L’enregistreur de macros génère le code d’automatisation pour standardiser les imports mensuels.</p>'
     ].join('\n')),
 
-    '  <h2>Projet intégrateur — « le classeur de bord du secrétariat »</h2>',
-    box('situation', 'Cahier des charges', 'play', [
-      '    <p>Le script reçoit le journal du secrétariat : d\'abord <code>n_docs</code> documents au format ' +
-      '<code>doc genre</code> où genre vaut <code>lettre</code>, <code>rapport</code> ou <code>tableau</code>, ' +
-      'chaque document devant respecter son orientation (lettre et rapport : portrait, tableau : paysage). ' +
-      'Puis <code>n_ventes</code> ventes au format <code>vendeur ca</code> ; chaque vendeur reçoit la ' +
-      'commission à paliers du support (10 / 15 / 20 %). Le script affiche pour chaque document ' +
-      '<code>doc : conforme</code> ou <code>doc : orientation a revoir</code>, pour chaque vente ' +
-      '<code>vendeur : X%</code>, puis le bilan : <code>dossiers conformes : X/n</code>, ' +
-      '<code>commission moyenne : Y%</code> (division entière) et le verdict <code>secreariat prete</code> si ' +
-      'tous les documents sont conformes, <code>revision requise</code> sinon.</p>'
+    '  <h2>Dossier de synthèse — Modélisation Budgétaire &amp; Tableau de Bord</h2>',
+    box('situation', 'Cahier des charges du Dossier', 'play', [
+      '    <p>Ce dossier d’application bureautique consiste à concevoir l’outil de pilotage budgétaire d’une direction des systèmes d’information : prévisions d’achats matériels, suivi des licences logicielles, calcul d’amortissements et reporting de synthèse.</p>'
     ].join('\n')),
-    box('objectifs', 'Fonctionnalités attendues', 'target', [
+    box('objectifs', 'Compétences bureautiques évaluées', 'target', [
       '    <ol>',
-      '      <li><strong>Lire</strong> les deux blocs sans mélanger documents et ventes.</li>',
-      '      <li><strong>Valider</strong> chaque orientation selon le genre du document.</li>',
-      '      <li><strong>Calculer</strong> la commission à paliers du plus strict au plus large.</li>',
-      '      <li><strong>Agréger</strong> les deux bilans : conformité et taux moyen.</li>',
-      '      <li><strong>Verdict</strong> final au format exact du cahier des charges.</li>',
-      '    </ol>',
-      '    <p>Contraintes : arithmétique entière (bash refuse les décimales), ordre des tests de paliers, bilan après lecture complète.</p>'
+      '      <li><strong>Modélisation avancée :</strong> Utilisation des fonctions matricielles et recherche multicritères.</li>',
+      '      <li><strong>Contrôle de cohérence :</strong> Validation des saisies, alertes automatiques et gestion des erreurs (#N/A, #DIV/0!).</li>',
+      '      <li><strong>Restitution décisionnelle :</strong> Qualité visuelle du tableau de bord exécutif et clarté de lecture.</li>',
+      '      <li><strong>Fiabilité &amp; pérennité :</strong> Séparation nette entre données brutes, calculs intermédiaires et restitutions.</li>',
+      '    </ol>'
     ].join('\n')),
-    box('method', 'Grille d\'auto-évaluation du projet (sur 100)', 'blocks', [
-      '    ' + bands([
-        { cls: '', text: 'Lecture des deux blocs et parsing correct <strong>20</strong>' },
-        { cls: '', text: 'Validation des orientations <strong>20</strong>' },
-        { cls: '', text: 'Commission à paliers correcte <strong>20</strong>' },
-        { cls: '', text: 'Bilans agrégés (conformes, moyenne) <strong>20</strong>' },
-        { cls: '', text: 'Verdict final conforme <strong>20</strong>' }
-      ]),
-      '    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>'
-    ].join('\n')),
-    '  <details>',
-    '    <summary>Voir une solution de référence (après avoir essayé !)</summary>',
-    '    <div class="sol">',
-    '      <pre><code>' + [
-    'read -r n_docs',
-    'conformes=0',
-    'tout_ok=1',
-    'for ((k=0; k&lt;n_docs; k++)); do',
-    '  read -r doc genre',
-    '  case "$genre" in',
-    '    lettre|rapport) attendu="portrait" ;;',
-    '    tableau) attendu="paysage" ;;',
-    '  esac',
-    '  read -r orientation',
-    '  if [ "$orientation" = "$attendu" ]; then',
-    '    echo "$doc : conforme"',
-    '    conformes=$((conformes + 1))',
-    '  else',
-    '    echo "$doc : orientation a revoir"',
-    '    tout_ok=0',
-    '  fi',
-    'done',
-    'read -r n_ventes',
-    'tot=0',
-    'for ((k=0; k&lt;n_ventes; k++)); do',
-    '  read -r vendeur ca',
-    '  if [ "$ca" -ge 50000 ]; then taux=20',
-    '  elif [ "$ca" -ge 10000 ]; then taux=15',
-    '  else taux=10',
-    '  fi',
-    '  echo "$vendeur : $taux%"',
-    '  tot=$((tot + taux))',
-    'done',
-    'echo "dossiers conformes : $conformes/$n_docs"',
-    'echo "commission moyenne : $((tot / n_ventes))%"',
-    'if [ "$tout_ok" = "1" ]; then',
-    '  echo "verdict : secreariat prete"',
-    'else',
-    '  echo "verdict : revision requise"',
-    'fi'
-    ].join('\n') + '</code></pre>',
-    '      Cette solution combine validation d\'orientation, commission à paliers, agrégation ' +
-    'et verdict global — les chapitres 2, 5 et 6 en un seul script.',
-    '    </div>',
-    '  </details>',
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../chapitres/simulateur-examen.html', label: 'Examens blancs' }),
-    disclaimer(course, 'Exercices construits d\'après les supports de cours « Microsoft Office Word », « Le logiciel tableur Excel » et « Initiation PowerPoint » (AHADJI Katé Kékéli). ')
+    disclaimer(course, 'Exercices construits à partir du programme officiel de bureautique avancée B1.')
   ].join('\n\n');
 
   return {
     'exercices/exercices.html': {
-      title: 'Exercices &amp; projet intégrateur — ' + course.brand,
-      description: 'Exercices supplémentaires et projet intégrateur du cours de Bureautique B1 : scripts ' +
-        'Bash gradués et classeur de bord du secrétariat.',
+      title: 'Exercices &amp; dossier de synthèse — ' + course.brand,
+      description: 'Exercices supplémentaires et dossier de modélisation sous tableur B1 : formules avancées, TCD et tableaux de bord.',
       active: 'exercices',
       body
     }
@@ -825,7 +602,7 @@ function render(kit, course, chapterList) {
     pages['chapitres/chapitre' + chapitre.n + '.html'] = {
       title: 'Chapitre ' + chapitre.n + ' — ' + chapitre.title + ' | ' + course.brand,
       description: 'Chapitre ' + chapitre.n + ' du cours de Bureautique B1 : ' + chapitre.toc +
-        ' Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.',
+        ' Théorie, exemples détaillés, études de cas d’application, QCM corrigés.',
       active: 'ch' + chapitre.n,
       dataChapter: chapitre.n,
       body

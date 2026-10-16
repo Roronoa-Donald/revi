@@ -119,7 +119,7 @@ function atelier(course) {
     '  <p class="lead">Simulez vos diagrammes, vérifiez vos contraintes OCL, validez vos machines à états et analysez vos traces de séquence dans l’environnement Python interactif.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="CLASS Utilisateur -id:int +nom:str">',
     '    <script type="text/plain" data-lab-starter># Zone libre : simulez, modélisez et validez vos architectures UML en Python.\nprint("Zone libre UML B2 : pret a executer.")\n</script>',

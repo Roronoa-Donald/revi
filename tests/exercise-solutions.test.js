@@ -236,6 +236,11 @@ test('corrigés : chaque solution passe ses propres tests', async t => {
 
     for (const example of exercise.examples) {
       await t.test(`${exercise.id} · exemple visible`, () => {
+        if (exercise.language === 'analyse') {
+          assert.ok(typeof example.expected === 'string' && example.expected.trim().length > 0);
+          checks++;
+          return;
+        }
         const run = prepared.run(example.stdin);
         assert.ok(run.ok, `échec d'exécution : ${run.stderr.split('\n').slice(-3).join(' ')}`);
         assert.strictEqual(normalizeOutput(run.stdout), normalizeOutput(example.expected));

@@ -123,14 +123,14 @@ function atelier(course) {
 
   const body = [
     crumbs,
-    '  <h1>Laboratoire Interactif &amp; Bac à Sable Cryptographie &amp; PKI en Python 3</h1>',
-    '  <p class="lead">Expérimentez et validez vos algorithmes cryptographiques en Python 3 : substitution et décalage, chiffrement par flux LFSR, validation de padding PKCS#7, calculs d\'empreintes SHA-256 et vérification de chaînes PKI X.509.</p>',
+    '  <h1>Laboratoire Interactif &amp; Bac à Sable Cryptographie &amp; PKI selon les grilles d’analyse</h1>',
+    '  <p class="lead">Expérimentez et validez vos algorithmes cryptographiques selon les grilles d’analyse : substitution et décalage, chiffrement par flux LFSR, validation de padding PKCS#7, calculs d\'empreintes SHA-256 et vérification de chaînes PKI X.509.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="openssl dgst -sha256 message.txt\nopenssl rsa -in key.pem -pubout\nopenssl x509 -in cert.crt -text">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos algorithmes de cryptographie et de vérification PKI en Python 3\nimport sys\nimport hashlib\n\ndef simuler_cryptographie_pki(commandes):\n    """Simule des opérations de hachage, chiffrement et validation de certificats PKI."""\n    resultats = []\n    for cmd in commandes:\n        digest = hashlib.sha256(cmd.encode("utf-8")).hexdigest()[:16]\n        resultats.append(f"CRYPTO_EXEC: {cmd} -> DIGEST_PREVIEW={digest} STATUS=SUCCESS")\n    return resultats\n\nif __name__ == "__main__":\n    cmds = [l.strip() for l in sys.stdin if l.strip()]\n    for r in simuler_cryptographie_pki(cmds):\n        print(r)\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -153,7 +153,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Bac à sable Cryptographie & PKI — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos implémentations de cryptographie symétrique, asymétrique et PKI.',
+      description: 'Bac à sable interactif par cas d’application pour tester vos implémentations de cryptographie symétrique, asymétrique et PKI.',
       active: 'atelier',
       body
     }

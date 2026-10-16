@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -155,27 +156,41 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="lan3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PORT_SEC port=Fa0/1 max_mac=1 mode=shutdown sticky_macs=00:11:22:33:44:01&#10;FRAME id=F1 src_mac=00:11:22:33:44:01&#10;FRAME id=F2 src_mac=00:aa:bb:cc:dd:02&#10;FRAME id=F3 src_mac=00:11:22:33:44:01">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c5-e1) — Contrôleur de Port Security et détection de violation (Protect, Restrict, Shutdown)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Mode restrict conservant le port UP avec drop et alerte]
+# Données : PORT_SEC port=Gi0/1 max_mac=1 mode=restrict sticky_macs=00:00:00:00:00:01
+# Données : FRAME id=R1 src_mac=00:00:00:00:00:01
+# Données : FRAME id=R2 src_mac=00:00:00:00:00:99
+# Données : FRAME id=R3 src_mac=00:00:00:00:00:01
+A_COMPLETER
 
-# À compléter : gérer la table des MACs autorisées et réagir aux violations
+[Cas 2 — Mode protect silencieux]
+# Données : PORT_SEC port=Fa0/5 max_mac=1 mode=protect sticky_macs=NONE
+# Données : FRAME id=P1 src_mac=00:50:56:00:00:01
+# Données : FRAME id=P2 src_mac=00:50:56:00:00:02
+A_COMPLETER
+
+[Cas 3 — Apprentissage dynamique jusqu'à max_mac=2]
+# Données : PORT_SEC port=Eth1 max_mac=2 mode=shutdown sticky_macs=NONE
+# Données : FRAME id=D1 src_mac=00:01:02:03:04:01
+# Données : FRAME id=D2 src_mac=00:01:02:03:04:02
+# Données : FRAME id=D3 src_mac=00:01:02:03:04:03
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Contrôleur de Port Security et détection de violation (Protect, Restrict, Shutdown)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -186,19 +201,17 @@ Modes de violation lorsqu'une adresse MAC non autorisée émet une trame :<br>
 - <strong>protect :</strong> Détruit silencieusement la trame sans générer de log ni incrémenter de compteur ; le port reste opérationnel pour les MACs légitimes (&rarr; <code>action=DROP_SILENT state=UP</code>).<br>
 - <strong>restrict :</strong> Détruit la trame, incrémente le compteur de violations et émet un piège SNMP / log syslog ; le port reste UP (&rarr; <code>action=DROP_ALERT state=UP</code>).<br>
 - <strong>shutdown :</strong> Désactive immédiatement le port physique qui passe en état d'erreur irrécupérable <code>ERR_DISABLE</code> (&rarr; <code>action=PORT_SHUTDOWN state=ERR_DISABLE</code>). Toutes les trames suivantes reçues sur ce port sont rejetées (&rarr; <code>action=DROP state=ERR_DISABLE</code>).<br><br>
-Le script lit sur l'entrée standard :<br>
-- La configuration du port :<br>
-  <code>PORT_SEC port=&lt;nom&gt; max_mac=&lt;int&gt; mode=&lt;protect|restrict|shutdown&gt; sticky_macs=&lt;mac1,mac2,...|NONE&gt;</code><br>
+Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code><br>
 - Les trames arrivant sur le port :<br>
   <code>FRAME id=&lt;nom&gt; src_mac=&lt;mac&gt;</code><br><br>
 Pour chaque trame, afficher :<br>
 <code>PORT_SEC_REPORT id={id} port={port} mac={src_mac} status={PERMIT|VIOLATION|PORT_DOWN} action={action} state={state}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PORT_SEC port=Fa0/1 max_mac=1 mode=shutdown sticky_macs=00:11:22:33:44:01
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PORT_SEC port=Fa0/1 max_mac=1 mode=shutdown sticky_macs=00:11:22:33:44:01
 FRAME id=F1 src_mac=00:11:22:33:44:01
 FRAME id=F2 src_mac=00:aa:bb:cc:dd:02
 FRAME id=F3 src_mac=00:11:22:33:44:01</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PORT_SEC_REPORT id=F1 port=Fa0/1 mac=00:11:22:33:44:01 status=PERMIT action=FORWARD state=UP
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PORT_SEC_REPORT id=F1 port=Fa0/1 mac=00:11:22:33:44:01 status=PERMIT action=FORWARD state=UP
 PORT_SEC_REPORT id=F2 port=Fa0/1 mac=00:aa:bb:cc:dd:02 status=VIOLATION action=PORT_SHUTDOWN state=ERR_DISABLE
 PORT_SEC_REPORT id=F3 port=Fa0/1 mac=00:11:22:33:44:01 status=PORT_DOWN action=DROP state=ERR_DISABLE</pre></div>
     </div>
@@ -216,19 +229,32 @@ PORT_SEC_REPORT id=F3 port=Fa0/1 mac=00:11:22:33:44:01 status=PORT_DOWN action=D
 
 <div class="lab" data-lab
      data-exercise="lan3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PORT_TRUST name=Gi0/1 trust=UNTRUSTED&#10;PORT_TRUST name=Gi0/24 trust=TRUSTED&#10;DHCP_MSG id=M1 port=Gi0/1 type=DISCOVER client_mac=00:11:22:33:44:01 assigned_ip=0.0.0.0 vlan=10&#10;DHCP_MSG id=M2 port=Gi0/1 type=OFFER client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10&#10;DHCP_MSG id=M3 port=Gi0/24 type=ACK client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c5-e2) — Validateur de base de données de liaison DHCP Snooping
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Tentative d'émission de DHCP ACK frauduleux sur port utilisateur]
+# Données : PORT_TRUST name=Fa0/12 trust=UNTRUSTED
+# Données : DHCP_MSG id=ROGUE_ACK port=Fa0/12 type=ACK client_mac=00:aa:bb:cc:dd:ee assigned_ip=10.0.0.99 vlan=1
+A_COMPLETER
 
-# À compléter : classifier les ports et sécuriser les échanges DHCP
+[Cas 2 — Requête REQUEST valide émise sur port untrusted]
+# Données : PORT_TRUST name=Gi0/2 trust=UNTRUSTED
+# Données : DHCP_MSG id=REQ1 port=Gi0/2 type=REQUEST client_mac=00:50:56:11:22:33 assigned_ip=172.16.1.100 vlan=20
+A_COMPLETER
+
+[Cas 3 — Uplink de distribution de confiance acheminant Discover et Offer]
+# Données : PORT_TRUST name=Trunk1 trust=TRUSTED
+# Données : DHCP_MSG id=UPL1 port=Trunk1 type=DISCOVER client_mac=00:00:00:00:00:01 assigned_ip=0.0.0.0 vlan=100
+# Données : DHCP_MSG id=UPL2 port=Trunk1 type=OFFER client_mac=00:00:00:00:00:01 assigned_ip=10.100.0.5 vlan=100
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Validateur de base de données de liaison DHCP Snooping</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -237,13 +263,7 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
     <div class="lab__brief"><p>L'attaque par serveur DHCP pirate (Rogue DHCP Server) permet à un attaquant de distribuer de fausses passerelles et de faux serveurs DNS aux postes du réseau. La parade <strong>DHCP Snooping</strong> classe les ports du commutateur en deux catégories :<br>
 - <strong>Ports de confiance (TRUSTED) :</strong> Reliés aux serveurs DHCP légitimes ou aux uplinks de distribution. Tous les messages DHCP y sont autorisés.<br>
 - <strong>Ports non fiables (UNTRUSTED) :</strong> Reliés aux utilisateurs finals. Seules les requêtes clients (<code>DISCOVER</code>, <code>REQUEST</code>) y sont autorisées. Si une réponse serveur (<code>OFFER</code> ou <code>ACK</code>) y est détectée, elle est immédiatement détruite et signalée comme attaque Rogue DHCP.<br><br>
-Le script lit sur l'entrée standard :<br>
-- La configuration de confiance des ports :<br>
-  <code>PORT_TRUST name=&lt;nom&gt; trust=&lt;TRUSTED|UNTRUSTED&gt;</code><br>
-- Les paquets DHCP interceptés :<br>
-  <code>DHCP_MSG id=&lt;nom&gt; port=&lt;nom&gt; type=&lt;DISCOVER|OFFER|REQUEST|ACK&gt; client_mac=&lt;mac&gt; assigned_ip=&lt;ip&gt; vlan=&lt;int&gt;</code><br><br>
-Règles de traitement :<br>
-1. Si <code>port.trust == 'UNTRUSTED'</code> et <code>type in ['OFFER', 'ACK']</code> :<br>
+Analysez les paramètres du problème pour chaque cas. Si <code>port.trust == 'UNTRUSTED'</code> et <code>type in ['OFFER', 'ACK']</code> :<br>
    <code>status=SECURITY_VIOLATION action=DROP reason=ROGUE_DHCP_SERVER</code>.<br>
 2. Si <code>port.trust == 'UNTRUSTED'</code> et <code>type in ['DISCOVER', 'REQUEST']</code> :<br>
    <code>status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST</code>.<br>
@@ -253,12 +273,12 @@ Règles de traitement :<br>
 Pour chaque message, afficher :<br>
 <code>DHCP_SNOOP_REPORT id={id} port={port} type={type} status={status} action={action} reason={reason}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PORT_TRUST name=Gi0/1 trust=UNTRUSTED
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PORT_TRUST name=Gi0/1 trust=UNTRUSTED
 PORT_TRUST name=Gi0/24 trust=TRUSTED
 DHCP_MSG id=M1 port=Gi0/1 type=DISCOVER client_mac=00:11:22:33:44:01 assigned_ip=0.0.0.0 vlan=10
 DHCP_MSG id=M2 port=Gi0/1 type=OFFER client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10
 DHCP_MSG id=M3 port=Gi0/24 type=ACK client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DHCP_SNOOP_REPORT id=M1 port=Gi0/1 type=DISCOVER status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DHCP_SNOOP_REPORT id=M1 port=Gi0/1 type=DISCOVER status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST
 DHCP_SNOOP_REPORT id=M2 port=Gi0/1 type=OFFER status=SECURITY_VIOLATION action=DROP reason=ROGUE_DHCP_SERVER
 DHCP_SNOOP_REPORT id=M3 port=Gi0/24 type=ACK status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC</pre></div>
     </div>
@@ -275,19 +295,33 @@ DHCP_SNOOP_REPORT id=M3 port=Gi0/24 type=ACK status=PERMIT action=FORWARD reason
 
 <div class="lab" data-lab
      data-exercise="lan3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="BINDING mac=00:11:22:33:44:01 ip=192.168.1.10 vlan=10&#10;BINDING mac=00:11:22:33:44:02 ip=192.168.1.20 vlan=10&#10;ARP_FRAME id=ARP1 vlan=10 sender_mac=00:11:22:33:44:01 sender_ip=192.168.1.10 target_ip=192.168.1.1&#10;ARP_FRAME id=ARP2 vlan=10 sender_mac=00:aa:bb:cc:dd:ee sender_ip=192.168.1.10 target_ip=192.168.1.20&#10;ARP_FRAME id=ARP3 vlan=10 sender_mac=00:11:22:33:44:99 sender_ip=192.168.1.99 target_ip=192.168.1.1">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c5-e3) — Filtre anti-usurpation Dynamic ARP Inspection (DAI)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — VLANs multiples avec la même IP privée dans des domaines isolés]
+# Données : BINDING mac=00:00:00:00:00:01 ip=10.0.0.1 vlan=10
+# Données : BINDING mac=00:00:00:00:00:02 ip=10.0.0.1 vlan=20
+# Données : ARP_FRAME id=A1 vlan=10 sender_mac=00:00:00:00:00:01 sender_ip=10.0.0.1 target_ip=10.0.0.254
+# Données : ARP_FRAME id=A2 vlan=20 sender_mac=00:00:00:00:00:01 sender_ip=10.0.0.1 target_ip=10.0.0.254
+A_COMPLETER
 
-# À compléter : charger la table BINDING et inspecter chaque paquet ARP
+[Cas 2 — Toutes requêtes ARP légitimes]
+# Données : BINDING mac=00:22:33:44:55:66 ip=172.16.10.5 vlan=5
+# Données : ARP_FRAME id=OK vlan=5 sender_mac=00:22:33:44:55:66 sender_ip=172.16.10.5 target_ip=172.16.10.1
+A_COMPLETER
+
+[Cas 3 — Hôte inconnu non attribué par DHCP]
+# Données : BINDING mac=00:11:11:11:11:11 ip=192.168.1.5 vlan=1
+# Données : ARP_FRAME id=ROGUE vlan=1 sender_mac=00:99:99:99:99:99 sender_ip=192.168.1.200 target_ip=192.168.1.1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Filtre anti-usurpation Dynamic ARP Inspection (DAI)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -295,14 +329,7 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
     <p class="lab__goal"><strong>Objectif :</strong> Valider les trames ARP en croisant les couples (IP, MAC) avec la base de données DHCP Snooping.</p>
     <div class="lab__brief"><p>L'attaque par <strong>empoisonnement de cache ARP (ARP Poisoning / ARP Spoofing)</strong> permet à un pirate d'intercepter tout le trafic d'un sous-réseau en s'interposant entre les postes et la passerelle (Man-in-the-Middle).<br>
 Le mécanisme <strong>Dynamic ARP Inspection (DAI)</strong> intercepte toutes les requêtes et réponses ARP sur les ports non fiables et valide la cohérence du couple <code>(sender_ip, sender_mac)</code> par rapport à la base de liaison <strong>DHCP Snooping Binding Database</strong>.<br><br>
-Le script lit sur l'entrée standard :<br>
-- Les liaisons valides enregistrées dans la base Snooping :<br>
-  <code>BINDING mac=&lt;mac&gt; ip=&lt;ip&gt; vlan=&lt;int&gt;</code><br>
-- Les paquets ARP circulant sur le réseau :<br>
-  <code>ARP_FRAME id=&lt;nom&gt; vlan=&lt;int&gt; sender_mac=&lt;mac&gt; sender_ip=&lt;ip&gt; target_ip=&lt;ip&gt;</code><br><br>
-Règles d'inspection DAI :<br>
-Pour chaque paquet ARP :<br>
-1. Si le couple <code>(sender_mac, sender_ip, vlan)</code> correspond exactement à une entrée de la base BINDING :<br>
+Analysez les paramètres du problème pour chaque cas. Si le couple <code>(sender_mac, sender_ip, vlan)</code> correspond exactement à une entrée de la base BINDING :<br>
    <code>status=PERMIT action=FORWARD reason=BINDING_MATCH</code>.<br>
 2. Si <code>sender_ip</code> existe dans la base pour ce <code>vlan</code> mais avec une <code>mac</code> différente (usurpation d'IP avérée) :<br>
    <code>status=DENY action=DROP_ALERT reason=ARP_SPOOFING_DETECTED</code>.<br>
@@ -311,12 +338,12 @@ Pour chaque paquet ARP :<br>
 Pour chaque paquet ARP, afficher :<br>
 <code>DAI_AUDIT id={id} vlan={vlan} sender_ip={sender_ip} sender_mac={sender_mac} status={status} action={action} reason={reason}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BINDING mac=00:11:22:33:44:01 ip=192.168.1.10 vlan=10
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BINDING mac=00:11:22:33:44:01 ip=192.168.1.10 vlan=10
 BINDING mac=00:11:22:33:44:02 ip=192.168.1.20 vlan=10
 ARP_FRAME id=ARP1 vlan=10 sender_mac=00:11:22:33:44:01 sender_ip=192.168.1.10 target_ip=192.168.1.1
 ARP_FRAME id=ARP2 vlan=10 sender_mac=00:aa:bb:cc:dd:ee sender_ip=192.168.1.10 target_ip=192.168.1.20
 ARP_FRAME id=ARP3 vlan=10 sender_mac=00:11:22:33:44:99 sender_ip=192.168.1.99 target_ip=192.168.1.1</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DAI_AUDIT id=ARP1 vlan=10 sender_ip=192.168.1.10 sender_mac=00:11:22:33:44:01 status=PERMIT action=FORWARD reason=BINDING_MATCH
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DAI_AUDIT id=ARP1 vlan=10 sender_ip=192.168.1.10 sender_mac=00:11:22:33:44:01 status=PERMIT action=FORWARD reason=BINDING_MATCH
 DAI_AUDIT id=ARP2 vlan=10 sender_ip=192.168.1.10 sender_mac=00:aa:bb:cc:dd:ee status=DENY action=DROP_ALERT reason=ARP_SPOOFING_DETECTED
 DAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 status=DENY action=DROP reason=UNKNOWN_HOST_BINDING</pre></div>
     </div>
@@ -494,6 +521,29 @@ DAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 st
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

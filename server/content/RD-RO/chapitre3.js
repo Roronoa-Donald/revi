@@ -37,14 +37,20 @@ module.exports = {
       html: [
         '<p>L’algorithme du simplexe ne cherche pas au hasard. Il applique un principe d’<strong>ascension systématique</strong> :</p>',
 
-        '<pre><code>// La marche de Dantzig sur le polygone\n' +
-        'Sommet initial (ex. Origine 0,0)  [Z = 0]\n' +
-        '       &darr;  Choix de l’arête de plus forte pente (critère de Dantzig)\n' +
-        'Sommet adjacent 1                 [Z = 120]\n' +
-        '       &darr;  Pivot de Gauss-Jordan\n' +
-        'Sommet adjacent 2                 [Z = 160]\n' +
-        '       &darr;  Aucune arête n’améliore Z (tous les coûts réduits &le; 0)\n' +
-        'SOMMET OPTIMAL GLOBAL ATTEINT !   [Z* = 160]</code></pre>',
+        box('standard', 'La marche de Dantzig de sommet en sommet', [
+          '<div class="box--formula">',
+          '  <span class="formula-label">Itération 0 — Sommet initial (Origine)</span>',
+          '  <p>Base $s = b$, variables de décision hors-base $x_1 = x_2 = 0 \\implies Z = 0$.</p>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">Itération 1 — Choix de la plus forte pente</span>',
+          '  <p>Entrée de la variable au coût réduit $\\bar{c}_k > 0$ le plus élevé, pivotage $\\implies Z = 120$.</p>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">Itération 2 — Atteinte du sommet optimal</span>',
+          '  <p>Nouvelle amélioration jusqu’à ce que tous les coûts réduits soient $\\le 0 \\implies Z^* = 160$ (Optimum prouvé).</p>',
+          '</div>'
+        ].join('\n')),
 
         box('info', 'Pourquoi le simplexe est-il si rapide ?', [
           '<p>Bien que le nombre théorique de sommets puisse être exponentiel dans le pire des cas (Klee-Minty), ' +
@@ -101,18 +107,23 @@ module.exports = {
       html: [
         '<p>Chaque itération du simplexe applique rigoureusement les quatre étapes suivantes :</p>',
 
-        '<pre><code>// 1. Choix de la colonne pivot (Variable entrante)\n' +
-        'Chercher le coût réduit le plus strictement positif : k = argmax { &Delta;j | &Delta;j &gt; 0 }.\n' +
-        'Si aucun &Delta;j &gt; 0 : STOP, le tableau est optimal.\n\n' +
-        '// 2. Choix de la ligne pivot (Variable sortante - Règle du ratio minimum)\n' +
-        'Pour chaque ligne i où a_ik &gt; 0, calculer le ratio &theta;i = b_i / a_ik.\n' +
-        'La ligne pivot r est celle qui minimise ce ratio : r = argmin { &theta;i | a_ik &gt; 0 }.\n' +
-        'Si tous les a_ik &le; 0 : STOP, le problème est non borné (Z &rarr; +&infin;).\n\n' +
-        '// 3. Identification de l’élément de pivot\n' +
-        'L’élément p = A[r][k] est le pivot d’intersection.\n\n' +
-        '// 4. Pivotage de Gauss-Jordan\n' +
-        '- Ligne r : Lr &larr; Lr / p (le pivot devient 1)\n' +
-        '- Autres lignes i &ne; r : Li &larr; Li - A[i][k] * Lr (la colonne pivot s’annule)</code></pre>'
+        box('formula', 'Algorithme d’itération du simplexe en 4 étapes clés', [
+          '<div class="box--formula">',
+          '  <span class="formula-label">1. Variable entrante (colonne pivot $k$)</span>',
+          '  <div class="math-block">$$k = \\operatorname{argmax} \\{ \\bar{c}_j \\mid \\bar{c}_j > 0 \\}$$</div>',
+          '  <p>Si aucun $\\bar{c}_j > 0$, la solution courante est optimale (STOP).</p>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">2. Variable sortante (ligne pivot $r$ — Test du ratio minimum)</span>',
+          '  <div class="math-block">$$r = \\operatorname{argmin} \\left\\{ \\theta_i = \\frac{b_i}{a_{ik}} \\;\\middle|\\; a_{ik} > 0 \\right\\}$$</div>',
+          '  <p>Si tous les $a_{ik} \\le 0$, le domaine est ouvert : le problème est non borné ($Z \\to +\\infty$).</p>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">3. Pivot de Gauss-Jordan</span>',
+          '  <p>Le coefficient $p = a_{rk}$ est le pivot. On normalise la ligne du pivot : $L_r \\leftarrow \\frac{L_r}{p}$.</p>',
+          '  <p>Pour chaque autre ligne $i \\ne r$ : $L_i \\leftarrow L_i - a_{ik} L_r$ (élimination sur la colonne $k$).</p>',
+          '</div>'
+        ].join('\n'))
       ].join('\n')
     }
   ],

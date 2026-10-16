@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Exercices &amp;amp; projet intégrateur — Modélisation (MERISE) B1</title>
-<meta name="description" content="Exercices supplémentaires et projet intégrateur du cours de Modélisation (MERISE) B1 : scripts Bash gradués et chaîne complète d'analyse d'un système de facturation.">
+<title>Exercices &amp;amp; dossier de synthèse — Modélisation (MERISE) B1</title>
+<meta name="description" content="Exercices supplémentaires et dossier de modélisation Merise B1 : MCD, MLD normalisé en 3FN et processus MCT.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b1-merise/exercices/exercices.html">
-<meta property="og:title" content="Exercices &amp;amp; projet intégrateur — Modélisation (MERISE) B1">
-<meta property="og:description" content="Exercices supplémentaires et projet intégrateur du cours de Modélisation (MERISE) B1 : scripts Bash gradués et chaîne complète d'analyse d'un système de facturation.">
+<meta property="og:title" content="Exercices &amp;amp; dossier de synthèse — Modélisation (MERISE) B1">
+<meta property="og:description" content="Exercices supplémentaires et dossier de modélisation Merise B1 : MCD, MLD normalisé en 3FN et processus MCT.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body>
@@ -52,66 +53,24 @@
 <main id="content" class="mrwrap">
 <p class="crumb"><a href="../index.html">Modélisation (MERISE) B1</a> › <a href="../sommaire.html">Sommaire</a> › Exercices</p>
 
-  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>
+  <h1>Exercices supplémentaires &amp; cas pratiques</h1>
 
-  <p class="lead">De la pratique graduée pour consolider chaque module, puis un projet final qui déroule la chaîne complète d'analyse. Les scripts sont en Bash, comme à l'atelier.</p>
+  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier de modélisation conceptuelle, logique et organisationnelle du système d’information.</p>
 
   <h2>Entraînement rapide (acquisition)</h2>
 
   <div class="item">
     <div class="item__head"><span class="badge badge--n1">Échauffement</span></div>
     <ol>
-      <li>Lit n valeurs « d » ou « i » suivies d'un libellé et affiche donnée ou information, puis les deux compteurs.</li>
-      <li>Lit n modèles (MCD, MLD, MPD, MCT, MOT, MOpT) et affiche leur niveau (conceptuel, logique, physique).</li>
-      <li>Lit n propriétés « nom nature » (el, co, ca) et affiche conservee ou ecartee, puis le total retenu.</li>
-      <li>Lit n couples « min max » et affiche la cardinalité en toutes lettres (au plus une, exactement une, zero ou plusieurs, au moins une).</li>
+      <li>Identifier les entités, propriétés et identifiants uniques dans un texte de cahier des charges.</li>
+      <li>Positionner correctement les cardinalités minimales (0 ou 1) et maximales (1 ou n) sur une association binaire.</li>
+      <li>Distinguer une propriété d’entité d’une propriété portée par une association.</li>
+      <li>Appliquer la règle de passage du MCD au MLD pour une association binaire de type (1,1)-(0,n).</li>
     </ol>
-    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
-donnees=0
-infos=0
-for ((k=0; k&lt;n; k++)); do
-  read -r type libelle
-  if [ "$type" = "d" ]; then
-    echo "$libelle : donnee"
-    donnees=$((donnees + 1))
-  else
-    echo "$libelle : information"
-    infos=$((infos + 1))
-  fi
-done
-echo "donnees : $donnees / informations : $infos"
-
-read -r n
-for ((k=0; k&lt;n; k++)); do
-  read -r modele
-  case "$modele" in
-    MCD|MCT) echo "$modele : conceptuel" ;;
-    MLD|MOT) echo "$modele : logique" ;;
-    MPD|MOpT) echo "$modele : physique" ;;
-  esac
-done
-
-read -r n
-retenues=0
-for ((k=0; k&lt;n; k++)); do
-  read -r nom nature
-  if [ "$nature" = "ca" ]; then
-    echo "$nom : ecartee"
-  else
-    echo "$nom : conservee"
-    retenues=$((retenues + 1))
-  fi
-done
-echo "retenu : $retenues"
-
-read -r n
-for ((k=0; k&lt;n; k++)); do
-  read -r min max
-  if [ "$min" = "0" ] &amp;&amp; [ "$max" = "1" ]; then echo "au plus une"
-  elif [ "$min" = "1" ] &amp;&amp; [ "$max" = "1" ]; then echo "exactement une"
-  elif [ "$min" = "0" ] &amp;&amp; [ "$max" = "n" ]; then echo "zero ou plusieurs"
-  else echo "au moins une"; fi
-done</code></pre></div></details>
+    <details><summary>Corrections &amp; modèles Merise</summary><div class="sol"><p><strong>1. Entité &amp; identifiant :</strong> Une entité regroupe des occurrences homogènes ; son identifiant garantit l’unicité absolue de chaque occurrence.</p>
+<p><strong>2. Cardinalités :</strong> 0,1 (au plus un) ; 1,1 (exactement un) ; 0,n (zéro, un ou plusieurs) ; 1,n (au moins un).</p>
+<p><strong>3. Propriété portée :</strong> Une propriété appartient à une association quand sa valeur dépend conjointement des deux entités reliées (ex: <em>quantité_commandée</em> dépend de Commande et Produit).</p>
+<p><strong>4. Règle de passage 1,1 - 0,n :</strong> L’identifiant de l’entité côté 0,n migre comme clé étrangère (FK) dans la table côté 1,1.</p></div></details>
   </div>
 
   <h2>Application</h2>
@@ -119,62 +78,15 @@ done</code></pre></div></details>
   <div class="item">
     <div class="item__head"><span class="badge badge--n2">Application</span></div>
     <ol>
-      <li>Valide un dictionnaire : lit n propriétés « nom type » et refuse les types inconnus (hors el/co/ca), puis liste le dictionnaire validé.</li>
-      <li>Détecte les DF dont la source est vide ou égale à la cible (A → A est interdite), et compte les DF exploitables.</li>
-      <li>Traduit les cardinalités en règle de passage : lit « nature cardinalite » (entite/assoc + max) et affiche table, table ou # migre.</li>
-      <li>Vérifie un schéma : lit n lignes « table champ role » et refuse un # vers une table sans clé primaire déclarée.</li>
+      <li>Modéliser une association plusieurs-à-plusieurs (0,n)-(0,n) et en déduire la table de liaison au niveau MLD.</li>
+      <li>Vérifier les trois premières formes normales (1FN, 2FN, 3FN) sur un schéma relationnel.</li>
+      <li>Représenter un Modèle Conceptuel de Traitements (MCT) avec événements déclencheurs, opérations et synchronisations.</li>
+      <li>Gérer les associations réflexives (ex: salarié managé par un autre salarié) au niveau conceptuel et logique.</li>
     </ol>
-    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
-declare -A dico
-for ((k=0; k&lt;n; k++)); do
-  read -r nom type
-  case "$type" in
-    el|co|ca) dico[$nom]=$type ; echo "$nom : valide" ;;
-    *) echo "$nom : type inconnu" ;;
-  esac
-done
-
-read -r n
-exploitables=0
-for ((k=0; k&lt;n; k++)); do
-  read -r source cible
-  if [ -z "$source" ] || [ "$source" = "$cible" ]; then
-    echo "$source → $cible : inexploitable"
-  else
-    echo "$source → $cible : ok"
-    exploitables=$((exploitables + 1))
-  fi
-done
-echo "df exploitables : $exploitables"
-
-read -r n
-for ((k=0; k&lt;n; k++)); do
-  read -r nature max
-  if [ "$nature" = "entite" ]; then
-    echo "table"
-  elif [ "$max" = "n" ]; then
-    echo "table"
-  else
-    echo "cle migree (#)"
-  fi
-done
-
-read -r n
-declare -A cles
-declare -A refs
-for ((k=0; k&lt;n; k++)); do
-  read -r table champ role
-  if [ "$role" = "pk" ]; then
-    cles[$table]=$champ
-    echo "$table.$champ : pk declaree"
-  elif [ "$role" = "fk" ]; then
-    if [ -n "${cles[$champ]:-}" ]; then
-      echo "$table.$champ : fk valide"
-    else
-      echo "$table.$champ : reference sans pk"
-    fi
-  fi
-done</code></pre></div></details>
+    <details><summary>Corrections &amp; modèles Merise</summary><div class="sol"><p><strong>1. Association n-n :</strong> L’association devient une table dédiée dont la clé primaire est la concaténation des deux clés primaires des entités reliées.</p>
+<p><strong>2. Formes normales :</strong> 1FN (valeurs atomiques) ; 2FN (1FN + dépendance totale de la clé) ; 3FN (2FN + pas de dépendance transitive entre colonnes non-clés).</p>
+<p><strong>3. MCT :</strong> Événement entrant &rarr; Règle de synchronisation (ET / OU) &rarr; Opération métier &rarr; Événement résultat émis selon conditions.</p>
+<p><strong>4. Réflexive :</strong> La table héberge une clé étrangère pointant vers sa propre clé primaire (auto-jointure).</p></div></details>
   </div>
 
   <h2>Raisonnement</h2>
@@ -182,166 +94,33 @@ done</code></pre></div></details>
   <div class="item">
     <div class="item__head"><span class="badge badge--n3">Raisonnement</span></div>
     <ol>
-      <li>Reconstruit les DF par transitivité : lit n DF « A B » et affiche les DF déduites A → C quand B → C existe (une passe).</li>
-      <li>Classe les violations : lit n lignes « forme attribut » (1fn/2fn/3fn + nom) et compte les violations par forme.</li>
-      <li>Compare deux schémas : lit n tables « nom nb_attributs » par schéma (2 blocs) et affiche lequel est le plus décomposé et de combien.</li>
-      <li>Simule une décomposition : lit n attributs de LIGNE_CDE marqués cle/ref/dep et affiche les deux tables résultantes.</li>
+      <li>Concevoir le schéma conceptuel complet (MCD) d’une plateforme de réservation d’hôtels avec gestion des chambres, tarifs saisonniers et paiements.</li>
+      <li>Résoudre les redondances et boucles d’associations en isolant les dépendances fonctionnelles strictes.</li>
+      <li>Traduire le Modèle Organisationnel des Traitements (MOT) en précisant les postes de travail, la nature des tâches (manuelle/automatisée) et la périodicité.</li>
+      <li>Rédiger le dictionnaire des données normalisé avec types, longueurs et contraintes d’intégrité.</li>
     </ol>
-    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
-declare -A cibles
-declare -A sources
-for ((k=0; k&lt;n; k++)); do
-  read -r a b
-  cibles[$a]="$b"
-done
-for a in "${!cibles[@]}"; do
-  b="${cibles[$a]}"
-  if [ -n "${cibles[$b]:-}" ]; then
-    echo "$a → ${cibles[$b]} (par $b)"
-  fi
-done
-
-read -r n
-v1=0 ; v2=0 ; v3=0
-for ((k=0; k&lt;n; k++)); do
-  read -r forme attribut
-  case "$forme" in
-    1fn) v1=$((v1 + 1)) ; echo "1FN violee par $attribut" ;;
-    2fn) v2=$((v2 + 1)) ; echo "2FN violee par $attribut" ;;
-    3fn) v3=$((v3 + 1)) ; echo "3FN violee par $attribut" ;;
-  esac
-done
-echo "violations : $v1 / $v2 / $v3"
-
-read -r na
-somme_a=0 ; tables_a=0
-for ((k=0; k&lt;na; k++)); do
-  read -r nom attrs
-  somme_a=$((somme_a + attrs))
-  tables_a=$((tables_a + 1))
-done
-read -r nb
-somme_b=0 ; tables_b=0
-for ((k=0; k&lt;nb; k++)); do
-  read -r nom attrs
-  somme_b=$((somme_b + attrs))
-  tables_b=$((tables_b + 1))
-done
-if [ "$tables_a" -gt "$tables_b" ]; then
-  echo "schema A plus decompose (+$((tables_a - tables_b)) tables)"
-else
-  echo "schema B plus decompose (+$((tables_b - tables_a)) tables)"
-fi
-
-read -r n
-table1=""
-table2=""
-for ((k=0; k&lt;n; k++)); do
-  read -r attribut role
-  if [ "$role" = "ref" ] || [ "$role" = "dep" ]; then
-    table1="$table1 $attribut"
-  else
-    table2="$table2 $attribut"
-  fi
-done
-echo "PRODUIT :$table1"
-echo "LIGNE_CDE :$table2"</code></pre></div></details>
+    <details><summary>Corrections &amp; modèles Merise</summary><div class="sol"><p><strong>1. MCD Hôtellerie :</strong> Entités Hôtel, Chambre, Client, Réservation, Facture avec associations tarification saisonnière et occupation.</p>
+<p><strong>2. Dépendances fonctionnelles :</strong> Chaque dépendance non élémentaire ou transitive est décomposée pour garantir l’intégrité sans duplication.</p>
+<p><strong>3. MOT :</strong> Découpage en phases organisationnelles : poste Accueil (temps réel), traitement batch facturation (quotidien différé).</p>
+<p><strong>4. Dictionnaire :</strong> Nom canonique, Libellé métier, Type SQL, Longueur, Contrainte de non-nullité et domaine de valeurs autorisées.</p></div></details>
   </div>
 
-  <h2>Projet intégrateur — « chaîne d'analyse complète »</h2>
+  <h2>Dossier de synthèse — Conception du Système d’Information Merise</h2>
 
   <div class="box box--situation">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges</div>
-    <p>Le script reçoit le journal d'une mission d'analyse : d'abord <code>n_regles</code> règles de gestion au format <code>source cible</code> (chaque source détermine sa cible), puis <code>n_docs</code> propriétés relevées sur les documents au format <code>nom nature</code> (el, co, ca). Il produit le rapport d'analyse : propriétés retenues (el et co) et écartées (ca), DF élémentaires dédoublonnées, identifiant candidat (source qui détermine le plus de cibles), et verdict de couverture : « complet » si toute propriété retenue est cible d'au moins une DF ou identifiant, « a completer » sinon.</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges du Dossier</div>
+    <p>Ce projet intégrateur consiste à concevoir l’intégralité du système d’information d’un réseau logistique de transport : élaboration du dictionnaire de données, matrice des dépendances fonctionnelles, MCD, MLD normalisé en 3FN et Modèle Conceptuel des Traitements (MCT).</p>
   </div>
 
   <div class="box box--objectifs">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Fonctionnalités attendues</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Compétences de modélisation évaluées</div>
     <ol>
-      <li><strong>Lire</strong> les deux blocs dans l'ordre, sans mélanger règles et propriétés.</li>
-      <li><strong>Filtrer</strong> les propriétés par nature et compter chaque décision.</li>
-      <li><strong>Dédoublonner</strong> les DF et compter les cibles par source (tableaux associatifs).</li>
-      <strong><li>Désigner</li></strong> l'identifiant candidat au maximum de cibles.
-      <li><strong>Conclure</strong> : couverture des propriétés retenues, verdict final.</li>
+      <li><strong>Rigueur conceptuelle :</strong> Absence totale de redondance et respect des formes normales.</li>
+      <li><strong>Traduction relationnelle :</strong> Dérivation mécanique irréprochable du MLD avec intégrité référentielle.</li>
+      <li><strong>Modélisation dynamique :</strong> Cohérence globale entre données statiques (MCD) et flux d’événements (MCT/MOT).</li>
+      <li><strong>Documentation professionnelle :</strong> Qualité graphique des diagrammes et clarté des règles de gestion métier.</li>
     </ol>
-    <p>Contraintes : un seul passage d'affichage par bloc, bilan après lecture complète, formats exacts du cahier des charges.</p>
   </div>
-
-  <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Grille d'auto-évaluation du projet (sur 100)</div>
-    <div class="bands">
-      <div class="bandrow">Lecture des deux blocs et filtrage des natures <strong>20</strong></div>
-      <div class="bandrow">DF dédoublonnées et comptage par source <strong>20</strong></div>
-      <div class="bandrow">Identifiant candidat correct <strong>20</strong></div>
-      <div class="bandrow">Verdict de couverture conforme <strong>20</strong></div>
-      <div class="bandrow">Rapport lisible et formats exacts <strong>20</strong></div>
-    </div>
-    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>
-  </div>
-
-  <details>
-
-    <summary>Voir une solution de référence (après avoir essayé !)</summary>
-
-    <div class="sol">
-
-      <pre><code>read -r n_regles
-declare -A cibles_par_source
-declare -A comptes
-declare -A vues_df
-sources=()
-for ((k=0; k&lt;n_regles; k++)); do
-  read -r source cible
-  if [ -z "${vues_df[$source|$cible]:-}" ]; then
-    vues_df[$source|$cible]=1
-    if [ -z "${comptes[$source]:-}" ]; then
-      comptes[$source]=0
-      sources+=("$source")
-    fi
-    comptes[$source]=$(( ${comptes[$source]} + 1 ))
-  fi
-done
-read -r n_docs
-retenues=0
-ecartees=0
-declare -A retenus
-for ((k=0; k&lt;n_docs; k++)); do
-  read -r nom nature
-  if [ "$nature" = "ca" ]; then
-    echo "ecartee : $nom (calculee)"
-    ecartees=$((ecartees + 1))
-  else
-    echo "retenue : $nom"
-    retenus[$nom]=1
-    retenues=$((retenues + 1))
-  fi
-done
-max=0
-identifiant=""
-for s in "${sources[@]}"; do
-  if [ "${comptes[$s]}" -gt "$max" ]; then
-    max="${comptes[$s]}"
-    identifiant="$s"
-  fi
-done
-echo "identifiant candidat : $identifiant ($max cibles)"
-couvertes=1
-for p in "${!retenus[@]}"; do
-  if [ -z "${cibles_par_source[$p]:-}" ] &amp;&amp; [ "$p" != "$identifiant" ]; then
-    couvertes=0
-  fi
-done
-if [ "$couvertes" = "1" ]; then
-  echo "verdict : complet"
-else
-  echo "verdict : a completer"
-fi</code></pre>
-
-      Cette solution combine lecture en deux blocs, filtrage des natures, dédoublonnage des DF, élection de l'identifiant et verdict de couverture — les chapitres 3, 4 et 5 en un seul script.
-
-    </div>
-
-  </details>
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
@@ -349,10 +128,33 @@ fi</code></pre>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
-  Exercices construits d'après le support « Conception et modélisation des systèmes d'information » (B1 IT). Sources : le support « Conception et modélisation des systèmes d'information » (B1 IT, S. P. EDOH) et l'outil AnalyseSI.</p>
+  Exercices construits à partir du programme officiel de modélisation Merise B1.Sources : le support « Conception et modélisation des systèmes d'information » (B1 IT, S. P. EDOH) et l'outil AnalyseSI.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

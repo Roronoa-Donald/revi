@@ -80,7 +80,7 @@ module.exports = [
           'liste de dictionnaires est le format naturel — le <code>vector</code> de structures du TP en C++.</p>',
           '<pre><code>registre = []\n' +
           'for _ in range(n):\n' +
-          '    parties = input().split()\n' +
+          '    parties = donnees_actionneur.split()\n' +
           '    registre.append({"nom": parties[0], "age": int(parties[1])})\n' +
           '\n' +
           'jeune = min(registre, key=lambda m: m["age"])</code></pre>',
@@ -121,7 +121,7 @@ module.exports = [
       { stem: 'Combien de comparaisons pour n = 5 avec le double parcours complet ?', opts: ['5', '10', '25'], correct: 1, exp: '4 + 3 + 2 + 1 = 10, soit n(n − 1)/2.' },
       { stem: 'Quand incrémente-t-on le compteur de comparaisons ?', opts: ['Quand il y a échange', 'À chaque test, échange ou non', 'Après la boucle'], correct: 1, exp: 'La comparaison a lieu même sans échange : le test coûte.' },
       { stem: 'Que renvoie min(registre, key=lambda m: m["age"]) ?', opts: ['Le plus petit âge', 'Le dictionnaire du membre le plus jeune', 'La position du minimum'], correct: 1, exp: 'min/max avec key renvoient l’élément entier, comparé via la clé.' },
-      { stem: 'Une ligne "Awa 22" arrive de input(). Que vaut parties après split() ?', opts: ['["Awa 22"]', '["Awa", "22"]', '["Awa", 22]'], correct: 1, exp: 'split() découpe la chaîne aux espaces : deux morceaux, tous deux du texte.' },
+      { stem: 'Une ligne "Awa 22" arrive de donnees_actionneur. Que vaut parties après split() ?', opts: ['["Awa 22"]', '["Awa", "22"]', '["Awa", 22]'], correct: 1, exp: 'split() découpe la chaîne aux espaces : deux morceaux, tous deux du texte.' },
       { stem: 'La dichotomie exige que le tableau soit…', opts: ['rempli', 'trié', 'de taille paire'], correct: 1, exp: 'Comparer au milieu n’élimine une moitié que si l’ordre est garanti.' }
     ],
 

@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -177,27 +178,37 @@ Router(config-subif)# ip address 192.168.20.254 255.255.255.0</code></pre>
 </ol>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="na2-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="8100a00a">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c6-e1) — Décodeur de balise Ethernet IEEE 802.1Q (VLAN Tagging)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-tag_hex = sys.stdin.read().strip()
+[Cas 1 — VLAN étendu avec vidéo et drop eligible]
+# Données : 81009800
+A_COMPLETER
 
-# À compléter : décoder la balise IEEE 802.1Q
+[Cas 2 — VLAN 1 par défaut sans priorité]
+# Données : 81000001
+A_COMPLETER
+
+[Cas 3 — TPID invalide avec protocole non-standard]
+# Données : 88a8201e
+A_COMPLETER
+
+[Cas 4 — Contrôle réseau haute priorité PCP 7]
+# Données : 8100e064
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Décodeur de balise Ethernet IEEE 802.1Q (VLAN Tagging)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -209,15 +220,15 @@ tag_hex = sys.stdin.read().strip()
   * <code>PCP</code> (3 bits, 0-7) : Priority Code Point (classe de service CoS).<br>
   * <code>DEI</code> (1 bit, 0 ou 1) : Drop Eligible Indicator (éligible au rejet en cas de congestion).<br>
   * <code>VID</code> (12 bits, 1-4094) : VLAN ID.<br>
-Le script lit sur l'entrée standard une balise en hexadécimal sur 8 caractères (ex: <code>8100a00a</code> ou <code>81000014</code>).<br>
-Il décode et affiche :<br>
+Analysez les paramètres du problème pour chaque cas.<br>
+Il décode et Indiquez :<br>
 - <code>TPID: 0x&lt;HEX&gt; (&lt;VALIDE|INVALIDE&gt;)</code><br>
 - <code>VLAN ID: &lt;VID&gt; (&lt;STANDARD|ETENDU|RESERVE&gt;)</code> (1-1005: STANDARD, 1006-4094: ETENDU, 0 ou 4095: RESERVE)<br>
 - <code>Priorite CoS (PCP): &lt;PCP&gt; (&lt;QOS_DESCRIPTION&gt;)</code> (0: Best Effort, 1: Background, 2: Spare, 3: Critical, 4: Video, 5: Voice, 6: Internetwork Control, 7: Network Control)<br>
 - <code>Drop Eligible (DEI): &lt;OUI|NON&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>8100a00a</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TPID: 0x8100 (VALIDE)
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>8100a00a</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TPID: 0x8100 (VALIDE)
 VLAN ID: 10 (STANDARD)
 Priorite CoS (PCP): 5 (Voice)
 Drop Eligible (DEI): NON</pre></div>
@@ -235,19 +246,38 @@ Drop Eligible (DEI): NON</pre></div>
 
 <div class="lab" data-lab
      data-exercise="na2-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01&#10;SUBIF g0/0.20 20 192.168.20.254/24 00:00:0c:07:ac:01&#10;PACKET 192.168.10.5 192.168.20.15 10 64 SALUT">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c6-e2) — Simulateur de Router-on-a-Stick (ROAS) et sous-interfaces
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — TTL expiré à 1]
+# Données : SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+# Données : SUBIF g0/0.20 20 192.168.20.254/24 00:00:0c:07:ac:01
+# Données : PACKET 192.168.10.2 192.168.20.2 10 1 PING
+A_COMPLETER
 
-# À compléter : simuler le routage inter-VLAN par sous-interfaces
+[Cas 2 — IP source non conforme au VLAN annoncé]
+# Données : SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+# Données : SUBIF g0/0.20 20 192.168.20.254/24 00:00:0c:07:ac:01
+# Données : PACKET 10.0.0.1 192.168.20.2 10 64 SPOOF
+A_COMPLETER
+
+[Cas 3 — Destination sur le même VLAN sans besoin de routage L3]
+# Données : SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+# Données : PACKET 192.168.10.1 192.168.10.2 10 64 LOCAL_MSG
+A_COMPLETER
+
+[Cas 4 — Destination inconnue dans les sous-interfaces]
+# Données : SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+# Données : PACKET 192.168.10.1 8.8.8.8 10 64 DNS_QUERY
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Simulateur de Router-on-a-Stick (ROAS) et sous-interfaces</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -266,10 +296,10 @@ Pour chaque paquet :<br>
 5. Si routage réussi : afficher :<br>
 <code>ROUTAGE ROAS: [VLAN &lt;VLAN_IN&gt; -&gt; VLAN &lt;VLAN_OUT&gt; via &lt;SUBIF_OUT&gt;] TTL: &lt;TTL-1&gt; | Data: &lt;DATA&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUBIF g0/0.10 10 192.168.10.254/24 00:00:0c:07:ac:01
 SUBIF g0/0.20 20 192.168.20.254/24 00:00:0c:07:ac:01
 PACKET 192.168.10.5 192.168.20.15 10 64 SALUT</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ROUTAGE ROAS: [VLAN 10 -&gt; VLAN 20 via g0/0.20] TTL: 63 | Data: SALUT</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROUTAGE ROAS: [VLAN 10 -&gt; VLAN 20 via g0/0.20] TTL: 63 | Data: SALUT</pre></div>
     </div>
     <p class="lab__note">Routage inter-VLAN classique entre le VLAN 10 et le VLAN 20.</p>
     <details class="lab__hints">
@@ -284,28 +314,42 @@ PACKET 192.168.10.5 192.168.20.15 10 64 SALUT</pre></div>
 
 <div class="lab" data-lab
      data-exercise="na2-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SWITCH_A trunk NATIVE=1 ALLOWED=10,20,30&#10;SWITCH_B trunk NATIVE=1 ALLOWED=10,20,40">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c6-e3) — Validateur et détecteur d'anomalies de Trunk 802.1Q
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Incompatibilité de VLAN natif]
+# Données : SWITCH_A trunk NATIVE=10 ALLOWED=10,20
+# Données : SWITCH_B trunk NATIVE=20 ALLOWED=10,20
+A_COMPLETER
 
-# À compléter : analyser la négociation et cohérence du lien Trunk
+[Cas 2 — Incompatibilité de mode trunk contre access]
+# Données : SWITCH_A trunk NATIVE=1 ALLOWED=ALL
+# Données : SWITCH_B access NATIVE=1 ALLOWED=1
+A_COMPLETER
+
+[Cas 3 — Aucun VLAN commun autorisé]
+# Données : SWITCH_A trunk NATIVE=1 ALLOWED=10,20
+# Données : SWITCH_B trunk NATIVE=1 ALLOWED=30,40
+A_COMPLETER
+
+[Cas 4 — Trunk avec mot clé ALL d un côté]
+# Données : SWITCH_A trunk NATIVE=99 ALLOWED=ALL
+# Données : SWITCH_B trunk NATIVE=99 ALLOWED=10,99,200
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Validateur et détecteur d'anomalies de Trunk 802.1Q</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la cohérence de configuration entre les deux extrémités d'un lien Trunk (mode, VLAN natif, VLANs autorisés).</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard la configuration de deux ports reliant deux switches (Switch A et Switch B) :<br>
-Ligne 1 : <code>SWITCH_A &lt;MODE&gt; NATIVE=&lt;VLAN&gt; ALLOWED=&lt;LISTE_OU_ALL&gt;</code><br>
-Ligne 2 : <code>SWITCH_B &lt;MODE&gt; NATIVE=&lt;VLAN&gt; ALLOWED=&lt;LISTE_OU_ALL&gt;</code><br>
-(ex: <code>SWITCH_A trunk NATIVE=1 ALLOWED=10,20,30</code> et <code>SWITCH_B trunk NATIVE=1 ALLOWED=10,20,40</code>).<br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
 Règles de validation :<br>
 1. <strong>Mode de port</strong> : Les deux ports doivent être en mode <code>trunk</code>. Si l'un est <code>access</code> : <code>ANOMALIE: Mode mismatch (A=&lt;modeA&gt;, B=&lt;modeB&gt;) -&gt; LIEN BLOQUE</code>.<br>
 2. <strong>VLAN Natif</strong> : Les deux extrémités doivent avoir le même VLAN natif (Native VLAN Mismatch). Si différent : <code>ANOMALIE: Native VLAN Mismatch (A=&lt;natA&gt;, B=&lt;natB&gt;) -&gt; RISQUE FUITE TRAFIC</code>.<br>
@@ -313,9 +357,9 @@ Règles de validation :<br>
 Si aucune anomalie critique :<br>
 <code>TRUNK OPERATIONNEL: Native VLAN=&lt;nat&gt; | VLANs actifs communs: &lt;LISTE_TRIEE&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SWITCH_A trunk NATIVE=1 ALLOWED=10,20,30
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SWITCH_A trunk NATIVE=1 ALLOWED=10,20,30
 SWITCH_B trunk NATIVE=1 ALLOWED=10,20,40</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TRUNK OPERATIONNEL: Native VLAN=1 | VLANs actifs communs: 10,20</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TRUNK OPERATIONNEL: Native VLAN=1 | VLANs actifs communs: 10,20</pre></div>
     </div>
     <p class="lab__note">Trunk valide avec passage des VLANs 10 et 20 communs.</p>
     <details class="lab__hints">
@@ -491,6 +535,29 @@ SWITCH_B trunk NATIVE=1 ALLOWED=10,20,40</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

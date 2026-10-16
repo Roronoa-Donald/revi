@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -146,27 +147,36 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="ws3-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="GPO name=DefaultDomainPolicy level=DOMAIN link_order=1 param=MaxPasswordAge value=42&#10;GPO name=LocalSecurity level=LOCAL link_order=1 param=MaxPasswordAge value=90&#10;GPO name=OUPolicy level=OU link_order=1 param=MaxPasswordAge value=30">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c3-e1) — Calculateur de précédence de stratégies de groupe (Modèle LSDOU)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Deux GPOs sur le même niveau DOMAIN départagées par link_order]
+# Données : GPO name=GPO_Base level=DOMAIN link_order=2 param=ScreenSaverTimeout value=900
+# Données : GPO name=GPO_Override level=DOMAIN link_order=1 param=ScreenSaverTimeout value=300
+A_COMPLETER
 
-# À compléter : calculer les valeurs effectives selon le modèle LSDOU
+[Cas 2 — Multiples paramètres distincts sur différents niveaux]
+# Données : GPO name=GPO_Site level=SITE link_order=1 param=ProxyServer value=proxy.site.lan
+# Données : GPO name=GPO_Domain level=DOMAIN link_order=1 param=Wallpaper value=corp.jpg
+# Données : GPO name=GPO_OU level=OU link_order=1 param=ProxyServer value=proxy.ou.lan
+A_COMPLETER
+
+[Cas 3 — Paramètre unique défini uniquement au niveau LOCAL]
+# Données : GPO name=LocalMachine level=LOCAL link_order=1 param=AuditLogon value=Success
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur de précédence de stratégies de groupe (Modèle LSDOU)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -191,10 +201,10 @@ Sortie :
 - Bilan :
   `SUMMARY params_evalues=<P> gpos_total=<G>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>GPO name=DefaultDomainPolicy level=DOMAIN link_order=1 param=MaxPasswordAge value=42
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GPO name=DefaultDomainPolicy level=DOMAIN link_order=1 param=MaxPasswordAge value=42
 GPO name=LocalSecurity level=LOCAL link_order=1 param=MaxPasswordAge value=90
 GPO name=OUPolicy level=OU link_order=1 param=MaxPasswordAge value=30</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EFFECTIVE_SETTING param=MaxPasswordAge value=30 source_gpo=OUPolicy level=OU
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EFFECTIVE_SETTING param=MaxPasswordAge value=30 source_gpo=OUPolicy level=OU
 SUMMARY params_evalues=1 gpos_total=3</pre></div>
     </div>
     <p class="lab__note">La GPO liée à l’OU a la plus forte précédence (niveau OU &gt; DOMAIN &gt; LOCAL) : 30 jours s’appliquent.</p>
@@ -211,19 +221,33 @@ SUMMARY params_evalues=1 gpos_total=3</pre></div>
 
 <div class="lab" data-lab
      data-exercise="ws3-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="OU_SETTING ou=OU_Finance block_inheritance=ENABLED&#10;GPO name=GPO_Securite level=DOMAIN enforced=ENABLED param=MinPasswordLength value=14&#10;GPO name=GPO_Domaine level=DOMAIN enforced=DISABLED param=ScreenTimeout value=15&#10;GPO name=GPO_Finance level=OU enforced=DISABLED param=MinPasswordLength value=8&#10;GPO name=GPO_Finance level=OU enforced=DISABLED param=ScreenTimeout value=60">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c3-e2) — Moteur d’arbitrage GPO : Enforced (No Override) vs Block Inheritance
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Blocage actif sans aucune GPO forcée]
+# Données : OU_SETTING ou=OU_Filiale block_inheritance=ENABLED
+# Données : GPO name=GPO_Domaine level=DOMAIN enforced=DISABLED param=WallPaper value=corporate.png
+# Données : GPO name=GPO_Filiale level=OU enforced=DISABLED param=WallPaper value=local.png
+A_COMPLETER
 
-# À compléter : appliquer les règles de priorité Enforced et Block Inheritance
+[Cas 2 — Aucun blocage d’héritage (héritage normal écrasé par l’OU)]
+# Données : OU_SETTING ou=OU_Dev block_inheritance=DISABLED
+# Données : GPO name=GPO_Global level=DOMAIN enforced=DISABLED param=MaxLogSize value=2048
+# Données : GPO name=GPO_Local level=OU enforced=DISABLED param=MaxLogSize value=8192
+A_COMPLETER
+
+[Cas 3 — GPO Enforced sans aucune concurrence dans l’OU]
+# Données : OU_SETTING ou=OU_Standard block_inheritance=ENABLED
+# Données : GPO name=GPO_Audit level=DOMAIN enforced=ENABLED param=AuditPrivilege value=Enabled
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Moteur d’arbitrage GPO : Enforced (No Override) vs Block Inheritance</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -244,12 +268,12 @@ Sortie :
 - Bilan :
   `SUMMARY block_applied=<TRUE|FALSE> enforced_count=<E> params_count=<P>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>OU_SETTING ou=OU_Finance block_inheritance=ENABLED
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OU_SETTING ou=OU_Finance block_inheritance=ENABLED
 GPO name=GPO_Securite level=DOMAIN enforced=ENABLED param=MinPasswordLength value=14
 GPO name=GPO_Domaine level=DOMAIN enforced=DISABLED param=ScreenTimeout value=15
 GPO name=GPO_Finance level=OU enforced=DISABLED param=MinPasswordLength value=8
 GPO name=GPO_Finance level=OU enforced=DISABLED param=ScreenTimeout value=60</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EFFECTIVE_SETTING param=MinPasswordLength value=14 source_gpo=GPO_Securite
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EFFECTIVE_SETTING param=MinPasswordLength value=14 source_gpo=GPO_Securite
 EFFECTIVE_SETTING param=ScreenTimeout value=60 source_gpo=GPO_Finance
 SUMMARY block_applied=TRUE enforced_count=1 params_count=2</pre></div>
     </div>
@@ -267,19 +291,32 @@ SUMMARY block_applied=TRUE enforced_count=1 params_count=2</pre></div>
 
 <div class="lab" data-lab
      data-exercise="ws3-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CLIENT name=PC-DEV-01 os_build=19045 arch=64BIT ram_gb=16 groups=Domain_Computers,DevWorkstations&#10;GPO name=GPO_BitLocker security_groups=Domain_Computers min_os_build=19041 arch=ANY min_ram_gb=4&#10;GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT min_ram_gb=32">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c3-e3) — Évaluateur de filtres WMI et filtrage de sécurité (Security Filtering)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Refus WMI sur la quantité de RAM disponible]
+# Données : CLIENT name=PC-LITE os_build=22000 arch=64BIT ram_gb=8 groups=Domain_Computers
+# Données : GPO name=GPO_HyperV security_groups=Domain_Computers min_os_build=20000 arch=64BIT min_ram_gb=16
+A_COMPLETER
 
-# À compléter : évaluer le filtrage de sécurité et les requêtes WMI
+[Cas 2 — Refus WMI sur l’architecture 32-bit]
+# Données : CLIENT name=PC-OLD os_build=17763 arch=32BIT ram_gb=4 groups=Domain_Computers
+# Données : GPO name=GPO_x64Only security_groups=Domain_Computers min_os_build=10000 arch=64BIT min_ram_gb=2
+A_COMPLETER
+
+[Cas 3 — Toutes les GPOs appliquées avec succès]
+# Données : CLIENT name=SRV-APP os_build=20348 arch=64BIT ram_gb=64 groups=Domain_Controllers,Servers
+# Données : GPO name=GPO_Hardening security_groups=Servers min_os_build=19000 arch=64BIT min_ram_gb=16
+# Données : GPO name=GPO_NTP security_groups=Servers min_os_build=10000 arch=ANY min_ram_gb=1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Évaluateur de filtres WMI et filtrage de sécurité (Security Filtering)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -303,10 +340,10 @@ Sortie :
 - Bilan :
   `SUMMARY total_gpos=<N> appliquees=<A> ignorees=<I>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CLIENT name=PC-DEV-01 os_build=19045 arch=64BIT ram_gb=16 groups=Domain_Computers,DevWorkstations
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CLIENT name=PC-DEV-01 os_build=19045 arch=64BIT ram_gb=16 groups=Domain_Computers,DevWorkstations
 GPO name=GPO_BitLocker security_groups=Domain_Computers min_os_build=19041 arch=ANY min_ram_gb=4
 GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT min_ram_gb=32</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>GPO_EVAL gpo=GPO_BitLocker statut=APPLIQUE motif=OK
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>GPO_EVAL gpo=GPO_BitLocker statut=APPLIQUE motif=OK
 GPO_EVAL gpo=GPO_CADSoftware statut=IGNORE motif=REFUS_SECURITE
 SUMMARY total_gpos=2 appliquees=1 ignorees=1</pre></div>
     </div>
@@ -485,6 +522,29 @@ SUMMARY total_gpos=2 appliquees=1 ignorees=1</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

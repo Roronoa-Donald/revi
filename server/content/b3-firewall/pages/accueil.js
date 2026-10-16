@@ -153,13 +153,13 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable Pare-feu &amp; Sécurité Réseau</h1>',
-    '  <p class="lead">Expérimentez et automatisez vos analyses de sécurité réseau en Python 3 : suivi d’état conntrack, audit de flux DMZ, compilateur de règles netfilter et détection d’intrusions L7.</p>',
+    '  <p class="lead">Expérimentez et automatisez vos analyses de sécurité réseau selon les grilles d’analyse : suivi d’état conntrack, audit de flux DMZ, compilateur de règles netfilter et détection d’intrusions L7.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="FLOW_TEST\nsrc=WAN\ndst=DMZ\nport=443">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : expérimentez vos vérifications de flux, machines conntrack et règles iptables/nftables\ndef verifier_securite_flux(zone_src, zone_dst, port):\n    if zone_src == "DMZ" and zone_dst == "LAN":\n        return "VIOLATION_CRITIQUE : Flux DMZ vers LAN proscrit !"\n    if zone_src == "WAN" and zone_dst == "DMZ" and port in (80, 443):\n        return "CONFORME : Service public autorise en DMZ"\n    return "FLUX_FILTRE"\n\nif __name__ == \'__main__\':\n    print(verifier_securite_flux("WAN", "DMZ", 443))\n    print(verifier_securite_flux("DMZ", "LAN", 3306))\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -182,7 +182,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire pare-feu libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos algorithmes de filtrage réseau et de sécurité.',
+      description: 'Bac à sable interactif par cas d’application pour tester vos algorithmes de filtrage réseau et de sécurité.',
       active: 'atelier',
       body
     }

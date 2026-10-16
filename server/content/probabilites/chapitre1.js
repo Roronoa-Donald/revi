@@ -40,7 +40,8 @@ module.exports = {
           '    <p>Quand toutes les issues ont la même chance, <code>P(A) = card(A)/card(Ω)</code> : le nombre ' +
           'de cas favorables divisé par le nombre de cas possibles. C’est le pont entre probabilités et ' +
           'dénombrement (chapitre 2).</p>'),
-        '<pre><code>from math import gcd\n\nn = 6  # issues de l\'univers\nk = 3  # cas favorables\ng = gcd(k, n)\nprint(f"{k // g}/{n // g}")   # 1/2</code></pre>'
+        '<div class="math-block">$$\\mathbb{P}(A) = \\frac{\\text{Card}(A)}{\\text{Card}(\\Omega)} = \\frac{k}{n}$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de calcul de probabilité</div><p>Pour un univers équiprobable à $n = 6$ issues (dé à six faces) et un événement $A$ de $k = 3$ cas favorables :</p>$$\\mathbb{P}(A) = \\frac{3}{6} = \\frac{1}{2} = 0{,}5$$</div>'
       ].join('\n')
     },
     {
@@ -49,7 +50,8 @@ module.exports = {
         '<p>L’<strong>événement contraire</strong> de <code>A</code>, noté <code>Ā</code>, a pour probabilité ' +
         '<code>P(Ā) = 1 − P(A)</code>. Pour deux événements quelconques, la formule de la réunion évite de ' +
         'compter deux fois l’intersection : <code>P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</code>.</p>',
-        '<pre><code>pA, pB, pAB = 0.5, 0.4, 0.2\np_union = pA + pB - pAB\nprint(f"{p_union:.4f}")   # 0.7000</code></pre>',
+        '<div class="math-block">$$\\mathbb{P}(A \\cup B) = \\mathbb{P}(A) + \\mathbb{P}(B) - \\mathbb{P}(A \\cap B)$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple numérique de réunion</div><p>Si $\\mathbb{P}(A) = 0{,}5$, $\\mathbb{P}(B) = 0{,}4$ et $\\mathbb{P}(A \\cap B) = 0{,}2$ :</p>$$\\mathbb{P}(A \\cup B) = 0{,}5 + 0{,}4 - 0{,}2 = 0{,}7000$$</div>',
         box('pitfall', 'Piège — la double soustraction oubliée', 'warning',
           '    <p>Additionner <code>P(A)</code> et <code>P(B)</code> sans retirer <code>P(A ∩ B)</code> ' +
           'compte deux fois les issues communes : la probabilité obtenue peut même dépasser 1. Retire ' +
@@ -62,7 +64,8 @@ module.exports = {
         '<p>Savoir que <code>B</code> est réalisé change l’univers : il se réduit à <code>B</code>. La ' +
         '<strong>probabilité conditionnelle</strong> de <code>A</code> sachant <code>B</code> est ' +
         '<code>P(A|B) = P(A ∩ B)/P(B)</code>, définie seulement si <code>P(B) ≠ 0</code>.</p>',
-        '<pre><code>pAB, pB = 0.2, 0.5\npA_sachant_B = pAB / pB\nprint(f"{pA_sachant_B:.4f}")   # 0.4000</code></pre>',
+        '<div class="math-block">$$\\mathbb{P}(A \\mid B) = \\frac{\\mathbb{P}(A \\cap B)}{\\mathbb{P}(B)} \\quad (\\text{défini si } \\mathbb{P}(B) > 0)$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de probabilité conditionnelle</div><p>Si $\\mathbb{P}(A \\cap B) = 0{,}2$ et $\\mathbb{P}(B) = 0{,}5$ :</p>$$\\mathbb{P}(A \\mid B) = \\frac{0{,}2}{0{,}5} = 0{,}4000$$</div>',
         '<p>On en tire la formule de multiplication <code>P(A ∩ B) = P(A|B) · P(B)</code>, base des arbres ' +
         'de probabilité et de la formule des probabilités totales.</p>'
       ].join('\n')

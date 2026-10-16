@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -146,38 +147,52 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="pf3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CA cn=PFSENSE_INTERNAL_CA&#10;CRL revoked=104,109&#10;TIMESTAMP current=1700000000&#10;CERT id=C1 cn=alice issuer=PFSENSE_INTERNAL_CA serial=101 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000&#10;CERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000&#10;CERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e1) — Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Certificat expiré ou pas encore valide]
+# Données : CA cn=ROOT_CA
+# Données : CRL revoked=NONE
+# Données : TIMESTAMP current=1700000000
+# Données : CERT id=EXP cn=charlie issuer=ROOT_CA serial=110 algo=RSA key_len=2048 valid_from=1600000000 valid_to=1650000000
+# Données : CERT id=FUT cn=david issuer=ROOT_CA serial=111 algo=RSA key_len=2048 valid_from=1750000000 valid_to=1800000000
+A_COMPLETER
 
-# À compléter : analyser la PKI et vérifier chaque certificat client OpenVPN
+[Cas 2 — Clé RSA faible ou algorithme DSA obsolète]
+# Données : CA cn=COMPANY_CA
+# Données : CRL revoked=NONE
+# Données : TIMESTAMP current=1700000000
+# Données : CERT id=WEAK cn=legit issuer=COMPANY_CA serial=120 algo=RSA key_len=1024 valid_from=1690000000 valid_to=1710000000
+# Données : CERT id=DSA_LEGACY cn=oldgw issuer=COMPANY_CA serial=121 algo=DSA key_len=1024 valid_from=1690000000 valid_to=1710000000
+# Données : CERT id=ECDSA_OK cn=modern issuer=COMPANY_CA serial=122 algo=ECDSA key_len=256 valid_from=1690000000 valid_to=1710000000
+A_COMPLETER
+
+[Cas 3 — CRL vide avec certificat valide]
+# Données : CA cn=TEST_CA
+# Données : CRL revoked=NONE
+# Données : TIMESTAMP current=1700000000
+# Données : CERT id=TEST cn=testuser issuer=TEST_CA serial=999 algo=RSA key_len=4096 valid_from=1600000000 valid_to=1800000000
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur de certificat X.509 et chaîne de confiance PKI OpenVPN</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité cryptographique et l'état de révocation des certificats clients pour le serveur OpenVPN.</p>
     <div class="lab__brief"><p>Dans pfSense (<em>System &gt; Cert. Manager</em>), l'authentification des clients <strong>OpenVPN</strong> repose sur une Autorité de Certification (CA) interne et une liste de révocation (CRL). Un certificat n'est accepté que s'il est valide temporellement, signé par la CA racine, non révoqué et basé sur une cryptographie robuste.<br><br>
-Le script lit sur l'entrée standard :<br>
-- La CA de référence :<br>
-  <code>CA cn=&lt;nom_ca&gt;</code><br>
-- La liste des numéros de série révoqués (CRL) :<br>
-  <code>CRL revoked=&lt;serial1,serial2,...|NONE&gt;</code><br>
+Analysez les paramètres du problème pour chaque cas...|NONE&gt;</code><br>
 - L'horodatage courant d'audit :<br>
   <code>TIMESTAMP current=&lt;int&gt;</code><br>
 - Les certificats présentés par les clients VPN :<br>
@@ -193,13 +208,13 @@ Règles de validation (ordre de priorité des rejets) :<br>
 Pour chaque certificat, afficher :<br>
 <code>OPENVPN_PKI id={id} status={status} reason={reason} client={cn} serial={serial}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CA cn=PFSENSE_INTERNAL_CA
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CA cn=PFSENSE_INTERNAL_CA
 CRL revoked=104,109
 TIMESTAMP current=1700000000
 CERT id=C1 cn=alice issuer=PFSENSE_INTERNAL_CA serial=101 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000
 CERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 valid_from=1690000000 valid_to=1720000000
 CERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>OPENVPN_PKI id=C1 status=ACCEPTED reason=VALID_CREDENTIALS client=alice serial=101
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OPENVPN_PKI id=C1 status=ACCEPTED reason=VALID_CREDENTIALS client=alice serial=101
 OPENVPN_PKI id=C2 status=REJECTED reason=REVOKED_CERTIFICATE client=bob serial=104
 OPENVPN_PKI id=C3 status=REJECTED reason=UNTRUSTED_ISSUER client=eve serial=200</pre></div>
     </div>
@@ -216,29 +231,35 @@ OPENVPN_PKI id=C3 status=REJECTED reason=UNTRUSTED_ISSUER client=eve serial=200<
 
 <div class="lab" data-lab
      data-exercise="pf3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19&#10;IKE_PROPOSAL id=PROP2 phase=1 enc=3DES key_len=168 hash=SHA256 dh_group=14&#10;IKE_PROPOSAL id=PROP3 phase=2 enc=AES-CBC key_len=128 hash=MD5 dh_group=14&#10;IKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e2) — Validateur de proposition cryptographique IPsec (IKEv2 & ESP)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Rejet du groupe DH 2 obsolète]
+# Données : IKE_PROPOSAL id=WEAK_DH phase=1 enc=AES-CBC key_len=256 hash=SHA256 dh_group=2
+A_COMPLETER
 
-# À compléter : analyser la sécurité de chaque proposition IPsec
+[Cas 2 — Rejet de clé AES trop courte (< 128)]
+# Données : IKE_PROPOSAL id=SHORT_KEY phase=2 enc=AES-CBC key_len=64 hash=SHA256 dh_group=14
+A_COMPLETER
+
+[Cas 3 — Validation proposition Phase 2 moderne ChaCha20]
+# Données : IKE_PROPOSAL id=CHACHA_MODERN phase=2 enc=CHACHA20-POLY1305 key_len=256 hash=SHA512 dh_group=20
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Validateur de proposition cryptographique IPsec (IKEv2 &amp; ESP)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Auditer la conformité ANSSI/NIST des propositions IKEv2 Phase 1 et Phase 2 dans pfSense.</p>
     <div class="lab__brief"><p>Lors de l'établissement d'un tunnel VPN <strong>IPsec Site-à-Site</strong>, pfSense négocie les paramètres de chiffrement (IKE Phase 1 et ESP Phase 2). Les algorithmes obsolètes ou cassés (DES, 3DES, MD5, groupes Diffie-Hellman faibles) doivent impérativement être rejetés.<br><br>
-Le script lit sur l'entrée standard des propositions cryptographiques :<br>
-<code>IKE_PROPOSAL id=&lt;nom&gt; phase=&lt;1|2&gt; enc=&lt;cipher&gt; key_len=&lt;int&gt; hash=&lt;hash&gt; dh_group=&lt;int&gt;</code><br><br>
-Règles de validation selon les recommandations ANSSI :<br>
-1. Si <code>enc</code> figure parmi <code>DES, 3DES, RC4</code> :<br>
+Analysez les paramètres du problème pour chaque cas. Si <code>enc</code> figure parmi <code>DES, 3DES, RC4</code> :<br>
    <code>status=REJECTED reason=INSECURE_CIPHER level=NONE</code>.<br>
 2. Si <code>hash</code> figure parmi <code>MD5, SHA1</code> :<br>
    <code>status=REJECTED reason=WEAK_HASH level=NONE</code>.<br>
@@ -254,11 +275,11 @@ Règles de validation selon les recommandations ANSSI :<br>
 Pour chaque proposition, afficher :<br>
 <code>IPSEC_AUDIT id={id} phase={phase} status={status} reason={reason} level={level}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>IKE_PROPOSAL id=PROP1 phase=1 enc=AES-GCM key_len=256 hash=SHA384 dh_group=19
 IKE_PROPOSAL id=PROP2 phase=1 enc=3DES key_len=168 hash=SHA256 dh_group=14
 IKE_PROPOSAL id=PROP3 phase=2 enc=AES-CBC key_len=128 hash=MD5 dh_group=14
 IKE_PROPOSAL id=PROP4 phase=1 enc=AES-CBC key_len=128 hash=SHA256 dh_group=14</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IPSEC_AUDIT id=PROP1 phase=1 status=APPROVED reason=NONE level=HIGH
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IPSEC_AUDIT id=PROP1 phase=1 status=APPROVED reason=NONE level=HIGH
 IPSEC_AUDIT id=PROP2 phase=1 status=REJECTED reason=INSECURE_CIPHER level=NONE
 IPSEC_AUDIT id=PROP3 phase=2 status=REJECTED reason=WEAK_HASH level=NONE
 IPSEC_AUDIT id=PROP4 phase=1 status=APPROVED reason=NONE level=STANDARD</pre></div>
@@ -276,20 +297,37 @@ IPSEC_AUDIT id=PROP4 phase=1 status=APPROVED reason=NONE level=STANDARD</pre></d
 
 <div class="lab" data-lab
      data-exercise="pf3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="VPN_MODE type=SPLIT tunnel_gw=10.8.0.1 local_gw=192.168.1.1&#10;ROUTE subnet=10.0.0.0/8&#10;ROUTE subnet=172.16.50.0/24&#10;PACKET id=P1 dst_ip=10.5.20.1&#10;PACKET id=P2 dst_ip=8.8.8.8&#10;PACKET id=P3 dst_ip=172.16.50.10">
-  <script type="text/plain" data-lab-starter>import sys
-import ipaddress
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c5-e3) — Calculateur de routage de tunnel VPN (Split Tunneling vs Full Tunneling)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Mode FULL Tunneling envoyant tout vers la passerelle VPN]
+# Données : VPN_MODE type=FULL tunnel_gw=10.200.0.1 local_gw=192.168.0.254
+# Données : ROUTE subnet=192.168.10.0/24
+# Données : PACKET id=P_INT dst_ip=192.168.10.5
+# Données : PACKET id=P_WEB dst_ip=142.250.200.46
+A_COMPLETER
 
-# À compléter : lire la configuration VPN et calculer la route de chaque paquet
+[Cas 2 — Mode SPLIT sans aucun réseau correspondant]
+# Données : VPN_MODE type=SPLIT tunnel_gw=10.0.0.1 local_gw=192.168.1.254
+# Données : ROUTE subnet=172.20.0.0/16
+# Données : PACKET id=EXT1 dst_ip=1.1.1.1
+# Données : PACKET id=EXT2 dst_ip=9.9.9.9
+A_COMPLETER
+
+[Cas 3 — Sous-réseau CIDR /32 spécifique]
+# Données : VPN_MODE type=SPLIT tunnel_gw=10.8.0.1 local_gw=192.168.1.1
+# Données : ROUTE subnet=198.51.100.50/32
+# Données : PACKET id=TARGET dst_ip=198.51.100.50
+# Données : PACKET id=NEIGHBOR dst_ip=198.51.100.51
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Calculateur de routage de tunnel VPN (Split Tunneling vs Full Tunneling)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -298,15 +336,7 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
     <div class="lab__brief"><p>Dans un déploiement client-à-passerelle (OpenVPN ou IPsec IKEv2 Mobile), le mode de routage détermine le chemin emprunté par les flux du télétravailleur :<br>
 - <strong>Full Tunneling (Redirect Gateway) :</strong> <em>tout</em> le trafic (y compris la navigation Internet personnelle) est encapsulé dans le VPN vers le pare-feu central.<br>
 - <strong>Split Tunneling :</strong> seuls les sous-réseaux d'entreprise spécifiés passent par le tunnel VPN ; le reste sort directement via la box Internet locale.<br><br>
-Le script lit sur l'entrée standard :<br>
-- Le mode de fonctionnement VPN :<br>
-  <code>VPN_MODE type=&lt;FULL|SPLIT&gt; tunnel_gw=&lt;ip&gt; local_gw=&lt;ip&gt;</code><br>
-- Les sous-réseaux d'entreprise déclarés (uniquement actifs en mode SPLIT) :<br>
-  <code>ROUTE subnet=&lt;cidr&gt;</code><br>
-- Les paquets à acheminer :<br>
-  <code>PACKET id=&lt;nom&gt; dst_ip=&lt;ip&gt;</code><br><br>
-Règles d'acheminement :<br>
-1. Si <code>type == 'FULL'</code> :<br>
+Analysez les paramètres du problème pour chaque cas. Si <code>type == 'FULL'</code> :<br>
    Tous les paquets sont encapsulés vers le tunnel :<br>
    <code>tunnel=YES gw={tunnel_gw} path=TUNNEL_DEFAULT</code><br>
 2. Si <code>type == 'SPLIT'</code> :<br>
@@ -319,13 +349,13 @@ Règles d'acheminement :<br>
 Pour chaque paquet, afficher :<br>
 <code>VPN_ROUTE id={id} dst={dst_ip} tunnel={tunnel} gw={gw} path={path}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VPN_MODE type=SPLIT tunnel_gw=10.8.0.1 local_gw=192.168.1.1
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VPN_MODE type=SPLIT tunnel_gw=10.8.0.1 local_gw=192.168.1.1
 ROUTE subnet=10.0.0.0/8
 ROUTE subnet=172.16.50.0/24
 PACKET id=P1 dst_ip=10.5.20.1
 PACKET id=P2 dst_ip=8.8.8.8
 PACKET id=P3 dst_ip=172.16.50.10</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VPN_ROUTE id=P1 dst=10.5.20.1 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=10.0.0.0/8
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VPN_ROUTE id=P1 dst=10.5.20.1 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=10.0.0.0/8
 VPN_ROUTE id=P2 dst=8.8.8.8 tunnel=NO gw=192.168.1.1 path=DIRECT_INTERNET
 VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=172.16.50.0/24</pre></div>
     </div>
@@ -503,6 +533,29 @@ VPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE sub
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

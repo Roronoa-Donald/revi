@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="1">
@@ -143,27 +144,36 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="lan3-c1-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="BRIDGE name=SW-CORE1 vlan=10 priority=32768 mac=00:11:22:33:44:55&#10;BRIDGE name=SW-CORE2 vlan=10 priority=4096 mac=00:aa:bb:cc:dd:ee&#10;BRIDGE name=SW-ACCESS1 vlan=10 priority=32768 mac=00:11:22:11:22:33">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c1-e1) — Calculateur de priorité et élection du Root Bridge STP (Bridge ID)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Départage sur adresse MAC en cas d'égalité parfaite de priorité]
+# Données : BRIDGE name=SW-A vlan=1 priority=32768 mac=00:50:56:00:00:02
+# Données : BRIDGE name=SW-B vlan=1 priority=32768 mac=00:50:56:00:00:01
+A_COMPLETER
 
-# À compléter : calculer la priorité totale, normaliser la MAC et élire le Root Bridge
+[Cas 2 — Priorité racine explicite configurée à 0]
+# Données : BRIDGE name=CORE_PRIMARY vlan=100 priority=0 mac=02:00:00:aa:bb:cc
+# Données : BRIDGE name=CORE_SECONDARY vlan=100 priority=4096 mac=02:00:00:11:22:33
+A_COMPLETER
+
+[Cas 3 — Formats de MAC avec tirets ou points normalisés]
+# Données : BRIDGE name=SW1 vlan=20 priority=32768 mac=00-1B-44-11-3A-B7
+# Données : BRIDGE name=SW2 vlan=20 priority=32768 mac=001b.4411.3ab6
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur de priorité et élection du Root Bridge STP (Bridge ID)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -178,17 +188,17 @@ La priorité totale est <code>total_priority = priority + vlan</code>.<br><br>
 Règles d'élection du Root Bridge :<br>
 1. Le commutateur ayant la plus petite <code>total_priority</code> est élu Root Bridge.<br>
 2. En cas d'égalité sur la priorité totale, le commutateur ayant la plus petite adresse MAC (ordre lexicographique de l'adresse en minuscules normalisée) l'emporte.<br><br>
-Le script lit sur l'entrée standard des déclarations de commutateurs pour un VLAN donné :<br>
+Le script lit dans l’énoncé du cas des déclarations de commutateurs pour un VLAN donné :<br>
 <code>BRIDGE name=&lt;nom&gt; vlan=&lt;int&gt; priority=&lt;int&gt; mac=&lt;mac_format_libre&gt;</code><br><br>
 Pour chaque commutateur (triés par nom alphabétique), afficher :<br>
 <code>STP_BRIDGE name={name} vlan={vlan} total_prio={total_priority} mac={mac_norm} role={ROOT|NON_ROOT}</code><br>
 Puis sur une ligne finale :<br>
 <code>ROOT_WINNER name={root_name} total_prio={root_prio} mac={root_mac}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BRIDGE name=SW-CORE1 vlan=10 priority=32768 mac=00:11:22:33:44:55
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BRIDGE name=SW-CORE1 vlan=10 priority=32768 mac=00:11:22:33:44:55
 BRIDGE name=SW-CORE2 vlan=10 priority=4096 mac=00:aa:bb:cc:dd:ee
 BRIDGE name=SW-ACCESS1 vlan=10 priority=32768 mac=00:11:22:11:22:33</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STP_BRIDGE name=SW-ACCESS1 vlan=10 total_prio=32778 mac=00:11:22:11:22:33 role=NON_ROOT
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STP_BRIDGE name=SW-ACCESS1 vlan=10 total_prio=32778 mac=00:11:22:11:22:33 role=NON_ROOT
 STP_BRIDGE name=SW-CORE1 vlan=10 total_prio=32778 mac=00:11:22:33:44:55 role=NON_ROOT
 STP_BRIDGE name=SW-CORE2 vlan=10 total_prio=4106 mac=00:aa:bb:cc:dd:ee role=ROOT
 ROOT_WINNER name=SW-CORE2 total_prio=4106 mac=00:aa:bb:cc:dd:ee</pre></div>
@@ -207,29 +217,38 @@ ROOT_WINNER name=SW-CORE2 total_prio=4106 mac=00:aa:bb:cc:dd:ee</pre></div>
 
 <div class="lab" data-lab
      data-exercise="lan3-c1-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ROOT_PATH port=Gi0/1 path_cost=19 sender_bid_prio=32768 sender_port_id=128.1&#10;ROOT_PATH port=Gi0/2 path_cost=4 sender_bid_prio=32768 sender_port_id=128.2&#10;ROOT_PATH port=Gi0/3 path_cost=19 sender_bid_prio=4096 sender_port_id=128.1">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c1-e2) — Simulateur de calcul de coût et sélection du Root Port STP
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Départage sur le Bridge ID émetteur (sender_bid_prio)]
+# Données : ROOT_PATH port=Fa0/1 path_cost=19 sender_bid_prio=32768 sender_port_id=128.1
+# Données : ROOT_PATH port=Fa0/2 path_cost=19 sender_bid_prio=4096 sender_port_id=128.1
+A_COMPLETER
 
-# À compléter : trier les candidats selon les 4 critères STP et élire le Root Port
+[Cas 2 — Départage sur le Port ID de l'émetteur distant (sender_port_id)]
+# Données : ROOT_PATH port=Te1/1 path_cost=2 sender_bid_prio=4096 sender_port_id=128.2
+# Données : ROOT_PATH port=Te1/2 path_cost=2 sender_bid_prio=4096 sender_port_id=128.1
+A_COMPLETER
+
+[Cas 3 — Départage final sur le nom du port local]
+# Données : ROOT_PATH port=Eth2 path_cost=10 sender_bid_prio=1000 sender_port_id=1
+# Données : ROOT_PATH port=Eth1 path_cost=10 sender_bid_prio=1000 sender_port_id=1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Simulateur de calcul de coût et sélection du Root Port STP</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Appliquer les règles de départage STP pour élire le port racine (Root Port) sur un commutateur non-racine.</p>
     <div class="lab__brief"><p>Sur chaque commutateur non-racine, un seul port est élu <strong>Root Port (RP)</strong> : c'est le port offrant le chemin le plus court vers le Root Bridge.<br><br>
-Le script lit sur l'entrée standard les candidats de ports recevant des BPDUs racines :<br>
-<code>ROOT_PATH port=&lt;nom&gt; path_cost=&lt;int&gt; sender_bid_prio=&lt;int&gt; sender_port_id=&lt;int&gt;</code><br><br>
-Règles strictes de départage (dans l'ordre séquentiel officiel IEEE) :<br>
-1. <strong>Le plus faible coût de chemin (Lowest Path Cost) :</strong> <code>path_cost</code> minimal.<br>
+Analysez les paramètres du problème pour chaque cas. <strong>Le plus faible coût de chemin (Lowest Path Cost) :</strong> <code>path_cost</code> minimal.<br>
 2. <strong>En cas d'égalité :</strong> Le plus faible Bridge ID du commutateur voisin émetteur (<code>sender_bid_prio</code>).<br>
 3. <strong>En cas d'égalité :</strong> Le plus faible Port ID de l'émetteur (<code>sender_port_id</code>).<br>
 4. <strong>En cas d'égalité :</strong> Le plus petit nom de port local dans l'ordre alphabétique (<code>port</code>).<br><br>
@@ -238,10 +257,10 @@ Afficher d'abord l'évaluation de chaque port (triés par nom de port croissant)
 Puis la ligne de synthèse finale :<br>
 <code>SELECTED_ROOT_PORT port={winner_port} total_cost={winner_cost}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROOT_PATH port=Gi0/1 path_cost=19 sender_bid_prio=32768 sender_port_id=128.1
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROOT_PATH port=Gi0/1 path_cost=19 sender_bid_prio=32768 sender_port_id=128.1
 ROOT_PATH port=Gi0/2 path_cost=4 sender_bid_prio=32768 sender_port_id=128.2
 ROOT_PATH port=Gi0/3 path_cost=19 sender_bid_prio=4096 sender_port_id=128.1</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PORT_EVAL port=Gi0/1 cost=19 status=ALTERNATE_PORT
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PORT_EVAL port=Gi0/1 cost=19 status=ALTERNATE_PORT
 PORT_EVAL port=Gi0/2 cost=4 status=ROOT_PORT
 PORT_EVAL port=Gi0/3 cost=19 status=ALTERNATE_PORT
 SELECTED_ROOT_PORT port=Gi0/2 total_cost=4</pre></div>
@@ -259,19 +278,33 @@ SELECTED_ROOT_PORT port=Gi0/2 total_cost=4</pre></div>
 
 <div class="lab" data-lab
      data-exercise="lan3-c1-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PORT name=Gi0/1 bpdu_guard=YES root_guard=NO loop_guard=NO&#10;PORT name=Gi0/2 bpdu_guard=NO root_guard=YES loop_guard=NO&#10;PORT name=Gi0/3 bpdu_guard=NO root_guard=NO loop_guard=YES&#10;EVENT port=Gi0/1 type=BPDU_RECEIVED&#10;EVENT port=Gi0/2 type=SUPERIOR_BPDU&#10;EVENT port=Gi0/3 type=BPDU_TIMEOUT">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c1-e3) — Auditeur de protection Spanning Tree (BPDU Guard, Root Guard & Loop Guard)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Événements sur ports sans protection activée]
+# Données : PORT name=Fa0/10 bpdu_guard=NO root_guard=NO loop_guard=NO
+# Données : EVENT port=Fa0/10 type=BPDU_RECEIVED
+# Données : EVENT port=Fa0/10 type=SUPERIOR_BPDU
+# Données : EVENT port=Fa0/10 type=BPDU_TIMEOUT
+A_COMPLETER
 
-# À compléter : charger les politiques de ports et évaluer les événements de sécurité STP
+[Cas 2 — Combinaison de protections multiples sur le même équipement]
+# Données : PORT name=Uplink1 bpdu_guard=NO root_guard=YES loop_guard=YES
+# Données : EVENT port=Uplink1 type=SUPERIOR_BPDU
+A_COMPLETER
+
+[Cas 3 — Port utilisateur violant la politique PortFast avec BPDU Guard]
+# Données : PORT name=UserPort1 bpdu_guard=YES root_guard=NO loop_guard=NO
+# Données : EVENT port=UserPort1 type=BPDU_RECEIVED
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Auditeur de protection Spanning Tree (BPDU Guard, Root Guard &amp; Loop Guard)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -281,12 +314,7 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 - <strong>BPDU Guard :</strong> Si une BPDU arrive sur un port d'accès configuré avec PortFast, le port est immédiatement désactivé par sécurité (<code>ERR_DISABLE</code>).<br>
 - <strong>Root Guard :</strong> Si une BPDU supérieure revendiquant le rôle de racine arrive sur un port désigné, le port passe en état incohérent (<code>ROOT_INCONSISTENT</code>) et bloque le trafic.<br>
 - <strong>Loop Guard :</strong> Si les BPDUs cessent d'arriver sur un port racine ou alternatif sans transition normale, le port passe en <code>LOOP_INCONSISTENT</code> pour éviter une boucle unidirectionnelle.<br><br>
-Le script lit sur l'entrée standard d'abord la configuration des ports :<br>
-<code>PORT name=&lt;nom&gt; bpdu_guard=&lt;YES|NO&gt; root_guard=&lt;YES|NO&gt; loop_guard=&lt;YES|NO&gt;</code><br>
-Puis des événements réseau survenus sur ces ports :<br>
-<code>EVENT port=&lt;nom&gt; type=&lt;BPDU_RECEIVED|SUPERIOR_BPDU|BPDU_TIMEOUT&gt;</code><br><br>
-Règles de réaction du commutateur :<br>
-1. <strong>Si type == 'BPDU_RECEIVED' :</strong><br>
+Analysez les paramètres du problème pour chaque cas. <strong>Si type == 'BPDU_RECEIVED' :</strong><br>
    - Si <code>bpdu_guard == 'YES'</code> : <code>status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION</code><br>
    - Sinon : <code>status=FORWARDING action=NORMAL_PROCESSING reason=BPDU_ACCEPTED</code><br>
 2. <strong>Si type == 'SUPERIOR_BPDU' :</strong><br>
@@ -298,13 +326,13 @@ Règles de réaction du commutateur :<br>
 Pour chaque événement, afficher :<br>
 <code>STP_GUARD_REPORT port={port} event={type} status={status} action={action} reason={reason}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PORT name=Gi0/1 bpdu_guard=YES root_guard=NO loop_guard=NO
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PORT name=Gi0/1 bpdu_guard=YES root_guard=NO loop_guard=NO
 PORT name=Gi0/2 bpdu_guard=NO root_guard=YES loop_guard=NO
 PORT name=Gi0/3 bpdu_guard=NO root_guard=NO loop_guard=YES
 EVENT port=Gi0/1 type=BPDU_RECEIVED
 EVENT port=Gi0/2 type=SUPERIOR_BPDU
 EVENT port=Gi0/3 type=BPDU_TIMEOUT</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STP_GUARD_REPORT port=Gi0/1 event=BPDU_RECEIVED status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STP_GUARD_REPORT port=Gi0/1 event=BPDU_RECEIVED status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION
 STP_GUARD_REPORT port=Gi0/2 event=SUPERIOR_BPDU status=ROOT_INCONSISTENT action=BLOCK_TRAFFIC reason=ROOT_GUARD_TRIGGERED
 STP_GUARD_REPORT port=Gi0/3 event=BPDU_TIMEOUT status=LOOP_INCONSISTENT action=BLOCK_UNIDIRECTIONAL reason=LOOP_GUARD_TRIGGERED</pre></div>
     </div>
@@ -482,6 +510,29 @@ STP_GUARD_REPORT port=Gi0/3 event=BPDU_TIMEOUT status=LOOP_INCONSISTENT action=B
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

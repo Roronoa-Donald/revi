@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -143,28 +144,33 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="az3-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SUBNET name=snet-web cidr=10.0.1.0/24">
-  <script type="text/plain" data-lab-starter>import sys
-import ipaddress
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c4-e1) — Calculateur d'adressage Azure VNet & Adresses IP réservées
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Sous-réseau de base de données /24 distinct]
+# Données : SUBNET name=snet-db cidr=10.0.10.0/24
+A_COMPLETER
 
-# À compléter : déduire les adresses réservées Azure et calculer la plage exploitable
+[Cas 2 — Petit sous-réseau AzureBastionSubnet en /26]
+# Données : SUBNET name=AzureBastionSubnet cidr=10.0.2.0/26
+A_COMPLETER
+
+[Cas 3 — Sous-réseau GatewaySubnet minimal en /27]
+# Données : SUBNET name=GatewaySubnet cidr=192.168.0.0/27
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur d'adressage Azure VNet &amp; Adresses IP réservées</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -183,8 +189,8 @@ Format d'entrée :<br>
 Format de sortie attendu :<br>
 <code>SUBNET &lt;nom&gt;: TOTAL=&lt;total&gt; USABLE=&lt;usable&gt; RESERVED=5 GATEWAY=&lt;gw_ip&gt; DNS1=&lt;dns1_ip&gt; RANGE=&lt;first_usable&gt;-&lt;last_usable&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SUBNET name=snet-web cidr=10.0.1.0/24</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SUBNET snet-web: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.1.1 DNS1=10.0.1.2 RANGE=10.0.1.4-10.0.1.254</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUBNET name=snet-web cidr=10.0.1.0/24</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUBNET snet-web: TOTAL=256 USABLE=251 RESERVED=5 GATEWAY=10.0.1.1 DNS1=10.0.1.2 RANGE=10.0.1.4-10.0.1.254</pre></div>
     </div>
     <p class="lab__note">Sous-réseau /24 classique avec 251 adresses exploitables.</p>
     <details class="lab__hints">
@@ -199,19 +205,33 @@ Format de sortie attendu :<br>
 
 <div class="lab" data-lab
      data-exercise="az3-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="RULE prio=100 name=Allow-HTTP direction=INBOUND source=Internet port=80 proto=TCP action=ALLOW&#10;RULE prio=200 name=Deny-SSH direction=INBOUND source=* port=22 proto=TCP action=DENY&#10;TEST_PACKET source=Internet port=80 proto=TCP&#10;TEST_PACKET source=Internet port=22 proto=TCP">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c4-e2) — Moteur d'évaluation de règles de sécurité NSG
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Règles personnalisées DNS et Telnet]
+# Données : RULE prio=150 name=Allow-DNS direction=INBOUND source=CorpDNS port=53 proto=UDP action=ALLOW
+# Données : RULE prio=250 name=Deny-Telnet direction=INBOUND source=* port=23 proto=TCP action=DENY
+# Données : TEST_PACKET source=CorpDNS port=53 proto=UDP
+# Données : TEST_PACKET source=AnyHost port=23 proto=TCP
+A_COMPLETER
 
-# À compléter : trier les règles par priorité et évaluer les paquets
+[Cas 2 — Chute sur les règles par défaut Azure VNet et DenyAll]
+# Données : RULE prio=300 name=Allow-HTTPS direction=INBOUND source=Internet port=443 proto=TCP action=ALLOW
+# Données : TEST_PACKET source=VirtualNetwork port=3389 proto=TCP
+# Données : TEST_PACKET source=ExternalHacker port=4444 proto=UDP
+A_COMPLETER
+
+[Cas 3 — Règle par défaut AzureLoadBalancer]
+# Données : TEST_PACKET source=AzureLoadBalancer port=80 proto=TCP
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Moteur d'évaluation de règles de sécurité NSG</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -234,11 +254,11 @@ Critères de correspondance d'un paquet :<br>
 Format de sortie attendu :<br>
 <code>PACKET: matched_rule=&lt;name&gt; (prio=&lt;prio&gt;) -&gt; RESULT=&lt;ALLOW|DENY&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE prio=100 name=Allow-HTTP direction=INBOUND source=Internet port=80 proto=TCP action=ALLOW
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE prio=100 name=Allow-HTTP direction=INBOUND source=Internet port=80 proto=TCP action=ALLOW
 RULE prio=200 name=Deny-SSH direction=INBOUND source=* port=22 proto=TCP action=DENY
 TEST_PACKET source=Internet port=80 proto=TCP
 TEST_PACKET source=Internet port=22 proto=TCP</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PACKET: matched_rule=Allow-HTTP (prio=100) -&gt; RESULT=ALLOW
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PACKET: matched_rule=Allow-HTTP (prio=100) -&gt; RESULT=ALLOW
 PACKET: matched_rule=Deny-SSH (prio=200) -&gt; RESULT=DENY</pre></div>
     </div>
     <p class="lab__note">Le port 80 est autorisé par la règle 100 et SSH 22 est bloqué par la règle 200.</p>
@@ -254,20 +274,35 @@ PACKET: matched_rule=Deny-SSH (prio=200) -&gt; RESULT=DENY</pre></div>
 
 <div class="lab" data-lab
      data-exercise="az3-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="VNET id=vnet-hub cidr=10.0.0.0/16&#10;VNET id=vnet-spoke1 cidr=10.1.0.0/16&#10;PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=false">
-  <script type="text/plain" data-lab-starter>import sys
-import ipaddress
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c4-e3) — Validateur de Peering VNet & Topologie Hub-and-Spoke
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Peering valide entre VNet Core et VNet App sans transit]
+# Données : VNET id=vnet-core cidr=172.16.0.0/16
+# Données : VNET id=vnet-app cidr=172.17.0.0/16
+# Données : PEERING vnet1=vnet-core vnet2=vnet-app allow_gw_transit=false use_remote_gw=false
+A_COMPLETER
 
-# À compléter : vérifier le non-chevauchement des réseaux et la cohérence du peering
+[Cas 2 — Échec dû au chevauchement CIDR]
+# Données : VNET id=vnet-a cidr=10.0.0.0/16
+# Données : VNET id=vnet-b cidr=10.0.1.0/24
+# Données : PEERING vnet1=vnet-a vnet2=vnet-b allow_gw_transit=false use_remote_gw=false
+A_COMPLETER
+
+[Cas 3 — Conflit de flags de passerelle et VNet inconnu]
+# Données : VNET id=vnet-hub cidr=10.0.0.0/16
+# Données : VNET id=vnet-spoke2 cidr=10.2.0.0/16
+# Données : PEERING vnet1=vnet-hub vnet2=vnet-spoke2 allow_gw_transit=true use_remote_gw=true
+# Données : PEERING vnet1=vnet-hub vnet2=vnet-ghost allow_gw_transit=false use_remote_gw=false
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Validateur de Peering VNet &amp; Topologie Hub-and-Spoke</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -290,10 +325,10 @@ Règles de validation :<br>
   <code>PEERING_SUCCESS: &lt;nom1&gt; &lt;-&gt; &lt;nom2&gt; status=CONNECTED gateway_transit=&lt;ENABLED|DISABLED&gt;</code><br>
   (avec <code>ENABLED</code> si au moins l'un des deux flags est à true, sinon <code>DISABLED</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VNET id=vnet-hub cidr=10.0.0.0/16
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VNET id=vnet-hub cidr=10.0.0.0/16
 VNET id=vnet-spoke1 cidr=10.1.0.0/16
 PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=false</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PEERING_SUCCESS: vnet-hub &lt;-&gt; vnet-spoke1 status=CONNECTED gateway_transit=ENABLED</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PEERING_SUCCESS: vnet-hub &lt;-&gt; vnet-spoke1 status=CONNECTED gateway_transit=ENABLED</pre></div>
     </div>
     <p class="lab__note">Peering valide sans chevauchement avec passerelle de transit activée sur le Hub.</p>
     <details class="lab__hints">
@@ -467,6 +502,29 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

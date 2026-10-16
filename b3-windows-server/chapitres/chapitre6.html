@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -155,27 +156,34 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="ws3-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="POWERSHELL New-ADUser -Name &quot;Alice Smith&quot; -SamAccountName asmith -Enabled $true&#10;POWERSHELL Set-ADUser -Department &quot;Finance&quot;">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c6-e1) — Analyseur syntaxique de commandes PowerShell d’administration Active Directory
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Création de groupe avec paramètre obligatoire manquant]
+# Données : POWERSHELL New-ADGroup -Name "GG_Marketing" -GroupScope Global
+A_COMPLETER
 
-# À compléter : analyser la syntaxe des cmdlets PowerShell Active Directory
+[Cas 2 — Toutes les commandes correctement paramétrées]
+# Données : POWERSHELL New-ADGroup -Name "GG_Sec" -GroupCategory Security -GroupScope Universal
+# Données : POWERSHELL Set-ADUser -Identity bob -Title "Analyst"
+A_COMPLETER
+
+[Cas 3 — New-ADUser omettant à la fois Name et SamAccountName]
+# Données : POWERSHELL New-ADUser -Enabled $true
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Analyseur syntaxique de commandes PowerShell d’administration Active Directory</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -202,9 +210,9 @@ Sortie :
 - Bilan :
   `SUMMARY total_cmds=<N> valides=<V> invalides=<I>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POWERSHELL New-ADUser -Name "Alice Smith" -SamAccountName asmith -Enabled $true
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>POWERSHELL New-ADUser -Name "Alice Smith" -SamAccountName asmith -Enabled $true
 POWERSHELL Set-ADUser -Department "Finance"</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CMD_STATUS cmdlet=New-ADUser result=VALIDE params_count=3
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CMD_STATUS cmdlet=New-ADUser result=VALIDE params_count=3
 CMD_STATUS cmdlet=Set-ADUser result=INVALIDE manquant=-Identity
 SUMMARY total_cmds=2 valides=1 invalides=1</pre></div>
     </div>
@@ -222,19 +230,36 @@ SUMMARY total_cmds=2 valides=1 invalides=1</pre></div>
 
 <div class="lab" data-lab
      data-exercise="ws3-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="NODE id=NODE-01 vote=1 status=ONLINE&#10;NODE id=NODE-02 vote=1 status=ONLINE&#10;NODE id=NODE-03 vote=1 status=OFFLINE&#10;WITNESS type=CLOUD status=ONLINE">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c6-e2) — Calculateur de quorum de cluster de basculement (Failover Clustering)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Perte de quorum suite à double panne de nœuds sans témoin]
+# Données : NODE id=S1 vote=1 status=ONLINE
+# Données : NODE id=S2 vote=1 status=OFFLINE
+# Données : NODE id=S3 vote=1 status=OFFLINE
+# Données : WITNESS type=NONE status=OFFLINE
+A_COMPLETER
 
-# À compléter : calculer le quorum et vérifier la majorité absolue
+[Cas 2 — Cluster binaire avec témoin maintenant le quorum]
+# Données : NODE id=N1 vote=1 status=ONLINE
+# Données : NODE id=N2 vote=1 status=OFFLINE
+# Données : WITNESS type=DISK status=ONLINE
+A_COMPLETER
+
+[Cas 3 — Cluster avec un nœud sans droit de vote (vote=0)]
+# Données : NODE id=N1 vote=1 status=ONLINE
+# Données : NODE id=N2 vote=0 status=ONLINE
+# Données : NODE id=N3 vote=1 status=ONLINE
+# Données : WITNESS type=FILE_SHARE status=ONLINE
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Calculateur de quorum de cluster de basculement (Failover Clustering)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -260,11 +285,11 @@ Sortie :
 - Bilan de disponibilité :
   `SUMMARY nodes_online=<N_ON> nodes_offline=<N_OFF> witness_status=<WITNESS_STATUT>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NODE id=NODE-01 vote=1 status=ONLINE
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NODE id=NODE-01 vote=1 status=ONLINE
 NODE id=NODE-02 vote=1 status=ONLINE
 NODE id=NODE-03 vote=1 status=OFFLINE
 WITNESS type=CLOUD status=ONLINE</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>QUORUM_ANALYSIS total_votes=4 required_majority=3 active_votes=3 cluster_status=QUORUM_OK
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>QUORUM_ANALYSIS total_votes=4 required_majority=3 active_votes=3 cluster_status=QUORUM_OK
 SUMMARY nodes_online=2 nodes_offline=1 witness_status=ONLINE</pre></div>
     </div>
     <p class="lab__note">4 voix configurées (3 nœuds + 1 témoin). Majorité requise = 4//2 + 1 = 3 voix. 3 voix actives (2 nœuds + témoin) : le quorum est maintenu.</p>
@@ -281,19 +306,31 @@ SUMMARY nodes_online=2 nodes_offline=1 witness_status=ONLINE</pre></div>
 
 <div class="lab" data-lab
      data-exercise="ws3-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SOURCE_VOL letter=D size_gb=500 daily_change_gb=20&#10;POLICY retention_weeks=4">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c6-e3) — Planificateur de sauvegardes Windows Server Backup (VSS Full vs Incremental)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Volume système de taille modeste avec 2 semaines de rétention]
+# Données : SOURCE_VOL letter=C size_gb=100 daily_change_gb=5
+# Données : POLICY retention_weeks=2
+A_COMPLETER
 
-# À compléter : calculer la volumétrie des sauvegardes et le stockage cible
+[Cas 2 — Gros volume de fichiers avec forte variation quotidienne]
+# Données : SOURCE_VOL letter=E size_gb=2000 daily_change_gb=100
+# Données : POLICY retention_weeks=1
+A_COMPLETER
+
+[Cas 3 — Volume statique sans modification quotidienne (change=0)]
+# Données : SOURCE_VOL letter=Z size_gb=300 daily_change_gb=0
+# Données : POLICY retention_weeks=3
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Planificateur de sauvegardes Windows Server Backup (VSS Full vs Incremental)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -325,9 +362,9 @@ Sortie :
 - Bilan :
   `SUMMARY retention_days=<7*W> storage_recommande_gb=<FINAL>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SOURCE_VOL letter=D size_gb=500 daily_change_gb=20
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SOURCE_VOL letter=D size_gb=500 daily_change_gb=20
 POLICY retention_weeks=4</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VOL_PLAN letter=D full_backup_gb=500 week_inc_gb=120 cycle_hebdo_gb=620
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VOL_PLAN letter=D full_backup_gb=500 week_inc_gb=120 cycle_hebdo_gb=620
 TARGET_STORAGE weeks=4 raw_backup_gb=2480 vss_overhead_15pct=372.0 final_target_gb=2852.0
 SUMMARY retention_days=28 storage_recommande_gb=2852.0</pre></div>
     </div>
@@ -506,6 +543,29 @@ SUMMARY retention_days=28 storage_recommande_gb=2852.0</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

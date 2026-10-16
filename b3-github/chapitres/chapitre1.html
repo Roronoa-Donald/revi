@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="1">
@@ -183,28 +184,34 @@ sha1 = hashlib.sha1(format_brut).hexdigest()</code></pre>,<p>Par exemple, pour u
 </table>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="gh3-c1-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="OBJECT type=blob content=hello world&#10;">
-  <script type="text/plain" data-lab-starter>import sys
-import hashlib
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c1-e1) — Calculateur de hachage SHA-1 d’objet Git (Plomberie git hash-object)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Blob avec texte standard sans saut de ligne final]
+# Données : OBJECT type=blob content=Architecture logicielle B3
+A_COMPLETER
 
-# À compléter : formater l'objet avec son en-tête et calculer le hachage SHA-1
+[Cas 2 — Commit fictif et tag annoté]
+# Données : OBJECT type=commit content=tree a1b2c3d4e5\nauthor Alice\n\nInitial commit
+# Données : OBJECT type=tag content=object 123456\ntype commit\ntag v1.0.0
+A_COMPLETER
+
+[Cas 3 — Objet avec contenu vide]
+# Données : OBJECT type=blob content=
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur de hachage SHA-1 d’objet Git (Plomberie git hash-object)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -214,14 +221,13 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 Pour calculer l'empreinte SHA-1 d'un objet (équivalent de la commande de plomberie <code>git hash-object</code>), Git préfixe le contenu brut avec une chaîne d'en-tête standard suivie d'un octet nul <code>\0</code> :<br>
 <code>en-tete = f"{type_objet} {taille_octets}\0"</code><br>
 Puis il calcule le condensat SHA-1 (40 caractères hexadécimaux en minuscules) de la concaténation de l'en-tête et du contenu.<br><br>
-Le script lit sur l'entrée standard des descriptions d'objets au format :<br>
-<code>OBJECT type=&lt;blob|commit|tree|tag&gt; content=&lt;texte_du_contenu&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque ligne, afficher :<br>
 <code>GIT_HASH type={type} size={taille} sha1={hash_hex}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>OBJECT type=blob content=hello world
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OBJECT type=blob content=hello world
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>GIT_HASH type=blob size=11 sha1=95d09f2b10159347eece71399a7e2e907ea3df4f</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>GIT_HASH type=blob size=11 sha1=95d09f2b10159347eece71399a7e2e907ea3df4f</pre></div>
     </div>
     <p class="lab__note">Blob Git contenant "hello world" (11 octets) dont le sha1 canonique avec en-tête est 95d09f2b...</p>
     <details class="lab__hints">
@@ -236,19 +242,32 @@ Pour chaque ligne, afficher :<br>
 
 <div class="lab" data-lab
      data-exercise="gh3-c1-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ENTRY mode=100644 type=blob sha1=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2 name=README.md&#10;ENTRY mode=040000 type=tree sha1=b1c2d3e4f5a6b1c2d3e4f5a6b1c2d3e4f5a6b1c2 name=src">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c1-e2) — Parseur d’arbre Git et inspection de hiérarchie (git ls-tree)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Tree avec script exécutable et plusieurs fichiers]
+# Données : ENTRY mode=100755 type=blob sha1=111122223333444455556666777788889999aaaa name=deploy.sh
+# Données : ENTRY mode=100644 type=blob sha1=bbbbccccddddeeeeffff00001111222233334444 name=config.json
+# Données : ENTRY mode=040000 type=tree sha1=55556666777788889999aaaabbbbccccddddeeee name=assets
+A_COMPLETER
 
-# À compléter : trier et afficher les entrées de l'objet Tree
+[Cas 2 — Tree vide]
+# (Aucune donnée spécifique)
+A_COMPLETER
+
+[Cas 3 — Multiples exécutables et lien symbolique]
+# Données : ENTRY mode=100755 type=blob sha1=aaa111bbb222ccc333ddd444eee555fff666aa11 name=run.py
+# Données : ENTRY mode=100755 type=blob sha1=bbb222ccc333ddd444eee555fff666aaa111bbb22 name=build.sh
+# Données : ENTRY mode=120000 type=blob sha1=ccc333ddd444eee555fff666aaa111bbb222ccc33 name=latest.link
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Parseur d’arbre Git et inspection de hiérarchie (git ls-tree)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -264,16 +283,15 @@ Chaque entrée comporte :<br>
 - Le type de l'objet lié (<code>blob</code> pour les fichiers, <code>tree</code> pour les répertoires).<br>
 - L'identifiant SHA-1 de l'objet (40 caractères hexadécimaux).<br>
 - Le nom du fichier ou dossier.<br><br>
-Le script lit sur l'entrée standard des entrées de Tree au format :<br>
-<code>ENTRY mode=&lt;mode&gt; type=&lt;blob|tree&gt; sha1=&lt;hash&gt; name=&lt;nom&gt;</code>.<br><br>
-Le script doit afficher les entrées triées par ordre alphabétique du nom de fichier au format standard <code>git ls-tree</code> :<br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
+Indiquez pour chaque cas les entrées triées par ordre alphabétique du nom de fichier au format standard <code>git ls-tree</code> :<br>
 <code>{mode} {type} {sha1}\t{name}</code><br>
 Puis un récapitulatif :<br>
 <code>TREE_SUMMARY total={n} blobs={nb_blobs} subtrees={nb_trees} executables={nb_exec}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ENTRY mode=100644 type=blob sha1=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2 name=README.md
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ENTRY mode=100644 type=blob sha1=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2 name=README.md
 ENTRY mode=040000 type=tree sha1=b1c2d3e4f5a6b1c2d3e4f5a6b1c2d3e4f5a6b1c2 name=src</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>100644 blob a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2	README.md
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>100644 blob a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2	README.md
 040000 tree b1c2d3e4f5a6b1c2d3e4f5a6b1c2d3e4f5a6b1c2	src
 TREE_SUMMARY total=2 blobs=1 subtrees=1 executables=0</pre></div>
     </div>
@@ -291,19 +309,33 @@ TREE_SUMMARY total=2 blobs=1 subtrees=1 executables=0</pre></div>
 
 <div class="lab" data-lab
      data-exercise="gh3-c1-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="REF name=refs/heads/main target=c0ffee1234567890abcdef1234567890abcdef12&#10;REF name=HEAD target=ref: refs/heads/main&#10;RESOLVE name=HEAD">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c1-e3) — Résolveur de références symboliques & pointeur HEAD (git rev-parse)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — HEAD détachée pointant directement sur un commit]
+# Données : REF name=HEAD target=9876543210abcdef9876543210abcdef98765432
+# Données : RESOLVE name=HEAD
+A_COMPLETER
 
-# À compléter : déréférencer les pointeurs Git
+[Cas 2 — Chaîne de références avec branche intermédiaire et ref introuvable]
+# Données : REF name=refs/heads/feature target=aabbccddeeff00112233445566778899aabbccdd
+# Données : REF name=HEAD target=ref: refs/heads/feature
+# Données : RESOLVE name=HEAD
+# Données : RESOLVE name=refs/heads/develop
+A_COMPLETER
+
+[Cas 3 — Résolution directe d’un tag de version]
+# Données : REF name=refs/tags/v2.0 target=112233445566778899aabbccddeeff0011223344
+# Données : RESOLVE name=refs/tags/v2.0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Résolveur de références symboliques &amp; pointeur HEAD (git rev-parse)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -311,8 +343,7 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
     <p class="lab__goal"><strong>Objectif :</strong> Résoudre la chaîne de pointeurs de références de Git pour déterminer le commit actif pointé par HEAD.</p>
     <div class="lab__brief"><p>Dans Git, <code>HEAD</code> est une référence symbolique qui pointe généralement vers une branche locale (ex: <code>ref: refs/heads/main</code>), qui elle-même contient le hash du dernier commit de cette branche.<br><br>
 Si un développeur effectue un checkout directement sur un commit ou un tag, <code>HEAD</code> contient directement le hash : le dépôt est alors en <strong>HEAD détachée (Detached HEAD)</strong>.<br><br>
-Le script lit sur l'entrée standard :<br>
-1. Des définitions de références :<br>
+Analysez les paramètres du problème pour chaque cas. Des définitions de références :<br>
    <code>REF name=&lt;nom&gt; target=&lt;hash|ref: autre_ref&gt;</code>.<br>
 2. Des requêtes de résolution :<br>
    <code>RESOLVE name=&lt;ref_a_resoudre&gt;</code>.<br><br>
@@ -322,10 +353,10 @@ Pour chaque requête, le script suit la chaîne de déréférencement jusqu'au h
 - Si la référence n'existe pas :<br>
   <code>RESOLVED name={name} status=NOT_FOUND</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>REF name=refs/heads/main target=c0ffee1234567890abcdef1234567890abcdef12
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REF name=refs/heads/main target=c0ffee1234567890abcdef1234567890abcdef12
 REF name=HEAD target=ref: refs/heads/main
 RESOLVE name=HEAD</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RESOLVED name=HEAD commit=c0ffee1234567890abcdef1234567890abcdef12 state=BRANCH_REF path=HEAD -&gt; refs/heads/main</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RESOLVED name=HEAD commit=c0ffee1234567890abcdef1234567890abcdef12 state=BRANCH_REF path=HEAD -&gt; refs/heads/main</pre></div>
     </div>
     <p class="lab__note">HEAD pointe sur la branche main qui pointe sur le commit.</p>
     <details class="lab__hints">
@@ -502,6 +533,29 @@ RESOLVE name=HEAD</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

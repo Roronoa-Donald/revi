@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="2">
@@ -180,28 +181,37 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>6. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="aws3-c2-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ACTION=s3:GetObject STATEMENTS=Allow:s3:Get*;Deny:s3:PutObject">
-  <script type="text/plain" data-lab-starter>import sys
-import fnmatch
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c2-e1) — Moteur d'Évaluation de Politiques IAM JSON (Deny / Allow / Default Deny)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Deny explicite prioritaire sur un Allow générique]
+# Données : ACTION=s3:DeleteBucket STATEMENTS=Allow:s3:*;Deny:s3:DeleteBucket
+A_COMPLETER
 
-# À compléter : évaluer les autorisations IAM
+[Cas 2 — Refus par défaut (aucune politique correspondante)]
+# Données : ACTION=ec2:RunInstances STATEMENTS=Allow:s3:GetObject;Allow:s3:ListBucket
+A_COMPLETER
+
+[Cas 3 — Allow complet avec joker universel (*)]
+# Données : ACTION=iam:CreateUser STATEMENTS=Allow:*
+A_COMPLETER
+
+[Cas 4 — Deny avec joker sur les suppressions]
+# Données : ACTION=dynamodb:DeleteItem STATEMENTS=Allow:dynamodb:*;Deny:*:Delete*
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Moteur d'Évaluation de Politiques IAM JSON (Deny / Allow / Default Deny)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -217,8 +227,8 @@ Format d'entrée STDIN :<br>
 <code>ACTION=&lt;action_demandée&gt; STATEMENTS=&lt;Effect:Action_pattern;Effect:Action_pattern;...&gt;</code><br><br>
 Sortie : <code>IAM_EVAL: action=&lt;act&gt; decision=&lt;ALLOW|DENY&gt; reason=&lt;EXPLICIT_DENY|EXPLICIT_ALLOW|DEFAULT_DENY&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ACTION=s3:GetObject STATEMENTS=Allow:s3:Get*;Deny:s3:PutObject</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IAM_EVAL: action=s3:GetObject decision=ALLOW reason=EXPLICIT_ALLOW</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACTION=s3:GetObject STATEMENTS=Allow:s3:Get*;Deny:s3:PutObject</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IAM_EVAL: action=s3:GetObject decision=ALLOW reason=EXPLICIT_ALLOW</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
@@ -233,19 +243,32 @@ Sortie : <code>IAM_EVAL: action=&lt;act&gt; decision=&lt;ALLOW|DENY&gt; reason=&
 
 <div class="lab" data-lab
      data-exercise="aws3-c2-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="KEY_AUDIT USER=dev-alice KEY_ID=AKIAIOSFODNN7EXAMPLE STATUS=Active AGE_DAYS=45">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c2-e2) — Auditeur de Clés d'Accès IAM & Détecteur d'Inactivité / Rotation
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Clé active ayant dépassé 90 jours (120 jours)]
+# Données : KEY_AUDIT USER=admin-bob KEY_ID=AKIA1122334455667788 STATUS=Active AGE_DAYS=120
+A_COMPLETER
 
-# À compléter : auditer les clés d'accès IAM
+[Cas 2 — Clé inactive conservée (40 jours)]
+# Données : KEY_AUDIT USER=svc-app KEY_ID=AKIA9988776655443322 STATUS=Inactive AGE_DAYS=40
+A_COMPLETER
+
+[Cas 3 — Clé malformée (préfixe invalide)]
+# Données : KEY_AUDIT USER=hacker KEY_ID=ASIA1122334455667788 STATUS=Active AGE_DAYS=10
+A_COMPLETER
+
+[Cas 4 — Clé exactement au seuil limite de 90 jours]
+# Données : KEY_AUDIT USER=ops-charlie KEY_ID=AKIAABCDEF0123456789 STATUS=Active AGE_DAYS=90
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Auditeur de Clés d'Accès IAM &amp; Détecteur d'Inactivité / Rotation</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -262,8 +285,8 @@ Si ce n'est pas le cas -> <code>ALERT_MALFORMED_KEY</code>.<br>
 Entrée STDIN : <code>KEY_AUDIT USER=&lt;username&gt; KEY_ID=&lt;key&gt; STATUS=&lt;Active|Inactive&gt; AGE_DAYS=&lt;n&gt;</code>.<br>
 Sortie : <code>AUDIT: user=&lt;u&gt; key=&lt;k&gt; status=&lt;s&gt; age_days=&lt;n&gt; verdict=&lt;VERDICT&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>KEY_AUDIT USER=dev-alice KEY_ID=AKIAIOSFODNN7EXAMPLE STATUS=Active AGE_DAYS=45</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT: user=dev-alice key=AKIAIOSFODNN7EXAMPLE status=Active age_days=45 verdict=KEY_COMPLIANT</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>KEY_AUDIT USER=dev-alice KEY_ID=AKIAIOSFODNN7EXAMPLE STATUS=Active AGE_DAYS=45</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT: user=dev-alice key=AKIAIOSFODNN7EXAMPLE status=Active age_days=45 verdict=KEY_COMPLIANT</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
@@ -278,19 +301,32 @@ Sortie : <code>AUDIT: user=&lt;u&gt; key=&lt;k&gt; status=&lt;s&gt; age_days=&lt
 
 <div class="lab" data-lab
      data-exercise="aws3-c2-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SCP_CHECK ACTION=ec2:StopInstances HIERARCHY=Root:Allow;CoreOU:Allow;Account:Allow">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c2-e3) — Évaluateur de Politiques de Contrôle des Services AWS Organizations (SCP)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Blocage par Deny explicite au niveau de l OU Core]
+# Données : SCP_CHECK ACTION=s3:DeleteBucket HIERARCHY=Root:Allow;CoreOU:Deny;Account:Allow
+A_COMPLETER
 
-# À compléter : vérifier l'autorisation à travers la hiérarchie SCP
+[Cas 2 — Blocage par absence d Allow au niveau Root]
+# Données : SCP_CHECK ACTION=dynamodb:PutItem HIERARCHY=Root:None;AppOU:Allow;Account:Allow
+A_COMPLETER
+
+[Cas 3 — Blocage par Deny sur le compte final]
+# Données : SCP_CHECK ACTION=iam:CreateUser HIERARCHY=Root:Allow;DevOU:Allow;Account:Deny
+A_COMPLETER
+
+[Cas 4 — Arborescence à 4 niveaux validée]
+# Données : SCP_CHECK ACTION=ec2:RunInstances HIERARCHY=Root:Allow;EuropeOU:Allow;ProdOU:Allow;Account:Allow
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Évaluateur de Politiques de Contrôle des Services AWS Organizations (SCP)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -308,8 +344,8 @@ Entrée STDIN :<br>
 Sortie : Si autorisée : <code>SCP_RESULT: action=&lt;act&gt; status=ALLOWED</code>.<br>
 Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt;Niveau&gt; reason=&lt;EXPLICIT_DENY|NO_ALLOW_FOUND&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SCP_CHECK ACTION=ec2:StopInstances HIERARCHY=Root:Allow;CoreOU:Allow;Account:Allow</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SCP_RESULT: action=ec2:StopInstances status=ALLOWED</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCP_CHECK ACTION=ec2:StopInstances HIERARCHY=Root:Allow;CoreOU:Allow;Account:Allow</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SCP_RESULT: action=ec2:StopInstances status=ALLOWED</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
@@ -483,6 +519,29 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

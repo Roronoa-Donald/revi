@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Exercices &amp;amp; projet intégrateur — Architecture des réseaux B1</title>
-<meta name="description" content="Exercices supplémentaires et projet intégrateur du cours d'Architecture des réseaux B1 : scripts Bash gradués et plan d'adressage du campus.">
+<title>Exercices &amp;amp; dossier de synthèse — Architecture des réseaux B1</title>
+<meta name="description" content="Exercices supplémentaires et dossier de conception réseau B1 : modèle OSI, TCP/IP, sous-réseaux et VLSM.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b1-reseaux/exercices/exercices.html">
-<meta property="og:title" content="Exercices &amp;amp; projet intégrateur — Architecture des réseaux B1">
-<meta property="og:description" content="Exercices supplémentaires et projet intégrateur du cours d'Architecture des réseaux B1 : scripts Bash gradués et plan d'adressage du campus.">
+<meta property="og:title" content="Exercices &amp;amp; dossier de synthèse — Architecture des réseaux B1">
+<meta property="og:description" content="Exercices supplémentaires et dossier de conception réseau B1 : modèle OSI, TCP/IP, sous-réseaux et VLSM.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body>
@@ -52,73 +53,24 @@
 <main id="content" class="rewrap">
 <p class="crumb"><a href="../index.html">Architecture des réseaux B1</a> › <a href="../sommaire.html">Sommaire</a> › Exercices</p>
 
-  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>
+  <h1>Exercices supplémentaires &amp; cas pratiques</h1>
 
-  <p class="lead">De la pratique graduée pour consolider chaque session, puis un projet final qui outille le campus entier. Les scripts sont en Bash, comme à l'atelier.</p>
+  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier de conception et de dimensionnement d’un réseau local d’entreprise.</p>
 
   <h2>Entraînement rapide (acquisition)</h2>
 
   <div class="item">
     <div class="item__head"><span class="badge badge--n1">Échauffement</span></div>
     <ol>
-      <li>Lit n lignes « reseau portee » (lan/wan/man/pan/wlan) et affiche la description de chaque réseau, puis le compteur LAN.</li>
-      <li>Lit n lignes « equipement couche » (osil 1 a 7) et affiche le nom de chaque couche, puis le compteur couche 3.</li>
-      <li>Lit n lignes « protocole famille » (tcp/udp) et affiche fiable ou rapide, puis les deux compteurs.</li>
-      <li>Lit n adresses MAC (12 caracteres hexa) et vérifie la longueur : 12 chiffres sinon « invalide ».</li>
+      <li>Distinguer les réseaux selon leur échelle géographique (PAN, LAN, WLAN, MAN, WAN).</li>
+      <li>Comparer les topologies physiques en étoile, en bus, en anneau et en maillage.</li>
+      <li>Citer les 7 couches du modèle OSI et préciser la PDU associée à chaque niveau (Bit, Trame, Paquet, Segment, Données).</li>
+      <li>Identifier le rôle d’une adresse physique MAC (couche 2) par rapport à une adresse logique IP (couche 3).</li>
     </ol>
-    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
-lan=0
-for ((k=0; k&lt;n; k++)); do
-  read -r reseau portee
-  case "$portee" in
-    lan) echo "$reseau : local (immeuble, campus)" ; lan=$((lan + 1)) ;;
-    wan) echo "$reseau : etendu (villes, pays)" ;;
-    man) echo "$reseau : metropolitan (ville)" ;;
-    wlan) echo "$reseau : local sans fil (802.11)" ;;
-    pan) echo "$reseau : personnel (une personne)" ;;
-  esac
-done
-echo "lan : $lan/$n"
-
-read -r n
-reseau3=0
-for ((k=0; k&lt;n; k++)); do
-  read -r equipement couche
-  case "$couche" in
-    1) echo "$equipement : physique" ;;
-    2) echo "$equipement : liaison de donnees" ;;
-    3) echo "$equipement : reseau" ; reseau3=$((reseau3 + 1)) ;;
-    4) echo "$equipement : transport" ;;
-    5) echo "$equipement : session" ;;
-    6) echo "$equipement : presentation" ;;
-    7) echo "$equipement : application" ;;
-  esac
-done
-echo "couche reseau : $reseau3/$n"
-
-read -r n
-tcp=0 ; udp=0
-for ((k=0; k&lt;n; k++)); do
-  read -r protocole famille
-  if [ "$famille" = "tcp" ]; then
-    echo "$protocole : fiable (accuses de reception)" ; tcp=$((tcp + 1))
-  else
-    echo "$protocole : rapide (sans accuse)" ; udp=$((udp + 1))
-  fi
-done
-echo "tcp : $tcp / udp : $udp"
-
-read -r n
-invalides=0
-for ((k=0; k&lt;n; k++)); do
-  read -r mac
-  if [ ${#mac} -eq 12 ]; then
-    echo "$mac : valide (48 bits)"
-  else
-    echo "$mac : invalide" ; invalides=$((invalides + 1))
-  fi
-done
-echo "invalides : $invalides/$n"</code></pre></div></details>
+    <details><summary>Corrections &amp; protocoles réseau</summary><div class="sol"><p><strong>1. Échelles réseau :</strong> PAN (personnel, Bluetooth) ; LAN (local, bâtiment) ; MAN (métropolitain, ville) ; WAN (étendu, Internet).</p>
+<p><strong>2. Topologies :</strong> L’étoile (commutateur central) évite l’interruption globale en cas de rupture de câble, contrairement au bus partagé.</p>
+<p><strong>3. Modèle OSI :</strong> 1-Physique (Bit), 2-Liaison (Trame), 3-Réseau (Paquet), 4-Transport (Segment), 5-Session, 6-Présentation, 7-Application (Données).</p>
+<p><strong>4. Adressage :</strong> L’adresse MAC assure l’acheminement local sur le même sous-réseau ; l’adresse IP permet le routage de bout en bout à travers des passerelles.</p></div></details>
   </div>
 
   <h2>Application</h2>
@@ -126,75 +78,15 @@ echo "invalides : $invalides/$n"</code></pre></div></details>
   <div class="item">
     <div class="item__head"><span class="badge badge--n2">Application</span></div>
     <ol>
-      <li>Lit n lignes « adresse octet » (premier octet + classe annoncee a/b/c/d/e) et valide le classement par le premier octet.</li>
-      <li>Lit n lignes « ip masque » (a ou b) et dit, pour chaque adresse, si elle est dans le meme reseau que la premiere.</li>
-      <li>Lit n lignes « objet couche » (osil 1 a 7) et place cable, commutateur, routeur, chiffrement, ports dans leur couche.</li>
-      <li>Lit n lignes « etape handshake » (syn/synack/ack dans l'ordre) et vérifie la séquence complete.</li>
+      <li>Comparer le fonctionnement des protocoles de transport TCP (connecté, fiable, contrôle de flux) et UDP (non connecté, rapide).</li>
+      <li>Analyser le mécanisme de résolution d’adresses ARP (Address Resolution Protocol) et son cache local.</li>
+      <li>Identifier les classes d’adresses IPv4 historiques (A, B, C) et les plages réservées privées (RFC 1918).</li>
+      <li>Calculer l’adresse réseau, l’adresse de broadcast et le nombre d’hôtes utiles pour un masque de sous-réseau donné (/25, /26, /27).</li>
     </ol>
-    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
-justes=0
-for ((k=0; k&lt;n; k++)); do
-  read -r adresse classe
-  premier=${adresse%%.*}
-  if [ "$premier" -ge 1 ] &amp;&amp; [ "$premier" -le 126 ]; then reelle=a
-  elif [ "$premier" -ge 128 ] &amp;&amp; [ "$premier" -le 191 ]; then reelle=b
-  elif [ "$premier" -ge 192 ] &amp;&amp; [ "$premier" -le 223 ]; then reelle=c
-  elif [ "$premier" -ge 224 ] &amp;&amp; [ "$premier" -le 239 ]; then reelle=d
-  else reelle=e
-  fi
-  if [ "$reelle" = "$classe" ]; then
-    echo "$adresse : classe $reelle confirmee" ; justes=$((justes + 1))
-  else
-    echo "$adresse : classe $reelle, pas $classe"
-  fi
-done
-echo "classements justes : $justes/$n"
-
-read -r n
-read -r ipref masque
-pref=${ipref%%.*}
-for ((k=1; k&lt;n; k++)); do
-  read -r ip masque
-  p=${ip%%.*}
-  if [ "$p" = "$pref" ] &amp;&amp; [ "$masque" = "a" ]; then
-    echo "$ip : meme reseau /8"
-  else
-    echo "$ip : reseau different ou masque errone"
-  fi
-done
-
-read -r n
-for ((k=0; k&lt;n; k++)); do
-  read -r objet couche
-  case "$objet" in
-    cable) attendu=1 ;;
-    commutateur) attendu=2 ;;
-    routeur) attendu=3 ;;
-    ports) attendu=4 ;;
-    chiffrement) attendu=6 ;;
-  esac
-  if [ "$couche" = "$attendu" ]; then
-    echo "$objet : couche $attendu ok"
-  else
-    echo "$objet : couche $attendu, pas $couche"
-  fi
-done
-
-read -r n
-etape=0
-for ((k=1; k&lt;=n; k++)); do
-  read -r paquet
-  case "$k:$paquet" in
-    1:syn) etape=$((etape + 1)) ;;
-    2:synack) etape=$((etape + 1)) ;;
-    3:ack) etape=$((etape + 1)) ;;
-  esac
-done
-if [ "$etape" -eq 3 ]; then
-  echo "handshake complet : full-duplex"
-else
-  echo "handshake incomplete : $etape/3"
-fi</code></pre></div></details>
+    <details><summary>Corrections &amp; protocoles réseau</summary><div class="sol"><p><strong>1. TCP vs UDP :</strong> TCP utilise un three-way handshake (SYN, SYN-ACK, ACK) et retransmet les segments perdus ; UDP privilégie la faible latence sans accusé de réception.</p>
+<p><strong>2. ARP :</strong> Émission d’une requête broadcast "Qui a l’IP X ?" &rarr; Réponse unicast du propriétaire "C’est moi, voici ma MAC" &rarr; Mise en cache temporaire.</p>
+<p><strong>3. RFC 1918 :</strong> 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 : adresses non routables sur l’Internet public, nécessitant un NAT/PAT pour sortir.</p>
+<p><strong>4. Calcul sous-réseau :</strong> /26 correspond à un masque 255.255.255.192 ; $2^6 - 2 = 62$ hôtes adressables par sous-réseau.</p></div></details>
   </div>
 
   <h2>Raisonnement</h2>
@@ -202,155 +94,33 @@ fi</code></pre></div></details>
   <div class="item">
     <div class="item__head"><span class="badge badge--n3">Raisonnement</span></div>
     <ol>
-      <li>Lit n lignes « poste panne » (bus/anneau/etoile) et simule l'effet d'une coupure : tout tombe, bascule, ou un poste isole.</li>
-      <li>Lit n lignes « service besoin » (fiable/rapide) et tranche TCP ou UDP, puis signale les incoherences (voix en TCP).</li>
-      <li>Lit « emprunt » puis calcule : sous-reseaux, hotes valides, dernier octet du masque, prefixe CIDR.</li>
-      <li>Lit « seuil n » puis n lignes « site hotes » et rend le plus petit bloc /n couvrant chaque site (verdict d'espace perdu).</li>
+      <li>Résoudre un problème d’interruption de connectivité réseau par une démarche méthodique couche par couche (Top-Down ou Bottom-Up).</li>
+      <li>Dimensionner le plan d’adressage VLSM (Variable Length Subnet Masking) d’une entreprise multisite.</li>
+      <li>Configurer la passerelle par défaut et expliquer le comportement d’un hôte face à une destination hors sous-réseau.</li>
+      <li>Analyser une capture de trames réseau pour diagnostiquer une tempête de broadcast ou une boucle de commutation.</li>
     </ol>
-    <details><summary>Corrections</summary><div class="sol"><pre><code>read -r n
-graves=0
-for ((k=0; k&lt;n; k++)); do
-  read -r poste topo
-  case "$topo" in
-    bus) echo "$poste : tout le reseau tombe" ; graves=$((graves + 1)) ;;
-    anneau) echo "$poste : bascule sur l'anneau secondaire" ;;
-    etoile) echo "$poste : un seul poste isole" ;;
-  esac
-done
-echo "pannes totales : $graves/$n"
-
-read -r n
-incoherences=0
-for ((k=0; k&lt;n; k++)); do
-  read -r service besoin
-  case "$besoin" in
-    fiable) echo "$service : TCP" ;;
-    rapide) echo "$service : UDP" ;;
-  esac
-done
-echo "regle : contrat manquant = TCP, micro-coupure = UDP"
-
-read -r emprunt
-restants=$((8 - emprunt))
-sousreseaux=$((1 &lt;&lt; emprunt))
-hotestheorique=$((1 &lt;&lt; restants))
-hotes=$((hotestheorique - 2))
-declare -A valeurs
-valeurs[1]=128 ; valeurs[2]=192 ; valeurs[3]=224 ; valeurs[4]=240
-masque=${valeurs[$emprunt]}
-prefixe=$((24 + emprunt))
-echo "sous-reseaux : $sousreseaux"
-echo "hotes valides : $hotes"
-echo "masque : 255.255.255.$masque"
-echo "prefixe : /$prefixe"
-
-read -r seuil
-read -r n
-perdu=0
-for ((k=0; k&lt;n; k++)); do
-  read -r site hotes
-  taille=2
-  bits=1
-  while [ $((taille - 2)) -lt "$hotes" ]; do
-    taille=$((taille * 2))
-    bits=$((bits + 1))
-  done
-  prefixe=$((32 - bits))
-  capacite=$((taille - 2))
-  gaspillage=$((capacite - hotes))
-  echo "$site : /$prefixe ($capacite hotes, $gaspillage perdus)"
-  perdu=$((perdu + gaspillage))
-done
-if [ "$perdu" -le "$seuil" ]; then
-  echo "plan : acceptable ($perdu adresses perdues)"
-else
-  echo "plan : a affiner ($perdu adresses perdues)"
-fi</code></pre></div></details>
+    <details><summary>Corrections &amp; protocoles réseau</summary><div class="sol"><p><strong>1. Diagnostic :</strong> Couche 1 (voyants LED, câble), Couche 2 (négociation duplex, ARP), Couche 3 (ping IP passerelle), Couche 4/7 (DNS, test de port applicatif).</p>
+<p><strong>2. VLSM :</strong> Trier les besoins par ordre décroissant d’hôtes pour allouer les masques les plus adaptés sans gaspillage d’adresses.</p>
+<p><strong>3. Passerelle :</strong> Si l’adresse cible n’appartient pas au sous-réseau local (test par ET binaire avec le masque), la trame est encapsulée à destination de la MAC de la passerelle.</p>
+<p><strong>4. Boucle :</strong> Absence du protocole Spanning Tree (STP) provoquant une saturation des tables de commutation et une surcharge CPU des équipements.</p></div></details>
   </div>
 
-  <h2>Projet intégrateur — « le plan d'adressage du campus »</h2>
+  <h2>Dossier de synthèse — Conception &amp; Déploiement Réseau d’Entreprise</h2>
 
   <div class="box box--situation">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges</div>
-    <p>Le script reçoit le recensement du campus : d'abord <code>n_sites</code> sites au format <code>site hotes</code> (nombre de machines à adresser), puis <code>n_tests</code> tests de connectivité au format <code>ip verdict</code> où verdict vaut <code>ok</code> (répond), <code>lent</code> (répond avec perte) ou <code>hs</code> (hors service). Il produit le rapport : pour chaque site, le plus petit bloc couvrant les hôtes (préfixe /n et capacité 2^k - 2) ; puis le diagnostic réseau : chaque <code>hs</code> incrimine la couche 1, chaque <code>lent</code> la couche 3 ; enfin le verdict global : <code>campus prete</code> si tous les tests sont <code>ok</code> et si aucun site ne dépasse 254 hôtes (sinon <code>replanification requise</code>).</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges du Dossier</div>
+    <p>Ce dossier d’infrastructure réseau consiste à concevoir l’architecture complète d’un réseau local d’entreprise : découpage en sous-réseaux logiques, plan d’adressage IP, choix des équipements de commutation et politique de routage vers Internet.</p>
   </div>
 
   <div class="box box--objectifs">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Fonctionnalités attendues</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Compétences réseau évaluées</div>
     <ol>
-      <li><strong>Lire</strong> les deux blocs sans mélanger sites et tests.</li>
-      <li><strong>Dimensionner</strong> chaque site : plus petit 2^k - 2 couvrant les hôtes.</li>
-      <li><strong>Diagnostiquer</strong> chaque test : hs → couche 1, lent → couche 3.</li>
-      <li><strong>Agréger</strong> le gaspillage d'adresses avec des tableaux associatifs.</li>
-      <li><strong>Verdict</strong> final au format exact du cahier des charges.</li>
+      <li><strong>Plan d’adressage VLSM :</strong> Optimisation de l’espace d’adressage sans chevauchement.</li>
+      <li><strong>Architecture de commutation :</strong> Conception hiérarchique (Cœur, Distribution, Accès).</li>
+      <li><strong>Sécurité d’accès :</strong> Filtrage MAC, segmentation réseau et prévention des boucles.</li>
+      <li><strong>Documentation d’infrastructure :</strong> Schémas d’architecture normalisés et matrices de câblage.</li>
     </ol>
-    <p>Contraintes : arithmétique entière (bash refuse les décimales), boucle de dimensionnement, bilan après lecture complète.</p>
   </div>
-
-  <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Grille d'auto-évaluation du projet (sur 100)</div>
-    <div class="bands">
-      <div class="bandrow">Lecture des deux blocs et parsing correct <strong>20</strong></div>
-      <div class="bandrow">Dimensionnement de chaque site (plus petit bloc) <strong>20</strong></div>
-      <div class="bandrow">Diagnostic par couche des tests <strong>20</strong></div>
-      <div class="bandrow">Verdict global conforme <strong>20</strong></div>
-      <div class="bandrow">Rapport lisible et formats exacts <strong>20</strong></div>
-    </div>
-    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>
-  </div>
-
-  <details>
-
-    <summary>Voir une solution de référence (après avoir essayé !)</summary>
-
-    <div class="sol">
-
-      <pre><code>read -r n_sites
-declare -A blocs
-declare -A gaspillages
-depasse=0
-for ((k=0; k&lt;n_sites; k++)); do
-  read -r site hotes
-  if [ "$hotes" -gt 254 ]; then depasse=1 ; fi
-  taille=2
-  bits=1
-  while [ $((taille - 2)) -lt "$hotes" ]; do
-    taille=$((taille * 2))
-    bits=$((bits + 1))
-  done
-  prefixe=$((32 - bits))
-  capacite=$((taille - 2))
-  gaspillage=$((capacite - hotes))
-  blocs[$site]=$prefixe
-  gaspillages[$site]=$gaspillage
-  echo "$site : /$prefixe ($capacite hotes, $gaspillage perdus)"
-done
-read -r n_tests
-l1=0 ; l3=0 ; tout_ok=1
-for ((k=0; k&lt;n_tests; k++)); do
-  read -r ip verdict
-  case "$verdict" in
-    ok) echo "$ip : repond" ;;
-    lent) echo "$ip : perte, couche 3" ; l3=$((l3 + 1)) ; tout_ok=0 ;;
-    hs) echo "$ip : hors service, couche 1" ; l1=$((l1 + 1)) ; tout_ok=0 ;;
-  esac
-done
-total=0
-for site in "${!blocs[@]}"; do
-  total=$((total + ${gaspillages[$site]}))
-done
-echo "gaspillage total : $total adresses"
-if [ "$tout_ok" = "1" ] &amp;&amp; [ "$depasse" = "0" ]; then
-  echo "verdict : campus prete"
-else
-  echo "verdict : replanification requise"
-fi</code></pre>
-
-      Cette solution combine dimensionnement, diagnostic par couche, agrégation du gaspillage et verdict global — les chapitres 1, 3, 5 et 6 en un seul script.
-
-    </div>
-
-  </details>
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
@@ -358,10 +128,33 @@ fi</code></pre>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
-  Exercices construits d'après les présentations « Architecture des réseaux » (Collège de Paris, A. Nadjak Kan'sam, sessions 1 à 3). Sources : les présentations « Architecture des réseaux » (Collège de Paris, A. Nadjak Kan'sam, sessions 1 à 3).</p>
+  Exercices construits à partir du programme officiel de réseaux informatiques B1.Sources : les présentations « Architecture des réseaux » (Collège de Paris, A. Nadjak Kan'sam, sessions 1 à 3).</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

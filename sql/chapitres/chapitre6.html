@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -155,27 +156,36 @@ CREATE INDEX idx_cmd_date_client ON Commandes(date_cmd, client_id);    </div>
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="sql2-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="Clavier,25,10&#10;Souris,-5,5&#10;Ecran,180,-3">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c6-e1) — Émulateur de déclencheur BEFORE INSERT avec contrôle de cohérence
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Prix exactement zéro rejeté]
+# Données : Cadeau,0,100
+A_COMPLETER
 
-# À compléter : simuler le déclencheur BEFORE INSERT et traiter les insertions
+[Cas 2 — Toutes les lignes sont valides]
+# Données : T1,10,5
+# Données : T2,20,15
+# Données : T3,30,0
+A_COMPLETER
+
+[Cas 3 — Stock négatif ajusté à 0]
+# Données : Casque,50,-10
+# Données : Tapis,15,-1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Émulateur de déclencheur BEFORE INSERT avec contrôle de cohérence</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -194,10 +204,10 @@ Pour chaque ligne :
 - En cas d’erreur : <code>REJET: &lt;nom&gt; (prix invalide &lt;prix&gt;)</code>
 - En cas de succès : <code>INSERE: id=&lt;id&gt; | &lt;nom&gt; | &lt;prix&gt;€ | stock=&lt;stock_ajuste&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Clavier,25,10
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Clavier,25,10
 Souris,-5,5
 Ecran,180,-3</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>INSERE: id=1 | Clavier | 25€ | stock=10
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>INSERE: id=1 | Clavier | 25€ | stock=10
 REJET: Souris (prix invalide -5)
 INSERE: id=2 | Ecran | 180€ | stock=0</pre></div>
     </div>
@@ -215,19 +225,32 @@ INSERE: id=2 | Ecran | 180€ | stock=0</pre></div>
 
 <div class="lab" data-lab
      data-exercise="sql2-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="1:ACTIF:1000;2:BLOQUE:500&#10;UPDATE 1 ACTIF 1200&#10;UPDATE 2 ACTIF 500">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c6-e2) — Déclencheur AFTER UPDATE avec table d’audit OLD vs NEW
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Deux champs modifiés en même temps]
+# Données : 1:ACTIF:100
+# Données : UPDATE 1 FERME 0
+A_COMPLETER
 
-# À compléter : charger l état des comptes, appliquer les UPDATEs et émettre l audit pour chaque champ modifié
+[Cas 2 — Aucun changement réel (valeurs identiques)]
+# Données : 10:ACTIF:500
+# Données : UPDATE 10 ACTIF 500
+A_COMPLETER
+
+[Cas 3 — Plusieurs updates successifs sur le même compte]
+# Données : 5:ATTENTE:10
+# Données : UPDATE 5 ACTIF 10
+# Données : UPDATE 5 ACTIF 50
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Déclencheur AFTER UPDATE avec table d’audit OLD vs NEW</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -243,10 +266,10 @@ Si la valeur d’un champ n’a pas changé, aucune trace d’audit n’est prod
 Sortie :
 La liste des lignes d’audit générées (ou <code>AUCUNE MODIFICATION</code> si rien n’a changé).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1:ACTIF:1000;2:BLOQUE:500
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1:ACTIF:1000;2:BLOQUE:500
 UPDATE 1 ACTIF 1200
 UPDATE 2 ACTIF 500</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT: user_id=1 | champ=solde | ancien=1000 | nouveau=1200
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT: user_id=1 | champ=solde | ancien=1000 | nouveau=1200
 AUDIT: user_id=2 | champ=statut | ancien=BLOQUE | nouveau=ACTIF</pre></div>
     </div>
     <p class="lab__note">Pour le compte 1, seul le solde a changé. Pour le compte 2, seul le statut a changé.</p>
@@ -263,19 +286,31 @@ AUDIT: user_id=2 | champ=statut | ancien=BLOQUE | nouveau=ACTIF</pre></div>
 
 <div class="lab" data-lab
      data-exercise="sql2-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="clients,50000,email|code_postal&#10;WHERE email = 'alice@test.com'">
-  <script type="text/plain" data-lab-starter>import sys, re
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c6-e3) — Analyseur de plan d’exécution EXPLAIN (Seq Scan vs Index Scan)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Colonne non indexée entraînant un Seq Scan]
+# Données : clients,50000,email|code_postal
+# Données : WHERE age = 30
+A_COMPLETER
 
-# À compléter : extraire les index disponibles, analyser la colonne dans WHERE et calculer le coût
+[Cas 2 — Deuxième index utilisé]
+# Données : produits,12000,reference|categorie|fournisseur
+# Données : WHERE categorie = 'Informatique'
+A_COMPLETER
+
+[Cas 3 — Table sans aucun index]
+# Données : logs,800000,AUCUN
+# Données : WHERE ip = '192.168.1.1'
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Analyseur de plan d’exécution EXPLAIN (Seq Scan vs Index Scan)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -291,9 +326,9 @@ lignes = [l.strip() for l in sys.stdin if l.strip()]
 Sortie :
 <code>Methode: &lt;Index Scan (colonne) | Seq Scan&gt; | Cout_Estime: &lt;Cout&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>clients,50000,email|code_postal
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>clients,50000,email|code_postal
 WHERE email = 'alice@test.com'</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Methode: Index Scan (email) | Cout_Estime: 3</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Methode: Index Scan (email) | Cout_Estime: 3</pre></div>
     </div>
     <p class="lab__note">La colonne email est indexée, le planificateur privilégie un Index Scan à coût minime (3).</p>
     <details class="lab__hints">
@@ -438,6 +473,29 @@ WHERE email = 'alice@test.com'</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

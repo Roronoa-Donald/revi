@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -193,27 +194,37 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>6. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="hk3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SUID_CHECK path=/usr/bin/find owner=root mode=4755">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c5-e1) — Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Binaire système passwd avec SUID légitime et restreint]
+# Données : SUID_CHECK path=/usr/bin/passwd owner=root mode=4755
+A_COMPLETER
 
-# À compléter : auditer les binaires SUID
+[Cas 2 — Éditeur vim mis en SUID par erreur d'administration]
+# Données : SUID_CHECK path=/bin/vim owner=root mode=4750
+A_COMPLETER
+
+[Cas 3 — Binaire normal sans aucun bit SUID]
+# Données : SUID_CHECK path=/usr/bin/ls owner=root mode=0755
+A_COMPLETER
+
+[Cas 4 — Binaire SUID appartenant à un utilisateur non root]
+# Données : SUID_CHECK path=/opt/app/worker owner=deploy mode=4755
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -233,8 +244,8 @@ Règles d'évaluation :<br>
 Entrée STDIN : <code>SUID_CHECK path=&lt;chemin&gt; owner=&lt;user&gt; mode=&lt;octal&gt;</code>.<br>
 Sortie : <code>SUID_AUDIT: binary=&lt;nom&gt; owner=&lt;user&gt; mode=&lt;octal&gt; exploit=&lt;exploit&gt; risk=&lt;risk&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SUID_CHECK path=/usr/bin/find owner=root mode=4755</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SUID_AUDIT: binary=find owner=root mode=4755 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUID_CHECK path=/usr/bin/find owner=root mode=4755</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUID_AUDIT: binary=find owner=root mode=4755 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL</pre></div>
     </div>
     <p class="lab__note">Binaire find SUID root exploitable directement via la commande find . -exec /bin/sh -p ;</p>
     <details class="lab__hints">
@@ -250,19 +261,28 @@ Sortie : <code>SUID_AUDIT: binary=&lt;nom&gt; owner=&lt;user&gt; mode=&lt;octal&
 
 <div class="lab" data-lab
      data-exercise="hk3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SUDO_PARSE rule=developer ALL=(ALL) NOPASSWD: /usr/bin/find">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c5-e2) — Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Règle accordant tous les privilèges sans mot de passe (ALL)]
+# Données : SUDO_PARSE rule=john ALL=(ALL:ALL) NOPASSWD: ALL
+A_COMPLETER
 
-# À compléter : analyser la règle sudoers
+[Cas 2 — Commande restreinte d'administration sans échappement de shell]
+# Données : SUDO_PARSE rule=backup_svc ALL=(root) NOPASSWD: /usr/bin/rsync
+A_COMPLETER
+
+[Cas 3 — Règle classique exigeant l'authentification par mot de passe]
+# Données : SUDO_PARSE rule=alice ALL=(ALL) /bin/bash
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -284,8 +304,8 @@ Règles d'analyse :<br>
 Entrée STDIN : <code>SUDO_PARSE rule=&lt;texte_complet_de_la_regle_sudoers&gt;</code>.<br>
 Sortie : <code>SUDO_AUDIT: user=&lt;user&gt; nopasswd=&lt;TRUE|FALSE&gt; command=&lt;cmd_name&gt; vector=&lt;vector&gt; risk=&lt;risk&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SUDO_PARSE rule=developer ALL=(ALL) NOPASSWD: /usr/bin/find</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SUDO_AUDIT: user=developer nopasswd=TRUE command=find vector=INSTANT_ROOT_SHELL risk=CRITICAL</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUDO_PARSE rule=developer ALL=(ALL) NOPASSWD: /usr/bin/find</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUDO_AUDIT: user=developer nopasswd=TRUE command=find vector=INSTANT_ROOT_SHELL risk=CRITICAL</pre></div>
     </div>
     <p class="lab__note">find exécutable sans mot de passe permettant l'échappement shell immédiat.</p>
     <details class="lab__hints">
@@ -301,19 +321,28 @@ Sortie : <code>SUDO_AUDIT: user=&lt;user&gt; nopasswd=&lt;TRUE|FALSE&gt; command
 
 <div class="lab" data-lab
      data-exercise="hk3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="BOF_LAYOUT arch=x86 offset=112 sled_len=32 shellcode_len=44">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c5-e3) — Calculateur d'Offset de Buffer Overflow et Agencement de Payload
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Payload 64-bit avec pointeur d'instruction RIP sur 8 octets]
+# Données : BOF_LAYOUT arch=x64 offset=264 sled_len=64 shellcode_len=85
+A_COMPLETER
 
-# À compléter : agencer le payload de Buffer Overflow
+[Cas 2 — Petit offset sans NOP sled (saut direct au début du shellcode)]
+# Données : BOF_LAYOUT arch=x86 offset=40 sled_len=0 shellcode_len=28
+A_COMPLETER
+
+[Cas 3 — Tampon volumineux sous architecture x64]
+# Données : BOF_LAYOUT arch=x64 offset=1024 sled_len=128 shellcode_len=120
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Calculateur d'Offset de Buffer Overflow et Agencement de Payload</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -330,8 +359,8 @@ Calcul de la taille totale du payload :<br>
 Entrée STDIN : <code>BOF_LAYOUT arch=&lt;x86|x64&gt; offset=&lt;N&gt; sled_len=&lt;S&gt; shellcode_len=&lt;L&gt;</code>.<br>
 Sortie : <code>PAYLOAD_LAYOUT: arch=&lt;arch&gt; offset=&lt;N&gt; ret_bytes=&lt;4|8&gt; sled=&lt;S&gt; shellcode=&lt;L&gt; total_size=&lt;total&gt; status=READY_FOR_INJECTION</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BOF_LAYOUT arch=x86 offset=112 sled_len=32 shellcode_len=44</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PAYLOAD_LAYOUT: arch=x86 offset=112 ret_bytes=4 sled=32 shellcode=44 total_size=192 status=READY_FOR_INJECTION</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BOF_LAYOUT arch=x86 offset=112 sled_len=32 shellcode_len=44</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PAYLOAD_LAYOUT: arch=x86 offset=112 ret_bytes=4 sled=32 shellcode=44 total_size=192 status=READY_FOR_INJECTION</pre></div>
     </div>
     <p class="lab__note">Payload x86 standard avec 112 octets de padding et 32 octets de NOP sled.</p>
     <details class="lab__hints">
@@ -505,6 +534,29 @@ Sortie : <code>PAYLOAD_LAYOUT: arch=&lt;arch&gt; offset=&lt;N&gt; ret_bytes=&lt;
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

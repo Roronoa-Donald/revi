@@ -108,19 +108,19 @@ function sommaire(course, chapterList) {
   };
 }
 
-/* ======================== Atelier de code ======================== */
+/* ======================== Atelier d’analyse ======================== */
 
 function atelier(course) {
   const body = [
-    crumb(course, [{ label: 'Atelier de code' }]),
+    crumb(course, [{ label: 'Atelier d’analyse' }]),
     '  <h1>Atelier de simulation d’infrastructure &amp; conteneurs Docker</h1>',
     '  <p class="lead">Simulez les primitives noyau, inspectez les couches OverlayFS, validez vos Dockerfiles et testez vos configurations Compose directement dans l’interpréteur Python.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="PID\nNET\nCPU_LIMIT">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez, inspectez des conteneurs, images ou docker-compose.\nprint("Zone libre Docker B2 : pret a executer.")\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Règles d’or de la conteneurisation et de l’ingénierie Docker</h2>',
@@ -138,7 +138,7 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code interactif | ' + course.brand,
+      title: 'Atelier d’analyse interactif | ' + course.brand,
       description: 'Espace d’expérimentation et bac à sable de simulation d’infrastructure Docker interactif.',
       active: 'atelier',
       body

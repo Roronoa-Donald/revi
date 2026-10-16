@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -157,27 +158,44 @@ CREATE TABLE mesures_defaut PARTITION OF mesures_capteurs DEFAULT;</code></pre>
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="sql3-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="STRATEGY type=RANGE col=annee&#10;PARTITION name=p_2023 from=2023 to=2024&#10;PARTITION name=p_2024 from=2024 to=2025&#10;PARTITION name=p_2025 from=2025 to=2026&#10;INSERT id=1 annee=2024&#10;INSERT id=2 annee=2025&#10;INSERT id=3 annee=2020">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c6-e1) — Routeur de partitionnement déclaratif de table (Range & List)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Partitionnement par liste (LIST) géographique]
+# Données : STRATEGY type=LIST col=pays
+# Données : PARTITION name=p_europe values=FR,BE,DE,IT
+# Données : PARTITION name=p_amerique values=US,CA,MX
+# Données : INSERT id=10 pays=FR
+# Données : INSERT id=11 pays=JP
+A_COMPLETER
 
-# À compléter : router chaque ligne vers la partition correspondante
+[Cas 2 — Toutes les lignes routées avec succès dans un partitionnement par plage]
+# Données : STRATEGY type=RANGE col=mois
+# Données : PARTITION name=t1 from=1 to=4
+# Données : PARTITION name=t2 from=4 to=7
+# Données : INSERT id=101 mois=2
+# Données : INSERT id=102 mois=4
+# Données : INSERT id=103 mois=6
+A_COMPLETER
+
+[Cas 3 — Test de borne supérieure exclusive (valeur égale à to)]
+# Données : STRATEGY type=RANGE col=valeur
+# Données : PARTITION name=p_basse from=0 to=100
+# Données : INSERT id=1 valeur=100
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Routeur de partitionnement déclaratif de table (Range &amp; List)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -199,14 +217,14 @@ Sortie :
 - Pour chaque insertion : `ROUTED row_id=<ID> val=<V> partition=<PART_NAME|NONE> status=<SUCCESS|ERROR_NO_PARTITION>`
 - Bilan : `ROUTER_SUMMARY total=<N> routed=<N> unrouted=<N>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STRATEGY type=RANGE col=annee
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STRATEGY type=RANGE col=annee
 PARTITION name=p_2023 from=2023 to=2024
 PARTITION name=p_2024 from=2024 to=2025
 PARTITION name=p_2025 from=2025 to=2026
 INSERT id=1 annee=2024
 INSERT id=2 annee=2025
 INSERT id=3 annee=2020</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ROUTED row_id=1 val=2024 partition=p_2024 status=SUCCESS
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROUTED row_id=1 val=2024 partition=p_2024 status=SUCCESS
 ROUTED row_id=2 val=2025 partition=p_2025 status=SUCCESS
 ROUTED row_id=3 val=2020 partition=NONE status=ERROR_NO_PARTITION
 ROUTER_SUMMARY total=3 routed=2 unrouted=1</pre></div>
@@ -225,19 +243,31 @@ ROUTER_SUMMARY total=3 routed=2 unrouted=1</pre></div>
 
 <div class="lab" data-lab
      data-exercise="sql3-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PARTITIONS list=p_2023:2023-2024,p_2024:2024-2025,p_2025:2025-2026&#10;QUERY id=1 op=eq val1=2024&#10;QUERY id=2 op=gte val1=2024">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c6-e2) — Simulateur d’élagage de partitions (Partition Pruning Optimizer)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Filtre BETWEEN couvrant deux partitions consécutives]
+# Données : PARTITIONS list=p_q1:1-4,p_q2:4-7,p_q3:7-10,p_q4:10-13
+# Données : QUERY id=10 op=between val1=3 val2=5
+A_COMPLETER
 
-# À compléter : calculer les partitions intersectant la condition WHERE et évaluer le gain
+[Cas 2 — Filtre inférieur ou égal (lte) élaguant les partitions futures]
+# Données : PARTITIONS list=p1:0-10,p2:10-20,p3:20-30
+# Données : QUERY id=20 op=lte val1=9
+A_COMPLETER
+
+[Cas 3 — Requête ne pouvant élaguer aucune partition (scan complet)]
+# Données : PARTITIONS list=p1:1-5,p2:5-10
+# Données : QUERY id=30 op=between val1=1 val2=10
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Simulateur d’élagage de partitions (Partition Pruning Optimizer)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -256,10 +286,10 @@ Sortie :
   `PRUNING_EVAL query_id=<id> scanned=<p_list> pruned=<p_list> efficiency=<PCT.1f>%`
 - Bilan : `PRUNING_REPORT queries=<N> avg_efficiency=<AVG_PCT.1f>%`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PARTITIONS list=p_2023:2023-2024,p_2024:2024-2025,p_2025:2025-2026
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PARTITIONS list=p_2023:2023-2024,p_2024:2024-2025,p_2025:2025-2026
 QUERY id=1 op=eq val1=2024
 QUERY id=2 op=gte val1=2024</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PRUNING_EVAL query_id=1 scanned=p_2024 pruned=p_2023,p_2025 efficiency=66.7%
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PRUNING_EVAL query_id=1 scanned=p_2024 pruned=p_2023,p_2025 efficiency=66.7%
 PRUNING_EVAL query_id=2 scanned=p_2024,p_2025 pruned=p_2023 efficiency=33.3%
 PRUNING_REPORT queries=2 avg_efficiency=50.0%</pre></div>
     </div>
@@ -279,19 +309,29 @@ PRUNING_REPORT queries=2 avg_efficiency=50.0%</pre></div>
 
 <div class="lab" data-lab
      data-exercise="sql3-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="REPLICA node=standby_1 mode=async primary_lsn=0/16B3C840 replay_lsn=0/16B3A000&#10;REPLICA node=standby_2 mode=sync primary_lsn=0/16B3C840 replay_lsn=0/16B3C840">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c6-e3) — Calculateur de lag de réplication WAL (Streaming Replication Lag)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Retard critique dépassant 64 Ko sur un réplica asynchrone]
+# Données : REPLICA node=standby_remote mode=async primary_lsn=0/20000000 replay_lsn=0/1FE00000
+A_COMPLETER
 
-# À compléter : convertir les LSNs hexadécimaux en octets et évaluer la santé de la réplication
+[Cas 2 — Tous les nœuds parfaitement synchronisés]
+# Données : REPLICA node=standby_ha1 mode=sync primary_lsn=1/00000000 replay_lsn=1/00000000
+# Données : REPLICA node=standby_ha2 mode=sync primary_lsn=1/00000000 replay_lsn=1/00000000
+A_COMPLETER
+
+[Cas 3 — LSN traversant la frontière des 32 bits de poids fort]
+# Données : REPLICA node=standby_cross mode=async primary_lsn=2/00001000 replay_lsn=1/FFFF0000
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Calculateur de lag de réplication WAL (Streaming Replication Lag)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -315,9 +355,9 @@ Sortie :
 `LAG_STATUS node=<name> mode=<mode> lag_bytes=<BYTES> lag_kb=<KB.2f> health=<SYNCED|HEALTHY_LAG|CRITICAL_LAG>`
 `CLUSTER_STATUS total_nodes=<N> max_lag_kb=<MAX.2f>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>REPLICA node=standby_1 mode=async primary_lsn=0/16B3C840 replay_lsn=0/16B3A000
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REPLICA node=standby_1 mode=async primary_lsn=0/16B3C840 replay_lsn=0/16B3A000
 REPLICA node=standby_2 mode=sync primary_lsn=0/16B3C840 replay_lsn=0/16B3C840</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LAG_STATUS node=standby_1 mode=async lag_bytes=10304 lag_kb=10.06 health=HEALTHY_LAG
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LAG_STATUS node=standby_1 mode=async lag_bytes=10304 lag_kb=10.06 health=HEALTHY_LAG
 LAG_STATUS node=standby_2 mode=sync lag_bytes=0 lag_kb=0.00 health=SYNCED
 CLUSTER_STATUS total_nodes=2 max_lag_kb=10.06</pre></div>
     </div>
@@ -497,6 +537,29 @@ CLUSTER_STATUS total_nodes=2 max_lag_kb=10.06</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

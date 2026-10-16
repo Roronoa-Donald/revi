@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -153,27 +154,43 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="ws3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="VSWITCH name=vSwitch-LAN type=EXTERNAL allow_host=TRUE&#10;ATTACH vm=VM1 vswitch=vSwitch-LAN&#10;ATTACH vm=VM2 vswitch=vSwitch-LAN&#10;PING from=VM1 to=VM2&#10;PING from=VM1 to=EXTERNAL_NET">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c5-e1) — Simulateur de commutation réseau Hyper-V (External, Internal, Private vSwitch)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Commutateur Privé bloquant l’accès vers l’hôte et l’extérieur]
+# Données : VSWITCH name=vSwitch-Isole type=PRIVATE allow_host=FALSE
+# Données : ATTACH vm=VM-DB vswitch=vSwitch-Isole
+# Données : PING from=VM-DB to=HOST
+# Données : PING from=VM-DB to=EXTERNAL_NET
+A_COMPLETER
 
-# À compléter : simuler la matrice de connectivité des vSwitchs Hyper-V
+[Cas 2 — Deux VMs rattachées à des vSwitchs différents]
+# Données : VSWITCH name=SW1 type=INTERNAL allow_host=TRUE
+# Données : VSWITCH name=SW2 type=INTERNAL allow_host=TRUE
+# Données : ATTACH vm=VM-A vswitch=SW1
+# Données : ATTACH vm=VM-B vswitch=SW2
+# Données : PING from=VM-A to=VM-B
+A_COMPLETER
+
+[Cas 3 — Commutateur Externe avec allow_host désactivé]
+# Données : VSWITCH name=SW-Ext type=EXTERNAL allow_host=FALSE
+# Données : ATTACH vm=VM-Web vswitch=SW-Ext
+# Données : PING from=VM-Web to=HOST
+# Données : PING from=VM-Web to=EXTERNAL_NET
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur de commutation réseau Hyper-V (External, Internal, Private vSwitch)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -196,12 +213,12 @@ Sortie :
 - Bilan :
   `SUMMARY total_pings=<N> reussis=<R> bloques=<B>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VSWITCH name=vSwitch-LAN type=EXTERNAL allow_host=TRUE
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VSWITCH name=vSwitch-LAN type=EXTERNAL allow_host=TRUE
 ATTACH vm=VM1 vswitch=vSwitch-LAN
 ATTACH vm=VM2 vswitch=vSwitch-LAN
 PING from=VM1 to=VM2
 PING from=VM1 to=EXTERNAL_NET</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PING_RESULT from=VM1 to=VM2 status=REUSSI motif=OK
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PING_RESULT from=VM1 to=VM2 status=REUSSI motif=OK
 PING_RESULT from=VM1 to=EXTERNAL_NET status=REUSSI motif=OK
 SUMMARY total_pings=2 reussis=2 bloques=0</pre></div>
     </div>
@@ -219,19 +236,32 @@ SUMMARY total_pings=2 reussis=2 bloques=0</pre></div>
 
 <div class="lab" data-lab
      data-exercise="ws3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="HOST ram_mb=16384&#10;VM name=VM-Web min_ram_mb=2048 max_ram_mb=8192 buffer_pct=20 demand_mb=3000&#10;VM name=VM-SQL min_ram_mb=4096 max_ram_mb=12288 buffer_pct=20 demand_mb=2000">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c5-e2) — Calculateur d’allocation de Mémoire Dynamique Hyper-V
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — VM atteignant le plafond maximal configuré]
+# Données : HOST ram_mb=32768
+# Données : VM name=VM-App min_ram_mb=2048 max_ram_mb=4096 buffer_pct=25 demand_mb=5000
+A_COMPLETER
 
-# À compléter : calculer l'allocation dynamique de RAM
+[Cas 2 — Surallocation mémoire totale au-delà de la capacité physique hôte]
+# Données : HOST ram_mb=8192
+# Données : VM name=VM1 min_ram_mb=2048 max_ram_mb=8192 buffer_pct=10 demand_mb=5000
+# Données : VM name=VM2 min_ram_mb=2048 max_ram_mb=8192 buffer_pct=10 demand_mb=5000
+A_COMPLETER
+
+[Cas 3 — Plusieurs VMs avec buffers à 0%]
+# Données : HOST ram_mb=16384
+# Données : VM name=VM-DC min_ram_mb=1024 max_ram_mb=2048 buffer_pct=0 demand_mb=1500
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Calculateur d’allocation de Mémoire Dynamique Hyper-V</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -257,10 +287,10 @@ Sortie :
   `SUMMARY host_ram_mb=<H> total_allocated_mb=<TOT> pression_pct=<PCT>% statut=<SOUS_CONTROLE|SURALLOCATION>`
   (où pression_pct = round((total_allocated_mb / host_ram_mb) * 100, 1) ; statut=SOUS_CONTROLE si total <= host_ram_mb sinon SURALLOCATION).</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HOST ram_mb=16384
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HOST ram_mb=16384
 VM name=VM-Web min_ram_mb=2048 max_ram_mb=8192 buffer_pct=20 demand_mb=3000
 VM name=VM-SQL min_ram_mb=4096 max_ram_mb=12288 buffer_pct=20 demand_mb=2000</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VM_ALLOC name=VM-SQL target_mb=2400 allocated_mb=4096 status=SEUIL_MIN
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VM_ALLOC name=VM-SQL target_mb=2400 allocated_mb=4096 status=SEUIL_MIN
 VM_ALLOC name=VM-Web target_mb=3600 allocated_mb=3600 status=OPTIMAL
 SUMMARY host_ram_mb=16384 total_allocated_mb=7696 pression_pct=47.0% statut=SOUS_CONTROLE</pre></div>
     </div>
@@ -278,19 +308,36 @@ SUMMARY host_ram_mb=16384 total_allocated_mb=7696 pression_pct=47.0% statut=SOUS
 
 <div class="lab" data-lab
      data-exercise="ws3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="VHDX id=Base.vhdx type=BASE parent=NONE size_mb=20000&#10;VHDX id=Snap1.avhdx type=DIFF parent=Base.vhdx size_mb=5000&#10;VHDX id=Snap2.avhdx type=DIFF parent=Snap1.avhdx size_mb=2000&#10;MERGE child=Snap1.avhdx">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c5-e3) — Gestionnaire d’arborescence de disques virtuels différentiels VHDX et Checkpoints
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Fusion du dernier checkpoint de la chaîne]
+# Données : VHDX id=OS.vhdx type=BASE parent=NONE size_mb=15000
+# Données : VHDX id=Patch.avhdx type=DIFF parent=OS.vhdx size_mb=3000
+# Données : MERGE child=Patch.avhdx
+A_COMPLETER
 
-# À compléter : gérer l'arborescence VHDX et simuler la fusion des checkpoints
+[Cas 2 — Aucune opération de fusion (chaîne intacte)]
+# Données : VHDX id=Disk0.vhdx type=BASE parent=NONE size_mb=10000
+# Données : VHDX id=DiffA.avhdx type=DIFF parent=Disk0.vhdx size_mb=1200
+# Données : VHDX id=DiffB.avhdx type=DIFF parent=Disk0.vhdx size_mb=1800
+A_COMPLETER
+
+[Cas 3 — Deux fusions successives sur une même arborescence]
+# Données : VHDX id=Base.vhdx type=BASE parent=NONE size_mb=10000
+# Données : VHDX id=C1.avhdx type=DIFF parent=Base.vhdx size_mb=2000
+# Données : VHDX id=C2.avhdx type=DIFF parent=C1.avhdx size_mb=1000
+# Données : MERGE child=C2.avhdx
+# Données : MERGE child=C1.avhdx
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Gestionnaire d’arborescence de disques virtuels différentiels VHDX et Checkpoints</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -317,11 +364,11 @@ Sortie :
 - Bilan :
   `SUMMARY total_disks=<N> total_chain_size_mb=<TOTAL>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VHDX id=Base.vhdx type=BASE parent=NONE size_mb=20000
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VHDX id=Base.vhdx type=BASE parent=NONE size_mb=20000
 VHDX id=Snap1.avhdx type=DIFF parent=Base.vhdx size_mb=5000
 VHDX id=Snap2.avhdx type=DIFF parent=Snap1.avhdx size_mb=2000
 MERGE child=Snap1.avhdx</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MERGE_EVENT child=Snap1.avhdx merged_into=Base.vhdx new_parent_size_mb=25000
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MERGE_EVENT child=Snap1.avhdx merged_into=Base.vhdx new_parent_size_mb=25000
 DISK_STATE id=Base.vhdx type=BASE parent=NONE size_mb=25000
 DISK_STATE id=Snap2.avhdx type=DIFF parent=Base.vhdx size_mb=2000
 SUMMARY total_disks=2 total_chain_size_mb=27000</pre></div>
@@ -501,6 +548,29 @@ SUMMARY total_disks=2 total_chain_size_mb=27000</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

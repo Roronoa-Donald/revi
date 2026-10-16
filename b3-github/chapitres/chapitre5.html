@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -160,27 +161,40 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="gh3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="NAME=CI-Pipeline&#10;TRIGGERS=push,pull_request&#10;JOB id=build runs_on=ubuntu-latest steps_count=3">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c5-e1) — Validateur de structure de workflow GitHub Actions
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Job sans runner runs_on spécifié]
+# Données : NAME=Test-Suite
+# Données : TRIGGERS=push
+# Données : JOB id=unit-tests runs_on=NONE steps_count=2
+A_COMPLETER
 
-# À compléter : valider la structure du workflow GitHub Actions
+[Cas 2 — Déclencheurs absents]
+# Données : NAME=Nightly-Release
+# Données : TRIGGERS=
+# Données : JOB id=release runs_on=ubuntu-latest steps_count=1
+A_COMPLETER
+
+[Cas 3 — Workflow avec plusieurs jobs valides et job sans steps]
+# Données : NAME=Deploy-Prod
+# Données : TRIGGERS=workflow_dispatch
+# Données : JOB id=lint runs_on=ubuntu-latest steps_count=2
+# Données : JOB id=deploy runs_on=ubuntu-latest steps_count=0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur de structure de workflow GitHub Actions</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -193,18 +207,16 @@ Critères de conformité :<br>
 3. <code>jobs</code> : au moins un job déclaré. Chaque job doit obligatoirement comporter :<br>
    - Une cible d'exécution <code>runs-on</code> (ex: <code>ubuntu-latest</code>, <code>windows-latest</code>).<br>
    - Au moins une étape <code>step</code> déclarée.<br><br>
-Le script lit la description linéaire d'un workflow :<br>
-<code>NAME=&lt;nom&gt;</code><br>
-<code>TRIGGERS=&lt;trig1,trig2...&gt;</code><br>
+Analysez les données fournies pour chaque cas...&gt;</code><br>
 <code>JOB id=&lt;id&gt; runs_on=&lt;runner|NONE&gt; steps_count=&lt;n&gt;</code>.<br><br>
 Pour le workflow, afficher :<br>
 <code>WORKFLOW_AUDIT name="{nom}" status={VALID | ERREUR} triggers_count={n} jobs_count={m}</code><br>
 Erreurs possibles : <code>MISSING_NAME</code>, <code>MISSING_TRIGGERS</code>, <code>NO_JOBS</code>, <code>JOB_MISSING_RUNS_ON</code>, <code>JOB_ZERO_STEPS</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NAME=CI-Pipeline
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NAME=CI-Pipeline
 TRIGGERS=push,pull_request
 JOB id=build runs_on=ubuntu-latest steps_count=3</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>WORKFLOW_AUDIT name="CI-Pipeline" status=VALID triggers_count=2 jobs_count=1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>WORKFLOW_AUDIT name="CI-Pipeline" status=VALID triggers_count=2 jobs_count=1</pre></div>
     </div>
     <p class="lab__note">Workflow complet et bien formé.</p>
     <details class="lab__hints">
@@ -219,19 +231,31 @@ JOB id=build runs_on=ubuntu-latest steps_count=3</pre></div>
 
 <div class="lab" data-lab
      data-exercise="gh3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="MATRIX_DEF os=ubuntu,macos version=3.11,3.12&#10;EXCLUDE os=macos version=3.11">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c5-e2) — Générateur et évaluateur de matrice de build (strategy: matrix)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Matrice 3x2 complète sans aucune exclusion]
+# Données : MATRIX_DEF os=ubuntu,windows,macos version=18,20
+A_COMPLETER
 
-# À compléter : calculer le produit cartésien de la matrice
+[Cas 2 — Multiples exclusions croisées]
+# Données : MATRIX_DEF os=ubuntu,windows version=10,11,12
+# Données : EXCLUDE os=windows version=10
+# Données : EXCLUDE os=windows version=11
+A_COMPLETER
+
+[Cas 3 — Toutes les combinaisons d’un OS exclues]
+# Données : MATRIX_DEF os=linux,bsd version=1.0
+# Données : EXCLUDE os=bsd version=1.0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Générateur et évaluateur de matrice de build (strategy: matrix)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -242,18 +266,16 @@ Spécification :<br>
 - Liste d'OS : <code>os=&lt;os1,os2...&gt;</code>.<br>
 - Liste de versions de runtime : <code>version=&lt;v1,v2...&gt;</code>.<br>
 - Exclusions optionnelles (<code>EXCLUDE os=&lt;os&gt; version=&lt;v&gt;</code>).<br><br>
-Le script lit la définition sur l'entrée standard :<br>
-<code>MATRIX_DEF os=&lt;liste_os&gt; version=&lt;liste_versions&gt;</code><br>
-Puis zéro, une ou plusieurs lignes <code>EXCLUDE os=&lt;os&gt; version=&lt;v&gt;</code>.<br><br>
+Analysez les données fournies pour chaque cas.<br><br>
 Le script doit calculer la liste des combinaisons valides (produit cartésien moins exclusions), triée par OS puis par version, et afficher :<br>
 Chaque combinaison :<br>
 <code>JOB_INSTANCE os={os} version={v} tag="{os}-{v}"</code><br>
 Et la ligne récapitulative :<br>
 <code>MATRIX_TOTAL instances={n} excluded={nb_exclus}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MATRIX_DEF os=ubuntu,macos version=3.11,3.12
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MATRIX_DEF os=ubuntu,macos version=3.11,3.12
 EXCLUDE os=macos version=3.11</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>JOB_INSTANCE os=ubuntu version=3.11 tag="ubuntu-3.11"
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>JOB_INSTANCE os=ubuntu version=3.11 tag="ubuntu-3.11"
 JOB_INSTANCE os=ubuntu version=3.12 tag="ubuntu-3.12"
 JOB_INSTANCE os=macos version=3.12 tag="macos-3.12"
 MATRIX_TOTAL instances=3 excluded=1</pre></div>
@@ -271,19 +293,30 @@ MATRIX_TOTAL instances=3 excluded=1</pre></div>
 
 <div class="lab" data-lab
      data-exercise="gh3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="STEP_INSPECT id=1 cmd=echo &quot;Le titre est ${{ github.event.issue.title }}&quot;&#10;STEP_INSPECT id=2 cmd=echo ${{ secrets.AWS_KEY }}">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c5-e3) — Détecteur d’injections de commandes et fuites de secrets dans les Actions
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Commande saine avec variable d’environnement sécurisée]
+# Données : STEP_INSPECT id=OK1 cmd=pytest tests/
+# Données : STEP_INSPECT id=OK2 cmd=echo "Build version $BUILD_NUM"
+A_COMPLETER
 
-# À compléter : analyser la sécurité des étapes GitHub Actions
+[Cas 2 — Injection via corps de commentaire ou head_ref]
+# Données : STEP_INSPECT id=INJ1 cmd=git checkout ${{ github.head_ref }}
+# Données : STEP_INSPECT id=INJ2 cmd=python process.py "${{ github.event.comment.body }}"
+A_COMPLETER
+
+[Cas 3 — Fuite du jeton GITHUB_TOKEN]
+# Données : STEP_INSPECT id=L1 cmd=echo "Token is ${{ secrets.GITHUB_TOKEN }}"
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Détecteur d’injections de commandes et fuites de secrets dans les Actions</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -297,14 +330,13 @@ Vulnérabilités à détecter :<br>
    (La bonne pratique est de passer par des variables d'environnement <code>env:</code>).<br>
    -> Verdict : <code>VULN_COMMAND_INJECTION</code>.<br>
 3. Sinon : étape conforme (<code>SECURE</code>).<br><br>
-Le script lit sur l'entrée standard :<br>
-<code>STEP_INSPECT id=&lt;id&gt; cmd=&lt;commande_du_step&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque étape, afficher :<br>
 <code>ACTION_AUDIT step={id} status={SECURE|VULN_EXPOSED_SECRET|VULN_COMMAND_INJECTION}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STEP_INSPECT id=1 cmd=echo "Le titre est ${{ github.event.issue.title }}"
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STEP_INSPECT id=1 cmd=echo "Le titre est ${{ github.event.issue.title }}"
 STEP_INSPECT id=2 cmd=echo ${{ secrets.AWS_KEY }}</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ACTION_AUDIT step=1 status=VULN_COMMAND_INJECTION
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ACTION_AUDIT step=1 status=VULN_COMMAND_INJECTION
 ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
     </div>
     <p class="lab__note">Le step 1 permet l’injection via un titre malveillant, le step 2 fait fuiter la clé AWS.</p>
@@ -482,6 +514,29 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

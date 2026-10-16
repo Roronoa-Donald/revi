@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Exercices &amp;amp; projet intégrateur — Statistiques B1</title>
-<meta name="description" content="Exercices supplémentaires et projet intégrateur du cours de statistique descriptive B1 : calculs gradués et rapport d’analyse d’une série en Python.">
+<title>Exercices &amp;amp; dossier intégrateur — Statistiques B1</title>
+<meta name="description" content="Exercices supplémentaires et dossier intégrateur du cours de statistiques descriptives B1 : calculs gradués, indicateurs et corrélation.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b1-stats/exercices/exercices.html">
-<meta property="og:title" content="Exercices &amp;amp; projet intégrateur — Statistiques B1">
-<meta property="og:description" content="Exercices supplémentaires et projet intégrateur du cours de statistique descriptive B1 : calculs gradués et rapport d’analyse d’une série en Python.">
+<meta property="og:title" content="Exercices &amp;amp; dossier intégrateur — Statistiques B1">
+<meta property="og:description" content="Exercices supplémentaires et dossier intégrateur du cours de statistiques descriptives B1 : calculs gradués, indicateurs et corrélation.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body>
@@ -54,31 +55,22 @@
 
   <h1>Exercices supplémentaires &amp; projet intégrateur</h1>
 
-  <p class="lead">De la pratique graduée pour consolider chaque module, puis un projet final qui produit un véritable rapport d’analyse. Les programmes sont en Python, comme aux ateliers.</p>
+  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier final d’analyse descriptive et de corrélation.</p>
 
   <h2>Entraînement rapide (acquisition)</h2>
 
   <div class="item">
     <div class="item__head"><span class="badge badge--n1">Échauffement</span></div>
     <ol>
-      <li>Calcule l’effectif total et l’étendue d’une série.</li>
-      <li>Trie une série brute dans l’ordre croissant.</li>
-      <li>Construis le tableau des effectifs d’une série de notes.</li>
-      <li>Calcule la moyenne d’une série brute.</li>
+      <li>Calculer l’effectif total $N$ et l’étendue $e = x_{\max} - x_{\min}$ d’une série.</li>
+      <li>Ordonner une série statistique dans l’ordre croissant.</li>
+      <li>Construire le tableau des effectifs et fréquences.</li>
+      <li>Calculer la moyenne arithmétique simple $\bar{x} = \frac{1}{N}\sum x_i$.</li>
     </ol>
-    <details><summary>Corrections</summary><div class="sol"><pre><code>serie = [float(input()) for _ in range(int(input()))]
-print(len(serie), max(serie) - min(serie))
-
-serie = [float(input()) for _ in range(int(input()))]
-print(" ".join(f"{x:g}" for x in sorted(serie)))
-
-serie = [int(input()) for _ in range(int(input()))]
-for modalite in sorted(set(serie)):
-    print(modalite, serie.count(modalite))
-
-n = int(input())
-serie = [float(input()) for _ in range(n)]
-print(f"{sum(serie) / n:.2f}")</code></pre></div></details>
+    <details><summary>Corrections &amp; résolutions détaillées</summary><div class="sol"><p><strong>1. Effectif et étendue :</strong> $N = \sum n_i$, $e = x_{\max} - x_{\min}$.</p>
+<p><strong>2. Tri :</strong> On range les observations par ordre croissant pour identifier les extrêmes et la médiane.</p>
+<p><strong>3. Tableau :</strong> Pour chaque modalité distincte $x_i$, on note son effectif $n_i$ et sa fréquence $f_i = n_i / N$.</p>
+<p><strong>4. Moyenne simple :</strong> $\bar{x} = \frac{x_1 + x_2 + \dots + x_N}{N}$.</p></div></details>
   </div>
 
   <h2>Application</h2>
@@ -86,34 +78,15 @@ print(f"{sum(serie) / n:.2f}")</code></pre></div></details>
   <div class="item">
     <div class="item__head"><span class="badge badge--n2">Application</span></div>
     <ol>
-      <li>Calcule une moyenne pondérée à partir d’un tableau valeur / effectif.</li>
-      <li>Calcule la médiane d’une série (avec la convention du cours).</li>
-      <li>Calcule la variance et l’écart-type par la formule de König.</li>
-      <li>Calcule Q1, Q3 et l’écart interquartile.</li>
+      <li>Calculer une moyenne pondérée à partir d’un tableau modalité / effectif.</li>
+      <li>Calculer la médiane $Me$ d’une série discrète.</li>
+      <li>Calculer la variance $V$ et l’écart-type $\sigma$ par la formule de König-Huygens.</li>
+      <li>Calculer les quartiles $Q_1, Q_3$ et l’écart interquartile $IQR = Q_3 - Q_1$.</li>
     </ol>
-    <details><summary>Corrections</summary><div class="sol"><pre><code>k = int(input())
-total, effectif = 0.0, 0
-for _ in range(k):
-    valeur, n = (float(x) for x in input().split())
-    total += valeur * n
-    effectif += n
-print(f"{total / effectif:.2f}")
-
-def mediane(valeurs):
-    v = sorted(valeurs)
-    n = len(v)
-    return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
-
-def quantile(valeurs, p):
-    v = sorted(valeurs)
-    r = (len(v) + 1) * p
-    bas = int(r)
-    if bas == r:
-        return v[bas - 1]
-    return v[bas - 1] + (r - bas) * (v[bas] - v[bas - 1])
-
-serie = [float(input()) for _ in range(int(input()))]
-print(f"{quantile(serie, 0.25):.2f} {quantile(serie, 0.75):.2f} {quantile(serie, 0.75) - quantile(serie, 0.25):.2f}")</code></pre></div></details>
+    <details><summary>Corrections &amp; résolutions détaillées</summary><div class="sol"><p><strong>1. Moyenne pondérée :</strong> $\bar{x} = \frac{\sum n_i x_i}{\sum n_i} = \sum f_i x_i$.</p>
+<p><strong>2. Médiane :</strong> Valeur qui sépare la série ordonnée en deux groupes d’effectifs égaux ($50\%$ des observations en dessous, $50\%$ au-dessus).</p>
+<p><strong>3. König-Huygens :</strong> $V = \frac{1}{N}\sum n_i x_i^2 - \bar{x}^2$, puis $\sigma = \sqrt{V}$.</p>
+<p><strong>4. Écart interquartile :</strong> $Q_1$ est le $25^{\text{e}}$ centile, $Q_3$ le $75^{\text{e}}$ centile ; $IQR = Q_3 - Q_1$ mesure la dispersion des $50\%$ valeurs centrales.</p></div></details>
   </div>
 
   <h2>Raisonnement</h2>
@@ -121,115 +94,33 @@ print(f"{quantile(serie, 0.25):.2f} {quantile(serie, 0.75):.2f} {quantile(serie,
   <div class="item">
     <div class="item__head"><span class="badge badge--n3">Raisonnement</span></div>
     <ol>
-      <li>Calcule un coefficient de corrélation linéaire.</li>
-      <li>Détermine la droite des moindres carrés et fais une prévision.</li>
-      <li>Compare deux séries par leur coefficient de variation et conclus.</li>
-      <li>Découpe une série en classes de même amplitude et calcule les effectifs par classe.</li>
+      <li>Calculer la covariance $\operatorname{cov}(X, Y)$ et le coefficient de corrélation linéaire $r$.</li>
+      <li>Déterminer la droite de régression des moindres carrés $y = ax + b$.</li>
+      <li>Comparer deux séries par leur coefficient de variation $CV = \frac{\sigma}{\bar{x}}$.</li>
+      <li>Découper une série continue en classes de même amplitude et calculer les centres de classe.</li>
     </ol>
-    <details><summary>Corrections</summary><div class="sol"><pre><code>def corrélation(xs, ys):
-    n = len(xs)
-    mx, my = sum(xs) / n, sum(ys) / n
-    cov = sum((xs[i] - mx) * (ys[i] - my) for i in range(n)) / n
-    sx = (sum((x - mx) ** 2 for x in xs) / n) ** 0.5
-    sy = (sum((y - my) ** 2 for y in ys) / n) ** 0.5
-    return cov / (sx * sy)
-
-def regression(xs, ys):
-    n = len(xs)
-    mx, my = sum(xs) / n, sum(ys) / n
-    cov = sum((xs[i] - mx) * (ys[i] - my) for i in range(n)) / n
-    vx = sum((x - mx) ** 2 for x in xs) / n
-    a = cov / vx
-    return a, my - a * mx      # y = a·x + b
-
-def classes(mini, maxi, k):
-    pas = (maxi - mini) / k
-    return [(mini + i * pas, mini + (i + 1) * pas) for i in range(k)]</code></pre></div></details>
+    <details><summary>Corrections &amp; résolutions détaillées</summary><div class="sol"><p><strong>1. Corrélation :</strong> $\operatorname{cov}(X,Y) = \frac{1}{n}\sum x_i y_i - \bar{x}\bar{y}$, d’où $r = \frac{\operatorname{cov}(X,Y)}{\sigma_x \sigma_y} \in [-1, 1]$.</p>
+<p><strong>2. Droite de régression :</strong> Pente $a = \frac{\operatorname{cov}(X,Y)}{V(X)}$ et ordonnée à l’origine $b = \bar{y} - a\bar{x}$.</p>
+<p><strong>3. Coefficient de variation :</strong> $CV = \frac{\sigma}{\bar{x}}$ permet de comparer la dispersion relative de deux distributions d’unités ou d’ordres de grandeur différents.</p>
+<p><strong>4. Classes :</strong> Pour une classe $[b_i, b_{i+1}[$, amplitude $a_i = b_{i+1} - b_i$ et centre $c_i = \frac{b_i + b_{i+1}}{2}$.</p></div></details>
   </div>
 
-  <h2>Projet intégrateur — « rapport d’analyse d’une série »</h2>
+  <h2>Projet intégrateur — Dossier d’Analyse Statistique &amp; Décision</h2>
 
   <div class="box box--situation">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges</div>
-    <p>Un service RH te confie les notes obtenues par une promotion à un test de recrutement. Le programme lit <code>n</code>, puis les <code>n</code> notes (une par ligne), et affiche un rapport complet sur la distribution : effectif, étendue, moyenne, médiane, quartiles, variance, écart-type, coefficient de variation et une appréciation de la dispersion.</p>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Cahier des charges du Dossier</div>
+    <p>Ce dossier d’étude statistique descriptive et décisionnelle consiste à analyser un jeu de données réel (production industrielle, fréquentation de service ou temps de réponse serveur) : calcul des indicateurs de position, de dispersion, étude de la forme de distribution et modélisation prédictive par régression linéaire.</p>
   </div>
 
   <div class="box box--objectifs">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Fonctionnalités attendues</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Compétences méthodologiques évaluées</div>
     <ol>
-      <li><strong>Lire</strong> la série et la trier une seule fois.</li>
-      <li><strong>Calculer</strong> les indicateurs avec des fonctions dédiées (tendance centrale, dispersion).</li>
-      <li><strong>Interpréter</strong> : afficher « dispersion forte » si le coefficient de variation dépasse 25 %, « dispersion modérée » sinon.</li>
-      <li><strong>Gérer</strong> les cas limites : n = 1, série constante (écart-type nul), valeurs négatives.</li>
-      <li><strong>Afficher</strong> deux décimales partout, sauf le CV exprimé en pourcentage.</li>
-      <li><strong>Bonus</strong> : détecter les valeurs aberrantes hors de l’intervalle [Q1 − 1,5·EI ; Q3 + 1,5·EI].</li>
+      <li><strong>Indicateurs de position :</strong> Calcul et comparaison critique de la moyenne et de la médiane.</li>
+      <li><strong>Indicateurs de dispersion :</strong> Calcul de la variance, de l’écart-type et de l’écart interquartile.</li>
+      <li><strong>Ajustement linéaire :</strong> Équation de la droite des moindres carrés et coefficient de détermination $R^2 = r^2$.</li>
+      <li><strong>Interprétation économique :</strong> Formulation de recommandations décisionnelles étayées.</li>
     </ol>
-    <p>Contraintes : une fonction = une responsabilité, noms explicites, aucune division par zéro.</p>
   </div>
-
-  <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-blocks"></use></svg> Grille d’auto-évaluation du projet (sur 100)</div>
-    <div class="bands">
-      <div class="bandrow">Lecture, tri et fonctions dédiées <strong>20</strong></div>
-      <div class="bandrow">Moyenne, médiane, quartiles corrects <strong>20</strong></div>
-      <div class="bandrow">Variance, écart-type, CV corrects <strong>20</strong></div>
-      <div class="bandrow">Interprétation et cas limites <strong>20</strong></div>
-      <div class="bandrow">Lisibilité, noms, découpage <strong>20</strong></div>
-    </div>
-    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>
-  </div>
-
-  <details>
-
-    <summary>Voir une solution de référence (après avoir essayé !)</summary>
-
-    <div class="sol">
-
-      <pre><code>import math
-
-def moyenne(valeurs):
-    return sum(valeurs) / len(valeurs)
-
-def quantile(valeurs, p):
-    r = (len(valeurs) + 1) * p
-    bas = int(r)
-    if bas == r:
-        return valeurs[bas - 1]
-    return valeurs[bas - 1] + (r - bas) * (valeurs[bas] - valeurs[bas - 1])
-
-def ecart_type(valeurs):
-    m = moyenne(valeurs)
-    return math.sqrt(sum((x - m) ** 2 for x in valeurs) / len(valeurs))
-
-def coefficient_variation(valeurs):
-    m = moyenne(valeurs)
-    return ecart_type(valeurs) / m if m != 0 else 0
-
-n = int(input())
-serie = sorted(float(input()) for _ in range(n))
-
-m = moyenne(serie)
-med = quantile(serie, 0.5)
-q1 = quantile(serie, 0.25)
-q3 = quantile(serie, 0.75)
-s = ecart_type(serie)
-cv = coefficient_variation(serie)
-
-print(f"effectif : {n}")
-print(f"etendue : {serie[-1] - serie[0]:.2f}")
-print(f"moyenne : {m:.2f}")
-print(f"mediane : {med:.2f}")
-print(f"Q1 : {q1:.2f}   Q3 : {q3:.2f}")
-print(f"variance : {s * s:.2f}")
-print(f"ecart-type : {s:.2f}")
-print(f"coefficient de variation : {cv * 100:.2f} %")
-print("dispersion forte" if cv > 0.25 else "dispersion moderee")</code></pre>
-
-      Cette solution combine vocabulaire, tableau, tendance centrale, dispersion et interprétation — l’essentiel des six modules en un seul rapport.
-
-    </div>
-
-  </details>
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
@@ -237,10 +128,33 @@ print("dispersion forte" if cv > 0.25 else "dispersion moderee")</code></pre>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — ta note réelle dépend aussi de ton travail.
-  Exercices construits à partir du support B1 et des séries d’exercices du Collège de Paris. Sources : le support B1 de statistique descriptive et les séries d’exercices du Collège de Paris.</p>
+  Exercices construits à partir du programme officiel de statistiques descriptives B1.Sources : le support B1 de statistique descriptive et les séries d’exercices du Collège de Paris.</p>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

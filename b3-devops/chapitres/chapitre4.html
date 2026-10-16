@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -154,35 +155,42 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="do3-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ROUTER active=BLUE version=1.2.0&#10;DEPLOY target=GREEN version=1.3.0 health_check=PASS">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c4-e1) — Simulateur de bascule Blue-Green sans interruption de service
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Échec du test de santé déclenchant le rollback]
+# Données : ROUTER active=GREEN version=2.0.1
+# Données : DEPLOY target=BLUE version=2.1.0 health_check=FAIL
+A_COMPLETER
 
-# À compléter : simuler la logique Blue-Green
+[Cas 2 — Tentative illégale de déploiement sur l’environnement déjà actif]
+# Données : ROUTER active=BLUE version=1.0.0
+# Données : DEPLOY target=BLUE version=1.1.0 health_check=PASS
+A_COMPLETER
+
+[Cas 3 — Bascule réussie de GREEN vers BLUE]
+# Données : ROUTER active=GREEN version=3.4.0
+# Données : DEPLOY target=BLUE version=3.5.0 health_check=PASS
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur de bascule Blue-Green sans interruption de service</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le routage du trafic réseau entre deux environnements jumeaux et automatiser la bascule ou le rollback en cas de défaillance du test de santé.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
-<code>ROUTER active=&lt;BLUE|GREEN&gt; version=&lt;ver_active&gt;</code><br>
-<code>DEPLOY target=&lt;BLUE|GREEN&gt; version=&lt;new_ver&gt; health_check=&lt;PASS|FAIL&gt;</code>.<br><br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles :<br>
 - Si <code>target == active</code> : le déploiement sur l’environnement actif est prohibé.<br>
   <code>BLUE_GREEN: ERREUR=DEPLOIEMENT_SUR_ENV_ACTIF_INTERDIT</code><br>
@@ -192,9 +200,9 @@ Règles :<br>
   - Si <code>health_check == FAIL</code> : bascule avortée, rollback de sécurité.<br>
     <code>BLUE_GREEN: STATUT=ROLLBACK_ANOMALIE | ROUTER_ACTIF=&lt;active&gt; | VERSION_EN_LIGNE=&lt;ver_active&gt; | TARGET_ABANDONNEE=&lt;target&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROUTER active=BLUE version=1.2.0
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROUTER active=BLUE version=1.2.0
 DEPLOY target=GREEN version=1.3.0 health_check=PASS</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BLUE_GREEN: STATUT=BASCULE_REUSSIE | ROUTER_ACTIF=GREEN | VERSION_EN_LIGNE=1.3.0 | ANCIEN_ENV=BLUE (IDLE)</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BLUE_GREEN: STATUT=BASCULE_REUSSIE | ROUTER_ACTIF=GREEN | VERSION_EN_LIGNE=1.3.0 | ANCIEN_ENV=BLUE (IDLE)</pre></div>
     </div>
     <p class="lab__note">Le test est PASS : le trafic passe sur GREEN (1.3.0), BLUE devient inactif.</p>
     <details class="lab__hints">
@@ -209,26 +217,34 @@ DEPLOY target=GREEN version=1.3.0 health_check=PASS</pre></div>
 
 <div class="lab" data-lab
      data-exercise="do3-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CANARY app=payment_svc version=2.4.0 seuil_max=1.00 steps=5,25,50,100 error_rates=0.20,0.35,0.40,0.45&#10;CANARY app=reco_engine version=3.0.0 seuil_max=0.50 steps=10,30,70,100 error_rates=0.10,0.85,1.20,2.00">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c4-e2) — Gestionnaire de déploiement progressif en Canari (Canary Release)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Échec dès le premier palier 5%]
+# Données : CANARY app=auth_api version=1.9.0 seuil_max=0.80 steps=5,20,50,100 error_rates=1.50,0.0,0.0,0.0
+A_COMPLETER
 
-# À compléter : simuler la progression par paliers du Canari
+[Cas 2 — Succès sans faille sur 3 paliers]
+# Données : CANARY app=cart_service version=2.0.0 seuil_max=2.00 steps=10,50,100 error_rates=0.50,0.80,1.10
+A_COMPLETER
+
+[Cas 3 — Échec au dernier palier 100%]
+# Données : CANARY app=search_svc version=4.1.0 seuil_max=1.00 steps=10,50,100 error_rates=0.20,0.40,1.80
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Gestionnaire de déploiement progressif en Canari (Canary Release)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Acheminer graduellement le trafic utilisateur vers une version canari tout en surveillant le taux d’erreur pour avorter automatiquement en cas de régression.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
-<code>CANARY app=&lt;nom&gt; version=&lt;ver&gt; seuil_max=&lt;pct&gt; steps=&lt;s1,s2,...&gt; error_rates=&lt;e1,e2,...&gt;</code>.<br><br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...&gt; error_rates=&lt;e1,e2,...&gt;</code>.<br><br>
 Déroulement des paliers :<br>
 - À chaque palier <code>steps[i]</code>, le taux d'erreur observé est <code>error_rates[i]</code>.<br>
 - Si $error\_rates[i] &gt; seuil\_max$ : le déploiement est immédiatement interrompu.<br>
@@ -236,9 +252,9 @@ Déroulement des paliers :<br>
 - Si toutes les étapes sont validées jusqu'au dernier palier (100%) sans dépasser le seuil :<br>
   <code>CANARY_DEPLOY: app=&lt;nom&gt; -&gt; PROMOTION_100%_SUCCES | STATUT=DEPLOIEMENT_FINALISE | VERSION_ACTIVE=&lt;ver&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CANARY app=payment_svc version=2.4.0 seuil_max=1.00 steps=5,25,50,100 error_rates=0.20,0.35,0.40,0.45
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CANARY app=payment_svc version=2.4.0 seuil_max=1.00 steps=5,25,50,100 error_rates=0.20,0.35,0.40,0.45
 CANARY app=reco_engine version=3.0.0 seuil_max=0.50 steps=10,30,70,100 error_rates=0.10,0.85,1.20,2.00</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CANARY_DEPLOY: app=payment_svc -&gt; PROMOTION_100%_SUCCES | STATUT=DEPLOIEMENT_FINALISE | VERSION_ACTIVE=2.4.0
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CANARY_DEPLOY: app=payment_svc -&gt; PROMOTION_100%_SUCCES | STATUT=DEPLOIEMENT_FINALISE | VERSION_ACTIVE=2.4.0
 CANARY_DEPLOY: app=reco_engine -&gt; ARRET_ANOMALIE_ETAPE=30% (erreur=0.85%/seuil=0.50%) | STATUT=ROLLBACK_AUTOMATIQUE</pre></div>
     </div>
     <p class="lab__note">payment_svc est promu à 100%. reco_engine est stoppé au palier 30% avec rollback.</p>
@@ -254,26 +270,34 @@ CANARY_DEPLOY: app=reco_engine -&gt; ARRET_ANOMALIE_ETAPE=30% (erreur=0.85%/seui
 
 <div class="lab" data-lab
      data-exercise="do3-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ROLLING replicas=4 max_surge=1 max_unavail=0">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c4-e3) — Simulateur de mise à jour progressive Kubernetes (Rolling Update)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Remplacement par paquets de 2 avec maxSurge=2]
+# Données : ROLLING replicas=4 max_surge=2 max_unavail=0
+A_COMPLETER
 
-# À compléter : dérouler le Rolling Update pas à pas
+[Cas 2 — Pod unique avec maxSurge 1]
+# Données : ROLLING replicas=1 max_surge=1 max_unavail=0
+A_COMPLETER
+
+[Cas 3 — Grande flotte de 6 réplicas avec surge de 3]
+# Données : ROLLING replicas=6 max_surge=3 max_unavail=0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Simulateur de mise à jour progressive Kubernetes (Rolling Update)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le déroulement pas à pas d’un Rolling Update Kubernetes en garantissant les contraintes de maxSurge et maxUnavailable.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard les paramètres du déploiement :<br>
-<code>ROLLING replicas=&lt;N&gt; max_surge=&lt;S&gt; max_unavail=&lt;U&gt;</code>.<br><br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
 Paramètres :<br>
 - $N$ : nombre désiré de réplicas en régime stable.<br>
 - $S$ (maxSurge) : nombre maximal de pods supplémentaires autorisés au-delà de $N$ ($Total_{max} = N + S$).<br>
@@ -291,8 +315,8 @@ Puis chaque pas :<br>
 Et la conclusion finale :<br>
 <code>ETAT_FINAL: v1=0, v2=&lt;N&gt; | SUCCES_ROLLING_UPDATE</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROLLING replicas=4 max_surge=1 max_unavail=0</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ROLLING_SPEC: REPLICAS=4 | MAX_TOTAL=5 | MIN_DISPO=4
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROLLING replicas=4 max_surge=1 max_unavail=0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ROLLING_SPEC: REPLICAS=4 | MAX_TOTAL=5 | MIN_DISPO=4
 PAS 1: v1=3, v2=1 (total=4)
 PAS 2: v1=2, v2=2 (total=4)
 PAS 3: v1=1, v2=3 (total=4)
@@ -473,6 +497,29 @@ ETAT_FINAL: v1=0, v2=4 | SUCCES_ROLLING_UPDATE</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

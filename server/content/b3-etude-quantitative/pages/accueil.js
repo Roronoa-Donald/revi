@@ -159,7 +159,7 @@ function atelier(course) {
     '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="STATS_ENQUETE\nechantillon=385\nconfiance=95\nerreur=5.0">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : expérimentez vos calculs statistiques, dimensionnements d\'échantillons et analyses qualitatives\nimport math\n\ndef dimensionner_etude():\n    print("Zone libre Etude Quantitative & Qualitative B3 : pret a executer.")\n\nif __name__ == \'__main__\':\n    dimensionner_etude()\n</script>',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-etude-quantitative\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations</h2>',

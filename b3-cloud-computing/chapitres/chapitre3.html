@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -128,34 +129,39 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="cc3-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="HYPERVISEUR nom=kvm_prod COUCHE=BARE_METAL ACCEL=OUI OVERHEAD=1.8&#10;HYPERVISEUR nom=virtualbox_dev COUCHE=HOSTED ACCEL=OUI OVERHEAD=9.2&#10;HYPERVISEUR nom=xen_legacy COUCHE=BARE_METAL ACCEL=NON OVERHEAD=4.5">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc3-c3-e1) — Classificateur d’hyperviseurs (Bare-Metal vs Hosted, HVM vs PV)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — VMware ESXi Datacenter]
+# Données : HYPERVISEUR nom=esxi_cluster COUCHE=BARE_METAL ACCEL=OUI OVERHEAD=2.1
+A_COMPLETER
 
-# À compléter : classifier les hyperviseurs
+[Cas 2 — Poste de travail avec VMware Workstation]
+# Données : HYPERVISEUR nom=vm_workstation COUCHE=HOSTED ACCEL=OUI OVERHEAD=7.5
+A_COMPLETER
+
+[Cas 3 — Vieux conteneur hébergé sans assistance CPU]
+# Données : HYPERVISEUR nom=vserver_old COUCHE=HOSTED ACCEL=NON OVERHEAD=12.0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Classificateur d’hyperviseurs (Bare-Metal vs Hosted, HVM vs PV)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Identifier le type architectural d’hyperviseur et le mode d’émulation matérielle pour qualifier son overhead et son adéquation Cloud.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations :<br>
-<code>HYPERVISEUR nom=&lt;nom&gt; COUCHE=&lt;BARE_METAL|HOSTED&gt; ACCEL=&lt;OUI|NON&gt; OVERHEAD=&lt;pct&gt;</code>.<br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
 Règles de classification :<br>
 - <strong>Type architectural</strong> : <code>TYPE_1_BARE_METAL</code> si <code>COUCHE == BARE_METAL</code>, sinon <code>TYPE_2_HOSTED</code>.<br>
 - <strong>Mode d’exécution</strong> : <code>HVM</code> (Hardware Virtual Machine) si <code>ACCEL == OUI</code> (Intel VT-x / AMD-V actif), sinon <code>PV</code> (Paravirtualisation avec modification du noyau invité).<br>
@@ -166,10 +172,10 @@ Règles de classification :<br>
 Afficher :<br>
 <code>HYPERVISEUR: &lt;nom&gt; -&gt; ARCH=&lt;TYPE&gt; | MODE=&lt;MODE&gt; | PERF=&lt;PERF&gt; (OVERHEAD=&lt;OVERHEAD:.1f&gt;%)</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HYPERVISEUR nom=kvm_prod COUCHE=BARE_METAL ACCEL=OUI OVERHEAD=1.8
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HYPERVISEUR nom=kvm_prod COUCHE=BARE_METAL ACCEL=OUI OVERHEAD=1.8
 HYPERVISEUR nom=virtualbox_dev COUCHE=HOSTED ACCEL=OUI OVERHEAD=9.2
 HYPERVISEUR nom=xen_legacy COUCHE=BARE_METAL ACCEL=NON OVERHEAD=4.5</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>HYPERVISEUR: kvm_prod -&gt; ARCH=TYPE_1_BARE_METAL | MODE=HVM | PERF=OPTIMALE (OVERHEAD=1.8%)
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>HYPERVISEUR: kvm_prod -&gt; ARCH=TYPE_1_BARE_METAL | MODE=HVM | PERF=OPTIMALE (OVERHEAD=1.8%)
 HYPERVISEUR: virtualbox_dev -&gt; ARCH=TYPE_2_HOSTED | MODE=HVM | PERF=DEGRADEE (OVERHEAD=9.2%)
 HYPERVISEUR: xen_legacy -&gt; ARCH=TYPE_1_BARE_METAL | MODE=PV | PERF=BONNE (OVERHEAD=4.5%)</pre></div>
     </div>
@@ -186,27 +192,40 @@ HYPERVISEUR: xen_legacy -&gt; ARCH=TYPE_1_BARE_METAL | MODE=PV | PERF=BONNE (OVE
 
 <div class="lab" data-lab
      data-exercise="cc3-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="HOTE pcpu=16 ram_gb=64 max_vcpu_ratio=3.00 max_ram_ratio=1.20&#10;VM id=web1 vcpu=8 ram_gb=16&#10;VM id=web2 vcpu=8 ram_gb=16&#10;VM id=app1 vcpu=16 ram_gb=32">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc3-c3-e2) — Calculateur de consolidation et sur-allocation (Overcommitment)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Surcharge exclusive sur la RAM]
+# Données : HOTE pcpu=16 ram_gb=64 max_vcpu_ratio=3.00 max_ram_ratio=1.10
+# Données : VM id=vm1 vcpu=16 ram_gb=40
+# Données : VM id=vm2 vcpu=16 ram_gb=40
+A_COMPLETER
 
-# À compléter : sommer les ressources et vérifier les ratios
+[Cas 2 — Surcharge exclusive sur les vCPU]
+# Données : HOTE pcpu=8 ram_gb=128 max_vcpu_ratio=2.00 max_ram_ratio=1.20
+# Données : VM id=node1 vcpu=12 ram_gb=32
+# Données : VM id=node2 vcpu=12 ram_gb=32
+A_COMPLETER
+
+[Cas 3 — Double dépassement vCPU et RAM]
+# Données : HOTE pcpu=4 ram_gb=16 max_vcpu_ratio=2.00 max_ram_ratio=1.00
+# Données : VM id=heavy1 vcpu=8 ram_gb=12
+# Données : VM id=heavy2 vcpu=8 ram_gb=12
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Calculateur de consolidation et sur-allocation (Overcommitment)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la faisabilité d’hébergement d’un lot de machines virtuelles sur un hôte physique selon les plafonds de sur-allocation vCPU et RAM.</p>
-    <div class="lab__brief"><p>Le script lit la spécification de l’hôte physique puis la liste des VMs :<br>
-<code>HOTE pcpu=&lt;p&gt; ram_gb=&lt;r&gt; max_vcpu_ratio=&lt;m_v&gt; max_ram_ratio=&lt;m_r&gt;</code><br>
-<code>VM id=&lt;id&gt; vcpu=&lt;v&gt; ram_gb=&lt;rg&gt;</code> (plusieurs lignes).<br><br>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br><br>
 Calculs :<br>
 - $VCPU_{total} = \sum vcpu$<br>
 - $RAM_{total} = \sum ram\_gb$<br>
@@ -220,11 +239,11 @@ Vérification des contraintes :<br>
 Afficher :<br>
 <code>CONSOLIDATION: VMS=&lt;nb&gt; | VCPU=&lt;VCPU_total&gt;/&lt;p&gt; (ratio=&lt;Ratio_vcpu:.2f&gt;/&lt;max_v:.2f&gt;) | RAM=&lt;RAM_total&gt;/&lt;r&gt;GB (ratio=&lt;Ratio_ram:.2f&gt;/&lt;max_r:.2f&gt;) | STATUT=&lt;STATUT&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HOTE pcpu=16 ram_gb=64 max_vcpu_ratio=3.00 max_ram_ratio=1.20
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HOTE pcpu=16 ram_gb=64 max_vcpu_ratio=3.00 max_ram_ratio=1.20
 VM id=web1 vcpu=8 ram_gb=16
 VM id=web2 vcpu=8 ram_gb=16
 VM id=app1 vcpu=16 ram_gb=32</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CONSOLIDATION: VMS=3 | VCPU=32/16 (ratio=2.00/3.00) | RAM=64/64GB (ratio=1.00/1.20) | STATUT=VALIDE</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CONSOLIDATION: VMS=3 | VCPU=32/16 (ratio=2.00/3.00) | RAM=64/64GB (ratio=1.00/1.20) | STATUT=VALIDE</pre></div>
     </div>
     <p class="lab__note">Ratio CPU de 2.00 &lt;= 3.00 et ratio RAM de 1.00 &lt;= 1.20 : consolidation parfaitement recevable.</p>
     <details class="lab__hints">
@@ -239,28 +258,37 @@ VM id=app1 vcpu=16 ram_gb=32</pre></div>
 
 <div class="lab" data-lab
      data-exercise="cc3-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CHARGE tps=500 cpu_ms=12 ram_mb=16 iops=4&#10;SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=3000 marge_securite=70">
-  <script type="text/plain" data-lab-starter>import sys
-import math
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cc3-c3-e3) — Dimensionnement d’instances face à une charge crête transactionnelle
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Goulot d’étranglement sur les entrées-sorties disque IOPS]
+# Données : CHARGE tps=2000 cpu_ms=2 ram_mb=8 iops=10
+# Données : SPEC_NOEUD cpu_max_ms=8000 ram_max_gb=32 iops_max=4000 marge_securite=80
+A_COMPLETER
 
-# À compléter : calculer les instances requises pour chaque ressource
+[Cas 2 — Application gloutonne en mémoire vive RAM]
+# Données : CHARGE tps=1000 cpu_ms=3 ram_mb=128 iops=2
+# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=5000 marge_securite=75
+A_COMPLETER
+
+[Cas 3 — Charge modérée sur nœud puissant]
+# Données : CHARGE tps=100 cpu_ms=10 ram_mb=32 iops=5
+# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=2000 marge_securite=80
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Dimensionnement d’instances face à une charge crête transactionnelle</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer le nombre minimal d’instances Cloud nécessaires pour absorber un pic de transactions par seconde (TPS) selon les limites CPU, RAM et IOPS.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
-<code>CHARGE tps=&lt;tps&gt; cpu_ms=&lt;cpu_ms&gt; ram_mb=&lt;ram_mb&gt; iops=&lt;iops&gt;</code><br>
-<code>SPEC_NOEUD cpu_max_ms=&lt;cpu_max_ms&gt; ram_max_gb=&lt;ram_max_gb&gt; iops_max=&lt;iops_max&gt; marge_securite=&lt;pct&gt;</code>.<br><br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
 Formules :<br>
 Le coefficient de sécurité $K = marge\_securite / 100.0$ (ex: 70% -&gt; 0.70).<br>
 Besoins globaux par seconde :<br>
@@ -276,9 +304,9 @@ Facteur limitant : le premier critère atteignant $N_{final}$ dans l'ordre de pr
 Afficher :<br>
 <code>SIZING: TPS=&lt;tps&gt; -&gt; INSTANCES=&lt;N_final&gt; (CPU=&lt;N_cpu&gt;, RAM=&lt;N_ram&gt;, IOPS=&lt;N_iops&gt;) | LIMITANT=&lt;LIMITANT&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CHARGE tps=500 cpu_ms=12 ram_mb=16 iops=4
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CHARGE tps=500 cpu_ms=12 ram_mb=16 iops=4
 SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=3000 marge_securite=70</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SIZING: TPS=500 -&gt; INSTANCES=3 (CPU=3, RAM=1, IOPS=1) | LIMITANT=CPU</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SIZING: TPS=500 -&gt; INSTANCES=3 (CPU=3, RAM=1, IOPS=1) | LIMITANT=CPU</pre></div>
     </div>
     <p class="lab__note">CPU réclame 500 * 12 = 6000 ms/s. Chaque nœud à 70% délivre 2800 ms/s. ceil(6000/2800) = 3 instances.</p>
     <details class="lab__hints">
@@ -452,6 +480,29 @@ SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 iops_max=3000 marge_securite=70</pre></
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

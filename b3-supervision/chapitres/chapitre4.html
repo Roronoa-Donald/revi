@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -145,28 +146,33 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="sup3-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PROM_PARSE http_requests_total{method=&quot;GET&quot;,handler=&quot;/api&quot;} 1027">
-  <script type="text/plain" data-lab-starter>import sys
-import re
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c4-e1) — Parseur de Format d’Exposition Métrique Prometheus
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Métrique sans label mémoire vive libre]
+# Données : PROM_PARSE node_memory_MemFree_bytes 1048576
+A_COMPLETER
 
-# À compléter : parser l'échantillon Prometheus et formater la sortie
+[Cas 2 — Métrique avec valeur flottante et label unique]
+# Données : PROM_PARSE cpu_temperature_celsius{core="0"} 45.5
+A_COMPLETER
+
+[Cas 3 — Métrique up avec instance et job]
+# Données : PROM_PARSE up{job="node-exporter",instance="10.0.0.1:9100"} 1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Parseur de Format d’Exposition Métrique Prometheus</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -181,8 +187,8 @@ Entrée STDIN : <code>PROM_PARSE &lt;ligne_echantillon&gt;</code>.<br>
 Sortie : <code>METRIC: name=&lt;name&gt; labels=&lt;k1=v1,k2=v2|NONE&gt; value=&lt;val&gt;</code>.<br>
 (Les étiquettes sont triées par nom alphabétique en sortie).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PROM_PARSE http_requests_total{method="GET",handler="/api"} 1027</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>METRIC: name=http_requests_total labels=handler=/api,method=GET value=1027</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PROM_PARSE http_requests_total{method="GET",handler="/api"} 1027</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>METRIC: name=http_requests_total labels=handler=/api,method=GET value=1027</pre></div>
     </div>
     <p class="lab__note">Extraction du nom de métrique et des deux labels triés par ordre alphabétique.</p>
     <details class="lab__hints">
@@ -197,19 +203,28 @@ Sortie : <code>METRIC: name=&lt;name&gt; labels=&lt;k1=v1,k2=v2|NONE&gt; value=&
 
 <div class="lab" data-lab
      data-exercise="sup3-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PROMQL_RATE INTERVAL=300 GROUP=status SERIES=1000:2500:service=cart,status=200 SERIES=500:1100:service=auth,status=200 SERIES=10:70:service=cart,status=500">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c4-e2) — Moteur de Calcul PromQL rate() et Agrégation sum by()
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Deux séries de production sur intervalle 60 secondes]
+# Données : PROMQL_RATE INTERVAL=60 GROUP=env SERIES=120:180:env=prod,host=srv1 SERIES=200:320:env=prod,host=srv2
+A_COMPLETER
 
-# À compléter : calculer les taux individuels et la somme groupée par label
+[Cas 2 — Série unique avec réinitialisation de compteur]
+# Données : PROMQL_RATE INTERVAL=120 GROUP=service SERIES=500:200:service=payment
+A_COMPLETER
+
+[Cas 3 — Deux groupes distincts frontend et backend]
+# Données : PROMQL_RATE INTERVAL=100 GROUP=tier SERIES=100:300:tier=front SERIES=50:250:tier=back SERIES=0:100:tier=front
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Moteur de Calcul PromQL rate() et Agrégation sum by()</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -225,8 +240,8 @@ Somme des taux pour chaque valeur distincte de l'étiquette cible <code>GROUP</c
 Entrée STDIN : <code>PROMQL_RATE INTERVAL=&lt;sec&gt; GROUP=&lt;label&gt; SERIES=&lt;init:final:lbl=val,lbl=val&gt; [SERIES=...]</code>.<br>
 Sortie : <code>PROMQL: rates=[&lt;s1_taux:.2f&gt;,&lt;s2_taux:.2f&gt;] sum_by={&lt;val1&gt;:&lt;tot1:.2f&gt;,&lt;val2&gt;:&lt;tot2:.2f&gt;}</code> (clés de sum_by triées par ordre alphabétique).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PROMQL_RATE INTERVAL=300 GROUP=status SERIES=1000:2500:service=cart,status=200 SERIES=500:1100:service=auth,status=200 SERIES=10:70:service=cart,status=500</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PROMQL: rates=[5.00,2.00,0.20] sum_by={200:7.00,500:0.20}</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PROMQL_RATE INTERVAL=300 GROUP=status SERIES=1000:2500:service=cart,status=200 SERIES=500:1100:service=auth,status=200 SERIES=10:70:service=cart,status=500</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PROMQL: rates=[5.00,2.00,0.20] sum_by={200:7.00,500:0.20}</pre></div>
     </div>
     <p class="lab__note">Calcul des requêtes par seconde et somme groupée par code de statut HTTP.</p>
     <details class="lab__hints">
@@ -241,19 +256,28 @@ Sortie : <code>PROMQL: rates=[&lt;s1_taux:.2f&gt;,&lt;s2_taux:.2f&gt;] sum_by={&
 
 <div class="lab" data-lab
      data-exercise="sup3-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ALERT_ROUTE GROUP_BY=cluster SILENCE=cluster=dev INHIBIT=NodeDown:InstanceHighCpu:node ALERTS=NodeDown:alertname=NodeDown,node=srv1,cluster=prod|InstanceHighCpu:alertname=InstanceHighCpu,node=srv1,cluster=prod|DiskFull:alertname=DiskFull,node=srv2,cluster=dev">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c4-e3) — Routeur de Notifications Alertmanager (Grouping & Silences)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Deux alertes actives dans la même zone sans inhibition]
+# Données : ALERT_ROUTE GROUP_BY=zone SILENCE=NONE INHIBIT=NONE ALERTS=DBDown:alertname=DBDown,zone=eu-1|WebDown:alertname=WebDown,zone=eu-1
+A_COMPLETER
 
-# À compléter : appliquer les règles de silence, d'inhibition et de regroupement
+[Cas 2 — Silence global éliminant toutes les alertes de test]
+# Données : ALERT_ROUTE GROUP_BY=env SILENCE=env=test INHIBIT=NONE ALERTS=TestAlert:alertname=TestAlert,env=test
+A_COMPLETER
+
+[Cas 3 — Deux clusters de production distincts]
+# Données : ALERT_ROUTE GROUP_BY=cluster SILENCE=NONE INHIBIT=NONE ALERTS=ApiSlow:alertname=ApiSlow,cluster=alpha|WorkerDown:alertname=WorkerDown,cluster=beta
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Routeur de Notifications Alertmanager (Grouping &amp; Silences)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -267,8 +291,8 @@ Entrée STDIN : <code>ALERT_ROUTE GROUP_BY=&lt;key&gt; SILENCE=&lt;k=v|NONE&gt; 
 Sortie : Pour chaque groupe (dans l'ordre alphabétique des valeurs du label groupé) :<br>
 <code>ALERT_GROUP: key=&lt;val&gt; count=&lt;n&gt; alerts=&lt;nom1,nom2...&gt;</code> (si aucune alerte : <code>ALERT_GROUP: key=NONE count=0 alerts=NONE</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ALERT_ROUTE GROUP_BY=cluster SILENCE=cluster=dev INHIBIT=NodeDown:InstanceHighCpu:node ALERTS=NodeDown:alertname=NodeDown,node=srv1,cluster=prod|InstanceHighCpu:alertname=InstanceHighCpu,node=srv1,cluster=prod|DiskFull:alertname=DiskFull,node=srv2,cluster=dev</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ALERT_GROUP: key=prod count=1 alerts=NodeDown</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ALERT_ROUTE GROUP_BY=cluster SILENCE=cluster=dev INHIBIT=NodeDown:InstanceHighCpu:node ALERTS=NodeDown:alertname=NodeDown,node=srv1,cluster=prod|InstanceHighCpu:alertname=InstanceHighCpu,node=srv1,cluster=prod|DiskFull:alertname=DiskFull,node=srv2,cluster=dev</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALERT_GROUP: key=prod count=1 alerts=NodeDown</pre></div>
     </div>
     <p class="lab__note">DiskFull est sous silence (dev) et InstanceHighCpu est inhibé par NodeDown sur srv1.</p>
     <details class="lab__hints">
@@ -443,6 +467,29 @@ Sortie : Pour chaque groupe (dans l'ordre alphabétique des valeurs du label gro
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

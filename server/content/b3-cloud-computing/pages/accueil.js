@@ -130,19 +130,19 @@ function atelier(course) {
   const crumbs = crumb(course, [
     { label: 'Accueil', href: 'index.html' },
     { label: 'Sommaire', href: 'sommaire.html' },
-    { label: 'Atelier de code libre' }
+    { label: 'Atelier d’analyse libre' }
   ]);
 
   const body = [
     crumbs,
-    '  <h1>Atelier de Code &amp; Bac à Sable Cloud Computing</h1>',
-    '  <p class="lead">Simulez et évaluez vos métriques cloud en Python 3 : calculs de SLA composé, dimensionnement d’instances, audit énergétique PUE et arbitrages FinOps.</p>',
+    '  <h1>Atelier d’analyse &amp; Études de cas Cloud Computing</h1>',
+    '  <p class="lead">Simulez et évaluez vos métriques cloud selon les grilles d’analyse : calculs de SLA composé, dimensionnement d’instances, audit énergétique PUE et arbitrages FinOps.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="99.9\n99.95">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos architectures, calculs de disponibilite et dimensionnements Cloud\nimport math\n\ndef simuler_sla_cloud():\n    print("Zone libre Cloud Computing B3 : pret a executer.")\n\nif __name__ == \'__main__\':\n    simuler_sla_cloud()\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations</h2>',
@@ -164,8 +164,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour modéliser, tester et automatiser des scénarios d’architecture cloud et calculs FinOps.',
+      title: 'Atelier d’analyse libre — ' + course.brand,
+      description: 'Bac à sable interactif par cas d’application pour modéliser, tester et automatiser des scénarios d’architecture cloud et calculs FinOps.',
       active: 'atelier',
       body
     }

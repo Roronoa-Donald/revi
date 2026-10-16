@@ -56,17 +56,21 @@ module.exports = {
         '<p>Pour éliminer ces variables artificielles qui n’ont aucune existence physique réelle dans le problème, ' +
         'l’algorithme résout deux programmes linéaires consécutifs :</p>',
 
-        '<pre><code>// PHASE 1 : Recherche d’une solution de base réalisable\n' +
-        'Objectif   : MINIMISER la somme des variables artificielles : W = &sum; a_i\n' +
-        'Résolution : On applique le simplexe classique sur ce critère artificiel.\n' +
-        'Conclusion :\n' +
-        '  - Si Min W &gt; 0 : le problème d’origine est IRREALISABLE (domaine vide).\n' +
-        '  - Si Min W = 0 : toutes les artificielles sont sorties de la base. On a trouvé\n' +
-        '                   un premier sommet réalisable du problème d’origine !\n\n' +
-        '// PHASE 2 : Optimisation du problème réel\n' +
-        '- On supprime définitivement les colonnes des variables artificielles.\n' +
-        '- On réinjecte la fonction objectif d’origine Z = &sum; cj * xj.\n' +
-        '- On continue les itérations du simplexe jusqu’à l’optimum global Z*.</code></pre>'
+        box('formula', 'Déroulement de l’algorithme des Deux Phases', [
+          '<div class="box--formula">',
+          '  <span class="formula-label">Phase 1 — Recherche d’une solution de base réalisable</span>',
+          '  <div class="math-block">$$\\text{MIN } W = \\sum_{i} a_i$$</div>',
+          '  <ul>',
+          '    <li>Si $\\min W > 0$ : le problème d’origine est <strong>irréalisable</strong> (domaine de contraintes vide).</li>',
+          '    <li>Si $\\min W = 0$ : toutes les variables artificielles sont nulles. Un premier sommet réalisable réel est atteint !</li>',
+          '  </ul>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">Phase 2 — Optimisation du critère économique réel</span>',
+          '  <div class="math-block">$$\\text{MAX } Z = \\sum_{j=1}^{n} c_j x_j$$</div>',
+          '  <p>On supprime définitivement les colonnes artificielles et on poursuit le simplexe standard jusqu’à l’optimum global $Z^*$.</p>',
+          '</div>'
+        ].join('\n'))
       ].join('\n')
     },
     {

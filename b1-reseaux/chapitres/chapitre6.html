@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 6 — Le sous-réseautage | Architecture des réseaux B1</title>
-<meta name="description" content="Chapitre 6 du cours d'Architecture des réseaux B1 : Emprunter des bits à la partie hôte ; calculer le nouveau masque ; VLSM et CIDR : la fin des classes. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 6 du cours d'Architecture des réseaux B1 : Emprunter des bits à la partie hôte ; calculer le nouveau masque ; VLSM et CIDR : la fin des classes. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b1-reseaux/chapitres/chapitre6.html">
 <meta property="og:title" content="Chapitre 6 — Le sous-réseautage | Architecture des réseaux B1">
-<meta property="og:description" content="Chapitre 6 du cours d'Architecture des réseaux B1 : Emprunter des bits à la partie hôte ; calculer le nouveau masque ; VLSM et CIDR : la fin des classes. Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 6 du cours d'Architecture des réseaux B1 : Emprunter des bits à la partie hôte ; calculer le nouveau masque ; VLSM et CIDR : la fin des classes. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -100,40 +101,54 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>3. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>3. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="re-c6-e1"
-     data-language="shell"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;agence 3&#10;agence2 2&#10;agence3 1&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
-for ((i=0; i<n; i++)); do
-  read -r reseau emprunt
-  # À compléter : calculer le préfixe, les sous-réseaux et les hôtes.
-done
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c6-e1) — Emprunter des bits
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Emprunt d un bit]
+# Données : 1
+# Données : res1 1
+A_COMPLETER
+
+[Cas 2 — Emprunt trop grand]
+# Données : 2
+# Données : res1 7
+# Données : res2 3
+A_COMPLETER
+
+[Cas 3 — Cinq reseaux]
+# Données : 5
+# Données : a 1
+# Données : b 2
+# Données : c 3
+# Données : d 4
+# Données : e 5
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Emprunter des bits</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer l'effet de l'emprunt de bits d'hôte : combien de sous-réseaux créés, combien d'hôtes valides chacun.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « reseau emprunt » : emprunt est le nombre de bits empruntés à la partie hôte d'un /24 (entier de 1 à 6). Pour chaque ligne il affiche <code>reseau : /C (S sous-reseaux, H hotes)</code>, où C = 24 + emprunt, S = 2^emprunt et H = 2^(8-emprunt) - 2. Si l'emprunt vaut 7 ou plus, afficher <code>reseau : emprunt trop grand</code>.</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « reseau emprunt » : emprunt est le nombre de bits empruntés à la partie hôte d'un /24 (entier de 1 à 6). Pour chaque ligne il Indiquez <code>reseau : /C (S sous-reseaux, H hotes)</code>, où C = 24 + emprunt, S = 2^emprunt et H = 2^(8-emprunt) - 2. Si l'emprunt vaut 7 ou plus, afficher <code>reseau : emprunt trop grand</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 agence 3
 agence2 2
 agence3 1
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>agence : /27 (8 sous-reseaux, 30 hotes)
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>agence : /27 (8 sous-reseaux, 30 hotes)
 agence2 : /26 (4 sous-reseaux, 62 hotes)
 agence3 : /25 (2 sous-reseaux, 126 hotes)</pre></div>
     </div>
@@ -149,34 +164,49 @@ agence3 : /25 (2 sous-reseaux, 126 hotes)</pre></div>
 
 <div class="lab" data-lab
      data-exercise="re-c6-e2"
-     data-language="shell"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;agence 3&#10;agence2 2&#10;agence3 4&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
-slash28=0
-for ((i=0; i<n; i++)); do
-  read -r reseau emprunt
-  # À compléter : convertir l'emprunt en octet décimal, compter les /28.
-done
-# À compléter : bilan des /28.
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c6-e2) — Le nouveau masque
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Un seul bit]
+# Données : 1
+# Données : res1 1
+A_COMPLETER
+
+[Cas 2 — Emprunt trop grand]
+# Données : 2
+# Données : res1 8
+# Données : res2 2
+A_COMPLETER
+
+[Cas 3 — Cinq reseaux]
+# Données : 5
+# Données : a 1
+# Données : b 2
+# Données : c 3
+# Données : d 4
+# Données : e 6
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Le nouveau masque</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Convertir l'emprunt de bits en masque décimal : 3 bits empruntés sur le 4e octet donnent 255.255.255.224.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « reseau emprunt » : emprunt est le nombre de bits mis à 1 dans le 4e octet du masque (entier de 1 à 6). Le 4e octet vaut 256 - 2^(8-emprunt) : 3 bits empruntés donnent 224, 2 bits donnent 192, etc. Pour chaque ligne il affiche <code>reseau : 255.255.255.X (/C)</code> où C = 24 + emprunt. Si l'emprunt vaut 7 ou plus, afficher <code>reseau : emprunt trop grand</code>. Il termine par <code>slash28 : X/n</code> (les emprunts de 4 bits).</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « reseau emprunt » : emprunt est le nombre de bits mis à 1 dans le 4e octet du masque (entier de 1 à 6). Le 4e octet vaut 256 - 2^(8-emprunt) : 3 bits empruntés donnent 224, 2 bits donnent 192, etc. Pour chaque ligne il Indiquez <code>reseau : 255.255.255.X (/C)</code> où C = 24 + emprunt. Si l'emprunt vaut 7 ou plus, afficher <code>reseau : emprunt trop grand</code>. Il termine par <code>slash28 : X/n</code> (les emprunts de 4 bits).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 agence 3
 agence2 2
 agence3 4
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>agence : 255.255.255.224 (/27)
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>agence : 255.255.255.224 (/27)
 agence2 : 255.255.255.192 (/26)
 agence3 : 255.255.255.240 (/28)
 slash28 : 1/3</pre></div>
@@ -193,35 +223,50 @@ slash28 : 1/3</pre></div>
 
 <div class="lab" data-lab
      data-exercise="re-c6-e3"
-     data-language="shell"
+     data-language="analyse"
      data-height="300"
      data-stdin="4&#10;bureau1 30&#10;bureau2 6&#10;liaison 2&#10;siege 100&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
-liaisons=0
-for ((i=0; i<n; i++)); do
-  read -r site hotes
-  # À compléter : chercher k tel que 2^k - 2 couvre les hôtes.
-done
-# À compléter : bilan des liaisons point-à-point.
+  <script type="text/plain" data-lab-starter># Grille d'analyse (re-c6-e3) — Le plan d'adressage VLSM
+# Complétez la résolution demandée sous chaque cas ci-dessous :
+
+[Cas 1 — Une seule liaison]
+# Données : 1
+# Données : routeurs 2
+A_COMPLETER
+
+[Cas 2 — Besoin impossible]
+# Données : 2
+# Données : datacenter 500
+# Données : bureau 10
+A_COMPLETER
+
+[Cas 3 — Cinq sites]
+# Données : 5
+# Données : a 2
+# Données : b 10
+# Données : c 50
+# Données : d 1
+# Données : e 200
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Le plan d'adressage VLSM</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Dimensionner les sous-réseaux de chaque site : le plus petit bloc dont la capacité couvre les hôtes demandés.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « site hotes » : hotes est le nombre d'hôtes requis (entier de 1 à 254). Pour chaque site le script cherche le plus petit bloc valable : la capacité vaut 2^k - 2 hôtes pour k bits d'hôte, et le préfixe vaut 32 - k. Il affiche <code>site : /P (C hotes)</code> où P est le préfixe et C la capacité du bloc retenu. Si plus de 254 hôtes sont demandés, afficher <code>site : impossible</code>. Il termine par <code>liaisons : X/n</code> (les sites servis en /30, capacité 2 : liaisons point-à-point).</p></div>
+    <div class="lab__brief"><p>Analysez chaque ligne proposée « site hotes » : hotes est le nombre d'hôtes requis (entier de 1 à 254). Pour chaque site le script cherche le plus petit bloc valable : la capacité vaut 2^k - 2 hôtes pour k bits d'hôte, et le préfixe vaut 32 - k. Il Indiquez <code>site : /P (C hotes)</code> où P est le préfixe et C la capacité du bloc retenu. Si plus de 254 hôtes sont demandés, afficher <code>site : impossible</code>. Il termine par <code>liaisons : X/n</code> (les sites servis en /30, capacité 2 : liaisons point-à-point).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
 bureau1 30
 bureau2 6
 liaison 2
 siege 100
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>bureau1 : /27 (30 hotes)
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>bureau1 : /27 (30 hotes)
 bureau2 : /29 (6 hotes)
 liaison : /30 (2 hotes)
 siege : /25 (126 hotes)
@@ -386,6 +431,29 @@ liaisons : 1/4</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

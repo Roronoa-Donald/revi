@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 6 — Corrélation et régression | Statistiques B1</title>
-<meta name="description" content="Chapitre 6 du cours de statistique descriptive B1 : Série à deux caractères, point moyen, covariance, coefficient de corrélation, droite des moindres carrés. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 6 du cours de statistique descriptive B1 : Série à deux caractères, point moyen, covariance, coefficient de corrélation, droite des moindres carrés. Théorie, exemples calculés, études de cas statistiques, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b1-stats/chapitres/chapitre6.html">
 <meta property="og:title" content="Chapitre 6 — Corrélation et régression | Statistiques B1">
-<meta property="og:description" content="Chapitre 6 du cours de statistique descriptive B1 : Série à deux caractères, point moyen, covariance, coefficient de corrélation, droite des moindres carrés. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 6 du cours de statistique descriptive B1 : Série à deux caractères, point moyen, covariance, coefficient de corrélation, droite des moindres carrés. Théorie, exemples calculés, études de cas statistiques, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -80,7 +81,7 @@
 
 <p>Quand deux caractères sont relevés sur les mêmes individus, on obtient une série <strong>double</strong> : un couple (x, y) par individu. On la représente par un <strong>nuage de points</strong> dans le plan.</p>
 <p><strong>Point moyen.</strong> Le couple formé des deux moyennes :</p>
-<pre><code>G = ( x̄ ; ȳ )        x̄ = Σ x / n        ȳ = Σ y / n</code></pre>
+<div class="math-block">$G(\\bar{x}, \\bar{y}) \\quad \\text{avec } \\bar{x} = \\frac{1}{n} \\sum x_i, \\quad \\bar{y} = \\frac{1}{n} \\sum y_i$</div>
 <p>C’est le centre de gravité du nuage. Toutes les quantités du chapitre se calculent par rapport à lui : c’est la référence de la liaison.</p>
   <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Lire un nuage de points</div>
@@ -90,7 +91,7 @@
 <h2>2. La covariance</h2>
 
 <p><strong>Définition.</strong> La <strong>covariance</strong> mesure comment deux caractères varient ensemble :</p>
-<pre><code>cov(x, y) = (1/n) · Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)</code></pre>
+<div class="math-block">$\\operatorname{cov}(X, Y) = \\frac{1}{n} \\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})$</div>
 <p>Chaque individu contribue par le produit de ses deux écarts à la moyenne :</p>
 <ul>
     <li>si x et y sont tous deux au-dessus (ou tous deux en dessous) de leur moyenne, le produit est <strong>positif</strong> → covariance positive ;</li>
@@ -98,7 +99,7 @@
     <li>si les contributions positives et négatives s’équilibrent, la covariance est <strong>proche de zéro</strong>.</li>
   </ul>
 <p><strong>Formule de calcul rapide</strong> (même principe que König) :</p>
-<pre><code>cov(x, y) = (1/n) · Σ x<sub>i</sub>y<sub>i</sub>  −  x̄ · ȳ</code></pre>
+<div class="math-block">$\\operatorname{cov}(X, Y) = \\frac{1}{n} \\sum_{i=1}^n x_i y_i - \\bar{x} \\bar{y}$</div>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — la covariance dépend des unités</div>
     <p>Une covariance de 0,2 ou de 2 000 ne dit rien en soi : elle change si l’on passe des centimètres aux mètres. Impossible donc de comparer deux covariances d’unités différentes — d’où l’utilité du coefficient de corrélation, qui n’a pas d’unité.</p>
@@ -107,7 +108,7 @@
 <h2>3. Le coefficient de corrélation linéaire</h2>
 
 <p><strong>Définition.</strong> Le <strong>coefficient de corrélation linéaire</strong> de Pearson est la covariance divisée par le produit des deux écarts-types :</p>
-<pre><code>r = cov(x, y) / (σ<sub>x</sub> · σ<sub>y</sub>)</code></pre>
+<div class="math-block">$r = \\frac{\\operatorname{cov}(X, Y)}{\\sigma_x \\sigma_y} \\quad (-1 \\le r \\le 1)$</div>
 <p>Ce nombre est <strong>toujours entre −1 et 1</strong>. C’est son principal intérêt avec l’absence d’unité :</p>
 <table>
     <tr><th>Valeur de r</th><th>Lecture</th></tr>
@@ -149,42 +150,66 @@ y = 0,4·x + 18        vérification : 0,4 × 5 + 18 = 20 = ȳ</code></pre>
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="st-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;1&#10;2&#10;3&#10;2&#10;4&#10;6">
-  <script type="text/plain" data-lab-starter>n = int(input())
-x = [float(input()) for _ in range(n)]
-y = [float(input()) for _ in range(n)]
+  <script type="text/plain" data-lab-starter># Grille de calcul (st-c6-e1) — Covariance
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : afficher la covariance cov(x, y), quatre décimales.
+[Cas 1 — Liaison positive]
+# Données : 4
+# Données : 1
+# Données : 2
+# Données : 3
+# Données : 4
+# Données : 2
+# Données : 4
+# Données : 6
+# Données : 8
+A_COMPLETER
+
+[Cas 2 — Liaison négative]
+# Données : 3
+# Données : 1
+# Données : 2
+# Données : 3
+# Données : 6
+# Données : 4
+# Données : 2
+A_COMPLETER
+
+[Cas 3 — Deux points]
+# Données : 2
+# Données : 0
+# Données : 10
+# Données : 0
+# Données : 10
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Covariance</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Mesurer si deux caractères varient dans le même sens.</p>
-    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code> (une par ligne), puis les <code>n</code> valeurs de <code>y</code> (une par ligne). Affichez la <strong>covariance</strong> arrondie à quatre décimales.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code> (une par ligne), puis les <code>n</code> valeurs de <code>y</code> (une par ligne). Affichez la <strong>covariance</strong> arrondie à quatre décimales.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 1
 2
 3
 2
 4
 6</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1.3333</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>1.3333</pre></div>
     </div>
     <p class="lab__note">Moyennes 2 et 4 ; Σxy/n = 9,3333 ; cov = 1,3333.</p>
     <details class="lab__hints">
@@ -199,34 +224,65 @@ y = [float(input()) for _ in range(n)]
 
 <div class="lab" data-lab
      data-exercise="st-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;1&#10;2&#10;3&#10;2&#10;4&#10;6">
-  <script type="text/plain" data-lab-starter>n = int(input())
-x = [float(input()) for _ in range(n)]
-y = [float(input()) for _ in range(n)]
+  <script type="text/plain" data-lab-starter># Grille de calcul (st-c6-e2) — Coefficient de corrélation
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : afficher r, quatre décimales.
+[Cas 1 — Liaison forte non parfaite]
+# Données : 4
+# Données : 1
+# Données : 2
+# Données : 3
+# Données : 4
+# Données : 2
+# Données : 4
+# Données : 5
+# Données : 8
+A_COMPLETER
+
+[Cas 2 — Liaison négative]
+# Données : 3
+# Données : 1
+# Données : 2
+# Données : 3
+# Données : 5
+# Données : 2
+# Données : 4
+A_COMPLETER
+
+[Cas 3 — Liaison moyenne]
+# Données : 4
+# Données : 0
+# Données : 1
+# Données : 2
+# Données : 3
+# Données : 3
+# Données : 1
+# Données : 0
+# Données : 2
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Coefficient de corrélation</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n4">Niveau 4 — Examen</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Chiffrer une liaison linéaire par un nombre sans unité, borné par −1 et 1.</p>
-    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code>, puis les <code>n</code> valeurs de <code>y</code>. Affichez le <strong>coefficient de corrélation linéaire</strong> <code>r = cov(x, y) / (σ<sub>x</sub> · σ<sub>y</sub>)</code> arrondi à quatre décimales. Les écarts-types sont de population (division par n).</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code>, puis les <code>n</code> valeurs de <code>y</code>. Affichez le <strong>coefficient de corrélation linéaire</strong> <code>r = cov(x, y) / (σ<sub>x</sub> · σ<sub>y</sub>)</code> arrondi à quatre décimales. Les écarts-types sont de population (division par n).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 1
 2
 3
 2
 4
 6</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1.0000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>1.0000</pre></div>
     </div>
     <p class="lab__note">Points parfaitement alignés : r = 1.</p>
     <details class="lab__hints">
@@ -241,34 +297,61 @@ y = [float(input()) for _ in range(n)]
 
 <div class="lab" data-lab
      data-exercise="st-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;1&#10;2&#10;3&#10;2&#10;4&#10;6">
-  <script type="text/plain" data-lab-starter>n = int(input())
-x = [float(input()) for _ in range(n)]
-y = [float(input()) for _ in range(n)]
+  <script type="text/plain" data-lab-starter># Grille de calcul (st-c6-e3) — Droite des moindres carrés
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : afficher a puis b, quatre décimales.
+[Cas 1 — Droite décalée]
+# Données : 4
+# Données : 1
+# Données : 2
+# Données : 3
+# Données : 4
+# Données : 3
+# Données : 5
+# Données : 6
+# Données : 9
+A_COMPLETER
+
+[Cas 2 — Pente négative]
+# Données : 3
+# Données : 1
+# Données : 2
+# Données : 3
+# Données : 5
+# Données : 2
+# Données : 4
+A_COMPLETER
+
+[Cas 3 — Deux points]
+# Données : 2
+# Données : 0
+# Données : 10
+# Données : 0
+# Données : 10
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Droite des moindres carrés</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n4">Niveau 4 — Examen</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Ajuster y = a·x + b et contrôler que la droite passe par le point moyen.</p>
-    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code>, puis les <code>n</code> valeurs de <code>y</code>. Affichez la pente <code>a</code> puis l’ordonnée à l’origine <code>b</code> de la droite des moindres carrés, chacune sur sa ligne avec quatre décimales. On a <code>a = cov(x, y)/V(x)</code> et <code>b = ȳ − a·x̄</code>, avec des variances de population.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère un entier <code>n</code>, puis les <code>n</code> valeurs de <code>x</code>, puis les <code>n</code> valeurs de <code>y</code>. Affichez la pente <code>a</code> puis l’ordonnée à l’origine <code>b</code> de la droite des moindres carrés, chacune sur sa ligne avec quatre décimales. On a <code>a = cov(x, y)/V(x)</code> et <code>b = ȳ − a·x̄</code>, avec des variances de population.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 1
 2
 3
 2
 4
 6</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>2.0000
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>2.0000
 0.0000</pre></div>
     </div>
     <p class="lab__note">Points alignés sur y = 2x.</p>
@@ -417,6 +500,29 @@ y = [float(input()) for _ in range(n)]
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

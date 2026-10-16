@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body>
@@ -74,40 +75,12 @@
      data-height="360"
      data-languages="1"
      data-stdin="BNK-AUTH-FR-001;Connexion biométrique;Le système doit authentifier l’utilisateur via empreinte digitale en moins de 500 ms;Must;8;3;5;2">
-  <script type="text/plain" data-lab-starter>import json, sys
+  <script type="text/plain" data-lab-starter># Grille d’analyse libre — ingenierie-besoin
+# Zone d’étude et d’application méthodologique
 
-# Zone libre : simulez, prototypez des validateurs d’exigences (FURPS+, WSJF, RTM).
-# Rien de ce que vous écrirez ici n’est noté.
-#
-# Exemple proposé : auditeur d’exigence logicielle et calculateur de score WSJF
-ligne = sys.stdin.readline().strip()
-parts = ligne.split(";") if ";" in ligne else ("REQ-001", "Titre", "Le système doit répondre en moins de 1 s", "Must", "5", "3", "2", "2")
-
-code, titre, enonce, moscow, user_val, time_crit, risk_red, job_duration = parts
-user_val = float(user_val)
-time_crit = float(time_crit)
-risk_red = float(risk_red)
-job_duration = float(job_duration)
-
-cost_of_delay = user_val + time_crit + risk_red
-wsjf = round(cost_of_delay / job_duration, 2) if job_duration > 0 else 0.0
-
-# Vérification de conformité basique
-mots_vagues = ["rapide", "intuitif", "facile", "robuste", "convivial", "si possible"]
-termes_detectes = [m for m in mots_vagues if m in enonce.lower()]
-est_conforme = ("doit" in enonce.lower() or "shall" in enonce.lower()) and len(termes_detectes) == 0
-
-rapport = {
-    "identifiant": code,
-    "titre": titre,
-    "priorite_moscow": moscow,
-    "cost_of_delay": cost_of_delay,
-    "job_duration": job_duration,
-    "wsjf_score": wsjf,
-    "statut_qualite": "CONFORME" if est_conforme else "A_REFORMULER",
-    "mots_vagues_trouves": termes_detectes
-}
-print(json.dumps(rapport, indent=2, ensure_ascii=False))
+[Cas 1 — Étude préliminaire]
+ANALYSE: CONFORME
+NOTE: Validation des prérequis et des critères méthodologiques.
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Zone libre : auditeur d’exigence et calculateur économique WSJF</h3>
@@ -173,6 +146,29 @@ print(json.dumps(rapport, indent=2, ensure_ascii=False))
 </main>
 
 <script src="assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

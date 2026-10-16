@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 6 — Convergence et théorèmes limites | Probabilités B2</title>
-<meta name="description" content="Chapitre 6 du cours de probabilités B2 : Inégalité de Markov, Bienaymé-Tchebychev, loi des grands nombres et théorème central limite. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 6 du cours de probabilités B2 : Inégalité de Markov, Bienaymé-Tchebychev, loi des grands nombres et théorème central limite. Théorie, exemples détaillés, études de cas mathématiques, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/probabilites/chapitres/chapitre6.html">
 <meta property="og:title" content="Chapitre 6 — Convergence et théorèmes limites | Probabilités B2">
-<meta property="og:description" content="Chapitre 6 du cours de probabilités B2 : Inégalité de Markov, Bienaymé-Tchebychev, loi des grands nombres et théorème central limite. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 6 du cours de probabilités B2 : Inégalité de Markov, Bienaymé-Tchebychev, loi des grands nombres et théorème central limite. Théorie, exemples détaillés, études de cas mathématiques, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -79,8 +80,8 @@
 <h2>1. Inégalité de Markov</h2>
 
 <p>Pour une variable <code>X</code> <strong>positive</strong> d’espérance finie et un seuil <code>a &gt; 0</code> : <code>P(X ≥ a) ≤ E(X)/a</code>. Plus le seuil est grand devant l’espérance, plus la probabilité de dépasser <code>a</code> est petite.</p>
-<pre><code>esperance, a = 4.0, 8.0
-print(f"{esperance / a:.4f}")   # 0.5000</code></pre>
+<div class="math-block">$$\mathbb{P}(X \ge a) \le \frac{\mathbb{E}(X)}{a} \quad (\text{pour } X \ge 0 \text{ et } a > 0)$$</div>
+<div class="box box--formula"><div class="box__title">Exemple de borne de Markov</div><p>Si $\mathbb{E}(X) = 4{,}0$ et pour le seuil $a = 8{,}0$ :</p>$$\mathbb{P}(X \ge 8{,}0) \le \frac{4{,}0}{8{,}0} = 0{,}5000$$</div>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-scale"></use></svg> Une borne, pas une égalité</div>
     <p>L’inégalité fournit un <strong>majorant</strong> souvent grossier : la vraie probabilité peut être bien plus petite. Sa force est d’être <em>universelle</em> : elle ne suppose rien d’autre que la positivité et une espérance finie.</p>
@@ -89,67 +90,71 @@ print(f"{esperance / a:.4f}")   # 0.5000</code></pre>
 <h2>2. Inégalité de Bienaymé-Tchebychev</h2>
 
 <p>Pour toute variable d’espérance <code>E(X)</code> et de variance <code>V(X)</code>, et pour tout <code>ε &gt; 0</code> : <code>P(|X − E(X)| ≥ ε) ≤ V(X)/ε²</code>. Elle majore la probabilité de s’écarter de la moyenne.</p>
-<pre><code>variance, epsilon = 4.0, 2.0
-print(f"{variance / (epsilon ** 2):.4f}")   # 1.0000</code></pre>
+<div class="math-block">$$\mathbb{P}(|X - \mathbb{E}(X)| \ge \varepsilon) \le \frac{\mathbb{V}(X)}{\varepsilon^2} \quad (\text{pour tout } \varepsilon > 0)$$</div>
+<div class="box box--formula"><div class="box__title">Exemple de borne de Bienaymé-Tchebychev</div><p>Pour $\mathbb{V}(X) = 4{,}0$ et $\varepsilon = 2{,}0$ :</p>$$\mathbb{P}(|X - \mathbb{E}(X)| \ge 2{,}0) \le \frac{4{,}0}{(2{,}0)^2} = \frac{4{,}0}{4{,}0} = 1{,}0000$$</div>
   <div class="box box--pitfall">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — oublier le carré de ε</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — oublier de diviser par ε²</div>
     <p>La borne est <code>V(X)/ε²</code> : l’écart <code>ε</code> intervient <strong>au carré</strong>. Doubler la tolérance divise la borne par 4. Une borne supérieure à 1 n’apprend rien (toute probabilité vaut au plus 1).</p>
   </div>
 
 <h2>3. Loi des grands nombres</h2>
 
 <p>Soient <code>X₁, …, Xₙ</code> indépendantes, de même espérance <code>μ</code> et de même variance <code>σ²</code>. Leur moyenne <code>M̄ₙ = (X₁ + … + Xₙ)/n</code> a pour espérance <code>μ</code> et pour variance <code>σ²/n</code>. La <strong>loi des grands nombres</strong> dit que <code>M̄ₙ</code> converge vers <code>μ</code> : la variance tend vers 0 quand <code>n</code> grandit.</p>
-<pre><code>sigma2, n = 4.0, 100
-print(f"{sigma2 / n:.4f}")   # 0.0400 : la dispersion fond</code></pre>
+<div class="math-block">$$\mathbb{E}(\overline{X}_n) = \mu \qquad \text{et} \qquad \mathbb{V}(\overline{X}_n) = \frac{\sigma^2}{n} \xrightarrow[n \to +\infty]{} 0$$</div>
+<div class="box box--formula"><div class="box__title">Exemple d’échantillonnage ($n = 100$)</div><p>Pour $\sigma^2 = 4{,}0$ et $n = 100$ observations :</p>$$\mathbb{V}(\overline{X}_{100}) = \frac{4{,}0}{100} = 0{,}0400 \quad (\sigma_{\overline{X}} = 0{,}2000)$$</div>
 <p>C’est pourquoi, en statistique, plus l’échantillon est grand, plus la moyenne observée est proche de l’espérance théorique.</p>
 
 <h2>4. Théorème central limite</h2>
 
 <p>Le <strong>théorème central limite</strong> (TCL) va plus loin : pour des variables indépendantes et identiquement distribuées, la somme <code>Sₙ = X₁ + … + Xₙ</code> se comporte, après standardisation, comme une loi normale. Sa moyenne vaut <code>nμ</code> et son écart-type <code>σ√n</code>, donc :</p>
-<pre><code>Sₙ standardisée : Z = (Sₙ − nμ) / (σ√n)  ≈  N(0, 1)</code></pre>
-<pre><code>from math import erf, sqrt
-
-n, mu, sigma, x = 100, 0.5, 1.0, 55.0
-z = (x - n * mu) / (sigma * sqrt(n))
-P = 0.5 * (1 + erf(z / sqrt(2)))
-print(f"z = {z:.4f}")   # z = 0.5000
-print(f"P = {P:.4f}")   # P = 0.6915</code></pre>
+<div class="math-block">$$Z_n = \frac{S_n - n\mu}{\sigma \sqrt{n}} \xrightarrow[\mathcal{L}]{n \to +\infty} \mathcal{N}(0, 1)$$</div>
+<div class="box box--formula"><div class="box__title">Exemple d’application du TCL</div><p>Pour $n = 100$, $\mu = 0{,}5$, $\sigma = 1{,}0$ et un seuil $S_{100} \le 55{,}0$ :</p>$$z = \frac{55{,}0 - 100 \times 0{,}5}{1{,}0 \times \sqrt{100}} = \frac{5{,}0}{10{,}0} = 0{,}5000$$$$\mathbb{P}(S_{100} \le 55{,}0) \approx \Phi(0{,}5) \approx 0{,}6915$$</div>
   <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Pourquoi la cloche est partout</div>
     <p>Une somme de beaucoup de petites contributions indépendantes « s’oublie » : seul comptent l’effet moyen et l’effet aléatoire cumulé, qui se répartit en cloche. D’où l’omniprésence de la loi normale, indépendamment de la loi d’origine des <code>Xᵢ</code>.</p>
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="pb2-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="4&#10;8">
-  <script type="text/plain" data-lab-starter>esperance = float(input())
-a = float(input())
+  <script type="text/plain" data-lab-starter># Grille de calcul (pb2-c6-e1) — Inégalité de Markov
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : afficher la borne E(X)/a avec 4 décimales.
+[Cas 1 — Seuil plus grand]
+# Données : 6
+# Données : 10
+A_COMPLETER
+
+[Cas 2 — Grand seuil]
+# Données : 2
+# Données : 8
+A_COMPLETER
+
+[Cas 3 — Seuil modeste]
+# Données : 10
+# Données : 4
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Inégalité de Markov</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Appliquer la borne de Markov P(X ≥ a) ≤ E(X)/a.</p>
-    <div class="lab__brief"><p>Le programme reçoit deux décimaux : <code>esperance</code> (E(X), positive) puis <code>a</code> (a &gt; 0). Affiche la borne de Markov <code>E(X)/a</code> arrondie à 4 décimales.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère deux décimaux : <code>esperance</code> (E(X), positive) puis <code>a</code> (a &gt; 0). Indiquez la borne de Markov <code>E(X)/a</code> arrondie à 4 décimales.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
 8</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>0.5000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>0.5000</pre></div>
     </div>
     <p class="lab__note">E(X)/a = 4/8.</p>
     <details class="lab__hints">
@@ -164,28 +169,41 @@ a = float(input())
 
 <div class="lab" data-lab
      data-exercise="pb2-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="4&#10;2">
-  <script type="text/plain" data-lab-starter>variance = float(input())
-epsilon = float(input())
+  <script type="text/plain" data-lab-starter># Grille de calcul (pb2-c6-e2) — Inégalité de Bienaymé-Tchebychev
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : afficher la borne V(X)/ε² avec 4 décimales.
+[Cas 1 — Variance plus grande]
+# Données : 9
+# Données : 3
+A_COMPLETER
+
+[Cas 2 — Écart de deux]
+# Données : 1
+# Données : 2
+A_COMPLETER
+
+[Cas 3 — Écart serré]
+# Données : 5
+# Données : 2
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Inégalité de Bienaymé-Tchebychev</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Appliquer la borne V(X)/ε² de l’inégalité de Tchebychev.</p>
-    <div class="lab__brief"><p>Le programme reçoit deux décimaux : <code>variance</code> (V(X), positive) puis <code>epsilon</code> (ε &gt; 0). Affiche la borne de Tchebychev <code>P(|X − E(X)| ≥ ε) ≤ V(X)/ε²</code>, arrondie à 4 décimales.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère deux décimaux : <code>variance</code> (V(X), positive) puis <code>epsilon</code> (ε &gt; 0). Indiquez la borne de Tchebychev <code>P(|X − E(X)| ≥ ε) ≤ V(X)/ε²</code>, arrondie à 4 décimales.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
 2</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1.0000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>1.0000</pre></div>
     </div>
     <p class="lab__note">V/ε² = 4/4.</p>
     <details class="lab__hints">
@@ -200,34 +218,49 @@ epsilon = float(input())
 
 <div class="lab" data-lab
      data-exercise="pb2-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="100&#10;0.5&#10;1&#10;55">
-  <script type="text/plain" data-lab-starter>from math import erf, sqrt
+  <script type="text/plain" data-lab-starter># Grille de calcul (pb2-c6-e3) — Théorème central limite
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-n = int(input())
-mu = float(input())
-sigma = float(input())
-x = float(input())
+[Cas 1 — Trente-six variables]
+# Données : 36
+# Données : 10
+# Données : 2
+# Données : 372
+A_COMPLETER
 
-# À compléter : afficher "z = ..." puis "P = ..." avec 4 décimales.
+[Cas 2 — Vingt-cinq variables]
+# Données : 25
+# Données : 4
+# Données : 1
+# Données : 95
+A_COMPLETER
+
+[Cas 3 — Soixante-quatre variables]
+# Données : 64
+# Données : 1
+# Données : 2
+# Données : 64
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Théorème central limite</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Approximer P(S ≤ x) par la loi normale après standardisation.</p>
-    <div class="lab__brief"><p>Le programme reçoit quatre nombres, un par ligne : l’effectif <code>n</code>, la moyenne <code>mu</code> de chaque variable, son écart-type <code>sigma</code>, puis un seuil <code>x</code>. La somme <code>S</code> des <code>n</code> variables a pour moyenne <code>n·mu</code> et pour écart-type <code>sigma·√n</code>. Affiche d’abord l’écart réduit <code>z = (x − n·mu)/(sigma·√n)</code> sur la ligne <code>z = …</code>, puis l’approximation <code>Φ(z)</code> sur la ligne <code>P = …</code>, chacune à 4 décimales.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère quatre nombres, un par ligne : l’effectif <code>n</code>, la moyenne <code>mu</code> de chaque variable, son écart-type <code>sigma</code>, puis un seuil <code>x</code>. La somme <code>S</code> des <code>n</code> variables a pour moyenne <code>n·mu</code> et pour écart-type <code>sigma·√n</code>. Indiquez d’abord l’écart réduit <code>z = (x − n·mu)/(sigma·√n)</code> sur la ligne <code>z = …</code>, puis l’approximation <code>Φ(z)</code> sur la ligne <code>P = …</code>, chacune à 4 décimales.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>100
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>100
 0.5
 1
 55</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>z = 0.5000
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>z = 0.5000
 P = 0.6915</pre></div>
     </div>
     <p class="lab__note">Moyenne 50, écart-type 10 : z = 0,5.</p>
@@ -394,6 +427,29 @@ P = 0.6915</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

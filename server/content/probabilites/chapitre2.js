@@ -36,7 +36,8 @@ module.exports = {
           '    <p>Un <strong>arbre</strong> dessine une expérience par étapes : chaque branche est un choix. ' +
           'Le nombre de chemins complets est le nombre de résultats ; on multiplie les branches plutôt que de ' +
           'les énumérer une à une.</p>'),
-        '<pre><code>entrees = 3\nplats = 4\nprint(entrees * plats)   # 12</code></pre>'
+        '<div class="math-block">$$N_{\\text{chemins}} = m \\times n$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple du menu</div><p>Pour un menu comprenant 3 entrées et 4 plats principaux :</p>$$N = 3 \\times 4 = 12 \\text{ combinaisons}$$</div>'
       ].join('\n')
     },
     {
@@ -45,7 +46,8 @@ module.exports = {
         '<p>Un <strong>arrangement</strong> de <code>k</code> objets parmi <code>n</code> tient compte de ' +
         'l’ordre : <code>A(n,k) = n!/(n−k)! = n·(n−1)···(n−k+1)</code>. Une <strong>combinaison</strong> ' +
         'ignore l’ordre : <code>C(n,k) = A(n,k)/k! = n!/(k!(n−k)!)</code>.</p>',
-        '<pre><code>from math import factorial, comb\n\n# Arrangement : 3 premières places parmi 5 chevaux.\nprint(factorial(5) // factorial(2))   # 60\n\n# Combinaison : choisir 2 chevaux parmi 5, sans ordre.\nprint(comb(5, 2))                      # 10</code></pre>',
+        '<div class="math-block">$$A_n^k = \\frac{n!}{(n - k)!} \\qquad \\text{et} \\qquad \\binom{n}{k} = C_n^k = \\frac{n!}{k!(n - k)!}$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemples de dénombrement</div><p><strong>Arrangement</strong> (les 3 premières places sur un podium parmi 5 coureurs) :</p>$$A_5^3 = \\frac{5!}{(5 - 3)!} = 5 \\times 4 \\times 3 = 60$$<p><strong>Combinaison</strong> (choisir un binôme de 2 personnes parmi 5, sans ordre) :</p>$$\\binom{5}{2} = \\frac{5!}{2!(5 - 2)!} = \\frac{5 \\times 4}{2 \\times 1} = 10$$</div>',
         box('pitfall', 'Piège — oublier de diviser par k!', 'warning',
           '    <p>Passer de l’arrangement à la combinaison demande de <strong>diviser par k!</strong>, car ' +
           'chaque sous-ensemble de <code>k</code> objets a été compté <code>k!</code> fois (toutes les ' +
@@ -58,7 +60,8 @@ module.exports = {
         '<p>Combien d’<strong>anagrammes distincts</strong> le mot <code>AABB</code> a-t-il ? Les permutations ' +
         'des 4 lettres sont <code>4!</code>, mais échanger deux A identiques donne le même mot. La formule ' +
         'divise par les factorielles des effectifs :</p>',
-        '<pre><code>from math import factorial\nfrom collections import Counter\n\ntotal = factorial(4)\nfor effectif in Counter("AABB").values():\n    total //= factorial(effectif)\nprint(total)   # 6</code></pre>',
+        '<div class="math-block">$$N_{\\text{anagrammes}} = \\frac{n!}{n_1! \\times n_2! \\times \\dots \\times n_k!}$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple : anagrammes de « AABB »</div><p>Pour 4 lettres au total avec 2 lettres \'A\' et 2 lettres \'B\' :</p>$$N = \\frac{4!}{2! \\times 2!} = \\frac{24}{2 \\times 2} = 6 \\text{ anagrammes distincts}$$</div>',
         '<p>Avec des lettres toutes distinctes (<code>ABCD</code>), chaque effectif vaut 1 et l’on retrouve ' +
         '<code>4! = 24</code>.</p>'
       ].join('\n')
@@ -69,7 +72,8 @@ module.exports = {
         '<p>Le nombre <code>C(n,k)</code> est aussi appelé <strong>coefficient binomial</strong>. Il apparaît ' +
         'dans la formule du <strong>binôme de Newton</strong> : <code>(a+b)ⁿ = Σ C(n,k)·aᵏ·bⁿ⁻ᵏ</code>. On ' +
         'le lit dans le triangle de Pascal, où chaque case est la somme des deux au-dessus.</p>',
-        '<pre><code>from math import comb\n\nn = 4\nfor k in range(n + 1):\n    print(comb(n, k))\n# 1 4 6 4 1 — ligne n = 4 du triangle de Pascal</code></pre>',
+        '<div class="math-block">$$(a + b)^n = \\sum_{k=0}^n \\binom{n}{k} a^k b^{n-k}$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Ligne $n = 4$ du triangle de Pascal</div>$$\\binom{4}{0} = 1, \\quad \\binom{4}{1} = 4, \\quad \\binom{4}{2} = 6, \\quad \\binom{4}{3} = 4, \\quad \\binom{4}{4} = 1$$</div>',
         box('intuition', 'Compter, c’est choisir', 'lightbulb',
           '    <p>À l’oral : « on choisit 2 objets parmi 5 » se traduit toujours par <code>C(5,2)</code>. ' +
           '« on range 2 objets parmi 5 » (place, podium, mot de passe) se traduit par <code>A(5,2)</code>. ' +

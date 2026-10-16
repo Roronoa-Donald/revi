@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -154,28 +155,33 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="sup3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="LOG_PARSE 192.168.1.10 - - [11/Oct/2026:14:32:10 +0000] &quot;GET /api/v1/users HTTP/1.1&quot; 500 2314 &quot;-&quot; &quot;curl/7.88.1&quot;">
-  <script type="text/plain" data-lab-starter>import sys
-import re
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c5-e1) — Parseur et Normalisateur de Logs Web Nginx / Apache
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Requête POST de connexion réussie 200]
+# Données : LOG_PARSE 10.0.4.15 - - [11/Oct/2026:15:00:01 +0000] "POST /auth/login HTTP/1.1" 200 450 "https://app.corp.local" "Mozilla/5.0"
+A_COMPLETER
 
-# À compléter : décomposer la ligne Combined Log et classifier le code HTTP
+[Cas 2 — Erreur client 404 page non trouvée avec octets nuls]
+# Données : LOG_PARSE 203.0.113.89 - - [11/Oct/2026:15:05:00 +0000] "GET /admin/setup.php HTTP/1.1" 404 - "-" "scanner-bot"
+A_COMPLETER
+
+[Cas 3 — Redirection HTTP 302 catégorisée OTHER]
+# Données : LOG_PARSE 172.16.0.2 - - [11/Oct/2026:15:10:00 +0000] "GET /old-portal HTTP/1.1" 302 120 "-" "curl/8.0"
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Parseur et Normalisateur de Logs Web Nginx / Apache</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -192,8 +198,8 @@ Catégories de statut :<br>
 Entrée STDIN : <code>LOG_PARSE &lt;combined_log_line&gt;</code>.<br>
 Sortie : <code>WEB_LOG: ip=&lt;client_ip&gt; method=&lt;method&gt; uri=&lt;uri&gt; status=&lt;status_code&gt; bytes=&lt;bytes&gt; category=&lt;category&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>LOG_PARSE 192.168.1.10 - - [11/Oct/2026:14:32:10 +0000] "GET /api/v1/users HTTP/1.1" 500 2314 "-" "curl/7.88.1"</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>WEB_LOG: ip=192.168.1.10 method=GET uri=/api/v1/users status=500 bytes=2314 category=SERVER_ERROR</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LOG_PARSE 192.168.1.10 - - [11/Oct/2026:14:32:10 +0000] "GET /api/v1/users HTTP/1.1" 500 2314 "-" "curl/7.88.1"</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>WEB_LOG: ip=192.168.1.10 method=GET uri=/api/v1/users status=500 bytes=2314 category=SERVER_ERROR</pre></div>
     </div>
     <p class="lab__note">Erreur serveur 500 sur une requête GET.</p>
     <details class="lab__hints">
@@ -208,19 +214,28 @@ Sortie : <code>WEB_LOG: ip=&lt;client_ip&gt; method=&lt;method&gt; uri=&lt;uri&g
 
 <div class="lab" data-lab
      data-exercise="sup3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="EPS_CHECK BASELINE=500.0 MIN_DROP=80.0 MAX_SPIKE=200.0 SAMPLES=480.0,510.0,520.0,1600.0">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c5-e2) — Détecteur d’Anomalies de Débit de Logs (Spike & Drop)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Chute brutale de logs (service écroulé)]
+# Données : EPS_CHECK BASELINE=1000.0 MIN_DROP=80.0 MAX_SPIKE=150.0 SAMPLES=980.0,950.0,120.0
+A_COMPLETER
 
-# À compléter : analyser le dernier échantillon de débit et identifier l'anomalie
+[Cas 2 — Débit nominal parfaitement stable]
+# Données : EPS_CHECK BASELINE=250.0 MIN_DROP=75.0 MAX_SPIKE=150.0 SAMPLES=245.0,260.0,255.0
+A_COMPLETER
+
+[Cas 3 — Légère baisse sans dépassement du seuil de drop]
+# Données : EPS_CHECK BASELINE=400.0 MIN_DROP=50.0 MAX_SPIKE=100.0 SAMPLES=380.0,300.0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Détecteur d’Anomalies de Débit de Logs (Spike &amp; Drop)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -236,8 +251,8 @@ Règles d'alerte :<br>
 Entrée STDIN : <code>EPS_CHECK BASELINE=&lt;base&gt; MIN_DROP=&lt;drop_pct&gt; MAX_SPIKE=&lt;spike_pct&gt; SAMPLES=&lt;s1,s2,...&gt;</code>.<br>
 Sortie : <code>EPS_ALERT: current=&lt;curr:.1f&gt; deviation=&lt;dev_pct:+.1f&gt;% alert=&lt;LOG_FLOOD|LOG_DROP|NORMAL&gt; action=&lt;REQUIRED|NONE&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>EPS_CHECK BASELINE=500.0 MIN_DROP=80.0 MAX_SPIKE=200.0 SAMPLES=480.0,510.0,520.0,1600.0</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EPS_ALERT: current=1600.0 deviation=+220.0% alert=LOG_FLOOD action=REQUIRED</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EPS_CHECK BASELINE=500.0 MIN_DROP=80.0 MAX_SPIKE=200.0 SAMPLES=480.0,510.0,520.0,1600.0</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EPS_ALERT: current=1600.0 deviation=+220.0% alert=LOG_FLOOD action=REQUIRED</pre></div>
     </div>
     <p class="lab__note">Pic de débit de +220% dépassant le seuil de 200% : LOG_FLOOD.</p>
     <details class="lab__hints">
@@ -252,19 +267,28 @@ Sortie : <code>EPS_ALERT: current=&lt;curr:.1f&gt; deviation=&lt;dev_pct:+.1f&gt
 
 <div class="lab" data-lab
      data-exercise="sup3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CORRELATE TARGET_IP=198.51.100.42 LOGS=firewall:198.51.100.42:PortScan:WARN|proxy:198.51.100.42:AuthFailed:WARN|proxy:10.0.0.5:HomeView:INFO|auth:198.51.100.42:BruteForce:ALERT">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c5-e3) — Corrélateur Multi-Sources de Logs d’Incidents de Sécurité
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Trafic légitime sans alerte]
+# Données : CORRELATE TARGET_IP=192.168.1.50 LOGS=firewall:192.168.1.50:TcpSyn:INFO|proxy:192.168.1.50:PageGet:INFO
+A_COMPLETER
 
-# À compléter : filtrer par TARGET_IP, compter les alertes suspectes et évaluer la quarantaine
+[Cas 2 — Blocage immédiat sur règle DENY de pare-feu]
+# Données : CORRELATE TARGET_IP=10.10.10.10 LOGS=firewall:10.10.10.10:SqlInjection:DENY
+A_COMPLETER
+
+[Cas 3 — Deux avertissements sous le seuil de 3]
+# Données : CORRELATE TARGET_IP=172.20.1.100 LOGS=proxy:172.20.1.100:SlowRequest:WARN|app:172.20.1.100:DeprecationCall:WARN
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Corrélateur Multi-Sources de Logs d’Incidents de Sécurité</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -278,8 +302,8 @@ Critères de décision :<br>
 Entrée STDIN : <code>CORRELATE TARGET_IP=&lt;ip&gt; LOGS=&lt;src1:ip1:act1:sev1|src2:ip2:act2:sev2|...&gt;</code>.<br>
 Sortie : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&lt;total_matches&gt; suspicious=&lt;n_suspects&gt; quarantine=&lt;YES|NO&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CORRELATE TARGET_IP=198.51.100.42 LOGS=firewall:198.51.100.42:PortScan:WARN|proxy:198.51.100.42:AuthFailed:WARN|proxy:10.0.0.5:HomeView:INFO|auth:198.51.100.42:BruteForce:ALERT</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CORRELATION: ip=198.51.100.42 events=3 suspicious=3 quarantine=YES</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CORRELATE TARGET_IP=198.51.100.42 LOGS=firewall:198.51.100.42:PortScan:WARN|proxy:198.51.100.42:AuthFailed:WARN|proxy:10.0.0.5:HomeView:INFO|auth:198.51.100.42:BruteForce:ALERT</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CORRELATION: ip=198.51.100.42 events=3 suspicious=3 quarantine=YES</pre></div>
     </div>
     <p class="lab__note">3 événements suspects cumulés entraînent une mise en quarantaine.</p>
     <details class="lab__hints">
@@ -453,6 +477,29 @@ Sortie : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&lt;total_matches&gt; su
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

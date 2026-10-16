@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="2">
@@ -153,49 +154,59 @@
 <p><strong>Règle de validation des cas orphelins :</strong> Tout cas d’utilisation situé dans le système doit être directement relié à au moins un acteur, ou être inclus / étendu par un cas lui-même relié à un acteur. Un cas d’utilisation sans aucun chemin vers un acteur est un <em>cas orphelin</em>, ce qui constitue une faute de modélisation disqualifiante.</p>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="um2-c2-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="UC Authentifier OBLIGATOIRE&#10;UC Virement OBLIGATOIRE&#10;UC NotifierSMS OPTIONNEL&#10;RELATION Virement -&gt; Authentifier &lt;&lt;include&gt;&gt;&#10;RELATION NotifierSMS -&gt; Virement &lt;&lt;extend&gt;&gt; CONDITION=&quot;Option cochee&quot;">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (um2-c2-e1) — Validateur de relations <<include>> vs <<extend>>
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Extension sans condition spécifiée]
+# Données : UC Payer OBLIGATOIRE
+# Données : UC PayerEnCryptomonnaie OPTIONNEL
+# Données : RELATION PayerEnCryptomonnaie -> Payer <<extend>>
+A_COMPLETER
 
-# À compléter : valider l'orientation et la cohérence de include et extend
+[Cas 2 — Inversion de flèche sur extend]
+# Données : UC ConsulterCompte OBLIGATOIRE
+# Données : UC ExporterPDF OPTIONNEL
+# Données : RELATION ConsulterCompte -> ExporterPDF <<extend>> CONDITION="Clic sur export"
+A_COMPLETER
+
+[Cas 3 — Inclusion valide de plusieurs cas partagés]
+# Données : UC CreerCompte OBLIGATOIRE
+# Données : UC ReserverVol OBLIGATOIRE
+# Données : UC VerifierIdentite OBLIGATOIRE
+# Données : RELATION CreerCompte -> VerifierIdentite <<include>>
+# Données : RELATION ReserverVol -> VerifierIdentite <<include>>
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur de relations &lt;&lt;include&gt;&gt; vs &lt;&lt;extend&gt;&gt;</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la sémantique et l'orientation des dépendances &lt;&lt;include&gt;&gt; (inclusion obligatoire) et &lt;&lt;extend&gt;&gt; (extension conditionnelle).</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard des déclarations de relations entre cas d'utilisation :<br>
-- <code>UC &lt;NomUC&gt; [OBLIGATOIRE|OPTIONNEL]</code><br>
-- <code>RELATION &lt;UC_Source&gt; -&gt; &lt;UC_Cible&gt; &lt;&lt;TYPE&gt;&gt; [CONDITION="&lt;texte&gt;"]</code><br>
-Règles UML Use Case :<br>
-1. <strong>Relation &lt;&lt;include&gt;&gt; :</strong> Le cas de base inclut obligatoirement le cas inclus.<br>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. <strong>Relation &lt;&lt;include&gt;&gt; :</strong> Le cas de base inclut obligatoirement le cas inclus.<br>
    Sémantique : <code>Source (base) -&gt; Cible (inclus) &lt;&lt;include&gt;&gt;</code>. Pas de condition requise.<br>
 2. <strong>Relation &lt;&lt;extend&gt;&gt; :</strong> Le cas étendant enrichit optionnellement le cas de base sous condition.<br>
    Sémantique : <strong>La flèche part du cas étendant VERS le cas de base</strong> : <code>Source (extension) -&gt; Cible (base) &lt;&lt;extend&gt;&gt;</code>. Une condition doit être renseignée.<br>
 Pour chaque relation, afficher :<br>
 <code>[CONFORME|ANOMALIE] &lt;Source&gt; -&gt; &lt;Cible&gt; &lt;&lt;&lt;TYPE&gt;&gt;&gt; : &lt;motif&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>UC Authentifier OBLIGATOIRE
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>UC Authentifier OBLIGATOIRE
 UC Virement OBLIGATOIRE
 UC NotifierSMS OPTIONNEL
 RELATION Virement -&gt; Authentifier &lt;&lt;include&gt;&gt;
 RELATION NotifierSMS -&gt; Virement &lt;&lt;extend&gt;&gt; CONDITION="Option cochee"</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[CONFORME] Virement -&gt; Authentifier &lt;&lt;include&gt;&gt; : Inclusion obligatoire du sous-processus
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[CONFORME] Virement -&gt; Authentifier &lt;&lt;include&gt;&gt; : Inclusion obligatoire du sous-processus
 [CONFORME] NotifierSMS -&gt; Virement &lt;&lt;extend&gt;&gt; : Extension conditionnelle valide avec garde</pre></div>
     </div>
     <p class="lab__note">Virement inclut Authentifier, et NotifierSMS étend Virement si option cochée.</p>
@@ -211,19 +222,39 @@ RELATION NotifierSMS -&gt; Virement &lt;&lt;extend&gt;&gt; CONDITION="Option coc
 
 <div class="lab" data-lab
      data-exercise="um2-c2-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="HERITE Admin Utilisateur&#10;HERITE SuperAdmin Admin&#10;ACCES Utilisateur SeConnecter&#10;ACCES Utilisateur ModifierProfil&#10;ACCES Admin GererUtilisateurs&#10;ACCES SuperAdmin PurgerDonnees">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (um2-c2-e2) — Décomposeur d'héritage d'acteurs
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Deux branches d héritage parallèles]
+# Données : HERITE Medecin PersonnelSante
+# Données : HERITE Infirmier PersonnelSante
+# Données : ACCES PersonnelSante ConsulterDossier
+# Données : ACCES Medecin PrescrireTraitement
+# Données : ACCES Infirmier AdministrerSoin
+A_COMPLETER
 
-# À compléter : propager les droits par héritage d'acteurs
+[Cas 2 — Acteurs indépendants sans héritage]
+# Données : ACCES Client PasserCommande
+# Données : ACCES Fournisseur LivrerColis
+A_COMPLETER
+
+[Cas 3 — Héritage sur 3 niveaux profonds]
+# Données : HERITE B A
+# Données : HERITE C B
+# Données : HERITE D C
+# Données : ACCES A UC_A
+# Données : ACCES B UC_B
+# Données : ACCES C UC_C
+# Données : ACCES D UC_D
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Décomposeur d'héritage d'acteurs</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -236,13 +267,13 @@ Le script lit :<br>
 Le script doit afficher pour chaque acteur (trié par ordre alphabétique) :<br>
 <code>&lt;Acteur&gt; (Directs: &lt;nbD&gt;, Total: &lt;nbT&gt;) -&gt; &lt;Liste_UC_Triee_Separee_Virgule&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HERITE Admin Utilisateur
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HERITE Admin Utilisateur
 HERITE SuperAdmin Admin
 ACCES Utilisateur SeConnecter
 ACCES Utilisateur ModifierProfil
 ACCES Admin GererUtilisateurs
 ACCES SuperAdmin PurgerDonnees</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Admin (Directs: 1, Total: 3) -&gt; GererUtilisateurs, ModifierProfil, SeConnecter
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Admin (Directs: 1, Total: 3) -&gt; GererUtilisateurs, ModifierProfil, SeConnecter
 SuperAdmin (Directs: 1, Total: 4) -&gt; GererUtilisateurs, ModifierProfil, PurgerDonnees, SeConnecter
 Utilisateur (Directs: 2, Total: 2) -&gt; ModifierProfil, SeConnecter</pre></div>
     </div>
@@ -259,42 +290,60 @@ Utilisateur (Directs: 2, Total: 2) -&gt; ModifierProfil, SeConnecter</pre></div>
 
 <div class="lab" data-lab
      data-exercise="um2-c2-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SYSTEM E-Commerce&#10;ACTOR Client EXTERNE&#10;ACTOR BaseDeDonnees INTERNE&#10;UC PasserCommande&#10;UC Payer&#10;LINK Client -&gt; PasserCommande">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (um2-c2-e3) — Vérificateur de frontière de système et complétude Use Case
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Diagramme Use Case parfait]
+# Données : SYSTEM Guichet
+# Données : ACTOR Client EXTERNE
+# Données : ACTOR BanqueCentrale EXTERNE
+# Données : UC RetirerArgent
+# Données : UC ConsulterSolde
+# Données : LINK Client -> RetirerArgent
+# Données : LINK Client -> ConsulterSolde
+# Données : LINK BanqueCentrale -> RetirerArgent
+A_COMPLETER
 
-# À compléter : vérifier les anomalies et la complétude du diagramme Use Case
+[Cas 2 — Deux cas orphelins sur trois]
+# Données : SYSTEM App
+# Données : ACTOR User EXTERNE
+# Données : UC UC1
+# Données : UC UC2
+# Données : UC UC3
+# Données : LINK User -> UC1
+A_COMPLETER
+
+[Cas 3 — Acteur interne unique avec couverture totale]
+# Données : SYSTEM Core
+# Données : ACTOR ServiceAuth INTERNE
+# Données : UC Login
+# Données : LINK ServiceAuth -> Login
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Vérificateur de frontière de système et complétude Use Case</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Détecter les anomalies structurelles dans un diagramme de cas d'utilisation : acteurs placés dans le système, cas orphelins et sous-systèmes.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard :<br>
-- <code>SYSTEM &lt;NomSysteme&gt;</code><br>
-- <code>ACTOR &lt;NomActeur&gt; &lt;EXTERNE|INTERNE&gt;</code><br>
-- <code>UC &lt;NomUC&gt;</code><br>
-- <code>LINK &lt;NomActeur&gt; -&gt; &lt;NomUC&gt;</code><br>
-Règles de validation UML :<br>
-1. <strong>Règle Acteur Externe :</strong> Un acteur représente impérativement une entité <em>externe</em> au système modélisé. Si un acteur est déclaré <code>INTERNE</code> : <code>ANOMALIE: Acteur interne dans le systeme -&gt; &lt;Nom&gt;</code>.<br>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. <strong>Règle Acteur Externe :</strong> Un acteur représente impérativement une entité <em>externe</em> au système modélisé. Si un acteur est déclaré <code>INTERNE</code> : <code>ANOMALIE: Acteur interne dans le systeme -&gt; &lt;Nom&gt;</code>.<br>
 2. <strong>Règle Cas Orphelin :</strong> Tout cas d'utilisation doit être relié à au moins un acteur (directement ou indirectement). S'il n'a aucun lien : <code>ANOMALIE: Cas d utilisation orphelin sans acteur -&gt; &lt;NomUC&gt;</code>.<br>
 3. <strong>Couverture :</strong> Calculer le pourcentage de cas d'utilisation raccordés : <code>COUVERTURE: &lt;N&gt;%</code>.<br>
 Si aucune anomalie : <code>DIAGRAMME USE CASE VALIDE</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SYSTEM E-Commerce
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SYSTEM E-Commerce
 ACTOR Client EXTERNE
 ACTOR BaseDeDonnees INTERNE
 UC PasserCommande
 UC Payer
 LINK Client -&gt; PasserCommande</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ANOMALIE: Acteur interne dans le systeme -&gt; BaseDeDonnees
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ANOMALIE: Acteur interne dans le systeme -&gt; BaseDeDonnees
 ANOMALIE: Cas d utilisation orphelin sans acteur -&gt; Payer
 COUVERTURE: 50%
 BILAN: 2 anomalies detectees</pre></div>
@@ -476,6 +525,29 @@ BILAN: 2 anomalies detectees</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

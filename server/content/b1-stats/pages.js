@@ -50,10 +50,10 @@ function index(course, chapterList) {
     ].join('\n')),
     box('method', 'Comment ce cours s’articule', 'compass', [
       '    <p>Chaque chapitre part d’un jeu de données concret, pose le vocabulaire, montre un calcul ' +
-      'détaillé ligne à ligne, puis se termine par <strong>trois exercices de code en Python</strong> : ' +
+      'détaillé ligne à ligne, puis se termine par <strong>trois études de cas statistiques</strong> : ' +
       'tu écris vraiment un programme qui résume une série (effectifs, moyenne, médiane, variance, ' +
       'coefficient de corrélation), il est réellement exécuté puis corrigé par des tests que tu ne vois pas.</p>',
-      '    <p>Python sert ici de <em>calculatrice vérifiable</em> : les formules restent celles du support, ' +
+      '    <p>Python sert ici de <em>démarche méthodologique</em> : les formules restent celles du support, ' +
       'en notation statistique. Chaque énoncé précise si la variance se divise par N ou par N − 1.</p>'
     ].join('\n')),
     '  <h2>Programme du cours</h2>',
@@ -101,7 +101,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du vocabulaire statistique jusqu’à la droite de ' +
     'régression. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou ' +
     'supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Python</strong> à écrire et à exécuter ' +
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas statistiques</strong> à écrire et à exécuter ' +
     'dans la page : ton programme est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
     'L’<a href="atelier.html">atelier de calcul</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
@@ -112,7 +112,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s’auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo des formules</span><br><span class="toc__d">Notations, formules et méthodes sur une page.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Calculs gradués et projet final d’analyse d’une série.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de calcul</span><br><span class="toc__d">Écrire et exécuter du Python directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de calcul</span><br><span class="toc__d">Calculer et vérifier ses paramètres statistiques directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l’évaluation, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -122,7 +122,7 @@ function sommaire(course, chapterList) {
     'sommaire.html': {
       title: 'Sommaire — ' + course.brand,
       description: 'Sommaire du cours de statistique descriptive B1 : ' + chapterList.length +
-        ' chapitres, exercices Python exécutables, flashcards, mémo et examens blancs.',
+        ' chapitres, études de cas statistiques, flashcards, mémo et examens blancs.',
       active: 'sommaire',
       body
     }
@@ -134,13 +134,13 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier de calcul</h1>',
+    '  <h1>Atelier d’analyse &amp; Bac à sable</h1>',
     '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Python derrière. Donne une série de ' +
     'valeurs au programme, exécute-le et lis ce qu’il affiche : c’est ici qu’une formule devient un réflexe.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre code Python tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
-      '      <li><strong>Entrée du programme</strong> contient ce que <code>input()</code> lira, une valeur par ligne.</li>',
+      '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
       '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur.</li>',
       '      <li>Votre code est conservé dans ce navigateur, par exercice et par cours.</li>',
@@ -149,30 +149,11 @@ function atelier(course) {
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
-      '     data-language="python"',
+      '     data-language="analyse"',
       '     data-height="360"',
       '     data-languages="1"',
       '     data-stdin="">',
-      '  <script type="text/plain" data-lab-starter># Zone libre : calculez, cassez, recommencez.',
-      '# Rien de ce que vous écrirez ici n’est noté.',
-      '#',
-      '# Exemple proposé : moyenne et écart-type d’une série.',
-      '# Le script lit n, puis n valeurs (une par ligne).',
-      '',
-      'import math',
-      '',
-      'def moyenne_ecart_type(valeurs):',
-      '    m = sum(valeurs) / len(valeurs)',
-      '    variance = sum((x - m) ** 2 for x in valeurs) / len(valeurs)',
-      '    return m, math.sqrt(variance)',
-      '',
-      'n = int(input())',
-      'serie = [float(input()) for _ in range(n)]',
-      '',
-      'm, s = moyenne_ecart_type(serie)',
-      'print(f"moyenne : {m:.2f}")',
-      'print(f"ecart-type : {s:.2f}")',
-      '</script>',
+      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre — moyenne et dispersion</h3>',
       '    <div class="lab__meta">',
@@ -188,11 +169,11 @@ function atelier(course) {
       '      <p>Une erreur n’est pas un échec : c’est le message que Python te laisse pour comprendre ce qu’il attendait.</p>',
       '    </div>',
       '    <div class="lab__sample">',
-      '      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3',
+      '      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3',
       '2',
       '4',
       '6</pre></div>',
-      '      <div class="lab__sample-part"><b>Sortie attendue</b><pre>moyenne : 4.00',
+      '      <div class="lab__sample-part"><b>Résolution attendue</b><pre>moyenne : 4.00',
       'ecart-type : 1.63</pre></div>',
       '    </div>',
       '    <p class="lab__note">Quatre lignes attendues : déplie « Entrée du programme » et saisis-les avant d’exécuter.</p>',
@@ -219,7 +200,7 @@ function atelier(course) {
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
-    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois exercices Python corrigés ' +
+    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas statistiques corrigées ' +
     'automatiquement dans la page. Une fois l’atelier apprivoisé, ils sont la meilleure façon de vérifier ' +
     'que le cours est vraiment acquis.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Vocabulaire' }),
@@ -229,9 +210,9 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de calcul — écrire du Python | ' + course.brand,
+      title: 'Atelier d’analyse statistique | ' + course.brand,
       description: 'Atelier de calcul du cours de statistique descriptive B1 : éditeur dans le navigateur, ' +
-        'exécution réelle du programme Python, entrée standard, console de sortie et tuteur qui explique les erreurs.',
+        'espace d’application statistique et validation étape par étape des calculs.',
       active: 'atelier',
       body
     }
@@ -525,184 +506,74 @@ function exercices(course) {
     '    <ol>',
     intro.map(line => '      <li>' + line + '</li>').join('\n'),
     '    </ol>',
-    '    <details><summary>Corrections</summary><div class="sol"><pre><code>' + solutions + '</code></pre></div></details>',
+    '    <details><summary>Corrections &amp; résolutions détaillées</summary><div class="sol">' + solutions + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
     '  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un projet final qui ' +
-    'produit un véritable rapport d’analyse. Les programmes sont en Python, comme aux ateliers.</p>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier final d’analyse descriptive et de corrélation.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Calcule l’effectif total et l’étendue d’une série.',
-      'Trie une série brute dans l’ordre croissant.',
-      'Construis le tableau des effectifs d’une série de notes.',
-      'Calcule la moyenne d’une série brute.'
+      'Calculer l’effectif total $N$ et l’étendue $e = x_{\\max} - x_{\\min}$ d’une série.',
+      'Ordonner une série statistique dans l’ordre croissant.',
+      'Construire le tableau des effectifs et fréquences.',
+      'Calculer la moyenne arithmétique simple $\\bar{x} = \\frac{1}{N}\\sum x_i$.'
     ], [
-      'serie = [float(input()) for _ in range(int(input()))]',
-      'print(len(serie), max(serie) - min(serie))',
-      '',
-      'serie = [float(input()) for _ in range(int(input()))]',
-      'print(" ".join(f"{x:g}" for x in sorted(serie)))',
-      '',
-      'serie = [int(input()) for _ in range(int(input()))]',
-      'for modalite in sorted(set(serie)):',
-      '    print(modalite, serie.count(modalite))',
-      '',
-      'n = int(input())',
-      'serie = [float(input()) for _ in range(n)]',
-      'print(f"{sum(serie) / n:.2f}")'
+      '<p><strong>1. Effectif et étendue :</strong> $N = \\sum n_i$, $e = x_{\\max} - x_{\\min}$.</p>',
+      '<p><strong>2. Tri :</strong> On range les observations par ordre croissant pour identifier les extrêmes et la médiane.</p>',
+      '<p><strong>3. Tableau :</strong> Pour chaque modalité distincte $x_i$, on note son effectif $n_i$ et sa fréquence $f_i = n_i / N$.</p>',
+      '<p><strong>4. Moyenne simple :</strong> $\\bar{x} = \\frac{x_1 + x_2 + \\dots + x_N}{N}$.</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Calcule une moyenne pondérée à partir d’un tableau valeur / effectif.',
-      'Calcule la médiane d’une série (avec la convention du cours).',
-      'Calcule la variance et l’écart-type par la formule de König.',
-      'Calcule Q1, Q3 et l’écart interquartile.'
+      'Calculer une moyenne pondérée à partir d’un tableau modalité / effectif.',
+      'Calculer la médiane $Me$ d’une série discrète.',
+      'Calculer la variance $V$ et l’écart-type $\\sigma$ par la formule de König-Huygens.',
+      'Calculer les quartiles $Q_1, Q_3$ et l’écart interquartile $IQR = Q_3 - Q_1$.'
     ], [
-      'k = int(input())',
-      'total, effectif = 0.0, 0',
-      'for _ in range(k):',
-      '    valeur, n = (float(x) for x in input().split())',
-      '    total += valeur * n',
-      '    effectif += n',
-      'print(f"{total / effectif:.2f}")',
-      '',
-      'def mediane(valeurs):',
-      '    v = sorted(valeurs)',
-      '    n = len(v)',
-      '    return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2',
-      '',
-      'def quantile(valeurs, p):',
-      '    v = sorted(valeurs)',
-      '    r = (len(v) + 1) * p',
-      '    bas = int(r)',
-      '    if bas == r:',
-      '        return v[bas - 1]',
-      '    return v[bas - 1] + (r - bas) * (v[bas] - v[bas - 1])',
-      '',
-      'serie = [float(input()) for _ in range(int(input()))]',
-      'print(f"{quantile(serie, 0.25):.2f} {quantile(serie, 0.75):.2f} ' +
-        '{quantile(serie, 0.75) - quantile(serie, 0.25):.2f}")'
+      '<p><strong>1. Moyenne pondérée :</strong> $\\bar{x} = \\frac{\\sum n_i x_i}{\\sum n_i} = \\sum f_i x_i$.</p>',
+      '<p><strong>2. Médiane :</strong> Valeur qui sépare la série ordonnée en deux groupes d’effectifs égaux ($50\\%$ des observations en dessous, $50\\%$ au-dessus).</p>',
+      '<p><strong>3. König-Huygens :</strong> $V = \\frac{1}{N}\\sum n_i x_i^2 - \\bar{x}^2$, puis $\\sigma = \\sqrt{V}$.</p>',
+      '<p><strong>4. Écart interquartile :</strong> $Q_1$ est le $25^{\\text{e}}$ centile, $Q_3$ le $75^{\\text{e}}$ centile ; $IQR = Q_3 - Q_1$ mesure la dispersion des $50\\%$ valeurs centrales.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Calcule un coefficient de corrélation linéaire.',
-      'Détermine la droite des moindres carrés et fais une prévision.',
-      'Compare deux séries par leur coefficient de variation et conclus.',
-      'Découpe une série en classes de même amplitude et calcule les effectifs par classe.'
+      'Calculer la covariance $\\operatorname{cov}(X, Y)$ et le coefficient de corrélation linéaire $r$.',
+      'Déterminer la droite de régression des moindres carrés $y = ax + b$.',
+      'Comparer deux séries par leur coefficient de variation $CV = \\frac{\\sigma}{\\bar{x}}$.',
+      'Découper une série continue en classes de même amplitude et calculer les centres de classe.'
     ], [
-      'def corrélation(xs, ys):',
-      '    n = len(xs)',
-      '    mx, my = sum(xs) / n, sum(ys) / n',
-      '    cov = sum((xs[i] - mx) * (ys[i] - my) for i in range(n)) / n',
-      '    sx = (sum((x - mx) ** 2 for x in xs) / n) ** 0.5',
-      '    sy = (sum((y - my) ** 2 for y in ys) / n) ** 0.5',
-      '    return cov / (sx * sy)',
-      '',
-      'def regression(xs, ys):',
-      '    n = len(xs)',
-      '    mx, my = sum(xs) / n, sum(ys) / n',
-      '    cov = sum((xs[i] - mx) * (ys[i] - my) for i in range(n)) / n',
-      '    vx = sum((x - mx) ** 2 for x in xs) / n',
-      '    a = cov / vx',
-      '    return a, my - a * mx      # y = a·x + b',
-      '',
-      'def classes(mini, maxi, k):',
-      '    pas = (maxi - mini) / k',
-      '    return [(mini + i * pas, mini + (i + 1) * pas) for i in range(k)]'
+      '<p><strong>1. Corrélation :</strong> $\\operatorname{cov}(X,Y) = \\frac{1}{n}\\sum x_i y_i - \\bar{x}\\bar{y}$, d’où $r = \\frac{\\operatorname{cov}(X,Y)}{\\sigma_x \\sigma_y} \\in [-1, 1]$.</p>',
+      '<p><strong>2. Droite de régression :</strong> Pente $a = \\frac{\\operatorname{cov}(X,Y)}{V(X)}$ et ordonnée à l’origine $b = \\bar{y} - a\\bar{x}$.</p>',
+      '<p><strong>3. Coefficient de variation :</strong> $CV = \\frac{\\sigma}{\\bar{x}}$ permet de comparer la dispersion relative de deux distributions d’unités ou d’ordres de grandeur différents.</p>',
+      '<p><strong>4. Classes :</strong> Pour une classe $[b_i, b_{i+1}[$, amplitude $a_i = b_{i+1} - b_i$ et centre $c_i = \\frac{b_i + b_{i+1}}{2}$.</p>'
     ].join('\n')),
 
-    '  <h2>Projet intégrateur — « rapport d’analyse d’une série »</h2>',
-    box('situation', 'Cahier des charges', 'play', [
-      '    <p>Un service RH te confie les notes obtenues par une promotion à un test de recrutement. ' +
-      'Le programme lit <code>n</code>, puis les <code>n</code> notes (une par ligne), et affiche un rapport ' +
-      'complet sur la distribution : effectif, étendue, moyenne, médiane, quartiles, variance, écart-type, ' +
-      'coefficient de variation et une appréciation de la dispersion.</p>'
+    '  <h2>Projet intégrateur — Dossier d’Analyse Statistique &amp; Décision</h2>',
+    box('situation', 'Cahier des charges du Dossier', 'play', [
+      '    <p>Ce dossier d’étude statistique descriptive et décisionnelle consiste à analyser un jeu de données réel (production industrielle, fréquentation de service ou temps de réponse serveur) : calcul des indicateurs de position, de dispersion, étude de la forme de distribution et modélisation prédictive par régression linéaire.</p>'
     ].join('\n')),
-    box('objectifs', 'Fonctionnalités attendues', 'target', [
+    box('objectifs', 'Compétences méthodologiques évaluées', 'target', [
       '    <ol>',
-      '      <li><strong>Lire</strong> la série et la trier une seule fois.</li>',
-      '      <li><strong>Calculer</strong> les indicateurs avec des fonctions dédiées (tendance centrale, dispersion).</li>',
-      '      <li><strong>Interpréter</strong> : afficher « dispersion forte » si le coefficient de variation dépasse 25 %, « dispersion modérée » sinon.</li>',
-      '      <li><strong>Gérer</strong> les cas limites : n = 1, série constante (écart-type nul), valeurs négatives.</li>',
-      '      <li><strong>Afficher</strong> deux décimales partout, sauf le CV exprimé en pourcentage.</li>',
-      '      <li><strong>Bonus</strong> : détecter les valeurs aberrantes hors de l’intervalle [Q1 − 1,5·EI ; Q3 + 1,5·EI].</li>',
-      '    </ol>',
-      '    <p>Contraintes : une fonction = une responsabilité, noms explicites, aucune division par zéro.</p>'
+      '      <li><strong>Indicateurs de position :</strong> Calcul et comparaison critique de la moyenne et de la médiane.</li>',
+      '      <li><strong>Indicateurs de dispersion :</strong> Calcul de la variance, de l’écart-type et de l’écart interquartile.</li>',
+      '      <li><strong>Ajustement linéaire :</strong> Équation de la droite des moindres carrés et coefficient de détermination $R^2 = r^2$.</li>',
+      '      <li><strong>Interprétation économique :</strong> Formulation de recommandations décisionnelles étayées.</li>',
+      '    </ol>'
     ].join('\n')),
-    box('method', 'Grille d’auto-évaluation du projet (sur 100)', 'blocks', [
-      '    ' + bands([
-        { cls: '', text: 'Lecture, tri et fonctions dédiées <strong>20</strong>' },
-        { cls: '', text: 'Moyenne, médiane, quartiles corrects <strong>20</strong>' },
-        { cls: '', text: 'Variance, écart-type, CV corrects <strong>20</strong>' },
-        { cls: '', text: 'Interprétation et cas limites <strong>20</strong>' },
-        { cls: '', text: 'Lisibilité, noms, découpage <strong>20</strong>' }
-      ]),
-      '    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>'
-    ].join('\n')),
-    '  <details>',
-    '    <summary>Voir une solution de référence (après avoir essayé !)</summary>',
-    '    <div class="sol">',
-    '      <pre><code>' + [
-      'import math',
-      '',
-      'def moyenne(valeurs):',
-      '    return sum(valeurs) / len(valeurs)',
-      '',
-      'def quantile(valeurs, p):',
-      '    r = (len(valeurs) + 1) * p',
-      '    bas = int(r)',
-      '    if bas == r:',
-      '        return valeurs[bas - 1]',
-      '    return valeurs[bas - 1] + (r - bas) * (valeurs[bas] - valeurs[bas - 1])',
-      '',
-      'def ecart_type(valeurs):',
-      '    m = moyenne(valeurs)',
-      '    return math.sqrt(sum((x - m) ** 2 for x in valeurs) / len(valeurs))',
-      '',
-      'def coefficient_variation(valeurs):',
-      '    m = moyenne(valeurs)',
-      '    return ecart_type(valeurs) / m if m != 0 else 0',
-      '',
-      'n = int(input())',
-      'serie = sorted(float(input()) for _ in range(n))',
-      '',
-      'm = moyenne(serie)',
-      'med = quantile(serie, 0.5)',
-      'q1 = quantile(serie, 0.25)',
-      'q3 = quantile(serie, 0.75)',
-      's = ecart_type(serie)',
-      'cv = coefficient_variation(serie)',
-      '',
-      'print(f"effectif : {n}")',
-      'print(f"etendue : {serie[-1] - serie[0]:.2f}")',
-      'print(f"moyenne : {m:.2f}")',
-      'print(f"mediane : {med:.2f}")',
-      'print(f"Q1 : {q1:.2f}   Q3 : {q3:.2f}")',
-      'print(f"variance : {s * s:.2f}")',
-      'print(f"ecart-type : {s:.2f}")',
-      'print(f"coefficient de variation : {cv * 100:.2f} %")',
-      'print("dispersion forte" if cv > 0.25 else "dispersion moderee")'
-    ].join('\n') + '</code></pre>',
-    '      Cette solution combine vocabulaire, tableau, tendance centrale, dispersion et interprétation — ' +
-    'l’essentiel des six modules en un seul rapport.',
-    '    </div>',
-    '  </details>',
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../chapitres/simulateur-examen.html', label: 'Examens blancs' }),
-    disclaimer(course, 'Exercices construits à partir du support B1 et des séries d’exercices du Collège de Paris. ')
+    disclaimer(course, 'Exercices construits à partir du programme officiel de statistiques descriptives B1.')
   ].join('\n\n');
 
   return {
     'exercices/exercices.html': {
-      title: 'Exercices &amp; projet intégrateur — ' + course.brand,
-      description: 'Exercices supplémentaires et projet intégrateur du cours de statistique descriptive B1 : ' +
-        'calculs gradués et rapport d’analyse d’une série en Python.',
+      title: 'Exercices &amp; dossier intégrateur — ' + course.brand,
+      description: 'Exercices supplémentaires et dossier intégrateur du cours de statistiques descriptives B1 : calculs gradués, indicateurs et corrélation.',
       active: 'exercices',
       body
     }
@@ -727,7 +598,7 @@ function render(kit, course, chapterList) {
     pages['chapitres/chapitre' + chapitre.n + '.html'] = {
       title: 'Chapitre ' + chapitre.n + ' — ' + chapitre.title + ' | ' + course.brand,
       description: 'Chapitre ' + chapitre.n + ' du cours de statistique descriptive B1 : ' + chapitre.toc +
-        ' Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.',
+        ' Théorie, exemples calculés, études de cas statistiques, QCM corrigés.',
       active: 'ch' + chapitre.n,
       dataChapter: chapitre.n,
       body

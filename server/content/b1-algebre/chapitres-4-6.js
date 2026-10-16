@@ -111,7 +111,7 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> Soit <code>v₁, …, vₚ</code> une famille de vecteurs de E. ' +
           'L’ensemble de toutes les combinaisons linéaires de ces vecteurs,</p>',
-          '<pre><code>Vect(v₁, …, vₚ) = { a₁·v₁ + … + aₚ·vₚ | a₁, …, aₚ ∈ ℝ }</code></pre>',
+          '<div class="math-block">$\\\\operatorname{Vect}(v_1, \\\\dots, v_p) = \\\\left\{ \\\\sum_{k=1}^p a_k v_k \;\middle|\; a_1, \\\\dots, a_p \\\\in \\\\mathbb{R} \\\\right\}$</div>',
           '<p>est un sous-espace vectoriel de E : le <strong>sous-espace engendré</strong> par la famille. ' +
           'La famille est dite <strong>génératrice</strong> de ce sous-espace.</p>',
           '<p><strong>Somme de deux sous-espaces.</strong> Si F et G sont deux sous-espaces de E :</p>',
@@ -236,7 +236,7 @@ module.exports = [
           '<p><strong>Définition.</strong> Une famille <code>(v₁, …, vₚ)</code> est <strong>libre</strong> ' +
           '(ou les vecteurs sont linéairement indépendants) si la seule combinaison linéaire nulle est celle ' +
           'dont tous les coefficients sont nuls :</p>',
-          '<pre><code>a₁·v₁ + … + aₚ·vₚ = 0   ⇒   a₁ = a₂ = … = aₚ = 0</code></pre>',
+          '<div class="math-block">$\\\\sum_{k=1}^p a_k v_k = 0 \\\\implies a_1 = a_2 = \\\\dots = a_p = 0$</div>',
           '<p>Dans le cas contraire, la famille est <strong>liée</strong> : il existe des coefficients non ' +
           'tous nuls qui donnent le vecteur nul, autrement dit un vecteur de la famille est combinaison ' +
           'linéaire des autres.</p>',
@@ -457,14 +457,14 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> Soit A une matrice carrée. Un réel λ est une ' +
           '<strong>valeur propre</strong> de A s’il existe un vecteur <code>X ≠ 0</code> tel que</p>',
-          '<pre><code>A · X = λ · X</code></pre>',
+          '<div class="math-block">$A X = \\\\lambda X \\\\quad (X \\\\ne 0)$</div>',
           '<p>Le vecteur X est alors un <strong>vecteur propre</strong> associé à λ. Géométriquement, dans la ' +
           'direction de X, la transformation <code>A</code> se réduit à une homothétie de rapport λ : ' +
           'elle ne change pas la direction, seulement la longueur (et éventuellement le sens).</p>',
           '<p><strong>Comment les trouver ?</strong> L’équation s’écrit <code>(A − λ·I)·X = 0</code>. Comme ' +
           'on cherche <code>X ≠ 0</code>, cette équation n’a de solution non nulle que si la matrice ' +
           '<code>A − λ·I</code> est <em>non inversible</em> :</p>',
-          '<pre><code>det(A − λ·I) = 0        ← polynôme caractéristique</code></pre>',
+          '<div class="math-block">$\det(A - \\\\lambda I) = 0 \\\\quad (\\\\text{Polynôme caractéristique } P(\\\\lambda))$</div>',
           '<p>Pour une matrice 2 × 2, ce déterminant est un polynôme du second degré : on le résout avec le ' +
           'discriminant.</p>',
           '<p><strong>Exemple complet.</strong> <code>A = [[4, 1], [2, 3]]</code> :</p>',

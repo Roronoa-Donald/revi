@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -152,27 +153,40 @@ git bisect run npm test</code></pre>
 </table>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="gh3-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ACTIVE_BRANCH name=main tip=C1 ancestors=NONE&#10;REFLOG_ENTRY id=HEAD@{0} commit=C1 action=reset desc=moving to C1&#10;REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c3-e1) — Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Tous les commits du reflog sont accessibles dans les branches]
+# Données : ACTIVE_BRANCH name=main tip=C2 ancestors=C1
+# Données : REFLOG_ENTRY id=HEAD@{0} commit=C2 action=checkout desc=moving to main
+# Données : REFLOG_ENTRY id=HEAD@{1} commit=C1 action=commit desc=Init
+A_COMPLETER
 
-# À compléter : analyser le reflog et retrouver les commits orphelins
+[Cas 2 — Multiples commits orphelins après rebases multiples]
+# Données : ACTIVE_BRANCH name=main tip=M2 ancestors=M1
+# Données : ACTIVE_BRANCH name=dev tip=D1 ancestors=M1
+# Données : REFLOG_ENTRY id=HEAD@{0} commit=M2 action=checkout desc=to main
+# Données : REFLOG_ENTRY id=HEAD@{1} commit=LOST1 action=commit desc=Secret code
+# Données : REFLOG_ENTRY id=HEAD@{2} commit=LOST2 action=commit desc=Old prototype
+A_COMPLETER
+
+[Cas 3 — Commit orphelin unique après suppression de branche]
+# Données : ACTIVE_BRANCH name=main tip=100 ancestors=NONE
+# Données : REFLOG_ENTRY id=HEAD@{0} commit=999 action=branch_delete desc=Temporary fix
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -180,8 +194,7 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
     <p class="lab__goal"><strong>Objectif :</strong> Analyser le journal des mouvements de têtes (reflog) pour identifier et sauver un commit devenu orphelin après un reset accidentel.</p>
     <div class="lab__brief"><p>Lorsqu'un développeur exécute par erreur <code>git reset --hard HEAD~3</code> ou supprime une branche locale avant d'avoir poussé, les commits semblent perdus.<br>
 En réalité, Git ne supprime jamais immédiatement les objets : ils restent référencés dans le <strong>Reflog (Reference Log)</strong> jusqu'à la collecte des déchets (Garbage Collection <code>git gc</code>).<br><br>
-Le script lit sur l'entrée standard :<br>
-1. La liste des commits actuellement accessibles par les branches actives :<br>
+Analysez les paramètres du problème pour chaque cas. La liste des commits actuellement accessibles par les branches actives :<br>
    <code>ACTIVE_BRANCH name=&lt;nom&gt; tip=&lt;hash&gt; ancestors=&lt;h1,h2...|NONE&gt;</code>.<br>
 2. Les entrées chronologiques du reflog de HEAD (du plus récent au plus ancien) :<br>
    <code>REFLOG_ENTRY id=&lt;HEAD@{n}&gt; commit=&lt;hash&gt; action=&lt;action&gt; desc=&lt;message&gt;</code>.<br><br>
@@ -191,10 +204,10 @@ Pour chaque commit orphelin identifié dans le reflog (dans l'ordre d'apparition
 Si aucun commit orphelin n'est trouvé :<br>
 <code>RESCUE_SUMMARY: ALL_COMMITS_REFERENCED</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ACTIVE_BRANCH name=main tip=C1 ancestors=NONE
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACTIVE_BRANCH name=main tip=C1 ancestors=NONE
 REFLOG_ENTRY id=HEAD@{0} commit=C1 action=reset desc=moving to C1
 REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RESCUE_CANDIDATE reflog=HEAD@{1} commit=C3 action="commit" desc="Feature perdue" status=DANGLING</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RESCUE_CANDIDATE reflog=HEAD@{1} commit=C3 action="commit" desc="Feature perdue" status=DANGLING</pre></div>
     </div>
     <p class="lab__note">C3 a été abandonné par le reset to C1 et n’est plus dans main.</p>
     <details class="lab__hints">
@@ -209,19 +222,31 @@ REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue</pre></div>
 
 <div class="lab" data-lab
      data-exercise="gh3-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="HISTORY commits=C1,C2,C3,C4,C5&#10;STATUSES C1=GOOD C2=GOOD C3=BAD C4=BAD C5=BAD">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c3-e2) — Détecteur de régression dichotomique automatique (git bisect)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Historique de 8 commits avec bogue introduit tardivement]
+# Données : HISTORY commits=v1,v2,v3,v4,v5,v6,v7,v8
+# Données : STATUSES v1=GOOD v2=GOOD v3=GOOD v4=GOOD v5=GOOD v6=GOOD v7=BAD v8=BAD
+A_COMPLETER
 
-# À compléter : implémenter la dichotomie git bisect
+[Cas 2 — Bogue introduit dès le deuxième commit]
+# Données : HISTORY commits=A,B,C,D
+# Données : STATUSES A=GOOD B=BAD C=BAD D=BAD
+A_COMPLETER
+
+[Cas 3 — Seulement 3 commits dans l’historique]
+# Données : HISTORY commits=1,2,3
+# Données : STATUSES 1=GOOD 2=GOOD 3=BAD
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Détecteur de régression dichotomique automatique (git bisect)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -236,16 +261,15 @@ Algorithme :<br>
    On évalue l'état du commit <code>mid</code> (fourni par la table des statuts) :<br>
    - Si <code>mid == BAD</code> : la régression a eu lieu à <code>mid</code> ou avant -> <code>high = mid</code>.<br>
    - Si <code>mid == GOOD</code> : la régression a eu lieu après <code>mid</code> -> <code>low = mid + 1</code>.<br>
-   On affiche chaque étape : <code>BISECT_STEP step={k} testing={commit_id} verdict={GOOD|BAD} remaining={high - low + 1}</code>.<br>
+   On Indiquez chaque étape : <code>BISECT_STEP step={k} testing={commit_id} verdict={GOOD|BAD} remaining={high - low + 1}</code>.<br>
 3. Dès que <code>low == high</code>, le premier commit défaillant est identifié :<br>
    <code>FIRST_BAD_COMMIT id={commit_id}</code>.<br><br>
-Le script lit la liste chronologique des commits et leur statut réel :<br>
-<code>HISTORY commits=&lt;c1,c2,c3...&gt;</code><br>
+Analysez les données fournies pour chaque cas...&gt;</code><br>
 <code>STATUSES &lt;c_id&gt;=&lt;GOOD|BAD&gt; ...</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HISTORY commits=C1,C2,C3,C4,C5
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HISTORY commits=C1,C2,C3,C4,C5
 STATUSES C1=GOOD C2=GOOD C3=BAD C4=BAD C5=BAD</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BISECT_STEP step=1 testing=C3 verdict=BAD remaining=3
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BISECT_STEP step=1 testing=C3 verdict=BAD remaining=3
 BISECT_STEP step=2 testing=C2 verdict=GOOD remaining=1
 FIRST_BAD_COMMIT id=C3</pre></div>
     </div>
@@ -263,19 +287,32 @@ FIRST_BAD_COMMIT id=C3</pre></div>
 
 <div class="lab" data-lab
      data-exercise="gh3-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="STASH_CMD action=push arg=WIP sur formulaire&#10;STASH_CMD action=pop">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c3-e3) — Gestionnaire de pile de remisage (git stash LIFO stack)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Dépilement sur une pile vide]
+# Données : STASH_CMD action=pop
+A_COMPLETER
 
-# À compléter : simuler la pile LIFO de git stash
+[Cas 2 — Succession de push, apply et drop spécifique]
+# Données : STASH_CMD action=push arg=Fix CSS
+# Données : STASH_CMD action=push arg=Refactor API
+# Données : STASH_CMD action=apply arg=1
+# Données : STASH_CMD action=drop arg=0
+A_COMPLETER
+
+[Cas 3 — Drop avec index hors limites]
+# Données : STASH_CMD action=push arg=Seul élément
+# Données : STASH_CMD action=drop arg=5
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Gestionnaire de pile de remisage (git stash LIFO stack)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -287,14 +324,13 @@ Commandes à exécuter :<br>
 - <code>pop</code> : extrait et supprime l'entrée la plus récente <code>stash@{0}</code>.<br>
 - <code>apply &lt;idx&gt;</code> : applique l'entrée <code>stash@{idx}</code> sans la supprimer de la pile.<br>
 - <code>drop &lt;idx&gt;</code> : supprime l'entrée <code>stash@{idx}</code> de la pile (les entrées d'indice supérieur sont décrémentées d'une unité).<br><br>
-Le script lit les commandes sur l'entrée standard :<br>
-<code>STASH_CMD action=&lt;push|pop|apply|drop&gt; [arg=&lt;val&gt;]</code>.<br><br>
+Analysez les données fournies pour chaque cas.<br><br>
 Pour chaque action, afficher :<br>
 <code>STASH_OP action={action} result={OK|STACK_EMPTY|INDEX_OUT_OF_BOUNDS} current_size={taille} top="{msg_du_sommet|EMPTY}"</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STASH_CMD action=push arg=WIP sur formulaire
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STASH_CMD action=push arg=WIP sur formulaire
 STASH_CMD action=pop</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STASH_OP action=push result=OK current_size=1 top="WIP sur formulaire"
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STASH_OP action=push result=OK current_size=1 top="WIP sur formulaire"
 STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
     </div>
     <p class="lab__note">Empilement puis dépilement immédiat de la réserve.</p>
@@ -472,6 +508,29 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

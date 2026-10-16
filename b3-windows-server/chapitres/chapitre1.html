@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="1">
@@ -152,27 +153,39 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="ws3-c1-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SCOPE net=192.168.1. start=10 end=20&#10;EXCLUDE start=12 end=14&#10;RESERVATION mac=00:11:22:33:44:01 ip=192.168.1.15&#10;RESERVATION mac=00:11:22:33:44:02 ip=192.168.1.18">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c1-e1) — Validateur d’étendue DHCP, exclusions et conflits de réservation MAC
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Conflit de réservation sur même adresse IP]
+# Données : SCOPE net=10.0.0. start=100 end=110
+# Données : RESERVATION mac=AA:BB:CC:01 ip=10.0.0.105
+# Données : RESERVATION mac=AA:BB:CC:02 ip=10.0.0.105
+A_COMPLETER
 
-# À compléter : analyser l'étendue DHCP et vérifier les réservations
+[Cas 2 — Réservation hors de la plage du scope]
+# Données : SCOPE net=172.16.0. start=50 end=60
+# Données : EXCLUDE start=55 end=60
+# Données : RESERVATION mac=11:22:33:44 ip=172.16.0.99
+A_COMPLETER
+
+[Cas 3 — Toutes les adresses exclues ou réservées]
+# Données : SCOPE net=192.168.10. start=1 end=3
+# Données : EXCLUDE start=1 end=2
+# Données : RESERVATION mac=AA:11 ip=192.168.10.3
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur d’étendue DHCP, exclusions et conflits de réservation MAC</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -200,11 +213,11 @@ Sortie :
 - Bilan :
   `SUMMARY statut=<OK|AVERTISSEMENT> pool_pct=<PCT>%` (où pool_pct = round((total_disponibles / total_scope) * 100, 1) ; statut=OK si conflits=0, sinon AVERTISSEMENT)</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SCOPE net=192.168.1. start=10 end=20
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCOPE net=192.168.1. start=10 end=20
 EXCLUDE start=12 end=14
 RESERVATION mac=00:11:22:33:44:01 ip=192.168.1.15
 RESERVATION mac=00:11:22:33:44:02 ip=192.168.1.18</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RESERVATIONS valides=2 conflits=0
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RESERVATIONS valides=2 conflits=0
 POOL_DYNAMIC total_disponibles=6 first_ip=192.168.1.10 last_ip=192.168.1.20
 SUMMARY statut=OK pool_pct=54.5%</pre></div>
     </div>
@@ -222,19 +235,36 @@ SUMMARY statut=OK pool_pct=54.5%</pre></div>
 
 <div class="lab" data-lab
      data-exercise="ws3-c1-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="RECORD_A fqdn=dc01.corp.lan ip=192.168.1.10&#10;RECORD_PTR ip=192.168.1.10 fqdn=dc01.corp.lan&#10;RECORD_SRV service=_ldap proto=_tcp port=389 target=dc01.corp.lan">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c1-e2) — Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Enregistrement PTR manquant et cible SRV inconnue]
+# Données : RECORD_A fqdn=srv01.corp.lan ip=10.0.0.5
+# Données : RECORD_SRV service=_kerberos proto=_tcp port=88 target=dc02.corp.lan
+A_COMPLETER
 
-# À compléter : vérifier la cohérence des zones DNS et des enregistrements SRV
+[Cas 2 — Désynchronisation entre A et PTR sur l’IP]
+# Données : RECORD_A fqdn=mail.corp.lan ip=192.168.1.25
+# Données : RECORD_PTR ip=192.168.1.25 fqdn=ancien-mail.corp.lan
+# Données : RECORD_A fqdn=dc.corp.lan ip=192.168.1.1
+# Données : RECORD_PTR ip=192.168.1.1 fqdn=dc.corp.lan
+A_COMPLETER
+
+[Cas 3 — Multiples SRV sur le même DC valide]
+# Données : RECORD_A fqdn=dc.dom.local ip=172.16.1.1
+# Données : RECORD_PTR ip=172.16.1.1 fqdn=dc.dom.local
+# Données : RECORD_SRV service=_ldap proto=_tcp port=389 target=dc.dom.local
+# Données : RECORD_SRV service=_kerberos proto=_tcp port=88 target=dc.dom.local
+# Données : RECORD_SRV service=_kpasswd proto=_tcp port=464 target=dc.dom.local
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -255,10 +285,10 @@ Sortie :
 - Bilan :
   `SUMMARY total_records=<N> anomalies=<C> statut=<CONFORME|NON_CONFORME>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RECORD_A fqdn=dc01.corp.lan ip=192.168.1.10
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RECORD_A fqdn=dc01.corp.lan ip=192.168.1.10
 RECORD_PTR ip=192.168.1.10 fqdn=dc01.corp.lan
 RECORD_SRV service=_ldap proto=_tcp port=389 target=dc01.corp.lan</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SUMMARY total_records=3 anomalies=0 statut=CONFORME</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SUMMARY total_records=3 anomalies=0 statut=CONFORME</pre></div>
     </div>
     <p class="lab__note">Enregistrement direct et inverse synchronisés, cible SRV résolue.</p>
     <details class="lab__hints">
@@ -274,20 +304,28 @@ RECORD_SRV service=_ldap proto=_tcp port=389 target=dc01.corp.lan</pre></div>
 
 <div class="lab" data-lab
      data-exercise="ws3-c1-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SERVER nom=HOTE-PROD-01 sockets=2 cores_per_socket=8 vms=4">
-  <script type="text/plain" data-lab-starter>import sys
-import math
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c1-e3) — Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Forte densité de virtualisation justifiant l’édition Datacenter]
+# Données : SERVER nom=CLUSTER-NODE-A sockets=2 cores_per_socket=16 vms=18
+A_COMPLETER
 
-# À compléter : appliquer les règles de licences Microsoft Windows Server
+[Cas 2 — Mono-socket avec minimums 8 et 16 cœurs appliqués]
+# Données : SERVER nom=EDGE-SERVER sockets=1 cores_per_socket=4 vms=2
+A_COMPLETER
+
+[Cas 3 — Aucune machine virtuelle (serveur physique bare-metal)]
+# Données : SERVER nom=BARE-METAL sockets=2 cores_per_socket=10 vms=0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -314,8 +352,8 @@ Sortie :
 - Recommandation finale (Standard si cout_std <= cout_dc, sinon Datacenter) :
   `RECOMMENDATION nom=<NOM> edition_recommandee=<STANDARD|DATACENTER> economie=<DIFF>EUR`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SERVER nom=HOTE-PROD-01 sockets=2 cores_per_socket=8 vms=4</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SERVER_PROFILE nom=HOTE-PROD-01 base_cores=16 packs_base=8
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SERVER nom=HOTE-PROD-01 sockets=2 cores_per_socket=8 vms=4</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SERVER_PROFILE nom=HOTE-PROD-01 base_cores=16 packs_base=8
 EDITION_STANDARD packs=16 cout=1920EUR
 EDITION_DATACENTER packs=8 cout=6000EUR
 RECOMMENDATION nom=HOTE-PROD-01 edition_recommandee=STANDARD economie=4080EUR</pre></div>
@@ -495,6 +533,29 @@ RECOMMENDATION nom=HOTE-PROD-01 edition_recommandee=STANDARD economie=4080EUR</p
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

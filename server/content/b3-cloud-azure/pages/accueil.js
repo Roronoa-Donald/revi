@@ -124,13 +124,13 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable Azure CLI &amp; Python 3</h1>',
-    '  <p class="lead">Expérimentez et validez vos scripts d\'automatisation d\'infrastructure Cloud Azure en Python 3 : validation hiérarchique CAF, audit de règles NSG, requêtes Log Analytics KQL et dimensionnement VMSS.</p>',
+    '  <p class="lead">Expérimentez et validez vos scripts d\'automatisation d\'infrastructure Cloud Azure selon les grilles d’analyse : validation hiérarchique CAF, audit de règles NSG, requêtes Log Analytics KQL et dimensionnement VMSS.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="az group create --name rg-prod-we --location westeurope\naz vm create --name vm-app-01 --resource-group rg-prod-we --image Ubuntu2204">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos déploiements et vérifications d\'infrastructure Cloud Azure en Python 3\nimport sys\n\ndef simuler_gestion_cloud_azure(commandes):\n    """Simule le déploiement et l\'audit d\'architectures Cloud Microsoft Azure."""\n    resultats = []\n    for cmd in commandes:\n        resultats.append(f"AZURE_CLI_EXEC: {cmd} -> STATUS=SUCCESS")\n    return resultats\n\nif __name__ == "__main__":\n    cmds = [l.strip() for l in sys.stdin if l.strip()]\n    for r in simuler_gestion_cloud_azure(cmds):\n        print(r)\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -153,7 +153,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Bac à sable Cloud Azure — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos scripts d’automatisation et d’audit Cloud Azure.',
+      description: 'Bac à sable interactif par cas d’application pour tester vos scripts d’automatisation et d’audit Cloud Azure.',
       active: 'atelier',
       body
     }

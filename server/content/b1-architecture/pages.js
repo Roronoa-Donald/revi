@@ -105,7 +105,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du premier octet jusqu\'au poste qualifié. ' +
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur (et ' +
     'un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Bash</strong> à écrire et à exécuter ' +
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
     'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
     'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
@@ -126,7 +126,7 @@ function sommaire(course, chapterList) {
     'sommaire.html': {
       title: 'Sommaire — ' + course.brand,
       description: 'Sommaire du cours « Circuit logique &amp; architecture des ordinateurs » B1 : ' + chapterList.length +
-        ' chapitres, exercices Bash exécutables, flashcards, mémo et examens blancs.',
+        ' chapitres, études de cas d’application, flashcards, mémo et examens blancs.',
       active: 'sommaire',
       body
     }
@@ -138,13 +138,13 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier de scripts</h1>',
+    '  <h1>Atelier d’analyse &amp; Bac à sable</h1>',
     '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Bash derrière. Écris un script, ' +
     'exécute-le et lis ce qu\'il affiche : c\'est ici qu\'une règle de conversion devient un contrôle automatisé.</p>',
     box('objectifs', 'Comment fonctionne l\'atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre script Bash tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
-      '      <li><strong>Entrée du programme</strong> contient ce que <code>read</code> lira, une valeur par ligne.</li>',
+      '      <li><strong>Valider</strong> vérifie la conformité de vos réponses dans la grille d’analyse.</li>',
+      '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
       '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n\'écrit jamais de code à votre place.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l\'éditeur.</li>',
       '      <li>Votre code est conservé dans ce navigateur, par exercice et par cours.</li>',
@@ -153,25 +153,11 @@ function atelier(course) {
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
-      '     data-language="shell"',
+      '     data-language="analyse"',
       '     data-height="360"',
       '     data-languages="1"',
       '     data-stdin="">',
-      '  <script type="text/plain" data-lab-starter>#!/bin/bash',
-      '# Zone libre : simulez, cassez, recommencez.',
-      '# Rien de ce que vous écrirez ici n’est noté.',
-      '#',
-      '# Exemple proposé : convertisseur de bases.',
-      '# Le script lit n lignes « binaire » et affiche le décimal.',
-      '',
-      'read -r n',
-      'for ((i=0; i<n; i++)); do',
-      '  read -r binaire',
-      '  decimal=$((2#$binaire))',
-      '  echo "$binaire : decimal=$decimal"',
-      'done',
-      'echo "conversions : $n"',
-      '</script>',
+      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre — convertisseur de bases</h3>',
       '    <div class="lab__meta">',
@@ -190,11 +176,11 @@ function atelier(course) {
       'lire, décider, rapporter — reste exactement la même.</p>',
       '    </div>',
       '    <div class="lab__sample">',
-      '      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3',
+      '      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3',
       '1010',
       '11111111',
       '10000000</pre></div>',
-      '      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1010 : decimal=10',
+      '      <div class="lab__sample-part"><b>Résolution attendue</b><pre>1010 : decimal=10',
       '11111111 : decimal=255',
       '10000000 : decimal=128',
       'conversions : 3</pre></div>',
@@ -224,7 +210,7 @@ function atelier(course) {
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
-    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois exercices Bash corrigés ' +
+    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas corrigées ' +
     'automatiquement dans la page. Une fois l\'atelier apprivoisé, ils sont la meilleure façon de vérifier ' +
     'que le mécanisme est vraiment acquis.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Généralités et unités' }),
@@ -543,276 +529,74 @@ function exercices(course) {
     '    <ol>',
     intro.map(line => '      <li>' + line + '</li>').join('\n'),
     '    </ol>',
-    '    <details><summary>Corrections</summary><div class="sol"><pre><code>' + solutions + '</code></pre></div></details>',
+    '    <details><summary>Corrections &amp; calculs d’architecture</summary><div class="sol">' + solutions + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
-    '  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque chapitre, puis un projet final qui ' +
-    'qualifie un poste de bout en bout. Les scripts sont en Bash, comme à l\'atelier.</p>',
+    '  <h1>Exercices supplémentaires &amp; cas pratiques</h1>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier d’ingénierie matérielle et d’architecture des ordinateurs.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Lit n lignes « composant categorie » (materiel/logiciel) et valide chaque classement, puis le compteur d\'erreurs.',
-      'Lit n lignes « valeur unite » (ko/mo/go) et affiche la taille en Mo, puis le total de conversions.',
-      'Lit n lignes « binaire » et affiche le décimal, puis le total.',
-      'Lit n lignes « unite sens » (mo/mbps) et convertit avec le facteur 8.'
+      'Convertir un nombre entre les bases binaire (base 2), hexadécimale (base 16) et décimale (base 10).',
+      'Calculer l’espace d’adressage direct permis par un bus d’adresses de 32 bits et de 64 bits.',
+      'Identifier les registres fondamentaux du modèle de Von Neumann (PC, IR, MAR, MBR, Accumulateur).',
+      'Décrire les trois phases du cycle d’instruction (Fetch, Decode, Execute).'
     ], [
-      'read -r n',
-      'e=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r composant categorie',
-      '  case "$composant" in',
-      '    clavier|processeur|ram|disque|ecran) attendu="materiel" ;;',
-      '    linux|word|navigateur|antivirus) attendu="logiciel" ;;',
-      '  esac',
-      '  if [ "$categorie" = "$attendu" ]; then',
-      '    echo "$composant : OK"',
-      '  else',
-      '    echo "$composant : KO ($attendu attendu)"',
-      '    e=$((e + 1))',
-      '  fi',
-      'done',
-      'echo "erreurs : $e/$n"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r valeur unite',
-      '  case "$unite" in',
-      '    ko) mo=$((valeur / 1024)) ;;',
-      '    mo) mo=$valeur ;;',
-      '    go) mo=$((valeur * 1024)) ;;',
-      '  esac',
-      '  echo "$valeur $unite : $mo mo"',
-      'done',
-      'echo "conversions : $n"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r binaire',
-      '  decimal=$((2#$binaire))',
-      '  echo "$binaire : decimal=$decimal"',
-      'done',
-      'echo "conversions : $n"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r valeur unite',
-      '  case "$unite" in',
-      '    mo) converti=$((valeur * 8)) ; cible="mbps" ;;',
-      '    mbps) converti=$((valeur / 8)) ; cible="mos" ;;',
-      '  esac',
-      '  echo "$valeur $unite : $converti $cible"',
-      'done',
-      'echo "conversions : $n"'
+      '<p><strong>1. Conversions :</strong> $1101_2 = 8 + 4 + 1 = 13_{10} = \text{D}_{16}$ ; $0x2A = 2 \times 16 + 10 = 42_{10} = 00101010_2$.</p>',
+      '<p><strong>2. Espace d’adressage :</strong> $2^{32} \text{ octets} = 4\text{ Go}$ ; $2^{64} \text{ octets} \approx 18{,}4\text{ Exaoctets}$.</p>',
+      '<p><strong>3. Registres :</strong> PC (Program Counter pointe l’instruction suivante), IR (Instruction Register contient le code opération en cours), MAR/MBR interfacent la mémoire centrale.</p>',
+      '<p><strong>4. Cycle machine :</strong> Fetch (chargement depuis RAM), Decode (décodage du code opération par l’unité de contrôle), Execute (calcul ALU ou transfert registre).</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Lit n lignes « binaire » (4 bits) et affiche le complément à 1 puis le complément à 2 de chaque mot.',
-      'Lit n lignes « a b » (deux binaires de 4 bits) et pose l\'addition avec les retenues, puis affiche la somme.',
-      'Lit n lignes « a b porte » (and/or/xor/nand/nor/xnor) et affiche la sortie de la porte.',
-      'Lit n lignes « a b c » (bits + retenue entrante) et affiche somme et retenue sortante de l\'additionneur complet.'
+      'Calculer le temps d’accès effectif moyen (AMAT) d’une hiérarchie mémoire avec cache L1 ($95\%$ de hit rate).',
+      'Distinguer les architectures RISC (instructions simples à cycle unique) et CISC (instructions complexes multi-cycles).',
+      'Représenter un nombre réel en virgule flottante simple précision norme IEEE 754 (signe, exposant biaisé, mantisse).',
+      'Calculer le débit maximal d’un bus PCI-Express selon sa génération et son nombre de lignes (lanes).'
     ], [
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r binaire',
-      '  c1=$(printf \'%s\' "$binaire" | tr \'01\' \'10\')',
-      '  v=$((2#$binaire))',
-      '  c2=$(( (16 - v) % 16 ))',
-      '  tmp=$c2 ; res=""',
-      '  for ((j=0; j&lt;4; j++)); do',
-      '    reste=$((tmp % 2)) ; tmp=$((tmp / 2)) ; res="$reste$res"',
-      '  done',
-      '  echo "$binaire : c1=$c1 c2=$res"',
-      'done',
-      'echo "complements : $n"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r a b',
-      '  total=$(( (2#$a) + (2#$b) ))',
-      '  tmp=$total ; somme=""',
-      '  if [ "$tmp" -eq 0 ]; then somme="0" ; fi',
-      '  while [ "$tmp" -gt 0 ]; do',
-      '    reste=$((tmp % 2)) ; tmp=$((tmp / 2)) ; somme="$reste$somme"',
-      '  done',
-      '  echo "$a + $b : somme=$somme"',
-      'done',
-      'echo "additions : $n"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r a b porte',
-      '  case "$porte" in',
-      '    and)  if [ "$a" -eq 1 ] &amp;&amp; [ "$b" -eq 1 ]; then r=1; else r=0; fi ;;',
-      '    or)   if [ "$a" -eq 1 ] || [ "$b" -eq 1 ]; then r=1; else r=0; fi ;;',
-      '    xor)  if [ "$a" -ne "$b" ]; then r=1; else r=0; fi ;;',
-      '    nand) if [ "$a" -eq 1 ] &amp;&amp; [ "$b" -eq 1 ]; then r=0; else r=1; fi ;;',
-      '    nor)  if [ "$a" -eq 1 ] || [ "$b" -eq 1 ]; then r=0; else r=1; fi ;;',
-      '    xnor) if [ "$a" -eq "$b" ]; then r=1; else r=0; fi ;;',
-      '  esac',
-      '  echo "$a $b : $porte=$r"',
-      'done',
-      'echo "portes : $n"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r a b c',
-      '  total=$((a + b + c))',
-      '  somme=$((total % 2))',
-      '  retenue=$((total / 2))',
-      '  echo "$a + $b + $c : somme=$somme retenue=$retenue"',
-      'done',
-      'echo "additions : $n"'
+      '<p><strong>1. AMAT :</strong> $AMAT = T_{hit} + (1 - H) \times T_{miss} = 1\text{ ns} + 0{,}05 \times 50\text{ ns} = 3{,}5\text{ ns}$.</p>',
+      '<p><strong>2. RISC vs CISC :</strong> RISC (ARM, RISC-V : format fixe, exécution pipeline optimisée) vs CISC (x86-64 : rétrocompatibilité, micro-opérations internes).</p>',
+      '<p><strong>3. IEEE 754 32 bits :</strong> 1 bit de signe, 8 bits d’exposant (biais de 127), 23 bits de mantisse normalisée ($1.M$).</p>',
+      '<p><strong>4. Débit PCIe :</strong> PCIe 4.0 délivre $\approx 2\text{ Go/s}$ par ligne ; un port x16 offre donc un débit théorique de $32\text{ Go/s}$ bidirectionnel.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Lit n lignes « hexa » et enchaîne hexa vers décimal puis octal (série de révision du support).',
-      'Lit n lignes « a b » (adresse 2 bits, a d\'abord) et affiche le mot du décodeur Y3Y2Y1Y0.',
-      'Lit n puis n lignes « j k » et déroule une bascule JK initialisée à 0, front par front, puis l\'état final.',
-      'Lit n, la valeur de départ, puis simule un compteur modulo 8 et compte ses retours à zéro.'
+      'Analyser les aléas de pipeline processeur (structurels, de données RAW/WAR/WAW, et de contrôle lors de branchements).',
+      'Dimensionner la hiérarchie de stockage d’un serveur de base de données (NVMe, SSD SATA, RAM et caches CPU).',
+      'Comparer les mécanismes de cohérence de cache (protocole MESI) dans un processeur multi-cœurs.',
+      'Évaluer l’impact de la loi d’Amdahl sur le gain de performance d’une parallélisation à N cœurs.'
     ], [
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r hexa',
-      '  decimal=$((16#$hexa))',
-      '  octal=$(printf \'%o\' "$decimal")',
-      '  echo "$hexa : octal=$octal"',
-      'done',
-      'echo "conversions : $n"',
-      '',
-      'read -r n',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r a b',
-      '  if [ "$a" -eq 0 ] &amp;&amp; [ "$b" -eq 0 ]; then code="0001"',
-      '  elif [ "$a" -eq 1 ] &amp;&amp; [ "$b" -eq 0 ]; then code="0010"',
-      '  elif [ "$a" -eq 0 ] &amp;&amp; [ "$b" -eq 1 ]; then code="0100"',
-      '  else code="1000" ; fi',
-      '  echo "$a $b : Y3Y2Y1Y0 = $code"',
-      'done',
-      'echo "decodages : $n"',
-      '',
-      'read -r n',
-      'q=0',
-      'for ((i=1; i&lt;=n; i++)); do',
-      '  read -r j k',
-      '  if [ "$j" -eq 0 ] &amp;&amp; [ "$k" -eq 0 ]; then q=$q',
-      '  elif [ "$j" -eq 1 ] &amp;&amp; [ "$k" -eq 0 ]; then q=1',
-      '  elif [ "$j" -eq 0 ] &amp;&amp; [ "$k" -eq 1 ]; then q=0',
-      '  else',
-      '    if [ "$q" -eq 0 ]; then q=1; else q=0; fi',
-      '  fi',
-      '  echo "front $i : Q=$q"',
-      'done',
-      'echo "etat final : Q=$q"',
-      '',
-      'read -r n',
-      'read -r depart',
-      'total=$((depart + n))',
-      'retours=$((total / 8))',
-      'for ((i=1; i&lt;=n; i++)); do',
-      '  valeur=$(( (depart + i) % 8 ))',
-      '  echo "front $i : compteur=$valeur"',
-      'done',
-      'echo "retours : $retours"'
+      '<p><strong>1. Aléas de pipeline :</strong> Données (résolu par forwarding/bypassing ou insertion de bulles) ; Contrôle (résolu par prédiction de branchement statique/dynamique).</p>',
+      '<p><strong>2. Dimensionnement stockage :</strong> Priorité à la RAM pour le buffer pool, NVMe PCIe en RAID 10 pour le journal WAL (faible latence d’écriture synchrone).</p>',
+      '<p><strong>3. Protocole MESI :</strong> Modified (modifié en cache local), Exclusive (propre, non partagé), Shared (partagé en lecture), Invalid (invalide, rechargement requis).</p>',
+      '<p><strong>4. Loi d’Amdahl :</strong> $S = \frac{1}{(1 - P) + \frac{P}{N}}$ où $P$ est la fraction parallélisable : la partie séquentielle $(1-P)$ borne strictement l’accélération maximale.</p>'
     ].join('\n')),
 
-    '  <h2>Projet intégrateur — « la fiche de qualification d\'un poste »</h2>',
-    box('situation', 'Cahier des charges', 'play', [
-      '    <p>Le script reçoit le journal d\'un parc de postes : d\'abord <code>n</code> lignes ' +
-      '<code>poste configs</code> où configs est une suite de lettres sans espace — <code>c</code> = CPU ' +
-      'au moins 2000 MHz, <code>r</code> = RAM au moins 4096 Mo, <code>d</code> = disque SSD, ' +
-      '<code>p</code> = périphérique entrée-sortie présent, le tiret <code>-</code> = poste vierge. Puis ' +
-      '<code>m</code> lignes <code>frequence memoire</code> à profiler (multimédia si ≥ 2000 MHz et ' +
-      '≥ 4096 Mo, bureautique si ≥ 1000 MHz et ≥ 2048 Mo, sinon basique). Il affiche pour chaque poste ' +
-      '<code>poste : multimedia</code> si les quatre configs sont présentes, sinon <code>poste : echec ' +
-      '(manque X)</code> avec la première lettre manquante dans l\'ordre c, r, d, p ; pour chaque ligne de ' +
-      'profilage <code>frequence memoire : profil</code> ; enfin le verdict : <code>parc pret</code> si tous ' +
-      'les postes sont configurés, <code>intervention requise</code> sinon.</p>'
+    '  <h2>Dossier de synthèse — Architecture Matérielle &amp; Dimensionnement Serveur</h2>',
+    box('situation', 'Cahier des charges du Dossier', 'play', [
+      '    <p>Ce dossier d’ingénierie consiste à concevoir et justifier l’architecture matérielle complète d’un serveur d’entreprise haute densité : choix des processeurs (cœurs, fréquences, cache L3), dimensionnement des canaux mémoire NUMA, contrôleurs de stockage et interfaces d’entrées/sorties.</p>'
     ].join('\n')),
-    box('objectifs', 'Fonctionnalités attendues', 'target', [
+    box('objectifs', 'Compétences d’architecture évaluées', 'target', [
       '    <ol>',
-      '      <li><strong>Lire</strong> les deux blocs sans mélanger postes et profilages.</li>',
-      '      <li><strong>Analyser</strong> chaque suite de configs lettre à lettre.</li>',
-      '      <li><strong>Profiler</strong> chaque machine selon les deux seuils (test du plus exigeant d\'abord).</li>',
-      '      <li><strong>Compter</strong> les échecs avec le premier manque dans l\'ordre.</li>',
-      '      <li><strong>Verdict</strong> final au format exact du cahier des charges.</li>',
-      '    </ol>',
-      '    <p>Contraintes : parsing lettre à lettre, première lettre manquante, bilan après lecture complète.</p>'
+      '      <li><strong>Analyse de charge :</strong> Profilage CPU-bound, Memory-bound ou I/O-bound.</li>',
+      '      <li><strong>Topologie NUMA :</strong> Répartition symétrique des barrettes de RAM par canal pour maximiser la bande passante.</li>',
+      '      <li><strong>Tolérance aux pannes :</strong> Mémoire ECC registered, alimentations redondantes et RAID matériel.</li>',
+      '      <li><strong>Bilan thermique &amp; énergétique :</strong> Calcul de TDP global et dimensionnement de la dissipation.</li>',
+      '    </ol>'
     ].join('\n')),
-    box('method', 'Grille d\'auto-évaluation du projet (sur 100)', 'blocks', [
-      '    ' + bands([
-        { cls: '', text: 'Lecture des deux blocs et parsing correct <strong>20</strong>' },
-        { cls: '', text: 'Analyse des configs (premier manque) <strong>20</strong>' },
-        { cls: '', text: 'Profilage selon les seuils <strong>20</strong>' },
-        { cls: '', text: 'Verdict global conforme <strong>20</strong>' },
-        { cls: '', text: 'Rapport lisible et formats exacts <strong>20</strong>' }
-      ]),
-      '    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>'
-    ].join('\n')),
-    '  <details>',
-    '    <summary>Voir une solution de référence (après avoir essayé !)</summary>',
-    '    <div class="sol">',
-    '      <pre><code>' + [
-    'read -r n',
-    'tous_ok=1',
-    'for ((k=0; k&lt;n; k++)); do',
-    '  read -r poste configs',
-    '  c=0 ; r=0 ; d=0 ; p=0',
-    '  if [ "$configs" != "-" ]; then',
-    '    for ((j=0; j&lt;${#configs}; j++)); do',
-    '      lettre=${configs:$j:1}',
-    '      case "$lettre" in',
-    '        c) c=1 ;;',
-    '        r) r=1 ;;',
-    '        d) d=1 ;;',
-    '        p) p=1 ;;',
-    '      esac',
-    '    done',
-    '  fi',
-    '  if [ "$c" = "1" ] &amp;&amp; [ "$r" = "1" ] &amp;&amp; [ "$d" = "1" ] &amp;&amp; [ "$p" = "1" ]; then',
-    '    echo "$poste : multimedia"',
-    '  elif [ "$c" = "0" ]; then',
-    '    echo "$poste : echec (manque c)" ; tous_ok=0',
-    '  elif [ "$r" = "0" ]; then',
-    '    echo "$poste : echec (manque r)" ; tous_ok=0',
-    '  elif [ "$d" = "0" ]; then',
-    '    echo "$poste : echec (manque d)" ; tous_ok=0',
-    '  else',
-    '    echo "$poste : echec (manque p)" ; tous_ok=0',
-    '  fi',
-    'done',
-    'read -r m',
-    'for ((k=0; k&lt;m; k++)); do',
-    '  read -r frequence memoire',
-    '  if [ "$frequence" -ge 2000 ] &amp;&amp; [ "$memoire" -ge 4096 ]; then profil="multimedia"',
-    '  elif [ "$frequence" -ge 1000 ] &amp;&amp; [ "$memoire" -ge 2048 ]; then profil="bureautique"',
-    '  else profil="basique" ; fi',
-    '  echo "$frequence $memoire : $profil"',
-    'done',
-    'if [ "$tous_ok" = "1" ]; then',
-    '  echo "verdict : parc pret"',
-    'else',
-    '  echo "verdict : intervention requise"',
-    'fi'
-    ].join('\n') + '</code></pre>',
-    '      Cette solution combine parsing lettre à lettre, profilage à deux seuils, comptage du premier ' +
-    'manque et verdict global — les chapitres 1, 5 et 6 en un seul script.',
-    '    </div>',
-    '  </details>',
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../chapitres/simulateur-examen.html', label: 'Examens blancs' }),
-    disclaimer(course, 'Exercices construits d\'après le support « Circuit logique &amp; architecture des ordinateurs » (Georges AYIVI-TOGBASSA, Novembre 2024, code B1COM0401). ')
+    disclaimer(course, 'Exercices construits à partir du programme officiel d’architecture des ordinateurs B1.')
   ].join('\n\n');
 
   return {
     'exercices/exercices.html': {
-      title: 'Exercices &amp; projet intégrateur — ' + course.brand,
-      description: 'Exercices supplémentaires et projet intégrateur du cours B1 : scripts Bash ' +
-        'gradués et fiche de qualification d\'un poste.',
+      title: 'Exercices &amp; dossier de synthèse — ' + course.brand,
+      description: 'Exercices supplémentaires et dossier d’architecture matérielle B1 : Von Neumann, hiérarchie mémoire et dimensionnement serveur.',
       active: 'exercices',
       body
     }
@@ -837,7 +621,7 @@ function render(kit, course, chapterList) {
     pages['chapitres/chapitre' + chapitre.n + '.html'] = {
       title: 'Chapitre ' + chapitre.n + ' — ' + chapitre.title + ' | ' + course.brand,
       description: 'Chapitre ' + chapitre.n + ' du cours B1 : ' + chapitre.toc +
-        ' Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.',
+        ' Théorie, exemples détaillés, études de cas d’application, QCM corrigés.',
       active: 'ch' + chapitre.n,
       dataChapter: chapitre.n,
       body

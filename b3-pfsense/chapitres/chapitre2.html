@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="2">
@@ -152,44 +153,56 @@ block in proto tcp to port 80 # &lt;-- C’est cette règle qui s’applique !</
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="pf3-c2-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ALIAS_DEF name=WEB_PORTS values=80,443,8080&#10;CHECK_ALIAS alias=WEB_PORTS target=443&#10;CHECK_ALIAS alias=WEB_PORTS target=22">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c2-e1) — Résolveur d’alias d’adresses et de ports pfSense (Firewall Aliases)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Alias d’adresses IP de serveurs DNS]
+# Données : ALIAS_DEF name=DNS_SERVERS values=1.1.1.1,8.8.8.8,9.9.9.9
+# Données : CHECK_ALIAS alias=DNS_SERVERS target=8.8.8.8
+# Données : CHECK_ALIAS alias=DNS_SERVERS target=192.168.1.1
+A_COMPLETER
 
-# À compléter : stocker les alias et tester la correspondance
+[Cas 2 — Alias contenant un seul élément]
+# Données : ALIAS_DEF name=BASTION values=10.0.0.100
+# Données : CHECK_ALIAS alias=BASTION target=10.0.0.100
+# Données : CHECK_ALIAS alias=BASTION target=10.0.0.101
+A_COMPLETER
+
+[Cas 3 — Plusieurs vérifications consécutives]
+# Données : ALIAS_DEF name=ADMIN_PORTS values=22,3389,8443
+# Données : CHECK_ALIAS alias=ADMIN_PORTS target=22
+# Données : CHECK_ALIAS alias=ADMIN_PORTS target=80
+# Données : CHECK_ALIAS alias=ADMIN_PORTS target=3389
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Résolveur d’alias d’adresses et de ports pfSense (Firewall Aliases)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier si un paquet correspond aux critères d’un Alias d’adresses IP ou de ports dans pfSense.</p>
     <div class="lab__brief"><p>Les <strong>Alias</strong> dans pfSense simplifient la maintenance des règles de filtrage en regroupant des adresses IP, des réseaux ou des ports sous un nom unique (ex: <code>WEB_PORTS</code> pour <code>80,443</code>).<br><br>
-Le script lit sur l'entrée standard d'abord la définition d'un alias :<br>
-<code>ALIAS_DEF name=&lt;nom&gt; values=&lt;val1,val2,...&gt;</code>.<br>
+Analysez les paramètres du problème pour chaque cas...&gt;</code>.<br>
 Puis une série de vérifications :<br>
 <code>CHECK_ALIAS alias=&lt;nom&gt; target=&lt;valeur&gt;</code>.<br><br>
 Pour chaque vérification, afficher :<br>
 <code>ALIAS_RESULT alias={alias} target={target} match={YES|NO}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ALIAS_DEF name=WEB_PORTS values=80,443,8080
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ALIAS_DEF name=WEB_PORTS values=80,443,8080
 CHECK_ALIAS alias=WEB_PORTS target=443
 CHECK_ALIAS alias=WEB_PORTS target=22</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ALIAS_RESULT alias=WEB_PORTS target=443 match=YES
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ALIAS_RESULT alias=WEB_PORTS target=443 match=YES
 ALIAS_RESULT alias=WEB_PORTS target=22 match=NO</pre></div>
     </div>
     <p class="lab__note">Le port 443 est dans l’alias, le port 22 n’y est pas.</p>
@@ -205,27 +218,43 @@ ALIAS_RESULT alias=WEB_PORTS target=22 match=NO</pre></div>
 
 <div class="lab" data-lab
      data-exercise="pf3-c2-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="RULE id=R1 action=PASS src=192.168.1.10 port=443&#10;RULE id=R2 action=BLOCK src=192.168.1.10 port=any&#10;EVAL_PKT pkt_id=P1 src=192.168.1.10 port=443&#10;EVAL_PKT pkt_id=P2 src=192.168.1.10 port=80">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c2-e2) — Moteur d’évaluation séquentielle de règles de filtrage (First-Match Wins)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Paquet ne correspondant à aucune règle (Default Deny)]
+# Données : RULE id=R1 action=PASS src=10.0.0.1 port=22
+# Données : EVAL_PKT pkt_id=EXT src=192.168.1.50 port=80
+A_COMPLETER
 
-# À compléter : évaluer les paquets selon le principe First-Match de pfSense
+[Cas 2 — Règle générique masquant une règle ultérieure (Shadowing)]
+# Données : RULE id=R_ALLOW_ALL action=PASS src=any port=any
+# Données : RULE id=R_BLOCK_SSH action=BLOCK src=any port=22
+# Données : EVAL_PKT pkt_id=P_SSH src=172.16.0.4 port=22
+A_COMPLETER
+
+[Cas 3 — Série de règles avec filtrage strict par port]
+# Données : RULE id=R1 action=PASS src=any port=53
+# Données : RULE id=R2 action=PASS src=any port=80
+# Données : RULE id=R3 action=BLOCK src=any port=any
+# Données : EVAL_PKT pkt_id=PKT_DNS src=1.2.3.4 port=53
+# Données : EVAL_PKT pkt_id=PKT_HTTP src=1.2.3.4 port=80
+# Données : EVAL_PKT pkt_id=PKT_TELNET src=1.2.3.4 port=23
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Moteur d’évaluation séquentielle de règles de filtrage (First-Match Wins)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler l’évaluation ordonnée des règles dans pfSense : la première règle correspondante s’applique immédiatement.</p>
     <div class="lab__brief"><p>Contrairement au moteur PF brut sous OpenBSD (où la dernière règle gagne sauf directive <code>quick</code>), <strong>pfSense applique par défaut le comportement First-Match</strong> (toutes les règles graphiques portent implicitement l'option <code>quick</code>).<br><br>
-Le script lit sur l'entrée standard d'abord les règles dans l'ordre de priorité :<br>
-<code>RULE id=&lt;id&gt; action=&lt;PASS|BLOCK&gt; src=&lt;ip|any&gt; port=&lt;int|any&gt;</code>.<br>
+Analysez les paramètres du problème pour chaque cas.<br>
 Puis des paquets à évaluer :<br>
 <code>EVAL_PKT pkt_id=&lt;id&gt; src=&lt;ip&gt; port=&lt;int&gt;</code>.<br><br>
 Règles :<br>
@@ -237,11 +266,11 @@ Règles :<br>
 Pour chaque paquet, afficher :<br>
 <code>PKT_DECISION pkt_id={pkt_id} decision={decision} rule={matched_rule}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE id=R1 action=PASS src=192.168.1.10 port=443
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE id=R1 action=PASS src=192.168.1.10 port=443
 RULE id=R2 action=BLOCK src=192.168.1.10 port=any
 EVAL_PKT pkt_id=P1 src=192.168.1.10 port=443
 EVAL_PKT pkt_id=P2 src=192.168.1.10 port=80</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PKT_DECISION pkt_id=P1 decision=PASS rule=R1
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PKT_DECISION pkt_id=P1 decision=PASS rule=R1
 PKT_DECISION pkt_id=P2 decision=BLOCK rule=R2</pre></div>
     </div>
     <p class="lab__note">P1 correspond à R1 (port 443). P2 ne correspond pas à R1, mais correspond à R2 (port any).</p>
@@ -257,27 +286,36 @@ PKT_DECISION pkt_id=P2 decision=BLOCK rule=R2</pre></div>
 
 <div class="lab" data-lab
      data-exercise="pf3-c2-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="STATE_ENTRY id=10 proto=tcp src=192.168.1.10:49152 dst=93.184.216.34:443 state=SYN_SENT age_sec=45">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c2-e3) — Parseur de table d’états PF et détection de connexions semi-ouvertes
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Session TCP normale établie]
+# Données : STATE_ENTRY id=20 proto=tcp src=10.0.0.5:52000 dst=1.1.1.1:443 state=ESTABLISHED age_sec=120
+A_COMPLETER
 
-# À compléter : parser la table d'états et classifier les sessions
+[Cas 2 — Trafic UDP et session en fermeture]
+# Données : STATE_ENTRY id=30 proto=udp src=10.0.0.5:53000 dst=8.8.8.8:53 state=SINGLE age_sec=5
+# Données : STATE_ENTRY id=31 proto=tcp src=10.0.0.5:54000 dst=8.8.8.8:80 state=TIME_WAIT age_sec=15
+A_COMPLETER
+
+[Cas 3 — SYN_SENT récent sous le seuil d’alerte]
+# Données : STATE_ENTRY id=40 proto=tcp src=192.168.1.15:4400 dst=10.0.0.1:80 state=SYN_SENT age_sec=5
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Parseur de table d’états PF et détection de connexions semi-ouvertes</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser la table d’états du pare-feu (pfctl -ss) et détecter les attaques par saturation SYN Flood (états SYN_SENT semi-ouverts).</p>
     <div class="lab__brief"><p>pfSense est un pare-feu à inspection d'états (Stateful Inspection). Lorsqu'un paquet traverse le filtre avec succès, une entrée est enregistrée dans la table d'états (State Table).<br><br>
-Le script lit sur l'entrée standard des enregistrements d'états au format :<br>
-<code>STATE_ENTRY id=&lt;id&gt; proto=&lt;tcp|udp&gt; src=&lt;ip:port&gt; dst=&lt;ip:port&gt; state=&lt;ESTABLISHED|SYN_SENT|FIN_WAIT|TIME_WAIT&gt; age_sec=&lt;int&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles de diagnostic :<br>
 1. Une connexion TCP à l'état <code>SYN_SENT</code> durant depuis plus de 30 secondes (<code>age_sec &gt; 30</code>) traduit un serveur cible injoignable ou une attaque SYN Flood :<br>
    <code>alert=HALF_OPEN_ATTACK_SUSPECT</code>.<br>
@@ -287,8 +325,8 @@ Règles de diagnostic :<br>
 Pour chaque ligne, afficher :<br>
 <code>STATE_DIAG id={id} proto={proto} state={state} alert={alert}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>STATE_ENTRY id=10 proto=tcp src=192.168.1.10:49152 dst=93.184.216.34:443 state=SYN_SENT age_sec=45</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STATE_DIAG id=10 proto=tcp state=SYN_SENT alert=HALF_OPEN_ATTACK_SUSPECT</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>STATE_ENTRY id=10 proto=tcp src=192.168.1.10:49152 dst=93.184.216.34:443 state=SYN_SENT age_sec=45</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STATE_DIAG id=10 proto=tcp state=SYN_SENT alert=HALF_OPEN_ATTACK_SUSPECT</pre></div>
     </div>
     <p class="lab__note">État SYN_SENT bloqué depuis 45s : suspicion d’attaque ou panne cible.</p>
     <details class="lab__hints">
@@ -464,6 +502,29 @@ Pour chaque ligne, afficher :<br>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

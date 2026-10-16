@@ -2,7 +2,7 @@
  * tests/pedagogical-alignment.test.js
  *
  * Vérification stricte de l'alignement pédagogique (PED-001, PED-002, TYPO-001) :
- * Élimination totale du code Bash/Python forcé dans les 14 cours non-informatiques.
+ * Élimination totale du code Bash/Python forcé dans les 52 cours non-informatiques.
  */
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -11,8 +11,10 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const exercises = require('../server/exercises');
+const courseConfig = require('../server/exercises/course-config');
 
 const NON_PROGRAMMING_COURSES = [
+  // 14 humanités & gestion
   'b1-droit',
   'b1-anglais',
   'b1-fr-pro',
@@ -26,10 +28,52 @@ const NON_PROGRAMMING_COURSES = [
   'b3-agile',
   'b3-document-technique',
   'b3-etude-quantitative',
-  'b3-veille'
+  'b3-veille',
+  // 12 mathématiques & modélisation
+  'probabilites',
+  'RD-RO',
+  'b1-algebre',
+  'b1-stats',
+  'b1-merise',
+  'uml',
+  'b1-architecture',
+  'infographie',
+  'csharp',
+  'sql',
+  'b1-sql',
+  'b3-sql',
+  // B1 (6)
+  'b1-reseaux',
+  'b1-ccna1',
+  'b1-robotique',
+  'b1-cyber',
+  'b1-virtualisation',
+  'b1-projet',
+  // B2 (4)
+  'assembleur',
+  'Cyber securite B2',
+  'ccna',
+  'docker',
+  // B3 (16)
+  'b3-cloud-computing',
+  'b3-devops',
+  'b3-firewall',
+  'b3-github',
+  'b3-linux',
+  'b3-pfsense',
+  'b3-reseau-lan',
+  'b3-windows-server',
+  'b3-cloud-azure',
+  'b3-cryptographie',
+  'b3-google-cloud',
+  'b3-hacking',
+  'b3-cloud-aws',
+  'b3-supervision',
+  'b3-voip',
+  'b3-virtualisation'
 ];
 
-test('PED-001 : Les 14 cours non-informatiques utilisent exclusivement le mode étude de cas (language: "analyse")', () => {
+test('PED-001 : Les 52 cours non-informatiques utilisent exclusivement le mode étude de cas (language: "analyse")', () => {
   const allExercises = exercises.listExercises();
 
   for (const courseId of NON_PROGRAMMING_COURSES) {
@@ -75,8 +119,8 @@ test('PED-001 : Les 14 cours non-informatiques utilisent exclusivement le mode �
       // Structure de grille d'analyse
       assert.match(
         ex.starter,
-        /^# Grille d'analyse \([a-z0-9-]+\) —/m,
-        `${courseId} / ${ex.id} : starter doit débuter par l'entête # Grille d'analyse (id) — titre`
+        /^# Grille d(?:'|’|e )(?:analyse|calcul) \([a-z0-9-]+\) —/m,
+        `${courseId} / ${ex.id} : starter doit débuter par l'entête # Grille d'analyse ou de calcul (id) — titre`
       );
       assert.match(
         ex.starter,
@@ -105,9 +149,10 @@ test('PED-001 : Les 14 cours non-informatiques utilisent exclusivement le mode �
   }
 });
 
-test('PED-001 : server/content/ et pages HTML des 14 cours ne contiennent plus de script Bash/Python', () => {
+test('PED-001 : server/content/ et pages HTML des 52 cours ne contiennent plus de script Bash/Python', () => {
   for (const courseId of NON_PROGRAMMING_COURSES) {
-    const courseDir = path.join(ROOT, courseId);
+    const dirName = courseConfig[courseId] ? courseConfig[courseId].dir : courseId;
+    const courseDir = path.join(ROOT, dirName);
     if (!fs.existsSync(courseDir)) continue;
 
     const htmlFiles = fs.readdirSync(courseDir, { recursive: true })
@@ -119,19 +164,19 @@ test('PED-001 : server/content/ et pages HTML des 14 cours ne contiennent plus d
 
       assert.ok(
         !content.includes('data-language="shell"'),
-        `${courseId}/${rel} ne doit pas contenir data-language="shell"`
+        `${dirName}/${rel} ne doit pas contenir data-language="shell"`
       );
       assert.ok(
         !content.includes('data-language="python"'),
-        `${courseId}/${rel} ne doit pas contenir data-language="python"`
+        `${dirName}/${rel} ne doit pas contenir data-language="python"`
       );
       assert.ok(
         !content.includes('#!/bin/bash'),
-        `${courseId}/${rel} ne doit pas contenir #!/bin/bash`
+        `${dirName}/${rel} ne doit pas contenir #!/bin/bash`
       );
       assert.ok(
         !content.includes('import sys; sys.stdin'),
-        `${courseId}/${rel} ne doit pas contenir d'import sys`
+        `${dirName}/${rel} ne doit pas contenir d'import sys`
       );
     }
   }

@@ -36,7 +36,8 @@ module.exports = {
         box('tech', 'La brique de base', 'blocks',
           '    <p>Tout le chapitre s’appuie sur cette épreuve. Une suite de <code>n</code> épreuves de Bernoulli ' +
           'indépendantes donne la loi binomiale ; on la répète sans mémoire.</p>'),
-        '<pre><code>p = 0.3\nesperance = p\nvariance = p * (1 - p)\nprint(f"{esperance:.4f} {variance:.4f}")   # 0.3000 0.2100</code></pre>'
+        '<div class="math-block">$$\\mathbb{E}(X) = p \\qquad \\text{et} \\qquad \\mathbb{V}(X) = p(1 - p)$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple numérique (Bernoulli)</div><p>Pour $p = 0{,}3$ :</p>$$\\mathbb{E}(X) = 0{,}3000 \\qquad \\mathbb{V}(X) = 0{,}3 \\times 0{,}7 = 0{,}2100$$</div>'
       ].join('\n')
     },
     {
@@ -45,8 +46,8 @@ module.exports = {
         '<p>Si <code>X</code> compte le nombre de succès sur <code>n</code> épreuves de Bernoulli indépendantes ' +
         'de paramètre <code>p</code>, alors <code>X</code> suit la <strong>loi binomiale</strong> ' +
         '<code>B(n, p)</code> et :</p>',
-        '<pre><code>P(X = k) = C(n, k) · pᵏ · (1 − p)ⁿ⁻ᵏ\nE(X) = n·p        V(X) = n·p·(1 − p)</code></pre>',
-        '<pre><code>from math import comb\n\nn, k, p = 5, 2, 0.5\nP = comb(n, k) * p ** k * (1 - p) ** (n - k)\nprint(f"{P:.4f}")   # 0.3125</code></pre>',
+        '<div class="math-block">$$\\mathbb{P}(X = k) = \\binom{n}{k} p^k (1 - p)^{n - k} \\qquad \\mathbb{E}(X) = n p \\qquad \\mathbb{V}(X) = n p (1 - p)$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de calcul binomial</div><p>Pour $n = 5$ essais, $k = 2$ succès et $p = 0{,}5$ :</p>$$\\mathbb{P}(X = 2) = \\binom{5}{2} (0{,}5)^2 (0{,}5)^3 = 10 \\times 0{,}25 \\times 0{,}125 = 0{,}3125$$</div>',
         box('intuition', 'Reconnaître B(n, p)', 'lightbulb',
           '    <p>On cherche un <strong>nombre de succès</strong> sur un <strong>nombre fixé</strong> ' +
           'd’épreuves <strong>identiques et indépendantes</strong> à deux issues. Les trois conditions réunies ' +
@@ -59,8 +60,8 @@ module.exports = {
         '<p>La <strong>loi de Poisson</strong> de paramètre <code>λ &gt; 0</code> modélise un ' +
         '<strong>nombre d’événements</strong> survenant dans un intervalle (temps, espace) à taux moyen ' +
         'constant et sans mémoire :</p>',
-        '<pre><code>P(X = k) = λᵏ · e^(−λ) / k!        E(X) = V(X) = λ</code></pre>',
-        '<pre><code>from math import factorial, exp\n\nlam, k = 2.0, 1\nP = (lam ** k) * exp(-lam) / factorial(k)\nprint(f"{P:.4f}")   # 0.2707</code></pre>',
+        '<div class="math-block">$$\\mathbb{P}(X = k) = \\frac{\\lambda^k e^{-\\lambda}}{k!} \\qquad \\mathbb{E}(X) = \\mathbb{V}(X) = \\lambda$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de calcul de Poisson</div><p>Pour un taux moyen $\\lambda = 2{,}0$ et $k = 1$ événement :</p>$$\\mathbb{P}(X = 1) = \\frac{2^1 e^{-2}}{1!} = 2 \\times 0{,}135335 = 0{,}2707$$</div>',
         box('pitfall', 'Piège — multiplier au lieu d’exponentier', 'warning',
           '    <p>Dans <code>λᵏ · e^(−λ)</code>, le premier facteur est <code>λ</code> à la puissance ' +
           '<code>k</code>, le second l’exponentielle de <code>−λ</code>. Mélanger les deux (ou oublier le ' +
@@ -74,7 +75,7 @@ module.exports = {
         'binomiale, <code>λ</code> (moyenne) pour la Poisson. Sens et unité de <code>λ</code> doivent suivre ' +
         'l’énoncé : « 3 appels par heure » donne <code>λ = 3</code> pour une heure, <code>λ = 1,5</code> pour ' +
         'une demi-heure.</p>',
-        '<pre><code># Loi binomiale : 10 tirages avec remise, probabilité de succès 0,2.\nn, p = 10, 0.2\nprint(f"E = {n * p:.4f}")          # 2.0000\nprint(f"V = {n * p * (1 - p):.4f}")  # 1.6000</code></pre>',
+        '<div class="box box--formula"><div class="box__title">Exemple de synthèse (Binomiale $n=10$, $p=0{,}2$)</div>$$\\mathbb{E}(X) = 10 \\times 0{,}2 = 2{,}0000 \\qquad \\mathbb{V}(X) = 10 \\times 0{,}2 \\times 0{,}8 = 1{,}6000$$</div>',
         box('tech', 'Deux paramètres, deux formules', 'scale',
           '    <p>Binomiale : deux paramètres <code>(n, p)</code>, espérance <code>np</code>, variance ' +
           '<code>np(1−p)</code>. Poisson : un paramètre <code>λ</code>, espérance et variance égales à ' +

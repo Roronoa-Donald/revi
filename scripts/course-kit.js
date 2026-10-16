@@ -115,6 +115,7 @@ function page(course, pagePath, opts) {
     '<link rel="stylesheet" href="/assets/css/tokens.css">',
     '<link rel="stylesheet" href="' + p + 'assets/css/cours.css">',
     '<link rel="stylesheet" href="/assets/css/code-lab.css">',
+    '<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">',
     '<script src="/assets/js/theme.js"></script>',
     ...(opts.extraHead || []),
     '</head>',
@@ -142,6 +143,29 @@ function page(course, pagePath, opts) {
     '</main>',
     '',
     '<script src="' + p + 'assets/js/cours.js"></script>',
+    '<script src="/assets/vendor/katex/katex.min.js" defer></script>',
+    '<script src="/assets/vendor/katex/auto-render.min.js" defer></script>',
+    '<script>',
+    '  document.addEventListener("DOMContentLoaded", function() {',
+    '    function initMath() {',
+    '      if (typeof renderMathInElement === "function") {',
+    '        renderMathInElement(document.body, {',
+    '          delimiters: [',
+    '            {left: "$$", right: "$$", display: true},',
+    '            {left: "\\\\[", right: "\\\\]", display: true},',
+    '            {left: "$", right: "$", display: false},',
+    '            {left: "\\\\(", right: "\\\\)", display: false}',
+    '          ],',
+    '          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],',
+    '          throwOnError: false',
+    '        });',
+    '      } else {',
+    '        setTimeout(initMath, 50);',
+    '      }',
+    '    }',
+    '    initMath();',
+    '  });',
+    '</script>',
     '<script src="/assets/js/code-lab.js" defer></script>',
     ...(opts.extraScripts || []).map(src => '<script src="' + src + '" defer></script>'),
     '</body>',
@@ -330,6 +354,14 @@ function chapter(course, ch) {
   return out.join('\n\n');
 }
 
+/** Bloc ou formule mathématique KaTeX */
+function math(tex, isBlock = true) {
+  if (isBlock) {
+    return '  <div class="math-block">$$' + tex + '$$</div>';
+  }
+  return '$' + tex + '$';
+}
+
 module.exports = {
   SPRITE,
   esc,
@@ -343,6 +375,7 @@ module.exports = {
   cards,
   bands,
   chapter,
+  math,
   navItems,
   renderCss,
   renderJs

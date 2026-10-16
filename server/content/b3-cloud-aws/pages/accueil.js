@@ -155,48 +155,32 @@ function sommaire(course, chapterList) {
 /* ======================== Atelier ======================== */
 
 function atelier(course) {
-  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier de code' }]);
+  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier d’analyse' }]);
 
-  const defaultCode = `# Zone libre : simulez vos architectures et calculs Cloud AWS en Python 3
-import sys
+  const defaultCode = `# Grille d’analyse libre — Architecture Cloud AWS
+# Évaluation de la résilience, du coût et de la conformité Well-Architected
 
-def simuler_architecture_aws(commandes):
-    """Simule des calculs d'architecture et de dimensionnement AWS."""
-    resultats = []
-    for cmd in commandes:
-        cmd_clean = cmd.strip()
-        if cmd_clean.startswith("aws"):
-            resultats.append(f"AWS_CLI_EXEC: {cmd_clean} -> STATUS=SUCCESS (Region: eu-west-3)")
-        elif cmd_clean.startswith("arn:"):
-            parts = cmd_clean.split(":")
-            svc = parts[2] if len(parts) > 2 else "unknown"
-            resultats.append(f"ARN_RESOURCE: service={svc} -> VALID")
-        else:
-            resultats.append(f"AWS_LOG: {cmd_clean} -> PROCESSED")
-    return resultats
-
-if __name__ == "__main__":
-    lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
-    if not lignes:
-        lignes = ["aws ec2 describe-instances --region eu-west-3", "arn:aws:s3:::mon-bucket-demo"]
-    for r in simuler_architecture_aws(lignes):
-        print(r)
+[Cas 1 — Dimensionnement Multi-AZ & Sécurité]
+ARCHITECTURE: Multi-AZ avec ALB et Auto Scaling
+CONFORMITE_VPC: 2 sous-réseaux publics, 2 sous-réseaux privés
+RESILIENCE: Tolérance à la perte d'un datacenter complet
+NOTE: Architecture hautement disponible et conforme aux bonnes pratiques AWS.
 `;
 
   const body = [
     crumbs,
     '  <header class="section-head">',
     '    <h1>Atelier de Code Interactif — Services Cloud AWS</h1>',
-    '    <p class="section-head__lead">Expérimentez librement vos algorithmes d\'adressage VPC, de calcul de coûts EC2/S3/Lambda, de validation d\'ARN et d\'évaluation de politiques IAM en Python 3.</p>',
+    '    <p class="section-head__lead">Expérimentez librement vos algorithmes d\'adressage VPC, de calcul de coûts EC2/S3/Lambda, de validation d\'ARN et d\'évaluation de politiques IAM selon les grilles d’analyse.</p>',
     '  </header>',
     '',
     '  <div class="lab"',
     '       data-lab',
     '       data-exercise-id="atelier-aws3"',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="aws ec2 describe-instances --region eu-west-3\narn:aws:s3:::mon-bucket-demo\naws s3 ls">',
-    '    <script type="text/plain" data-lab-starter>' + defaultCode + '</script>',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-cloud-aws\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -218,7 +202,7 @@ if __name__ == "__main__":
 
   return {
     'atelier.html': {
-      title: 'Atelier de code interactif — ' + course.brand,
+      title: 'Atelier d’analyse interactif — ' + course.brand,
       description: 'Console interactive Python 3 pour concevoir et tester des algorithmes de gestion Cloud AWS, dimensionnement et sécurité.',
       active: 'atelier',
       body

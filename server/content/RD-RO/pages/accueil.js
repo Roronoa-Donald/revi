@@ -32,13 +32,13 @@ function index(course, chapterList) {
     '    <div class="hero__actions">',
     '      <a class="btn btn--primary btn--lg" href="chapitres/chapitre1.html">' + ic('play') + ' Démarrer le cours</a>',
     '      <a class="btn btn--lg" href="sommaire.html">' + ic('layers') + ' Voir le sommaire</a>',
-    '      <a class="btn btn--lg" href="atelier.html">' + ic('terminal') + ' Bac à sable Python</a>',
+    '      <a class="btn btn--lg" href="atelier.html">' + ic('book') + ' Études de cas</a>',
     '    </div>',
     '  </header>',
     '',
     '  <section class="statbar">',
     '    <div class="stat"><span class="stat__val">6</span><span class="stat__lbl">Modules de référence</span></div>',
-    '    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Exercices de code exécutables</span></div>',
+    '    <div class="stat"><span class="stat__val">18</span><span class="stat__lbl">Études de cas appliquées</span></div>',
     '    <div class="stat"><span class="stat__val">48</span><span class="stat__lbl">Questions de QCM corrigées</span></div>',
     '    <div class="stat"><span class="stat__val">2</span><span class="stat__lbl">Examens blancs complets</span></div>',
     '  </section>',
@@ -51,7 +51,7 @@ function index(course, chapterList) {
       '<p>La Recherche Opérationnelle ne s’apprend pas par cœur : elle se pratique. ' +
       'Ce cours complet niveau B2 conjugue rigueur formelle (démonstrations, dualité, conditions KKT) ' +
       'et maîtrise opérationnelle des algorithmes numériques. ' +
-      'Chaque chapitre intègre 3 ateliers de code Python interactifs directement testés et corrigés dans votre navigateur.</p>'
+      'Chaque chapitre intègre 3 études de cas méthodologiques directement testées et validées dans votre navigateur.</p>'
     ].join('\n')),
     '',
     disclaimer('Ce cours couvre le programme officiel de Recherche Opérationnelle de deuxième année de cycle ingénieur.')
@@ -127,54 +127,39 @@ function sommaire(course, chapterList) {
 
 function atelier(course) {
   const starter = [
-    'import sys',
-    '',
-    '# Zone libre : résolvez, prototypez des algorithmes d’optimisation (Simplexe, Transport, PERT).',
+    '# Grille d\'analyse libre — Recherche Opérationnelle',
+    '# Zone libre : formulez vos modèles, calculez vos pivots et vérifiez vos optimums.',
     '# Rien de ce que vous écrirez ici n’est noté.',
     '#',
-    '# Exemple proposé : évaluation de sommets pour un problème MAX Z = 3*x1 + 5*x2',
-    'ligne = sys.stdin.readline().strip()',
-    'c1, c2 = (3.0, 5.0)',
-    'sommets = [(0, 0), (8, 0), (0, 5.5), (7, 2), (9, 1)]',
-    '',
-    '# Contraintes : 2*x1 + 1*x2 <= 16 et 1*x1 + 2*x2 <= 11',
-    'optimum = None',
-    'max_z = -float("inf")',
-    '',
-    'for x1, x2 in sommets:',
-    '    if (2*x1 + 1*x2 <= 16.0001) and (1*x1 + 2*x2 <= 11.0001):',
-    '        z = c1 * x1 + c2 * x2',
-    '        if z > max_z:',
-    '            max_z = z',
-    '            optimum = (x1, x2)',
-    '',
-    'print(f"SOMMET_OPTIMAL: {optimum} PROFIT_MAX={max_z:.1f}")'
+    '[Cas 1 — Exemple de modélisation]',
+    '# Problème : MAX Z = 3*x1 + 5*x2',
+    '# Sommets réalisables : (0, 0), (8, 0), (0, 5.5), (7, 2)',
+    '# Z(0,0)=0, Z(8,0)=24, Z(0,5.5)=27.5, Z(7,2)=3*7+5*2=31.0',
+    'SOMMET_OPTIMAL: (7, 2) PROFIT_MAX=31.0'
   ].join('\n');
 
   const body = [
-    crumb(course, [{ href: 'index.html', label: course.brand }, { label: 'Atelier de code' }]),
-    '  <h1>Atelier interactif de Recherche Opérationnelle</h1>',
-    '  <p class="lead">Expérimentez librement vos algorithmes d’optimisation en Python. ' +
-    'Testez un solveur Simplexe, calculez des potentiels de transport ou simulez le chemin critique d’un projet PERT.</p>',
+    crumb(course, [{ href: 'index.html', label: course.brand }, { label: 'Atelier d’analyse' }]),
+    '  <h1>Atelier d’analyse et d’optimisation</h1>',
+    '  <p class="lead">Posez vos modélisations linéaires, vérifiez la faisabilité de vos solutions et calculez vos tableaux de Simplexe pas à pas.</p>',
 
-    box('info', 'Console de calcul Python 3', [
-      '<p>Cet atelier exécute votre code Python dans un environnement sandbox sécurisé. ' +
-      'Vous pouvez injecter des données sur l’entrée standard (stdin) et inspecter la sortie standard et les erreurs d’exécution.</p>'
+    box('info', 'Espace d’analyse méthodologique', [
+      '<p>Cet atelier valide vos démarches d’optimisation en comparant vos variables, fonctions objectifs et solutions de base aux résultats exacts.</p>'
     ].join('\n')),
 
     '  <h2>Zone libre</h2>',
-    '  <div class="lab" data-lab data-language="python" data-height="360" data-languages="1" data-stdin="TEST-LIBRE">',
+    '  <div class="lab" data-lab data-language="analyse" data-height="360" data-languages="1" data-stdin="cas:1">',
     '    <script type="text/plain" data-lab-starter>' + starter + '</script>',
     '    <div class="lab__head">',
-    '      <h3 class="lab__title">Zone libre : solveur &amp; simulateur d’optimisation</h3>',
-    '      <div class="lab__meta"><span class="lab__lang">' + ic('terminal') + ' Python 3</span></div>',
+    '      <h3 class="lab__title">Zone libre : modélisation &amp; optimisation linéaire</h3>',
+    '      <div class="lab__meta"><span class="lab__lang">' + ic('book') + ' Grille d’analyse</span></div>',
     '    </div>',
     '    <div class="lab__body">',
-    '      <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans contrainte sur des modèles de programmation linéaire.</p>',
-    '      <div class="lab__brief"><p>Le code d’exemple teste la faisabilité des sommets d’un polyèdre et calcule le sommet maximisant la fonction objectif. Cliquez sur <strong>Exécuter</strong> pour lancer l’algorithme.</p></div>',
+    '      <p class="lab__goal"><strong>Objectif :</strong> modéliser et tester la résolution d’un programme linéaire.</p>',
+    '      <div class="lab__brief"><p>La grille d’exemple évalue les sommets d’un polyèdre et détermine l’optimum de la fonction objectif. Cliquez sur <strong>Valider</strong> pour vérifier votre solution.</p></div>',
     '      <div class="lab__sample">',
-    '        <div class="lab__sample-part"><b>Entrée du programme</b><pre>TEST-LIBRE</pre></div>',
-    '        <div class="lab__sample-part"><b>Sortie attendue</b><pre>SOMMET_OPTIMAL: (7, 2) PROFIT_MAX=31.0</pre></div>',
+    '        <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MAX Z = 3*x1 + 5*x2 sur les sommets</pre></div>',
+    '        <div class="lab__sample-part"><b>Résolution attendue</b><pre>SOMMET_OPTIMAL: (7, 2) PROFIT_MAX=31.0</pre></div>',
     '      </div>',
     '    </div>',
     '  </div>',
@@ -184,8 +169,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code — ' + course.brand,
-      description: 'Bac à sable Python pour programmer et tester les algorithmes de Recherche Opérationnelle : simplexe, dualité, transport et PERT.',
+      title: 'Atelier d’analyse — ' + course.brand,
+      description: 'Espace méthodologique pour poser et valider les algorithmes de Recherche Opérationnelle : simplexe, dualité, transport et PERT.',
       active: 'atelier',
       body
     }

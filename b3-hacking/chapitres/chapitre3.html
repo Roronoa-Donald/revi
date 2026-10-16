@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -172,27 +173,37 @@ $ nmap -p 443 --script ssl-enum-ciphers target.com</code></pre>
 <p>Dans une chaîne d'audit d'entreprise, Nmap est complété par des scanners de vulnérabilités automatisés spécialisés (Nessus, OpenVAS, Qualys) qui maintiennent des bases de données actualisées de signatures de vulnérabilités corrélées aux identifiants CVE et CWE.</p>
 
 <!-- code-labs:start -->
-  <h2>6. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="hk3-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="TCP_PROBE scan_type=SYN port=443 reply=SYN+ACK">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e1) — Interpréteur de Drapeaux TCP et Diagnostic de Sondes de Scan
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Sonde SYN recevant un paquet de réinitialisation RST]
+# Données : TCP_PROBE scan_type=SYN port=21 reply=RST
+A_COMPLETER
 
-# À compléter : classifier l'état du port TCP
+[Cas 2 — Sonde furtive XMAS sans réponse face à une pile TCP conforme RFC 793]
+# Données : TCP_PROBE scan_type=XMAS port=80 reply=TIMEOUT
+A_COMPLETER
+
+[Cas 3 — Sonde ACK cartographiant un pare-feu avec paquet RST de retour]
+# Données : TCP_PROBE scan_type=ACK port=8080 reply=RST
+A_COMPLETER
+
+[Cas 4 — Sonde SYN filtrée par pare-feu silencieux (Drop/Timeout)]
+# Données : TCP_PROBE scan_type=SYN port=3389 reply=TIMEOUT
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Interpréteur de Drapeaux TCP et Diagnostic de Sondes de Scan</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -213,8 +224,8 @@ Règles de diagnostic selon le scan et la réponse reçue :<br>
 Entrée STDIN : <code>TCP_PROBE scan_type=&lt;SYN|FIN|NULL|XMAS|ACK&gt; port=&lt;p&gt; reply=&lt;SYN+ACK|RST|TIMEOUT|RST+ACK&gt;</code>.<br>
 Sortie : <code>PORT_STATE: port=&lt;p&gt; scan_type=&lt;type&gt; reply=&lt;reply&gt; state=&lt;state&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TCP_PROBE scan_type=SYN port=443 reply=SYN+ACK</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PORT_STATE: port=443 scan_type=SYN reply=SYN+ACK state=OPEN</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TCP_PROBE scan_type=SYN port=443 reply=SYN+ACK</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PORT_STATE: port=443 scan_type=SYN reply=SYN+ACK state=OPEN</pre></div>
     </div>
     <p class="lab__note">Port HTTPS ouvert renvoyant un paquet SYN+ACK de synchronisation.</p>
     <details class="lab__hints">
@@ -230,19 +241,32 @@ Sortie : <code>PORT_STATE: port=&lt;p&gt; scan_type=&lt;type&gt; reply=&lt;reply
 
 <div class="lab" data-lab
      data-exercise="hk3-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="BANNER_SCAN port=21 service=ftp banner=220 (vsFTPd 2.3.4)">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e2) — Analyseur de Bannières de Services Réseau et Détection de Failles Connues
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Serveur HTTP Apache vulnérable à la traversée de répertoire critique]
+# Données : BANNER_SCAN port=80 service=http banner=Server: Apache/2.4.49 (Unix)
+A_COMPLETER
 
-# À compléter : corréler les bannières avec les vulnérabilités
+[Cas 2 — Démon SSH vulnérable à l'énumération de comptes utilisateurs]
+# Données : BANNER_SCAN port=22 service=ssh banner=SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.8
+A_COMPLETER
+
+[Cas 3 — Service FTP ProFTPD avec module mod_copy vulnérable]
+# Données : BANNER_SCAN port=2121 service=ftp banner=220 ProFTPD 1.3.5 Server
+A_COMPLETER
+
+[Cas 4 — Version récente sans vulnérabilité connue répertoriée]
+# Données : BANNER_SCAN port=443 service=https banner=Server: nginx/1.24.0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Analyseur de Bannières de Services Réseau et Détection de Failles Connues</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -258,8 +282,8 @@ Base de signatures connues :<br>
 Entrée STDIN : <code>BANNER_SCAN port=&lt;p&gt; service=&lt;svc&gt; banner=&lt;texte_banniere&gt;</code>.<br>
 Sortie : <code>VULN_MATCH: port=&lt;p&gt; service=&lt;svc&gt; cve=&lt;cve&gt; severity=&lt;sev&gt; desc=&lt;desc&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BANNER_SCAN port=21 service=ftp banner=220 (vsFTPd 2.3.4)</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VULN_MATCH: port=21 service=ftp cve=CVE-2011-2523 severity=CRITICAL desc=Backdoor_Command_Execution</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BANNER_SCAN port=21 service=ftp banner=220 (vsFTPd 2.3.4)</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VULN_MATCH: port=21 service=ftp cve=CVE-2011-2523 severity=CRITICAL desc=Backdoor_Command_Execution</pre></div>
     </div>
     <p class="lab__note">Backdoor historique du serveur FTP vsFTPd 2.3.4 permettant l'exécution root.</p>
     <details class="lab__hints">
@@ -275,19 +299,28 @@ Sortie : <code>VULN_MATCH: port=&lt;p&gt; service=&lt;svc&gt; cve=&lt;cve&gt; se
 
 <div class="lab" data-lab
      data-exercise="hk3-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e3) — Simulateur d'Audit SNMP et Détection de Communautés Vulnérables
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Chaîne de communauté d'écriture Read-Write découverte au troisième essai]
+# Données : SNMP_TEST target=10.0.0.254 wordlist=public,cisco,private,switch target_community=private target_perm=RW sys_descr=Juniper_EX4300
+A_COMPLETER
 
-# À compléter : tester les communautés SNMP
+[Cas 2 — Cible robuste dont la chaîne n'est pas dans le dictionnaire testé]
+# Données : SNMP_TEST target=172.16.1.1 wordlist=public,private,secret target_community=complex_snmp_9821 target_perm=RO sys_descr=Linux_Router
+A_COMPLETER
+
+[Cas 3 — Dictionnaire volumineux arrêtant la recherche dès la première correspondance]
+# Données : SNMP_TEST target=192.168.100.10 wordlist=manager,monitor,operator target_community=monitor target_perm=RO sys_descr=HP_ProCurve
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Simulateur d'Audit SNMP et Détection de Communautés Vulnérables</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -306,8 +339,8 @@ Sortie :<br>
 - Si compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=COMPROMISED matched_community=&lt;comm&gt; perm=&lt;perm&gt; attempts=&lt;N&gt; risk=&lt;risk&gt; sys_descr=&lt;descr&gt;</code><br>
 - Si non compromis : <code>SNMP_AUDIT: target=&lt;ip&gt; status=SECURE attempts=&lt;N&gt; risk=LOW reason=COMMUNITY_NOT_FOUND</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SNMP_AUDIT: target=192.168.1.1 status=COMPROMISED matched_community=public perm=RO attempts=1 risk=HIGH sys_descr=Cisco_IOS_Software_C2960</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SNMP_AUDIT: target=192.168.1.1 status=COMPROMISED matched_community=public perm=RO attempts=1 risk=HIGH sys_descr=Cisco_IOS_Software_C2960</pre></div>
     </div>
     <p class="lab__note">Chaîne publique par défaut permettant la lecture intégrale des interfaces et tables ARP.</p>
     <details class="lab__hints">
@@ -481,6 +514,29 @@ Sortie :<br>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

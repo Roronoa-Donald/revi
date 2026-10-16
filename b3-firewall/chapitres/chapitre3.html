@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -133,46 +134,59 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="fw3-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="RULE id=R1 action=PERMIT proto=TCP src=ANY dst=10.0.0.10 dport=443&#10;RULE id=R2 action=DENY proto=ANY src=ANY dst=10.0.0.10 dport=ANY&#10;PACKET id=P1 proto=TCP src=192.168.1.50 dst=10.0.0.10 dport=443&#10;PACKET id=P2 proto=TCP src=192.168.1.50 dst=10.0.0.10 dport=22">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c3-e1) — Moteur d’évaluation d’ACL First-Match-Wins avec Default DROP
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Paquet ne correspondant à aucune règle menant au DEFAULT_DROP]
+# Données : RULE id=R10 action=PERMIT proto=UDP src=10.0.0.1 dst=8.8.8.8 dport=53
+# Données : PACKET id=P3 proto=TCP src=10.0.0.1 dst=8.8.8.8 dport=53
+A_COMPLETER
 
-# À compléter : parser les règles ACL et évaluer chaque paquet
+[Cas 2 — Filtrage par adresses IP spécifiques et ANY sur le port]
+# Données : RULE id=ADM1 action=PERMIT proto=TCP src=192.168.1.100 dst=10.0.0.1 dport=22
+# Données : RULE id=BLOCK_ADM action=DENY proto=TCP src=ANY dst=10.0.0.1 dport=22
+# Données : RULE id=WEB action=PERMIT proto=TCP src=ANY dst=ANY dport=80
+# Données : PACKET id=T1 proto=TCP src=192.168.1.100 dst=10.0.0.1 dport=22
+# Données : PACKET id=T2 proto=TCP src=192.168.1.105 dst=10.0.0.1 dport=22
+# Données : PACKET id=T3 proto=TCP src=192.168.1.105 dst=172.16.0.2 dport=80
+A_COMPLETER
+
+[Cas 3 — Protocole ICMP sans numéro de port]
+# Données : RULE id=PING action=PERMIT proto=ICMP src=ANY dst=10.0.0.1 dport=ANY
+# Données : PACKET id=IC1 proto=ICMP src=192.168.1.20 dst=10.0.0.1 dport=0
+# Données : PACKET id=IC2 proto=ICMP src=192.168.1.20 dst=10.0.0.2 dport=0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Moteur d’évaluation d’ACL First-Match-Wins avec Default DROP</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Implémenter le moteur séquentiel d’évaluation des règles de filtrage avec politique de refus par défaut.</p>
     <div class="lab__brief"><p>Dans un pare-feu réseau, les listes de contrôle d'accès (ACL) sont lues séquentiellement de haut en bas : la <strong>première règle qui correspond</strong> au paquet détermine son sort (<code>First-Match-Wins</code>). Si aucune règle ne correspond, la politique de sécurité implicite applique un refus (<code>DEFAULT_DROP</code>).<br><br>
-Le script lit sur l'entrée standard :<br>
-1. Des règles ordonnées :<br>
+Analysez les paramètres du problème pour chaque cas. Des règles ordonnées :<br>
 <code>RULE id=&lt;id&gt; action=&lt;PERMIT|DENY&gt; proto=&lt;TCP|UDP|ICMP|ANY&gt; src=&lt;ip|ANY&gt; dst=&lt;ip|ANY&gt; dport=&lt;port|ANY&gt;</code>.<br>
 2. Des paquets à évaluer :<br>
 <code>PACKET id=&lt;pid&gt; proto=&lt;proto&gt; src=&lt;ip&gt; dst=&lt;ip&gt; dport=&lt;port&gt;</code>.<br><br>
 Pour chaque paquet, afficher :<br>
 <code>EVAL packet={pid} action={PERMIT|DENY} matched={rule_id|DEFAULT_DROP}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE id=R1 action=PERMIT proto=TCP src=ANY dst=10.0.0.10 dport=443
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE id=R1 action=PERMIT proto=TCP src=ANY dst=10.0.0.10 dport=443
 RULE id=R2 action=DENY proto=ANY src=ANY dst=10.0.0.10 dport=ANY
 PACKET id=P1 proto=TCP src=192.168.1.50 dst=10.0.0.10 dport=443
 PACKET id=P2 proto=TCP src=192.168.1.50 dst=10.0.0.10 dport=22</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EVAL packet=P1 action=PERMIT matched=R1
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EVAL packet=P1 action=PERMIT matched=R1
 EVAL packet=P2 action=DENY matched=R2</pre></div>
     </div>
     <p class="lab__note">P1 matche R1 en premier (PERMIT), P2 ne matche pas R1 mais matche R2 (DENY).</p>
@@ -189,19 +203,34 @@ EVAL packet=P2 action=DENY matched=R2</pre></div>
 
 <div class="lab" data-lab
      data-exercise="fw3-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="RULE id=R1 action=DENY proto=ANY src=ANY dst=ANY dport=ANY&#10;RULE id=R2 action=PERMIT proto=TCP src=10.0.0.1 dst=10.0.0.2 dport=80">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c3-e2) — Détecteur d’anomalies et masquage de règles (Rule Shadowing)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Détection d’une redondance parfaite entre deux règles]
+# Données : RULE id=R1 action=PERMIT proto=TCP src=ANY dst=10.0.0.5 dport=443
+# Données : RULE id=R2 action=PERMIT proto=TCP src=192.168.1.1 dst=10.0.0.5 dport=443
+# Données : RULE id=R3 action=PERMIT proto=TCP src=ANY dst=10.0.0.5 dport=80
+A_COMPLETER
 
-# À compléter : détecter le masquage et la redondance entre règles successives
+[Cas 2 — Règles spécifiques d’abord puis règle générale : politique saine]
+# Données : RULE id=R1 action=PERMIT proto=TCP src=10.0.0.50 dst=10.0.0.1 dport=22
+# Données : RULE id=R2 action=DENY proto=TCP src=ANY dst=10.0.0.1 dport=22
+# Données : RULE id=R3 action=PERMIT proto=TCP src=ANY dst=ANY dport=80
+A_COMPLETER
+
+[Cas 3 — Multiples masquages en cascade]
+# Données : RULE id=A1 action=DENY proto=TCP src=ANY dst=ANY dport=22
+# Données : RULE id=A2 action=PERMIT proto=TCP src=192.168.1.1 dst=ANY dport=22
+# Données : RULE id=A3 action=DENY proto=TCP src=192.168.1.2 dst=ANY dport=22
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Détecteur d’anomalies et masquage de règles (Rule Shadowing)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -217,14 +246,13 @@ Si ces 4 conditions d'inclusion sont réunies pour au moins une règle antérieu
 - Si <code>R1.action != R2.action</code> : R2 est masquée et son action ne s'appliquera jamais -> <code>SHADOWED by {R1.id}</code>.<br>
 - Si <code>R1.action == R2.action</code> : R2 est redondante et inutile -> <code>REDUNDANT with {R1.id}</code>.<br>
 - Sinon : la règle est active et valide -> <code>OK</code>.<br><br>
-Le script lit les règles ordonnées au format :<br>
-<code>RULE id=&lt;id&gt; action=&lt;PERMIT|DENY&gt; proto=&lt;TCP|UDP|ANY&gt; src=&lt;ip|ANY&gt; dst=&lt;ip|ANY&gt; dport=&lt;port|ANY&gt;</code>.<br><br>
+Analysez les données fournies pour chaque cas.<br><br>
 Pour chaque règle déclarée, afficher :<br>
 <code>ANALYZE rule={id} status={OK | SHADOWED by {r1} | REDUNDANT with {r1}}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE id=R1 action=DENY proto=ANY src=ANY dst=ANY dport=ANY
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE id=R1 action=DENY proto=ANY src=ANY dst=ANY dport=ANY
 RULE id=R2 action=PERMIT proto=TCP src=10.0.0.1 dst=10.0.0.2 dport=80</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ANALYZE rule=R1 status=OK
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ANALYZE rule=R1 status=OK
 ANALYZE rule=R2 status=SHADOWED by R1</pre></div>
     </div>
     <p class="lab__note">R1 bloque tout le trafic, donc R2 située après ne sera jamais atteinte.</p>
@@ -240,27 +268,39 @@ ANALYZE rule=R2 status=SHADOWED by R1</pre></div>
 
 <div class="lab" data-lab
      data-exercise="fw3-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CONFIG_SNAT public_ip=198.51.100.1 start_port=40000&#10;PACKET dir=OUTBOUND src=192.168.1.50:52001 dst=93.184.216.34:80">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c3-e3) — Simulateur de translation d’adresses NAT (SNAT Masquerade & DNAT)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — DNAT Port Forwarding entrant vers serveur web DMZ]
+# Données : CONFIG_DNAT ext_ip=198.51.100.1 ext_port=80 int_ip=10.0.0.10 int_port=8080
+# Données : PACKET dir=INBOUND src=203.0.113.5:12345 dst=198.51.100.1:80
+A_COMPLETER
 
-# À compléter : simuler la translation SNAT et DNAT
+[Cas 2 — Aller-retour complet : SNAT sortant puis réponse retour]
+# Données : CONFIG_SNAT public_ip=198.51.100.1 start_port=50000
+# Données : PACKET dir=OUTBOUND src=192.168.1.10:4500 dst=8.8.8.8:53
+# Données : PACKET dir=INBOUND src=8.8.8.8:53 dst=198.51.100.1:50000
+A_COMPLETER
+
+[Cas 3 — Paquet entrant sans DNAT ni session SNAT correspondante]
+# Données : CONFIG_SNAT public_ip=198.51.100.1 start_port=40000
+# Données : PACKET dir=INBOUND src=1.2.3.4:9999 dst=198.51.100.1:22
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Simulateur de translation d’adresses NAT (SNAT Masquerade &amp; DNAT)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler les translations SNAT pour le trafic sortant et DNAT (Port Forwarding) pour le trafic entrant.</p>
     <div class="lab__brief"><p>Le mécanisme NAT (Network Address Translation) permet de masquer le plan d'adressage privé ou d'exposer des services internes.<br><br>
-Le script lit la configuration puis une série de paquets à translater :<br>
-1. Configuration SNAT :<br>
+Analysez les données fournies pour chaque cas. Configuration SNAT :<br>
 <code>CONFIG_SNAT public_ip=&lt;ip&gt; start_port=&lt;p&gt;</code> (alloue les ports sortants séquentiellement : start_port, start_port+1, ...).<br>
 2. Règles DNAT :<br>
 <code>CONFIG_DNAT ext_ip=&lt;ip&gt; ext_port=&lt;p&gt; int_ip=&lt;ip&gt; int_port=&lt;p&gt;</code>.<br>
@@ -277,9 +317,9 @@ Pour chaque paquet, afficher :<br>
 <code>NAT dir={dir} in={src_in}->{dst_in} out={src_out}->{dst_out}</code><br>
 (ou <code>NAT dir={dir} in={src_in}->{dst_in} out=DROP_NO_ROUTE</code> si rejet)</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CONFIG_SNAT public_ip=198.51.100.1 start_port=40000
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CONFIG_SNAT public_ip=198.51.100.1 start_port=40000
 PACKET dir=OUTBOUND src=192.168.1.50:52001 dst=93.184.216.34:80</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>NAT dir=OUTBOUND in=192.168.1.50:52001-&gt;93.184.216.34:80 out=198.51.100.1:40000-&gt;93.184.216.34:80</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>NAT dir=OUTBOUND in=192.168.1.50:52001-&gt;93.184.216.34:80 out=198.51.100.1:40000-&gt;93.184.216.34:80</pre></div>
     </div>
     <p class="lab__note">Translation SNAT avec réécriture de la source vers l’IP publique et premier port alloué 40000.</p>
     <details class="lab__hints">
@@ -454,6 +494,29 @@ PACKET dir=OUTBOUND src=192.168.1.50:52001 dst=93.184.216.34:80</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

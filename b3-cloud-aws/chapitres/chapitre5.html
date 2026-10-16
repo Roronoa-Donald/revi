@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -178,27 +179,33 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>6. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="aws3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="S3_COST SIZE_GIB=1000 CLASS=STANDARD RETRIEVE_GIB=500">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c5-e1) — Calculateur de Coûts & Cycle de Vie Amazon S3 (Standard vs Glacier)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Stockage Infrequent Access (10 000 GiB avec 200 GiB récupérés)]
+# Données : S3_COST SIZE_GIB=10000 CLASS=STANDARD_IA RETRIEVE_GIB=200
+A_COMPLETER
 
-# À compléter : calculer la facture de stockage S3
+[Cas 2 — Archivage Glacier Flexible (50 000 GiB avec 100 GiB récupérés)]
+# Données : S3_COST SIZE_GIB=50000 CLASS=GLACIER_FLEXIBLE RETRIEVE_GIB=100
+A_COMPLETER
+
+[Cas 3 — Archivage froid profond Glacier Deep Archive (100 000 GiB sans extraction)]
+# Données : S3_COST SIZE_GIB=100000 CLASS=DEEP_ARCHIVE RETRIEVE_GIB=0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur de Coûts &amp; Cycle de Vie Amazon S3 (Standard vs Glacier)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -215,8 +222,8 @@ Entrée STDIN :<br>
 Sortie :<br>
 <code>S3_BILL: class=&lt;cls&gt; storage_cost=&lt;sc:.2f&gt;$ retrieval_cost=&lt;rc:.2f&gt;$ total_cost=&lt;tot:.2f&gt;$</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>S3_COST SIZE_GIB=1000 CLASS=STANDARD RETRIEVE_GIB=500</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>S3_BILL: class=STANDARD storage_cost=23.00$ retrieval_cost=0.00$ total_cost=23.00$</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>S3_COST SIZE_GIB=1000 CLASS=STANDARD RETRIEVE_GIB=500</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>S3_BILL: class=STANDARD storage_cost=23.00$ retrieval_cost=0.00$ total_cost=23.00$</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
@@ -231,20 +238,36 @@ Sortie :<br>
 
 <div class="lab" data-lab
      data-exercise="aws3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="S3_AUDIT BUCKET=mon-bucket-prod-2026 BPA=true,true,true,true">
-  <script type="text/plain" data-lab-starter>import sys
-import re
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c5-e2) — Validateur de Nom de Bucket S3 & Détecteur de Risques Publics
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Bucket valide mais exposé (un flag BPA à false)]
+# Données : S3_AUDIT BUCKET=data-lake-raw-logs BPA=true,true,false,true
+A_COMPLETER
 
-# À compléter : valider le nom du bucket et l'exposition publique
+[Cas 2 — Erreur majuscules dans le nom]
+# Données : S3_AUDIT BUCKET=MonBucketInvalid BPA=true,true,true,true
+A_COMPLETER
+
+[Cas 3 — Erreur tiret adjacent à un point]
+# Données : S3_AUDIT BUCKET=data.-backup-bucket BPA=true,true,true,true
+A_COMPLETER
+
+[Cas 4 — Erreur format adresse IP]
+# Données : S3_AUDIT BUCKET=192.168.1.50 BPA=true,true,true,true
+A_COMPLETER
+
+[Cas 5 — Erreur longueur inférieure à 3 caractères]
+# Données : S3_AUDIT BUCKET=ab BPA=true,true,true,true
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Validateur de Nom de Bucket S3 &amp; Détecteur de Risques Publics</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -266,8 +289,8 @@ Sortie :<br>
 Si nom valide : <code>BUCKET_AUDIT: bucket=&lt;nom&gt; name_status=VALID security_status=&lt;SECURE|EXPOSED&gt;</code>.<br>
 Si nom invalide : <code>BUCKET_AUDIT: bucket=&lt;nom&gt; name_status=INVALID reason=&lt;BAD_LENGTH|BAD_CHARS|BAD_EDGES|IP_FORMAT|BAD_DOT_DASH&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>S3_AUDIT BUCKET=mon-bucket-prod-2026 BPA=true,true,true,true</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BUCKET_AUDIT: bucket=mon-bucket-prod-2026 name_status=VALID security_status=SECURE</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>S3_AUDIT BUCKET=mon-bucket-prod-2026 BPA=true,true,true,true</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BUCKET_AUDIT: bucket=mon-bucket-prod-2026 name_status=VALID security_status=SECURE</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
@@ -282,20 +305,28 @@ Si nom invalide : <code>BUCKET_AUDIT: bucket=&lt;nom&gt; name_status=INVALID rea
 
 <div class="lab" data-lab
      data-exercise="aws3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="DYNAMO_CAP SIZE_KB=3.5 READS_SEC=100 WRITES_SEC=50 READ_MODE=EVENTUAL WRITE_MODE=STANDARD">
-  <script type="text/plain" data-lab-starter>import sys
-import math
+  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c5-e3) — Calculateur de Capacité Provisionnée Amazon DynamoDB (RCU & WCU)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Item de 10 KB avec lectures fortement cohérentes]
+# Données : DYNAMO_CAP SIZE_KB=10.0 READS_SEC=200 WRITES_SEC=20 READ_MODE=STRONG WRITE_MODE=STANDARD
+A_COMPLETER
 
-# À compléter : calculer les RCU et WCU pour DynamoDB
+[Cas 2 — Transactions complètes ACID en lecture et écriture]
+# Données : DYNAMO_CAP SIZE_KB=2.0 READS_SEC=50 WRITES_SEC=30 READ_MODE=TRANSACTIONAL WRITE_MODE=TRANSACTIONAL
+A_COMPLETER
+
+[Cas 3 — Lecture avec fractionnement (RCU arrondi au supérieur)]
+# Données : DYNAMO_CAP SIZE_KB=1.0 READS_SEC=5 WRITES_SEC=5 READ_MODE=EVENTUAL WRITE_MODE=STANDARD
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Calculateur de Capacité Provisionnée Amazon DynamoDB (RCU &amp; WCU)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -321,8 +352,8 @@ Entrée STDIN :<br>
 <code>DYNAMO_CAP SIZE_KB=&lt;k&gt; READS_SEC=&lt;r&gt; WRITES_SEC=&lt;w&gt; READ_MODE=&lt;EVENTUAL|STRONG|TRANSACTIONAL&gt; WRITE_MODE=&lt;STANDARD|TRANSACTIONAL&gt;</code>.<br><br>
 Sortie : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rcu&gt; wcu=&lt;wcu&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DYNAMO_CAP SIZE_KB=3.5 READS_SEC=100 WRITES_SEC=50 READ_MODE=EVENTUAL WRITE_MODE=STANDARD</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DYNAMO_SIZING: size=3.5KB rcu=50 wcu=200</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DYNAMO_CAP SIZE_KB=3.5 READS_SEC=100 WRITES_SEC=50 READ_MODE=EVENTUAL WRITE_MODE=STANDARD</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DYNAMO_SIZING: size=3.5KB rcu=50 wcu=200</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal.</p>
     <details class="lab__hints">
@@ -496,6 +527,29 @@ Sortie : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rcu&gt; wcu=&lt;wcu&gt;</
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

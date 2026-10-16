@@ -146,19 +146,19 @@ function atelier(course) {
   const crumbs = crumb(course, [
     { label: 'Accueil', href: 'index.html' },
     { label: 'Sommaire', href: 'sommaire.html' },
-    { label: 'Atelier de code libre' }
+    { label: 'Atelier d’analyse libre' }
   ]);
 
   const body = [
     crumbs,
-    '  <h1>Atelier de Code &amp; Bac à Sable DevOps</h1>',
-    '  <p class="lead">Simulez et automatisez vos métriques d’ingénierie DevOps en Python 3 : calculs d’efficience de flux, matrices de tests, optimisation Dockerfile, déploiements Canary et gouvernance SRE.</p>',
+    '  <h1>Atelier d’analyse &amp; Études de cas DevOps</h1>',
+    '  <p class="lead">Simulez et automatisez vos métriques d’ingénierie DevOps selon les grilles d’analyse : calculs d’efficience de flux, matrices de tests, optimisation Dockerfile, déploiements Canary et gouvernance SRE.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="METRIQUES_DORA\ndeploiements_an=520 echecs=26 lead_time_h=12 mttr_h=1.5">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos pipelines CI/CD, metriques DORA et Error Budgets SRE\nimport math\n\ndef analyser_performance_devops():\n    print("Zone libre DevOps B3 : pret a executer.")\n\nif __name__ == \'__main__\':\n    analyser_performance_devops()\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations</h2>',
@@ -180,8 +180,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour modéliser, tester et automatiser des scénarios d’ingénierie DevOps, pipelines CI/CD et métriques SRE.',
+      title: 'Atelier d’analyse libre — ' + course.brand,
+      description: 'Bac à sable interactif par cas d’application pour modéliser, tester et automatiser des scénarios d’ingénierie DevOps, pipelines CI/CD et métriques SRE.',
       active: 'atelier',
       body
     }

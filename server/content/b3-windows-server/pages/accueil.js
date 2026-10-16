@@ -77,7 +77,7 @@ function index(course, chapterList) {
     '    </div>',
     '    <div class="card">',
     '      <h3>Catalogue des 18 Ateliers de Code</h3>',
-    '      <p>Accédez directement aux 18 exercices pratiques de simulation et d’automatisation système en Python 3.</p>',
+    '      <p>Accédez directement aux 18 exercices pratiques de simulation et d’automatisation système selon les grilles d’analyse.</p>',
     '      <a class="btn btn--sm" href="chapitres/exercices.html">Voir les exercices</a>',
     '    </div>',
     '  </div>',
@@ -168,13 +168,13 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable Windows Server B3</h1>',
-    '  <p class="lead">Expérimentez et validez vos scripts d’administration système et d’infrastructure en Python 3 : validation d’étendues DHCP, résolution DNS/SRV, simulation AGDLP, calcul de quorum et stockage résilient.</p>',
+    '  <p class="lead">Expérimentez et validez vos scripts d’administration système et d’infrastructure selon les grilles d’analyse : validation d’étendues DHCP, résolution DNS/SRV, simulation AGDLP, calcul de quorum et stockage résilient.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="CMD New-ADUser -Name Alice -SamAccountName asmith\nCMD Set-ADUser -Identity asmith\nCMD Get-ADGroup -Identity Domain_Admins">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos scripts d\'administration Windows Server et algorithmes d\'infrastructure en Python 3\nimport sys\n\ndef simuler_administration_windows_server(commandes):\n    """Simule l\'exécution de cmdlets et l\'audit d\'infrastructure Windows Server."""\n    resultats = []\n    for cmd in commandes:\n        resultats.append(f"EXEC_OK: {cmd}")\n    return resultats\n\nif __name__ == "__main__":\n    cmds = [l.strip() for l in sys.stdin if l.strip()]\n    for r in simuler_administration_windows_server(cmds):\n        print(r)\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -197,7 +197,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire Système libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos scripts d’administration et simulations Windows Server.',
+      description: 'Bac à sable interactif par cas d’application pour tester vos scripts d’administration et simulations Windows Server.',
       active: 'atelier',
       body
     }

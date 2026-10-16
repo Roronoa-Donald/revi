@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="2">
@@ -153,27 +154,34 @@ journalctl -u api.service -o json-pretty</code></pre>
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="lx3-c2-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SERVICE_DEF name=api.service desc=&quot;Backend API&quot; exec_start=/usr/bin/python3 wanted_by=multi-user.target">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c2-e1) — Validateur d’unité de service Systemd ([Unit], [Service], [Install])
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Rejet d’un exécutable avec chemin relatif]
+# Données : SERVICE_DEF name=worker.service desc="Taches asynchrones" exec_start=node wanted_by=multi-user.target
+A_COMPLETER
 
-# À compléter : valider les directives de service Systemd
+[Cas 2 — Rejet pour description manquante ou WantedBy manquant]
+# Données : SERVICE_DEF name=audit.service desc=NONE exec_start=/opt/bin/agent wanted_by=multi-user.target
+# Données : SERVICE_DEF name=cron_job.service desc="Tache planifiee" exec_start=/bin/bash wanted_by=NONE
+A_COMPLETER
+
+[Cas 3 — Service complexe valide avec arguments]
+# Données : SERVICE_DEF name=nginx.service desc="Serveur Web Nginx" exec_start=/usr/sbin/nginx wanted_by=multi-user.target
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur d’unité de service Systemd ([Unit], [Service], [Install])</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -184,13 +192,12 @@ Règles de conformité strictes d'une unité de service :<br>
 1. <code>ExecStart</code> est obligatoire et doit impérativement spécifier un <strong>chemin absolu</strong> (commençant par <code>/</code>). Un binaire relatif (ex: <code>python app.py</code>) est rejeté avec l'erreur <code>EXECSTART_RELATIF</code>.<br>
 2. <code>Description</code> doit être non vide (sinon <code>DESCRIPTION_MANQUANTE</code>).<br>
 3. <code>WantedBy</code> dans la section <code>[Install]</code> doit référencer une cible valide (ex: <code>multi-user.target</code>). S'il est vide ou absent, erreur <code>WANTEDBY_MANQUANT</code>.<br><br>
-Le script lit sur l'entrée standard des définitions au format :<br>
-<code>SERVICE_DEF name=&lt;nom&gt; desc=&lt;texte&gt; exec_start=&lt;commande&gt; wanted_by=&lt;target&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque service, afficher :<br>
 <code>SERVICE_VALIDATION name={name} valid={OUI|NON} error={OK|motif_erreur}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SERVICE_DEF name=api.service desc="Backend API" exec_start=/usr/bin/python3 wanted_by=multi-user.target</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SERVICE_VALIDATION name=api.service valid=OUI error=OK</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SERVICE_DEF name=api.service desc="Backend API" exec_start=/usr/bin/python3 wanted_by=multi-user.target</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SERVICE_VALIDATION name=api.service valid=OUI error=OK</pre></div>
     </div>
     <p class="lab__note">Toutes les directives sont valides et le chemin d’exécutable est absolu.</p>
     <details class="lab__hints">
@@ -205,27 +212,38 @@ Pour chaque service, afficher :<br>
 
 <div class="lab" data-lab
      data-exercise="lx3-c2-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="UNIT_DEP name=db.service requires=NONE&#10;UNIT_DEP name=web.service requires=db.service">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c2-e2) — Résolveur de dépendances et détection de cycles Systemd
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Détection d’auto-dépendance]
+# Données : UNIT_DEP name=loop.service requires=loop.service
+A_COMPLETER
 
-# À compléter : construire le graphe et détecter les cycles Systemd
+[Cas 2 — Détection de cycle direct croisé entre deux services]
+# Données : UNIT_DEP name=alpha.service requires=beta.service
+# Données : UNIT_DEP name=beta.service requires=alpha.service
+A_COMPLETER
+
+[Cas 3 — Chaîne saine à trois unités]
+# Données : UNIT_DEP name=redis.service requires=network.target
+# Données : UNIT_DEP name=network.target requires=NONE
+# Données : UNIT_DEP name=app.service requires=redis.service
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Résolveur de dépendances et détection de cycles Systemd</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser le graphe de dépendances d’unités et détecter les dépendances circulaires bloquantes (deadlocks).</p>
     <div class="lab__brief"><p>Systemd gère les dépendances entre unités via les directives <code>Requires=</code> (dépendance forte) et <code>Wants=</code> (dépendance faible). Si deux unités se requièrent mutuellement de manière circulaire, Systemd rencontre une dépendance cyclique et doit casser le lien ou échouer le démarrage.<br><br>
-Le script lit sur l'entrée standard des déclarations de dépendances strictes :<br>
-<code>UNIT_DEP name=&lt;nom&gt; requires=&lt;cible|NONE&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles :<br>
 1. Auto-dépendance (A requiert A) : <code>cycle=OUI reason=AUTO_DEPENDANCE</code>.<br>
 2. Cycle direct à deux unités (A requiert B et B requiert A) : <code>cycle=OUI reason=CYCLE_DIRECT</code>.<br>
@@ -233,9 +251,9 @@ Règles :<br>
 Pour chaque unité, afficher :<br>
 <code>DEP_CHECK unit={name} cycle={OUI|NON} reason={OK|motif}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>UNIT_DEP name=db.service requires=NONE
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>UNIT_DEP name=db.service requires=NONE
 UNIT_DEP name=web.service requires=db.service</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DEP_CHECK unit=db.service cycle=NON reason=OK
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DEP_CHECK unit=db.service cycle=NON reason=OK
 DEP_CHECK unit=web.service cycle=NON reason=OK</pre></div>
     </div>
     <p class="lab__note">Arborescence linéaire saine sans boucle.</p>
@@ -252,27 +270,37 @@ DEP_CHECK unit=web.service cycle=NON reason=OK</pre></div>
 
 <div class="lab" data-lab
      data-exercise="lx3-c2-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="JOURNAL id=1 priority=6 unit=sshd.service msg=&quot;Server listening on port 22&quot;">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c2-e3) — Parseur et filtreur d’événements Systemd Journald
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Logs d’urgence et d’erreur critique (priority <= 3)]
+# Données : JOURNAL id=10 priority=0 unit=kernel msg="Kernel panic - not syncing"
+# Données : JOURNAL id=11 priority=3 unit=postgresql.service msg="Fatal connection error"
+A_COMPLETER
 
-# À compléter : décoder et filtrer les événements journald
+[Cas 2 — Avertissement et notification standard]
+# Données : JOURNAL id=20 priority=4 unit=diskmon.service msg="Disk usage above 80%"
+# Données : JOURNAL id=21 priority=5 unit=systemd msg="Started Apache Web Server"
+A_COMPLETER
+
+[Cas 3 — Log de débogage (DEBUG)]
+# Données : JOURNAL id=30 priority=7 unit=app.service msg="Trace variable x=42"
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Parseur et filtreur d’événements Systemd Journald</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Classer les journaux binaires Systemd Journald selon les priorités Syslog RFC 5424 et isoler les incidents critiques.</p>
     <div class="lab__brief"><p>Le démon <code>systemd-journald</code> centralise les logs du noyau, des services et de l'espace utilisateur dans un format binaire structuré indexé.<br><br>
-Le script lit sur l'entrée standard des événements Journald au format :<br>
-<code>JOURNAL id=&lt;id&gt; priority=&lt;0..7&gt; unit=&lt;service&gt; msg=&lt;message&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas..7&gt; unit=&lt;service&gt; msg=&lt;message&gt;</code>.<br><br>
 Échelle de sévérité Syslog (RFC 5424) :<br>
 - 0 : <code>EMERGENCY</code><br>
 - 1 : <code>ALERT</code><br>
@@ -286,8 +314,8 @@ Critère d'alerte : si <code>priority &le; 3</code>, l'événement est considér
 Pour chaque log, afficher :<br>
 <code>JOURNAL_AUDIT id={id} unit={unit} level={LABEL} alert={SEVERITY_ALERT}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>JOURNAL id=1 priority=6 unit=sshd.service msg="Server listening on port 22"</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>JOURNAL_AUDIT id=1 unit=sshd.service level=INFO alert=NON</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>JOURNAL id=1 priority=6 unit=sshd.service msg="Server listening on port 22"</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>JOURNAL_AUDIT id=1 unit=sshd.service level=INFO alert=NON</pre></div>
     </div>
     <p class="lab__note">Priorité 6 (INFO), événement informatif standard.</p>
     <details class="lab__hints">
@@ -463,6 +491,29 @@ Pour chaque log, afficher :<br>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

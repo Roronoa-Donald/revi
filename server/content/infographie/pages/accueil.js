@@ -116,7 +116,7 @@ function atelier(course) {
     '  <p class="lead">Simulez les conversions colorimétriques, évaluez des courbes de Bézier, calculez des normales de maillages et testez les pipelines de shaders directement dans l’interpréteur Python.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="P0=(0,0) P1=(50,100) P2=(100,50) P3=(100,0) t=0.5">',
     '    <script type="text/plain" data-lab-starter># Zone libre : simulez, calculez des transformations 3D, des modes de fusion ou des textures.\nprint("Zone libre Infographie B2 : pret a executer.")\n</script>',

@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="6">
@@ -136,27 +137,33 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="fw3-c6-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="RULE chain=INPUT proto=tcp src=ANY dst=10.0.0.1 dport=22 target=ACCEPT">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c6-e1) — Compilateur de règles vers les syntaxes iptables et nftables
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Règle de transfert FORWARD avec blocage complet]
+# Données : RULE chain=FORWARD proto=udp src=192.168.1.50 dst=ANY dport=53 target=DROP
+A_COMPLETER
 
-# À compléter : compiler les règles en syntaxe iptables et nftables
+[Cas 2 — Règle simple sans port spécifique]
+# Données : RULE chain=OUTPUT proto=tcp src=ANY dst=198.51.100.2 dport=ANY target=ACCEPT
+A_COMPLETER
+
+[Cas 3 — Règle globale tout trafic]
+# Données : RULE chain=INPUT proto=ANY src=ANY dst=ANY dport=ANY target=DROP
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Compilateur de règles vers les syntaxes iptables et nftables</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -182,8 +189,8 @@ Pour chaque règle en entrée, afficher :<br>
 <code>IPTABLES: {commande_iptables}</code><br>
 <code>NFTABLES: {commande_nftables}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RULE chain=INPUT proto=tcp src=ANY dst=10.0.0.1 dport=22 target=ACCEPT</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>IPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE chain=INPUT proto=tcp src=ANY dst=10.0.0.1 dport=22 target=ACCEPT</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>IPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT
 NFTABLES: nft add rule inet filter input ip daddr 10.0.0.1 tcp dport 22 counter accept</pre></div>
     </div>
     <p class="lab__note">Ouverture du port SSH 22 sur l’interface d’écoute.</p>
@@ -199,26 +206,40 @@ NFTABLES: nft add rule inet filter input ip daddr 10.0.0.1 tcp dport 22 counter 
 
 <div class="lab" data-lab
      data-exercise="fw3-c6-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45000 DPT=22&#10;firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.10 DST=10.0.0.2 PROTO=TCP SPT=50000 DPT=80&#10;firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45001 DPT=22">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c6-e2) — Parseur et agrégateur statistique de journaux de pare-feu (Logs)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Scans massifs multi-ports avec une IP dominante]
+# Données : firewall: [DROP] IN=eth0 OUT= SRC=198.51.100.88 DST=10.0.0.1 PROTO=TCP SPT=1000 DPT=23
+# Données : firewall: [DROP] IN=eth0 OUT= SRC=198.51.100.88 DST=10.0.0.1 PROTO=TCP SPT=1001 DPT=23
+# Données : firewall: [DROP] IN=eth0 OUT= SRC=198.51.100.99 DST=10.0.0.1 PROTO=TCP SPT=2000 DPT=445
+# Données : firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=10.0.0.50 DST=8.8.8.8 PROTO=UDP SPT=5300 DPT=53
+A_COMPLETER
 
-# À compléter : analyser les logs et calculer les métriques d'attaque
+[Cas 2 — Trafic 100% accepté sans aucun drop]
+# Données : firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.1 DST=10.0.0.1 PROTO=TCP SPT=3000 DPT=443
+# Données : firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.2 DST=10.0.0.1 PROTO=TCP SPT=3001 DPT=443
+A_COMPLETER
+
+[Cas 3 — Départage d’égalité entre ports bloqués]
+# Données : firewall: [DROP] IN=eth0 OUT= SRC=1.1.1.1 DST=10.0.0.1 PROTO=TCP SPT=10 DPT=80
+# Données : firewall: [DROP] IN=eth0 OUT= SRC=2.2.2.2 DST=10.0.0.1 PROTO=TCP SPT=11 DPT=22
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Parseur et agrégateur statistique de journaux de pare-feu (Logs)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser un flux de logs de pare-feu format syslog et extraire les métriques de sécurité essentielles.</p>
     <div class="lab__brief"><p>L'exploitation des journaux (logs) permet de mesurer l'efficacité du pare-feu et de détecter les tendances d'attaque.<br><br>
-Format des lignes de logs lues sur l'entrée standard :<br>
+Format des lignes de logs lues dans l’énoncé du cas :<br>
 <code>firewall: [ACTION] IN=&lt;if&gt; OUT=&lt;if&gt; SRC=&lt;ip&gt; DST=&lt;ip&gt; PROTO=&lt;proto&gt; SPT=&lt;p&gt; DPT=&lt;p&gt;</code><br>
 où <code>ACTION</code> est <code>DROP</code> ou <code>ACCEPT</code>.<br><br>
 Métriques à calculer :<br>
@@ -230,10 +251,10 @@ Métriques à calculer :<br>
 Sortie attendue :<br>
 <code>LOG_SUMMARY total={total} dropped={dropped} accepted={accepted} top_blocked_port={p} top_attacker_ip={ip}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45000 DPT=22
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45000 DPT=22
 firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.10 DST=10.0.0.2 PROTO=TCP SPT=50000 DPT=80
 firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45001 DPT=22</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LOG_SUMMARY total=3 dropped=2 accepted=1 top_blocked_port=22 top_attacker_ip=203.0.113.5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LOG_SUMMARY total=3 dropped=2 accepted=1 top_blocked_port=22 top_attacker_ip=203.0.113.5</pre></div>
     </div>
     <p class="lab__note">2 drops sur le port 22 par la même IP 203.0.113.5.</p>
     <details class="lab__hints">
@@ -248,19 +269,36 @@ firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45001 D
 
 <div class="lab" data-lab
      data-exercise="fw3-c6-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="AUTH_FAIL ts=100 ip=203.0.113.50 service=ssh&#10;AUTH_FAIL ts=120 ip=203.0.113.50 service=ssh&#10;AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (fw3-c6-e3) — Détecteur de force brute et bannissement dynamique (Fail2ban SIEM)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Événement ultérieur sur une IP déjà bannie]
+# Données : AUTH_FAIL ts=10 ip=198.51.100.1 service=ssh
+# Données : AUTH_FAIL ts=20 ip=198.51.100.1 service=ssh
+# Données : AUTH_FAIL ts=30 ip=198.51.100.1 service=ssh
+# Données : AUTH_FAIL ts=40 ip=198.51.100.1 service=ssh
+A_COMPLETER
 
-# À compléter : surveiller les échecs et déclencher le bannissement nftables
+[Cas 2 — Échecs espacés de plus de 60 secondes sans bannissement]
+# Données : AUTH_FAIL ts=10 ip=10.0.0.5 service=ssh
+# Données : AUTH_FAIL ts=80 ip=10.0.0.5 service=ssh
+# Données : AUTH_FAIL ts=150 ip=10.0.0.5 service=ssh
+A_COMPLETER
+
+[Cas 3 — Deux adresses IP attaquantes distinctes]
+# Données : AUTH_FAIL ts=50 ip=1.1.1.1 service=ssh
+# Données : AUTH_FAIL ts=51 ip=2.2.2.2 service=rdp
+# Données : AUTH_FAIL ts=52 ip=1.1.1.1 service=ssh
+# Données : AUTH_FAIL ts=53 ip=1.1.1.1 service=ssh
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Détecteur de force brute et bannissement dynamique (Fail2ban SIEM)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -276,16 +314,16 @@ Comportement :<br>
    - Si l'IP est déjà bannie :<br>
      <code>BAN_ACTION ip={ip} status=ALREADY_BANNED</code><br>
    - Sinon si le nombre d'échecs dans la fenêtre atteint 3 :<br>
-     l'IP passe à l'état bannie et on affiche :<br>
+     l'IP passe à l'état bannie et on Indiquez :<br>
      <code>BAN_ACTION ip={ip} status=TRIGGER_BAN rule="nft add element inet filter blocklist {{ {ip} }}"</code><br>
    - Sinon :<br>
      <code>BAN_ACTION ip={ip} status=MONITORING attempts={nb_dans_fenetre}</code><br><br>
-Le script lit les événements ordonnés chronologiquement sur l'entrée standard.</p></div>
+Analysez les données fournies pour chaque cas.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>AUTH_FAIL ts=100 ip=203.0.113.50 service=ssh
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AUTH_FAIL ts=100 ip=203.0.113.50 service=ssh
 AUTH_FAIL ts=120 ip=203.0.113.50 service=ssh
 AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BAN_ACTION ip=203.0.113.50 status=MONITORING attempts=1
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BAN_ACTION ip=203.0.113.50 status=MONITORING attempts=1
 BAN_ACTION ip=203.0.113.50 status=MONITORING attempts=2
 BAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule="nft add element inet filter blocklist { 203.0.113.50 }"</pre></div>
     </div>
@@ -463,6 +501,29 @@ BAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule="nft add element inet filter 
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

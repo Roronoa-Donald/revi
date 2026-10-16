@@ -151,7 +151,7 @@ function atelier(course) {
     '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="SIGNAL id=1 text=La CNIL publie un nouveau décret de conformité RGPD\nSIGNAL id=2 text=Un concurrent annonce une levée de fonds pour anticiper le marché">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos algorithmes de veille et d\'analyse d\'information en Python 3\nimport sys\n\ndef simuler_veille_strategique(signaux):\n    """Simule la classification préliminaire d’un flux de signaux."""\n    resultats = []\n    for sig in signaux:\n        resultats.append(f"SIGNAL_TRAITÉ: {sig}")\n    return resultats\n\nif __name__ == "__main__":\n    inputs = [l.strip() for l in sys.stdin if l.strip()]\n    for r in simuler_veille_strategique(inputs):\n        print(r)\n</script>',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-veille\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',

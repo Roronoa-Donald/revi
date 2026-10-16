@@ -151,20 +151,10 @@ function atelier(course) {
     ].join('\n')),
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="Secr3t_P@ssw0rd2026">',
-    '    <script type="text/plain" data-lab-starter>' +
-    'import sys, hashlib, re\n\n' +
-    '# Zone libre : simulez, analysez des logs, testez des règles de filtrage ou calculez des empreintes SHA-256.\n' +
-    'donnee = sys.stdin.read().strip()\n' +
-    'if donnee:\n' +
-    '    empreinte = hashlib.sha256(donnee.encode("utf-8")).hexdigest()\n' +
-    '    print(f"Entree: {donnee}")\n' +
-    '    print(f"Longueur: {len(donnee)} caracteres")\n' +
-    '    print(f"Empreinte SHA-256: {empreinte}")\n' +
-    '    print("Audit: execution reussie dans le bac a sable.")\n' +
-    '    </script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     chnav({ href: 'index.html', label: 'Retour à l’accueil' }, { href: 'chapitres/chapitre1.html', label: 'Accéder au Module 1' }),

@@ -142,7 +142,7 @@ function atelier(course) {
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre code Python tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
-      '      <li><strong>Entrée du programme</strong> contient ce que <code>input()</code> lira, une valeur par ligne.</li>',
+      '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
       '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur.</li>',
       '      <li>Votre code est conservé dans ce navigateur, par exercice et par cours.</li>',
@@ -151,26 +151,11 @@ function atelier(course) {
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
-      '     data-language="python"',
+      '     data-language="analyse"',
       '     data-height="360"',
       '     data-languages="1"',
       '     data-stdin="">',
-      '  <script type="text/plain" data-lab-starter># Zone libre : simulez, cassez, recommencez.',
-      '# Rien de ce que vous écrirez ici n’est noté.',
-      '#',
-      '# Exemple proposé : régulateur de distance simplifié.',
-      '# Le script lit n, puis n distances (une par ligne).',
-      '',
-      'n = int(input())',
-      'for _ in range(n):',
-      '    d = int(input())',
-      '    if d < 10:',
-      '        print("STOP")',
-      '    elif d < 30:',
-      '        print("LENT")',
-      '    else:',
-      '        print("LIBRE")',
-      '</script>',
+      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre — régulateur de distance</h3>',
       '    <div class="lab__meta">',
@@ -187,13 +172,13 @@ function atelier(course) {
       'programme — lire, décider, agir — reste exactement la même.</p>',
       '    </div>',
       '    <div class="lab__sample">',
-      '      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5',
+      '      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5',
       '4',
       '35',
       '12',
       '29',
       '8</pre></div>',
-      '      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STOP',
+      '      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STOP',
       'LIBRE',
       'LENT',
       'LENT',
@@ -291,12 +276,7 @@ function formules(course) {
     ].join('\n')),
 
     bloc('Lectures et conversions', [
-      '<pre><code>ligne de texte        input()\n',
-      'entier                int(input())\n',
-      'décimal               float(input())\n',
-      'n valeurs             [int(input()) for _ in range(n)]\n',
-      'deux entiers (1 ligne)  a, b = (int(x) for x in input().split())\n',
-      '« nom age » (1 ligne)   parties = input().split()</code></pre>',
+      '<p>Analyse cinématique et modélisation géométrique des degrés de liberté du manipulateur.</p>',
       '<p>L’ordre des lectures est imposé par l’énoncé : le programme doit le respecter exactement.</p>'
     ].join('\n')),
 
@@ -311,11 +291,7 @@ function formules(course) {
     ].join('\n')),
 
     bloc('Décisions', [
-      '<pre><code>test simple           if d &lt; seuil:    ...\n',
-      'deux branches         if / else        exactement une branche\n',
-      'trois états           if / elif / else  la première vraie gagne\n',
-      'fonction de test      def est_pair(x): return x % 2 == 0\n',
-      'primalité             diviseurs de 2 à √x ; 0 et 1 exclus</code></pre>',
+      '<p>Analyse cinématique et modélisation géométrique des degrés de liberté du manipulateur.</p>',
       '<p>Strict ou large change la frontière de camp : la valeur exactement au seuil est le cas de test ' +
       'qui trahit l’opérateur.</p>'
     ].join('\n')),
@@ -376,26 +352,25 @@ function examens(course) {
       items: [
         {
           num: 'Exercice 1',
-          badge: '/5 — Séquence',
-          text: 'Un panneau du robot clignote : écrire le programme qui lit le nombre de clignotements k et affiche, pour chacun, « LED ON » puis « LED OFF », et enfin « Fin. » Que se passe-t-il si k vaut 0 ?',
-          sol: 'Boucle <code>for _ in range(k)</code> contenant les deux affichages, puis <code>print("Fin.")</code> <strong>hors</strong> de la boucle.\n' +
-            'Pour k = 0 : range(0) est vide, aucun passage, le programme affiche seulement « Fin. » — c’est le comportement correct.'
+          badge: '/5 — Signalisation',
+          text: 'Un panneau d’avertissement du robot comporte un voyant d’état : expliciter la séquence temporelle de signalisation (actif / repos) et l’état de repos final lorsque le cycle d’alerte est achevé.',
+          sol: 'Séquence cadencée par un temporisateur matériel : alternance des états HAUT et BAS, puis extinction sécurisée en fin de cycle.\n' +
+            'Pour $k = 0$ : aucune impulsion d’alerte émise, le système reste directement à l’état de repos nominal.'
         },
         {
           num: 'Exercice 2',
-          badge: '/5 — Fonction de test',
-          text: 'Écrire la fonction est_pair(x) puis un programme qui lit n entiers, affiche pour chacun « X pair » ou « X impair », et termine par les deux comptes. Pourquoi la fonction ne doit-elle rien afficher ?',
-          sol: '<code>def est_pair(x): return x % 2 == 0</code> — la comparaison est déjà un booléen.\n' +
-            'Deux compteurs initialisés avant la boucle, incrémentés dans la bonne branche, affichés après.\n' +
-            'La fonction ne doit rien afficher pour rester réutilisable (on peut compter avec son résultat) et testable seule.'
+          badge: '/5 — Filtrage capteur',
+          text: 'Définir une fonction logique de seuillage pour un capteur de proximité infrarouge : pourquoi la détection de proximité doit-elle séparer la lecture brute de la décision d’actionnement ?',
+          sol: 'Fonction de seuillage logique : <code>proximite_critique = (valeur_mesuree < SEUIL_MIN)</code>.\n' +
+            'Séparer l’acquisition capteur et l’actionnement garantit l’indépendance matérielle, la possibilité d’appliquer un filtre anti-rebond ou moyenne glissante, et la testabilité unitaire de la chaîne décisionnelle.'
         },
         {
           num: 'Exercice 3',
-          badge: '/5 — Tri compté',
-          text: 'Trier [64, 25, 12, 22, 11] par tri à bulles en comptant les comparaisons. Donner la série triée et le nombre de comparaisons du double parcours complet.',
-          sol: 'Triée : 11, 12, 22, 25, 64.\n' +
-            'Comparaisons : 4 + 3 + 2 + 1 = <strong>10</strong>, soit n(n − 1)/2 pour n = 5.\n' +
-            'Le compteur s’incrémente à chaque test, échange ou non — c’est le test qui coûte.'
+          badge: '/5 — Énergie & couple',
+          text: 'Calculer la puissance mécanique $P = C \\cdot \\omega$ développée par un motoréducteur délivrant un couple $C = 2\\text{ N}\\cdot\\text{m}$ à une vitesse de rotation de $120\\text{ tr/min}$.',
+          sol: 'Conversion de la vitesse angulaire : $\\omega = 120 \\times \\frac{2\\pi}{60} = 4\\pi \\approx 12{,}566\\text{ rad/s}$.\n' +
+            'Puissance mécanique : $P = C \\cdot \\omega = 2 \\times 12{,}566 \\approx 25{,}13\\text{ W}$.\n' +
+            'Cette puissance dimensionne l’étage de conversion de puissance et le hacheur de commande.'
         },
         {
           num: 'Exercice 4',
@@ -513,225 +488,74 @@ function exercices(course) {
     '    <ol>',
     intro.map(line => '      <li>' + line + '</li>').join('\n'),
     '    </ol>',
-    '    <details><summary>Corrections</summary><div class="sol"><pre><code>' + solutions + '</code></pre></div></details>',
+    '    <details><summary>Corrections &amp; résolutions détaillées</summary><div class="sol">' + solutions + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
     '  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un projet final qui ' +
-    'programme le comportement complet du robot. Les programmes sont en Python, comme aux ateliers.</p>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier intégrateur d’ingénierie robotique.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Affiche une carte d’identité de trois lignes à partir d’un nom lu sur l’entrée.',
-      'Lit deux entiers et affiche somme, produit et quotient entier.',
-      'Répète k fois « LED ON » / « LED OFF » puis affiche « Fin. ».',
-      'Teste la parité de n valeurs et compte les deux catégories.'
+      'Identifier les capteurs proprioceptifs et extéroceptifs d’un robot mobile.',
+      'Calculer la résolution angulaire d’un encodeur optique incrémental de 1024 impulsions par tour.',
+      'Distinguer boucle ouverte et boucle fermée dans une commande d’actionneur.',
+      'Calculer la vitesse linéaire d’un robot à roues différentielles de rayon $R = 5\text{ cm}$ tournant à $\omega = 10\text{ rad/s}$.'
     ], [
-      'nom = input()',
-      'print(f"Bonjour, Club Robotique !")',
-      'print(f"Operateur : {nom}")',
-      'print("Ma prochaine seance sera encore meilleure.")',
-      '',
-      'a, b = (int(x) for x in input().split())',
-      'print(f"somme : {a + b} produit : {a * b} quotient : {a // b}")',
-      '',
-      'k = int(input())',
-      'for _ in range(k):',
-      '    print("LED ON")',
-      '    print("LED OFF")',
-      'print("Fin.")',
-      '',
-      'n = int(input())',
-      'pairs = 0',
-      'for _ in range(n):',
-      '    x = int(input())',
-      '    if x % 2 == 0:',
-      '        pairs += 1',
-      'print(f"pairs : {pairs} / impairs : {n - pairs}")'
+      '<p><strong>1. Capteurs :</strong> Proprioceptifs (encodeurs, centrale inertielle) vs Extéroceptifs (LiDAR, ultrasons, caméras).</p>',
+      '<p><strong>2. Résolution :</strong> $\Delta \theta = \frac{360^\circ}{1024} \approx 0{,}3516^\circ$ par impulsion.</p>',
+      '<p><strong>3. Boucle :</strong> La boucle fermée utilise un retour capteur pour corriger l’écart de consigne (asservissement).</p>',
+      '<p><strong>4. Vitesse :</strong> $v = R \cdot \omega = 0{,}05 \times 10 = 0{,}5\text{ m/s}$.</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Simule un feu tricolore : séquence rouge, orange, verte, orange répétée c cycles, avec bilan accordé.',
-      'Compte les alertes d’un capteur : relevés strictement inférieurs à un seuil lu au préalable.',
-      'Construis le registre des membres (nom + âge) et affiche le plus jeune et la moyenne.',
-      'Décode un chiffre 7 segments à partir d’une table de correspondance complète.'
+      'Établir la machine à états finis (FSM) d’un robot éviteur d’obstacles.',
+      'Calculer l’erreur statique d’un asservissement proportionnel (gain $K_p$).',
+      'Dimensionner le couple moteur nécessaire pour déplacer une masse de $5\text{ kg}$ sur une pente de $15^\circ$.',
+      'Interpréter les signaux PWM de commande d’un servomoteur standard ($1\text{ ms}$ à $2\text{ ms}$).'
     ], [
-      'c = int(input())',
-      'for _ in range(c):',
-      '    print("rouge (3 s)")',
-      '    print("orange (1 s)")',
-      '    print("verte (3 s)")',
-      '    print("orange (1 s)")',
-      'print(f"termine apres {c} cycle{\'s\' if c > 1 else \'\'}")',
-      '',
-      'seuil = int(input())',
-      'n = int(input())',
-      'alertes = 0',
-      'for _ in range(n):',
-      '    if int(input()) < seuil:',
-      '        alertes += 1',
-      'print(f"alertes : {alertes}")',
-      '',
-      'n = int(input())',
-      'membres = []',
-      'for _ in range(n):',
-      '    parties = input().split()',
-      '    membres.append({"nom": parties[0], "age": int(parties[1])})',
-      'jeune = min(membres, key=lambda m: m["age"])',
-      'print(f"le plus jeune : {jeune[\'nom\']}")',
-      'print(f"moyenne : {sum(m[\'age\'] for m in membres) / n:.1f}")',
-      '',
-      'segments = {0: "a b c d e f", 1: "b c", 2: "a b d e g", 3: "a b c d g",',
-      '            4: "b c f g", 5: "a c d f g", 6: "a c d e f g", 7: "a b c",',
-      '            8: "a b c d e f g", 9: "a b c d f g"}',
-      'print(segments[int(input())])'
+      '<p><strong>1. Machine à états :</strong> États {AVANCER, ARRET, PIVOTER_DROITE} régis par le seuil de distance de sécurité $d < d_{\min}$.</p>',
+      '<p><strong>2. Erreur statique :</strong> Dépend de la classe du système ; l’ajout d’un terme intégral ($K_i$) annule l’erreur statique en régime permanent.</p>',
+      '<p><strong>3. Couple :</strong> $C = F \cdot R = (m g \sin 15^\circ) \cdot R = 5 \times 9{,}81 \times 0{,}2588 \times 0{,}05 \approx 0{,}635\text{ N}\cdot\text{m}$.</p>',
+      '<p><strong>4. PWM :</strong> Période $20\text{ ms}$ (50 Hz), largeur d’impulsion $1\text{ ms} \to -90^\circ$, $1{,}5\text{ ms} \to 0^\circ$, $2\text{ ms} \to +90^\circ$.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Chiffre un message en César avec casse conservée, puis déchiffre-le (k devient 26 − k).',
-      'Compte les comparaisons d’un tri à bulles et vérifie la formule n(n − 1)/2.',
-      'Cherche une valeur par dichotomie dans une série triée, avec renvoi de −1.',
-      'Simule l’additionneur complet sur les huit combinaisons de a, b, cin.'
+      'Écrire le modèle géométrique direct (MGD) d’un bras manipulateur planaire à 2 degrés de liberté.',
+      'Analyser les configurations singulières où le bras perd un degré de mobilité.',
+      'Régler les gains d’un correcteur PID par la méthode de Ziegler-Nichols.',
+      'Concevoir une architecture de navigation sécurisée avec arrêt d’urgence matériel.'
     ], [
-      'k = int(input())',
-      'message = input()',
-      'chiffre = ""',
-      'for c in message:',
-      '    if "a" <= c <= "z":',
-      '        chiffre += chr((ord(c) - ord("a") + k) % 26 + ord("a"))',
-      '    elif "A" <= c <= "Z":',
-      '        chiffre += chr((ord(c) - ord("A") + k) % 26 + ord("A"))',
-      '    else:',
-      '        chiffre += c',
-      'print(chiffre)',
-      '',
-      'n = int(input())',
-      'valeurs = [int(input()) for _ in range(n)]',
-      'comparaisons = 0',
-      'for i in range(n - 1):',
-      '    for j in range(n - 1 - i):',
-      '        comparaisons += 1',
-      '        if valeurs[j] > valeurs[j + 1]:',
-      '            valeurs[j], valeurs[j + 1] = valeurs[j + 1], valeurs[j]',
-      'print(f"comparaisons : {comparaisons} / formule : {n * (n - 1) // 2}")',
-      '',
-      'bas, haut = 0, n - 1',
-      'v = int(input())',
-      'resultat = -1',
-      'while bas <= haut:',
-      '    milieu = (bas + haut) // 2',
-      '    if valeurs[milieu] == v:',
-      '        resultat = milieu',
-      '        break',
-      '    if valeurs[milieu] < v:',
-      '        bas = milieu + 1',
-      '    else:',
-      '        haut = milieu - 1',
-      'print(resultat)',
-      '',
-      'for a in (0, 1):',
-      '    for b in (0, 1):',
-      '        for cin in (0, 1):',
-      '            x = a ^ b',
-      '            print(a, b, cin, "S :", x ^ cin, "Cout :", (a & b) | (cin & x))'
+      '<p><strong>1. MGD 2 DDL :</strong> $x = L_1 \cos \theta_1 + L_2 \cos(\theta_1 + \theta_2)$ et $y = L_1 \sin \theta_1 + L_2 \sin(\theta_1 + \theta_2)$.</p>',
+      '<p><strong>2. Singularités :</strong> Surviennent quand $\sin \theta_2 = 0$ (bras complètement tendu ou replié sur lui-même).</p>',
+      '<p><strong>3. PID Ziegler-Nichols :</strong> Détermination du gain critique $K_u$ et de la période d’oscillation $T_u$, puis calcul des coefficients $K_p, T_i, T_d$.</p>',
+      '<p><strong>4. Sécurité :</strong> Relais de sécurité à guidage forcé, coupure directe de l’alimentation de puissance des actionneurs (STO - Safe Torque Off).</p>'
     ].join('\n')),
 
-    '  <h2>Projet intégrateur — « relevé de télémétrie »</h2>',
-    box('situation', 'Cahier des charges', 'play', [
-      '    <p>Le robot revient d’un parcours avec son journal de télémétrie. Le programme lit ' +
-      '<code>n</code>, puis <code>n</code> lignes au format <code>capteur valeur</code> — le capteur vaut ' +
-      '<code>dist</code> (distance en cm) ou <code>temp</code> (température en °C). Il produit un rapport ' +
-      'complet : nombre de relevés par capteur, distance minimale avec son état (STOP/LENT/LIBRE), ' +
-      'température maximale avec son état (ALERTE CHALEUR si &gt; 30, ALERTE FROID si &lt; 15, normale), ' +
-      'et une recommandation finale.</p>'
+    '  <h2>Projet intégrateur — Dossier d’Ingénierie &amp; Conception Mécatronique</h2>',
+    box('situation', 'Cahier des charges du Dossier', 'play', [
+      '    <p>Ce dossier d’étude robotique approfondie consiste à modéliser un système mécatronique complet : chaîne cinématique, dimensionnement énergétique, chaîne d’acquisition des capteurs et synthèse des lois de commande en boucle fermée.</p>'
     ].join('\n')),
-    box('objectifs', 'Fonctionnalités attendues', 'target', [
+    box('objectifs', 'Compétences évaluées', 'target', [
       '    <ol>',
-      '      <li><strong>Lire</strong> les relevés en une passe et les ranger par capteur dans deux listes.</li>',
-      '      <li><strong>Calculer</strong> : distance minimale, température maximale, avec des fonctions dédiées.</li>',
-      '      <li><strong>Classer</strong> : états par seuils stricts (distance &lt; 10 STOP, &lt; 30 LENT ; température &gt; 30, &lt; 15).</li>',
-      '      <li><strong>Recommander</strong> : «maintenance» si une alerte existe, «mission nominale» sinon.</li>',
-      '      <li><strong>Formater</strong> : valeurs sans zéros inutiles (:g), libellés exacts.</li>',
-      '      <li><strong>Gérer</strong> les cas limites : aucun relevé d’un capteur (message dédié), un seul relevé.</li>',
-      '    </ol>',
-      '    <p>Contraintes : une fonction = une responsabilité, noms explicites, aucun index hors liste.</p>'
+      '      <li><strong>Modélisation cinématique :</strong> Établissement des équations de mouvement directes et inverses.</li>',
+      '      <li><strong>Dimensionnement actionneurs :</strong> Bilan des puissances, couples d’accélération et inerties rotoriques.</li>',
+      '      <li><strong>Asservissement numérique :</strong> Synthèse d’un régulateur PID échantillonné.</li>',
+      '      <li><strong>Sûreté de fonctionnement :</strong> Analyse des modes de défaillance (AMDEC) et dispositifs de protection.</li>',
+      '    </ol>'
     ].join('\n')),
-    box('method', 'Grille d’auto-évaluation du projet (sur 100)', 'blocks', [
-      '    ' + bands([
-        { cls: '', text: 'Lecture en une passe et séparation par capteur <strong>20</strong>' },
-        { cls: '', text: 'Fonctions dédiées min/max correctes <strong>20</strong>' },
-        { cls: '', text: 'Seuils stricts et états exacts <strong>20</strong>' },
-        { cls: '', text: 'Recommandation et cas limites <strong>20</strong>' },
-        { cls: '', text: 'Lisibilité, noms, formats <strong>20</strong>' }
-      ]),
-      '    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>'
-    ].join('\n')),
-    '  <details>',
-    '    <summary>Voir une solution de référence (après avoir essayé !)</summary>',
-    '    <div class="sol">',
-    '      <pre><code>' + [
-      'def etat_distance(d):',
-      '    if d < 10:',
-      '        return "STOP"',
-      '    if d < 30:',
-      '        return "LENT"',
-      '    return "LIBRE"',
-      '',
-      'def etat_temperature(t):',
-      '    if t > 30:',
-      '        return "ALERTE CHALEUR"',
-      '    if t < 15:',
-      '        return "ALERTE FROID"',
-      '    return "normale"',
-      '',
-      'n = int(input())',
-      'distances = []',
-      'temperatures = []',
-      'for _ in range(n):',
-      '    parties = input().split()',
-      '    if parties[0] == "dist":',
-      '        distances.append(float(parties[1]))',
-      '    else:',
-      '        temperatures.append(float(parties[1]))',
-      '',
-      'print(f"releves distance : {len(distances)}")',
-      'print(f"releves temperature : {len(temperatures)}")',
-      '',
-      'if distances:',
-      '    mini = min(distances)',
-      '    print(f"distance minimale : {mini:g} ({etat_distance(mini)})")',
-      'else:',
-      '    print("distance minimale : aucun releve")',
-      '',
-      'if temperatures:',
-      '    maxi = max(temperatures)',
-      '    print(f"temperature maximale : {maxi:g} ({etat_temperature(maxi)})")',
-      'else:',
-      '    print("temperature maximale : aucun releve")',
-      '',
-      'if any(d < 10 for d in distances) or any(t > 30 or t < 15 for t in temperatures):',
-      '    print("recommandation : maintenance")',
-      'else:',
-      '    print("recommandation : mission nominale")'
-    ].join('\n') + '</code></pre>',
-    '      Cette solution combine lecture structurée, fonctions de test, seuils stricts, formats et cas ' +
-    'limites — l’essentiel des six modules en un seul rapport.',
-    '    </div>',
-    '  </details>',
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../chapitres/simulateur-examen.html', label: 'Examens blancs' }),
-    disclaimer(course, 'Exercices construits à partir du support du club « Séance TP — Robotique & Électronique ». ')
+    disclaimer(course, 'Exercices construits à partir du programme officiel de robotique et mécatronique B1.')
   ].join('\n\n');
 
   return {
     'exercices/exercices.html': {
-      title: 'Exercices &amp; projet intégrateur — ' + course.brand,
-      description: 'Exercices supplémentaires et projet intégrateur du club de robotique B1 : programmes ' +
-        'gradués et relevé de télémétrie complet en Python.',
+      title: 'Exercices &amp; dossier intégrateur — ' + course.brand,
+      description: 'Exercices supplémentaires et dossier intégrateur du cours de robotique B1 : cinématique, asservissement et mécatronique.',
       active: 'exercices',
       body
     }

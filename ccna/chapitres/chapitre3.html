@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -160,45 +161,57 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="na2-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="FRAME Fa0/1 00:11:22:33:44:01 00:11:22:33:44:02&#10;FRAME Fa0/2 00:11:22:33:44:02 00:11:22:33:44:01&#10;CAM">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c3-e1) — Simulateur de table CAM de commutateur L2
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Trame de broadcast explicite]
+# Données : FRAME Fa0/3 00:aa:bb:cc:dd:01 ff:ff:ff:ff:ff:ff
+A_COMPLETER
 
-# À compléter : simuler la table CAM et les actions de commutation
+[Cas 2 — Filtrage sur même port]
+# Données : FRAME Fa0/1 00:00:00:00:00:01 ff:ff:ff:ff:ff:ff
+# Données : FRAME Fa0/1 00:00:00:00:00:02 00:00:00:00:00:01
+A_COMPLETER
+
+[Cas 3 — Déplacement d hôte de Fa0/1 vers Fa0/4]
+# Données : FRAME Fa0/1 00:50:56:01:02:03 00:50:56:aa:bb:cc
+# Données : FRAME Fa0/4 00:50:56:01:02:03 00:50:56:aa:bb:cc
+# Données : CAM
+A_COMPLETER
+
+[Cas 4 — Table vide initiale]
+# Données : CAM
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur de table CAM de commutateur L2</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Modéliser l'apprentissage dynamique d'adresses MAC sur les ports d'un switch et la décision de commutation (forwarding vs inondation/flooding).</p>
     <div class="lab__brief"><p>Le commutateur possède N ports (ex: Fa0/1 à Fa0/24). La table CAM est initialement vide.<br>
-Le script lit sur l'entrée standard une suite d'événements :<br>
-- <code>FRAME &lt;PORT_RECU&gt; &lt;MAC_SRC&gt; &lt;MAC_DST&gt;</code> : le switch enregistre ou met à jour la correspondance <code>MAC_SRC -&gt; PORT_RECU</code> dans sa table CAM.<br>
+Analysez les paramètres du problème pour chaque cas.<br>
 Puis il prend sa décision :<br>
 1. Si <code>MAC_DST == ff:ff:ff:ff:ff:ff</code> ou si <code>MAC_DST</code> n'est pas dans la table : afficher <code>ACTION: FLOOD (ports sauf &lt;PORT_RECU&gt;)</code>.<br>
 2. Si <code>MAC_DST</code> est connue sur le port <code>P_DST</code> : si <code>P_DST == PORT_RECU</code>, afficher <code>ACTION: FILTRE (meme port)</code>, sinon afficher <code>ACTION: FORWARD vers &lt;P_DST&gt;</code>.<br>
-- <code>CAM</code> : affiche les entrées apprises triées par adresse MAC au format :<br>
+- <code>CAM</code> : Indiquez les entrées apprises triées par adresse MAC au format :<br>
 <code>&lt;MAC&gt; -&gt; &lt;PORT&gt;</code>. Si la table est vide, afficher <code>TABLE CAM VIDE</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>FRAME Fa0/1 00:11:22:33:44:01 00:11:22:33:44:02
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FRAME Fa0/1 00:11:22:33:44:01 00:11:22:33:44:02
 FRAME Fa0/2 00:11:22:33:44:02 00:11:22:33:44:01
 CAM</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ACTION: FLOOD (ports sauf Fa0/1)
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ACTION: FLOOD (ports sauf Fa0/1)
 ACTION: FORWARD vers Fa0/1
 00:11:22:33:44:01 -&gt; Fa0/1
 00:11:22:33:44:02 -&gt; Fa0/2</pre></div>
@@ -217,19 +230,40 @@ ACTION: FORWARD vers Fa0/1
 
 <div class="lab" data-lab
      data-exercise="na2-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SW1 32768 00:0a:00:11:22:33&#10;SW2 4096 00:0b:00:44:55:66&#10;SW3 32768 00:0c:00:77:88:99">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c3-e2) — Émulateur d'élection de Root Bridge STP 802.1D
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Départage sur adresse MAC avec priorité par défaut]
+# Données : SW-A 32768 00:11:22:33:44:55
+# Données : SW-B 32768 00:01:02:03:04:05
+# Données : SW-C 32768 00:22:33:44:55:66
+A_COMPLETER
 
-# À compléter : comparer les Bridge IDs et élire le Root Bridge
+[Cas 2 — Priorité racine primaire 0]
+# Données : Core1 0 00:ff:ee:dd:cc:bb
+# Données : Core2 4096 00:aa:bb:cc:dd:ee
+# Données : Access1 32768 00:01:02:03:04:05
+A_COMPLETER
+
+[Cas 3 — Deux commutateurs avec MAC très proches]
+# Données : Switch-Nord 28672 cc:46:d6:10:00:01
+# Données : Switch-Sud 28672 cc:46:d6:10:00:00
+A_COMPLETER
+
+[Cas 4 — Quatre commutateurs de distribution]
+# Données : D1 16384 00:10:11:22:33:44
+# Données : D2 8192 00:20:22:33:44:55
+# Données : D3 32768 00:05:00:00:00:01
+# Données : D4 8192 00:15:22:33:44:55
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Émulateur d'élection de Root Bridge STP 802.1D</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -238,8 +272,7 @@ lignes = [l.strip() for l in sys.stdin if l.strip()]
     <div class="lab__brief"><p>Dans Spanning Tree Protocol (STP 802.1D / RSTP 802.1w), le commutateur racine est celui qui possède le plus petit Bridge ID (BID).<br>
 Le Bridge ID est composé de :<br>
 <code>&lt;Bridge Priority&gt;</code> (entier multiple de 4096 sous Cisco PVST+, défaut 32768) + <code>&lt;MAC de base&gt;</code>.<br>
-Le script lit sur l'entrée standard une liste de commutateurs sous la forme :<br>
-<code>&lt;NOM_SWITCH&gt; &lt;PRIORITE&gt; &lt;MAC&gt;</code>.<br>
+Analysez les paramètres du problème pour chaque cas.<br>
 Le script doit :<br>
 1. Afficher pour chaque switch son Bridge ID calculé sous la forme :<br>
 <code>&lt;NOM&gt;: BID=&lt;PRIORITE&gt;.&lt;MAC&gt;</code><br>
@@ -247,10 +280,10 @@ Le script doit :<br>
 <code>ROOT BRIDGE ELU: &lt;NOM&gt; (Raison: &lt;PLUS_FAIBLE_PRIORITE|DEPARTAGE_MAC&gt;)</code><br>
 Si un switch a une priorité strictement inférieure à tous les autres : <code>PLUS_FAIBLE_PRIORITE</code> ; si la priorité minimale est partagée par 2 switches ou plus et que le choix s'est fait sur la MAC : <code>DEPARTAGE_MAC</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SW1 32768 00:0a:00:11:22:33
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SW1 32768 00:0a:00:11:22:33
 SW2 4096 00:0b:00:44:55:66
 SW3 32768 00:0c:00:77:88:99</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SW1: BID=32768.00:0a:00:11:22:33
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SW1: BID=32768.00:0a:00:11:22:33
 SW2: BID=4096.00:0b:00:44:55:66
 SW3: BID=32768.00:0c:00:77:88:99
 ROOT BRIDGE ELU: SW2 (Raison: PLUS_FAIBLE_PRIORITE)</pre></div>
@@ -268,39 +301,62 @@ ROOT BRIDGE ELU: SW2 (Raison: PLUS_FAIBLE_PRIORITE)</pre></div>
 
 <div class="lab" data-lab
      data-exercise="na2-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ROOT: SW1&#10;LIEN SW1:Fa0/1 SW2:Fa0/1 19&#10;LIEN SW1:Fa0/2 SW3:Fa0/1 19&#10;LIEN SW2:Fa0/2 SW3:Fa0/2 19">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c3-e3) — Déterminateur des rôles de ports STP (RP, DP, BLK)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Liaison directe simple entre deux switches]
+# Données : ROOT: R1
+# Données : LIEN R1:Gi0/1 S2:Gi0/1 4
+A_COMPLETER
 
-# À compléter : calculer les plus courts chemins et assigner les rôles de ports STP
+[Cas 2 — Boucle carrée à 4 commutateurs]
+# Données : ROOT: SW1
+# Données : LIEN SW1:Gi0/1 SW2:Gi0/1 4
+# Données : LIEN SW1:Gi0/2 SW4:Gi0/1 4
+# Données : LIEN SW2:Gi0/2 SW3:Gi0/1 4
+# Données : LIEN SW4:Gi0/2 SW3:Gi0/2 4
+A_COMPLETER
+
+[Cas 3 — Coûts hétérogènes FastEthernet vs Gigabit]
+# Données : ROOT: SWA
+# Données : LIEN SWA:Fa0/1 SWB:Fa0/1 19
+# Données : LIEN SWA:Gi0/1 SWC:Gi0/1 4
+# Données : LIEN SWB:Gi0/2 SWC:Gi0/2 4
+A_COMPLETER
+
+[Cas 4 — Ligne bus sans boucle]
+# Données : ROOT: S1
+# Données : LIEN S1:P1 S2:P1 10
+# Données : LIEN S2:P2 S3:P1 10
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Déterminateur des rôles de ports STP (RP, DP, BLK)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déterminer les rôles et états des ports STP : Root Port (RP), Designated Port (DP) et Alternate/Blocking (BLK).</p>
-    <div class="lab__brief"><p>Le script lit sur la première ligne le nom du Root Bridge (ex: <code>ROOT: SW1</code>).<br>
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
 Les lignes suivantes décrivent les liens bidirectionnels du réseau :<br>
 <code>LIEN &lt;SW_A&gt;:&lt;PORT_A&gt; &lt;SW_B&gt;:&lt;PORT_B&gt; &lt;COUT&gt;</code> (ex: <code>LIEN SW1:Fa0/1 SW2:Fa0/1 19</code>).<br>
 Règles Spanning Tree :<br>
 1. Sur le Root Bridge, <strong>tous les ports connectés sont DP</strong> (Designated Port, état Forwarding).<br>
 2. Pour chaque switch non-racine : le port ayant le <strong>plus faible coût cumulé vers la racine (Root Path Cost)</strong> est élu <strong>RP (Root Port)</strong>.<br>
 3. Sur chaque lien entre deux switches non-racines : le switch ayant le plus faible Root Path Cost obtient le <strong>DP</strong> sur son port. L'autre port du lien devient <strong>BLK (Alternate/Blocking)</strong>.<br>
-Le script affiche pour chaque commutateur (trié alphabétiquement), puis pour chaque port de ce commutateur (trié) :<br>
+Indiquez pour chaque commutateur (trié alphabétiquement), puis pour chaque port de ce commutateur (trié) :<br>
 <code>&lt;SWITCH&gt; &lt;PORT&gt; -&gt; &lt;RP|DP|BLK&gt; (Cout-Racine: &lt;C&gt;)</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROOT: SW1
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROOT: SW1
 LIEN SW1:Fa0/1 SW2:Fa0/1 19
 LIEN SW1:Fa0/2 SW3:Fa0/1 19
 LIEN SW2:Fa0/2 SW3:Fa0/2 19</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SW1 Fa0/1 -&gt; DP (Cout-Racine: 0)
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SW1 Fa0/1 -&gt; DP (Cout-Racine: 0)
 SW1 Fa0/2 -&gt; DP (Cout-Racine: 0)
 SW2 Fa0/1 -&gt; RP (Cout-Racine: 19)
 SW2 Fa0/2 -&gt; DP (Cout-Racine: 19)
@@ -482,6 +538,29 @@ SW3 Fa0/2 -&gt; BLK (Cout-Racine: 19)</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

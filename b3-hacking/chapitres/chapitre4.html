@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -177,27 +178,37 @@ $user = $stmt->fetch();</code></pre>,<p>Le compilateur SQL analyse et verrouille
 </div>
 
 <!-- code-labs:start -->
-  <h2>6. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="hk3-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SQLI_CHECK param=admin' OR '1'='1' --">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c4-e1) — Détecteur de Vecteurs d'Injection SQL (SQLi Pattern Analyzer)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Injection UNION pour extraction de données d'autres tables]
+# Données : SQLI_CHECK param=1 UNION SELECT null, username, password FROM users--
+A_COMPLETER
 
-# À compléter : détecter les motifs d'injection SQL
+[Cas 2 — Requêtes empilées (Stacked Queries) avec tentative de suppression de table]
+# Données : SQLI_CHECK param=10; DROP TABLE clients;
+A_COMPLETER
+
+[Cas 3 — Troncature de requête par commentaire seul]
+# Données : SQLI_CHECK param=admin/*comment*/
+A_COMPLETER
+
+[Cas 4 — Paramètre alphanumérique légitime]
+# Données : SQLI_CHECK param=alice_dupont_2026
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Détecteur de Vecteurs d'Injection SQL (SQLi Pattern Analyzer)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -215,8 +226,8 @@ Sortie :<br>
 - Si injection : <code>SQLI_ALERT: pattern=&lt;TYPE&gt; severity=CRITICAL status=INJECTION_DETECTED</code><br>
 - Si sain : <code>SQLI_ALERT: pattern=NONE severity=NONE status=CLEAN_PARAM</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SQLI_CHECK param=admin' OR '1'='1' --</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SQLI_ALERT: pattern=SQLI_TAUTOLOGY severity=CRITICAL status=INJECTION_DETECTED</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SQLI_CHECK param=admin' OR '1'='1' --</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SQLI_ALERT: pattern=SQLI_TAUTOLOGY severity=CRITICAL status=INJECTION_DETECTED</pre></div>
     </div>
     <p class="lab__note">Tautologie booléenne classique permettant le contournement d'authentification.</p>
     <details class="lab__hints">
@@ -232,19 +243,28 @@ Sortie :<br>
 
 <div class="lab" data-lab
      data-exercise="hk3-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="TIME_INFER actual_secret=FLAG probes=1:F,1:B,2:L,3:A,4:G">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c4-e2) — Simulateur d'Attaque par Injection SQL Aveugle Basée sur le Temps
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Recherche de mot de passe administrateur avec échecs et succès]
+# Données : TIME_INFER actual_secret=ROOT probes=1:A,1:R,2:O,3:O,4:T
+A_COMPLETER
 
-# À compléter : simuler l'injection temporelle
+[Cas 2 — Aucune sonde ne devine le bon caractère]
+# Données : TIME_INFER actual_secret=SECRET probes=1:X,2:Y,3:Z
+A_COMPLETER
+
+[Cas 3 — Extraction partielle de jeton d'API]
+# Données : TIME_INFER actual_secret=TOK123 probes=1:T,2:O,5:2
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Simulateur d'Attaque par Injection SQL Aveugle Basée sur le Temps</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -263,8 +283,8 @@ Sorties :<br>
 - Pour chaque sonde : <code>PROBE: pos=&lt;p&gt; char=&lt;c&gt; match=&lt;TRUE|FALSE&gt; delay=&lt;5.0|0.0&gt;s</code><br>
 - Ligne récapitulative finale : <code>EXTRACTED: confirmed_chars=&lt;caractères_trouvés_dans_l_ordre|NONE&gt;</code> (chaîne des caractères validés concaténés dans l'ordre croissant de leur position unique).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TIME_INFER actual_secret=FLAG probes=1:F,1:B,2:L,3:A,4:G</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PROBE: pos=1 char=F match=TRUE delay=5.0s
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TIME_INFER actual_secret=FLAG probes=1:F,1:B,2:L,3:A,4:G</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PROBE: pos=1 char=F match=TRUE delay=5.0s
 PROBE: pos=1 char=B match=FALSE delay=0.0s
 PROBE: pos=2 char=L match=TRUE delay=5.0s
 PROBE: pos=3 char=A match=TRUE delay=5.0s
@@ -285,19 +305,28 @@ EXTRACTED: confirmed_chars=FLAG</pre></div>
 
 <div class="lab" data-lab
      data-exercise="hk3-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="LFI_CHECK path=../../../../etc/passwd">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c4-e3) — Analyseur de Traversée de Répertoire et Inclusion de Fichiers (Path Traversal / LFI)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Tentative d'évasion avec encodage URL pour contourner les filtres basiques]
+# Données : LFI_CHECK path=%2e%2e%2f%2e%2e%2fetc/shadow
+A_COMPLETER
 
-# À compléter : analyser la traversée de répertoire
+[Cas 2 — Chemin légitime restant confiné dans le sous-dossier autorisé]
+# Données : LFI_CHECK path=documents/2026/rapport.pdf
+A_COMPLETER
+
+[Cas 3 — Chemin avec retour relatif interne autorisé ne sortant pas de la racine]
+# Données : LFI_CHECK path=images/sub/../logo.png
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Analyseur de Traversée de Répertoire et Inclusion de Fichiers (Path Traversal / LFI)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -321,8 +350,8 @@ Algorithme de normalisation et détection :<br>
 Entrée STDIN : <code>LFI_CHECK path=&lt;chemin_brut&gt;</code>.<br>
 Sortie : <code>LFI_AUDIT: input=&lt;path&gt; resolved=&lt;/seg1/seg2|ROOT&gt; status=&lt;BLOCKED_TRAVERSAL|SAFE_ACCESS&gt; risk=&lt;CRITICAL|LOW&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>LFI_CHECK path=../../../../etc/passwd</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>LFI_AUDIT: input=../../../../etc/passwd resolved=/etc/passwd status=BLOCKED_TRAVERSAL risk=CRITICAL</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LFI_CHECK path=../../../../etc/passwd</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>LFI_AUDIT: input=../../../../etc/passwd resolved=/etc/passwd status=BLOCKED_TRAVERSAL risk=CRITICAL</pre></div>
     </div>
     <p class="lab__note">Tentative d'évasion de racine pour lire le fichier système des comptes Linux.</p>
     <details class="lab__hints">
@@ -496,6 +525,29 @@ Sortie : <code>LFI_AUDIT: input=&lt;path&gt; resolved=&lt;/seg1/seg2|ROOT&gt; st
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

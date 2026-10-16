@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -155,27 +156,36 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="ws3-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ACCESS user=Alice share=READ ntfs=FULL_CONTROL&#10;ACCESS user=Bob share=FULL_CONTROL ntfs=MODIFY&#10;ACCESS user=Charlie share=CHANGE ntfs=WRITE">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c4-e1) — Calculateur de permissions effectives (Partage SMB vs NTFS)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Accès totalement refusé par le partage ou NTFS]
+# Données : ACCESS user=David share=NONE ntfs=FULL_CONTROL
+# Données : ACCESS user=Emma share=FULL_CONTROL ntfs=NONE
+A_COMPLETER
 
-# À compléter : appliquer la règle du plus restrictif
+[Cas 2 — Accès maximal Full Control des deux côtés]
+# Données : ACCESS user=Admin share=FULL_CONTROL ntfs=FULL_CONTROL
+A_COMPLETER
+
+[Cas 3 — Profils mixtes avec lecture seule et écriture]
+# Données : ACCESS user=User1 share=READ ntfs=READ
+# Données : ACCESS user=User2 share=CHANGE ntfs=READ
+# Données : ACCESS user=User3 share=CHANGE ntfs=MODIFY
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur de permissions effectives (Partage SMB vs NTFS)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -202,10 +212,10 @@ Sortie :
   `SUMMARY total_users=<U> acces_ecriture=<W> lecture_seule=<R> aucun_acces=<Z>`
   (acces_ecriture = WRITE, MODIFY, FULL_CONTROL ; lecture_seule = READ ; aucun_acces = NONE).</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ACCESS user=Alice share=READ ntfs=FULL_CONTROL
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACCESS user=Alice share=READ ntfs=FULL_CONTROL
 ACCESS user=Bob share=FULL_CONTROL ntfs=MODIFY
 ACCESS user=Charlie share=CHANGE ntfs=WRITE</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>EFFECTIVE_ACCESS user=Alice share=READ ntfs=FULL_CONTROL effective=READ
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>EFFECTIVE_ACCESS user=Alice share=READ ntfs=FULL_CONTROL effective=READ
 EFFECTIVE_ACCESS user=Bob share=FULL_CONTROL ntfs=MODIFY effective=MODIFY
 EFFECTIVE_ACCESS user=Charlie share=CHANGE ntfs=WRITE effective=WRITE
 SUMMARY total_users=3 acces_ecriture=2 lecture_seule=1 aucun_acces=0</pre></div>
@@ -224,19 +234,33 @@ SUMMARY total_users=3 acces_ecriture=2 lecture_seule=1 aucun_acces=0</pre></div>
 
 <div class="lab" data-lab
      data-exercise="ws3-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="USER name=Alice groups=GG_Compta,GG_Employes&#10;ACE target=GG_Employes type=INHERITED perm=DELETE action=DENY&#10;ACE target=Alice type=EXPLICIT perm=DELETE action=ALLOW&#10;ACE target=GG_Compta type=INHERITED perm=READ action=ALLOW">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c4-e2) — Moteur de résolution des conflits NTFS : Héritage, Allow et Deny explicite
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Explicit Deny direct verrouillant un droit]
+# Données : USER name=Bob groups=GG_Devs
+# Données : ACE target=GG_Devs type=EXPLICIT perm=READ action=ALLOW
+# Données : ACE target=Bob type=EXPLICIT perm=READ action=DENY
+A_COMPLETER
 
-# À compléter : arbitrer les permissions selon l'échelle officielle NTFS
+[Cas 2 — Toutes les permissions accordées par héritage]
+# Données : USER name=Claire groups=GG_Admins
+# Données : ACE target=GG_Admins type=INHERITED perm=READ action=ALLOW
+# Données : ACE target=GG_Admins type=INHERITED perm=WRITE action=ALLOW
+# Données : ACE target=GG_Admins type=INHERITED perm=DELETE action=ALLOW
+A_COMPLETER
+
+[Cas 3 — Aucune ACE applicable (tout en refus implicite)]
+# Données : USER name=Inconnu groups=GG_Visiteurs
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Moteur de résolution des conflits NTFS : Héritage, Allow et Deny explicite</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -259,11 +283,11 @@ Sortie :
 - Bilan :
   `SUMMARY user=<NOM> accordees=<A> refusees=<R>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>USER name=Alice groups=GG_Compta,GG_Employes
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>USER name=Alice groups=GG_Compta,GG_Employes
 ACE target=GG_Employes type=INHERITED perm=DELETE action=DENY
 ACE target=Alice type=EXPLICIT perm=DELETE action=ALLOW
 ACE target=GG_Compta type=INHERITED perm=READ action=ALLOW</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PERM_RESULT perm=READ status=ACCORDE decision_level=INHERITED_ALLOW
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PERM_RESULT perm=READ status=ACCORDE decision_level=INHERITED_ALLOW
 PERM_RESULT perm=WRITE status=REFUSE decision_level=IMPLICIT_DENY
 PERM_RESULT perm=DELETE status=ACCORDE decision_level=EXPLICIT_ALLOW
 SUMMARY user=Alice accordees=2 refusees=1</pre></div>
@@ -282,19 +306,36 @@ SUMMARY user=Alice accordees=2 refusees=1</pre></div>
 
 <div class="lab" data-lab
      data-exercise="ws3-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="POOL nom=Pool-Compta resiliency=TWO_WAY_MIRROR&#10;DISK id=D1 size_gb=1000&#10;DISK id=D2 size_gb=1000">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c4-e3) — Simulateur d’espaces de stockage et résilience Storage Spaces
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Mode Parité avec 4 disques de 500 Go]
+# Données : POOL nom=Pool-Archives resiliency=PARITY
+# Données : DISK id=D1 size_gb=500
+# Données : DISK id=D2 size_gb=500
+# Données : DISK id=D3 size_gb=500
+# Données : DISK id=D4 size_gb=500
+A_COMPLETER
 
-# À compléter : calculer la capacité utile et vérifier les seuils de résilience
+[Cas 2 — Erreur : disques insuffisants pour Three-Way Mirror]
+# Données : POOL nom=Pool-Critique resiliency=THREE_WAY_MIRROR
+# Données : DISK id=D1 size_gb=2000
+# Données : DISK id=D2 size_gb=2000
+# Données : DISK id=D3 size_gb=2000
+A_COMPLETER
+
+[Cas 3 — Mode Simple mono-disque]
+# Données : POOL nom=Pool-Temp resiliency=SIMPLE
+# Données : DISK id=D1 size_gb=512
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Simulateur d’espaces de stockage et résilience Storage Spaces</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -322,10 +363,10 @@ Sortie :
   `POOL_ERROR nom=<P> disques_fournis=<N> disques_requis=<MIN>`
   `SUMMARY status=ERREUR_CAPACITE_MIN mode=<MODE>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POOL nom=Pool-Compta resiliency=TWO_WAY_MIRROR
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>POOL nom=Pool-Compta resiliency=TWO_WAY_MIRROR
 DISK id=D1 size_gb=1000
 DISK id=D2 size_gb=1000</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>POOL_RESULT nom=Pool-Compta disks=2 raw_gb=2000 usable_gb=1000.0 efficiency=50.0% fault_tolerance=1_disks
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>POOL_RESULT nom=Pool-Compta disks=2 raw_gb=2000 usable_gb=1000.0 efficiency=50.0% fault_tolerance=1_disks
 SUMMARY status=VALIDE mode=TWO_WAY_MIRROR</pre></div>
     </div>
     <p class="lab__note">2 disques de 1 To = 2000 Go bruts. Miroir double = 1000.0 Go utiles, 1 panne tolérée, efficacité 50.0%.</p>
@@ -503,6 +544,29 @@ SUMMARY status=VALIDE mode=TWO_WAY_MIRROR</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

@@ -25,7 +25,7 @@ module.exports = {
     'définir avec exactitude la discipline de la Recherche Opérationnelle et son rôle stratégique dans la prise de décision ;',
     'identifier sans ambiguïté les variables de décision et leurs unités physiques ($x_j \\ge 0$) ;',
     'construire la fonction objectif économique $Z$ (maximisation de profit ou minimisation de coût) ;',
-    'traduire des contraintes textuelles en inéquations linéaires de ressources ($\le$), de besoins ($\ge$) et d’équilibres ($=$) ;',
+    'traduire des contraintes textuelles en inéquations linéaires de ressources ($\\\\le$), de besoins ($\\\\ge$) et d’équilibres ($=$) ;',
     'valider les hypothèses fondamentales de la programmation linéaire (proportionnalité, additivité, divisibilité, certitude).'
   ],
 
@@ -54,11 +54,15 @@ module.exports = {
       html: [
         '<p>Tout problème de programmation linéaire repose sur une structure mathématique universelle à quatre piliers :</p>',
 
-        '<pre><code>// Structure canonique d’un Programme Linéaire (PL)\n' +
-        '1. Variables de décision : x1, x2, ..., xn  (avec xj &ge; 0 pour tout j)\n' +
-        '2. Fonction objectif   : OPTIMISER (MAX ou MIN) Z = c1*x1 + c2*x2 + ... + cn*xn\n' +
-        '3. Contraintes réelles : a_i1*x1 + a_i2*x2 + ... + a_in*xn {&le;, =, &ge;} bi  (pour i = 1..m)\n' +
-        '4. Contraintes de signe: x1 &ge; 0, x2 &ge; 0, ..., xn &ge; 0</code></pre>',
+        box('formula', 'Structure canonique d’un Programme Linéaire (PL)', [
+          '<div class="math-block">',
+          '$$\\begin{aligned}',
+          '\\text{Optimiser (MAX ou MIN) } & Z = \\sum_{j=1}^{n} c_j x_j = c_1 x_1 + c_2 x_2 + \\dots + c_n x_n \\\\[6pt]',
+          '\\text{Sous les contraintes réelles : } & \\sum_{j=1}^{n} a_{ij} x_j \\le b_i \\quad (i = 1, \\dots, m) \\\\[6pt]',
+          '\\text{Contraintes de non-négativité : } & x_j \\ge 0 \\quad (j = 1, \\dots, n)',
+          '\\end{aligned}$$',
+          '</div>'
+        ].join('\n')),
 
         box('standard', 'Analyse détaillée des quatre composantes', [
           '<ul>',
@@ -110,15 +114,23 @@ module.exports = {
       html: [
         '<p>La plupart des applications industrielles de la programmation linéaire se rattachent à trois grandes familles de modèles :</p>',
 
-        '<pre><code>// 1. Problème de Production (Mix de production)\n' +
-        'Objectif   : MAXIMISER le profit total = &sum; (marge_unitaire * quantite_produite)\n' +
-        'Contraintes: &sum; (conso_ressource * quantite) &le; capacite_disponible  (&le;)\n\n' +
-        '// 2. Problème de Mélange (Régime alimentaire, Métallurgie, Pétrochimie)\n' +
-        'Objectif   : MINIMISER le coût d’achat = &sum; (prix_matiere * quantite_matiere)\n' +
-        'Contraintes: &sum; (teneur_nutriment * quantite) &ge; seuil_nutritionnel_requis (&ge;)\n\n' +
-        '// 3. Problème d’Affectation / Recouvrement (Planning du personnel)\n' +
-        'Objectif   : MINIMISER la masse salariale ou le nombre d’agents\n' +
-        'Contraintes: agents_en_service &ge; effectif_minimum_par_creneau_horaire (&ge;)</code></pre>'
+        box('standard', 'Les trois grandes familles de modèles industriels', [
+          '<div class="box--formula">',
+          '  <span class="formula-label">1. Problème de Production (Mix produit)</span>',
+          '  <div class="math-block">$$\\text{MAX } Z = \\sum c_j x_j \\quad \\text{sous } \\sum a_{ij} x_j \\le b_i \\quad (x_j \\ge 0)$$</div>',
+          '  <p>Maximiser la marge totale sous contraintes de capacités de machines, stocks et main-d’œuvre.</p>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">2. Problème de Mélange (Alimentation, Métallurgie, Chimie)</span>',
+          '  <div class="math-block">$$\\text{MIN } C = \\sum c_j x_j \\quad \\text{sous } \\sum a_{ij} x_j \\ge b_i \\quad (x_j \\ge 0)$$</div>',
+          '  <p>Minimiser le coût d’achat en garantissant les apports nutritionnels ou seuils de pureté minimaux.</p>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">3. Problème d’Affectation &amp; Recouvrement (Planning)</span>',
+          '  <div class="math-block">$$\\text{MIN } W = \\sum c_j x_j \\quad \\text{sous } \\sum a_{ij} x_j \\ge r_i \\quad (x_j \\in \\{0, 1\\})$$</div>',
+          '  <p>Minimiser l’effectif mobilisé tout en couvrant le besoin d’agents par créneau horaire.</p>',
+          '</div>'
+        ].join('\n'))
       ].join('\n')
     }
   ],

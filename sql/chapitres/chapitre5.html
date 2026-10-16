@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -144,27 +145,39 @@ COMMIT;    </div>
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="sql2-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="A:1000,B:500,C:200&#10;TRANSFERT A B 300&#10;TRANSFERT B C 150">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c5-e1) — Simulateur de transaction atomique bancaire (COMMIT vs ROLLBACK)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — ROLLBACK pour solde insuffisant]
+# Données : A:100,B:50
+# Données : TRANSFERT A B 50
+# Données : TRANSFERT A B 80
+A_COMPLETER
 
-# À compléter : simuler la transaction et appliquer COMMIT ou ROLLBACK selon la validité
+[Cas 2 — ROLLBACK pour compte inexistant]
+# Données : A:500,B:200
+# Données : TRANSFERT A Z 100
+A_COMPLETER
+
+[Cas 3 — Multiple transferts équilibrés avec COMMIT]
+# Données : A:100,B:100,C:100
+# Données : TRANSFERT A B 100
+# Données : TRANSFERT B C 200
+# Données : TRANSFERT C A 50
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur de transaction atomique bancaire (COMMIT vs ROLLBACK)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -180,10 +193,10 @@ Sortie :
 - Si succès : <code>Statut: COMMIT | Soldes: &lt;compte:solde triés&gt;</code>
 - Si échec : <code>Statut: ROLLBACK | Erreur: &lt;Raison&gt; | Soldes: &lt;soldes initiaux inchangés&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>A:1000,B:500,C:200
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>A:1000,B:500,C:200
 TRANSFERT A B 300
 TRANSFERT B C 150</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Statut: COMMIT | Soldes: A:700,B:650,C:350</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Statut: COMMIT | Soldes: A:700,B:650,C:350</pre></div>
     </div>
     <p class="lab__note">Tous les virements sont valides, la transaction est validée (COMMIT).</p>
     <details class="lab__hints">
@@ -200,19 +213,41 @@ TRANSFERT B C 150</pre></div>
 
 <div class="lab" data-lab
      data-exercise="sql2-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="AJOUT A 10&#10;SAVEPOINT sp1&#10;AJOUT B 20&#10;ROLLBACK TO sp1&#10;AJOUT C 30&#10;COMMIT">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c5-e2) — Gestionnaire de points de sauvegarde SAVEPOINT & ROLLBACK TO
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Savepoints multiples emboîtés]
+# Données : AJOUT X 1
+# Données : SAVEPOINT sp1
+# Données : AJOUT Y 2
+# Données : SAVEPOINT sp2
+# Données : AJOUT Z 3
+# Données : ROLLBACK TO sp2
+# Données : COMMIT
+A_COMPLETER
 
-# À compléter : simuler la pile de sauvegarde de la transaction et exécuter les commandes
+[Cas 2 — Retour complet au premier savepoint]
+# Données : AJOUT K 100
+# Données : SAVEPOINT depart
+# Données : AJOUT K 200
+# Données : AJOUT L 300
+# Données : ROLLBACK TO depart
+# Données : COMMIT
+A_COMPLETER
+
+[Cas 3 — Aucun rollback intervenu]
+# Données : AJOUT A 1
+# Données : AJOUT B 2
+# Données : COMMIT
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Gestionnaire de points de sauvegarde SAVEPOINT &amp; ROLLBACK TO</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -229,13 +264,13 @@ Une suite de commandes sur chaque ligne :
 Sortie :
 <code>Etat_Final: &lt;cle:valeur triées&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>AJOUT A 10
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AJOUT A 10
 SAVEPOINT sp1
 AJOUT B 20
 ROLLBACK TO sp1
 AJOUT C 30
 COMMIT</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Etat_Final: A:10,C:30</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Etat_Final: A:10,C:30</pre></div>
     </div>
     <p class="lab__note">L'ajout de B est annulé par le ROLLBACK TO sp1, mais A:10 est conservé.</p>
     <details class="lab__hints">
@@ -251,19 +286,33 @@ COMMIT</pre></div>
 
 <div class="lab" data-lab
      data-exercise="sql2-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="T1 DETIENT R1 ATTEND R2&#10;T2 DETIENT R2 ATTEND R1">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c5-e3) — Détecteur d’interblocage (Deadlock) par graphe d’attente (Wait-For Graph)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Exécution séquentielle sans cycle]
+# Données : T1 DETIENT R1 ATTEND AUCUNE
+# Données : T2 DETIENT R2 ATTEND R1
+A_COMPLETER
 
-# À compléter : mapper les ressources aux transactions, construire le graphe T_i -> T_j et détecter les cycles
+[Cas 2 — Interblocage à 3 transactions (T1 -> T2 -> T3 -> T1)]
+# Données : T1 DETIENT R1 ATTEND R2
+# Données : T2 DETIENT R2 ATTEND R3
+# Données : T3 DETIENT R3 ATTEND R1
+A_COMPLETER
+
+[Cas 3 — Graphe sans attente mutuelle]
+# Données : T1 DETIENT R1 ATTEND R3
+# Données : T2 DETIENT R2 ATTEND R3
+# Données : T3 DETIENT R3 ATTEND AUCUNE
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Détecteur d’interblocage (Deadlock) par graphe d’attente (Wait-For Graph)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -278,9 +327,9 @@ Sortie :
 - S’il existe un cycle : <code>DEADLOCK DETECTE: cycle &lt;T_A -&gt; T_B -&gt; ... -&gt; T_A&gt;</code>
 - Si le graphe est acyclique : <code>AUCUN DEADLOCK: execution possible</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>T1 DETIENT R1 ATTEND R2
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>T1 DETIENT R1 ATTEND R2
 T2 DETIENT R2 ATTEND R1</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DEADLOCK DETECTE: cycle T1 -&gt; T2 -&gt; T1</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DEADLOCK DETECTE: cycle T1 -&gt; T2 -&gt; T1</pre></div>
     </div>
     <p class="lab__note">T1 attend T2 qui attend T1 : cycle d'interblocage.</p>
     <details class="lab__hints">
@@ -425,6 +474,29 @@ T2 DETIENT R2 ATTEND R1</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

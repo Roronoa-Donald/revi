@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -172,27 +173,37 @@ git config user.email "torvalds@linux-foundation.org"</code></pre>
 </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="gh3-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="BRANCH_EVENT wf=GIT_FLOW branch=feature/auth base=develop direct_push=NON&#10;BRANCH_EVENT wf=GIT_FLOW branch=feature/auth base=main direct_push=NON">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c4-e1) — Validateur de conformité de workflow de branches (Git Flow vs GitHub Flow)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Push direct proscrit sur branche protégée]
+# Données : BRANCH_EVENT wf=GIT_FLOW branch=main base=main direct_push=OUI
+# Données : BRANCH_EVENT wf=GITHUB_FLOW branch=main base=main direct_push=OUI
+A_COMPLETER
 
-# À compléter : auditer les branches selon les règles de workflow
+[Cas 2 — Conformité hotfix et release dans Git Flow]
+# Données : BRANCH_EVENT wf=GIT_FLOW branch=hotfix/patch-1 base=main direct_push=NON
+# Données : BRANCH_EVENT wf=GIT_FLOW branch=hotfix/patch-2 base=develop direct_push=NON
+# Données : BRANCH_EVENT wf=GIT_FLOW branch=release/v1.0 base=develop direct_push=NON
+A_COMPLETER
+
+[Cas 3 — GitHub Flow avec branche dérivée de main]
+# Données : BRANCH_EVENT wf=GITHUB_FLOW branch=feat-login base=main direct_push=NON
+# Données : BRANCH_EVENT wf=GITHUB_FLOW branch=feat-login base=develop direct_push=NON
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur de conformité de workflow de branches (Git Flow vs GitHub Flow)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -207,14 +218,13 @@ Règles du modèle <strong>GIT_FLOW</strong> :<br>
 Règles du modèle <strong>GITHUB_FLOW</strong> :<br>
 - Toutes les branches de fonctionnalités/correctifs partent de <code>main</code>.<br>
 - Tout push direct sur <code>main</code> est interdit.<br><br>
-Le script lit sur l'entrée standard des événements d'embranchement :<br>
-<code>BRANCH_EVENT wf=&lt;GIT_FLOW|GITHUB_FLOW&gt; branch=&lt;nom&gt; base=&lt;base_branch&gt; direct_push=&lt;OUI|NON&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque ligne, afficher :<br>
 <code>AUDIT branch={branch} status={CONFORME | motif_violation}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>BRANCH_EVENT wf=GIT_FLOW branch=feature/auth base=develop direct_push=NON
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BRANCH_EVENT wf=GIT_FLOW branch=feature/auth base=develop direct_push=NON
 BRANCH_EVENT wf=GIT_FLOW branch=feature/auth base=main direct_push=NON</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT branch=feature/auth status=CONFORME
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT branch=feature/auth status=CONFORME
 AUDIT branch=feature/auth status=BRANCHE_BASE_INVALIDE_ATTENDU_DEVELOP</pre></div>
     </div>
     <p class="lab__note">Dans Git Flow, une feature doit partir de develop, pas de main.</p>
@@ -230,19 +240,33 @@ AUDIT branch=feature/auth status=BRANCHE_BASE_INVALIDE_ATTENDU_DEVELOP</pre></di
 
 <div class="lab" data-lab
      data-exercise="gh3-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CONFIG min_approvals=2 require_signed=OUI linear_history=OUI&#10;MERGE_REQ pr=42 approvals=2 ci_status=PASS gpg_signed=OUI merge_type=SQUASH">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c4-e2) — Contrôleur de règles de protection de branches (Branch Protection Rules)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Rejet pour approbations insuffisantes ou CI en échec]
+# Données : CONFIG min_approvals=2 require_signed=NON linear_history=NON
+# Données : MERGE_REQ pr=10 approvals=1 ci_status=PASS gpg_signed=NON merge_type=MERGE_COMMIT
+# Données : MERGE_REQ pr=11 approvals=2 ci_status=FAIL gpg_signed=NON merge_type=MERGE_COMMIT
+A_COMPLETER
 
-# À compléter : évaluer les règles de protection de branche GitHub
+[Cas 2 — Rejet pour signature GPG manquante]
+# Données : CONFIG min_approvals=1 require_signed=OUI linear_history=NON
+# Données : MERGE_REQ pr=20 approvals=1 ci_status=PASS gpg_signed=NON merge_type=MERGE_COMMIT
+A_COMPLETER
+
+[Cas 3 — Rejet pour merge commit sur branche à historique linéaire strict]
+# Données : CONFIG min_approvals=1 require_signed=NON linear_history=OUI
+# Données : MERGE_REQ pr=30 approvals=1 ci_status=PASS gpg_signed=NON merge_type=MERGE_COMMIT
+# Données : MERGE_REQ pr=31 approvals=1 ci_status=PASS gpg_signed=NON merge_type=REBASE
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Contrôleur de règles de protection de branches (Branch Protection Rules)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -254,15 +278,13 @@ Critères nécessaires pour autoriser la fusion (Merge) dans <code>main</code> :
 2. <code>ci_status == 'PASS'</code> (les pipelines d'intégration continue doivent impérativement être au vert).<br>
 3. Si <code>require_signed == 'OUI'</code> : le commit doit obligatoirement être signé cryptographiquement (<code>gpg_signed == 'OUI'</code>).<br>
 4. Si <code>linear_history == 'OUI'</code> : le type de merge demandé ne doit pas être <code>MERGE_COMMIT</code> (doit être <code>SQUASH</code> ou <code>REBASE</code>).<br><br>
-Le script lit la configuration puis les requêtes de fusion :<br>
-<code>CONFIG min_approvals=&lt;n&gt; require_signed=&lt;OUI|NON&gt; linear_history=&lt;OUI|NON&gt;</code><br>
-<code>MERGE_REQ pr=&lt;id&gt; approvals=&lt;n&gt; ci_status=&lt;PASS|FAIL&gt; gpg_signed=&lt;OUI|NON&gt; merge_type=&lt;MERGE_COMMIT|SQUASH|REBASE&gt;</code>.<br><br>
+Analysez les données fournies pour chaque cas.<br><br>
 Pour chaque PR, afficher :<br>
 <code>PR_MERGE pr={id} status={AUTHORIZED|BLOCKED} reason={OK|motif_du_premier_blocage}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CONFIG min_approvals=2 require_signed=OUI linear_history=OUI
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CONFIG min_approvals=2 require_signed=OUI linear_history=OUI
 MERGE_REQ pr=42 approvals=2 ci_status=PASS gpg_signed=OUI merge_type=SQUASH</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>PR_MERGE pr=42 status=AUTHORIZED reason=OK</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>PR_MERGE pr=42 status=AUTHORIZED reason=OK</pre></div>
     </div>
     <p class="lab__note">Tous les critères de protection sont satisfaits.</p>
     <details class="lab__hints">
@@ -277,19 +299,30 @@ MERGE_REQ pr=42 approvals=2 ci_status=PASS gpg_signed=OUI merge_type=SQUASH</pre
 
 <div class="lab" data-lab
      data-exercise="gh3-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="COMMIT_MSG id=1 msg=feat(auth): ajout authentification JWT&#10;COMMIT_MSG id=2 msg=fix!: correction faille critique">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (gh3-c4-e3) — Analyseur sémantique de commits selon Conventional Commits
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Message sans scope et type inconnu]
+# Données : COMMIT_MSG id=10 msg=docs: mise a jour du README
+# Données : COMMIT_MSG id=11 msg=update: modifications diverses
+A_COMPLETER
 
-# À compléter : valider le format Conventional Commits
+[Cas 2 — Format invalide sans espace après deux-points ou sans séparateur]
+# Données : COMMIT_MSG id=20 msg=feat:nospace
+# Données : COMMIT_MSG id=21 msg=juste un message sans type
+A_COMPLETER
+
+[Cas 3 — Breaking change via mention textuelle BREAKING CHANGE]
+# Données : COMMIT_MSG id=30 msg=refactor(core): refonte complete du routeur BREAKING CHANGE
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Analyseur sémantique de commits selon Conventional Commits</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -304,15 +337,14 @@ Règles de validation :<br>
 3. Le caractère <code>!</code> avant le deux-points ou la présence de <code>BREAKING CHANGE</code> dans le message indique une rupture de compatibilité (<code>BREAKING=OUI</code>).<br>
 4. Le séparateur obligatoire est deux-points suivi d'un espace <code>": "</code>.<br>
 5. La <code>description</code> ne doit pas être vide.<br><br>
-Le script lit sur l'entrée standard des messages au format :<br>
-<code>COMMIT_MSG id=&lt;id&gt; msg=&lt;texte_du_message&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque message, afficher :<br>
 - Si conforme : <code>CONVENTIONAL_AUDIT id={id} valid=OUI type={type} scope={scope|NONE} breaking={OUI|NON}</code><br>
 - Si non conforme : <code>CONVENTIONAL_AUDIT id={id} valid=NON error={TYPE_INCONNU|FORMAT_INVALIDE|DESCRIPTION_VIDE}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>COMMIT_MSG id=1 msg=feat(auth): ajout authentification JWT
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>COMMIT_MSG id=1 msg=feat(auth): ajout authentification JWT
 COMMIT_MSG id=2 msg=fix!: correction faille critique</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CONVENTIONAL_AUDIT id=1 valid=OUI type=feat scope=auth breaking=NON
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CONVENTIONAL_AUDIT id=1 valid=OUI type=feat scope=auth breaking=NON
 CONVENTIONAL_AUDIT id=2 valid=OUI type=fix scope=NONE breaking=OUI</pre></div>
     </div>
     <p class="lab__note">Validation du format avec et sans scope, détection de breaking change.</p>
@@ -489,6 +521,29 @@ CONVENTIONAL_AUDIT id=2 valid=OUI type=fix scope=NONE breaking=OUI</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

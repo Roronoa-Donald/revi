@@ -151,13 +151,13 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable Linux Avancé</h1>',
-    '  <p class="lead">Expérimentez et automatisez vos outils d’ingénierie système en Python 3 : analyse de métriques /proc, simulation de Cgroups v2, audit de politiques de routage et décodage de journaux auditd.</p>',
+    '  <p class="lead">Expérimentez et automatisez vos outils d’ingénierie système selon les grilles d’analyse : analyse de métriques /proc, simulation de Cgroups v2, audit de politiques de routage et décodage de journaux auditd.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="PROC_INFO pid=1\nname=systemd">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez l’analyse de métriques de processus (/proc) et de cgroups sous Linux\nimport sys\n\ndef analyser_processus(pid, comm, state="S", rss_pages=1024):\n    mem_kb = rss_pages * 4\n    return f"PID={pid} COMM={comm} STATE={state} MEM_KB={mem_kb}"\n\nif __name__ == "__main__":\n    lines = sys.stdin.read().splitlines()\n    print(analyser_processus(1, "systemd", "S", 2048))\n    print(analyser_processus(42, "nginx", "R", 512))\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -180,7 +180,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire Linux libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos algorithmes d’ingénierie système Linux.',
+      description: 'Bac à sable interactif par cas d’application pour tester vos algorithmes d’ingénierie système Linux.',
       active: 'atelier',
       body
     }

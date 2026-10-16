@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -155,39 +156,44 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="pf3-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="VLAN_SUBIF parent=em0 tag=10 name=LAN subnet=192.168.10.0/24&#10;VLAN_SUBIF parent=em0 tag=20 name=DMZ subnet=192.168.20.0/24&#10;FRAME id=F1 ingress_if=em0 tag=10 payload_bytes=512&#10;FRAME id=F2 ingress_if=em0 tag=99 payload_bytes=64&#10;FRAME id=F3 ingress_if=em0 tag=0 payload_bytes=128">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c4-e1) — Validateur d'encapsulation 802.1Q et calcul de sous-interfaces VLAN
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Sous-interface sur carte réseau igb0]
+# Données : VLAN_SUBIF parent=igb0 tag=100 name=MGMT subnet=10.100.0.0/24
+# Données : FRAME id=ADMIN_FRAME ingress_if=igb0 tag=100 payload_bytes=1024
+A_COMPLETER
 
-# À compléter : enregistrer les sous-interfaces et évaluer chaque trame
+[Cas 2 — Interface parente différente avec le même tag]
+# Données : VLAN_SUBIF parent=em0 tag=30 name=GUEST subnet=172.16.30.0/24
+# Données : FRAME id=TEST_WRONG_PARENT ingress_if=em1 tag=30 payload_bytes=256
+A_COMPLETER
+
+[Cas 3 — Trames non taguées répétées]
+# Données : VLAN_SUBIF parent=vtnet0 tag=50 name=SERVERS subnet=192.168.50.0/24
+# Données : FRAME id=RAW1 ingress_if=vtnet0 tag=0 payload_bytes=64
+# Données : FRAME id=RAW2 ingress_if=vtnet0 tag=0 payload_bytes=128
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur d'encapsulation 802.1Q et calcul de sous-interfaces VLAN</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Valider les trames 802.1Q et les mapper vers la sous-interface pfSense correspondante.</p>
     <div class="lab__brief"><p>Dans FreeBSD/pfSense, la segmentation par <strong>VLAN 802.1Q</strong> permet de faire transiter plusieurs réseaux logiques isolés sur un même câble physique (Trunk). Chaque sous-interface est identifiée sous la forme <code>parent.tag</code> (ex: <code>em0.10</code>).<br><br>
-Le script lit sur l'entrée standard :<br>
-- Les déclarations de sous-interfaces :<br>
-  <code>VLAN_SUBIF parent=&lt;iface&gt; tag=&lt;int&gt; name=&lt;nom&gt; subnet=&lt;cidr&gt;</code><br>
-- Les trames en entrée du pare-feu :<br>
-  <code>FRAME id=&lt;nom&gt; ingress_if=&lt;iface&gt; tag=&lt;int|0&gt; payload_bytes=&lt;int&gt;</code><br>
-  (une valeur de <code>tag=0</code> désigne une trame non étiquetée / untagged).<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles :<br>
 - Si <code>tag == 0</code> : rejetée par défaut sur un port trunk sans VLAN natif autorisé :<br>
   <code>status=DROPPED subif=NONE subnet=NONE</code>.<br>
@@ -200,12 +206,12 @@ Règles :<br>
 Pour chaque trame, afficher :<br>
 <code>8021Q_EVAL id={id} tag={tag} status={status} subif={subif} subnet={subnet}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VLAN_SUBIF parent=em0 tag=10 name=LAN subnet=192.168.10.0/24
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VLAN_SUBIF parent=em0 tag=10 name=LAN subnet=192.168.10.0/24
 VLAN_SUBIF parent=em0 tag=20 name=DMZ subnet=192.168.20.0/24
 FRAME id=F1 ingress_if=em0 tag=10 payload_bytes=512
 FRAME id=F2 ingress_if=em0 tag=99 payload_bytes=64
 FRAME id=F3 ingress_if=em0 tag=0 payload_bytes=128</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>8021Q_EVAL id=F1 tag=10 status=ACCEPTED subif=em0.10 subnet=192.168.10.0/24
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>8021Q_EVAL id=F1 tag=10 status=ACCEPTED subif=em0.10 subnet=192.168.10.0/24
 8021Q_EVAL id=F2 tag=99 status=DROPPED subif=UNKNOWN subnet=NONE
 8021Q_EVAL id=F3 tag=0 status=DROPPED subif=NONE subnet=NONE</pre></div>
     </div>
@@ -222,31 +228,37 @@ FRAME id=F3 ingress_if=em0 tag=0 payload_bytes=128</pre></div>
 
 <div class="lab" data-lab
      data-exercise="pf3-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="POLICY src=LAN dst=DMZ port=ANY action=PASS&#10;POLICY src=DMZ dst=LAN port=ANY action=BLOCK&#10;POLICY src=DMZ dst=WAN port=53 action=PASS&#10;FLOW id=F1 src=LAN dst=DMZ port=80 state=NEW&#10;FLOW id=F2 src=DMZ dst=LAN port=445 state=NEW&#10;FLOW id=F3 src=DMZ dst=LAN port=80 state=ESTABLISHED&#10;FLOW id=F4 src=DMZ dst=WAN port=22 state=NEW">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c4-e2) — Contrôleur de matrice de flux inter-VLANs et filtrage DMZ
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Autorisation DNS explicite depuis la DMZ vers le WAN]
+# Données : POLICY src=DMZ dst=WAN port=53 action=PASS
+# Données : FLOW id=DNS_QUERY src=DMZ dst=WAN port=53 state=NEW
+A_COMPLETER
 
-# À compléter : charger les politiques de zones et évaluer les flux réseau
+[Cas 2 — Tentative de rebond SSH depuis la DMZ vers le LAN bloquée]
+# Données : POLICY src=DMZ dst=LAN port=ANY action=BLOCK
+# Données : FLOW id=SSH_BREACH src=DMZ dst=LAN port=22 state=NEW
+A_COMPLETER
+
+[Cas 3 — Flux établi passant sans règle explicite]
+# Données : FLOW id=TCP_REPLY src=DMZ dst=LAN port=443 state=ESTABLISHED
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Contrôleur de matrice de flux inter-VLANs et filtrage DMZ</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le pare-feu à état entre zones réseau (LAN, DMZ, WAN) et bloquer l'initiation illégitime DMZ vers LAN.</p>
     <div class="lab__brief"><p>Le principe fondamental d'architecture sécurisée d'une <strong>DMZ (Zone Démilitarisée)</strong> stipule qu'un serveur DMZ ne doit <em>jamais pouvoir initier</em> une nouvelle connexion vers le réseau interne sécurisé (LAN). En revanche, le LAN peut initier des flux vers la DMZ, et la DMZ peut répondre (flux établi).<br><br>
-Le script lit sur l'entrée standard d'abord les règles de politique de sécurité :<br>
-<code>POLICY src=&lt;zone&gt; dst=&lt;zone&gt; port=&lt;int|ANY&gt; action=&lt;PASS|BLOCK&gt;</code><br>
-Puis des demandes de flux réseau :<br>
-<code>FLOW id=&lt;nom&gt; src=&lt;zone&gt; dst=&lt;zone&gt; port=&lt;int&gt; state=&lt;NEW|ESTABLISHED&gt;</code><br><br>
-Règles d'évaluation dans pfSense :<br>
-1. Si <code>state == 'ESTABLISHED'</code> :<br>
+Analysez les paramètres du problème pour chaque cas. Si <code>state == 'ESTABLISHED'</code> :<br>
    Le paquet appartient à une session déjà approuvée dans la table d'états :<br>
    <code>action=PASS reason=STATE_ESTABLISHED</code>.<br>
 2. Si <code>state == 'NEW'</code> :<br>
@@ -258,14 +270,14 @@ Règles d'évaluation dans pfSense :<br>
 Pour chaque flux, afficher :<br>
 <code>FLOW_REPORT id={id} src={src} dst={dst} port={port} action={action} reason={reason}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POLICY src=LAN dst=DMZ port=ANY action=PASS
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>POLICY src=LAN dst=DMZ port=ANY action=PASS
 POLICY src=DMZ dst=LAN port=ANY action=BLOCK
 POLICY src=DMZ dst=WAN port=53 action=PASS
 FLOW id=F1 src=LAN dst=DMZ port=80 state=NEW
 FLOW id=F2 src=DMZ dst=LAN port=445 state=NEW
 FLOW id=F3 src=DMZ dst=LAN port=80 state=ESTABLISHED
 FLOW id=F4 src=DMZ dst=WAN port=22 state=NEW</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>FLOW_REPORT id=F1 src=LAN dst=DMZ port=80 action=PASS reason=RULE_MATCH
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>FLOW_REPORT id=F1 src=LAN dst=DMZ port=80 action=PASS reason=RULE_MATCH
 FLOW_REPORT id=F2 src=DMZ dst=LAN port=445 action=BLOCK reason=RULE_MATCH
 FLOW_REPORT id=F3 src=DMZ dst=LAN port=80 action=PASS reason=STATE_ESTABLISHED
 FLOW_REPORT id=F4 src=DMZ dst=WAN port=22 action=BLOCK reason=DEFAULT_DENY</pre></div>
@@ -283,27 +295,39 @@ FLOW_REPORT id=F4 src=DMZ dst=WAN port=22 action=BLOCK reason=DEFAULT_DENY</pre>
 
 <div class="lab" data-lab
      data-exercise="pf3-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="TRUNK_CONFIG native_vlan=1 allowed_vlans=10,20,30&#10;PACKET id=PKT1 outer_tag=1 inner_tag=20 dst_ip=192.168.20.10&#10;PACKET id=PKT2 outer_tag=10 inner_tag=NONE dst_ip=192.168.10.5&#10;PACKET id=PKT3 outer_tag=99 inner_tag=NONE dst_ip=10.0.0.1&#10;PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (pf3-c4-e3) — Auditeur de fuite d'isolation réseau (VLAN Hopping & Double Tagging)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Détection d'attaque sur VLAN natif personnalisé (VLAN 99)]
+# Données : TRUNK_CONFIG native_vlan=99 allowed_vlans=10,20
+# Données : PACKET id=EXPLOIT outer_tag=99 inner_tag=10 dst_ip=192.168.10.50
+A_COMPLETER
 
-# À compléter : analyser la configuration Trunk et auditer chaque paquet
+[Cas 2 — Double tag sans correspondance VLAN natif]
+# Données : TRUNK_CONFIG native_vlan=1 allowed_vlans=10,20
+# Données : PACKET id=MALFORMED outer_tag=50 inner_tag=20 dst_ip=192.168.20.2
+A_COMPLETER
+
+[Cas 3 — Trames autorisées sur VLANs distincts]
+# Données : TRUNK_CONFIG native_vlan=1 allowed_vlans=100,200
+# Données : PACKET id=P1 outer_tag=100 inner_tag=NONE dst_ip=10.100.0.1
+# Données : PACKET id=P2 outer_tag=200 inner_tag=NONE dst_ip=10.200.0.1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Auditeur de fuite d'isolation réseau (VLAN Hopping &amp; Double Tagging)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Détecter les attaques par double étiquetage 802.1Q (Double Tagging) visant à contourner l'isolation VLAN.</p>
     <div class="lab__brief"><p>L'attaque par <strong>Double Tagging (VLAN Hopping)</strong> exploite le comportement des commutateurs qui dépouillent le tag externe du VLAN natif d'un lien Trunk, permettant au tag interne d'atteindre un VLAN cible non autorisé sans traverser le pare-feu.<br><br>
-Le script lit sur l'entrée standard d'abord la configuration du lien Trunk :<br>
-<code>TRUNK_CONFIG native_vlan=&lt;int&gt; allowed_vlans=&lt;vlan1,vlan2,...&gt;</code><br>
+Analysez les paramètres du problème pour chaque cas...&gt;</code><br>
 Puis des paquets analysés par la sonde réseau :<br>
 <code>PACKET id=&lt;nom&gt; outer_tag=&lt;int|NONE&gt; inner_tag=&lt;int|NONE&gt; dst_ip=&lt;ip&gt;</code><br><br>
 Critères de détection et d'audit :<br>
@@ -323,12 +347,12 @@ Critères de détection et d'audit :<br>
 Pour chaque paquet, afficher :<br>
 <code>AUDIT_VLAN id={id} status={status} type={type} target_vlan={target_vlan} action={action}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TRUNK_CONFIG native_vlan=1 allowed_vlans=10,20,30
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TRUNK_CONFIG native_vlan=1 allowed_vlans=10,20,30
 PACKET id=PKT1 outer_tag=1 inner_tag=20 dst_ip=192.168.20.10
 PACKET id=PKT2 outer_tag=10 inner_tag=NONE dst_ip=192.168.10.5
 PACKET id=PKT3 outer_tag=99 inner_tag=NONE dst_ip=10.0.0.1
 PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT_VLAN id=PKT1 status=ATTACK_DETECTED type=DOUBLE_TAGGING target_vlan=20 action=ALERT_DROP
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT_VLAN id=PKT1 status=ATTACK_DETECTED type=DOUBLE_TAGGING target_vlan=20 action=ALERT_DROP
 AUDIT_VLAN id=PKT2 status=VALID type=STANDARD_TAGGED target_vlan=10 action=FORWARD
 AUDIT_VLAN id=PKT3 status=BLOCKED type=UNAUTHORIZED_VLAN target_vlan=99 action=DROP
 AUDIT_VLAN id=PKT4 status=NATIVE type=UNTAGGED target_vlan=1 action=FORWARD</pre></div>
@@ -507,6 +531,29 @@ AUDIT_VLAN id=PKT4 status=NATIVE type=UNTAGGED target_vlan=1 action=FORWARD</pre
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

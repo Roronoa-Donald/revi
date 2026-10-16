@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -141,35 +142,40 @@ nsenter -t &lt;PID&gt; -n ip addr</code></pre>
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="lx3-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="NS_CHECK pid=101 ns_pid=4026531836 ns_net=4026531992 ns_mnt=4026532000 host_pid=4026531836 host_net=4026531992 host_mnt=4026532000">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c4-e1) — Classificateur et auditeur de namespaces Linux par processus
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Processus en conteneur complet avec isolation totale (3/3)]
+# Données : NS_CHECK pid=5000 ns_pid=4026532500 ns_net=4026532501 ns_mnt=4026532502 host_pid=4026531836 host_net=4026531992 host_mnt=4026532000
+A_COMPLETER
 
-# À compléter : comparer les namespaces avec ceux de l'hôte
+[Cas 2 — Processus avec isolation réseau uniquement (ex: conteneur host network)]
+# Données : NS_CHECK pid=6000 ns_pid=4026531836 ns_net=4026533000 ns_mnt=4026531836 host_pid=4026531836 host_net=4026531992 host_mnt=4026531836
+A_COMPLETER
+
+[Cas 3 — Processus système hôte standard]
+# Données : NS_CHECK pid=1 ns_pid=1000 ns_net=2000 ns_mnt=3000 host_pid=1000 host_net=2000 host_mnt=3000
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Classificateur et auditeur de namespaces Linux par processus</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Comparer les identifiants d’inodes de namespaces d’un processus par rapport à l’espace hôte.</p>
     <div class="lab__brief"><p>Les <strong>namespaces</strong> Linux fournissent l'isolation nécessaire aux conteneurs (Docker, containerd, LXC) en partitionnant les ressources globales du système (PID, NET, MNT, IPC, UTS, USER). Chaque namespace est identifié dans <code>/proc/[pid]/ns/</code> par un numéro d'inode unique.<br><br>
-Le script lit sur l'entrée standard des comparaisons au format :<br>
-<code>NS_CHECK pid=&lt;id&gt; ns_pid=&lt;inode&gt; ns_net=&lt;inode&gt; ns_mnt=&lt;inode&gt; host_pid=&lt;hinode&gt; host_net=&lt;hinode&gt; host_mnt=&lt;hinode&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Règles :<br>
 1. Comparer chaque namespace (PID, NET, MNT) à sa contrepartie hôte.<br>
 2. Compter le nombre de namespaces isolés (différents de l'hôte) : <code>diff_count</code>.<br>
@@ -177,8 +183,8 @@ Règles :<br>
 Pour chaque processus, afficher :<br>
 <code>NS_STATUS pid={pid} isolated={OUI|NON} isolated_count={diff_count}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>NS_CHECK pid=101 ns_pid=4026531836 ns_net=4026531992 ns_mnt=4026532000 host_pid=4026531836 host_net=4026531992 host_mnt=4026532000</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>NS_STATUS pid=101 isolated=NON isolated_count=0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NS_CHECK pid=101 ns_pid=4026531836 ns_net=4026531992 ns_mnt=4026532000 host_pid=4026531836 host_net=4026531992 host_mnt=4026532000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>NS_STATUS pid=101 isolated=NON isolated_count=0</pre></div>
     </div>
     <p class="lab__note">Le processus partage tous les namespaces de l’hôte : il n’est pas conteneurisé.</p>
     <details class="lab__hints">
@@ -193,19 +199,28 @@ Pour chaque processus, afficher :<br>
 
 <div class="lab" data-lab
      data-exercise="lx3-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CGROUP group=web_tier cpu_quota=200000 cpu_period=100000 mem_curr_mb=256 mem_max_mb=512">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c4-e2) — Contrôleur de quotas et limites de ressources Cgroups v2 (cpu.max & memory.max)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Groupe sans limite CPU (max) et mémoire saturée]
+# Données : CGROUP group=batch_proc cpu_quota=max cpu_period=100000 mem_curr_mb=1024 mem_max_mb=1024
+A_COMPLETER
 
-# À compléter : calculer le quota CPU et vérifier la saturation mémoire Cgroups v2
+[Cas 2 — Demi-cœur alloué (0.5) et statut mémoire sain]
+# Données : CGROUP group=micro_api cpu_quota=50000 cpu_period=100000 mem_curr_mb=64 mem_max_mb=128
+A_COMPLETER
+
+[Cas 3 — Quatre cœurs alloués et dépassement mémoire]
+# Données : CGROUP group=db_container cpu_quota=400000 cpu_period=100000 mem_curr_mb=4096 mem_max_mb=2048
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Contrôleur de quotas et limites de ressources Cgroups v2 (cpu.max &amp; memory.max)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -215,13 +230,12 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 Directives Cgroups v2 :<br>
 - <code>cpu.max = &lt;quota&gt; &lt;period&gt;</code> : Si quota vaut <code>max</code>, la limite CPU est <code>UNLIMITED</code>. Sinon, le nombre de cœurs alloués équivalent vaut <code>quota / period</code> (ex: 200000 100000 &rarr; 2.0 cœurs).<br>
 - <code>memory.max = &lt;limite_Mo&gt;</code> : Si la mémoire actuelle dépasse ou égale la limite, le groupe subit un étranglement ou risque l'OOM (<code>mem_status=SATURATED</code>), sinon <code>mem_status=OK</code>.<br><br>
-Le script lit sur l'entrée standard des paramètres au format :<br>
-<code>CGROUP group=&lt;nom&gt; cpu_quota=&lt;q|max&gt; cpu_period=&lt;p&gt; mem_curr_mb=&lt;cur&gt; mem_max_mb=&lt;max&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque groupe, afficher :<br>
 <code>CGROUP_AUDIT group={group} cpu_cores={val|UNLIMITED} mem_status={OK|SATURATED}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CGROUP group=web_tier cpu_quota=200000 cpu_period=100000 mem_curr_mb=256 mem_max_mb=512</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CGROUP_AUDIT group=web_tier cpu_cores=2.0 mem_status=OK</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CGROUP group=web_tier cpu_quota=200000 cpu_period=100000 mem_curr_mb=256 mem_max_mb=512</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CGROUP_AUDIT group=web_tier cpu_cores=2.0 mem_status=OK</pre></div>
     </div>
     <p class="lab__note">200000 / 100000 = 2.0 cœurs. Mémoire 256 &lt; 512 Mo : statut OK.</p>
     <details class="lab__hints">
@@ -237,19 +251,28 @@ Pour chaque groupe, afficher :<br>
 
 <div class="lab" data-lab
      data-exercise="lx3-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="OOM_PROC pid=1 comm=systemd mem_mb=25 oom_score_adj=-1000">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lx3-c4-e3) — Détecteur de sacrifice OOM Killer et pondération oom_score_adj
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Processus consommateur à haut risque de sacrifice]
+# Données : OOM_PROC pid=3420 comm=mem_leak mem_mb=1200 oom_score_adj=200
+A_COMPLETER
 
-# À compléter : calculer le score OOM et déterminer le risque de sacrifice
+[Cas 2 — Processus protégé avec score négatif sans être immunisé]
+# Données : OOM_PROC pid=880 comm=sshd mem_mb=50 oom_score_adj=-500
+A_COMPLETER
+
+[Cas 3 — Processus standard modéré]
+# Données : OOM_PROC pid=2100 comm=worker mem_mb=600 oom_score_adj=0
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Détecteur de sacrifice OOM Killer et pondération oom_score_adj</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -262,13 +285,12 @@ Chaque processus dispose d'un score d'ajustement configurable dans <code>/proc/[
 Évaluation du risque :<br>
 - Si <code>score &gt; 1000</code> : <code>risk=HIGH</code> (première cible de sacrifice).<br>
 - Sinon : <code>risk=LOW</code>.<br><br>
-Le script lit sur l'entrée standard des candidats au format :<br>
-<code>OOM_PROC pid=&lt;id&gt; comm=&lt;nom&gt; mem_mb=&lt;m&gt; oom_score_adj=&lt;score&gt;</code>.<br><br>
+Analysez les paramètres du problème pour chaque cas.<br><br>
 Pour chaque processus, afficher :<br>
 <code>OOM_TARGET pid={pid} comm={comm} score={score|IMMUNE} risk={HIGH|LOW|NONE}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>OOM_PROC pid=1 comm=systemd mem_mb=25 oom_score_adj=-1000</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>OOM_TARGET pid=1 comm=systemd score=IMMUNE risk=NONE</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OOM_PROC pid=1 comm=systemd mem_mb=25 oom_score_adj=-1000</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>OOM_TARGET pid=1 comm=systemd score=IMMUNE risk=NONE</pre></div>
     </div>
     <p class="lab__note">PID 1 (systemd) a un ajustement de -1000 : il ne sera jamais ciblé par l’OOM Killer.</p>
     <details class="lab__hints">
@@ -445,6 +467,29 @@ Pour chaque processus, afficher :<br>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

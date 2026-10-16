@@ -40,13 +40,16 @@ module.exports = {
       html: [
         '<p>Pour piloter un projet complexe, deux formalismes de graphes ont été développés dans les années 1950 :</p>',
 
-        '<pre><code>// 1. Méthode PERT / CPM (Program Evaluation and Review Technique - 1958 US Navy)\n' +
-        '- Historiquement : Potentiel-Étapes (les sommets sont des événements, les arcs sont les tâches).\n' +
-        '- Nécessite parfois des tâches fictives (dummy activities) de durée nulle pour représenter des antériorités complexes.\n\n' +
-        '// 2. Méthode des Potentiels METRA (MPM - Bernard Roy, France 1958)\n' +
-        '- Potentiel-Tâches : chaque sommet représente une tâche avec sa durée d_i.\n' +
-        '- Les arcs orientés (i &rarr; j) représentent les contraintes de précédence : j ne peut débuter que si i est achevée.\n' +
-        '- Structure canonique : plus naturelle, plus facile à coder et sans tâche fictive !</code></pre>',
+        box('standard', 'Comparaison des deux formalismes de réseaux', [
+          '<div class="box--formula">',
+          '  <span class="formula-label">1. Méthode PERT / CPM (US Navy, 1958) — Potentiel-Étapes</span>',
+          '  <p>Les <strong>sommets</strong> représentent des événements (jalons) et les <strong>arcs</strong> représentent les tâches. Requiert parfois des tâches fictives (durée nulle) pour modéliser des antériorités complexes.</p>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">2. Méthode MPM (Bernard Roy, France 1958) — Potentiel-Tâches</span>',
+          '  <p>Chaque <strong>sommet</strong> représente une tâche réelle avec sa durée $d_i$. Les <strong>arcs orientés</strong> $(i \\to j)$ représentent directement les dépendances logiques sans jamais recourir à des tâches fictives.</p>',
+          '</div>'
+        ].join('\n')),
 
         box('info', 'Le graphe doit être un DAG (Directed Acyclic Graph)', [
           '<p>Un réseau d’ordonnancement physique ne peut comporter aucun cycle : une tâche ne peut jamais être son propre ancêtre ! ' +
@@ -100,16 +103,25 @@ module.exports = {
         'et où chaque arc $(u, v)$ possède une capacité maximale $c(u, v) \\ge 0$. ' +
         'Un flot $f$ doit respecter deux lois fondamentales :</p>',
 
-        '<pre><code>// 1. Contrainte de capacité : 0 &le; f(u, v) &le; c(u, v)  pour tout arc\n' +
-        '// 2. Conservation du flux : pour tout sommet intermédiaire v &ne; {s, t} :\n' +
-        '&sum; f(u, v) [flux entrant] = &sum; f(v, w) [flux sortant]\n\n' +
-        '// L’Algorithme de Ford-Fulkerson (1956)\n' +
-        '1. Initialiser le flot à zéro sur tous les arcs : f(u, v) = 0.\n' +
-        '2. Tant qu’il existe une chaîne augmentante P reliant s à t dans le graphe résiduel :\n' +
-        '   - Calculer la capacité résiduelle : r(u, v) = c(u, v) - f(u, v)\n' +
-        '   - Trouver le goulot d’étranglement : &Delta; = min { r(u, v) | (u, v) &isin; P }\n' +
-        '   - Augmenter le flot de &Delta; le long de P : f(u, v) &larr; f(u, v) + &Delta;\n' +
-        '3. Quand aucune chaîne augmentante n’existe : le flot total est MAXIMUM !</code></pre>',
+        box('formula', 'Lois de conservation du flot & Algorithme de Ford-Fulkerson', [
+          '<div class="box--formula">',
+          '  <span class="formula-label">1. Lois de conservation de Kirchhoff</span>',
+          '  <div class="math-block">$$0 \\le f(u, v) \\le c(u, v) \\quad \\text{et} \\quad \\sum_{u} f(u, v) = \\sum_{w} f(v, w) \\quad (\\forall v \\notin \\{s, t\\})$$</div>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">2. Algorithme de Ford-Fulkerson (1956)</span>',
+          '  <ol>',
+          '    <li>Initialiser le flot : $f(u, v) = 0$ sur chaque arc du réseau.</li>',
+          '    <li>Tant qu’il existe une chaîne augmentante $P$ de $s$ à $t$ dans le graphe résiduel :</li>',
+          '    <ul>',
+          '      <li>Capacité résiduelle : $r(u, v) = c(u, v) - f(u, v)$.</li>',
+          '      <li>Goulot d’étranglement : $\\delta = \\min \\{ r(u, v) \\mid (u, v) \\in P \\}$.</li>',
+          '      <li>Augmentation : $f(u, v) \\leftarrow f(u, v) + \\delta$ le long des arcs directs de $P$.</li>',
+          '    </ul>',
+          '    <li>Arrêt lorsqu’il n’existe plus aucune chaîne augmentante $\\implies$ le flot est <strong>maximal</strong> !</li>',
+          '  </ol>',
+          '</div>'
+        ].join('\n')),
 
         box('standard', 'Théorème du Flot Maximum / Coupe Minimale (Max-Flow Min-Cut)', [
           '<p>Une <em>coupe</em> $(S, T)$ sépare la source $s \\in S$ du puits $t \\in T$. Sa capacité est la somme des capacités des arcs allant de $S$ vers $T$.</p>',

@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="2">
@@ -139,28 +140,46 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="az3-c2-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ROLE VM_Operator&#10;CHECK_ACTION Microsoft.Compute/virtualMachines/restart/action&#10;CHECK_ACTION Microsoft.Compute/virtualMachines/delete">
-  <script type="text/plain" data-lab-starter>import sys
-import fnmatch
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c2-e1) — Évaluateur de permissions Azure RBAC
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Contrôle du rôle Reader sur actions read et write]
+# Données : ROLE Reader
+# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/read
+# Données : CHECK_ACTION Microsoft.Storage/storageAccounts/read
+# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/write
+A_COMPLETER
 
-# À compléter : implémenter la vérification Azure RBAC avec wildcards
+[Cas 2 — Contrôle du rôle Contributor avec exclusion NotActions]
+# Données : ROLE Contributor
+# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/write
+# Données : CHECK_ACTION Microsoft.Authorization/roleAssignments/write
+# Données : CHECK_ACTION Microsoft.Resources/subscriptions/resourceGroups/delete
+A_COMPLETER
+
+[Cas 3 — Contrôle du rôle Owner qui autorise tout]
+# Données : ROLE Owner
+# Données : CHECK_ACTION Microsoft.Authorization/roleAssignments/write
+# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/delete
+A_COMPLETER
+
+[Cas 4 — Rôle inconnu]
+# Données : ROLE SuperAdmin
+# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/read
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Évaluateur de permissions Azure RBAC</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -190,10 +209,10 @@ Pour chaque action :<br>
 - Si l'action est refusée : <code>ACTION &lt;action_path&gt; -&gt; DENIED</code><br>
 - Si le rôle est inconnu au départ, afficher : <code>ROLE_ERROR: Unknown role '&lt;nom_du_role&gt;'</code> et arrêter.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ROLE VM_Operator
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROLE VM_Operator
 CHECK_ACTION Microsoft.Compute/virtualMachines/restart/action
 CHECK_ACTION Microsoft.Compute/virtualMachines/delete</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ACTION Microsoft.Compute/virtualMachines/restart/action -&gt; ALLOWED
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ACTION Microsoft.Compute/virtualMachines/restart/action -&gt; ALLOWED
 ACTION Microsoft.Compute/virtualMachines/delete -&gt; DENIED</pre></div>
     </div>
     <p class="lab__note">Le rôle VM_Operator autorise le redémarrage mais refuse la suppression.</p>
@@ -209,19 +228,32 @@ ACTION Microsoft.Compute/virtualMachines/delete -&gt; DENIED</pre></div>
 
 <div class="lab" data-lab
      data-exercise="az3-c2-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="RESOURCE id=vm-web-01 type=Microsoft.Compute/virtualMachines location=westeurope sku=Standard_D4s_v5 tags=Environment:prod,CostCenter:IT-401">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c2-e2) — Auditeur de conformité Azure Policy
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Ressource valide et conforme sur France Central]
+# Données : RESOURCE id=vm-api-02 type=Microsoft.Compute/virtualMachines location=francecentral sku=Standard_B2s tags=Environment:dev,CostCenter:DEV-102
+A_COMPLETER
 
-# À compléter : analyser les ressources et relever les manquements Azure Policy
+[Cas 2 — Localisation interdite et tags manquants]
+# Données : RESOURCE id=st-backup-01 type=Microsoft.Storage/storageAccounts location=eastus sku=Standard_LRS tags=Environment:test
+A_COMPLETER
+
+[Cas 3 — SKU interdite et aucun tag]
+# Données : RESOURCE id=vm-big-01 type=Microsoft.Compute/virtualMachines location=francecentral sku=Standard_M128ms tags=none
+A_COMPLETER
+
+[Cas 4 — Conformité sur North Europe avec SKU valide]
+# Données : RESOURCE id=sql-core-01 type=Microsoft.Sql/servers location=northeurope sku=GP_Gen5_4 tags=CostCenter:FIN-10,Environment:stage
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Auditeur de conformité Azure Policy</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -243,8 +275,8 @@ Format de sortie attendu pour chaque ressource :<br>
 - Si des violations existent :<br>
   <code>AUDIT id=&lt;id&gt; STATUS=NON_COMPLIANT issues=[&lt;issue1&gt;; &lt;issue2&gt;]</code> (dans l'ordre de détection : location, SKU, puis tags manquants).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RESOURCE id=vm-web-01 type=Microsoft.Compute/virtualMachines location=westeurope sku=Standard_D4s_v5 tags=Environment:prod,CostCenter:IT-401</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT id=vm-web-01 STATUS=COMPLIANT</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RESOURCE id=vm-web-01 type=Microsoft.Compute/virtualMachines location=westeurope sku=Standard_D4s_v5 tags=Environment:prod,CostCenter:IT-401</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT id=vm-web-01 STATUS=COMPLIANT</pre></div>
     </div>
     <p class="lab__note">Ressource entièrement conforme aux règles de localisation, SKU et tags.</p>
     <details class="lab__hints">
@@ -259,19 +291,33 @@ Format de sortie attendu pour chaque ressource :<br>
 
 <div class="lab" data-lab
      data-exercise="az3-c2-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="VAULT name=kv-prod-we soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100&#10;SECRET name=db-password expires_at=125&#10;SECRET name=api-key expires_at=0">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c2-e3) — Analyseur de sécurité Azure Key Vault & Expiration de secrets
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Coffre hautement sécurisé avec secrets valides et expirant bientôt]
+# Données : VAULT name=kv-prod-we soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100
+# Données : SECRET name=db-password expires_at=125
+# Données : SECRET name=api-key expires_at=0
+# Données : SECRET name=ssl-cert expires_at=200
+A_COMPLETER
 
-# À compléter : auditer la configuration du Key Vault et l'état des secrets
+[Cas 2 — Coffre vulnérable sans soft delete ni purge protection]
+# Données : VAULT name=kv-dev-test soft_delete=disabled purge_protection=disabled auth_mode=access_policies current_day=50
+# Données : SECRET name=token expires_at=45
+A_COMPLETER
+
+[Cas 3 — Secret expirant le jour même]
+# Données : VAULT name=kv-core soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100
+# Données : SECRET name=today-secret expires_at=100
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Analyseur de sécurité Azure Key Vault &amp; Expiration de secrets</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -295,10 +341,10 @@ Règles d'audit des secrets (SECRET) :<br>
 - Si <code>0 &lt; (expires_at - current_day) &lt;= 30</code> : <code>SECRET &lt;nom&gt; -&gt; STATUS=EXPIRING_SOON (days_left=&lt;N&gt;)</code><br>
 - Sinon : <code>SECRET &lt;nom&gt; -&gt; STATUS=VALID (days_left=&lt;N&gt;)</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VAULT name=kv-prod-we soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VAULT name=kv-prod-we soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100
 SECRET name=db-password expires_at=125
 SECRET name=api-key expires_at=0</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VAULT_SECURITY name=kv-prod-we AUTH=RBAC ISSUES=[NONE]
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VAULT_SECURITY name=kv-prod-we AUTH=RBAC ISSUES=[NONE]
 SECRET db-password -&gt; STATUS=EXPIRING_SOON (days_left=25)
 SECRET api-key -&gt; STATUS=NO_EXPIRY_RISK</pre></div>
     </div>
@@ -474,6 +520,29 @@ SECRET api-key -&gt; STATUS=NO_EXPIRY_RISK</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

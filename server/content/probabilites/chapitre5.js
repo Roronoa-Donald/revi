@@ -46,7 +46,8 @@ module.exports = {
         '<code>F(x) = (x − a)/(b − a)</code>. La <strong>loi exponentielle</strong> de paramètre ' +
         '<code>λ &gt; 0</code>, souvent utilisée pour une durée de vie, a pour répartition ' +
         '<code>P(X ≥ x) = e^(−λx)</code>.</p>',
-        '<pre><code>from math import exp\n\n# Uniforme : P(X ≤ milieu).\na, b, x = 1.0, 5.0, 3.0\nprint(f"{(x - a) / (b - a):.4f}")   # 0.5000\n\n# Exponentielle : P(X >= x).\nprint(f"{exp(-2 * 3):.4f}")          # 0.0025</code></pre>',
+        '<div class="math-block">$$\\text{Loi Uniforme : } F(x) = \\frac{x - a}{b - a} \\qquad \\text{Loi Exponentielle : } \\mathbb{P}(X \\ge x) = e^{-\\lambda x}$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemples continus usuels</div><p><strong>Uniforme</strong> sur $[1, 5]$ au point médian $x = 3$ :</p>$$F(3) = \\frac{3 - 1}{5 - 1} = \\frac{2}{4} = 0{,}5000$$<p><strong>Exponentielle</strong> de paramètre $\\lambda = 2$ pour $x = 3$ :</p>$$\\mathbb{P}(X \\ge 3) = e^{-2 \\times 3} = e^{-6} \\approx 0{,}0025$$</div>',
         box('intuition', 'Sans mémoire', 'lightbulb',
           '    <p>La loi exponentielle est <strong>sans mémoire</strong> : savoir que l’événement n’est pas ' +
           'encore arrivé ne change rien à la loi des temps restants. C’est le pendant continu de la loi de ' +
@@ -60,7 +61,8 @@ module.exports = {
         'd’écart-type <code>σ</code>. On se ramène à la <strong>normale centrée réduite</strong> ' +
         '<code>N(0, 1)</code> par la <strong>standardisation</strong> ' +
         '<code>Z = (X − μ)/σ</code>.</p>',
-        '<pre><code>from math import erf, sqrt\n\ndef phi(z):\n    return 0.5 * (1 + erf(z / sqrt(2)))\n\nprint(f"{phi(0):.4f}")      # 0.5000\nprint(f"{phi(1.96):.4f}")   # 0.9750</code></pre>',
+        '<div class="math-block">$$Z = \\frac{X - \\mu}{\\sigma} \\sim \\mathcal{N}(0, 1) \\qquad \\Phi(z) = \\mathbb{P}(Z \\le z)$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Valeurs remarquables de la loi normale centrée réduite</div>$$\\Phi(0) = 0{,}5000 \\qquad \\Phi(1{,}96) \\approx 0{,}9750 \\qquad \\Phi(1) \\approx 0{,}8413$$</div>',
         box('tech', 'Repères à connaître', 'chart',
           '    <p>Autour de la moyenne : <code>P(μ−σ ≤ X ≤ μ+σ) ≈ 0,68</code>, ' +
           '<code>≈ 0,95</code> pour <code>±2σ</code>, <code>≈ 0,997</code> pour <code>±3σ</code>. Le ' +
@@ -73,9 +75,9 @@ module.exports = {
         '<p>La <strong>table</strong> donne <code>Φ(z) = P(Z ≤ z)</code> pour <code>z ≥ 0</code>. Pour ' +
         '<code>z &lt; 0</code>, on utilise la symétrie : <code>Φ(−z) = 1 − Φ(z)</code>. Pour une probabilité ' +
         'd’intervalle : <code>P(a ≤ Z ≤ b) = Φ(b) − Φ(a)</code>.</p>',
-        '<pre><code>from math import erf, sqrt\n\ndef phi(z):\n    return 0.5 * (1 + erf(z / sqrt(2)))\n\n# P(-1 <= Z <= 2) = Φ(2) - Φ(-1) = Φ(2) - (1 - Φ(1))\nprint(f"{phi(2) - (1 - phi(1)):.4f}")   # 0.8186</code></pre>',
-        '<p>La calculatrice ou <code>erf</code> remplacent la table : le principe reste la standardisation ' +
-        'puis la lecture de <code>Φ</code>.</p>'
+        '<div class="math-block">$$\\mathbb{P}(a \\le Z \\le b) = \\Phi(b) - \\Phi(a) \\qquad \\text{avec } \\Phi(-z) = 1 - \\Phi(z)$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de calcul d’intervalle sur $\\mathcal{N}(0, 1)$</div><p>Calculons $\\mathbb{P}(-1 \\le Z \\le 2)$ :</p>$$\\mathbb{P}(-1 \\le Z \\le 2) = \\Phi(2) - \\Phi(-1) = \\Phi(2) - (1 - \\Phi(1))$$$$= 0{,}9772 - (1 - 0{,}8413) = 0{,}9772 - 0{,}1587 = 0{,}8185$$</div>',
+        '<p>La table statistique donne directement $\\Phi(z)$ pour toute valeur positive centrée réduite.</p>'
       ].join('\n')
     }
   ],

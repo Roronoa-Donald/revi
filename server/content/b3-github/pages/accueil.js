@@ -151,13 +151,13 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Laboratoire Interactif &amp; Bac à Sable Git &amp; GitHub</h1>',
-    '  <p class="lead">Expérimentez et automatisez vos outils de plomberie Git en Python 3 : hachage d’objets, parcours de graphes DAG, résolution de conflits et validation de workflows CI/CD.</p>',
+    '  <p class="lead">Expérimentez et automatisez vos outils de plomberie Git selon les grilles d’analyse : hachage d’objets, parcours de graphes DAG, résolution de conflits et validation de workflows CI/CD.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="GIT_BLOB\nBonjour Git B3!">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez les calculs internes Git (SHA-1 header + payload) et l’inspection d’arbres\nimport hashlib\nimport sys\n\ndef git_hash_object(content, obj_type="blob"):\n    raw = content.encode("utf-8")\n    header = f"{obj_type} {len(raw)}\\0".encode("utf-8")\n    store = header + raw\n    sha1 = hashlib.sha1(store).hexdigest()\n    return sha1\n\nif __name__ == "__main__":\n    lines = sys.stdin.read().splitlines()\n    data = "\n".join(lines[1:]) if len(lines) > 1 else "Hello Git!"\n    print(f"Type: blob")\n    print(f"Content: {data}")\n    print(f"SHA-1: {git_hash_object(data)}")\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -180,7 +180,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire Git libre — ' + course.brand,
-      description: 'Bac à sable interactif en Python pour tester vos algorithmes d’ingénierie Git et GitHub.',
+      description: 'Bac à sable interactif par cas d’application pour tester vos algorithmes d’ingénierie Git et GitHub.',
       active: 'atelier',
       body
     }

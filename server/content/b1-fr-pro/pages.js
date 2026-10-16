@@ -104,7 +104,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, de la première prise de parole jusqu\'à l\'évaluation ' +
     'finale. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur ' +
     '(et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Bash</strong> à écrire et à exécuter ' +
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
     'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
     'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
@@ -125,7 +125,7 @@ function sommaire(course, chapterList) {
     'sommaire.html': {
       title: 'Sommaire — ' + course.brand,
       description: 'Sommaire du cours de Français professionnel B1 : ' + chapterList.length +
-        ' chapitres, exercices Bash exécutables, flashcards, mémo et examens blancs.',
+        ' chapitres, études de cas d’application, flashcards, mémo et examens blancs.',
       active: 'sommaire',
       body
     }
@@ -217,7 +217,7 @@ function atelier(course) {
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
-    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois exercices Bash corrigés ' +
+    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas corrigées ' +
     'automatiquement dans la page. Une fois l\'atelier apprivoisé, ils sont la meilleure façon de vérifier ' +
     'que le mécanisme est vraiment acquis.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — La communication' }),
@@ -536,310 +536,74 @@ function exercices(course) {
     '    <ol>',
     intro.map(line => '      <li>' + line + '</li>').join('\n'),
     '    </ol>',
-    '    <details><summary>Corrections</summary><div class="sol"><pre><code>' + solutions + '</code></pre></div></details>',
+    '    <details><summary>Corrections &amp; analyses rédactionnelles</summary><div class="sol">' + solutions + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
-    '  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque séance, puis un projet final qui ' +
-    'outille le service entier. Les scripts sont en Bash, comme à l\'atelier.</p>',
+    '  <h1>Exercices supplémentaires &amp; cas pratiques</h1>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier de communication écrite et de synthèse professionnelle.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Lit n lignes « element canal » (mot/voix/corps) et affiche verbal, para-verbal ou non-verbal, puis le compteur para-verbal.',
-      'Lit n lignes « mot registre » (fam/cour/sout) et affiche le niveau, puis les trois compteurs.',
-      'Lit n lignes « mot casse » (ok/maj/sing) et statue sur la date, puis le compteur de fautes.',
-      'Lit n lignes « expression type » (pleonasme/bon) et signale les double emplois.'
+      'Repérer et corriger les fautes d’accord du participe passé avec l’auxiliaire avoir et les verbes pronominaux.',
+      'Éliminer les pléonasmes fréquents en milieu professionnel (« monter en haut », « prévoir à l’avance », « voire même »).',
+      'Différencier les homophones grammaticaux courants (leur/leurs, c’est/s’est, quel/quelle/qu’elle).',
+      'Formuler une formule de politesse adaptée au destinataire et au canal de communication.'
     ], [
-      'read -r n',
-      'pv=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r element canal',
-      '  case "$canal" in',
-      '    mot) echo "$element : verbal" ;;',
-      '    voix) echo "$element : para-verbal" ; pv=$((pv + 1)) ;;',
-      '    corps) echo "$element : non-verbal" ;;',
-      '  esac',
-      'done',
-      'echo "para-verbal : $pv/$n"',
-      '',
-      'read -r n',
-      'fam=0 ; cour=0 ; sout=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r mot registre',
-      '  case "$registre" in',
-      '    fam) echo "$mot : familier" ; fam=$((fam + 1)) ;;',
-      '    cour) echo "$mot : courant" ; cour=$((cour + 1)) ;;',
-      '    sout) echo "$mot : soutenu" ; sout=$((sout + 1)) ;;',
-      '  esac',
-      'done',
-      'echo "fam : $fam / cour : $cour / sout : $sout"',
-      '',
-      'read -r n',
-      'fautes=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r mot casse',
-      '  case "$casse" in',
-      '    ok) echo "$mot : correct" ;;',
-      '    maj) echo "$mot : majuscule a enlever" ; fautes=$((fautes + 1)) ;;',
-      '    sing) echo "$mot : mettre au pluriel" ; fautes=$((fautes + 1)) ;;',
-      '  esac',
-      'done',
-      'echo "fautes : $fautes/$n"',
-      '',
-      'read -r n',
-      'pl=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r expression type',
-      '  if [ "$type" = "pleonasme" ]; then',
-      '    echo "$expression : pleonasme" ; pl=$((pl + 1))',
-      '  else',
-      '    echo "$expression : correcte"',
-      '  fi',
-      'done',
-      'echo "pleonasmes : $pl/$n"'
+      '<p><strong>1. Accords :</strong> Les données que nous avons <em>traitées</em> (COD placé avant) ; ils se sont <em>téléphoné</em> (téléphoner à qqn, pas de COD).</p>',
+      '<p><strong>2. Pléonasmes :</strong> Remplacer par « monter », « prévoir », « voire » ou « même » seuls.</p>',
+      '<p><strong>3. Homophones :</strong> « Leurs » (déterminant pluriel devant nom) vs « leur » (pronom invariable devant verbe).</p>',
+      '<p><strong>4. Formules de politesse :</strong> « Veuillez agréer, Madame, Monsieur, l’expression de mes salutations distinguées » (courrier officiel) ; « Bien cordialement » (e-mail quotidien).</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Lit n lignes « phrase regle » (ok/invariable/accord/veillez/facons) et nomme la correction de chaque piège du courrier.',
-      'Lit n mots, un par ligne, et corrige les barbarismes connus (pecuniers, dilemne, empruntes…) à coups de case.',
-      'Lit n lignes « verbe construction » (rappeler/pallier/telephoner/enfreindre + direct/a) et juge la construction.',
-      'Lit n lignes « formule type » (appel/politesse) et valide madame, madamemonsieur, cordialement, salutations…'
+      'Rédiger une note de cadrage synthétique de deux pages selon la méthode QQOQCP.',
+      'Structurer un argumentaire professionnel selon la règle SPRI (Situation, Problème, Résolution, Informations complémentaires).',
+      'Transformer un texte jargonnant en communication accessible pour des décideurs non-techniques.',
+      'Rédiger un compte rendu de réunion opérationnelle orienté plan d’action et responsabilités.'
     ], [
-      'read -r n',
-      'corrections=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r phrase regle',
-      '  case "$regle" in',
-      '    ok|invariable) echo "$phrase : correcte" ;;',
-      '    accord) echo "$phrase : a corriger : accord" ; corrections=$((corrections + 1)) ;;',
-      '    veillez) echo "$phrase : a corriger : veuillez" ; corrections=$((corrections + 1)) ;;',
-      '    facons) echo "$phrase : a corriger : singulier" ; corrections=$((corrections + 1)) ;;',
-      '  esac',
-      'done',
-      'echo "corrections : $corrections/$n"',
-      '',
-      'read -r n',
-      'ba=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r mot',
-      '  case "$mot" in',
-      '    pecuniers) echo "$mot : pecuniaires" ; ba=$((ba + 1)) ;;',
-      '    dilemne) echo "$mot : dilemme" ; ba=$((ba + 1)) ;;',
-      '    empruntes) echo "$mot : empreintes" ; ba=$((ba + 1)) ;;',
-      '    *) echo "$mot : correct" ;;',
-      '  esac',
-      'done',
-      'echo "barbarismes : $ba/$n"',
-      '',
-      'read -r n',
-      's=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r verbe construction',
-      '  case "$verbe" in',
-      '    rappeler|pallier|enfreindre) attendu="direct" ;;',
-      '    telephoner) attendu="a" ;;',
-      '  esac',
-      '  if [ "$construction" = "$attendu" ]; then',
-      '    echo "$verbe : correct"',
-      '  else',
-      '    echo "$verbe : fautif" ; s=$((s + 1))',
-      '  fi',
-      'done',
-      'echo "solecismes : $s/$n"',
-      '',
-      'read -r n',
-      'valides=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r formule type',
-      '  case "$formule" in',
-      '    madame|monsieur|madamemonsieur) famille="appel" ;;',
-      '    cordialement|salutations|bienavous) famille="politesse" ;;',
-      '    *) famille="inconnue" ;;',
-      '  esac',
-      '  if [ "$famille" = "$type" ]; then',
-      '    echo "$formule : valide" ; valides=$((valides + 1))',
-      '  else',
-      '    echo "$formule : inadaptee"',
-      '  fi',
-      'done',
-      'echo "valides : $valides/$n"'
+      '<p><strong>1. Méthode QQOQCP :</strong> Qui (acteurs), Quoi (projet), Où (périmètre), Quand (calendrier), Comment (moyens), Pourquoi (objectifs &amp; ROI).</p>',
+      '<p><strong>2. Structure SPRI :</strong> Poser d’abord le contexte indiscutable, isoler le point de blocage, détailler la solution retenue et préciser les modalités pratiques.</p>',
+      '<p><strong>3. Clarté :</strong> Remplacer les acronymes opaques par des définitions fonctionnelles et expliciter les impacts métier plutôt que le fonctionnement interne.</p>',
+      '<p><strong>4. Compte rendu :</strong> Tableau synthétique des décisions : Action, Porteur désigné, Échéance ferme, Statut d’avancement.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Lit n lignes « argument famille » (raison/emotion/confiance) et vérifie l\'équilibre logos-pathos-éthos d\'un discours.',
-      'Lit n lignes « element ordre » (neuf blocs de la lettre) et valide la place de chaque bloc, verdict final compris.',
-      'Lit n lignes « paragraphe contenu » et contrôle le corps de la lettre : entreprise (p1), compétences (p2), motivations (p3).',
-      'Lit « seuil n » puis n lignes « competence score » et rend le verdict de l\'évaluation finale (moyenne entière).'
+      'Rédiger une note d’opportunité pour convaincre une direction générale d’investir dans un plan de refonte applicative.',
+      'Gérer un courrier de réclamation client avec empathie, professionnalisme et respect des engagements légaux.',
+      'Concevoir une communication de crise suite à une indisponibilité majeure de service en production.',
+      'Élaborer la charte éditoriale et les consignes de style d’une équipe de développement logiciel.'
     ], [
-      'read -r n',
-      'declare -A vues',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r argument famille',
-      '  case "$famille" in',
-      '    raison) echo "$argument : logos" ; vues[logos]=1 ;;',
-      '    emotion) echo "$argument : pathos" ; vues[pathos]=1 ;;',
-      '    confiance) echo "$argument : ethos" ; vues[ethos]=1 ;;',
-      '  esac',
-      'done',
-      'if [ -n "${vues[logos]:-}" ] &amp;&amp; [ -n "${vues[pathos]:-}" ] &amp;&amp; [ -n "${vues[ethos]:-}" ]; then',
-      '  echo "discours : equilibre"',
-      'else',
-      '  echo "discours : incomplet"',
-      'fi',
-      '',
-      'read -r n',
-      'valide=1',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r element ordre',
-      '  case "$element" in',
-      '    coordonnees) attendu=1 ;;',
-      '    destinataire) attendu=2 ;;',
-      '    date) attendu=3 ;;',
-      '    objet) attendu=4 ;;',
-      '    appel) attendu=5 ;;',
-      '    corps) attendu=6 ;;',
-      '    rendezvous) attendu=7 ;;',
-      '    politesse) attendu=8 ;;',
-      '    signature) attendu=9 ;;',
-      '  esac',
-      '  if [ "$ordre" = "$attendu" ]; then',
-      '    echo "$element : bloc $attendu"',
-      '  else',
-      '    echo "$element : hors place" ; valide=0',
-      '  fi',
-      'done',
-      'if [ "$valide" = "1" ]; then echo "lettre valide" ; else echo "lettre a revoir"; fi',
-      '',
-      'read -r n',
-      'declare -A conformes',
-      'rompu=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r paragraphe contenu',
-      '  case "$paragraphe" in',
-      '    p1) attendu="entreprise" ;;',
-      '    p2) attendu="competences" ;;',
-      '    p3) attendu="personnel" ;;',
-      '  esac',
-      '  if [ "$contenu" = "$attendu" ]; then',
-      '    echo "$paragraphe : conforme" ; conformes[$paragraphe]=1',
-      '  else',
-      '    echo "$paragraphe : hors sujet" ; rompu=1',
-      '  fi',
-      'done',
-      'compte=0',
-      'for p in p1 p2 p3; do',
-      '  [ -n "${conformes[$p]:-}" ] &amp;&amp; compte=$((compte + 1))',
-      'done',
-      'echo "paragraphes : $compte/3"',
-      '',
-      'read -r seuil',
-      'read -r n',
-      'somme=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r competence score',
-      '  echo "$competence : score $score"',
-      '  somme=$((somme + score))',
-      'done',
-      'if [ "$n" -gt 0 ]; then moyenne=$((somme / n)) ; else moyenne=0 ; fi',
-      'if [ "$moyenne" -ge "$seuil" ]; then echo "verdict : admis" ; else echo "verdict : reprise"; fi'
+      '<p><strong>1. Note d’opportunité :</strong> Chiffrer le coût de l’inaction (dette technique, pannes, perte de productivité) face aux bénéfices mesurables de la modernisation.</p>',
+      '<p><strong>2. Réclamation :</strong> Accuser réception rapidement, valider la légitimité du ressenti, exposer les mesures correctives immédiates et proposer une compensation proportionnée.</p>',
+      '<p><strong>3. Communication de crise :</strong> Transparence sur les faits constatés, absence de spéculation prématurée, engagement ferme de résolution et fréquence des points de situation.</p>',
+      '<p><strong>4. Charte éditoriale :</strong> Règles typographiques (majuscules, tirets, ponctuation), ton de voix, conventions d’intitulés et structure des messages de commit / pull request.</p>'
     ].join('\n')),
 
-    '  <h2>Projet intégrateur — « l\'audit de courriers du service »</h2>',
-    box('situation', 'Cahier des charges', 'play', [
-      '    <p>Le script reçoit le journal de relecture du service : d\'abord <code>n_courriers</code> courriers au ' +
-      'format <code>auteur fautes</code> où fautes est une suite de lettres sans espace — <code>a</code> = article ' +
-      'superflu, <code>m</code> = majuscule de jour ou de mois, <code>x</code> = abréviation anglaise « Mr », et le ' +
-      'tiret <code>-</code> = courrier propre (par exemple <code>am-</code> = courrier fautif). Puis ' +
-      '<code>n_mots</code> mots au format <code>mot type</code> (pleonasme/barbarisme/bon). Il produit le rapport ' +
-      'd\'audit : pour chaque auteur, nombre de courriers propres et fautifs ; puis les corrections lexicales ' +
-      '(chaque pléonasme → <code>couper : mot</code>, chaque barbarisme → <code>corriger : mot</code>) ; enfin le ' +
-      'verdict global : <code>service prete</code> si tous les courriers sont propres et zéro pléonasme ni ' +
-      'barbarisme, <code>relecture requise</code> sinon.</p>'
+    '  <h2>Dossier de synthèse — Dossier de Communication &amp; Note de Cadrage</h2>',
+    box('situation', 'Cahier des charges du Dossier', 'play', [
+      '    <p>Ce dossier professionnel d’envergure consiste à produire la documentation managériale d’un projet informatique : note de cadrage, note d’arbitrage technique, plan de communication interne et rapport de clôture.</p>'
     ].join('\n')),
-    box('objectifs', 'Fonctionnalités attendues', 'target', [
+    box('objectifs', 'Compétences rédactionnelles évaluées', 'target', [
       '    <ol>',
-      '      <li><strong>Lire</strong> les deux blocs sans mélanger courriers et mots.</li>',
-      '      <li><strong>Analyser</strong> chaque suite de fautes lettre à lettre : propre seulement si tout est un tiret.</li>',
-      '      <li><strong>Agréger</strong> par auteur avec des tableaux associatifs.</li>',
-      '      <li><strong>Corriger</strong> le lexique : pléonasmes coupés, barbarismes nommés.</li>',
-      '      <li><strong>Verdict</strong> final au format exact du cahier des charges.</li>',
-      '    </ol>',
-      '    <p>Contraintes : parsing lettre à lettre des suites de fautes, <code>declare -A</code> par auteur, bilan après lecture complète.</p>'
+      '      <li><strong>Précision stylistique :</strong> Vocabulaire soutenu, syntaxe irréprochable et suppression de toute ambiguïté.</li>',
+      '      <li><strong>Puissance de synthèse :</strong> Hiérarchisation de l’information essentielle en tête de paragraphe (méthode de la pyramide inversée).</li>',
+      '      <li><strong>Efficacité persuasive :</strong> Force des arguments, valorisation des métriques et clarté des propositions.</li>',
+      '      <li><strong>Mise en page professionnelle :</strong> Titraille normalisée, tableaux soignés et présentation soignée.</li>',
+      '    </ol>'
     ].join('\n')),
-    box('method', 'Grille d\'auto-évaluation du projet (sur 100)', 'blocks', [
-      '    ' + bands([
-        { cls: '', text: 'Lecture des deux blocs et parsing des fautes <strong>20</strong>' },
-        { cls: '', text: 'Agrégation par auteur correcte <strong>20</strong>' },
-        { cls: '', text: 'Corrections lexicales (couper, corriger) <strong>20</strong>' },
-        { cls: '', text: 'Verdict global conforme <strong>20</strong>' },
-        { cls: '', text: 'Rapport lisible et formats exacts <strong>20</strong>' }
-      ]),
-      '    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>'
-    ].join('\n')),
-    '  <details>',
-    '    <summary>Voir une solution de référence (après avoir essayé !)</summary>',
-    '    <div class="sol">',
-    '      <pre><code>' + [
-    'read -r n_courriers',
-    'declare -A propres',
-    'declare -A fautifs',
-    'tout_propres=1',
-    'for ((k=0; k&lt;n_courriers; k++)); do',
-    '  read -r auteur fautes',
-    '  propre=1',
-    '  for ((j=0; j&lt;${#fautes}; j++)); do',
-    '    c=${fautes:$j:1}',
-    '    if [ "$c" != "-" ]; then',
-    '      propre=0',
-    '    fi',
-    '  done',
-    '  if [ "$propre" = "1" ]; then',
-    '    propres[$auteur]=$(( ${propres[$auteur]:-0} + 1 ))',
-    '  else',
-    '    fautifs[$auteur]=$(( ${fautifs[$auteur]:-0} + 1 ))',
-    '    tout_propres=0',
-    '  fi',
-    'done',
-    'read -r n_mots',
-    'pl=0',
-    'ba=0',
-    'for ((k=0; k&lt;n_mots; k++)); do',
-    '  read -r mot type',
-    '  if [ "$type" = "pleonasme" ]; then',
-    '    echo "couper : $mot"',
-    '    pl=$((pl + 1))',
-    '  elif [ "$type" = "barbarisme" ]; then',
-    '    echo "corriger : $mot"',
-    '    ba=$((ba + 1))',
-    '  fi',
-    'done',
-    'for auteur in "${!propres[@]}"; do',
-    '  echo "$auteur : ${propres[$auteur]} propres / ${fautifs[$auteur]:-0} fautifs"',
-    'done',
-    'if [ "$tout_propres" = "1" ] &amp;&amp; [ "$pl" = "0" ] &amp;&amp; [ "$ba" = "0" ]; then',
-    '  echo "verdict : service prete"',
-    'else',
-    '  echo "verdict : relecture requise"',
-    'fi'
-    ].join('\n') + '</code></pre>',
-    '      Cette solution combine parsing lettre à lettre, agrégation par auteur, corrections lexicales ' +
-    'et verdict global — les chapitres 3, 4 et 5 en un seul script.',
-    '    </div>',
-    '  </details>',
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../chapitres/simulateur-examen.html', label: 'Examens blancs' }),
-    disclaimer(course, 'Exercices construits d\'après les supports « Les fautes de français à éviter », « Les registres de langue » et « La communication » (CDPS). ')
+    disclaimer(course, 'Exercices construits à partir du programme officiel de français professionnel B1.')
   ].join('\n\n');
 
   return {
     'exercices/exercices.html': {
-      title: 'Exercices &amp; projet intégrateur — ' + course.brand,
-      description: 'Exercices supplémentaires et projet intégrateur du cours de Français professionnel B1 : ' +
-        'scripts Bash gradués et audit de courriers du service.',
+      title: 'Exercices &amp; dossier de synthèse — ' + course.brand,
+      description: 'Exercices supplémentaires et dossier de communication professionnelle en français B1 : rédaction, synthèse et argumentaire.',
       active: 'exercices',
       body
     }
@@ -864,7 +628,7 @@ function render(kit, course, chapterList) {
     pages['chapitres/chapitre' + chapitre.n + '.html'] = {
       title: 'Chapitre ' + chapitre.n + ' — ' + chapitre.title + ' | ' + course.brand,
       description: 'Chapitre ' + chapitre.n + ' du cours de Français professionnel B1 : ' + chapitre.toc +
-        ' Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.',
+        ' Théorie, exemples détaillés, études de cas d’application, QCM corrigés.',
       active: 'ch' + chapitre.n,
       dataChapter: chapitre.n,
       body

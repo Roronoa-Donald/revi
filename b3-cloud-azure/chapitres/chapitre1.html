@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="1">
@@ -126,28 +127,41 @@
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="az3-c1-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="HIERARCHY mg-root/mg-core/sub-prod-01/rg-erp-prod-we-01">
-  <script type="text/plain" data-lab-starter>import sys
-import re
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c1-e1) — Validateur de hiérarchie ARM & Conventions de nommage CAF
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Hiérarchies conformes en production et dev]
+# Données : HIERARCHY mg-root/mg-prod/sub-corp-01/rg-web-prod-fc-01
+# Données : HIERARCHY mg-tenant/mg-dev/sub-sandbox-02/rg-api-dev-use-02
+A_COMPLETER
 
-# À compléter : analyser la hiérarchie et valider la nomenclature CAF
+[Cas 2 — Erreur de hiérarchie malformée]
+# Données : HIERARCHY mg-root/sub-prod-01/rg-web-prod-fc-01
+# Données : HIERARCHY mg-root/mg-core/sub-01/sub-02/rg-data-prod-we-01
+A_COMPLETER
+
+[Cas 3 — Nom de Resource Group non conforme (env ou région invalide)]
+# Données : HIERARCHY mg-root/mg-prod/sub-01/rg-web-preprod-we-01
+# Données : HIERARCHY mg-root/mg-prod/sub-01/rg-db-prod-paris-01
+# Données : HIERARCHY mg-root/mg-prod/sub-01/my-resource-group
+A_COMPLETER
+
+[Cas 4 — Segment vide dans la hiérarchie]
+# Données : HIERARCHY mg-root//sub-01/rg-app-test-ne-01
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur de hiérarchie ARM &amp; Conventions de nommage CAF</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -155,10 +169,7 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
     <p class="lab__goal"><strong>Objectif :</strong> Valider la structure hiérarchique de gestion Azure (Root MG -&gt; MG -&gt; Subscription -&gt; Resource Group) et vérifier la conformité du nommage CAF.</p>
     <div class="lab__brief"><p>Dans le Microsoft Cloud Adoption Framework (CAF), l'organisation des ressources repose sur une hiérarchie stricte à 4 niveaux :
 <code>ManagementGroup_Parent / ManagementGroup_Child / Subscription / ResourceGroup</code>.<br><br>
-Le script lit sur l'entrée standard des lignes au format :<br>
-<code>HIERARCHY &lt;segment1&gt;/&lt;segment2&gt;/&lt;segment3&gt;/&lt;segment4&gt;</code><br><br>
-Règles de validation :<br>
-1. La chaîne doit comporter exactement 4 segments non vides séparés par <code>/</code>. Si ce n'est pas le cas :<br>
+Analysez les paramètres du problème pour chaque cas. La chaîne doit comporter exactement 4 segments non vides séparés par <code>/</code>. Si ce n'est pas le cas :<br>
    <code>INVALID: reason=MALFORMED_HIERARCHY</code><br>
 2. Le 4e segment correspond au Resource Group (RG). Il doit respecter le gabarit CAF suivant :<br>
    <code>rg-&lt;app&gt;-&lt;env&gt;-&lt;region&gt;-&lt;instance&gt;</code><br>
@@ -172,8 +183,8 @@ Règles de validation :<br>
 4. Si la hiérarchie et le nom du RG sont conformes :<br>
    <code>VALID: HIERARCHY depth=4 sub=&lt;segment3&gt; rg=&lt;rg_name&gt; status=COMPLIANT</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>HIERARCHY mg-root/mg-core/sub-prod-01/rg-erp-prod-we-01</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VALID: HIERARCHY depth=4 sub=sub-prod-01 rg=rg-erp-prod-we-01 status=COMPLIANT</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HIERARCHY mg-root/mg-core/sub-prod-01/rg-erp-prod-we-01</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VALID: HIERARCHY depth=4 sub=sub-prod-01 rg=rg-erp-prod-we-01 status=COMPLIANT</pre></div>
     </div>
     <p class="lab__note">Hiérarchie standard 4 niveaux avec Resource Group conforme au CAF.</p>
     <details class="lab__hints">
@@ -188,19 +199,35 @@ Règles de validation :<br>
 
 <div class="lab" data-lab
      data-exercise="az3-c1-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="REGION westeurope SLA 99.99%">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c1-e2) — Sélecteur de région, Zones de disponibilité et Paires géographiques
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — SLA haute disponibilité 99.99% sur West Europe et France Central]
+# Données : REGION westeurope SLA 99.99%
+# Données : REGION francecentral SLA 99.99%
+A_COMPLETER
 
-# À compléter : implémenter la matrice de résilience régionale
+[Cas 2 — Région avec zones insuffisantes pour 99.99%]
+# Données : REGION brazilsouth SLA 99.99%
+A_COMPLETER
+
+[Cas 3 — Paliers SLA 99.95% et 99.9% sur diverses régions]
+# Données : REGION northeurope SLA 99.95%
+# Données : REGION eastus SLA 99.9%
+# Données : REGION germanywestcentral SLA 99.95%
+A_COMPLETER
+
+[Cas 4 — Région non répertoriée]
+# Données : REGION mars-central SLA 99.99%
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Sélecteur de région, Zones de disponibilité et Paires géographiques</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -214,8 +241,7 @@ Données de référence des régions Azure :<br>
 - <code>eastus</code> : paired=<code>westus</code>, zones=3<br>
 - <code>germanywestcentral</code> : paired=<code>germanynorth</code>, zones=3<br>
 - <code>brazilsouth</code> : paired=<code>southcentralus</code>, zones=2<br><br>
-Le script lit des requêtes au format :<br>
-<code>REGION &lt;nom_region&gt; SLA &lt;valeur_sla&gt;</code> (ex: <code>99.9%</code>, <code>99.95%</code>, <code>99.99%</code>).<br><br>
+Analysez les données fournies pour chaque cas.9%</code>, <code>99.95%</code>, <code>99.99%</code>).<br><br>
 Règles de décision :<br>
 1. Si la région n'est pas dans le catalogue :<br>
    <code>REGION: &lt;nom_region&gt; -&gt; UNKNOWN_REGION</code><br>
@@ -229,8 +255,8 @@ Règles de décision :<br>
 4. Si le SLA cible est inférieur ou égal à <code>99.9%</code> :<br>
    <code>REGION: &lt;nom_region&gt; -&gt; RESILIENCE=SINGLE_VM_PREMIUM | PAIRED=&lt;paired&gt; | REPLICATION=LRS</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>REGION westeurope SLA 99.99%</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>REGION: westeurope -&gt; RESILIENCE=AZ_SUPPORTED (zones=3) | PAIRED=northeurope | REPLICATION=ZRS_OR_GZRS</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REGION westeurope SLA 99.99%</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>REGION: westeurope -&gt; RESILIENCE=AZ_SUPPORTED (zones=3) | PAIRED=northeurope | REPLICATION=ZRS_OR_GZRS</pre></div>
     </div>
     <p class="lab__note">West Europe dispose de 3 zones de disponibilité permettant d'atteindre 99.99% de SLA.</p>
     <details class="lab__hints">
@@ -245,19 +271,32 @@ Règles de décision :<br>
 
 <div class="lab" data-lab
      data-exercise="az3-c1-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CALC sku=Standard_B2s qty=2 disk=P10 egress_gb=5 commitment=PAYG">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c1-e3) — Estimateur de coûts TCO et optimisation par Instances Réservées (RI)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Flotte PAYG standard 3 VMs B2s]
+# Données : CALC sku=Standard_B2s qty=3 disk=P10 egress_gb=10 commitment=PAYG
+A_COMPLETER
 
-# À compléter : calculer les coûts mensuels et l'économie apportée par les réservations
+[Cas 2 — Engagement RI 1 an avec egress significatif]
+# Données : CALC sku=Standard_D4s_v5 qty=4 disk=P20 egress_gb=105 commitment=RI_1Y
+A_COMPLETER
+
+[Cas 3 — Engagement RI 3 ans haute capacité mémoire]
+# Données : CALC sku=Standard_E4s_v5 qty=2 disk=P30 egress_gb=50 commitment=RI_3Y
+A_COMPLETER
+
+[Cas 4 — Une seule VM B2s avec RI 3 ans sans egress]
+# Données : CALC sku=Standard_B2s qty=1 disk=P10 egress_gb=0 commitment=RI_3Y
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Estimateur de coûts TCO et optimisation par Instances Réservées (RI)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -286,8 +325,8 @@ Format de la ligne d'entrée :<br>
 Format de sortie attendu :<br>
 <code>COST: VM=&lt;vm_cost:.2f&gt; DISK=&lt;disk_cost:.2f&gt; EGRESS=&lt;egress_cost:.2f&gt; TOTAL=&lt;total:.2f&gt; SAVINGS=&lt;savings:.2f&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CALC sku=Standard_B2s qty=2 disk=P10 egress_gb=5 commitment=PAYG</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>COST: VM=60.74 DISK=39.42 EGRESS=0.00 TOTAL=100.16 SAVINGS=0.00</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CALC sku=Standard_B2s qty=2 disk=P10 egress_gb=5 commitment=PAYG</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>COST: VM=60.74 DISK=39.42 EGRESS=0.00 TOTAL=100.16 SAVINGS=0.00</pre></div>
     </div>
     <p class="lab__note">2 VMs B2s avec 2 disques P10 sans engagement et 5 Go egress gratuits.</p>
     <details class="lab__hints">
@@ -462,6 +501,29 @@ Format de sortie attendu :<br>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="4">
@@ -205,27 +206,45 @@ R1(config-line)# exit</code></pre>
 </table>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="na2-c4-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="enable&#10;configure terminal&#10;interface g0/0&#10;exit&#10;end&#10;disable">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c4-e1) — Parseur et validateur de hiérarchie de modes Cisco IOS
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-commandes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Tentative de config terminal depuis mode utilisateur]
+# Données : configure terminal
+# Données : enable
+# Données : configure terminal
+A_COMPLETER
 
-# À compléter : simuler la machine à états des modes Cisco IOS
+[Cas 2 — Exécution de commandes show et ip address]
+# Données : enable
+# Données : show version
+# Données : configure terminal
+# Données : hostname R1
+A_COMPLETER
+
+[Cas 3 — Saut direct avec end depuis sous-interface]
+# Données : enable
+# Données : configure terminal
+# Données : interface fa0/1
+# Données : end
+A_COMPLETER
+
+[Cas 4 — Refus de commande interface hors mode config]
+# Données : interface g0/1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Parseur et validateur de hiérarchie de modes Cisco IOS</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -245,13 +264,13 @@ Transitions valides :<br>
 Toute autre commande est considérée comme exécutée dans le mode courant (afficher <code>OK: &lt;cmd&gt;</code>), sauf si une commande de mode restreint est appelée dans un mode insuffisant (ex: <code>configure terminal</code> appelé en mode <code>USER</code> -&gt; afficher <code>ERREUR: Commande non autorisee en mode USER</code>).<br>
 Pour chaque commande de l'entrée standard, afficher l'invite courante suivie de la commande, puis le résultat ou l'erreur, et enfin la nouvelle invite.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>enable
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>enable
 configure terminal
 interface g0/0
 exit
 end
 disable</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Router&gt; enable
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Router&gt; enable
 Router# configure terminal
 Router(config)# interface g0/0
 Router(config-if)# exit
@@ -272,36 +291,66 @@ Router&gt;</pre></div>
 
 <div class="lab" data-lab
      data-exercise="na2-c4-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="service password-encryption&#10;enable secret Cisc0$ecr3t&#10;banner motd #ACCES INTERDIT#&#10;line con 0&#10; login local&#10;line vty 0 4&#10; transport input ssh&#10; login local">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c4-e2) — Audit et durcissement de configuration Cisco IOS
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-config_text = sys.stdin.read()
+[Cas 1 — Configuration non sécurisée avec Telnet et mot de passe en clair]
+# Données : enable password cisco
+# Données : line vty 0 4
+# Données :  transport input telnet
+# Données :  login
+A_COMPLETER
 
-# À compléter : auditer la configuration Cisco selon les 5 critères de durcissement
+[Cas 2 — Durcissement partiel avec mot de passe secret et chiffrement mais sans SSH]
+# Données : service password-encryption
+# Données : enable secret Secr3tKey
+# Données : banner motd #Avertissement#
+# Données : line con 0
+# Données :  login local
+A_COMPLETER
+
+[Cas 3 — Enable password en clair en doublon avec secret]
+# Données : service password-encryption
+# Données : enable secret SuperSec
+# Données : enable password Faible123
+# Données : banner motd *Stop*
+# Données : line vty 0 4
+# Données :  transport input ssh
+# Données :  login local
+A_COMPLETER
+
+[Cas 4 — SSH configuré avec transport input all]
+# Données : service password-encryption
+# Données : enable secret Cl3
+# Données : line vty 0 4
+# Données :  transport input all
+# Données : banner motd #Warning#
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Audit et durcissement de configuration Cisco IOS</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser un fichier de configuration running-config pour valider les 5 règles fondamentales de sécurisation.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard un extrait de configuration Cisco IOS (lignes <code>running-config</code>).<br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
 Il contrôle 5 critères de sécurité essentiels :<br>
 1. <code>PASSWORD_ENCRYPTION</code> : présence de la commande <code>service password-encryption</code>.<br>
 2. <code>ENABLE_SECRET</code> : présence de <code>enable secret &lt;mot_de_passe&gt;</code> (et NON <code>enable password</code> en clair).<br>
 3. <code>SSH_ONLY</code> : dans le bloc <code>line vty</code>, présence de <code>transport input ssh</code>.<br>
 4. <code>BANNER_MOTD</code> : présence d'une bannière d'avertissement <code>banner motd</code>.<br>
 5. <code>LOGIN_LOCAL</code> : présence de <code>login local</code> sur la console ou les lignes VTY.<br>
-Le script affiche pour chaque règle :<br>
+Indiquez pour chaque règle :<br>
 <code>[VALIDE|ECHEC] &lt;NOM_REGLE&gt; : &lt;detail&gt;</code><br>
 Puis la conclusion : <code>SCORE DE DURCISSEMENT: &lt;X&gt;/5</code> (CONFORME si 5/5, VULNERABLE sinon).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>service password-encryption
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>service password-encryption
 enable secret Cisc0$ecr3t
 banner motd #ACCES INTERDIT#
 line con 0
@@ -309,7 +358,7 @@ line con 0
 line vty 0 4
  transport input ssh
  login local</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>[VALIDE] PASSWORD_ENCRYPTION : Chiffrement global active
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>[VALIDE] PASSWORD_ENCRYPTION : Chiffrement global active
 [VALIDE] ENABLE_SECRET : Mot de passe privilegie hache
 [VALIDE] SSH_ONLY : Transport SSH exclusif sur VTY
 [VALIDE] BANNER_MOTD : Banniere legale declaree
@@ -329,25 +378,45 @@ SCORE DE DURCISSEMENT: 5/5 -&gt; CONFORME</pre></div>
 
 <div class="lab" data-lab
      data-exercise="na2-c4-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="Interface IP-Address OK? Method Status Protocol&#10;GigabitEthernet0/0 192.168.1.1 YES manual up up&#10;GigabitEthernet0/1 unassigned YES unset administratively down down">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c4-e3) — Parseur d'état d'interfaces Cisco (show ip interface brief)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Problème de couche 2 avec protocole down]
+# Données : Interface IP-Address OK? Method Status Protocol
+# Données : Serial0/0/0 10.0.0.1 YES manual up down
+A_COMPLETER
 
-# À compléter : analyser l'état physique et logique des interfaces Cisco
+[Cas 2 — Câble déconnecté]
+# Données : Interface IP-Address OK? Method Status Protocol
+# Données : FastEthernet0/24 172.16.10.1 YES manual down down
+A_COMPLETER
+
+[Cas 3 — Mix complet sur un commutateur 4 ports]
+# Données : Interface IP-Address OK? Method Status Protocol
+# Données : Fa0/1 192.168.0.254 YES manual up up
+# Données : Fa0/2 unassigned YES unset down down
+# Données : Fa0/3 unassigned YES unset administratively down down
+# Données : Fa0/4 192.168.0.253 YES manual up down
+A_COMPLETER
+
+[Cas 4 — Interface Loopback toujours up]
+# Données : Interface IP-Address OK? Method Status Protocol
+# Données : Loopback0 1.1.1.1 YES manual up up
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Parseur d'état d'interfaces Cisco (show ip interface brief)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser la sortie de la commande Cisco « show ip interface brief » pour diagnostiquer les incidents de couche 1 et couche 2.</p>
-    <div class="lab__brief"><p>Le script lit sur l'entrée standard la sortie brute de <code>show ip interface brief</code>.<br>
+    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br>
 Chaque ligne comporte les colonnes :<br>
 <code>Interface | IP-Address | OK? | Method | Status | Protocol</code><br>
 Pour chaque interface active ou inactive, le script détermine le diagnostic :<br>
@@ -358,10 +427,10 @@ Pour chaque interface active ou inactive, le script détermine le diagnostic :<b
 Format de sortie :<br>
 <code>&lt;INTERFACE&gt; (&lt;IP&gt;) -&gt; &lt;DIAGNOSTIC&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>Interface IP-Address OK? Method Status Protocol
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Interface IP-Address OK? Method Status Protocol
 GigabitEthernet0/0 192.168.1.1 YES manual up up
 GigabitEthernet0/1 unassigned YES unset administratively down down</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>GigabitEthernet0/0 (192.168.1.1) -&gt; OPERATIONNEL (L1 Up / L2 Up)
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>GigabitEthernet0/0 (192.168.1.1) -&gt; OPERATIONNEL (L1 Up / L2 Up)
 GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)</pre></div>
     </div>
     <p class="lab__note">Une interface opérationnelle et une interface coupée administrativement.</p>
@@ -538,6 +607,29 @@ GigabitEthernet0/1 (unassigned) -&gt; DESACTIVE_ADMIN (Interface sous shutdown)<
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

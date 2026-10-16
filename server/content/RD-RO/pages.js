@@ -15,7 +15,7 @@ function render(kit, course, chapterList) {
     return Object.assign({}, chapitre, {
       next: next
         ? { href: 'chapitre' + next.n + '.html', label: 'Chapitre ' + next.n + ' — ' + next.title }
-        : { href: '../atelier.html', label: 'Atelier de code' }
+        : { href: '../atelier.html', label: 'Atelier d’analyse' }
     });
   });
 
@@ -24,7 +24,7 @@ function render(kit, course, chapterList) {
     pages['chapitres/chapitre' + chapitre.n + '.html'] = {
       title: 'Chapitre ' + chapitre.n + ' — ' + chapitre.title + ' | ' + course.brand,
       description: 'Chapitre ' + chapitre.n + ' du cours Recherche Opérationnelle B2 : ' + chapitre.toc +
-        ' Modèles mathématiques, algorithmes d’optimisation, ateliers Python exécutables, QCM corrigés.',
+        ' Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.',
       active: 'ch' + chapitre.n,
       dataChapter: chapitre.n,
       body

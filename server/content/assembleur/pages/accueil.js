@@ -124,47 +124,42 @@ function sommaire(course, chapterList) {
   };
 }
 
-/* ======================== Atelier de code ======================== */
+/* ======================== Atelier d’analyse ======================== */
 
 function atelier(course) {
   const starter = [
-    'import sys',
-    '',
-    '# Zone libre : simulez, expérimentez avec les registres, les drapeaux et la mémoire.',
-    '# Rien de ce que vous écrirez ici n’est noté.',
+    '# Grille d\'analyse libre — Assembleur & Architecture',
+    '# Zone d’étude : état des registres, drapeaux et pile',
     '#',
-    '# Exemple proposé : décomposition de registres x86 et drapeaux',
-    'eax = 0x12345678',
-    'ax = eax & 0xFFFF',
-    'ah = (eax >> 8) & 0xFF',
-    'al = eax & 0xFF',
-    '',
-    'print(f"EAX=0x{eax:08X} AX=0x{ax:04X} AH=0x{ah:02X} AL=0x{al:02X}")'
+    '[Cas 1 — Décomposition registre EAX]',
+    '# Registre 32 bits : 0x12345678',
+    'EAX: 0x12345678 AX: 0x5678 AH: 0x56 AL: 0x78',
+    'CONCLUSION: Décomposition canonique des sous-registres x86 valide.'
   ].join('\n');
 
   const body = [
-    crumb(course, [{ href: 'index.html', label: course.brand }, { label: 'Atelier de code' }]),
-    '  <h1>Atelier interactif &amp; Bac à sable Assembleur</h1>',
-    '  <p class="lead">Expérimentez librement vos algorithmes d’émulation et de décodage d’instructions x86 et AVR en Python.</p>',
+    crumb(course, [{ href: 'index.html', label: course.brand }, { label: 'Atelier d’analyse' }]),
+    '  <h1>Atelier d’analyse &amp; Bac à sable Assembleur</h1>',
+    '  <p class="lead">Expérimentez librement vos algorithmes d’émulation et de décodage d’instructions x86 et AVR par cas d’application.</p>',
 
     box('info', 'Console d’expérimentation Assembleur', [
-      '<p>Cet atelier exécute votre code Python dans un bac à sable sécurisé. ' +
-      'Vous pouvez injecter des opcodes, manipuler des registres 32 ou 64 bits et inspecter la pile d’exécution.</p>'
+      '<p>Cet atelier permet de formaliser et vérifier vos grilles d\\\'analyse. ' +
+      'Vous pouvez structurer vos études de cas d’architecture, manipuler des registres 32 ou 64 bits et analyser la pile d’exécution.</p>'
     ].join('\n')),
 
     '  <h2>Zone libre</h2>',
-    '  <div class="lab" data-lab data-language="python" data-height="360" data-languages="1" data-stdin="TEST-ASM">',
-    '    <script type="text/plain" data-lab-starter>' + starter + '</script>',
+    '  <div class="lab" data-lab data-language="analyse" data-height="360" data-languages="1" data-stdin="TEST-ASM">',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — assembleur\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '    <div class="lab__head">',
     '      <h3 class="lab__title">Zone libre : simulateur d’architecture &amp; registres</h3>',
-    '      <div class="lab__meta"><span class="lab__lang">' + ic('terminal') + ' Python 3</span></div>',
+    '      <div class="lab__meta"><span class="lab__lang">' + ic('book') + ' Étude de cas</span></div>',
     '    </div>',
     '    <div class="lab__body">',
     '      <p class="lab__goal"><strong>Objectif :</strong> manipuler librement les registres x86 et observer leur décomposition binaire.</p>',
     '      <div class="lab__brief"><p>Le code d’exemple extrait les sous-registres AX, AH et AL d’une valeur 32 bits EAX. Cliquez sur <strong>Exécuter</strong> pour tester le simulateur.</p></div>',
     '      <div class="lab__sample">',
-    '        <div class="lab__sample-part"><b>Entrée du programme</b><pre>TEST-ASM</pre></div>',
-    '        <div class="lab__sample-part"><b>Sortie attendue</b><pre>EAX=0x12345678 AX=0x5678 AH=0x56 AL=0x78</pre></div>',
+    '        <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TEST-ASM</pre></div>',
+    '        <div class="lab__sample-part"><b>Résolution attendue</b><pre>EAX=0x12345678 AX=0x5678 AH=0x56 AL=0x78</pre></div>',
     '      </div>',
     '    </div>',
     '  </div>',
@@ -174,7 +169,7 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code — ' + course.brand,
+      title: 'Atelier d’analyse — ' + course.brand,
       description: 'Bac à sable interactif pour simuler et prototyper des mécanismes d’assembleur et d’architecture CPU.',
       active: 'atelier',
       body

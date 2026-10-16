@@ -108,19 +108,19 @@ function sommaire(course, chapterList) {
   };
 }
 
-/* ======================== Atelier de code ======================== */
+/* ======================== Atelier d’analyse ======================== */
 
 function atelier(course) {
   const body = [
-    crumb(course, [{ label: 'Atelier de code' }]),
-    '  <h1>Atelier de code interactif Réseau CCNA</h1>',
+    crumb(course, [{ label: 'Atelier d’analyse' }]),
+    '  <h1>Atelier d’analyse interactif Réseau CCNA</h1>',
     '  <p class="lead">Simulez vos trames Ethernet, calculez des sous-réseaux VLSM, testez la convergence Spanning Tree et analysez des tables de routage directement dans l’interpréteur embarqué.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="192.168.1.0/24">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez, calculez des sous-réseaux ou expérimentez des protocoles réseau.\nprint("Zone libre CCNA Réseau B2 : pret a executer.")\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Conseils pour la certification et les labs Cisco</h2>',
@@ -138,7 +138,7 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code interactif | ' + course.brand,
+      title: 'Atelier d’analyse interactif | ' + course.brand,
       description: 'Espace d’expérimentation et bac à sable de simulation réseau interactif.',
       active: 'atelier',
       body

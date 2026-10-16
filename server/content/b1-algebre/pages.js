@@ -51,10 +51,10 @@ function index(course, chapterList) {
     ].join('\n')),
     box('method', 'Comment ce cours s’articule', 'compass', [
       '    <p>Chaque chapitre part d’un problème concret, pose les définitions, déroule un exemple ' +
-      'calculé ligne à ligne, puis se termine par <strong>trois exercices de code en Python</strong> : ' +
+      'calculé ligne à ligne, puis se termine par <strong>trois études de cas matricielles</strong> : ' +
       'tu écris vraiment un programme qui calcule (somme de vecteurs, produit de matrices, déterminant, ' +
       'résolution de système), il est réellement exécuté puis corrigé par des tests que tu ne vois pas.</p>',
-      '    <p>Le langage Python sert ici de <em>calculatrice vérifiable</em> : il n’est jamais le sujet du ' +
+      '    <p>Le langage Python sert ici de <em>démarche méthodologique</em> : il n’est jamais le sujet du ' +
       'cours, il est le moyen de contrôler que la méthode est comprise. Les formules restent celles du ' +
       'support, en notation mathématique.</p>'
     ].join('\n')),
@@ -103,7 +103,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du vocabulaire matriciel jusqu’aux déterminants. ' +
     'Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur ' +
     '(et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Python</strong> à écrire et à exécuter ' +
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas mathématiques</strong> à écrire et à exécuter ' +
     'dans la page : ton programme est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
     'L’<a href="atelier.html">atelier de calcul</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
@@ -114,7 +114,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s’auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo des formules</span><br><span class="toc__d">Définitions, formules et méthodes sur une page.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Calculs gradués et projet final combinant tous les modules.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de calcul</span><br><span class="toc__d">Écrire et exécuter du Python directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de calcul</span><br><span class="toc__d">Poser et vérifier ses calculs matriciels directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l’évaluation, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -124,7 +124,7 @@ function sommaire(course, chapterList) {
     'sommaire.html': {
       title: 'Sommaire — ' + course.brand,
       description: 'Sommaire du cours d’algèbre linéaire B1 : ' + chapterList.length +
-        ' chapitres, exercices Python exécutables, flashcards, mémo et examens blancs.',
+        ' chapitres, études de cas mathématiques, flashcards, mémo et examens blancs.',
       active: 'sommaire',
       body
     }
@@ -136,13 +136,13 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier de calcul</h1>',
+    '  <h1>Atelier d’analyse &amp; Bac à sable</h1>',
     '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Python derrière. Écris un calcul, ' +
     'donne-lui ses données, exécute-le et lis ce qu’il affiche. C’est ici qu’une formule devient un réflexe.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
       '      <li><strong>Exécuter</strong> fait tourner votre code Python tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
-      '      <li><strong>Entrée du programme</strong> contient ce que <code>input()</code> lira, une valeur par ligne.</li>',
+      '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
       '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur.</li>',
       '      <li>Votre code est conservé dans ce navigateur, par exercice et par cours.</li>',
@@ -151,26 +151,11 @@ function atelier(course) {
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
-      '     data-language="python"',
+      '     data-language="analyse"',
       '     data-height="360"',
       '     data-languages="1"',
       '     data-stdin="1&#10;1&#10;1">',
-      '  <script type="text/plain" data-lab-starter># Zone libre : calculez, cassez, recommencez.',
-      '# Rien de ce que vous écrirez ici n’est noté.',
-      '#',
-      '# Exemple proposé : produit d’une matrice 3×3 par un vecteur.',
-      '# Le script lit un vecteur de 3 entiers (une valeur par ligne)',
-      '# puis affiche le produit avec la matrice [[2,1,0],[0,3,1],[1,0,4]].',
-      '',
-      'MATRICE = [[2, 1, 0], [0, 3, 1], [1, 0, 4]]',
-      '',
-      'def produit_matrice_vecteur(m, v):',
-      '    return [sum(m[i][j] * v[j] for j in range(len(v))) for i in range(len(m))]',
-      '',
-      'vecteur = [int(input()) for _ in range(3)]',
-      'resultat = produit_matrice_vecteur(MATRICE, vecteur)',
-      'print(" ".join(str(x) for x in resultat))',
-      '</script>',
+      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre — produit matrice × vecteur</h3>',
       '    <div class="lab__meta">',
@@ -186,10 +171,10 @@ function atelier(course) {
       '      <p>Une erreur n’est pas un échec : c’est le message que Python te laisse pour comprendre ce qu’il attendait.</p>',
       '    </div>',
       '    <div class="lab__sample">',
-      '      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1',
+      '      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1',
       '1',
       '1</pre></div>',
-      '      <div class="lab__sample-part"><b>Sortie attendue</b><pre>3',
+      '      <div class="lab__sample-part"><b>Résolution attendue</b><pre>3',
       '4',
       '5</pre></div>',
       '    </div>',
@@ -217,7 +202,7 @@ function atelier(course) {
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
-    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois exercices Python corrigés ' +
+    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas mathématiques corrigées ' +
     'automatiquement dans la page. Une fois l’atelier apprivoisé, ils sont la meilleure façon de vérifier ' +
     'que le cours est vraiment acquis.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Vecteurs et matrices' }),
@@ -227,7 +212,7 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de calcul — écrire du Python | ' + course.brand,
+      title: 'Atelier d’analyse matricielle | ' + course.brand,
       description: 'Atelier de calcul du cours d’algèbre linéaire B1 : éditeur dans le navigateur, exécution ' +
         'réelle du programme Python, entrée standard, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
@@ -536,207 +521,74 @@ function exercices(course) {
     '    <ol>',
     intro.map(line => '      <li>' + line + '</li>').join('\n'),
     '    </ol>',
-    '    <details><summary>Corrections</summary><div class="sol"><pre><code>' + solutions + '</code></pre></div></details>',
+    '    <details><summary>Corrections &amp; résolutions détaillées</summary><div class="sol">' + solutions + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
     '  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un projet final qui ' +
-    'combine tout ce que tu as appris. Les programmes sont en Python, comme aux ateliers.</p>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier intégrateur complet combinant géométrie vectorielle et calcul matriciel.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Calcule la somme de deux vecteurs de ℝ³ lus sur l’entrée standard.',
-      'Calcule le produit scalaire de deux vecteurs de même taille.',
-      'Calcule la norme euclidienne d’un vecteur.',
-      'Donne la transposée d’une matrice 2 × 3 lue ligne par ligne.'
+      'Calculer la somme de deux vecteurs $u = (1, 2, 3)$ et $v = (4, 5, 6)$ dans $\\mathbb{R}^3$.',
+      'Calculer le produit scalaire $u \\cdot v$.',
+      'Calculer la norme euclidienne $\\|u\\|$.',
+      'Donner la transposée de la matrice $A = \\begin{pmatrix} 1 & 2 & 3 \\\\ 4 & 5 & 6 \\end{pmatrix}$.'
     ], [
-      'a = [int(input()) for _ in range(3)]',
-      'b = [int(input()) for _ in range(3)]',
-      'print(" ".join(str(a[i] + b[i]) for i in range(3)))',
-      '',
-      'a = [int(input()) for _ in range(3)]',
-      'b = [int(input()) for _ in range(3)]',
-      'print(sum(a[i] * b[i] for i in range(3)))',
-      '',
-      'import math',
-      'v = [int(input()) for _ in range(3)]',
-      'print(round(math.sqrt(sum(x * x for x in v)), 4))',
-      '',
-      '# matrice 2 × 3 lue ligne par ligne, éléments séparés par un espace',
-      'm = [input().split() for _ in range(2)]',
-      'for j in range(3):',
-      '    print(" ".join(m[i][j] for i in range(2)))'
+      '<p><strong>1. Somme vectorielle :</strong> $u + v = (1+4, 2+5, 3+6) = (5, 7, 9)$.</p>',
+      '<p><strong>2. Produit scalaire :</strong> $u \\cdot v = 1 \\times 4 + 2 \\times 5 + 3 \\times 6 = 4 + 10 + 18 = 32$.</p>',
+      '<p><strong>3. Norme euclidienne :</strong> $\\|u\\| = \\sqrt{1^2 + 2^2 + 3^2} = \\sqrt{14} \\approx 3{,}7417$.</p>',
+      '<p><strong>4. Transposée :</strong> $A^T = \\begin{pmatrix} 1 & 4 \\\\ 2 & 5 \\\\ 3 & 6 \\end{pmatrix} \\in \\mathcal{M}_{3,2}(\\mathbb{R})$.</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Calcule le produit de deux matrices 2 × 2.',
-      'Calcule la trace d’une matrice carrée lue ligne par ligne.',
-      'Calcule le déterminant d’une matrice 3 × 3.',
-      'Teste si trois vecteurs de ℝ³ sont linéairement indépendants (par le déterminant).'
+      'Calculer le produit matriciel de $A = \\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$ et $B = \\begin{pmatrix} 2 & 0 \\\\ 1 & 3 \\end{pmatrix}$.',
+      'Calculer la trace de $M = \\begin{pmatrix} 5 & 2 \\\\ 1 & 3 \\end{pmatrix}$.',
+      'Calculer le déterminant d’une matrice $3 \\times 3$ par la règle de Sarrus.',
+      'Tester si trois vecteurs de $\\mathbb{R}^3$ sont linéairement indépendants (par le déterminant).'
     ], [
-      'a = [[int(x) for x in input().split()] for _ in range(2)]',
-      'b = [[int(x) for x in input().split()] for _ in range(2)]',
-      'c = [[sum(a[i][k] * b[k][j] for k in range(2)) for j in range(2)] for i in range(2)]',
-      'for ligne in c:',
-      '    print(" ".join(str(x) for x in ligne))',
-      '',
-      'n = int(input())',
-      'm = [[int(x) for x in input().split()] for _ in range(n)]',
-      'print(sum(m[i][i] for i in range(n)))',
-      '',
-      'def det3(m):',
-      '    return (m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])',
-      '            - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])',
-      '            + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]))',
-      '',
-      'm = [[int(x) for x in input().split()] for _ in range(3)]',
-      'print(det3(m))',
-      '',
-      'm = [[int(x) for x in input().split()] for _ in range(3)]',
-      'print("libre" if det3(m) != 0 else "liee")'
+      '<p><strong>1. Produit $A \\cdot B$ :</strong> $c_{11} = 1\\times 2 + 2\\times 1 = 4$, $c_{12} = 1\\times 0 + 2\\times 3 = 6$, $c_{21} = 3\\times 2 + 4\\times 1 = 10$, $c_{22} = 3\\times 0 + 4\\times 3 = 12$. Donc $A \\cdot B = \\begin{pmatrix} 4 & 6 \\\\ 10 & 12 \\end{pmatrix}$.</p>',
+      '<p><strong>2. Trace :</strong> $\\operatorname{tr}(M) = 5 + 3 = 8$.</p>',
+      '<p><strong>3. Déterminant $3 \\times 3$ :</strong> Développer selon la première ligne : $\\det(M) = a_{11}(a_{22}a_{33} - a_{23}a_{32}) - a_{12}(a_{21}a_{33} - a_{23}a_{31}) + a_{13}(a_{21}a_{32} - a_{22}a_{31})$.</p>',
+      '<p><strong>4. Indépendance :</strong> Une famille de 3 vecteurs dans $\\mathbb{R}^3$ est libre si et seulement si le déterminant de la matrice formée par leurs coordonnées est non nul ($\\det \\ne 0$).</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Résous un système 3 × 3 par la méthode de Gauss (remontée).',
-      'Calcule l’inverse d’une matrice 2 × 2 à coefficients entiers.',
-      'Détermine le rang d’une matrice par échelonnement.',
-      'Calcule les valeurs propres d’une matrice 2 × 2 (discriminant).'
+      'Résoudre un système $3 \\times 3$ par la méthode du pivot de Gauss.',
+      'Calculer l’inverse d’une matrice $2 \\times 2$ par la formule de la comatrice.',
+      'Déterminer le rang d’une matrice par échelonnement.',
+      'Calculer les valeurs propres d’une matrice $2 \\times 2$.'
     ], [
-      'def gauss(a, b):',
-      '    n = len(a)',
-      '    for col in range(n):',
-      '        pivot = max(range(col, n), key=lambda r: abs(a[r][col]))',
-      '        a[col], a[pivot] = a[pivot], a[col]',
-      '        b[col], b[pivot] = b[pivot], b[col]',
-      '        for r in range(col + 1, n):',
-      '            f = a[r][col] / a[col][col]',
-      '            for c in range(col, n):',
-      '                a[r][c] -= f * a[col][c]',
-      '            b[r] -= f * b[col]',
-      '    x = [0] * n',
-      '    for i in range(n - 1, -1, -1):',
-      '        x[i] = (b[i] - sum(a[i][j] * x[j] for j in range(i + 1, n))) / a[i][i]',
-      '    return x',
-      '',
-      'a = [[1, 1, 1], [2, -1, 1], [1, 2, -1]]',
-      'b = [6, 3, 2]',
-      'print([round(v, 4) for v in gauss(a, b)])   # [1.0, 2.0, 3.0]',
-      '',
-      'a, b, c, d = 1, 2, 3, 4',
-      'det = a * d - b * c                    # -2',
-      'print([[d / det, -b / det], [-c / det, a / det]])',
-      '',
-      'def rang(m):',
-      '    m = [ligne[:] for ligne in m]',
-      '    lignes, cols, r = len(m), len(m[0]), 0',
-      '    for c in range(cols):',
-      '        piv = next((i for i in range(r, lignes) if m[i][c] != 0), None)',
-      '        if piv is None:',
-      '            continue',
-      '        m[r], m[piv] = m[piv], m[r]',
-      '        for i in range(r + 1, lignes):',
-      '            f = m[i][c] / m[r][c]',
-      '            m[i] = [m[i][j] - f * m[r][j] for j in range(cols)]',
-      '        r += 1',
-      '    return r',
-      '',
-      'def valeurs_propres(a, b, c, d):',
-      '    s, p = a + d, a * d - b * c',
-      '    disc = s * s - 4 * p',
-      '    if disc < 0:',
-      '        return "pas de valeur propre reelle"',
-      '    return sorted([(s - disc ** 0.5) / 2, (s + disc ** 0.5) / 2])'
+      '<p><strong>1. Système linéaire :</strong> On forme la matrice augmentée $[A \\mid B]$, on élimine sous les pivots successifs, puis on effectue la remontée pour trouver la solution unique.</p>',
+      '<p><strong>2. Inverse $2 \\times 2$ :</strong> Si $\\det(A) = ad - bc \\ne 0$, $A^{-1} = \\frac{1}{ad - bc} \\begin{pmatrix} d & -b \\\\ -c & a \\end{pmatrix}$.</p>',
+      '<p><strong>3. Rang :</strong> Le rang est égal au nombre de pivots non nuls après échelonnement en lignes strictes.</p>',
+      '<p><strong>4. Valeurs propres :</strong> Racines de l’équation caractéristique $\\det(A - \\lambda I) = \\lambda^2 - \\operatorname{tr}(A)\\lambda + \\det(A) = 0$.</p>'
     ].join('\n')),
 
-    '  <h2>Projet intégrateur — « boîte à outils matricielle »</h2>',
-    box('situation', 'Cahier des charges', 'play', [
-      '    <p>Un professeur veut un petit programme Python qui vérifie ses énoncés d’algèbre linéaire. ' +
-      'Le programme lit une matrice carrée (première ligne : sa taille n ; puis n lignes de n entiers), ' +
-      'puis affiche un rapport complet : trace, déterminant, rang, et — si la matrice est inversible — ' +
-      'le fait qu’elle l’est.</p>'
+    '  <h2>Projet intégrateur — Dossier d’Algèbre Linéaire &amp; Réduction</h2>',
+    box('situation', 'Cahier des charges du Dossier', 'play', [
+      '    <p>Ce dossier d’étude mathématique approfondie consiste à formaliser l’analyse complète d’un endomorphisme représenté par une matrice carrée $M$ : étude du noyau $\\ker(f)$, de l’image $\\operatorname{Im}(f)$, calcul du déterminant, inversibilité et diagonalisation.</p>'
     ].join('\n')),
-    box('objectifs', 'Fonctionnalités attendues', 'target', [
+    box('objectifs', 'Compétences évaluées', 'target', [
       '    <ol>',
-      '      <li><strong>Lire</strong> la matrice depuis l’entrée standard (une ligne = une ligne de la matrice).</li>',
-      '      <li><strong>Calculer la trace</strong> avec une fonction dédiée (matrices).</li>',
-      '      <li><strong>Calculer le déterminant</strong> par développement récursif ou par échelonnement (déterminants).</li>',
-      '      <li><strong>Calculer le rang</strong> par échelonnement avec pivot (familles et rang).</li>',
-      '      <li><strong>Conclure</strong> : inversible ⇔ rang = n ⇔ det ≠ 0.</li>',
-      '      <li><strong>Gérer</strong> les cas limites : n = 1, matrice nulle, coefficients négatifs.</li>',
-      '      <li><strong>Bonus</strong> : afficher aussi la matrice transposée.</li>',
-      '    </ol>',
-      '    <p>Contraintes : une fonction = une responsabilité, noms explicites, aucun arrondi non demandé.</p>'
+      '      <li><strong>Structure vectorielle :</strong> Démontrer qu’un sous-ensemble est un sous-espace vectoriel.</li>',
+      '      <li><strong>Réduction de Gauss :</strong> Échelonner la matrice et expliciter une base de son image et de son noyau.</li>',
+      '      <li><strong>Théorème du rang :</strong> Vérifier $\\dim(\\ker f) + \\operatorname{rg}(f) = n$.</li>',
+      '      <li><strong>Spectre et diagonalisation :</strong> Calculer le polynôme caractéristique et déterminer si la matrice est diagonalisable.</li>',
+      '    </ol>'
     ].join('\n')),
-    box('method', 'Grille d’auto-évaluation du projet (sur 100)', 'blocks', [
-      '    ' + bands([
-        { cls: '', text: 'Lecture de la matrice et fonctions dédiées <strong>20</strong>' },
-        { cls: '', text: 'Déterminant correct (tests 1×1, 2×2, 3×3) <strong>20</strong>' },
-        { cls: '', text: 'Rang par échelonnement correct <strong>20</strong>' },
-        { cls: '', text: 'Rapport, conclusion, cas limites <strong>20</strong>' },
-        { cls: '', text: 'Lisibilité, noms, découpage <strong>20</strong>' }
-      ]),
-      '    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>'
-    ].join('\n')),
-    '  <details>',
-    '    <summary>Voir une solution de référence (après avoir essayé !)</summary>',
-    '    <div class="sol">',
-    '      <pre><code>' + [
-      'def lire_matrice():',
-      '    n = int(input())',
-      '    return [[int(x) for x in input().split()] for _ in range(n)]',
-      '',
-      'def trace(m):',
-      '    return sum(m[i][i] for i in range(len(m)))',
-      '',
-      'def determinant(m):',
-      '    n = len(m)',
-      '    if n == 1:',
-      '        return m[0][0]',
-      '    total = 0',
-      '    for j in range(n):',
-      '        sous = [ligne[:j] + ligne[j + 1:] for ligne in m[1:]]',
-      '        total += ((-1) ** j) * m[0][j] * determinant(sous)',
-      '    return total',
-      '',
-      'def rang(m):',
-      '    m = [ligne[:] for ligne in m]',
-      '    lignes, cols, r = len(m), len(m[0]), 0',
-      '    for c in range(cols):',
-      '        piv = next((i for i in range(r, lignes) if m[i][c] != 0), None)',
-      '        if piv is None:',
-      '            continue',
-      '        m[r], m[piv] = m[piv], m[r]',
-      '        for i in range(r + 1, lignes):',
-      '            f = m[i][c] / m[r][c]',
-      '            m[i] = [m[i][j] - f * m[r][j] for j in range(cols)]',
-      '        r += 1',
-      '    return r',
-      '',
-      'matrice = lire_matrice()',
-      'n = len(matrice)',
-      'print("trace :", trace(matrice))',
-      'print("determinant :", determinant(matrice))',
-      'print("rang :", rang(matrice))',
-      'print("inversible :", "oui" if determinant(matrice) != 0 else "non")'
-    ].join('\n') + '</code></pre>',
-    '      Cette solution combine lecture, fonctions, récursivité, échelonnement et conclusion — ' +
-    'les six modules du cours en un seul programme.',
-    '    </div>',
-    '  </details>',
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../chapitres/simulateur-examen.html', label: 'Examens blancs' }),
-    disclaimer(course, 'Exercices construits à partir du support B1 et des corrigés de CC1 et CC2. ')
+    disclaimer(course, 'Exercices construits à partir du programme officiel d’algèbre linéaire B1.')
   ].join('\n\n');
 
   return {
     'exercices/exercices.html': {
-      title: 'Exercices &amp; projet intégrateur — ' + course.brand,
-      description: 'Exercices supplémentaires et projet intégrateur du cours d’algèbre linéaire B1 : ' +
-        'calculs gradués et boîte à outils matricielle en Python.',
+      title: 'Exercices &amp; dossier intégrateur — ' + course.brand,
+      description: 'Exercices supplémentaires et dossier intégrateur du cours d’algèbre linéaire B1 : calculs matriciels gradués, pivot de Gauss et réduction.',
       active: 'exercices',
       body
     }
@@ -763,7 +615,7 @@ function render(kit, course, chapterList) {
     pages['chapitres/chapitre' + chapitre.n + '.html'] = {
       title: 'Chapitre ' + chapitre.n + ' — ' + chapitre.title + ' | ' + course.brand,
       description: 'Chapitre ' + chapitre.n + ' du cours d’algèbre linéaire B1 : ' + chapitre.toc +
-        ' Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.',
+        ' Théorie, exemples calculés, études de cas mathématiques, QCM corrigés.',
       active: 'ch' + chapitre.n,
       dataChapter: chapitre.n,
       body

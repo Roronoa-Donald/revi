@@ -154,7 +154,7 @@ function exercices(course) {
 
     box('it', 'Phase 3 : Automatisation du Three-Way Matching', 'wrench', [
       '    <p>Implémenter la règle de réconciliation pour autoriser le paiement des factures fournisseurs :</p>',
-      '    <pre><code>def reconcilier_facture(po, gr, facture):\n    if facture["montant_ttc"] &gt; po["montant_ttc"]:\n        return "BLOCAGE_PRIX"\n    if facture["quantite"] &gt; gr["quantite_recue"]:\n        return "BLOCAGE_QUANTITE"\n    return "BON_A_PAYER"</code></pre>'
+      '    <pre><code>RÈGLE DE CONTRÔLE (Rapprochement 3 voies) :\n  Si Montant_Facture &gt; Montant_PO : BLOCAGE_PRIX\n  Si Quantité_Facturée &gt; Quantité_Reçue_GR : BLOCAGE_QUANTITE\n  Sinon : BON_A_PAYER</code></pre>'
     ].join('\n')),
 
     box('it', 'Phase 4 : Planification de production &amp; Calcul des Besoins Nets', 'play', [

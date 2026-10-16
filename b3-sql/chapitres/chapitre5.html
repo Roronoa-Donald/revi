@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -190,27 +191,34 @@ EXECUTE 'SELECT * FROM users WHERE nom = $1' USING entree;</code></pre>
   </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="sql3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="OP action=INSERT table=users id=10 user=admin new=email:a@b.com,role:user&#10;OP action=UPDATE table=users id=10 user=sec_admin old=email:a@b.com,role:user new=email:a@b.com,role:admin&#10;OP action=DELETE table=users id=10 user=admin old=email:a@b.com,role:admin">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c5-e1) — Simulateur de déclencheur d’audit d’historisation (Audit Trail Trigger)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Mise à jour de multiples champs simultanément]
+# Données : OP action=UPDATE table=produits id=42 user=gest_stock old=nom:Velo,prix:200,stock:10 new=nom:Velo,prix:250,stock:8
+A_COMPLETER
 
-# À compléter : simuler la comparaison OLD vs NEW et générer les entrées d'audit
+[Cas 2 — Série de plusieurs insertions successives]
+# Données : OP action=INSERT table=logs id=1 user=cron new=lvl:info
+# Données : OP action=INSERT table=logs id=2 user=cron new=lvl:warn
+A_COMPLETER
+
+[Cas 3 — Mise à jour sans changement réel (valeurs identiques)]
+# Données : OP action=UPDATE table=clients id=100 user=app old=statut:actif new=statut:actif
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur de déclencheur d’audit d’historisation (Audit Trail Trigger)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -230,10 +238,10 @@ Sortie :
   `AUDIT_ENTRY action=<ACT> table=<TBL> row_id=<ID> diff=<DIFF> user=<USR>`
 - Bilan : `AUDIT_SUMMARY total_events=<N> inserts=<N> updates=<N> deletes=<N>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>OP action=INSERT table=users id=10 user=admin new=email:a@b.com,role:user
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OP action=INSERT table=users id=10 user=admin new=email:a@b.com,role:user
 OP action=UPDATE table=users id=10 user=sec_admin old=email:a@b.com,role:user new=email:a@b.com,role:admin
 OP action=DELETE table=users id=10 user=admin old=email:a@b.com,role:admin</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>AUDIT_ENTRY action=INSERT table=users row_id=10 diff=INSERTED user=admin
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>AUDIT_ENTRY action=INSERT table=users row_id=10 diff=INSERTED user=admin
 AUDIT_ENTRY action=UPDATE table=users row_id=10 diff=role:user-&gt;admin user=sec_admin
 AUDIT_ENTRY action=DELETE table=users row_id=10 diff=DELETED user=admin
 AUDIT_SUMMARY total_events=3 inserts=1 updates=1 deletes=1</pre></div>
@@ -252,19 +260,35 @@ AUDIT_SUMMARY total_events=3 inserts=1 updates=1 deletes=1</pre></div>
 
 <div class="lab" data-lab
      data-exercise="sql3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SESSION tenant=org_A role=member&#10;DOC id=1 tenant=org_A title=Bilan_A&#10;DOC id=2 tenant=org_B title=Bilan_B&#10;ACCESS action=SELECT doc_id=1&#10;ACCESS action=SELECT doc_id=2&#10;ACCESS action=DELETE doc_id=1">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c5-e2) — Moteur d’évaluation de politiques de sécurité au niveau ligne (Row-Level Security RLS)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Administrateur de tenant effectuant une suppression légitime]
+# Données : SESSION tenant=corp_X role=admin
+# Données : DOC id=10 tenant=corp_X title=Rapport
+# Données : ACCESS action=DELETE doc_id=10
+A_COMPLETER
 
-# À compléter : simuler la validation de politique Row-Level Security
+[Cas 2 — Accès à un document inexistant]
+# Données : SESSION tenant=org_A role=member
+# Données : ACCESS action=SELECT doc_id=999
+A_COMPLETER
+
+[Cas 3 — Mises à jour autorisées et bloquées]
+# Données : SESSION tenant=alpha role=member
+# Données : DOC id=101 tenant=alpha title=Contrat
+# Données : DOC id=102 tenant=beta title=Contrat
+# Données : ACCESS action=UPDATE doc_id=101
+# Données : ACCESS action=UPDATE doc_id=102
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Moteur d’évaluation de politiques de sécurité au niveau ligne (Row-Level Security RLS)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -287,13 +311,13 @@ Sortie :
 - Pour chaque tentative : `RLS_CHECK action=<ACT> doc_id=<ID> status=<ALLOWED|DENIED> reason=<REASON>`
 - Bilan : `RLS_REPORT total_checks=<N> allowed=<N> denied=<N>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SESSION tenant=org_A role=member
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SESSION tenant=org_A role=member
 DOC id=1 tenant=org_A title=Bilan_A
 DOC id=2 tenant=org_B title=Bilan_B
 ACCESS action=SELECT doc_id=1
 ACCESS action=SELECT doc_id=2
 ACCESS action=DELETE doc_id=1</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>RLS_CHECK action=SELECT doc_id=1 status=ALLOWED reason=TENANT_MATCH
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>RLS_CHECK action=SELECT doc_id=1 status=ALLOWED reason=TENANT_MATCH
 RLS_CHECK action=SELECT doc_id=2 status=DENIED reason=CROSS_TENANT_VIOLATION
 RLS_CHECK action=DELETE doc_id=1 status=DENIED reason=INSUFFICIENT_ROLE
 RLS_REPORT total_checks=3 allowed=1 denied=2</pre></div>
@@ -312,19 +336,28 @@ RLS_REPORT total_checks=3 allowed=1 denied=2</pre></div>
 
 <div class="lab" data-lab
      data-exercise="sql3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CHECK_SQL id=1 input=&quot;alice&quot;&#10;CHECK_SQL id=2 input=&quot;admin' OR '1'='1&quot;&#10;CHECK_SQL id=3 input=&quot;test'; DROP TABLE clients; --&quot;">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql3-c5-e3) — Validateur de requêtes dynamiques et détecteur d’injections SQL (SQLi Sanitizer)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Attaque par union pour extraction de schéma]
+# Données : CHECK_SQL id=10 input="1 UNION SELECT username, password FROM users"
+A_COMPLETER
 
-# À compléter : détecter les motifs malveillants d'injection SQL ou formater la valeur saine
+[Cas 2 — Troncature par commentaire SQL double tiret]
+# Données : CHECK_SQL id=20 input="admin' -- bypass password check"
+A_COMPLETER
+
+[Cas 3 — Entrée saine avec espaces et chiffres]
+# Données : CHECK_SQL id=30 input="Jean-Luc Dupont 2025"
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Validateur de requêtes dynamiques et détecteur d’injections SQL (SQLi Sanitizer)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -345,10 +378,10 @@ Sortie :
 - Si la chaîne est saine : `SQLI_ALERT id=<id> status=SECURE safe_value=<quote_literal_value> action=ALLOW`
 - Bilan : `SECURITY_AUDIT checked=<N> blocked=<N> allowed=<N>`</div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CHECK_SQL id=1 input="alice"
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CHECK_SQL id=1 input="alice"
 CHECK_SQL id=2 input="admin' OR '1'='1"
 CHECK_SQL id=3 input="test'; DROP TABLE clients; --"</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SQLI_ALERT id=1 status=SECURE safe_value='alice' action=ALLOW
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SQLI_ALERT id=1 status=SECURE safe_value='alice' action=ALLOW
 SQLI_ALERT id=2 status=VULNERABLE threat=TAUTOLOGY action=BLOCK
 SQLI_ALERT id=3 status=VULNERABLE threat=PIGGYBACKED_DROP action=BLOCK
 SECURITY_AUDIT checked=3 blocked=2 allowed=1</pre></div>
@@ -530,6 +563,29 @@ SECURITY_AUDIT checked=3 blocked=2 allowed=1</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

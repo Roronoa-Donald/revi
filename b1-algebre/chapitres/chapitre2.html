@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 2 — Produit de matrices, transposée et trace | Algèbre B1</title>
-<meta name="description" content="Chapitre 2 du cours d’algèbre linéaire B1 : Produit matriciel et condition d’existence, propriétés, transposée, symétrie et trace. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 2 du cours d’algèbre linéaire B1 : Produit matriciel et condition d’existence, propriétés, transposée, symétrie et trace. Théorie, exemples calculés, études de cas mathématiques, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/b1-algebre/chapitres/chapitre2.html">
 <meta property="og:title" content="Chapitre 2 — Produit de matrices, transposée et trace | Algèbre B1">
-<meta property="og:description" content="Chapitre 2 du cours d’algèbre linéaire B1 : Produit matriciel et condition d’existence, propriétés, transposée, symétrie et trace. Théorie, exemples calculés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 2 du cours d’algèbre linéaire B1 : Produit matriciel et condition d’existence, propriétés, transposée, symétrie et trace. Théorie, exemples calculés, études de cas mathématiques, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="2">
@@ -86,8 +87,7 @@
     <p>Le produit <code>A · B</code> n’existe que si <strong>le nombre de colonnes de A égale le nombre de lignes de B</strong>. La taille du résultat est alors <code>(lignes de A) × (colonnes de B)</code>. Écris-le avant de calculer : <code>(m × n) · (n × p) = (m × p)</code> — les n se « téléscopent ».</p>
   </div>
 <p><strong>Exemple.</strong> Calculons le produit de deux matrices 2 × 2 :</p>
-<pre><code>[1 2]   [5 6]   [1·5 + 2·7   1·6 + 2·8]   [19 22]
-[3 4] · [7 8] = [3·5 + 4·7   3·6 + 4·8] = [43 50]</code></pre>
+<div class="math-block">$\\begin{pmatrix} 1 & 2 \[4pt] 3 & 4 \\end{pmatrix} \\begin{pmatrix} 5 & 6 \[4pt] 7 & 8 \\end{pmatrix} = \\begin{pmatrix} 1\\cdot 5 + 2\\cdot 7 & 1\\cdot 6 + 2\\cdot 8 \[4pt] 3\\cdot 5 + 4\\cdot 7 & 3\\cdot 6 + 4\\cdot 8 \\end{pmatrix} = \\begin{pmatrix} 19 & 22 \[4pt] 43 & 50 \\end{pmatrix}$</div>
 <table>
     <tr><th>Coefficient</th><th>Calcul</th><th>Résultat</th></tr>
     <tr><td>ligne 1 × colonne 1</td><td>1·5 + 2·7</td><td>19</td></tr>
@@ -146,59 +146,66 @@ tr(<sup>t</sup>A) = tr(A)
 tr(A · B) = tr(B · A)        (même si A·B ≠ B·A)</code></pre>
 <p>La dernière propriété est aussi surprenante qu’utile : le produit n’est pas commutatif, mais sa trace l’est. Elle sert notamment à démontrer que deux matrices ne peuvent pas être toutes deux « égales à I » sous produit.</p>
 <p><strong>Matrice symétrique.</strong> Une matrice carrée est symétrique si elle est égale à sa transposée : <code><sup>t</sup>A = A</code>, c’est-à-dire <code>a<sub>ij</sub> = a<sub>ji</sub></code> pour tous i, j. Elle est <strong>antisymétrique</strong> si <code><sup>t</sup>A = −A</code>.</p>
-  <div class="box box--tech">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Le code correspondant</div>
-    <pre><code>A = [[1, 2], [3, 4]]
-B = [[5, 6], [7, 8]]
-
-def produit(X, Y):
-    return [[sum(X[i][k] * Y[k][j] for k in range(len(Y)))
-             for j in range(len(Y[0]))] for i in range(len(X))]
-
-def transposee(X):
-    return [[X[i][j] for i in range(len(X))] for j in range(len(X[0]))]
-
-def trace(X):
-    return sum(X[i][i] for i in range(len(X)))
-
-print(produit(A, B))     # [[19, 22], [43, 50]]
-print(trace(produit(A, B)), trace(produit(B, A)))   # 69 69</code></pre>
-    <p>La fonction <code>transposee</code> montre bien l’échange : la boucle externe parcourt les colonnes, la boucle interne les lignes.</p>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-calculator"></use></svg> Exemple d’application numérique</div>
+    <p>Calculons le produit $A \cdot B$, la transposée $A^T$ et la trace $\operatorname{tr}(A \cdot B)$ pour :</p>
+    <div class="math-block">$$A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}, \qquad B = \begin{pmatrix} 5 & 6 \\ 7 & 8 \end{pmatrix}$$</div>
+    <p><strong>1. Produit $A \cdot B$ :</strong></p>
+    <div class="math-block">$$A \cdot B = \begin{pmatrix} 1\cdot 5 + 2\cdot 7 & 1\cdot 6 + 2\cdot 8 \\ 3\cdot 5 + 4\cdot 7 & 3\cdot 6 + 4\cdot 8 \end{pmatrix} = \begin{pmatrix} 19 & 22 \\ 43 & 50 \end{pmatrix}$$</div>
+    <p><strong>2. Transposée et Trace :</strong></p>
+    <div class="math-block">$$A^T = \begin{pmatrix} 1 & 3 \\ 2 & 4 \end{pmatrix}, \qquad \operatorname{tr}(A \cdot B) = 19 + 50 = 69$$</div>
+    <p>On vérifie bien la propriété fondamentale d’invariance de la trace : $\operatorname{tr}(B \cdot A) = \operatorname{tr}(A \cdot B) = 69$.</p>
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="al-c2-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="1 2&#10;3 4&#10;5 6&#10;7 8">
-  <script type="text/plain" data-lab-starter>A = [[int(x) for x in input().split()] for _ in range(2)]
-B = [[int(x) for x in input().split()] for _ in range(2)]
+  <script type="text/plain" data-lab-starter># Grille de calcul (al-c2-e1) — Produit de deux matrices 2 × 2
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : afficher le produit A · B (deux lignes de deux entiers).
+[Cas 1 — Matrice diagonale à gauche]
+# Données : 2 0
+# Données : 0 2
+# Données : 1 1
+# Données : 1 1
+A_COMPLETER
+
+[Cas 2 — Produit nul sans facteur nul]
+# Données : 1 1
+# Données : 1 1
+# Données : 1 -1
+# Données : -1 1
+A_COMPLETER
+
+[Cas 3 — Produit par la matrice identité]
+# Données : 3 1
+# Données : 2 4
+# Données : 1 0
+# Données : 0 1
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Produit de deux matrices 2 × 2</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer un produit matriciel et appliquer la formule (A·B)&lt;sub&gt;ij&lt;/sub&gt; = Σ a&lt;sub&gt;ik&lt;/sub&gt;·b&lt;sub&gt;kj&lt;/sub&gt;.</p>
-    <div class="lab__brief"><p>Le programme reçoit quatre lignes de deux entiers : les deux lignes de <code>A</code>, puis les deux lignes de <code>B</code>. Affichez le produit <code>A · B</code> : deux lignes de deux entiers séparés par un espace.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère quatre lignes de deux entiers : les deux lignes de <code>A</code>, puis les deux lignes de <code>B</code>. Affichez le produit <code>A · B</code> : deux lignes de deux entiers séparés par un espace.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>1 2
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1 2
 3 4
 5 6
 7 8</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>19 22
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>19 22
 43 50</pre></div>
     </div>
     <p class="lab__note">1·5 + 2·7 = 19, 1·6 + 2·8 = 22, etc.</p>
@@ -214,29 +221,45 @@ B = [[int(x) for x in input().split()] for _ in range(2)]
 
 <div class="lab" data-lab
      data-exercise="al-c2-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="2 3&#10;1 2 3&#10;4 5 6">
-  <script type="text/plain" data-lab-starter>m, n = (int(x) for x in input().split())
-matrice = [[int(x) for x in input().split()] for _ in range(m)]
+  <script type="text/plain" data-lab-starter># Grille de calcul (al-c2-e2) — Transposée d’une matrice
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : afficher la transposée, lignes et colonnes échangées.
+[Cas 1 — Matrice 3 × 2 à coefficients 0 et 1]
+# Données : 3 2
+# Données : 1 0
+# Données : 0 1
+# Données : 1 1
+A_COMPLETER
+
+[Cas 2 — Matrice ligne]
+# Données : 1 4
+# Données : 7 8 9 10
+A_COMPLETER
+
+[Cas 3 — Matrice 2 × 2]
+# Données : 2 2
+# Données : 5 6
+# Données : 7 8
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Transposée d’une matrice</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Échanger les lignes et les colonnes d’une matrice rectangulaire.</p>
-    <div class="lab__brief"><p>Le programme reçoit une ligne <code>m n</code> (dimensions), puis <code>m</code> lignes de <code>n</code> entiers. Affichez la <strong>transposée</strong> : <code>n</code> lignes de <code>m</code> entiers séparés par un espace.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère une ligne <code>m n</code> (dimensions), puis <code>m</code> lignes de <code>n</code> entiers. Affichez la <strong>transposée</strong> : <code>n</code> lignes de <code>m</code> entiers séparés par un espace.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>2 3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2 3
 1 2 3
 4 5 6</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>1 4
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>1 4
 2 5
 3 6</pre></div>
     </div>
@@ -253,30 +276,47 @@ matrice = [[int(x) for x in input().split()] for _ in range(m)]
 
 <div class="lab" data-lab
      data-exercise="al-c2-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="3&#10;1 2 3&#10;2 5 6&#10;3 6 9">
-  <script type="text/plain" data-lab-starter>n = int(input())
-matrice = [[int(x) for x in input().split()] for _ in range(n)]
+  <script type="text/plain" data-lab-starter># Grille de calcul (al-c2-e3) — La matrice est-elle symétrique ?
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : afficher "symetrique" ou "non symetrique".
+[Cas 1 — Matrice triangulaire]
+# Données : 2
+# Données : 1 2
+# Données : 3 4
+A_COMPLETER
+
+[Cas 2 — Coefficients hors diagonale égaux]
+# Données : 2
+# Données : 0 7
+# Données : 7 0
+A_COMPLETER
+
+[Cas 3 — Symétrie brisée en bas à droite]
+# Données : 3
+# Données : 1 1 1
+# Données : 0 2 0
+# Données : 0 0 3
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — La matrice est-elle symétrique ?</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Tester l’égalité &lt;sup&gt;t&lt;/sup&gt;A = A, c’est-à-dire a&lt;sub&gt;ij&lt;/sub&gt; = a&lt;sub&gt;ji&lt;/sub&gt;.</p>
-    <div class="lab__brief"><p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> lignes de <code>n</code> entiers. Affichez <code>symetrique</code> si la matrice est égale à sa transposée, sinon <code>non symetrique</code>.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère un entier <code>n</code>, puis <code>n</code> lignes de <code>n</code> entiers. Indiquez <code>symetrique</code> si la matrice est égale à sa transposée, sinon <code>non symetrique</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
 1 2 3
 2 5 6
 3 6 9</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>symetrique</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>symetrique</pre></div>
     </div>
     <p class="lab__note">La partie au-dessus de la diagonale se retrouve dessous.</p>
     <details class="lab__hints">
@@ -424,6 +464,29 @@ matrice = [[int(x) for x in input().split()] for _ in range(n)]
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -142,27 +143,34 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="az3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="POLICY cool_days=30 archive_days=90 delete_days=365&#10;BLOB name=log-recent.csv size_gb=10 age_days=10&#10;BLOB name=backup-q1.bak size_gb=100 age_days=45&#10;BLOB name=archive-2023.tar size_gb=500 age_days=120&#10;BLOB name=temp-2022.tmp size_gb=50 age_days=400">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c5-e1) — Simulateur de cycle de vie Azure Blob Storage
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Cycle de vie complet avec Hot, Cool et Archive]
+# Données : POLICY cool_days=15 archive_days=60 delete_days=180
+# Données : BLOB name=app-events.json size_gb=5 age_days=5
+# Données : BLOB name=db-snapshot.dump size_gb=50 age_days=20
+# Données : BLOB name=old-logs.gz size_gb=200 age_days=90
+A_COMPLETER
 
-# À compléter : appliquer la politique de cycle de vie et calculer les économies
+[Cas 2 — Blobs récents restant tous en palier Hot]
+# Données : POLICY cool_days=30 archive_days=90 delete_days=180
+# Données : BLOB name=data1.parquet size_gb=20 age_days=5
+# Données : BLOB name=data2.parquet size_gb=30 age_days=15
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur de cycle de vie Azure Blob Storage</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -190,12 +198,12 @@ Pour chaque blob :<br>
 À la fin, afficher le récapitulatif comparatif (coût initial si tous en HOT vs coût optimisé) :<br>
 <code>TOTAL_HOT=$&lt;total_hot:.2f&gt; TOTAL_OPTIMIZED=$&lt;total_opt:.2f&gt; SAVINGS=&lt;savings_pct:.1f&gt;%</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>POLICY cool_days=30 archive_days=90 delete_days=365
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>POLICY cool_days=30 archive_days=90 delete_days=365
 BLOB name=log-recent.csv size_gb=10 age_days=10
 BLOB name=backup-q1.bak size_gb=100 age_days=45
 BLOB name=archive-2023.tar size_gb=500 age_days=120
 BLOB name=temp-2022.tmp size_gb=50 age_days=400</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BLOB log-recent.csv: age=10d TARGET_TIER=HOT COST=$0.1840
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BLOB log-recent.csv: age=10d TARGET_TIER=HOT COST=$0.1840
 BLOB backup-q1.bak: age=45d TARGET_TIER=COOL COST=$1.0000
 BLOB archive-2023.tar: age=120d TARGET_TIER=ARCHIVE COST=$0.4950
 BLOB temp-2022.tmp: age=400d TARGET_TIER=DELETED COST=$0.0000
@@ -214,19 +222,35 @@ TOTAL_HOT=$12.14 TOTAL_OPTIMIZED=$1.68 SAVINGS=86.2%</pre></div>
 
 <div class="lab" data-lab
      data-exercise="az3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SAS_CONFIG sp=rw st=100 se=200 spr=https&#10;REQUEST method=GET time=150 proto=https&#10;REQUEST method=DELETE time=150 proto=https">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c5-e2) — Validateur de requêtes avec jetons SAS
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Vérification normale des permissions PUT et LIST]
+# Données : SAS_CONFIG sp=rwd st=50 se=150 spr=https
+# Données : REQUEST method=PUT time=100 proto=https
+# Données : REQUEST method=LIST time=100 proto=https
+A_COMPLETER
 
-# À compléter : implémenter la vérification des règles du jeton SAS
+[Cas 2 — Violations de protocole et fenêtres temporelles expirées ou anticipées]
+# Données : SAS_CONFIG sp=r st=100 se=200 spr=https
+# Données : REQUEST method=GET time=150 proto=http
+# Données : REQUEST method=GET time=80 proto=https
+# Données : REQUEST method=GET time=250 proto=https
+A_COMPLETER
+
+[Cas 3 — Jeton avec protocole dual https et http et permission list]
+# Données : SAS_CONFIG sp=rl st=50 se=150 spr=https,http
+# Données : REQUEST method=LIST time=100 proto=http
+# Données : REQUEST method=PUT time=100 proto=http
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Validateur de requêtes avec jetons SAS</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -259,10 +283,10 @@ Ordre strict d'évaluation de la requête :<br>
 5. Si tous les contrôles réussissent :<br>
    <code>REQUEST &lt;method&gt; at &lt;time&gt;: ALLOWED</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SAS_CONFIG sp=rw st=100 se=200 spr=https
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SAS_CONFIG sp=rw st=100 se=200 spr=https
 REQUEST method=GET time=150 proto=https
 REQUEST method=DELETE time=150 proto=https</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>REQUEST GET at 150: ALLOWED
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>REQUEST GET at 150: ALLOWED
 REQUEST DELETE at 150: DENIED (reason=INSUFFICIENT_PERMISSIONS)</pre></div>
     </div>
     <p class="lab__note">Lecture autorisée mais suppression interdite par le jeton SAS (permissions rw uniquement).</p>
@@ -278,19 +302,30 @@ REQUEST DELETE at 150: DENIED (reason=INSUFFICIENT_PERMISSIONS)</pre></div>
 
 <div class="lab" data-lab
      data-exercise="az3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="REQUIREMENT workload=app-erp model=RELATIONAL&#10;REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c5-e3) — Sélecteur d'architecture de données Azure
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Classification CRM relationnel et télémétrie IoT NoSQL]
+# Données : REQUIREMENT workload=crm-core model=RELATIONAL
+# Données : REQUIREMENT workload=iot-telemetry model=NOSQL_DOCUMENT
+A_COMPLETER
 
-# À compléter : implémenter la sélection architecturale Azure
+[Cas 2 — Classification partage SMB et data lake Blob]
+# Données : REQUIREMENT workload=legacy-shares model=FILE_SMB
+# Données : REQUIREMENT workload=data-lake model=UNSTRUCTURED_OBJECTS
+A_COMPLETER
+
+[Cas 3 — Cas de modèle inconnu]
+# Données : REQUIREMENT workload=blockchain model=LEDGER_GRAPH
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Sélecteur d'architecture de données Azure</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -312,9 +347,9 @@ Format de sortie attendu :<br>
 <code>DECISION workload=&lt;nom&gt;: SERVICE=&lt;SERVICE&gt; JUSTIFICATION="&lt;JUSTIFICATION&gt;"</code><br>
 (Si le modèle est inconnu : <code>DECISION workload=&lt;nom&gt;: SERVICE=UNKNOWN JUSTIFICATION="Modèle non supporté"</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>REQUIREMENT workload=app-erp model=RELATIONAL
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REQUIREMENT workload=app-erp model=RELATIONAL
 REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>DECISION workload=app-erp: SERVICE=Azure_SQL_Database JUSTIFICATION="Moteur relationnel transactionnel ACID et compatibilité T-SQL"
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>DECISION workload=app-erp: SERVICE=Azure_SQL_Database JUSTIFICATION="Moteur relationnel transactionnel ACID et compatibilité T-SQL"
 DECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL multi-modèle distribuée mondialement avec latence garantie &lt; 10ms"</pre></div>
     </div>
     <p class="lab__note">Sélection d'Azure SQL pour l'ERP et Cosmos DB pour le panier mobile.</p>
@@ -489,6 +524,29 @@ DECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

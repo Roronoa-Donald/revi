@@ -39,12 +39,16 @@ module.exports = {
         '<p>Le problème de transport est une classe spéciale de programmation linéaire où l’on achemine un produit homogène ' +
         'depuis $m$ origines (usines, entrepôts) vers $n$ destinations (clients, magasins) :</p>',
 
-        '<pre><code>// Formalisation mathématique du Transport\n' +
-        'MINIMISER le Coût Total : C = &sum;_{i=1}^m &sum;_{j=1}^n c_{ij} * x_{ij}\n\n' +
-        'sous les contraintes :\n' +
-        '1. Respect des offres   : &sum;_{j=1}^n x_{ij} = O_i   (pour tout i = 1..m)\n' +
-        '2. Respect des demandes : &sum;_{i=1}^m x_{ij} = D_j   (pour tout j = 1..n)\n' +
-        '3. Non-négativité       : x_{ij} &ge; 0</code></pre>',
+        box('formula', 'Formalisation mathématique du Problème de Transport', [
+          '<div class="math-block">',
+          '$$\\begin{aligned}',
+          '\\text{MIN } & C = \\sum_{i=1}^{m} \\sum_{j=1}^{n} c_{ij} x_{ij} \\\\[6pt]',
+          '\\text{sous } & \\sum_{j=1}^{n} x_{ij} = O_i \\quad (i = 1, \\dots, m) \\\\[6pt]',
+          '& \\sum_{i=1}^{m} x_{ij} = D_j \\quad (j = 1, \\dots, n) \\\\[6pt]',
+          '& x_{ij} \\ge 0 \\quad (\\forall i, j)',
+          '\\end{aligned}$$',
+          '</div>'
+        ].join('\n')),
 
         box('info', 'Condition d’équilibre global', [
           '<p>Le problème est dit <strong>équilibré</strong> si la somme totale des capacités d’offre est égale ' +
@@ -88,16 +92,21 @@ module.exports = {
         '<p>Une fois la solution de base obtenue ($m + n - 1$ cellules occupées sans cycle), la <strong>méthode MODI (Modified Distribution)</strong> ' +
         'permet de tester si un réacheminement de flux peut encore réduire le coût total :</p>',
 
-        '<pre><code>// 1. Calcul des potentiels de lignes (u_i) et de colonnes (v_j)\n' +
-        'Pour chaque cellule occupée en base (x_{ij} &gt; 0) :\n' +
-        'u_i + v_j = c_{ij}\n' +
-        '(On pose arbitrairement u_1 = 0 pour démarrer le système de m + n - 1 équations).\n\n' +
-        '// 2. Évaluation des cellules vides (hors-base)\n' +
-        'Pour chaque case vide : coût marginal d’opportunité &Delta;_{ij} = c_{ij} - (u_i + v_j)\n\n' +
-        '// 3. Test d’optimalité :\n' +
-        '- Si tous les &Delta;_{ij} &ge; 0 : la solution de transport est OPTIMALE.\n' +
-        '- Si un &Delta;_{ij} &lt; 0 : faire entrer la case ayant le &Delta; le plus négatif en traçant\n' +
-        '  un cycle alterné (+ &theta;, - &theta;) de marchepied (stepping-stone).</code></pre>'
+        box('formula', 'Méthode MODI (Potentiels $u_i$ et $v_j$)', [
+          '<div class="box--formula">',
+          '  <span class="formula-label">1. Équations de base pour les cases occupées ($x_{ij} > 0$)</span>',
+          '  <div class="math-block">$$u_i + v_j = c_{ij}$$</div>',
+          '  <p>On pose arbitrairement $u_1 = 0$ pour résoudre le système de $m + n - 1$ équations à $m + n$ inconnues.</p>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">2. Coûts marginaux d’opportunité pour les cases vides</span>',
+          '  <div class="math-block">$$\\Delta_{ij} = c_{ij} - (u_i + v_j)$$</div>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">3. Règle d’optimalité</span>',
+          '  <p>Si tous les $\\Delta_{ij} \\ge 0$, le plan de transport est <strong>optimal</strong>. Si au moins un $\\Delta_{ij} < 0$, on réalloue un flux $\\theta$ via le cycle de marchepied (stepping-stone).</p>',
+          '</div>'
+        ].join('\n'))
       ].join('\n')
     },
     {

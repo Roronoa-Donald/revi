@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 1 — Fondements, Variables &amp;amp; Modélisation Linéaire | Recherche Opérationnelle B2</title>
-<meta name="description" content="Chapitre 1 du cours Recherche Opérationnelle B2 : Origines de la RO, variables de décision, fonction objectif, contraintes de ressources et formalisation canonique d’un programme linéaire. Modèles mathématiques, algorithmes d’optimisation, ateliers Python exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 1 du cours Recherche Opérationnelle B2 : Origines de la RO, variables de décision, fonction objectif, contraintes de ressources et formalisation canonique d’un programme linéaire. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/RD-RO/chapitres/chapitre1.html">
 <meta property="og:title" content="Chapitre 1 — Fondements, Variables &amp;amp; Modélisation Linéaire | Recherche Opérationnelle B2">
-<meta property="og:description" content="Chapitre 1 du cours Recherche Opérationnelle B2 : Origines de la RO, variables de décision, fonction objectif, contraintes de ressources et formalisation canonique d’un programme linéaire. Modèles mathématiques, algorithmes d’optimisation, ateliers Python exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 1 du cours Recherche Opérationnelle B2 : Origines de la RO, variables de décision, fonction objectif, contraintes de ressources et formalisation canonique d’un programme linéaire. Modèles mathématiques, algorithmes d’optimisation, études de cas appliquées, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="1">
@@ -72,7 +73,7 @@
       <li>définir avec exactitude la discipline de la Recherche Opérationnelle et son rôle stratégique dans la prise de décision ;</li>
       <li>identifier sans ambiguïté les variables de décision et leurs unités physiques ($x_j \ge 0$) ;</li>
       <li>construire la fonction objectif économique $Z$ (maximisation de profit ou minimisation de coût) ;</li>
-      <li>traduire des contraintes textuelles en inéquations linéaires de ressources ($le$), de besoins ($ge$) et d’équilibres ($=$) ;</li>
+      <li>traduire des contraintes textuelles en inéquations linéaires de ressources ($\\le$), de besoins ($\\ge$) et d’équilibres ($=$) ;</li>
       <li>valider les hypothèses fondamentales de la programmation linéaire (proportionnalité, additivité, divisibilité, certitude).</li>
     </ol>
   </div>
@@ -93,11 +94,16 @@
 <h2>2. Composants fondamentaux d’un Programme Linéaire (PL)</h2>
 
 <p>Tout problème de programmation linéaire repose sur une structure mathématique universelle à quatre piliers :</p>
-<pre><code>// Structure canonique d’un Programme Linéaire (PL)
-1. Variables de décision : x1, x2, ..., xn  (avec xj &ge; 0 pour tout j)
-2. Fonction objectif   : OPTIMISER (MAX ou MIN) Z = c1*x1 + c2*x2 + ... + cn*xn
-3. Contraintes réelles : a_i1*x1 + a_i2*x2 + ... + a_in*xn {&le;, =, &ge;} bi  (pour i = 1..m)
-4. Contraintes de signe: x1 &ge; 0, x2 &ge; 0, ..., xn &ge; 0</code></pre>
+  <div class="box box--formula">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Structure canonique d’un Programme Linéaire (PL)</div>
+<div class="math-block">
+$$\begin{aligned}
+\text{Optimiser (MAX ou MIN) } & Z = \sum_{j=1}^{n} c_j x_j = c_1 x_1 + c_2 x_2 + \dots + c_n x_n \\[6pt]
+\text{Sous les contraintes réelles : } & \sum_{j=1}^{n} a_{ij} x_j \le b_i \quad (i = 1, \dots, m) \\[6pt]
+\text{Contraintes de non-négativité : } & x_j \ge 0 \quad (j = 1, \dots, n)
+\end{aligned}$$
+</div>
+  </div>
   <div class="box box--standard">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Analyse détaillée des quatre composantes</div>
 <ul>
@@ -139,54 +145,69 @@
 <h2>4. Grandes familles de problèmes linéaires</h2>
 
 <p>La plupart des applications industrielles de la programmation linéaire se rattachent à trois grandes familles de modèles :</p>
-<pre><code>// 1. Problème de Production (Mix de production)
-Objectif   : MAXIMISER le profit total = &sum; (marge_unitaire * quantite_produite)
-Contraintes: &sum; (conso_ressource * quantite) &le; capacite_disponible  (&le;)
-
-// 2. Problème de Mélange (Régime alimentaire, Métallurgie, Pétrochimie)
-Objectif   : MINIMISER le coût d’achat = &sum; (prix_matiere * quantite_matiere)
-Contraintes: &sum; (teneur_nutriment * quantite) &ge; seuil_nutritionnel_requis (&ge;)
-
-// 3. Problème d’Affectation / Recouvrement (Planning du personnel)
-Objectif   : MINIMISER la masse salariale ou le nombre d’agents
-Contraintes: agents_en_service &ge; effectif_minimum_par_creneau_horaire (&ge;)</code></pre>
+  <div class="box box--standard">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-info"></use></svg> Les trois grandes familles de modèles industriels</div>
+<div class="box--formula">
+  <span class="formula-label">1. Problème de Production (Mix produit)</span>
+  <div class="math-block">$$\text{MAX } Z = \sum c_j x_j \quad \text{sous } \sum a_{ij} x_j \le b_i \quad (x_j \ge 0)$$</div>
+  <p>Maximiser la marge totale sous contraintes de capacités de machines, stocks et main-d’œuvre.</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">2. Problème de Mélange (Alimentation, Métallurgie, Chimie)</span>
+  <div class="math-block">$$\text{MIN } C = \sum c_j x_j \quad \text{sous } \sum a_{ij} x_j \ge b_i \quad (x_j \ge 0)$$</div>
+  <p>Minimiser le coût d’achat en garantissant les apports nutritionnels ou seuils de pureté minimaux.</p>
+</div>
+<div class="box--formula">
+  <span class="formula-label">3. Problème d’Affectation &amp; Recouvrement (Planning)</span>
+  <div class="math-block">$$\text{MIN } W = \sum c_j x_j \quad \text{sous } \sum a_{ij} x_j \ge r_i \quad (x_j \in \{0, 1\})$$</div>
+  <p>Minimiser l’effectif mobilisé tout en couvrant le besoin d’agents par créneau horaire.</p>
+</div>
+  </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="ro2-c1-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="MAX;15,20;4,5">
-  <script type="text/plain" data-lab-starter>ligne = input().strip()
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c1-e1) — Validation de fonction objectif & positivité
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : analyser la ligne, vérifier les variables et calculer Z
+[Cas 1 — Maximisation valide]
+# Données : MAX;25,30;2,3
+A_COMPLETER
+
+[Cas 2 — Minimisation avec zéro]
+# Données : MIN;10,8;0,7
+A_COMPLETER
+
+[Cas 3 — Violation de négativité sur x1]
+# Données : MAX;15,20;-2,5
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validation de fonction objectif &amp; positivité</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la non-négativité des variables de décision et calculer la fonction objectif.</p>
-    <div class="lab__brief"><p>En programmation linéaire, toute variable de décision physique doit être non-négative ($x_j \ge 0$). Lit sur l’entrée standard une ligne au format <code>SENS;c1,c2;x1,x2</code> où :</p><ul>  <li><code>SENS</code> vaut <code>MAX</code> ou <code>MIN</code> ;</li>  <li><code>c1,c2</code> sont les coefficients économiques de la fonction objectif $Z = c_1 x_1 + c_2 x_2$ ;</li>  <li><code>x1,x2</code> sont les valeurs proposées pour les variables de décision.</li></ul><p>Si l’une des variables est strictement négative ($x_1 < 0$ ou $x_2 < 0$), affiche :<br><code>NON_VALIDE VIOLATION_SIGNE</code>.<br>Sinon, calcule $Z$ et affiche :<br><code>VALIDE Z=&lt;valeur arrondie à 1 décimale&gt;</code>.</p></div>
+    <div class="lab__brief"><p>En programmation linéaire, toute variable de décision physique doit être non-négative ($x_j \ge 0$). Analysez les paramètres du problème pour chaque cas.</li></ul><p>Si l’une des variables est strictement négative ($x_1 < 0$ ou $x_2 < 0$), Indiquez :<br><code>NON_VALIDE VIOLATION_SIGNE</code>.<br>Sinon, calcule $Z$ et Indiquez :<br><code>VALIDE Z=&lt;valeur arrondie à 1 décimale&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>MAX;15,20;4,5</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VALIDE Z=160.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MAX;15,20;4,5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VALIDE Z=160.0</pre></div>
     </div>
     <p class="lab__note">Z = 15*4 + 20*5 = 60 + 100 = 160.0 avec x1=4 &gt;= 0 et x2=5 &gt;= 0.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
-        <li>Découpe la ligne avec split(";") pour isoler le sens, les coefficients et les valeurs de x.</li>
-        <li>Convertis les coordonnées en float et vérifie x1 &gt;= 0 and x2 &gt;= 0 avant de calculer Z.</li>
+        <li>Identifiez les coefficients donnés dans chaque cas.</li>
+        <li>Vérifiez la cohérence mathématique des valeurs.</li>
       </ol>
     </details>
   </div>
@@ -194,26 +215,37 @@ Contraintes: agents_en_service &ge; effectif_minimum_par_creneau_horaire (&ge;)<
 
 <div class="lab" data-lab
      data-exercise="ro2-c1-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="3,2;2,1,10;1,2,8">
-  <script type="text/plain" data-lab-starter>ligne = input().strip()
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c1-e2) — Faisabilité de contraintes de ressources & écarts
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : calculer les consommations, vérifier les contraintes et afficher le résultat
+[Cas 1 — Plan pleinement réalisable avec marge]
+# Données : 2,2;3,1,12;1,4,14
+A_COMPLETER
+
+[Cas 2 — Saturation exacte sur une contrainte]
+# Données : 4,2;2,1,10;1,2,8
+A_COMPLETER
+
+[Cas 3 — Violation de la ressource R1]
+# Données : 5,2;2,1,10;1,2,12
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Faisabilité de contraintes de ressources &amp; écarts</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la faisabilité d’un plan de production et calculer les marges d’inactivité (slacks).</p>
-    <div class="lab__brief"><p>Un atelier dispose de deux ressources limitées $R_1$ et $R_2$ définies par des contraintes $\le$ :<br>$$a_{11} x_1 + a_{12} x_2 \le b_1 \quad \text{et} \quad a_{21} x_1 + a_{22} x_2 \le b_2$$</p><p>Lit sur l’entrée standard une ligne au format <code>x1,x2;a11,a12,b1;a21,a22,b2</code>.<br>Calcule la consommation de chaque ressource et l’écart $s_i = b_i - (a_{i1} x_1 + a_{i2} x_2)$.<br>Si $s_1 \ge 0$ et $s_2 \ge 0$, le point est réalisable, affiche :<br><code>REALISABLE s1=&lt;s1 à 1 décimale&gt; s2=&lt;s2 à 1 décimale&gt;</code>.<br>Sinon, liste la ou les contraintes violées séparées par un espace :<br><code>IRREALISABLE VIOLATION_R1</code> (si seulement $R_1$ est dépassée),<br><code>IRREALISABLE VIOLATION_R2</code> (si seulement $R_2$ est dépassée), ou<br><code>IRREALISABLE VIOLATION_R1 VIOLATION_R2</code> (si les deux sont dépassées).</p></div>
+    <div class="lab__brief"><p>Un atelier dispose de deux ressources limitées $R_1$ et $R_2$ définies par des contraintes $\le$ :<br>$$a_{11} x_1 + a_{12} x_2 \le b_1 \quad \text{et} \quad a_{21} x_1 + a_{22} x_2 \le b_2$$</p><p>Analysez les paramètres du problème pour chaque cas.<br>Calcule la consommation de chaque ressource et l’écart $s_i = b_i - (a_{i1} x_1 + a_{i2} x_2)$.<br>Si $s_1 \ge 0$ et $s_2 \ge 0$, le point est réalisable, Indiquez :<br><code>REALISABLE s1=&lt;s1 à 1 décimale&gt; s2=&lt;s2 à 1 décimale&gt;</code>.<br>Sinon, liste la ou les contraintes violées séparées par un espace :<br><code>IRREALISABLE VIOLATION_R1</code> (si seulement $R_1$ est dépassée),<br><code>IRREALISABLE VIOLATION_R2</code> (si seulement $R_2$ est dépassée), ou<br><code>IRREALISABLE VIOLATION_R1 VIOLATION_R2</code> (si les deux sont dépassées).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3,2;2,1,10;1,2,8</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>REALISABLE s1=2.0 s2=1.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3,2;2,1,10;1,2,8</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>REALISABLE s1=2.0 s2=1.0</pre></div>
     </div>
     <p class="lab__note">R1 : 2*3 + 1*2 = 8 &lt;= 10 (s1=2.0). R2 : 1*3 + 2*2 = 7 &lt;= 8 (s2=1.0).</p>
     <details class="lab__hints">
@@ -228,26 +260,37 @@ Contraintes: agents_en_service &ge; effectif_minimum_par_creneau_horaire (&ge;)<
 
 <div class="lab" data-lab
      data-exercise="ro2-c1-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="4,6;0.2,0.5,10;0.4,0.2,12;20,15|25,10|10,20">
-  <script type="text/plain" data-lab-starter>ligne = input().strip()
+  <script type="text/plain" data-lab-starter># Grille de calcul (ro2-c1-e3) — Arbitrage de mélange de coût minimal (Blending)
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-# À compléter : tester chaque candidat, filtrer les réalisables et trouver le coût minimal
+[Cas 1 — Trois candidats avec un vainqueur net]
+# Données : 5,8;1,2,20;2,1,15;10,6|8,5|12,4
+A_COMPLETER
+
+[Cas 2 — Candidats dont certains sont irréalisables]
+# Données : 3,2;2,1,10;1,3,12;2,2|4,3|1,1
+A_COMPLETER
+
+[Cas 3 — Aucun candidat ne satisfait les deux exigences]
+# Données : 10,15;2,3,50;3,1,40;5,5|10,2|2,8
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Arbitrage de mélange de coût minimal (Blending)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Sélectionner le plan de mélange réalisable de coût économique minimal.</p>
-    <div class="lab__brief"><p>Un problème de mélange cherche à minimiser le coût d’achat de deux ingrédients $x_1$ et $x_2$ :<br>$$MIN \quad C = c_1 x_1 + c_2 x_2$$sous les exigences nutritionnelles minimales :<br>$$a_{11} x_1 + a_{12} x_2 \ge b_1 \quad \text{et} \quad a_{21} x_1 + a_{22} x_2 \ge b_2$$avec $x_1, x_2 \ge 0$.</p><p>Lit sur l’entrée standard une ligne au format :<br><code>c1,c2;a11,a12,b1;a21,a22,b2;x1A,x2A|x1B,x2B|...</code> contenant plusieurs candidats séparés par <code>|</code>.<br>Filtre les candidats qui respectent les deux exigences nutritionnelles.<br>Parmi les réalisables, sélectionne celui qui minimise le coût total $C$ et affiche :<br><code>MEILLEUR: x1=&lt;x1&gt; x2=&lt;x2&gt; COUT=&lt;C à 1 décimale&gt;</code>.<br>Si aucun candidat n’est réalisable, affiche : <code>AUCUN_REALISABLE</code>.</p></div>
+    <div class="lab__brief"><p>Un problème de mélange cherche à minimiser le coût d’achat de deux ingrédients $x_1$ et $x_2$ :<br>$$MIN \quad C = c_1 x_1 + c_2 x_2$$sous les exigences nutritionnelles minimales :<br>$$a_{11} x_1 + a_{12} x_2 \ge b_1 \quad \text{et} \quad a_{21} x_1 + a_{22} x_2 \ge b_2$$avec $x_1, x_2 \ge 0$.</p><p>Analysez les paramètres du problème pour chaque cas...</code> contenant plusieurs candidats séparés par <code>|</code>.<br>Filtre les candidats qui respectent les deux exigences nutritionnelles.<br>Parmi les réalisables, sélectionne celui qui minimise le coût total $C$ et Indiquez :<br><code>MEILLEUR: x1=&lt;x1&gt; x2=&lt;x2&gt; COUT=&lt;C à 1 décimale&gt;</code>.<br>Si aucun candidat n’est réalisable, Indiquez : <code>AUCUN_REALISABLE</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4,6;0.2,0.5,10;0.4,0.2,12;20,15|25,10|10,20</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>MEILLEUR: x1=25.0 x2=10.0 COUT=160.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4,6;0.2,0.5,10;0.4,0.2,12;20,15|25,10|10,20</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>MEILLEUR: x1=25.0 x2=10.0 COUT=160.0</pre></div>
     </div>
     <p class="lab__note">Pour (25,10) : 0.2*25+0.5*10=10&gt;=10 et 0.4*25+0.2*10=12&gt;=12. Coût = 4*25 + 6*10 = 160.0 (plus économique que (20,15) à 170.0).</p>
     <details class="lab__hints">
@@ -421,6 +464,29 @@ Contraintes: agents_en_service &ge; effectif_minimum_par_creneau_horaire (&ge;)<
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

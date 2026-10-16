@@ -36,14 +36,16 @@ module.exports = {
       html: [
         '<p>La forme d’un programme linéaire conditionne son mode de traitement mathématique :</p>',
 
-        '<pre><code>// 1. Forme Canonique (Naturelle pour l’analyse géométrique)\n' +
-        'MAX Z = c^T * x\n' +
-        'sous A * x &le; b\n' +
-        'avec x &ge; 0  (et b &ge; 0)\n\n' +
-        '// 2. Forme Standard (Obligatoire pour l’algorithme du Simplexe)\n' +
-        'MAX Z = c^T * x + 0^T * s\n' +
-        'sous A * x + I * s = b\n' +
-        'avec x &ge; 0, s &ge; 0  (et b &ge; 0)</code></pre>',
+        box('formula', 'Comparaison matricielle : Forme Canonique vs Forme Standard', [
+          '<div class="box--formula">',
+          '  <span class="formula-label">1. Forme Canonique (Idéale pour l’analyse géométrique)</span>',
+          '  <div class="math-block">$$\\begin{aligned} \\text{MAX } & Z = c^T x \\\\[4pt] \\text{sous } & A x \\le b \\\\[4pt] \\text{avec } & x \\ge 0 \\quad (b \\ge 0) \\end{aligned}$$</div>',
+          '</div>',
+          '<div class="box--formula">',
+          '  <span class="formula-label">2. Forme Standard (Obligatoire pour l’algorithme du Simplexe)</span>',
+          '  <div class="math-block">$$\\begin{aligned} \\text{MAX } & Z = c^T x + 0^T s \\\\[4pt] \\text{sous } & A x + I s = b \\\\[4pt] \\text{avec } & x \\ge 0, \\ s \\ge 0 \\quad (b \\ge 0) \\end{aligned}$$</div>',
+          '</div>'
+        ].join('\n')),
 
         box('standard', 'Variables d’écart (Slack) et d’excès (Surplus)', [
           '<p>Pour transformer une <strong>inéquation</strong> en <strong>équation stricte</strong> :</p>',
@@ -83,13 +85,16 @@ module.exports = {
         '<p>Pour trouver avec exactitude les coordonnées $(x_1, x_2)$ d’un sommet formé par l’intersection de deux droites ' +
         'frontières actives $a_1 x_1 + b_1 x_2 = c_1$ et $a_2 x_1 + b_2 x_2 = c_2$, on utilise la <strong>règle de Cramer</strong> :</p>',
 
-        '<pre><code>// 1. Calcul du déterminant principal\n' +
-        '&Delta; = a1 * b2 - a2 * b1\n\n' +
-        '// 2. Si &Delta; &ne; 0, point d’intersection unique :\n' +
-        'x1 = (c1 * b2 - c2 * b1) / &Delta;\n' +
-        'x2 = (a1 * c2 - a2 * c1) / &Delta;\n\n' +
-        '// 3. Test de faisabilité :\n' +
-        'Le sommet est réalisable ssi x1 &ge; 0, x2 &ge; 0 et vérifie toutes les autres contraintes du PL.</code></pre>'
+        box('formula', 'Formules analytiques de Cramer pour un système 2 × 2', [
+          '<div class="math-block">',
+          '$$\\Delta = \\begin{vmatrix} a_1 & b_1 \\\\[4pt] a_2 & b_2 \\end{vmatrix} = a_1 b_2 - a_2 b_1$$',
+          '</div>',
+          '<p>Si $\\Delta \\ne 0$, le point d’intersection unique $(x_1, x_2)$ du sommet s’écrit :</p>',
+          '<div class="math-block">',
+          '$$x_1 = \\frac{c_1 b_2 - c_2 b_1}{\\Delta}, \\qquad x_2 = \\frac{a_1 c_2 - a_2 c_1}{\\Delta}$$',
+          '</div>',
+          '<p><strong>Test de faisabilité :</strong> le sommet est réalisable si et seulement si $x_1 \\ge 0$, $x_2 \\ge 0$ et s’il vérifie toutes les autres contraintes du problème.</p>'
+        ].join('\n'))
       ].join('\n')
     },
     {

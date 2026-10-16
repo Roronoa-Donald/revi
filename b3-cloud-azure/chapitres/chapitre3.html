@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -140,27 +141,35 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="az3-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="TIER name=web vcpu=2 ram_gb=8 burst=false disk=SSD_PREM redundancy=AZONE&#10;TIER name=db vcpu=4 ram_gb=32 burst=false disk=SSD_PREM redundancy=ASET">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c3-e1) — Dimensionneur de VM Azure et calcul de SLA combiné
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Architecture multi-tiers Web, App et DB avec SLA combiné]
+# Données : TIER name=web vcpu=2 ram_gb=8 burst=false disk=SSD_PREM redundancy=AZONE
+# Données : TIER name=app vcpu=4 ram_gb=16 burst=false disk=SSD_PREM redundancy=AZONE
+# Données : TIER name=db vcpu=8 ram_gb=64 burst=false disk=SSD_PREM redundancy=ASET
+A_COMPLETER
 
-# À compléter : classifier les séries de VM et calculer le SLA composite
+[Cas 2 — Tier unique burstable avec disque SSD Standard]
+# Données : TIER name=dev vcpu=2 ram_gb=4 burst=true disk=SSD_STD redundancy=SINGLE
+A_COMPLETER
+
+[Cas 3 — Tier calcul intensif F-series avec HDD Standard]
+# Données : TIER name=batch vcpu=8 ram_gb=16 burst=false disk=HDD_STD redundancy=SINGLE
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Dimensionneur de VM Azure et calcul de SLA combiné</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -188,9 +197,9 @@ Pour chaque tier :<br>
 À la fin de la lecture, calculer le SLA composite (produit des disponibilités de chaque tier) et l'indisponibilité annuelle estimée (sur une base de 8760 heures par an) :<br>
 <code>COMPOSITE_SLA: &lt;composite:.4f&gt;% (downtime_year=&lt;downtime_hours:.2f&gt;h)</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TIER name=web vcpu=2 ram_gb=8 burst=false disk=SSD_PREM redundancy=AZONE
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TIER name=web vcpu=2 ram_gb=8 burst=false disk=SSD_PREM redundancy=AZONE
 TIER name=db vcpu=4 ram_gb=32 burst=false disk=SSD_PREM redundancy=ASET</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TIER web: SERIES=D-series SLA=99.99%
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TIER web: SERIES=D-series SLA=99.99%
 TIER db: SERIES=E-series SLA=99.95%
 COMPOSITE_SLA: 99.9400% (downtime_year=5.26h)</pre></div>
     </div>
@@ -207,19 +216,35 @@ COMPOSITE_SLA: 99.9400% (downtime_year=5.26h)</pre></div>
 
 <div class="lab" data-lab
      data-exercise="az3-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CONFIG min=2 max=6 scale_out_cpu=75 scale_in_cpu=25 step=2 cooldown=2&#10;METRIC step=1 cpu=80&#10;METRIC step=2 cpu=85&#10;METRIC step=3 cpu=80&#10;METRIC step=4 cpu=40">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c3-e2) — Simulateur d'Auto-scaling VMSS
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Scale-out puis période de refroidissement et maintien]
+# Données : CONFIG min=1 max=5 scale_out_cpu=70 scale_in_cpu=30 step=1 cooldown=1
+# Données : METRIC step=1 cpu=75
+# Données : METRIC step=2 cpu=75
+# Données : METRIC step=3 cpu=20
+A_COMPLETER
 
-# À compléter : implémenter la machine à états de l'auto-scaling VMSS
+[Cas 2 — Scale-in vers minimum avec blocage de capacité]
+# Données : CONFIG min=2 max=4 scale_out_cpu=80 scale_in_cpu=20 step=1 cooldown=1
+# Données : METRIC step=1 cpu=10
+# Données : METRIC step=2 cpu=15
+A_COMPLETER
+
+[Cas 3 — Atteinte du palier max capacity]
+# Données : CONFIG min=2 max=3 scale_out_cpu=70 scale_in_cpu=30 step=1 cooldown=0
+# Données : METRIC step=1 cpu=80
+# Données : METRIC step=2 cpu=85
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Simulateur d'Auto-scaling VMSS</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -246,12 +271,12 @@ Règles du moteur VMSS :<br>
 Format de sortie pour chaque métrique :<br>
 <code>STEP &lt;t&gt;: CPU=&lt;cpu&gt;% INSTANCES=&lt;count&gt; ACTION=&lt;ACTION&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CONFIG min=2 max=6 scale_out_cpu=75 scale_in_cpu=25 step=2 cooldown=2
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CONFIG min=2 max=6 scale_out_cpu=75 scale_in_cpu=25 step=2 cooldown=2
 METRIC step=1 cpu=80
 METRIC step=2 cpu=85
 METRIC step=3 cpu=80
 METRIC step=4 cpu=40</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STEP 1: CPU=80% INSTANCES=4 ACTION=SCALE_OUT
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STEP 1: CPU=80% INSTANCES=4 ACTION=SCALE_OUT
 STEP 2: CPU=85% INSTANCES=4 ACTION=COOLDOWN_ACTIVE
 STEP 3: CPU=80% INSTANCES=4 ACTION=COOLDOWN_ACTIVE
 STEP 4: CPU=40% INSTANCES=4 ACTION=NONE</pre></div>
@@ -269,19 +294,34 @@ STEP 4: CPU=40% INSTANCES=4 ACTION=NONE</pre></div>
 
 <div class="lab" data-lab
      data-exercise="az3-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="DEPLOY_STAGE version=v1.1.0 probe=200&#10;SWAP_SLOTS auto_rollback=true&#10;STATUS">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c3-e3) — Gestionnaire de déploiement Azure App Service & Slot Swap
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Déploiement sain et bascule vers production]
+# Données : DEPLOY_STAGE version=v1.2.0-rc1 probe=200
+# Données : SWAP_SLOTS auto_rollback=true
+# Données : STATUS
+A_COMPLETER
 
-# À compléter : implémenter le cycle de swap de slots Azure App Service
+[Cas 2 — Échec de sonde avec auto-rollback activé]
+# Données : DEPLOY_STAGE version=v2.0.0-bug probe=500
+# Données : SWAP_SLOTS auto_rollback=true
+# Données : STATUS
+A_COMPLETER
+
+[Cas 3 — Échec de sonde sans auto-rollback forçant le swap]
+# Données : DEPLOY_STAGE version=v1.2.0 probe=503
+# Données : SWAP_SLOTS auto_rollback=false
+# Données : STATUS
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Gestionnaire de déploiement Azure App Service &amp; Slot Swap</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -308,10 +348,10 @@ Commandes prises en charge :<br>
 3. <code>STATUS</code><br>
    Afficher : <code>CURRENT_STATE: prod=&lt;current_prod&gt; stage=&lt;current_stage&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>DEPLOY_STAGE version=v1.1.0 probe=200
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DEPLOY_STAGE version=v1.1.0 probe=200
 SWAP_SLOTS auto_rollback=true
 STATUS</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STAGE_DEPLOYED: version=v1.1.0 probe=200
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STAGE_DEPLOYED: version=v1.1.0 probe=200
 SWAP_SUCCESS: prod=v1.1.0 stage=v1.0.0
 CURRENT_STATE: prod=v1.1.0 stage=v1.0.0</pre></div>
     </div>
@@ -487,6 +527,29 @@ CURRENT_STATE: prod=v1.1.0 stage=v1.0.0</pre></div>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

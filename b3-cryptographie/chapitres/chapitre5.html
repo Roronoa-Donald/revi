@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="5">
@@ -182,28 +183,33 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="cr3-c5-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SIGN n=3233 d=2753 text=CONTRAT_OFFICIEL">
-  <script type="text/plain" data-lab-starter>import sys
-import hashlib
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c5-e1) — Simulateur de Signature Numérique et Vérification (RSA Sign & Verify)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Vérification signature valide]
+# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_OFFICIEL
+A_COMPLETER
 
-# À compléter : implémenter la signature numérique et sa vérification RSA
+[Cas 2 — Détection d altération de message sous signature]
+# Données : VERIFY n=3233 e=17 sig=1706 text=CONTRAT_FALSIFIE
+A_COMPLETER
+
+[Cas 3 — Rejet signature numérique corrompue]
+# Données : VERIFY n=3233 e=17 sig=9999 text=CONTRAT_OFFICIEL
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur de Signature Numérique et Vérification (RSA Sign &amp; Verify)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -220,8 +226,8 @@ Commandes lues sur STDIN :<br>
    - Si valide : <code>VERIFY: status=VALID_SIGNATURE (authentic & untampered)</code><br>
    - Si invalide : <code>VERIFY: status=INVALID_SIGNATURE (tampered message or wrong key)</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SIGN n=3233 d=2753 text=CONTRAT_OFFICIEL</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SIGN: n=3233 digest_mod=566 sig=1706</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SIGN n=3233 d=2753 text=CONTRAT_OFFICIEL</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SIGN: n=3233 digest_mod=566 sig=1706</pre></div>
     </div>
     <p class="lab__note">Signature calculée avec la clé privée (d=2753) sur le condensé modulo 3233.</p>
     <details class="lab__hints">
@@ -236,19 +242,32 @@ Commandes lues sur STDIN :<br>
 
 <div class="lab" data-lab
      data-exercise="cr3-c5-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c5-e2) — Validateur de Structure et de Validité Temporelle de Certificat X.509
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Validation FQDN par wildcard SAN]
+# Données : CERT_VALIDATE fqdn=web.cloud.corp date=2026-10-15 cn=cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
+A_COMPLETER
 
-# À compléter : implémenter la validation temporelle et d'identité X.509
+[Cas 2 — Rejet FQDN ne figurant ni dans CN ni dans SAN]
+# Données : CERT_VALIDATE fqdn=hacker.net date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
+A_COMPLETER
+
+[Cas 3 — Rejet certificat expiré]
+# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2028-05-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
+A_COMPLETER
+
+[Cas 4 — Rejet certificat pas encore valide]
+# Données : CERT_VALIDATE fqdn=api.cloud.corp date=2025-11-01 cn=api.cloud.corp san=*.cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Validateur de Structure et de Validité Temporelle de Certificat X.509</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -266,8 +285,8 @@ Critères de validation :<br>
 3. Si conforme : <code>STATUS=VALID fqdn=&lt;fqdn&gt; valid_until=&lt;not_after&gt; ca=&lt;is_ca&gt;</code>.<br><br>
 Commande STDIN : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;cn&gt; san=&lt;san&gt; not_before=&lt;date&gt; not_after=&lt;date&gt; is_ca=&lt;bool&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>STATUS=VALID fqdn=api.cloud.corp valid_until=2027-01-01 ca=false</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>STATUS=VALID fqdn=api.cloud.corp valid_until=2027-01-01 ca=false</pre></div>
     </div>
     <p class="lab__note">Certificat en cours de validité avec correspondance exacte FQDN.</p>
     <details class="lab__hints">
@@ -282,19 +301,37 @@ Commande STDIN : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;
 
 <div class="lab" data-lab
      data-exercise="cr3-c5-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999&#10;CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false&#10;CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true&#10;CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c5-e3) — Contrôleur de Chaîne de Certification PKI et Révocation (CRL/OCSP)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Rejet certificat révoqué dans la CRL]
+# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-1001
+# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false
+# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true
+# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true
+A_COMPLETER
 
-# À compléter : implémenter la validation de chaîne PKI et contrôle de révocation
+[Cas 2 — Rupture de liaison d émetteur dans la chaîne]
+# Données : PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999
+# Données : CERT subject=api.bank.com issuer=Rogue_Intermediate serial=SN-1001 is_ca=false
+# Données : CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true
+# Données : CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true
+A_COMPLETER
+
+[Cas 3 — Racine non présente dans le magasin de confiance]
+# Données : PKI_CHAIN trust_root=Official_Root_CA crl_revoked=none
+# Données : CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false
+# Données : CERT subject=DigiTrust_Intermediate_CA issuer=Fake_Root_CA serial=SN-2001 is_ca=true
+# Données : CERT subject=Fake_Root_CA issuer=Fake_Root_CA serial=SN-3001 is_ca=true
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Contrôleur de Chaîne de Certification PKI et Révocation (CRL/OCSP)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -310,11 +347,11 @@ Règles :<br>
 4. Racine : le dernier certificat doit être auto-signé (<code>issuer == subject</code>) et égal à <code>trust_root</code>. Sinon <code>CHAIN: INVALID reason=UNTRUSTED_ROOT root=&lt;root&gt;</code>.<br>
 5. Succès : <code>CHAIN: VALID depth=&lt;N&gt; root=&lt;root&gt; leaf=&lt;leaf&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PKI_CHAIN trust_root=DigiTrust_Root_CA crl_revoked=SN-999
 CERT subject=api.bank.com issuer=DigiTrust_Intermediate_CA serial=SN-1001 is_ca=false
 CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 is_ca=true
 CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>CHAIN: VALID depth=3 root=DigiTrust_Root_CA leaf=api.bank.com</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>CHAIN: VALID depth=3 root=DigiTrust_Root_CA leaf=api.bank.com</pre></div>
     </div>
     <p class="lab__note">Chaîne PKI 3 niveaux intacte liée à la racine de confiance.</p>
     <details class="lab__hints">
@@ -458,6 +495,29 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

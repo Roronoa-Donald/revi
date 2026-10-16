@@ -104,7 +104,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, du premier mot de vocabulaire jusqu\'à l\'évaluation ' +
     'finale. Le chapitre 1 est en accès libre ; les suivants requièrent un compte de niveau B1 ou supérieur ' +
     '(et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Bash</strong> à écrire et à exécuter ' +
+    '  <p>Chaque chapitre se termine par <strong>trois études de cas méthodologiques</strong> à écrire et à exécuter ' +
     'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
     'L\'<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
@@ -125,7 +125,7 @@ function sommaire(course, chapterList) {
     'sommaire.html': {
       title: 'Sommaire — ' + course.brand,
       description: 'Sommaire du cours d\'Anglais des affaires B1 : ' + chapterList.length +
-        ' chapitres, exercices Bash exécutables, flashcards, mémo et examens blancs.',
+        ' chapitres, études de cas d’application, flashcards, mémo et examens blancs.',
       active: 'sommaire',
       body
     }
@@ -216,7 +216,7 @@ function atelier(course) {
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
-    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois exercices Bash corrigés ' +
+    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas corrigées ' +
     'automatiquement dans la page. Une fois l\'atelier apprivoisé, ils sont la meilleure façon de vérifier ' +
     'que le mécanisme est vraiment acquis.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 — Vocabulaire' }),
@@ -507,254 +507,74 @@ function exercices(course) {
     '    <ol>',
     intro.map(line => '      <li>' + line + '</li>').join('\n'),
     '    </ol>',
-    '    <details><summary>Corrections</summary><div class="sol"><pre><code>' + solutions + '</code></pre></div></details>',
+    '    <details><summary>Corrections &amp; explications linguistiques</summary><div class="sol">' + solutions + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
-    '  <h1>Exercices supplémentaires &amp; projet intégrateur</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque session, puis un projet final qui ' +
-    'outille l\'équipe entière. Les scripts sont en Bash, comme à l\'atelier.</p>',
+    '  <h1>Exercices supplémentaires &amp; cas pratiques</h1>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis un dossier de communication professionnelle en anglais technique.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
-      'Lit n mots « type mot » (b/c) et affiche professionnel ou familier, puis les deux compteurs.',
-      'Lit n personnes « nom relation » (long/once) et affiche client ou customer, puis les fidèles.',
-      'Lit n verbes « verbe son » (t/d/id) et affiche la prononciation du -ed, puis les trois compteurs.',
-      'Lit n phrases « phrase type » (yesno/wh/statement) et affiche montante ou descendante.'
+      'Distinguer le registre de langue formel (business English) du registre familier (casual).',
+      'Distinguer l’usage de « customer » (acheteur de biens) et « client » (bénéficiaire de services professionnels).',
+      'Classifier la prononciation du suffixe régulier « -ed » au prétérit : /t/, /d/ ou /ɪd/.',
+      'Identifier l’intonation montante (Yes/No questions) ou descendante (Wh- questions &amp; déclarations).'
     ], [
-      'read -r n',
-      'b=0 ; c=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r type mot',
-      '  if [ "$type" = "b" ]; then echo "$mot : professionnel" ; b=$((b + 1))',
-      '  else echo "$mot : familier" ; c=$((c + 1)); fi',
-      'done',
-      'echo "business : $b / casual : $c"',
-      '',
-      'read -r n',
-      'fideles=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r nom relation',
-      '  if [ "$relation" = "long" ]; then echo "$nom : client" ; fideles=$((fideles + 1))',
-      '  else echo "$nom : customer"; fi',
-      'done',
-      'echo "fideles : $fideles"',
-      '',
-      'read -r n',
-      't=0 ; d=0 ; id=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r verbe son',
-      '  case "$son" in',
-      '    t) echo "$verbe : /t/" ; t=$((t + 1)) ;;',
-      '    d) echo "$verbe : /d/" ; d=$((d + 1)) ;;',
-      '    id) echo "$verbe : /ɪd/" ; id=$((id + 1)) ;;',
-      '  esac',
-      'done',
-      'echo "t : $t / d : $d / ɪd : $id"',
-      '',
-      'read -r n',
-      'montantes=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r phrase type',
-      '  if [ "$type" = "yesno" ]; then echo "$phrase : montante" ; montantes=$((montantes + 1))',
-      '  else echo "$phrase : descendante"; fi',
-      'done',
-      'echo "montantes : $montantes"'
+      '<p><strong>1. Register :</strong> "I am writing to inquire..." (business) vs "Just wanted to ask..." (casual) ; "require" vs "need".</p>',
+      '<p><strong>2. Customer vs Client :</strong> A retail store has customers ; a consulting firm or software agency advises clients.</p>',
+      '<p><strong>3. -ed Pronunciation :</strong> /t/ after unvoiced sounds (stopped, worked) ; /d/ after voiced sounds (configured, planned) ; /ɪd/ after /t/ or /d/ (tested, updated).</p>',
+      '<p><strong>4. Intonation :</strong> Rising tone for closed questions ("Have you reviewed the PR?"); falling tone for open questions ("What is the root cause?").</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
     item('Application', 'n2', [
-      'Audit d\'email : lit n lignes « partie lettre » (C/L/E/A/R) et signale les parties manquantes au format du kit.',
-      'Réécriture de subject lines : lit n lignes « mauvaise bonne » et valide que la nouvelle contient action et échéance (mots cle et by).',
-      'Score CLEAR : lit « seuil n » puis n occurrences de parties et calcule le taux de complétude, verdict prêt ou a completer.',
-      'Registre d\'équipe : lit n messages « auteur registre » (form/reduce) et compte les corrections par auteur avec declare -A.'
+      'Rédiger un e-mail professionnel poli pour signaler un retard de livraison de sprint avec proposition d’ajustement.',
+      'Employer les modaux appropriés (could, would, might) pour formuler des demandes professionnelles diplomates.',
+      'Distinguer l’emploi du Present Perfect (lien avec le présent) et du Past Simple (événement révolu et daté).',
+      'Synthétiser les décisions clés d’un compte rendu de réunion technique (Minutes of Meeting).'
     ], [
-      'read -r n',
-      'declare -A vues',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r partie lettre',
-      '  vues[$lettre]=1',
-      'done',
-      'for lettre in C L E A R; do',
-      '  if [ -z "${vues[$lettre]:-}" ]; then echo "$lettre : manquante" ; fi',
-      'done',
-      '',
-      'read -r n',
-      'valides=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r mauvaise bonne action echeance',
-      '  if [ "$action" != "-" ] &amp;&amp; [ "$echeance" = "by" ]; then',
-      '    echo "subject line valide"',
-      '    valides=$((valides + 1))',
-      '  else',
-      '    echo "subject line incomplet"',
-      '  fi',
-      'done',
-      'echo "valides : $valides/$n"',
-      '',
-      'read -r seuil',
-      'read -r n',
-      'complet=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r phrase partie',
-      '  complet=$((complet + 1))',
-      'done',
-      'taux=$((complet * 5 / n))',
-      'if [ "$taux" -ge "$seuil" ]; then echo "pret" ; else echo "a completer"; fi',
-      '',
-      'read -r n',
-      'declare -A corrections',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r auteur registre',
-      '  if [ "$registre" = "reduce" ]; then',
-      '    corrections[$auteur]=$(( ${corrections[$auteur]:-0} + 1 ))',
-      '  fi',
-      'done',
-      'for auteur in "${!corrections[@]}"; do',
-      '  echo "$auteur : ${corrections[$auteur]} corrections"',
-      'done'
+      '<p><strong>1. Professional email :</strong> "Dear Team, Due to unforeseen technical constraints during integration, delivery will be shifted by 24 hours. We propose..."</p>',
+      '<p><strong>2. Diplomatic modals :</strong> "Could you please clarify the expected latency requirements?" is more polite and professional than "You must tell us the latency."</p>',
+      '<p><strong>3. Tenses :</strong> "We deployed the patch yesterday" (Past Simple, specific past time) vs "We have resolved the incident" (Present Perfect, current relevance).</p>',
+      '<p><strong>4. Meeting minutes :</strong> Focus on Action Items: Owner, Due Date, and measurable Deliverable.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
     item('Raisonnement', 'n3', [
-      'Structure de présentation : lit n lignes « minute partie » (open/body/close) et valide l\'ordre avec drapeau de rupture.',
-      'Grandma Rule : lit n mots « mot famille » (tech/simple) et calcule le score de clarté /10 avec pénalités de 2.',
-      'Thought groups : lit n positions (run/pause) et compte les séquences robot de plus de 4 mots.',
-      'Suivi de fluidité : lit n jours « jour defauts » et compte les améliorations, puis le verdict progresse/stagne.'
+      'Rédiger une documentation technique claire d’une API REST (endpoints, paramètres, réponses et codes HTTP).',
+      'Structurer une argumentation technique persuasive pour recommander une migration cloud lors d’un comité d’architecture.',
+      'Gérer avec professionnalisme et fermeté une réclamation client consécutive à une interruption de service (post-mortem).',
+      'Négocier un compromis technique lors d’une revue de conception logicielle contradictoire.'
     ], [
-      'read -r n',
-      'etape=0 ; rompu=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r minute partie',
-      '  if [ "$rompu" = "0" ]; then',
-      '    if [ "$partie" = "open" ] &amp;&amp; [ "$etape" = "0" ]; then etape=1 ; echo "ok"',
-      '    elif [ "$partie" = "body" ] &amp;&amp; [ "$etape" = "1" -o "$etape" = "2" ]; then etape=2 ; echo "ok"',
-      '    elif [ "$partie" = "close" ] &amp;&amp; [ "$etape" = "2" ]; then etape=3 ; echo "ok"',
-      '    else rompu=1 ; echo "hors structure"; fi',
-      '  else echo "hors structure"; fi',
-      'done',
-      '',
-      'read -r n',
-      'penalite=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r mot famille',
-      '  if [ "$famille" = "tech" ]; then penalite=$((penalite + 2)) ; fi',
-      'done',
-      'score=$((10 - penalite))',
-      '[ "$score" -lt 0 ] &amp;&amp; score=0',
-      'echo "score : $score/10"',
-      '',
-      'read -r n',
-      'courant=0 ; robots=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r position groupe',
-      '  if [ "$groupe" = "run" ]; then courant=$((courant + 1))',
-      '  else',
-      '    [ "$courant" -gt 4 ] &amp;&amp; robots=$((robots + 1))',
-      '    courant=0',
-      '  fi',
-      'done',
-      '[ "$courant" -gt 4 ] &amp;&amp; robots=$((robots + 1))',
-      'echo "sequences robot : $robots"',
-      '',
-      'read -r n',
-      'precedent="" ; ameliorations=0',
-      'for ((k=0; k&lt;n; k++)); do',
-      '  read -r jour defauts',
-      '  if [ -n "$precedent" ] &amp;&amp; [ "$defauts" -lt "$precedent" ]; then',
-      '    ameliorations=$((ameliorations + 1))',
-      '  fi',
-      '  precedent=$defauts',
-      'done',
-      'echo "ameliorations : $ameliorations"'
+      '<p><strong>1. Technical documentation :</strong> Objective, imperative style, structured request/response payload examples, and explicit status code tables.</p>',
+      '<p><strong>2. Architectural persuasion :</strong> Problem statement &rarr; Evaluated options &rarr; Data-driven recommendation &rarr; Risk mitigation plan.</p>',
+      '<p><strong>3. Incident post-mortem :</strong> Timeline of events, immediate corrective action, root-cause analysis (5 Whys), and preventative commitments.</p>',
+      '<p><strong>4. Collaborative negotiation :</strong> Acknowledge counterpart concerns ("While I understand your performance priority, maintainability remains crucial...").</p>'
     ].join('\n')),
 
-    '  <h2>Projet intégrateur — « correcteur de courriels de l\'équipe »</h2>',
-    box('situation', 'Cahier des charges', 'play', [
-      '    <p>Le script reçoit le journal d\'envoi d\'une équipe : d\'abord <code>n_emails</code> emails au ' +
-      'format <code>auteur parties</code> où parties est une suite de lettres CLEAR (par exemple ' +
-      '<code>CLAR</code> — cinq lettres = email complet), puis <code>n_mots</code> mots au format ' +
-      '<code>mot registre</code> (form/reduce). Il produit le rapport qualité : pour chaque auteur, nombre ' +
-      'd\'emails complets et incomplets ; puis les corrections de registre à appliquer ; enfin le verdict ' +
-      'global : « equipe prete » si tous les emails sont complets et zéro reduction, « formation requise » ' +
-      'sinon.</p>'
+    '  <h2>Dossier de synthèse — Technical Communication &amp; Specification Brief</h2>',
+    box('situation', 'Cahier des charges du Dossier', 'play', [
+      '    <p>Ce dossier complet de communication technique en langue anglaise consiste à formaliser la proposition d’architecture, la note de synthèse exécutive et le manuel utilisateur d’une plateforme cloud internationale.</p>'
     ].join('\n')),
-    box('objectifs', 'Fonctionnalités attendues', 'target', [
+    box('objectifs', 'Compétences linguistiques évaluées', 'target', [
       '    <ol>',
-      '      <li><strong>Lire</strong> les deux blocs sans mélanger emails et mots.</li>',
-      '      <li><strong>Analyser</strong> chaque suite CLEAR : complète si C, L, E, A, R tous présents.</li>',
-      '      <strong><li>Agréger</li></strong> par auteur avec des tableaux associatifs.',
-      '      <li><strong>Compter</strong> les reductions et citer leur forme formelle.</li>',
-      '      <li><strong>Verdict</strong> final au format exact du cahier des charges.</li>',
-      '    </ol>',
-      '    <p>Contraintes : parsing lettre à lettre des suites CLEAR, <code>declare -A</code> par auteur, bilan après lecture complète.</p>'
+      '      <li><strong>Précision terminologique :</strong> Maîtrise du vocabulaire d’ingénierie logicielle et d’infrastructure.</li>',
+      '      <li><strong>Clarté rédactionnelle :</strong> Concision, structure logique et conformité au style technique international.</li>',
+      '      <li><strong>Diplomatie &amp; persuasion :</strong> Formulation adaptée aux décideurs non-techniques et aux équipes d’ingénierie.</li>',
+      '      <li><strong>Gestion documentaire :</strong> Glossaire, changelog et conventions de nommage standards.</li>',
+      '    </ol>'
     ].join('\n')),
-    box('method', 'Grille d\'auto-évaluation du projet (sur 100)', 'blocks', [
-      '    ' + bands([
-        { cls: '', text: 'Lecture des deux blocs et parsing CLEAR <strong>20</strong>' },
-        { cls: '', text: 'Agrégation par auteur correcte <strong>20</strong>' },
-        { cls: '', text: 'Corrections de registre avec formes cibles <strong>20</strong>' },
-        { cls: '', text: 'Verdict global conforme <strong>20</strong>' },
-        { cls: '', text: 'Rapport lisible et formats exacts <strong>20</strong>' }
-      ]),
-      '    <p style="margin-top:10px">Objectif : <strong>≥ 95/100</strong> avant de considérer le projet terminé.</p>'
-    ].join('\n')),
-    '  <details>',
-    '    <summary>Voir une solution de référence (après avoir essayé !)</summary>',
-    '    <div class="sol">',
-    '      <pre><code>' + [
-    'read -r n_emails',
-    'declare -A complets',
-    'declare -A incomplets',
-    'tout_complets=1',
-    'for ((k=0; k&lt;n_emails; k++)); do',
-    '  read -r auteur parties',
-    '  declare -A vues',
-    '  for ((j=0; j&lt;${#parties}; j++)); do',
-    '    vues[${parties:$j:1}]=1',
-    '  done',
-    '  if [ -n "${vues[C]:-}" ] &amp;&amp; [ -n "${vues[L]:-}" ] &amp;&amp; [ -n "${vues[E]:-}" ] &amp;&amp;',
-    '     [ -n "${vues[A]:-}" ] &amp;&amp; [ -n "${vues[R]:-}" ]; then',
-    '    complets[$auteur]=$(( ${complets[$auteur]:-0} + 1 ))',
-    '  else',
-    '    incomplets[$auteur]=$(( ${incomplets[$auteur]:-0} + 1 ))',
-    '    tout_complets=0',
-    '  fi',
-    '  unset vues',
-    'done',
-    'read -r n_mots',
-    'reductions=0',
-    'for ((k=0; k&lt;n_mots; k++)); do',
-    '  read -r mot registre',
-    '  if [ "$registre" = "reduce" ]; then',
-    '    echo "correction : $mot"',
-    '    reductions=$((reductions + 1))',
-    '  fi',
-    'done',
-    'for auteur in "${!complets[@]}"; do',
-    '  echo "$auteur : ${complets[$auteur]} complets / ${incomplets[$auteur]:-0} incomplets"',
-    'done',
-    'if [ "$tout_complets" = "1" ] &amp;&amp; [ "$reductions" = "0" ]; then',
-    '  echo "verdict : equipe prete"',
-    'else',
-    '  echo "verdict : formation requise"',
-    'fi'
-    ].join('\n') + '</code></pre>',
-    '      Cette solution combine parsing lettre à lettre, agrégation par auteur, corrections de registre ' +
-    'et verdict global — les chapitres 1, 2 et 5 en un seul script.',
-    '    </div>',
-    '  </details>',
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: '../chapitres/simulateur-examen.html', label: 'Examens blancs' }),
-    disclaimer(course, 'Exercices construits d\'après les supports « English for IT Professionals » (B1 IT, sessions 1-4). ')
+    disclaimer(course, 'Exercices construits à partir du programme officiel d’anglais technique B1.')
   ].join('\n\n');
 
   return {
     'exercices/exercices.html': {
-      title: 'Exercices &amp; projet intégrateur — ' + course.brand,
-      description: 'Exercices supplémentaires et projet intégrateur du cours d\'Anglais des affaires B1 : ' +
-        'scripts Bash gradués et correcteur de courriels d\'équipe.',
+      title: 'Exercices &amp; dossier de synthèse — ' + course.brand,
+      description: 'Exercices supplémentaires et dossier de communication technique en anglais B1 : vocabulaire professionnel, e-mails et documentation.',
       active: 'exercices',
       body
     }
@@ -779,7 +599,7 @@ function render(kit, course, chapterList) {
     pages['chapitres/chapitre' + chapitre.n + '.html'] = {
       title: 'Chapitre ' + chapitre.n + ' — ' + chapitre.title + ' | ' + course.brand,
       description: 'Chapitre ' + chapitre.n + ' du cours d\'Anglais des affaires B1 : ' + chapitre.toc +
-        ' Théorie, exemples détaillés, exercices Bash exécutables, QCM corrigés.',
+        ' Théorie, exemples détaillés, études de cas d’application, QCM corrigés.',
       active: 'ch' + chapitre.n,
       dataChapter: chapitre.n,
       body

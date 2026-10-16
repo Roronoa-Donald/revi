@@ -63,7 +63,7 @@ function index(course, chapterList) {
     '    <div class="card">',
     '      <div class="card__head"><span class="badge">Ateliers Python 3</span></div>',
     '      <h3>18 Ateliers de Programmation Pratique</h3>',
-    '      <p>Chaque module propose 3 exercices interactifs pour coder et simuler en Python 3 : dimensionneurs de surallocation vCPU/RAM, parseurs VMX, calculateurs d\'espace de snapshots, dimensionneurs vSAN SPBM, traffic shapers vSwitch, estimateurs de durée vMotion et calculateurs de fenêtres de sauvegarde CBT.</p>',
+    '      <p>Chaque module propose 3 exercices interactifs pour coder et simuler selon les grilles d’analyse : dimensionneurs de surallocation vCPU/RAM, parseurs VMX, calculateurs d\'espace de snapshots, dimensionneurs vSAN SPBM, traffic shapers vSwitch, estimateurs de durée vMotion et calculateurs de fenêtres de sauvegarde CBT.</p>',
     '      <a class="btn btn--sm" href="chapitres/exercices.html">' + ic('code') + ' Voir les 18 ateliers</a>',
     '    </div>',
     '    <div class="card">',
@@ -156,51 +156,32 @@ function sommaire(course, chapterList) {
 /* ======================== Atelier ======================== */
 
 function atelier(course) {
-  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier de code' }]);
+  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier d’analyse' }]);
 
-  const defaultCode = `# Zone libre : simulez vos architectures de virtualisation avancée en Python 3
-import sys
+  const defaultCode = `# Grille d’analyse libre — Virtualisation Avancée & Hyperviseurs
+# Dimensionnement de grappes vSphere / KVM et surallocation CPU/RAM
 
-def simuler_virtualisation_avancee(commandes):
-    """Simule des opérations Datacenter : dimensionnement ESXi, politiques vSAN, vMotion."""
-    resultats = []
-    for cmd in commandes:
-        cmd_clean = cmd.strip()
-        if cmd_clean.startswith("ESXI_OVERCOMMIT"):
-            # Simulation d'un ratio de surallocation vCPU / pCPU
-            resultats.append(f"ESXI_RATIO: {cmd_clean} -> vCPU:pCPU = 3.5:1 (NOMINAL)")
-        elif cmd_clean.startswith("VSAN_SPBM"):
-            # Calcul de multiplication brute pour FTT=1 RAID1
-            resultats.append(f"VSAN_POLICY: {cmd_clean} -> Multiplicateur = 2.0x, Slack Space = 20% (OK)")
-        elif cmd_clean.startswith("VMOTION_ESTIMATE"):
-            # Estimation de durée vMotion
-            resultats.append(f"VMOTION: {cmd_clean} -> Convergence atteinte en 14.2s (RAPIDE)")
-        else:
-            resultats.append(f"VIRT_LOG: {cmd_clean} -> OPÉRATION VALIDÉE")
-    return resultats
-
-if __name__ == "__main__":
-    lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
-    if not lignes:
-        lignes = ["ESXI_OVERCOMMIT VCPUS=56 PCPUS=16", "VSAN_SPBM FTT=1 RAID1", "VMOTION_ESTIMATE RAM_GB=16 NET_GBPS=10"]
-    for r in simuler_virtualisation_avancee(lignes):
-        print(r)
+[Cas 1 — Dimensionnement de cluster HA]
+NOEUDS_PHYSIQUES: 3 hôtes ESXi (64 cœurs, 512 Go RAM chacun)
+POLITIQUE_HA: Tolérance à la panne de N=1 hôte
+CAPACITE_RESERVE: 33% CPU et RAM garantis pour bascule instantanée
+NOTE: Architecture de virtualisation haute disponibilité validée.
 `;
 
   const body = [
     crumbs,
     '  <header class="section-head">',
     '    <h1>Atelier de Code Interactif — Virtualisation Avancée Datacenter</h1>',
-    '    <p class="section-head__lead">Expérimentez librement vos algorithmes de surallocation d\'hyperviseurs, de calcul de capacité vSAN, d\'équilibrage DRS et de migration vMotion en Python 3.</p>',
+    '    <p class="section-head__lead">Expérimentez librement vos algorithmes de surallocation d\'hyperviseurs, de calcul de capacité vSAN, d\'équilibrage DRS et de migration vMotion selon les grilles d’analyse.</p>',
     '  </header>',
     '',
     '  <div class="lab"',
     '       data-lab',
     '       data-exercise-id="atelier-vrt3"',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="ESXI_OVERCOMMIT VCPUS=56 PCPUS=16\nVSAN_SPBM FTT=1 RAID1\nVMOTION_ESTIMATE RAM_GB=16 NET_GBPS=10">',
-    '    <script type="text/plain" data-lab-starter>' + defaultCode + '</script>',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-virtualisation\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -222,7 +203,7 @@ if __name__ == "__main__":
 
   return {
     'atelier.html': {
-      title: 'Atelier de code interactif — ' + course.brand,
+      title: 'Atelier d’analyse interactif — ' + course.brand,
       description: 'Console interactive Python 3 pour concevoir et tester des algorithmes de virtualisation VMware, vSAN et gestion de cluster.',
       active: 'atelier',
       body

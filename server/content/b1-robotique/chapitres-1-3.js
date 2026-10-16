@@ -57,8 +57,8 @@ module.exports = [
           'instruction achevée : une lecture, un calcul, un affichage.</p>',
           '<table>\n' +
           '    <tr><th>Instruction</th><th>Effet</th></tr>\n' +
-          '    <tr><td><code>x = input()</code></td><td>lit une ligne (du texte) et la range dans x</td></tr>\n' +
-          '    <tr><td><code>n = int(input())</code></td><td>lit une ligne et la convertit en entier</td></tr>\n' +
+          '    <tr><td><code>x = donnees_capteur</code></td><td>lit une ligne (du texte) et la range dans x</td></tr>\n' +
+          '    <tr><td><code>n = int(donnees_capteur)</code></td><td>lit une ligne et la convertit en entier</td></tr>\n' +
           '    <tr><td><code>print("LED ON")</code></td><td>affiche le texte puis passe à la ligne</td></tr>\n' +
           '    <tr><td><code>print(f"{nom}")</code></td><td>affiche le texte en insérant la valeur d’une variable</td></tr>\n' +
           '  </table>',
@@ -90,7 +90,7 @@ module.exports = [
             'conséquence est pire : le robot fige. Toute division dont le dénominateur vient d’une entrée ' +
             'doit être précédée d’un test <code>if b == 0</code>. L’énoncé du TP le demandait déjà en bonus.</p>'),
           box('tech', 'En Python', 'terminal',
-            '    <pre><code>a, b = (int(x) for x in input().split())\n' +
+            '    <pre><code>a, b = (int(x) for x in donnees_capteur.split())\n' +
             '\n' +
             'print(f"somme : {a + b}")\n' +
             'print(f"reste : {a % b}")</code></pre>\n' +
@@ -118,7 +118,7 @@ module.exports = [
       { stem: 'Dans quel ordre s’exécutent les instructions d’un programme ?', opts: ['De la dernière à la première', 'De haut en bas, ligne par ligne', 'Dans un ordre imprévisible'], correct: 1, exp: 'L’exécution est séquentielle : chaque ligne finit avant que la suivante commence.' },
       { stem: 'Que vaut 17 % 5 ?', opts: ['2', '3', '3,4'], correct: 0, exp: '17 = 5 × 3 + 2 : le quotient entier vaut 3, le reste 2.' },
       { stem: 'Que vaut 17 // 5 ?', opts: ['2', '3', '3,4'], correct: 1, exp: 'Le quotient entier est la partie entière du quotient : 3.' },
-      { stem: 'Que lit exactement input() ?', opts: ['Un nombre', 'Une ligne de texte', 'Un mot'], correct: 1, exp: 'input() renvoie une ligne complète sans son retour à la ligne ; c’est int() qui convertit.' },
+      { stem: 'Que lit exactement donnees_capteur ?', opts: ['Un nombre', 'Une ligne de texte', 'Un mot'], correct: 1, exp: 'donnees_capteur renvoie une ligne complète sans son retour à la ligne ; c’est int() qui convertit.' },
       { stem: 'Que produit f&quot;{&#39;Seance&#39;:&lt;12}: 7&quot; ?', opts: ['Seance: 7', 'Seance      : 7', 'Une erreur'], correct: 1, exp: ':&lt;12 complète le libellé avec des espaces jusqu’à 12 caractères.' },
       { stem: 'Pourquoi tester la division par zéro avant de diviser ?', opts: ['Pour aller plus vite', 'Car a // 0 arrête le programme', 'Ce n’est pas nécessaire'], correct: 1, exp: 'La division par zéro lève une erreur qui interrompt le programme.' }
     ],
@@ -143,7 +143,7 @@ module.exports = [
     summary: [
       'Un robot exécute la boucle capter, décider, agir — sur la carte dans loop(), en simulation dans le programme.',
       'Les instructions s’exécutent de haut en bas : l’ordre des lectures est imposé par l’énoncé.',
-      'input() lit une ligne de texte ; int() ou float() la convertit en nombre.',
+      'donnees_capteur lit une ligne de texte ; int() ou float() la convertit en nombre.',
       '// donne le quotient entier, % le reste ; on garde toujours la division par zéro sous test.',
       'Les f-strings insèrent des valeurs, alignent (:&lt;12), arrondissent (:.2f) et nettoyent (:g).'
     ],
@@ -166,7 +166,7 @@ module.exports = [
 
     flashcards: [
       { q: 'Quelles sont les trois phases de la boucle d’un robot ?', a: 'Capter (lire les entrées), décider (comparer), agir (commander les sorties).' },
-      { q: 'Que renvoie input() et comment obtenir un entier ?', a: 'Une ligne de texte ; int(input()) la convertit en entier.' },
+      { q: 'Que renvoie donnees_capteur et comment obtenir un entier ?', a: 'Une ligne de texte ; int(donnees_capteur) la convertit en entier.' },
       { q: 'Différence entre / et // en Python ?', a: '/ donne un décimal ; // donne le quotient entier (la division euclidienne).' },
       { q: 'À quoi sert le modulo % ?', a: 'À donner le reste d’une division : tester la parité, boucler sur un alphabet, cadencer un compteur.' }
     ]
@@ -359,11 +359,7 @@ module.exports = [
         html: [
           '<p>Une <strong>fonction de test</strong> a un contrat précis : recevoir une valeur, renvoyer un ' +
           'booléen, <strong>ne rien afficher</strong>. C’est le programme qui décide quoi faire de la réponse.</p>',
-          '<pre><code>def est_pair(x):\n' +
-          '    return x % 2 == 0\n' +
-          '\n' +
-          'est_pair(4)   → True\n' +
-          'est_pair(7)   → False</code></pre>',
+          '<pre><code>RÈGLE DE DÉCISION EstPair(x) :\n  Si (x MOD 2 = 0) Alors VRAI Sinon FAUX\n\nExemples :\n  EstPair(4) → VRAI\n  EstPair(7) → FAUX</code></pre>',
           '<p>La comparaison <code>x % 2 == 0</code> <em>est déjà</em> un booléen : pas besoin d’écrire ' +
           '<code>if ... : return True else: return False</code>. Un return direct est plus court et dit la ' +
           'même chose.</p>',
@@ -399,15 +395,7 @@ module.exports = [
           '<p>Un nombre <strong>premier</strong> possède exactement deux diviseurs : 1 et lui-même. 0 et 1 ' +
           'ne sont donc pas premiers. Tester tous les diviseurs jusqu’à x serait du gaspillage : il suffit ' +
           'd’aller jusqu’à <strong>la racine carrée</strong> de x.</p>',
-          '<pre><code>def est_premier(x):\n' +
-          '    if x &lt; 2:\n' +
-          '        return False\n' +
-          '    d = 2\n' +
-          '    while d * d &lt;= x:\n' +
-          '        if x % d == 0:\n' +
-          '            return False\n' +
-          '        d += 1\n' +
-          '    return True</code></pre>',
+          '<pre><code>ALGORITHME TestPrimalite(x) :\n  Si x &lt; 2 Alors Retourner FAUX\n  Pour d de 2 jusqu\'à √x faire :\n    Si (x MOD d = 0) Alors Retourner FAUX\n  Retourner VRAI</code></pre>',
           '<p>Pourquoi s’arrêter à la racine ? Si x = a × b avec a ≤ b, alors a ≤ √x. Un diviseur au-delà ' +
           'de la racine en entraîne donc un plus petit déjà testé. Pour 97, on essaie 2 à 9 au lieu de 2 à 96.</p>',
           box('intuition', 'Attention aux cas de bord', 'compass',

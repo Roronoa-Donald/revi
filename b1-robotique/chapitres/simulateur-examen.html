@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body>
@@ -68,26 +69,25 @@
   <p class="lead">Sujet type TP noté — écrire et expliquer un programme de comportement.</p>
 
   <div class="item">
-    <div class="item__head"><span class="item__num">Exercice 1</span><span class="badge">/5 — Séquence</span></div>
-    <p>Un panneau du robot clignote : écrire le programme qui lit le nombre de clignotements k et affiche, pour chacun, « LED ON » puis « LED OFF », et enfin « Fin. » Que se passe-t-il si k vaut 0 ?</p>
-    <details><summary>Corrigé</summary><div class="sol">Boucle <code>for _ in range(k)</code> contenant les deux affichages, puis <code>print("Fin.")</code> <strong>hors</strong> de la boucle.
-Pour k = 0 : range(0) est vide, aucun passage, le programme affiche seulement « Fin. » — c’est le comportement correct.</div></details>
+    <div class="item__head"><span class="item__num">Exercice 1</span><span class="badge">/5 — Signalisation</span></div>
+    <p>Un panneau d’avertissement du robot comporte un voyant d’état : expliciter la séquence temporelle de signalisation (actif / repos) et l’état de repos final lorsque le cycle d’alerte est achevé.</p>
+    <details><summary>Corrigé</summary><div class="sol">Séquence cadencée par un temporisateur matériel : alternance des états HAUT et BAS, puis extinction sécurisée en fin de cycle.
+Pour $k = 0$ : aucune impulsion d’alerte émise, le système reste directement à l’état de repos nominal.</div></details>
   </div>
 
   <div class="item">
-    <div class="item__head"><span class="item__num">Exercice 2</span><span class="badge">/5 — Fonction de test</span></div>
-    <p>Écrire la fonction est_pair(x) puis un programme qui lit n entiers, affiche pour chacun « X pair » ou « X impair », et termine par les deux comptes. Pourquoi la fonction ne doit-elle rien afficher ?</p>
-    <details><summary>Corrigé</summary><div class="sol"><code>def est_pair(x): return x % 2 == 0</code> — la comparaison est déjà un booléen.
-Deux compteurs initialisés avant la boucle, incrémentés dans la bonne branche, affichés après.
-La fonction ne doit rien afficher pour rester réutilisable (on peut compter avec son résultat) et testable seule.</div></details>
+    <div class="item__head"><span class="item__num">Exercice 2</span><span class="badge">/5 — Filtrage capteur</span></div>
+    <p>Définir une fonction logique de seuillage pour un capteur de proximité infrarouge : pourquoi la détection de proximité doit-elle séparer la lecture brute de la décision d’actionnement ?</p>
+    <details><summary>Corrigé</summary><div class="sol">Fonction de seuillage logique : <code>proximite_critique = (valeur_mesuree < SEUIL_MIN)</code>.
+Séparer l’acquisition capteur et l’actionnement garantit l’indépendance matérielle, la possibilité d’appliquer un filtre anti-rebond ou moyenne glissante, et la testabilité unitaire de la chaîne décisionnelle.</div></details>
   </div>
 
   <div class="item">
-    <div class="item__head"><span class="item__num">Exercice 3</span><span class="badge">/5 — Tri compté</span></div>
-    <p>Trier [64, 25, 12, 22, 11] par tri à bulles en comptant les comparaisons. Donner la série triée et le nombre de comparaisons du double parcours complet.</p>
-    <details><summary>Corrigé</summary><div class="sol">Triée : 11, 12, 22, 25, 64.
-Comparaisons : 4 + 3 + 2 + 1 = <strong>10</strong>, soit n(n − 1)/2 pour n = 5.
-Le compteur s’incrémente à chaque test, échange ou non — c’est le test qui coûte.</div></details>
+    <div class="item__head"><span class="item__num">Exercice 3</span><span class="badge">/5 — Énergie & couple</span></div>
+    <p>Calculer la puissance mécanique $P = C \cdot \omega$ développée par un motoréducteur délivrant un couple $C = 2\text{ N}\cdot\text{m}$ à une vitesse de rotation de $120\text{ tr/min}$.</p>
+    <details><summary>Corrigé</summary><div class="sol">Conversion de la vitesse angulaire : $\omega = 120 \times \frac{2\pi}{60} = 4\pi \approx 12{,}566\text{ rad/s}$.
+Puissance mécanique : $P = C \cdot \omega = 2 \times 12{,}566 \approx 25{,}13\text{ W}$.
+Cette puissance dimensionne l’étage de conversion de puissance et le hacheur de commande.</div></details>
   </div>
 
   <div class="item">
@@ -246,6 +246,29 @@ La moyenne imposée est entière : division //, pas /.</div></details>
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

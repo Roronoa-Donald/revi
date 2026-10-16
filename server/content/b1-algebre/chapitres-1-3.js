@@ -37,52 +37,42 @@ module.exports = [
       {
         title: 'Vecteurs de ℝⁿ',
         html: [
-          '<p><strong>Définition.</strong> Soit n un entier naturel non nul. Un <strong>vecteur</strong> de ' +
-          'ℝⁿ est une liste ordonnée de n nombres réels :</p>',
-          '<pre><code>u = (u₁, u₂, …, uₙ)      avec u₁, …, uₙ ∈ ℝ</code></pre>',
-          '<p>Les nombres <code>u₁, u₂, …</code> sont les <strong>composantes</strong> (ou coordonnées) de u. ' +
-          'L’ordre compte : dans ℝ³, le vecteur <code>(1, 2, 3)</code> n’est pas le vecteur <code>(3, 2, 1)</code>.</p>',
-          '<p>En informatique, un vecteur se range dans un tableau à une dimension. Le passage de la notation ' +
-          'mathématique au code est direct :</p>',
-          '<pre><code>u = (2, −1, 4)      # le vecteur\n' +
-          'u = [2, -1, 4]      # le même en Python</code></pre>',
+          '<p><strong>Définition.</strong> Soit $n$ un entier naturel non nul. Un <strong>vecteur</strong> de ' +
+          '$\\mathbb{R}^n$ est une liste ordonnée de $n$ nombres réels :</p>',
+          '<div class="math-block">$$u = (u_1, u_2, \\dots, u_n) \\in \\mathbb{R}^n$$</div>',
+          '<p>Les nombres $u_1, u_2, \\dots$ sont les <strong>composantes</strong> (ou coordonnées) de $u$. ' +
+          'L’ordre compte : dans $\\mathbb{R}^3$, le vecteur $(1, 2, 3)$ n’est pas le vecteur $(3, 2, 1)$.</p>',
+          '<p>Dans l’espace affine cartésien, un vecteur se représente sous forme colonne :</p>',
+          '<div class="math-block">$$u = \\begin{pmatrix} 2 \\\\[4pt] -1 \\\\[4pt] 4 \\end{pmatrix} \\in \\mathbb{R}^3$$</div>',
           box('intuition', 'Intuition', 'compass',
-            '    <p>Un vecteur de ℝ² est une flèche dans le plan, un vecteur de ℝ³ une flèche dans l’espace. ' +
+            '    <p>Un vecteur de $\\mathbb{R}^2$ est une flèche dans le plan, un vecteur de $\\mathbb{R}^3$ une flèche dans l’espace. ' +
             'Au-delà de trois dimensions on ne dessine plus rien, mais les règles de calcul restent identiques : ' +
             'c’est tout l’intérêt de l’algèbre linéaire en informatique.</p>'),
-          '<p><strong>Combinaison linéaire.</strong> Soient des vecteurs <code>v₁, …, vₚ</code> de ℝⁿ et des ' +
-          'réels <code>a₁, …, aₚ</code>. Le vecteur</p>',
-          '<pre><code>a₁·v₁ + a₂·v₂ + … + aₚ·vₚ</code></pre>',
-          '<p>est une <strong>combinaison linéaire</strong> de <code>v₁, …, vₚ</code>. C’est la seule ' +
+          '<p><strong>Combinaison linéaire.</strong> Soient des vecteurs $v_1, \\dots, v_p$ de $\\mathbb{R}^n$ et des ' +
+          'scalaires $a_1, \\dots, a_p \\in \\mathbb{R}$. Le vecteur</p>',
+          '<div class="math-block">$$v = \\sum_{k=1}^p a_k v_k = a_1 v_1 + a_2 v_2 + \\dots + a_p v_p$$</div>',
+          '<p>est une <strong>combinaison linéaire</strong> de $v_1, \\dots, v_p$. C’est la seule ' +
           'opération de base de tout le cours : additionner des vecteurs et les multiplier par des nombres.</p>'
         ].join('\n')
       },
       {
         title: 'Matrices : définition et vocabulaire',
         html: [
-          '<p><strong>Définition.</strong> Une <strong>matrice</strong> à m lignes et n colonnes est un tableau ' +
-          'rectangulaire de m × n nombres réels. On la note :</p>',
-          '<pre><code>A = (a<sub>ij</sub>)      i = 1 … m (ligne),   j = 1 … n (colonne)\n' +
-          '\n' +
-          '        ⎛ a₁₁  a₁₂  …  a₁ₙ ⎞\n' +
-          'A  =    ⎜ a₂₁  a₂₂  …  a₂ₙ ⎟\n' +
-          '        ⎝ aₘ₁  aₘ₂  …  aₘₙ ⎠</code></pre>',
-          '<p>Le nombre <code>a<sub>ij</sub></code> est le coefficient situé à la <strong>ligne i</strong> et à ' +
-          'la <strong>colonne j</strong>. Le couple <code>(m, n)</code> est la <em>taille</em> ou la ' +
+          '<p><strong>Définition.</strong> Une <strong>matrice</strong> à $m$ lignes et $n$ colonnes est un tableau ' +
+          'rectangulaire de $m \\times n$ nombres réels. On la note :</p>',
+          '<div class="math-block">$$A = (a_{ij})_{\\substack{1 \\le i \\le m \\\\[2pt] 1 \\le j \\le n}} = \\begin{pmatrix} a_{11} & a_{12} & \\cdots & a_{1n} \\\\[4pt] a_{21} & a_{22} & \\cdots & a_{2n} \\\\[4pt] \\vdots & \\vdots & \\ddots & \\vdots \\\\[4pt] a_{m1} & a_{m2} & \\cdots & a_{mn} \\end{pmatrix}$$</div>',
+          '<p>Le nombre $a_{ij}$ est le coefficient situé à la <strong>ligne $i$</strong> et à ' +
+          'la <strong>colonne $j$</strong>. Le couple $(m, n)$ est la <em>taille</em> ou la ' +
           '<em>dimension</em> de la matrice.</p>',
           '<p>Attention à l’ordre : on dit toujours « nombre de lignes × nombre de colonnes ». Une matrice ' +
-          '<code>2 × 3</code> a 2 lignes et 3 colonnes, donc 6 coefficients — ce n’est pas la même chose qu’une ' +
-          'matrice <code>3 × 2</code>.</p>',
-          box('tech', 'En Python : une liste de listes', 'wrench',
-            '    <p>Une matrice se représente naturellement par une liste de lignes, chaque ligne étant ' +
-            'elle-même une liste.</p>\n' +
-            '    <pre><code>A = [[1, 2, 3],\n' +
-            '     [4, 5, 6]]     # 2 lignes, 3 colonnes\n' +
-            '\n' +
-            'A[0][2]   # ligne 0, colonne 2  →  3\n' +
-            'len(A)      # nombre de lignes  →  2\n' +
-            'len(A[0])   # nombre de colonnes →  3</code></pre>\n' +
-            '    <p>Les indices commencent à 0 : <code>A[0][0]</code> est le coefficient <code>a₁₁</code>.</p>'),
+          '$2 \\times 3$ a 2 lignes et 3 colonnes, donc 6 coefficients — ce n’est pas la même chose qu’une ' +
+          'matrice $3 \\times 2$.</p>',
+          box('standard', 'Vecteurs lignes et vecteurs colonnes', [
+            '<p>Dans une matrice $A \\in \\mathcal{M}_{m,n}(\\mathbb{R})$, la $i$-ème ligne est un vecteur ligne de dimension $n$ :</p>',
+            '<div class="math-block">$$L_i = \\begin{pmatrix} a_{i1} & a_{i2} & \\cdots & a_{in} \\end{pmatrix}$$</div>',
+            '<p>et la $j$-ème colonne est un vecteur colonne de dimension $m$ :</p>',
+            '<div class="math-block">$$C_j = \\begin{pmatrix} a_{1j} \\\\[4pt] a_{2j} \\\\[4pt] \\vdots \\\\[4pt] a_{mj} \\end{pmatrix}$$</div>'
+          ].join('\n')),
           box('mnemo', 'Mnémotechnique — « Ligne Avant Colonne »', 'pin',
             '    <p>Pour retenir l’ordre d’écriture d’un coefficient : on dit et on écrit toujours ' +
             '« <strong>L</strong>igne <strong>A</strong>vant <strong>C</strong>olonne ». ' +
@@ -134,19 +124,7 @@ module.exports = [
           '    <li><code>A + 0 = A</code> et <code>A + (−A) = 0</code> ;</li>\n' +
           '    <li><code>k·(A + B) = k·A + k·B</code> et <code>(k + k′)·A = k·A + k′·A</code>.</li>\n' +
           '  </ul>',
-          box('tech', 'Le calcul en Python', 'terminal',
-            '    <pre><code>A = [[1, 2], [0, 4]]\n' +
-            'B = [[3, 0], [1, 1]]\n' +
-            'k = 3\n' +
-            '\n' +
-            '# addition : même dimensions obligatoires\n' +
-            'somme = [[A[i][j] + B[i][j] for j in range(2)] for i in range(2)]\n' +
-            '# → [[4, 2], [1, 5]]\n' +
-            '\n' +
-            '# multiplication par un scalaire\n' +
-            'triple = [[k * A[i][j] for j in range(2)] for i in range(2)]\n' +
-            '# → [[3, 6], [0, 12]]</code></pre>\n' +
-            '    <p>Avant toute addition, vérifie les dimensions : c’est la source d’erreur numéro un.</p>')
+          box('tip', 'Méthode de calcul manuel', 'compass', '<p>Avant toute addition ou multiplication, vérifiez impérativement la compatibilité des dimensions : pour la somme, $A$ et $B$ doivent être de même taille $m \\times n$ ; pour le produit, le nombre de colonnes de $A$ doit égaler le nombre de lignes de $B$.</p>')
         ].join('\n')
       }
     ],
@@ -246,8 +224,7 @@ module.exports = [
             '<code>(lignes de A) × (colonnes de B)</code>. Écris-le avant de calculer : ' +
             '<code>(m × n) · (n × p) = (m × p)</code> — les n se « téléscopent ».</p>'),
           '<p><strong>Exemple.</strong> Calculons le produit de deux matrices 2 × 2 :</p>',
-          '<pre><code>[1 2]   [5 6]   [1·5 + 2·7   1·6 + 2·8]   [19 22]\n' +
-          '[3 4] · [7 8] = [3·5 + 4·7   3·6 + 4·8] = [43 50]</code></pre>',
+          '<div class="math-block">$\\\\begin{pmatrix} 1 & 2 \\[4pt] 3 & 4 \\\\end{pmatrix} \\\\begin{pmatrix} 5 & 6 \\[4pt] 7 & 8 \\\\end{pmatrix} = \\\\begin{pmatrix} 1\\\\cdot 5 + 2\\\\cdot 7 & 1\\\\cdot 6 + 2\\\\cdot 8 \\[4pt] 3\\\\cdot 5 + 4\\\\cdot 7 & 3\\\\cdot 6 + 4\\\\cdot 8 \\\\end{pmatrix} = \\\\begin{pmatrix} 19 & 22 \\[4pt] 43 & 50 \\\\end{pmatrix}$</div>',
           '<table>\n' +
           '    <tr><th>Coefficient</th><th>Calcul</th><th>Résultat</th></tr>\n' +
           '    <tr><td>ligne 1 × colonne 1</td><td>1·5 + 2·7</td><td>19</td></tr>\n' +
@@ -323,24 +300,14 @@ module.exports = [
           'transposée : <code><sup>t</sup>A = A</code>, c’est-à-dire <code>a<sub>ij</sub> = a<sub>ji</sub></code> ' +
           'pour tous i, j. Elle est <strong>antisymétrique</strong> si ' +
           '<code><sup>t</sup>A = −A</code>.</p>',
-          box('tech', 'Le code correspondant', 'terminal',
-            '    <pre><code>A = [[1, 2], [3, 4]]\n' +
-            'B = [[5, 6], [7, 8]]\n' +
-            '\n' +
-            'def produit(X, Y):\n' +
-            '    return [[sum(X[i][k] * Y[k][j] for k in range(len(Y)))\n' +
-            '             for j in range(len(Y[0]))] for i in range(len(X))]\n' +
-            '\n' +
-            'def transposee(X):\n' +
-            '    return [[X[i][j] for i in range(len(X))] for j in range(len(X[0]))]\n' +
-            '\n' +
-            'def trace(X):\n' +
-            '    return sum(X[i][i] for i in range(len(X)))\n' +
-            '\n' +
-            'print(produit(A, B))     # [[19, 22], [43, 50]]\n' +
-            'print(trace(produit(A, B)), trace(produit(B, A)))   # 69 69</code></pre>\n' +
-            '    <p>La fonction <code>transposee</code> montre bien l’échange : la boucle externe parcourt les ' +
-            'colonnes, la boucle interne les lignes.</p>')
+          box('standard', 'Exemple d’application numérique', 'calculator',
+            '    <p>Calculons le produit $A \\cdot B$, la transposée $A^T$ et la trace $\\operatorname{tr}(A \\cdot B)$ pour :</p>\n' +
+            '    <div class="math-block">$$A = \\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}, \\qquad B = \\begin{pmatrix} 5 & 6 \\\\ 7 & 8 \\end{pmatrix}$$</div>\n' +
+            '    <p><strong>1. Produit $A \\cdot B$ :</strong></p>\n' +
+            '    <div class="math-block">$$A \\cdot B = \\begin{pmatrix} 1\\cdot 5 + 2\\cdot 7 & 1\\cdot 6 + 2\\cdot 8 \\\\ 3\\cdot 5 + 4\\cdot 7 & 3\\cdot 6 + 4\\cdot 8 \\end{pmatrix} = \\begin{pmatrix} 19 & 22 \\\\ 43 & 50 \\end{pmatrix}$$</div>\n' +
+            '    <p><strong>2. Transposée et Trace :</strong></p>\n' +
+            '    <div class="math-block">$$A^T = \\begin{pmatrix} 1 & 3 \\\\ 2 & 4 \\end{pmatrix}, \\qquad \\operatorname{tr}(A \\cdot B) = 19 + 50 = 69$$</div>\n' +
+            '    <p>On vérifie bien la propriété fondamentale d’invariance de la trace : $\\operatorname{tr}(B \\cdot A) = \\operatorname{tr}(A \\cdot B) = 69$.</p>')
         ].join('\n')
       }
     ],

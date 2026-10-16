@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="1">
@@ -142,33 +143,39 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="sql2-c1-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="CREATE TABLE clients ( id INT PRIMARY KEY, nom VARCHAR(50), email VARCHAR(100) );">
-  <script type="text/plain" data-lab-starter>import sys, re
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c1-e1) — Analyseur syntaxique de commande DDL CREATE TABLE
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-sql = sys.stdin.read().strip()
+[Cas 1 — Table simple avec PK inline]
+# Données : CREATE TABLE commandes ( num_cmd INT PRIMARY KEY, date_cmd DATE, total DECIMAL(10,2) );
+A_COMPLETER
 
-# À compléter : analyser la commande CREATE TABLE, compter les colonnes et identifier la clé primaire
+[Cas 2 — Table avec contrainte séparée PRIMARY KEY]
+# Données : CREATE TABLE articles ( ref_art VARCHAR(20), libelle TEXT, prix INT, PRIMARY KEY (ref_art) );
+A_COMPLETER
+
+[Cas 3 — Table sans clé primaire explicite]
+# Données : CREATE TABLE logs ( horodatage TIMESTAMP, ip VARCHAR(45), action VARCHAR(255) );
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Analyseur syntaxique de commande DDL CREATE TABLE</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser une instruction DDL CREATE TABLE pour extraire le nom de la table, les colonnes et la clé primaire.</p>
-    <div class="lab__brief"><p>Le script lit une commande DDL <code>CREATE TABLE</code> sur une seule ligne. Il doit extraire :
+    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Il doit extraire :
 - Le <strong>nom de la table</strong> ;
 - Le <strong>nombre de colonnes</strong> définies ;
 - Le nom de la <strong>colonne clé primaire</strong> (identifiée par la mention <code>PRIMARY KEY</code> inline ou comme contrainte <code>PRIMARY KEY (col)</code>).
@@ -176,8 +183,8 @@ sql = sys.stdin.read().strip()
 Format de sortie :
 <code>Table: &lt;Nom&gt; | Colonnes: &lt;Nb&gt; | PK: &lt;NomColonnePK&gt;</code> (ou <code>PK: AUCUNE</code> si absente).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE clients ( id INT PRIMARY KEY, nom VARCHAR(50), email VARCHAR(100) );</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Table: clients | Colonnes: 3 | PK: id</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CREATE TABLE clients ( id INT PRIMARY KEY, nom VARCHAR(50), email VARCHAR(100) );</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Table: clients | Colonnes: 3 | PK: id</pre></div>
     </div>
     <p class="lab__note">Table clients avec 3 colonnes et id comme PK.</p>
     <details class="lab__hints">
@@ -193,19 +200,31 @@ Format de sortie :
 
 <div class="lab" data-lab
      data-exercise="sql2-c1-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="10,20,30&#10;1:10,2:99,3:20,4:50">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c1-e2) — Vérificateur d’intégrité référentielle parent-enfant
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — Tous les enfants sont valides]
+# Données : 1,2,3,4
+# Données : 101:1,102:2,103:3,104:4
+A_COMPLETER
 
-# À compléter : extraire les parents, vérifier les enfants et lister les clés orphelines
+[Cas 2 — Plusieurs orphelins détectés]
+# Données : 100,200
+# Données : 1:100,2:300,3:400,4:200,5:500
+A_COMPLETER
+
+[Cas 3 — Tous orphelins]
+# Données : 50,60
+# Données : 1:10,2:20,3:30
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Vérificateur d’intégrité référentielle parent-enfant</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -219,9 +238,9 @@ lignes = [l.strip() for l in sys.stdin if l.strip()]
 Sortie :
 <code>Valides: &lt;N&gt; | Orphelins: &lt;id1,id2,...&gt;</code> (ou <code>Orphelins: AUCUN</code> si tout est valide).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>10,20,30
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>10,20,30
 1:10,2:99,3:20,4:50</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Valides: 2 | Orphelins: 2,4</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>Valides: 2 | Orphelins: 2,4</pre></div>
     </div>
     <p class="lab__note">Les enfants 2 (parent 99) et 4 (parent 50) sont orphelins.</p>
     <details class="lab__hints">
@@ -237,19 +256,31 @@ Sortie :
 
 <div class="lab" data-lab
      data-exercise="sql2-c1-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="RESTRICT,10&#10;1:10,2:20,3:10,4:30">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sql2-c1-e3) — Émulateur d’action de clé étrangère ON DELETE (CASCADE vs RESTRICT)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin if l.strip()]
+[Cas 1 — RESTRICT réussi car aucun enfant rattaché]
+# Données : RESTRICT,99
+# Données : 1:10,2:20,3:30
+A_COMPLETER
 
-# À compléter : parser l action et l ID cible, et appliquer RESTRICT ou CASCADE
+[Cas 2 — CASCADE avec suppression de deux enfants]
+# Données : CASCADE,10
+# Données : 1:10,2:20,3:10,4:30
+A_COMPLETER
+
+[Cas 3 — CASCADE sans enfant lié]
+# Données : CASCADE,50
+# Données : 1:10,2:20
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Émulateur d’action de clé étrangère ON DELETE (CASCADE vs RESTRICT)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -267,9 +298,9 @@ Sortie :
 - Si RESTRICT accepté (aucun enfant) : <code>SUCCES: Parent &lt;ID&gt; supprime | Enfants restants: &lt;liste&gt;</code>
 - Si CASCADE : <code>SUCCES: Parent &lt;ID&gt; supprime | Enfants supprimes: &lt;Nb&gt; | Enfants restants: &lt;liste&gt;</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>RESTRICT,10
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RESTRICT,10
 1:10,2:20,3:10,4:30</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ERREUR: Suppression interdite (enfants presents: 1,3)</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>ERREUR: Suppression interdite (enfants presents: 1,3)</pre></div>
     </div>
     <p class="lab__note">La suppression du parent 10 est bloquée par RESTRICT car les enfants 1 et 3 y sont rattachés.</p>
     <details class="lab__hints">
@@ -414,6 +445,29 @@ Sortie :
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

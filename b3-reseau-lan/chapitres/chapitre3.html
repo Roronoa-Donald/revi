@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="3">
@@ -144,28 +145,38 @@
 </div>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="lan3-c3-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="VRRP_ROUTER name=R1 vrid=10 prio=150 ip=192.168.10.2 alive=YES&#10;VRRP_ROUTER name=R2 vrid=10 prio=100 ip=192.168.10.3 alive=YES&#10;VRRP_ROUTER name=R3 vrid=10 prio=200 ip=192.168.10.4 alive=NO">
-  <script type="text/plain" data-lab-starter>import sys
-import ipaddress
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c3-e1) — Simulateur d'élection de routeur maître VRRP v2/v3 (RFC 5798)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Départage par adresse IP la plus élevée en cas d'égalité de priorité]
+# Données : VRRP_ROUTER name=GW-A vrid=1 prio=100 ip=10.0.0.1 alive=YES
+# Données : VRRP_ROUTER name=GW-B vrid=1 prio=100 ip=10.0.0.2 alive=YES
+A_COMPLETER
 
-# À compléter : grouper par VRID et élire le MASTER selon la priorité et l'IP
+[Cas 2 — Plusieurs groupes VRID indépendants]
+# Données : VRRP_ROUTER name=R1_LAN vrid=1 prio=200 ip=192.168.1.1 alive=YES
+# Données : VRRP_ROUTER name=R2_LAN vrid=1 prio=100 ip=192.168.1.2 alive=YES
+# Données : VRRP_ROUTER name=R1_DMZ vrid=2 prio=100 ip=172.16.1.1 alive=YES
+# Données : VRRP_ROUTER name=R2_DMZ vrid=2 prio=250 ip=172.16.1.2 alive=YES
+A_COMPLETER
+
+[Cas 3 — Tous les membres d'un VRID sont hors service]
+# Données : VRRP_ROUTER name=DOWN1 vrid=5 prio=100 ip=1.1.1.1 alive=NO
+# Données : VRRP_ROUTER name=DOWN2 vrid=5 prio=120 ip=1.1.1.2 alive=NO
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur d'élection de routeur maître VRRP v2/v3 (RFC 5798)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -178,17 +189,17 @@ Règles d'élection VRRP par groupe VRID :<br>
   1. Le routeur ayant la plus forte priorité (<code>prio</code>, valeur de 1 à 254) est élu <strong>MASTER</strong>.<br>
   2. En cas d'égalité sur la priorité, le routeur ayant la plus grande adresse IP physique (comparaison numérique IPv4) devient <strong>MASTER</strong>.<br>
   3. Tous les autres routeurs actifs prennent le rôle <strong>BACKUP</strong>.<br><br>
-Le script lit sur l'entrée standard des déclarations de routeurs VRRP :<br>
+Le script lit dans l’énoncé du cas des déclarations de routeurs VRRP :<br>
 <code>VRRP_ROUTER name=&lt;nom&gt; vrid=&lt;int&gt; prio=&lt;int&gt; ip=&lt;ip&gt; alive=&lt;YES|NO&gt;</code><br><br>
 Pour chaque routeur (triés par VRID puis par nom alphabétique), afficher :<br>
 <code>VRRP_STATUS vrid={vrid} router={name} role={role} prio={prio} ip={ip}</code><br>
 Et pour chaque groupe VRID, la ligne de synthèse :<br>
 <code>VRRP_MASTER vrid={vrid} router={master_name} ip={master_ip}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>VRRP_ROUTER name=R1 vrid=10 prio=150 ip=192.168.10.2 alive=YES
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VRRP_ROUTER name=R1 vrid=10 prio=150 ip=192.168.10.2 alive=YES
 VRRP_ROUTER name=R2 vrid=10 prio=100 ip=192.168.10.3 alive=YES
 VRRP_ROUTER name=R3 vrid=10 prio=200 ip=192.168.10.4 alive=NO</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>VRRP_STATUS vrid=10 router=R1 role=MASTER prio=150 ip=192.168.10.2
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>VRRP_STATUS vrid=10 router=R1 role=MASTER prio=150 ip=192.168.10.2
 VRRP_STATUS vrid=10 router=R2 role=BACKUP prio=100 ip=192.168.10.3
 VRRP_STATUS vrid=10 router=R3 role=INIT prio=200 ip=192.168.10.4
 VRRP_MASTER vrid=10 router=R1 ip=192.168.10.2</pre></div>
@@ -207,29 +218,38 @@ VRRP_MASTER vrid=10 router=R1 ip=192.168.10.2</pre></div>
 
 <div class="lab" data-lab
      data-exercise="lan3-c3-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="TRACKED_ROUTER name=R1 init_role=ACTIVE base_prio=110 preempt=YES track_if=Gi0/0 decrement=20 if_state=DOWN&#10;TRACKED_ROUTER name=R2 init_role=STANDBY base_prio=100 preempt=YES track_if=Gi0/0 decrement=20 if_state=UP">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c3-e2) — Détecteur de basculement FHRP par suivi d'interface (Object Tracking)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Préemption désactivée sur le standby empêchant le basculement]
+# Données : TRACKED_ROUTER name=R_ACT init_role=ACTIVE base_prio=120 preempt=YES track_if=WAN1 decrement=50 if_state=DOWN
+# Données : TRACKED_ROUTER name=R_STBY init_role=STANDBY base_prio=100 preempt=NO track_if=WAN2 decrement=10 if_state=UP
+A_COMPLETER
 
-# À compléter : calculer les priorités effectives et évaluer le basculement
+[Cas 2 — Décrément insuffisant pour passer sous le standby]
+# Données : TRACKED_ROUTER name=CORE1 init_role=ACTIVE base_prio=150 preempt=YES track_if=Serial0 decrement=10 if_state=DOWN
+# Données : TRACKED_ROUTER name=CORE2 init_role=STANDBY base_prio=100 preempt=YES track_if=Serial0 decrement=10 if_state=UP
+A_COMPLETER
+
+[Cas 3 — Liaison nominale UP conservant les priorités de base]
+# Données : TRACKED_ROUTER name=R_A init_role=ACTIVE base_prio=110 preempt=YES track_if=Eth1 decrement=30 if_state=UP
+# Données : TRACKED_ROUTER name=R_B init_role=STANDBY base_prio=100 preempt=YES track_if=Eth1 decrement=30 if_state=UP
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Détecteur de basculement FHRP par suivi d'interface (Object Tracking)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer la priorité effective d'un routeur HSRP/VRRP en cas de panne de lien montant et déterminer le basculement.</p>
     <div class="lab__brief"><p>Le mécanisme d'<strong>Object Tracking</strong> permet à un routeur FHRP actif de surveiller l'état de son interface WAN vers le FAI. Si cette liaison tombe, sa priorité est décrémentée (<code>effective_prio = base_prio - decrement</code>). Si sa priorité devient inférieure à celle du routeur Standby et que la préemption (preempt) est activée, le Standby prend le relais immédiatement.<br><br>
-Le script lit sur l'entrée standard les paramètres d'un cluster à deux routeurs (Routeur 1 Actif initial et Routeur 2 Standby initial) :<br>
-<code>TRACKED_ROUTER name=&lt;nom&gt; init_role=&lt;ACTIVE|STANDBY&gt; base_prio=&lt;int&gt; preempt=&lt;YES|NO&gt; track_if=&lt;iface&gt; decrement=&lt;int&gt; if_state=&lt;UP|DOWN&gt;</code><br><br>
-Règles de calcul et de basculement :<br>
-1. Calcul de la priorité effective pour chaque routeur :<br>
+Analysez les paramètres du problème pour chaque cas. Calcul de la priorité effective pour chaque routeur :<br>
    - Si <code>if_state == 'DOWN'</code> : <code>eff_prio = base_prio - decrement</code>.<br>
    - Si <code>if_state == 'UP'</code> : <code>eff_prio = base_prio</code>.<br>
 2. Évaluation de la préemption :<br>
@@ -240,9 +260,9 @@ Règles de calcul et de basculement :<br>
 Pour chaque routeur (triés par nom alphabétique), afficher :<br>
 <code>TRACK_REPORT router={name} track_if={track_if} if_state={if_state} eff_prio={eff_prio} final_role={final_role} failover={YES|NO}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>TRACKED_ROUTER name=R1 init_role=ACTIVE base_prio=110 preempt=YES track_if=Gi0/0 decrement=20 if_state=DOWN
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TRACKED_ROUTER name=R1 init_role=ACTIVE base_prio=110 preempt=YES track_if=Gi0/0 decrement=20 if_state=DOWN
 TRACKED_ROUTER name=R2 init_role=STANDBY base_prio=100 preempt=YES track_if=Gi0/0 decrement=20 if_state=UP</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>TRACK_REPORT router=R1 track_if=Gi0/0 if_state=DOWN eff_prio=90 final_role=STANDBY failover=YES
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>TRACK_REPORT router=R1 track_if=Gi0/0 if_state=DOWN eff_prio=90 final_role=STANDBY failover=YES
 TRACK_REPORT router=R2 track_if=Gi0/0 if_state=UP eff_prio=100 final_role=ACTIVE failover=YES</pre></div>
     </div>
     <p class="lab__note">La panne WAN fait chuter la priorité de R1 à 90 (110 - 20). R2 (priorité 100 avec preempt=YES) prend le rôle ACTIVE.</p>
@@ -258,20 +278,45 @@ TRACK_REPORT router=R2 track_if=Gi0/0 if_state=UP eff_prio=100 final_role=ACTIVE
 
 <div class="lab" data-lab
      data-exercise="lan3-c3-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="GLBP_CONFIG group=1 mode=round-robin&#10;AVF id=1 name=AVF1 vmac=00:07:b4:00:01:01 weight=100&#10;AVF id=2 name=AVF2 vmac=00:07:b4:00:01:02 weight=100&#10;ARP_REQ client_id=PC1 client_mac=00:11:22:33:44:01&#10;ARP_REQ client_id=PC2 client_mac=00:11:22:33:44:02&#10;ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03">
-  <script type="text/plain" data-lab-starter>import sys
-import re
+  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c3-e3) — Répartiteur de charge GLBP (Gateway Load Balancing Protocol)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Mode host-dependent liant un client à une même MAC virtuelle]
+# Données : GLBP_CONFIG group=2 mode=host-dependent
+# Données : AVF id=1 name=GW1 vmac=00:07:b4:00:02:01 weight=10
+# Données : AVF id=2 name=GW2 vmac=00:07:b4:00:02:02 weight=10
+# Données : ARP_REQ client_id=HOST_A client_mac=00:00:00:00:00:00
+# Données : ARP_REQ client_id=HOST_B client_mac=00:00:00:00:00:01
+# Données : ARP_REQ client_id=HOST_A client_mac=00:00:00:00:00:00
+A_COMPLETER
 
-# À compléter : lire les AVFs et attribuer la MAC virtuelle selon le mode GLBP
+[Cas 2 — Mode weighted avec poids inégaux (2 pour 1)]
+# Données : GLBP_CONFIG group=3 mode=weighted
+# Données : AVF id=1 name=CORE_STRONG vmac=00:07:b4:00:03:01 weight=2
+# Données : AVF id=2 name=CORE_WEAK vmac=00:07:b4:00:03:02 weight=1
+# Données : ARP_REQ client_id=C1 client_mac=00:aa:bb:cc:dd:01
+# Données : ARP_REQ client_id=C2 client_mac=00:aa:bb:cc:dd:02
+# Données : ARP_REQ client_id=C3 client_mac=00:aa:bb:cc:dd:03
+# Données : ARP_REQ client_id=C4 client_mac=00:aa:bb:cc:dd:04
+A_COMPLETER
+
+[Cas 3 — Groupe à 3 forwarders en round-robin]
+# Données : GLBP_CONFIG group=4 mode=round-robin
+# Données : AVF id=1 name=F1 vmac=00:07:b4:00:04:01 weight=1
+# Données : AVF id=2 name=F2 vmac=00:07:b4:00:04:02 weight=1
+# Données : AVF id=3 name=F3 vmac=00:07:b4:00:04:03 weight=1
+# Données : ARP_REQ client_id=X client_mac=00:11:22:33:44:55
+# Données : ARP_REQ client_id=Y client_mac=00:11:22:33:44:56
+# Données : ARP_REQ client_id=Z client_mac=00:11:22:33:44:57
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Répartiteur de charge GLBP (Gateway Load Balancing Protocol)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -279,27 +324,19 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
     <p class="lab__goal"><strong>Objectif :</strong> Simuler l'assignation dynamique des adresses MAC virtuelles (AVF) par l'AVG selon les algorithmes GLBP.</p>
     <div class="lab__brief"><p>Contrairement à HSRP/VRRP où un seul équipement route le trafic pendant que les autres dorment, le protocole <strong>GLBP (Gateway Load Balancing Protocol)</strong> permet à tous les routeurs membres de router le trafic simultanément.<br>
 L'<strong>AVG (Active Virtual Gateway)</strong> répond aux requêtes ARP des clients en distribuant différentes adresses MAC virtuelles associées aux <strong>AVF (Active Virtual Forwarders)</strong>.<br><br>
-Le script lit sur l'entrée standard :<br>
-- La configuration de l'algorithme GLBP :<br>
-  <code>GLBP_CONFIG group=&lt;int&gt; mode=&lt;round-robin|host-dependent|weighted&gt;</code><br>
-- Les AVFs membres déclarés :<br>
-  <code>AVF id=&lt;int&gt; name=&lt;nom&gt; vmac=&lt;mac&gt; weight=&lt;int&gt;</code><br>
-- Les requêtes ARP formulées par les postes clients du LAN :<br>
-  <code>ARP_REQ client_id=&lt;nom&gt; client_mac=&lt;mac&gt;</code><br><br>
-Algorithmes d'assignation :<br>
-1. <strong>round-robin :</strong> Les AVFs sont assignés cycliquement selon leur <code>id</code> croissant (requête 0 &rarr; 1er AVF, requête 1 &rarr; 2e AVF, etc.).<br>
+Analysez les paramètres du problème pour chaque cas. <strong>round-robin :</strong> Les AVFs sont assignés cycliquement selon leur <code>id</code> croissant (requête 0 &rarr; 1er AVF, requête 1 &rarr; 2e AVF, etc.).<br>
 2. <strong>host-dependent :</strong> L'AVF est sélectionné selon le hachage de l'adresse MAC du client (dernier octet décimal de client_mac modulo le nombre d'AVFs). Un client reçoit toujours la même MAC.<br>
 3. <strong>weighted :</strong> Chaque AVF est répété proportionnellement à son <code>weight</code> (ex: AVF1 weight=2, AVF2 weight=1 donne la séquence <code>[AVF1, AVF1, AVF2]</code> déroulée cycliquement au fil des requêtes).<br><br>
 Pour chaque requête ARP client, afficher :<br>
 <code>GLBP_REPLY client={client_id} assigned_avf={avf_name} vmac={avf_vmac} mode={mode}</code></p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>GLBP_CONFIG group=1 mode=round-robin
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GLBP_CONFIG group=1 mode=round-robin
 AVF id=1 name=AVF1 vmac=00:07:b4:00:01:01 weight=100
 AVF id=2 name=AVF2 vmac=00:07:b4:00:01:02 weight=100
 ARP_REQ client_id=PC1 client_mac=00:11:22:33:44:01
 ARP_REQ client_id=PC2 client_mac=00:11:22:33:44:02
 ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>GLBP_REPLY client=PC1 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>GLBP_REPLY client=PC1 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin
 GLBP_REPLY client=PC2 assigned_avf=AVF2 vmac=00:07:b4:00:01:02 mode=round-robin
 GLBP_REPLY client=PC3 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin</pre></div>
     </div>
@@ -479,6 +516,29 @@ GLBP_REPLY client=PC3 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin<
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

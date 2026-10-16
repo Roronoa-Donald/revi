@@ -93,14 +93,11 @@ module.exports = [
           '  </table>',
           '<p>Le nombre de valeurs distinctes est le nombre de <strong>modalités</strong> du caractère. Il est ' +
           'toujours inférieur ou égal à l’effectif total.</p>',
-          box('tech', 'En Python', 'terminal',
-            '    <pre><code>serie = [12, 8, 15, 8, 12, 9, 12]\n' +
-            '\n' +
-            'ordonnee = sorted(serie)        # [8, 8, 9, 12, 12, 12, 15]\n' +
-            'N = len(serie)                  # 7\n' +
-            'modalites = sorted(set(serie))  # [8, 9, 12, 15]</code></pre>\n' +
-            '    <p><code>set</code> supprime les doublons, <code>sorted</code> remet le résultat dans l’ordre ' +
-            'croissant : la ligne complète décrit le caractère.</p>')
+          box('standard', 'Modalités et effectifs d’un caractère', [
+      '<p>Pour une série brute $X = (x_1, x_2, \\\\dots, x_N)$, on ordonne les valeurs par ordre croissant :</p>',
+      '<div class="math-block">$x_{(1)} \\\\le x_{(2)} \\\\le \\\\dots \\\\le x_{(N)}$</div>',
+      '<p>L’ensemble des valeurs distinctes $\{x_1, \\\\dots, x_k\}$ forme les <strong>$k$ modalités</strong> ($k \\\\le N$).</p>'
+    ].join('\n'))
         ].join('\n')
       },
       {
@@ -108,10 +105,16 @@ module.exports = [
         html: [
           '<p>Quand un caractère continu prend beaucoup de valeurs différentes, la série devient illisible ' +
           'sous forme de liste. On la découpe alors en <strong>classes</strong> d’égale <strong>amplitude</strong>.</p>',
-          '<pre><code>nombre de classes      k\n' +
-          'amplitude              largeur de chaque classe = (x<sub>max</sub> − x<sub>min</sub>) / k\n' +
-          'classe n° i            [x<sub>min</sub> + (i − 1)·largeur ; x<sub>min</sub> + i·largeur[\n' +
-          'centre de classe       (borne inférieure + borne supérieure) / 2</code></pre>',
+          box('formula', 'Découpage en classes et amplitudes', [
+      '<div class="box--formula">',
+      '  <span class="formula-label">Amplitude d’une classe</span>',
+      '  <div class="math-block">$a = \\\\frac{x_{\\\\max} - x_{\\\\min}}{k}$</div>',
+      '</div>',
+      '<div class="box--formula">',
+      '  <span class="formula-label">Centre de la classe $[b_i, b_{i+1}[$</span>',
+      '  <div class="math-block">$c_i = \\\\frac{b_i + b_{i+1}}{2}$</div>',
+      '</div>'
+    ].join('\n')),
           '<p><strong>Exemple.</strong> Des tailles relevées entre 150 cm et 190 cm, découpées en 4 classes ' +
           'd’amplitude 10 :</p>',
           '<table>\n' +
@@ -238,21 +241,15 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> La <strong>fréquence relative</strong> d’une modalité est la part ' +
           'de la population qui la porte :</p>',
-          '<pre><code>f<sub>i</sub> = n<sub>i</sub> / N            avec  Σ f<sub>i</sub> = 1\n' +
-          '\n' +
-          'en pourcentage :  f<sub>i</sub> × 100       avec  Σ = 100 %</code></pre>',
+          '<div class="math-block">$f_i = \\\\frac{n_i}{N} \\\\quad \\\\text{avec} \\\\quad \\\\sum_{i=1}^k f_i = 1 \\\\quad (\\\\text{soit } 100\,\%)$</div>',
           '<p>Contrairement à l’effectif, une fréquence permet de <strong>comparer deux populations de tailles ' +
           'différentes</strong> : 12 sur 30 et 20 sur 50 ne se comparent pas en effectifs, mais leurs ' +
           'fréquences (40 %) sont identiques.</p>',
-          box('tech', 'Le même calcul en Python', 'terminal',
-            '    <pre><code>serie = [8, 9, 12, 15, 15, 12, 12, 15, 8, 15]\n' +
-            'N = len(serie)\n' +
-            '\n' +
-            'for modalite in sorted(set(serie)):\n' +
-            '    effectif = serie.count(modalite)\n' +
-            '    print(modalite, effectif, f"{effectif / N * 100:.1f} %")</code></pre>\n' +
-            '    <p><code>set</code> donne les modalités dans un ordre quelconque : <code>sorted</code> le rend ' +
-            'lisible et stable.</p>')
+          box('standard', 'Propriété des fréquences relatives', [
+      '<p>La fréquence relative $f_i$ est un nombre sans dimension compris entre 0 et 1 :</p>',
+      '<div class="math-block">$0 \\\\le f_i \\\\le 1 \\\\quad \forall i \\\\in \{1, \\\\dots, k\}$</div>',
+      '<p>Elle mesure la proportion relative d’individus présentant la modalité $x_i$.</p>'
+    ].join('\n'))
         ].join('\n')
       },
       {
@@ -261,7 +258,7 @@ module.exports = [
           '<p><strong>Définition.</strong> L’<strong>effectif cumulé croissant</strong> (ECC) de la modalité ' +
           'x<sub>i</sub> est le nombre d’individus dont la valeur est <em>inférieure ou égale</em> à ' +
           'x<sub>i</sub> :</p>',
-          '<pre><code>ECC<sub>i</sub> = n₁ + n₂ + … + n<sub>i</sub></code></pre>',
+          '<div class="math-block">$ECC_i = \\\\sum_{j=1}^i n_j = n_1 + n_2 + \\\\dots + n_i$</div>',
           '<p>C’est la colonne qui répond à la question « combien de personnes ont au plus cette valeur ? ». ' +
           'Elle est <strong>croissante</strong> et se termine par l’effectif total N.</p>',
           '<p>Exemple d’énoncé classique : « Quel est le nombre d’élèves ayant eu au plus 12 ? » Réponse : ' +
@@ -278,7 +275,7 @@ module.exports = [
           '<p><strong>Définition.</strong> L’<strong>effectif cumulé décroissant</strong> (ECD) de la modalité ' +
           'x<sub>i</sub> est le nombre d’individus dont la valeur est <em>supérieure ou égale</em> à ' +
           'x<sub>i</sub> :</p>',
-          '<pre><code>ECD<sub>i</sub> = n<sub>i</sub> + n<sub>i+1</sub> + … + n<sub>k</sub></code></pre>',
+          '<div class="math-block">$ECD_i = \\\\sum_{j=i}^k n_j = n_i + n_{i+1} + \\\\dots + n_k$</div>',
           '<p>Cette colonne est <strong>décroissante</strong> et commence par N. Elle répond aux questions ' +
           '« au moins » : « combien de personnes ont au moins 12 ? »</p>',
           '<table>\n' +
@@ -381,10 +378,10 @@ module.exports = [
         html: [
           '<p><strong>Définition.</strong> La <strong>moyenne</strong> d’une série de n valeurs est la somme des ' +
           'valeurs divisée par leur nombre :</p>',
-          '<pre><code>x̄ = (x₁ + x₂ + … + xₙ) / n</code></pre>',
+          '<div class="math-block">$\\\\bar{x} = \\\\frac{1}{n} \\\\sum_{i=1}^n x_i$</div>',
           '<p>Lorsque la série est donnée par un tableau d’effectifs, on pondère chaque modalité par son ' +
           'effectif, ce qui revient au même calcul :</p>',
-          '<pre><code>x̄ = (n₁·x₁ + n₂·x₂ + … + n<sub>k</sub>·x<sub>k</sub>) / N        avec N = Σ n<sub>i</sub></code></pre>',
+          '<div class="math-block">$\\\\bar{x} = \\\\frac{1}{N} \\\\sum_{i=1}^k n_i x_i = \\\\sum_{i=1}^k f_i x_i \\\\quad \\\\left(N = \\\\sum_{i=1}^k n_i\\\\right)$</div>',
           '<p><strong>Exemple.</strong> Effectifs 2, 4, 6, 5, 3 pour les notes 1 à 5 :</p>',
           '<pre><code>x̄ = (2·1 + 4·2 + 6·3 + 5·4 + 3·5) / 20\n' +
           '   = (2 + 8 + 18 + 20 + 15) / 20 = 63 / 20 = 3,15</code></pre>',
@@ -403,10 +400,10 @@ module.exports = [
           '    <li><strong>pondération par des coefficients</strong> : un contrôle de coefficient 2 compte deux ' +
           'fois plus qu’un contrôle de coefficient 1.</li>\n' +
           '  </ul>',
-          '<pre><code>moyenne pondérée = Σ (coefficient<sub>i</sub> × valeur<sub>i</sub>) / Σ coefficient<sub>i</sub></code></pre>',
+          '<div class="math-block">$\\\\bar{x} = \\\\frac{\\\\sum w_i x_i}{\\\\sum w_i}$</div>',
           '<p>Pour une série <strong>regroupée en classes</strong>, la moyenne se calcule sur les ' +
           '<strong>centres de classe</strong>, pondérés par les effectifs :</p>',
-          '<pre><code>x̄ = Σ n<sub>i</sub> · c<sub>i</sub> / N        où c<sub>i</sub> = (borne inf + borne sup) / 2</code></pre>',
+          '<div class="math-block">$\\\\bar{x} = \\\\frac{1}{N} \\\\sum_{i=1}^k n_i c_i \\\\quad \\\\text{avec } c_i = \\\\frac{\\\\text{inf}_i + \\\\text{sup}_i}{2}$</div>',
           box('tech', 'Exemple de calcul sur classes', 'terminal',
             '    <table>\n' +
             '      <tr><th>Classe</th><th>Centre</th><th>Effectif</th><th>n<sub>i</sub>·c<sub>i</sub></th></tr>\n' +

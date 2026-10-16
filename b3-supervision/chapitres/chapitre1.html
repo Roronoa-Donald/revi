@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="1">
@@ -161,27 +162,33 @@
 <p style="margin-top: 1rem;">Dans les démarches SRE (*Site Reliability Engineering*), le <strong>Budget d'Erreur (Error Budget)</strong> formalise l'indisponibilité tolérée : <code>Budget = Période_minutes * (1 - SLO / 100)</code>. Si le budget est consommé prématurément, les déploiements de nouvelles fonctionnalités sont gelés au profit de la stabilisation de l'infrastructure.</p>
 
 <!-- code-labs:start -->
-  <h2>4. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="sup3-c1-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="SLA_CALC TOTAL_HOURS=720 OUTAGES=45,15">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c1-e1) — Calculateur de Disponibilité SLA, MTBF et MTTR
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Mois parfait sans aucune panne]
+# Données : SLA_CALC TOTAL_HOURS=720 OUTAGES=NONE
+A_COMPLETER
 
-# À compléter : analyser SLA_CALC et calculer MTTR, MTBF et disponibilité
+[Cas 2 — Trois pannes cumulées sur une semaine de 168h]
+# Données : SLA_CALC TOTAL_HOURS=168 OUTAGES=120,60,180
+A_COMPLETER
+
+[Cas 3 — Une seule coupure de 26 minutes sur une année complète (8760h)]
+# Données : SLA_CALC TOTAL_HOURS=8760 OUTAGES=26
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur de Disponibilité SLA, MTBF et MTTR</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
@@ -197,8 +204,8 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 Entrée STDIN : <code>SLA_CALC TOTAL_HOURS=&lt;h&gt; OUTAGES=&lt;m1,m2,...|NONE&gt;</code> (les durées de coupures sont données en minutes).<br>
 Sortie : <code>SLA: uptime_hours=&lt;up:.2f&gt; downtime_hours=&lt;down:.2f&gt; failures=&lt;n&gt; mttr_hours=&lt;mttr:.2f&gt; mtbf_hours=&lt;mtbf:.2f&gt; availability=&lt;pct:.4f&gt;%</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>SLA_CALC TOTAL_HOURS=720 OUTAGES=45,15</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>SLA: uptime_hours=719.00 downtime_hours=1.00 failures=2 mttr_hours=0.50 mtbf_hours=359.50 availability=99.8611%</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SLA_CALC TOTAL_HOURS=720 OUTAGES=45,15</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>SLA: uptime_hours=719.00 downtime_hours=1.00 failures=2 mttr_hours=0.50 mtbf_hours=359.50 availability=99.8611%</pre></div>
     </div>
     <p class="lab__note">Cas d'usage nominal avec 2 pannes sur un mois de 720h.</p>
     <details class="lab__hints">
@@ -213,19 +220,32 @@ Sortie : <code>SLA: uptime_hours=&lt;up:.2f&gt; downtime_hours=&lt;down:.2f&gt; 
 
 <div class="lab" data-lab
      data-exercise="sup3-c1-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="INCIDENT SERVICE=Switch-Core-01 LAYER=network USERS=250 REDUNDANT=NO">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c1-e2) — Matrice de Criticité & Priorisation d’Incidents de Supervision
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Base de données principale sans redondance 80 utilisateurs]
+# Données : INCIDENT SERVICE=Postgres-Primary LAYER=database USERS=80 REDUNDANT=NO
+A_COMPLETER
 
-# À compléter : classifier les alertes de supervision selon la matrice de criticité
+[Cas 2 — Serveur DHCP sans redondance avec 5 utilisateurs]
+# Données : INCIDENT SERVICE=DHCP-Primary LAYER=server USERS=5 REDUNDANT=NO
+A_COMPLETER
+
+[Cas 3 — Serveur Web Nginx redondant avec 30 utilisateurs]
+# Données : INCIDENT SERVICE=Nginx-Web-Front LAYER=application USERS=30 REDUNDANT=YES
+A_COMPLETER
+
+[Cas 4 — Service NTP interne redondant avec 0 utilisateur direct]
+# Données : INCIDENT SERVICE=NTP-Internal LAYER=server USERS=0 REDUNDANT=YES
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Matrice de Criticité &amp; Priorisation d’Incidents de Supervision</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
@@ -240,8 +260,8 @@ Règles de classification :<br>
 Entrée STDIN : <code>INCIDENT SERVICE=&lt;nom&gt; LAYER=&lt;network|server|database|application&gt; USERS=&lt;n&gt; REDUNDANT=&lt;YES|NO&gt;</code>.<br>
 Sortie : <code>INCIDENT_PRIORITY: service=&lt;nom&gt; layer=&lt;layer&gt; users=&lt;n&gt; priority=&lt;P1-CRITICAL|P2-HIGH|P3-MEDIUM|P4-LOW&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>INCIDENT SERVICE=Switch-Core-01 LAYER=network USERS=250 REDUNDANT=NO</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>INCIDENT_PRIORITY: service=Switch-Core-01 layer=network users=250 priority=P1-CRITICAL</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>INCIDENT SERVICE=Switch-Core-01 LAYER=network USERS=250 REDUNDANT=NO</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>INCIDENT_PRIORITY: service=Switch-Core-01 layer=network users=250 priority=P1-CRITICAL</pre></div>
     </div>
     <p class="lab__note">Coupure réseau sans redondance avec 250 utilisateurs.</p>
     <details class="lab__hints">
@@ -256,19 +276,28 @@ Sortie : <code>INCIDENT_PRIORITY: service=&lt;nom&gt; layer=&lt;layer&gt; users=
 
 <div class="lab" data-lab
      data-exercise="sup3-c1-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ERROR_BUDGET SLO=99.9 PERIOD_DAYS=30 OUTAGES=12,18,5">
-  <script type="text/plain" data-lab-starter>import sys
+  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c1-e3) — Auditeur de Respect SLO et Budget d’Erreur (Error Budget)
+# Complétez la résolution demandée sous chaque cas ci-dessous :
 
-lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
+[Cas 1 — Dépassement du budget sur un mois à 99.95%]
+# Données : ERROR_BUDGET SLO=99.95 PERIOD_DAYS=30 OUTAGES=15,10
+A_COMPLETER
 
-# À compléter : calculer le budget d'erreur et évaluer la conformité SLO
+[Cas 2 — Semaine parfaite sans coupure à 99.0%]
+# Données : ERROR_BUDGET SLO=99.0 PERIOD_DAYS=7 OUTAGES=NONE
+A_COMPLETER
+
+[Cas 3 — Budget exactement consommé à 100%]
+# Données : ERROR_BUDGET SLO=99.9 PERIOD_DAYS=10 OUTAGES=14.4
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Auditeur de Respect SLO et Budget d’Erreur (Error Budget)</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
@@ -284,8 +313,8 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 Entrée STDIN : <code>ERROR_BUDGET SLO=&lt;pct&gt; PERIOD_DAYS=&lt;j&gt; OUTAGES=&lt;m1,m2,...|NONE&gt;</code>.<br>
 Sortie : <code>BUDGET: period_days=&lt;j&gt; allowed_min=&lt;all:.1f&gt; consumed_min=&lt;cons:.1f&gt; remaining_min=&lt;rem:.1f&gt; consumed_pct=&lt;pct:.2f&gt;% status=&lt;COMPLIANT|BREACHED&gt;</code>.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ERROR_BUDGET SLO=99.9 PERIOD_DAYS=30 OUTAGES=12,18,5</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>BUDGET: period_days=30 allowed_min=43.2 consumed_min=35.0 remaining_min=8.2 consumed_pct=81.02% status=COMPLIANT</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ERROR_BUDGET SLO=99.9 PERIOD_DAYS=30 OUTAGES=12,18,5</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>BUDGET: period_days=30 allowed_min=43.2 consumed_min=35.0 remaining_min=8.2 consumed_pct=81.02% status=COMPLIANT</pre></div>
     </div>
     <p class="lab__note">35 minutes consommées sur 43.2 minutes autorisées : conforme.</p>
     <details class="lab__hints">
@@ -459,6 +488,29 @@ Sortie : <code>BUDGET: period_days=&lt;j&gt; allowed_min=&lt;all:.1f&gt; consume
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>

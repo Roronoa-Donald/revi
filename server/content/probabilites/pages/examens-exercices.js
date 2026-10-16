@@ -142,15 +142,14 @@ function exercices(course) {
     '    <ol>',
     intro.map(line => '      <li>' + line + '</li>').join('\n'),
     '    </ol>',
-    '    <details><summary>Corrections</summary><div class="sol"><pre><code>' + solutions + '</code></pre></div></details>',
+    '    <details><summary>Corrections &amp; résolutions détaillées</summary><div class="sol">' + solutions + '</div></details>',
     '  </div>'
   ].join('\n');
 
   const body = [
     crumb(course, [{ href: '../index.html', label: course.brand }, { href: '../sommaire.html', label: 'Sommaire' }, { label: 'Exercices' }]),
-    '  <h1>Exercices supplémentaires &amp; annales</h1>',
-    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis des sujets d’annales. ' +
-    'Les programmes sont en Python, comme à l’atelier.</p>',
+    '  <h1>Exercices d’application &amp; annales</h1>',
+    '  <p class="lead">De la pratique graduée pour consolider chaque module, puis des sujets d’annales avec résolutions mathématiques complètes.</p>',
 
     '  <h2>Entraînement rapide (acquisition)</h2>',
     item('Échauffement', 'n1', [
@@ -159,20 +158,10 @@ function exercices(course) {
       'Calculer un arrangement A(n,k).',
       'Calculer une combinaison C(n,k).'
     ], [
-      'from math import gcd',
-      'n, k = 8, 2',
-      'g = gcd(k, n)',
-      'print(f"{k // g}/{n // g}")          # 1/4',
-      '',
-      'pA, pB, pAB = 0.3, 0.3, 0.1',
-      'print(f"{pA + pB - pAB:.4f}")        # 0.5000',
-      '',
-      'from math import factorial',
-      'n, k = 5, 3',
-      'print(factorial(n) // factorial(n - k))   # 60',
-      '',
-      'from math import comb',
-      'print(comb(5, 2))                     # 10'
+      '<p><strong>1. Probabilité élémentaire :</strong> $P(A) = \\frac{2}{8} = \\frac{1}{4}$.</p>',
+      '<p><strong>2. Formule du crible :</strong> $P(A \\cup B) = P(A) + P(B) - P(A \\cap B) = 0{,}3 + 0{,}3 - 0{,}1 = 0{,}5$.</p>',
+      '<p><strong>3. Arrangements :</strong> $A_5^3 = 5 \\times 4 \\times 3 = 60$.</p>',
+      '<p><strong>4. Combinaisons :</strong> $C_5^2 = \\frac{5 \\times 4}{2} = 10$.</p>'
     ].join('\n')),
 
     '  <h2>Application</h2>',
@@ -182,19 +171,10 @@ function exercices(course) {
       'Calculer P(X = k) pour une loi binomiale.',
       'Calculer une probabilité de répartition P(X ≤ t).'
     ], [
-      'loi = [(1, 0.2), (2, 0.3), (3, 0.5)]',
-      'print(f"{sum(x * p for x, p in loi):.4f}")          # 2.3000',
-      '',
-      'E = sum(x * p for x, p in loi)',
-      'E2 = sum(x * x * p for x, p in loi)',
-      'print(f"{E2 - E * E:.4f}")                          # 0.6100',
-      '',
-      'from math import comb',
-      'n, k, p = 10, 2, 0.5',
-      'print(f"{comb(n, k) * p ** k * (1 - p) ** (n - k):.4f}")   # 0.0439',
-      '',
-      't = 2',
-      'print(f"{sum(pi for xi, pi in loi if xi <= t):.4f}")  # 0.5000'
+      '<p><strong>1. Espérance :</strong> $E(X) = \\sum x_i p_i = 1 \\times 0{,}2 + 2 \\times 0{,}3 + 3 \\times 0{,}5 = 2{,}3$.</p>',
+      '<p><strong>2. Variance :</strong> $E(X^2) = 1^2 \\times 0{,}2 + 2^2 \\times 0{,}3 + 3^2 \\times 0{,}5 = 5{,}9$, d’où $V(X) = 5{,}9 - 2{,}3^2 = 0{,}61$.</p>',
+      '<p><strong>3. Loi binomiale :</strong> $P(X = 2) = \\binom{10}{2} (0{,}5)^2 (0{,}5)^8 = 45 \\times 0{,}5^{10} \\approx 0{,}0439$.</p>',
+      '<p><strong>4. Fonction de répartition :</strong> $F(2) = P(X \\le 2) = P(X=1) + P(X=2) = 0{,}2 + 0{,}3 = 0{,}5$.</p>'
     ].join('\n')),
 
     '  <h2>Raisonnement</h2>',
@@ -204,52 +184,32 @@ function exercices(course) {
       'Standardiser une somme et approximer par le TCL.',
       'Déterminer si deux événements sont indépendants à partir des probabilités.'
     ], [
-      'from math import erf, sqrt',
-      'phi = lambda z: 0.5 * (1 + erf(z / sqrt(2)))',
-      'print(f"{phi(1.96):.4f}")            # 0.9750',
-      '',
-      'esperance, a = 4.0, 8.0',
-      'print(f"{esperance / a:.4f}")        # 0.5000  (Markov)',
-      'variance, eps = 4.0, 2.0',
-      'print(f"{variance / eps ** 2:.4f}")  # 1.0000  (Tchebychev)',
-      '',
-      'n, mu, sigma, x = 100, 0.5, 1.0, 55.0',
-      'z = (x - n * mu) / (sigma * sqrt(n))',
-      'print(f"z = {z:.4f}  P = {phi(z):.4f}")   # z = 0.5000  P = 0.6915',
-      '',
-      '# indépendance : P(A∩B) == P(A)·P(B) ?'
+      '<p><strong>1. Loi normale standard :</strong> $\\Phi(1{,}96) \\approx 0{,}9750$ (soit $2{,}5\\%$ au-delà).</p>',
+      '<p><strong>2. Inégalité de Markov :</strong> $P(X \\ge 8) \\le \\frac{E(X)}{8} = \\frac{4}{8} = 0{,}50$.</p>',
+      '<p><strong>3. Inégalité de Bienaymé-Tchebychev :</strong> $P(|X - 4| \\ge 2) \\le \\frac{V(X)}{2^2} = \\frac{4}{4} = 1{,}00$.</p>',
+      '<p><strong>4. Théorème Central Limite :</strong> $Z = \\frac{55 - 50}{10} = 0{,}50$ ; $P(S \\le 55) = \\Phi(0{,}5) \\approx 0{,}6915$.</p>',
+      '<p><strong>5. Indépendance :</strong> $A$ et $B$ sont indépendants si et seulement si $P(A \\cap B) = P(A) \\cdot P(B)$.</p>'
     ].join('\n')),
 
     '  <h2>Annales — sujets corrigés</h2>',
     box('situation', 'Sujet type — dé et variable aléatoire', 'play', [
-      '    <p>On lance deux dés équilibrés et on note <code>S</code> la somme des faces. Le programme lit ' +
-      '<code>n</code> (nombre de lancers simulés) puis, pour chaque lancer, deux entiers. Il calcule la ' +
-      'moyenne des sommes et la compare à l’espérance théorique <code>7</code>.</p>'
+      '    <p>On lance deux dés équilibrés et on note <code>S</code> la somme des faces. On étudie la ' +
+      'distribution théorique de <code>S</code> et la convergence de la moyenne empirique vers l’espérance <code>7</code>.</p>'
     ].join('\n')),
     box('objectifs', 'Ce que le sujet évalue', 'target', [
       '    <ol>',
-      '      <li><strong>Lire</strong> les données dans l’ordre (n puis les paires).</li>',
-      '      <li><strong>Calculer</strong> la moyenne empirique Σ Sᵢ / n.</li>',
-      '      <li><strong>Comparer</strong> à l’espérance théorique 7 (loi des grands nombres).</li>',
-      '      <li><strong>Afficher</strong> la moyenne arrondie à 4 décimales.</li>',
+      '      <li><strong>Dénombrer</strong> l’univers des 36 couples de résultats équiprobables.</li>',
+      '      <li><strong>Calculer</strong> l’espérance théorique E(S) = 7.</li>',
+      '      <li><strong>Appliquer</strong> la loi faible des grands nombres.</li>',
+      '      <li><strong>Analyser</strong> la vitesse de convergence par Bienaymé-Tchebychev.</li>',
       '    </ol>'
     ].join('\n')),
     '  <details>',
-    '    <summary>Voir une solution de référence (après avoir essayé !)</summary>',
+    '    <summary>Voir la résolution mathématique détaillée</summary>',
     '    <div class="sol">',
-    '      <pre><code>' + [
-    'n = int(input())',
-    'somme = 0',
-    'for _ in range(n):',
-    '    a = int(input())',
-    '    b = int(input())',
-    '    somme += a + b',
-    'moyenne = somme / n',
-    'print(f"{moyenne:.4f}")',
-    '# quand n grandit, la moyenne se rapproche de 7 (loi des grands nombres).'
-    ].join('\n') + '</code></pre>',
-    '      Ce sujet combine lecture ordonnée, boucle, moyenne empirique et interprétation par la loi des ' +
-    'grands nombres.',
+    '      <div class="box--formula"><div class="formula-label">Calcul de l’espérance théorique</div><div class="math-block">$$E(S) = E(D_1 + D_2) = E(D_1) + E(D_2) = 3{,}5 + 3{,}5 = 7$$</div></div>',
+    '      <p>Par la loi faible des grands nombres, pour toute suite de variables aléatoires i.i.d. de même espérance $\\mu = 7$ et variance finie $\\sigma^2$, la moyenne empirique $\\bar{M}_n = \\frac{1}{n} \\sum_{i=1}^n S_i$ converge en probabilité vers $\\mu = 7$ :</p>',
+    '      <div class="box--formula"><div class="formula-label">Convergence en probabilité</div><div class="math-block">$$\\forall \\varepsilon > 0, \\quad \\lim_{n \\to +\\infty} P(|\\bar{M}_n - 7| \\ge \\varepsilon) = 0$$</div></div>',
     '    </div>',
     '  </details>',
     chnav({ href: '../sommaire.html', label: 'Sommaire' }, { href: 'simulateur-examen.html', label: 'Examens blancs' }),

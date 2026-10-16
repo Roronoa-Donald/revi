@@ -36,7 +36,8 @@ module.exports = {
         box('tech', 'Vérifier une loi avant de calculer', 'check-circle',
           '    <p>Si la somme des probabilités ne vaut pas 1, la loi est mal énoncée : inutile de calculer ' +
           'l’espérance. Ce contrôle attrape la plupart des erreurs d’énoncé et de recopie.</p>'),
-        '<pre><code>loi = [(0, 0.5), (1, 0.5)]\nprint(sum(p for _, p in loi))   # 1.0 : loi valide</code></pre>'
+        '<div class="math-block">$$\\sum_{i} p_i = 1 \\quad \\text{avec } 0 \\le p_i \\le 1$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de vérification</div><p>Pour une variable prenant les valeurs $0$ et $1$ avec $p_0 = 0{,}5$ et $p_1 = 0{,}5$ :</p>$$\\sum p_i = 0{,}5 + 0{,}5 = 1{,}0 \\implies \\text{loi valide}$$</div>'
       ].join('\n')
     },
     {
@@ -44,7 +45,8 @@ module.exports = {
       html: [
         '<p>L’<strong>espérance</strong> est la moyenne pondérée des valeurs, pondérée par leurs probabilités : ' +
         '<code>E(X) = Σ xᵢ · pᵢ</code>. C’est le gain moyen à long terme d’un jeu répété.</p>',
-        '<pre><code>loi = [(1, 0.2), (2, 0.3), (3, 0.5)]\nesperance = sum(x * p for x, p in loi)\nprint(f"{esperance:.4f}")   # 2.3000</code></pre>',
+        '<div class="math-block">$$\\mathbb{E}(X) = \\sum_{i} x_i \\cdot p_i$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de calcul d’espérance</div><p>Pour les valeurs $(1, 2, 3)$ avec probabilités $(0{,}2 ; 0{,}3 ; 0{,}5)$ :</p>$$\\mathbb{E}(X) = 1 \\times 0{,}2 + 2 \\times 0{,}3 + 3 \\times 0{,}5 = 0{,}2 + 0{,}6 + 1{,}5 = 2{,}3000$$</div>',
         '<p>L’espérance est <strong>linéaire</strong> : <code>E(aX + b) = a·E(X) + b</code>, et ' +
         '<code>E(X + Y) = E(X) + E(Y)</code> même si <code>X</code> et <code>Y</code> ne sont pas indépendantes.</p>'
       ].join('\n')
@@ -56,7 +58,8 @@ module.exports = {
         'commode est la formule de <strong>Kœnig–Huygens</strong> : ' +
         '<code>V(X) = E(X²) − E(X)²</code>. L’<strong>écart-type</strong> est <code>σ(X) = √V(X)</code>, ' +
         'exprimé dans la même unité que <code>X</code>.</p>',
-        '<pre><code>loi = [(0, 0.5), (1, 0.5)]\nE = sum(x * p for x, p in loi)\nE2 = sum(x * x * p for x, p in loi)\nprint(f"{E2 - E * E:.4f}")   # 0.2500</code></pre>',
+        '<div class="math-block">$$\\mathbb{V}(X) = \\mathbb{E}(X^2) - [\\mathbb{E}(X)]^2 \\qquad \\text{et} \\qquad \\sigma(X) = \\sqrt{\\mathbb{V}(X)}$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de variance (formule de Kœnig–Huygens)</div><p>Pour $X \\in \\{0, 1\\}$ avec $p = 0{,}5$ :</p>$$\\mathbb{E}(X) = 0{,}5, \\quad \\mathbb{E}(X^2) = 0{,}5 \\implies \\mathbb{V}(X) = 0{,}5 - (0{,}5)^2 = 0{,}2500$$</div>',
         box('pitfall', 'Piège — E(X²) n’est pas E(X)²', 'warning',
           '    <p><code>E(X²)</code> est la moyenne des <strong>carrés</strong> ; <code>E(X)²</code> est le ' +
           '<strong>carré de la moyenne</strong>. Les confondre donne une variance nulle à tort. On calcule ' +
@@ -70,7 +73,8 @@ module.exports = {
         '<code>F(x) = P(X ≤ x) = Σ_{xᵢ ≤ x} pᵢ</code>. Elle est croissante, vaut 0 avant la plus petite valeur ' +
         'et 1 à partir de la plus grande. « Au plus » (≤) est la convention de la répartition ; « au moins » ' +
         '(<code>P(X ≥ x)</code>) s’obtient par le complément.</p>',
-        '<pre><code>loi = [(1, 0.2), (2, 0.3), (3, 0.5)]\nt = 2\nF = sum(p for x, p in loi if x <= t)\nprint(f"{F:.4f}")   # 0.5000</code></pre>',
+        '<div class="math-block">$$F(x) = \\mathbb{P}(X \\le x) = \\sum_{x_i \\le x} p_i$$</div>\n' +
+        '<div class="box box--formula"><div class="box__title">Exemple de répartition</div><p>Pour $X \\in \\{1, 2, 3\\}$ avec probabilités $(0{,}2 ; 0{,}3 ; 0{,}5)$, calculons $F(2)$ :</p>$$F(2) = \\mathbb{P}(X \\le 2) = 0{,}2 + 0{,}3 = 0{,}5000$$</div>',
         box('intuition', 'Deux façons de décrire la même loi', 'lightbulb',
           '    <p>La loi ponctuelle donne <code>P(X = x)</code> ; la répartition donne <code>P(X ≤ x)</code>. ' +
           'Passer de l’une à l’autre se fait par somme (ponctuelle → répartition) ou par différence ' +

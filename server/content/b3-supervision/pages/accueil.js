@@ -155,48 +155,32 @@ function sommaire(course, chapterList) {
 /* ======================== Atelier ======================== */
 
 function atelier(course) {
-  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier de code' }]);
+  const crumbs = crumb(course, [{ label: 'Accueil', href: 'index.html' }, { label: 'Sommaire', href: 'sommaire.html' }, { label: 'Atelier d’analyse' }]);
 
-  const defaultCode = `# Zone libre : simulez vos architectures et sondes de supervision en Python 3
-import sys
+  const defaultCode = `# Grille d’analyse libre — Supervision Réseau & Systèmes
+# Métriques SNMP, sondes de disponibilité et seuils d'alerte
 
-def simuler_sonde_supervision(commandes):
-    """Simule le comportement de sondes et collecteurs de métriques."""
-    resultats = []
-    for cmd in commandes:
-        cmd_clean = cmd.strip()
-        if cmd_clean.startswith("CHECK_SERVICE"):
-            resultats.append(f"PROBE_RESULT: {cmd_clean} -> STATUS=OK (Latency: 1.8ms)")
-        elif cmd_clean.startswith("SNMPGET"):
-            resultats.append(f"SNMP_RESPONSE: {cmd_clean} -> 1.3.6.1.2.1.1.3.0 = TimeTicks (8640000)")
-        elif cmd_clean.startswith("PROMQL"):
-            resultats.append(f"PROMQL_EVAL: {cmd_clean} -> Vector {value: 42.5}")
-        else:
-            resultats.append(f"MONITOR_LOG: {cmd_clean} -> PROCESSED")
-    return resultats
-
-if __name__ == "__main__":
-    lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
-    if not lignes:
-        lignes = ["CHECK_SERVICE srv-web01:80", "SNMPGET 192.168.1.1 1.3.6.1.2.1.1.3.0"]
-    for r in simuler_sonde_supervision(lignes):
-        print(r)
+[Cas 1 — Surveillance d'infrastructure de production]
+METRIQUE_CPU: 88% (SEUIL_ALERTE: 85%)
+STATUT_SONDE: WARNING
+ACTION_AUTOMATISEE: Déclenchement d'un ticket d'incident et notification astreinte
+NOTE: Supervision proactive des équipements critiques opérationnelle.
 `;
 
   const body = [
     crumbs,
     '  <header class="section-head">',
     '    <h1>Atelier de Code Interactif — Supervision &amp; Observabilité</h1>',
-    '    <p class="section-head__lead">Expérimentez librement vos algorithmes de calcul SLA/SLO, de décodage SNMP, de requêtage PromQL et de parsing de logs en Python 3.</p>',
+    '    <p class="section-head__lead">Expérimentez librement vos algorithmes de calcul SLA/SLO, de décodage SNMP, de requêtage PromQL et de parsing de logs selon les grilles d’analyse.</p>',
     '  </header>',
     '',
     '  <div class="lab"',
     '       data-lab',
     '       data-exercise-id="atelier-sup3"',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="CHECK_SERVICE srv-web01:80\nSNMPGET 192.168.1.1 1.3.6.1.2.1.1.3.0\nPROMQL rate(http_requests_total[5m])">',
-    '    <script type="text/plain" data-lab-starter>' + defaultCode + '</script>',
+    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — b3-supervision\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',
@@ -218,7 +202,7 @@ if __name__ == "__main__":
 
   return {
     'atelier.html': {
-      title: 'Atelier de code interactif — ' + course.brand,
+      title: 'Atelier d’analyse interactif — ' + course.brand,
       description: 'Console interactive Python 3 pour concevoir et tester des algorithmes de supervision, métrologie et observabilité.',
       active: 'atelier',
       body

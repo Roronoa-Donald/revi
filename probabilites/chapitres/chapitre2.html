@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chapitre 2 — Dénombrement et recomptage | Probabilités B2</title>
-<meta name="description" content="Chapitre 2 du cours de probabilités B2 : Principe multiplicatif, arrangements, combinaisons, permutations avec répétition, binôme de Newton. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta name="description" content="Chapitre 2 du cours de probabilités B2 : Principe multiplicatif, arrangements, combinaisons, permutations avec répétition, binôme de Newton. Théorie, exemples détaillés, études de cas mathématiques, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/probabilites/chapitres/chapitre2.html">
 <meta property="og:title" content="Chapitre 2 — Dénombrement et recomptage | Probabilités B2">
-<meta property="og:description" content="Chapitre 2 du cours de probabilités B2 : Principe multiplicatif, arrangements, combinaisons, permutations avec répétition, binôme de Newton. Théorie, exemples détaillés, exercices Python exécutables, QCM corrigés.">
+<meta property="og:description" content="Chapitre 2 du cours de probabilités B2 : Principe multiplicatif, arrangements, combinaisons, permutations avec répétition, binôme de Newton. Théorie, exemples détaillés, études de cas mathématiques, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
 <script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="2">
@@ -83,20 +84,14 @@
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-layers"></use></svg> L’arbre, outil de comptage</div>
     <p>Un <strong>arbre</strong> dessine une expérience par étapes : chaque branche est un choix. Le nombre de chemins complets est le nombre de résultats ; on multiplie les branches plutôt que de les énumérer une à une.</p>
   </div>
-<pre><code>entrees = 3
-plats = 4
-print(entrees * plats)   # 12</code></pre>
+<div class="math-block">$$N_{\text{chemins}} = m \times n$$</div>
+<div class="box box--formula"><div class="box__title">Exemple du menu</div><p>Pour un menu comprenant 3 entrées et 4 plats principaux :</p>$$N = 3 \times 4 = 12 \text{ combinaisons}$$</div>
 
 <h2>2. Arrangements et combinaisons</h2>
 
 <p>Un <strong>arrangement</strong> de <code>k</code> objets parmi <code>n</code> tient compte de l’ordre : <code>A(n,k) = n!/(n−k)! = n·(n−1)···(n−k+1)</code>. Une <strong>combinaison</strong> ignore l’ordre : <code>C(n,k) = A(n,k)/k! = n!/(k!(n−k)!)</code>.</p>
-<pre><code>from math import factorial, comb
-
-# Arrangement : 3 premières places parmi 5 chevaux.
-print(factorial(5) // factorial(2))   # 60
-
-# Combinaison : choisir 2 chevaux parmi 5, sans ordre.
-print(comb(5, 2))                      # 10</code></pre>
+<div class="math-block">$$A_n^k = \frac{n!}{(n - k)!} \qquad \text{et} \qquad \binom{n}{k} = C_n^k = \frac{n!}{k!(n - k)!}$$</div>
+<div class="box box--formula"><div class="box__title">Exemples de dénombrement</div><p><strong>Arrangement</strong> (les 3 premières places sur un podium parmi 5 coureurs) :</p>$$A_5^3 = \frac{5!}{(5 - 3)!} = 5 \times 4 \times 3 = 60$$<p><strong>Combinaison</strong> (choisir un binôme de 2 personnes parmi 5, sans ordre) :</p>$$\binom{5}{2} = \frac{5!}{2!(5 - 2)!} = \frac{5 \times 4}{2 \times 1} = 10$$</div>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — oublier de diviser par k!</div>
     <p>Passer de l’arrangement à la combinaison demande de <strong>diviser par k!</strong>, car chaque sous-ensemble de <code>k</code> objets a été compté <code>k!</code> fois (toutes les permutations internes). Même sans l’écrire, l’ordre reste compté si l’on garde l’arrangement.</p>
@@ -105,69 +100,68 @@ print(comb(5, 2))                      # 10</code></pre>
 <h2>3. Permutations avec répétition</h2>
 
 <p>Combien d’<strong>anagrammes distincts</strong> le mot <code>AABB</code> a-t-il ? Les permutations des 4 lettres sont <code>4!</code>, mais échanger deux A identiques donne le même mot. La formule divise par les factorielles des effectifs :</p>
-<pre><code>from math import factorial
-from collections import Counter
-
-total = factorial(4)
-for effectif in Counter("AABB").values():
-    total //= factorial(effectif)
-print(total)   # 6</code></pre>
+<div class="math-block">$$N_{\text{anagrammes}} = \frac{n!}{n_1! \times n_2! \times \dots \times n_k!}$$</div>
+<div class="box box--formula"><div class="box__title">Exemple : anagrammes de « AABB »</div><p>Pour 4 lettres au total avec 2 lettres 'A' et 2 lettres 'B' :</p>$$N = \frac{4!}{2! \times 2!} = \frac{24}{2 \times 2} = 6 \text{ anagrammes distincts}$$</div>
 <p>Avec des lettres toutes distinctes (<code>ABCD</code>), chaque effectif vaut 1 et l’on retrouve <code>4! = 24</code>.</p>
 
 <h2>4. Coefficients binomiaux et binôme</h2>
 
 <p>Le nombre <code>C(n,k)</code> est aussi appelé <strong>coefficient binomial</strong>. Il apparaît dans la formule du <strong>binôme de Newton</strong> : <code>(a+b)ⁿ = Σ C(n,k)·aᵏ·bⁿ⁻ᵏ</code>. On le lit dans le triangle de Pascal, où chaque case est la somme des deux au-dessus.</p>
-<pre><code>from math import comb
-
-n = 4
-for k in range(n + 1):
-    print(comb(n, k))
-# 1 4 6 4 1 — ligne n = 4 du triangle de Pascal</code></pre>
+<div class="math-block">$$(a + b)^n = \sum_{k=0}^n \binom{n}{k} a^k b^{n-k}$$</div>
+<div class="box box--formula"><div class="box__title">Ligne $n = 4$ du triangle de Pascal</div>$$\binom{4}{0} = 1, \quad \binom{4}{1} = 4, \quad \binom{4}{2} = 6, \quad \binom{4}{3} = 4, \quad \binom{4}{4} = 1$$</div>
   <div class="box box--intuition">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Compter, c’est choisir</div>
     <p>À l’oral : « on choisit 2 objets parmi 5 » se traduit toujours par <code>C(5,2)</code>. « on range 2 objets parmi 5 » (place, podium, mot de passe) se traduit par <code>A(5,2)</code>. Identifier si l’ordre compte est la moitié du travail.</p>
   </div>
 
 <!-- code-labs:start -->
-  <h2>5. Exercices de code</h2>
-  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code
-  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :
-  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
-  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
-  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>
 <div class="lab" data-lab
      data-exercise="pb2-c2-e1"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="5&#10;3">
-  <script type="text/plain" data-lab-starter>from math import factorial
+  <script type="text/plain" data-lab-starter># Grille de calcul (pb2-c2-e1) — Arrangements
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-n = int(input())
-k = int(input())
+[Cas 1 — Petit arrangement]
+# Données : 4
+# Données : 2
+A_COMPLETER
 
-# À compléter : afficher A(n,k) = n! / (n-k)!.
+[Cas 2 — Six parmi trois]
+# Données : 6
+# Données : 3
+A_COMPLETER
+
+[Cas 3 — Deux parmi dix]
+# Données : 10
+# Données : 2
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Arrangements</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Compter les arrangements de k objets parmi n : A(n,k) = n!/(n−k)!.</p>
-    <div class="lab__brief"><p>Le programme reçoit deux entiers : <code>n</code> puis <code>k</code>. Affiche le nombre d’<strong>arrangements</strong> <code>A(n,k) = n!/(n−k)!</code> (l’ordre compte, sans répétition).</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère deux entiers : <code>n</code> puis <code>k</code>. Indiquez le nombre d’<strong>arrangements</strong> <code>A(n,k) = n!/(n−k)!</code> (l’ordre compte, sans répétition).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5
 3</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>60</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>60</pre></div>
     </div>
     <p class="lab__note">5 × 4 × 3 = 60.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
         <li>A(n,k) = n·(n−1)·…·(n−k+1) : c’est le quotient n! / (n−k)!.</li>
-        <li>La fonction factorial du module math calcule n! ; attention à ne pas oublier le cas k = 0 (résultat 1).</li>
+        <li>Effectuez le calcul arithmétique correspondant.</li>
       </ol>
     </details>
   </div>
@@ -175,37 +169,48 @@ k = int(input())
 
 <div class="lab" data-lab
      data-exercise="pb2-c2-e2"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="5&#10;2">
-  <script type="text/plain" data-lab-starter>from math import factorial
+  <script type="text/plain" data-lab-starter># Grille de calcul (pb2-c2-e2) — Combinaisons
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-n = int(input())
-k = int(input())
+[Cas 1 — Six parmi trois]
+# Données : 6
+# Données : 3
+A_COMPLETER
 
-# À compléter : afficher C(n,k) = n! / (k! (n-k)!).
+[Cas 2 — Tout l’ensemble]
+# Données : 4
+# Données : 4
+A_COMPLETER
+
+[Cas 3 — Cinq parmi dix]
+# Données : 10
+# Données : 5
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Combinaisons</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Compter les combinaisons de k objets parmi n : C(n,k) = n!/(k!(n−k)!).</p>
-    <div class="lab__brief"><p>Le programme reçoit deux entiers : <code>n</code> puis <code>k</code>. Affiche le nombre de <strong>combinaisons</strong> <code>C(n,k)</code> (l’ordre ne compte pas, sans répétition).</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère deux entiers : <code>n</code> puis <code>k</code>. Indiquez le nombre de <strong>combinaisons</strong> <code>C(n,k)</code> (l’ordre ne compte pas, sans répétition).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>5
 2</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>10</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>10</pre></div>
     </div>
     <p class="lab__note">Dix façons de choisir 2 objets parmi 5.</p>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
       <ol>
         <li>Divise l’arrangement A(n,k) par k! pour oublier l’ordre : C(n,k) = A(n,k) / k!.</li>
-        <li>La fonction comb(n, k) du module math donne directement le coefficient binomial.</li>
+        <li>Effectuez le calcul arithmétique correspondant.</li>
       </ol>
     </details>
   </div>
@@ -213,29 +218,37 @@ k = int(input())
 
 <div class="lab" data-lab
      data-exercise="pb2-c2-e3"
-     data-language="python"
+     data-language="analyse"
      data-height="300"
      data-stdin="ABC">
-  <script type="text/plain" data-lab-starter>from math import factorial
-from collections import Counter
+  <script type="text/plain" data-lab-starter># Grille de calcul (pb2-c2-e3) — Permutations avec répétition
+# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
 
-mot = input()
+[Cas 1 — Une lettre doublée]
+# Données : AAB
+A_COMPLETER
 
-# À compléter : afficher le nombre d’anagrammes distincts.
+[Cas 2 — Deux lettres doublées]
+# Données : AABB
+A_COMPLETER
+
+[Cas 3 — Quatre lettres distinctes]
+# Données : ABCD
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Permutations avec répétition</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Compter les anagrammes distincts d’un mot : n!/(r₁!·r₂!·…).</p>
-    <div class="lab__brief"><p>Le programme reçoit un mot (une ligne, sans espace). Affiche le nombre d’<strong>anagrammes distincts</strong>, c’est-à-dire le nombre de permutations des lettres en tenant compte des répétitions : <code>n! / (r₁!·r₂!·…)</code> où chaque <code>rᵢ</code> est le nombre d’occurrences d’une lettre.</p></div>
+    <div class="lab__brief"><p>Dans cette étude, on considère un mot (une ligne, sans espace). Indiquez le nombre d’<strong>anagrammes distincts</strong>, c’est-à-dire le nombre de permutations des lettres en tenant compte des répétitions : <code>n! / (r₁!·r₂!·…)</code> où chaque <code>rᵢ</code> est le nombre d’occurrences d’une lettre.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>ABC</pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>6</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ABC</pre></div>
+      <div class="lab__sample-part"><b>Résolution attendue</b><pre>6</pre></div>
     </div>
     <p class="lab__note">Trois lettres distinctes : 3! = 6 anagrammes.</p>
     <details class="lab__hints">
@@ -401,6 +414,29 @@ mot = input()
 </main>
 
 <script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>
 </html>
