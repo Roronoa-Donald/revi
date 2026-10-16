@@ -720,7 +720,7 @@
 
       self.editor = monaco.editor.create(host, {
         value: self.loadDraft(),
-        language: self.language,
+        language: self.language === 'analyse' ? 'plaintext' : self.language,
         theme: 'latte',
         automaticLayout: true,
         fontSize: 13,
@@ -765,7 +765,7 @@
     this.language = language;
     this.saveDraft();
     if (this.editor && window.monaco) {
-      window.monaco.editor.setModelLanguage(this.editor.getModel(), language);
+      window.monaco.editor.setModelLanguage(this.editor.getModel(), language === 'analyse' ? 'plaintext' : language);
     }
     this.setCode(this.loadDraft());
     this.updateProvenanceBadge();

@@ -154,7 +154,7 @@ function atelier(course) {
     '  <p class="lead">Expérimentez et automatisez vos algorithmes de gestion de projet en Python 3 : simulation de capacité de sprint, contrôle de flux Kanban, burn-down charts et matrices de dépendances inter-équipes.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="SPRINT_CAP dev=5 days=10 focus=0.8">',
     '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos calculs de capacité et métriques agiles en Python 3\nimport sys\n\ndef evaluer_capacite_sprint(developpeurs, jours_ouvres, ratio_focus=0.8):\n    heures_brutes = developpeurs * jours_ouvres * 7\n    heures_nettes = round(heures_brutes * ratio_focus, 1)\n    points_estimes = round(heures_nettes / 8.0, 1)\n    return f"DEV={developpeurs} HEURES_NETTES={heures_nettes}h POINTS_ESTIMES={points_estimes}pts"\n\nif __name__ == "__main__":\n    print(evaluer_capacite_sprint(5, 10, 0.8))\n    print(evaluer_capacite_sprint(7, 10, 0.75))\n</script>',

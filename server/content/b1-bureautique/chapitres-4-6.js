@@ -10,7 +10,7 @@
  *
  * Chaque chapitre fournit la matière que `kit.chapter` met en page. Aucun
  * titre <h2> ici : la numérotation est ajoutée au rendu. Les ateliers de code
- * (trois exercices Bash par chapitre) sont injectés avant le QCM par
+ * (trois études de cas pratiques par chapitre) sont injectés avant le QCM par
  * `scripts/generate-code-labs.js` à partir de `server/exercises/b1-bureautique.js`.
  */
 'use strict';
@@ -29,7 +29,7 @@ module.exports = [
     situation:
       'Une formule de calcul dans Excel <strong>commence toujours par le signe =</strong>. On combine ' +
       'ensuite adresses de cellules (A1, B3, C4…) et nombres avec les opérateurs — puis on délègue aux ' +
-      'fonctions : SOMME, MOYENNE, MAX, MIN, NB, NBVAL. Le chapitre les fait calculer réellement en Bash.',
+      'fonctions : SOMME, MOYENNE, MAX, MIN, NB, NBVAL. Le chapitre les fait calculer réellement par études de cas.',
 
     objectives: [
       'écrire une formule : signe =, adresses, opérateurs arithmétiques ;',
@@ -166,7 +166,7 @@ module.exports = [
       'imbriquer des SI pour traiter plusieurs paliers, du plus strict au plus large ;',
       'compter, sommer et moyenner sous condition : NB.SI, SOMME.SI, MOYENNE.SI ;',
       'classer une valeur avec RANG.',
-      'tester une condition en Bash avec if/elif/else.'
+      'tester une condition par études de cas avec if/elif/else.'
     ],
 
     sections: [
@@ -259,7 +259,7 @@ module.exports = [
 
     mastery: [
       { cls: 'low', text: '&lt; 50 % — relis la syntaxe SI et la commission du support.' },
-      { cls: 'mid', text: '50–69 % — refais les paliers de commission en Bash.' },
+      { cls: 'mid', text: '50–69 % — refais les paliers de commission par études de cas.' },
       { cls: 'good', text: '70–89 % — bon niveau, cible les trois compteurs conditionnels.' },
       { cls: 'top', text: '≥ 95 % — niveau de maîtrise recherché.' }
     ],

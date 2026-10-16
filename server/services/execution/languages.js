@@ -37,7 +37,8 @@ const LANGUAGES = [
   { id: 'r',          label: 'R',          monaco: 'r',          oanor: 'r',          ext: 'r',    aliases: ['r', 'rscript'] },
   { id: 'shell',      label: 'Bash',       monaco: 'shell',      oanor: 'bash',       ext: 'sh',   aliases: ['bash', 'shell', 'sh'] },
   { id: 'powershell', label: 'PowerShell', monaco: 'powershell', oanor: 'powershell', ext: 'ps1',  aliases: ['powershell', 'pwsh'] },
-  { id: 'sql',        label: 'SQL',        monaco: 'sql',        oanor: 'sql',        ext: 'sql',  aliases: ['sql', 'sqlite', 'sqlite3'] }
+  { id: 'sql',        label: 'SQL',        monaco: 'sql',        oanor: 'sql',        ext: 'sql',  aliases: ['sql', 'sqlite', 'sqlite3'] },
+  { id: 'analyse',    label: 'Étude de cas', monaco: 'plaintext', oanor: 'analyse',   ext: 'txt',  sample: '# Grille d\'analyse\n', aliases: ['analyse'] }
 ];
 
 const BY_ID = new Map(LANGUAGES.map(l => [l.id, l]));

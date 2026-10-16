@@ -51,7 +51,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo des Sciences de l’Apprentissage</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de code</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier pratique</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; Protocole de Révision</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -97,7 +97,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres à mémoriser.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo Apprendre à apprendre</span><br><span class="toc__d">Formule Ebbinghaus, équation SM-2, loi de Sweller, modèle Paivio et score Brier sur une page.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; protocole de révision</span><br><span class="toc__d">18 exercices guidés et le plan de mémorisation complet pour réussir ses semestres d’ingénierie.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de code</span><br><span class="toc__d">Écrire et exécuter du code Python directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier pratique</span><br><span class="toc__d">Écrire et exécuter du code Python directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets corrigés pour préparer les épreuves écrites et les cas pratiques de sciences cognitives.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -119,7 +119,7 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier de code Python / Algorithmes d’Apprentissage</h1>',
+    '  <h1>Atelier pratique Python / Algorithmes d’Apprentissage</h1>',
     '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Python. Écris ton script, ' +
     'exécute-le et observe immédiatement la sortie : l’outil idéal pour programmer des moteurs de révision espacée et de diagnostic mnésique.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
@@ -134,7 +134,7 @@ function atelier(course) {
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
-      '     data-language="python"',
+      '     data-language="analyse"',
       '     data-height="360"',
       '     data-languages="1"',
       '     data-stdin="CARD-777;2.5;4;3;8">',
@@ -206,7 +206,7 @@ function atelier(course) {
     ].join('\n')),
     box('tech', 'Architecture technique du bac à sable', 'terminal', [
       '    <ul>',
-      '      <li>Votre script Python est exécuté dans un conteneur sécurisé et isolé.</li>',
+      '      <li>Votre grille d’analyse est exécuté dans un conteneur sécurisé et isolé.</li>',
       '      <li>Toutes les exécutions respectent les quotas de sécurité de la plateforme.</li>',
       '      <li>La console intégrée sous l’éditeur restitue instantanément la sortie standard et les traces d’erreurs.</li>',
       '    </ul>'
@@ -220,8 +220,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code : simuler les algorithmes d’apprentissage avec Python | ' + course.brand,
-      description: 'Atelier de code du cours Masterclass Apprendre à apprendre B2 : éditeur Monaco, exécution Python en temps réel, entrée standard et console.',
+      title: 'Atelier pratique : simuler les algorithmes d’apprentissage avec Python | ' + course.brand,
+      description: 'Atelier pratique du cours Masterclass Apprendre à apprendre B2 : éditeur Monaco, exécution Python en temps réel, entrée standard et console.',
       active: 'atelier',
       body
     }

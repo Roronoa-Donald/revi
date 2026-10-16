@@ -77,7 +77,7 @@ module.exports = {
         '  </div>',
         '  <div class="card">',
         '    <h4>Algorithme de Détection Stale</h4>',
-        '    <p>Un script Python ou un job CI quotidien compare la date du jour avec la date <code>last_reviewed</code>. Si l’écart dépasse le seuil défini (ex. 90 jours pour un Runbook critique, 180 jours pour une SFD), une alerte est déclenchée (ticket Jira automatique ou notification Slack à l’équipe propriétaire).</p>',
+        '    <p>Un grille d’analyse ou un job CI quotidien compare la date du jour avec la date <code>last_reviewed</code>. Si l’écart dépasse le seuil défini (ex. 90 jours pour un Runbook critique, 180 jours pour une SFD), une alerte est déclenchée (ticket Jira automatique ou notification Slack à l’équipe propriétaire).</p>',
         '  </div>',
         '  <div class="card">',
         '    <h4>Historique Git &amp; Commits</h4>',

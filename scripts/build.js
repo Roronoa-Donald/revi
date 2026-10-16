@@ -28,7 +28,7 @@ const ROOT_FILES = ['index.html', 'robots.txt', 'sitemap.xml', '404.html', 'rd-a
 const ROOT_DIRS = ['assets'];
 
 // Dossiers à ne jamais copier
-const SKIP_DIRS = ['node_modules', '.git', 'server', 'api', 'scripts', 'dist', 'public', 'cours windows', 'ref', 'cours', 'exos'];
+const SKIP_DIRS = ['node_modules', '.git', 'server', 'api', 'scripts', 'dist', 'public', 'cours windows', 'ref', 'cours', 'exos', '.taskstate', 'audit', 'tests', 'tools'];
 
 // Extensions à ne pas traiter
 const BINARY_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.webp', '.woff', '.woff2', '.ttf', '.otf', '.eot', '.pdf', '.mp4', '.webm', '.mp3', '.wasm'];
@@ -40,6 +40,11 @@ const AUTH_INJECT_BODY = '<script src="/_auth/js/fingerprint.js"></script>\n<scr
 // ========================
 // Fonctions utilitaires
 // ========================
+
+function isAllowedPdf(srcPath) {
+  const rel = path.relative(ROOT, srcPath).split(path.sep).join('/');
+  return rel.startsWith('epreuves/') || rel.startsWith('assets/docs/') || rel.includes('/assets/docs/');
+}
 
 function cleanDir(dir) {
   if (fs.existsSync(dir)) {
@@ -62,9 +67,11 @@ function copyDirRecursive(src, dest) {
       if (SKIP_DIRS.includes(entry.name)) continue;
       copyDirRecursive(srcPath, destPath);
     } else {
-      // Ignorer les fichiers de référence (PDFs, docs source, scripts Python)
+      // Ignorer les fichiers de référence (PDFs bruts, docs source, scripts Python)
+      // Seuls les PDFs publiés dans epreuves/ et assets/docs/ sont copiés dans dist/
       const ext = path.extname(entry.name).toLowerCase();
-      if (['.pdf', '.docx', '.doc', '.py'].includes(ext)) continue;
+      if (['.docx', '.doc', '.py'].includes(ext)) continue;
+      if (ext === '.pdf' && !isAllowedPdf(srcPath)) continue;
       // Ignorer les fichiers .txt sauf ceux dans les dossiers de cours principaux
       if (ext === '.txt' && !entry.name.includes('robots')) continue;
 

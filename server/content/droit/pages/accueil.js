@@ -50,7 +50,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo droit</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de scripts</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier d’études de cas</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; projet</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -86,7 +86,7 @@ function sommaire(course, chapterList) {
     '  <p class="lead">' + chapterList.length + ' chapitres, des notions générales du droit de l’informatique ' +
     'jusqu’aux sanctions pénales. Le chapitre 1 est en accès libre ; les suivants requièrent un compte ' +
     'de niveau B2 ou supérieur (et un abonnement actif).</p>',
-    '  <p>Chaque chapitre se termine par <strong>trois exercices en Bash</strong> à écrire et à exécuter ' +
+    '  <p>Chaque chapitre se termine par <strong>trois exercices par études de cas</strong> à écrire et à exécuter ' +
     'dans la page : ton script est réellement lancé, puis corrigé par des tests que tu ne vois pas. ' +
     'L’<a href="atelier.html">atelier de scripts</a> permet de manipuler librement.</p>',
     '  <div class="toc">',
@@ -97,7 +97,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres, à retourner pour s’auto-tester.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo droit</span><br><span class="toc__d">Notions, données, sources, RGPD et cadre togolais sur une page.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet intégrateur</span><br><span class="toc__d">Scripts gradués et projet final : un registre de conformité.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de scripts</span><br><span class="toc__d">Écrire et exécuter du Bash directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier d’études de cas</span><br><span class="toc__d">Écrire et exécuter du Bash directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets chronométrés proches de l’épreuve, avec corrigés détaillés.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -119,12 +119,12 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier de scripts</h1>',
+    '  <h1>Atelier d’études de cas</h1>',
     '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Bash derrière. Écris un script, ' +
     'exécute-le et lis ce qu’il affiche : c’est ici qu’une règle de droit devient un contrôle automatisé.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre script Bash tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
+      '      <li><strong>Exécuter</strong> fait tourner votre grille d’analyse tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
       '      <li><strong>Entrée du programme</strong> contient ce que <code>read</code> lira, une valeur par ligne.</li>',
       '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>',
       '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur.</li>',
@@ -134,35 +134,24 @@ function atelier(course) {
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
-      '     data-language="shell"',
+      '     data-language="analyse"',
       '     data-height="360"',
       '     data-languages="1"',
       '     data-stdin="600000000">',
-      '  <script type="text/plain" data-lab-starter>#!/bin/bash',
-      '# Zone libre : simulez, cassez, recommencez.',
-      '# Rien de ce que vous écrirez ici n’est noté.',
-      '#',
-      '# Exemple proposé : la sanction maximale du RGPD en Europe.',
-      '# Le script lit le chiffre d’affaires et retient le plus lourd entre 20 M€ et 4 %.',
-      '',
-      'read -r chiffre',
-      'fixe=20000000',
-      'pourcent=$((chiffre * 4 / 100))',
-      'if [ "$pourcent" -gt "$fixe" ]; then',
-      '  echo "sanction : $pourcent"',
-      'else',
-      '  echo "sanction : $fixe"',
-      'fi',
+      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie juridique et rédigez vos grilles d\'analyse.',
+      '[Cas 1 — Sanction RGPD]',
+      '# Données : chiffre d\'affaires 600000000',
+      'sanction : 24000000',
       '</script>',
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre : sanction maximale du RGPD</h3>',
       '    <div class="lab__meta">',
-      '      <span class="lab__lang">' + ic('terminal') + ' Bash</span>',
+      '      <span class="lab__lang">' + ic('book') + ' Étude de cas</span>',
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
-      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prends un mécanisme de ' +
-      'droit (peine togolaise, conformité d’un traitement, classement d’une source), programme-le et teste-le sur des cas limites.</p>',
+      '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez un mécanisme de ' +
+      'droit (peine, conformité d’un traitement, classement d’une source), formalisez votre analyse et testez-la sur des cas limites.</p>',
       '    <div class="lab__brief">',
       '      <p>Le script proposé retient la plus lourde des deux sanctions européennes : 20 000 000 d’euros ou ' +
       '4 % du chiffre d’affaires. Teste-le avec 100 000 000 puis 2 000 000 000, ou remplace tout le script par le ' +
@@ -197,7 +186,7 @@ function atelier(course) {
       '    </ul>'
     ].join('\n')),
     '  <h2>Ensuite</h2>',
-    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois exercices Bash corrigés ' +
+    '  <p>Les ' + course.chapters.length + ' chapitres contiennent chacun trois études de cas pratiques corrigés ' +
     'automatiquement dans la page. Ils sont la meilleure façon de vérifier que la règle de droit est vraiment acquise.</p>',
     chnav({ href: 'sommaire.html', label: 'Sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Chapitre 1 : Notions générales' }),
     disclaimer(course, 'L’exécution repose sur un service distant : en cas d’indisponibilité, l’atelier le ' +
@@ -206,9 +195,9 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de scripts : simuler le droit | ' + course.brand,
-      description: 'Atelier de scripts du cours de Droit informatique B2 : éditeur dans le navigateur, exécution réelle ' +
-        'du script Bash, entrée standard, console de sortie et tuteur qui explique les erreurs.',
+      title: 'Atelier d’études de cas : simuler le droit | ' + course.brand,
+      description: 'Atelier d’études de cas du cours de Droit informatique B2 : éditeur dans le navigateur, exécution réelle ' +
+        'du grille d’analyse, entrée standard, console de sortie et tuteur qui explique les erreurs.',
       active: 'atelier',
       body
     }

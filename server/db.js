@@ -232,19 +232,24 @@ function preparationDisplayNameFromKey(keyRecord) {
 }
 
 async function ensurePreparationProfile(userId, displayName) {
+  if (!userId) throw new Error('userId requis');
+  const cleanName = displayName && String(displayName).trim()
+    ? String(displayName).trim().slice(0, 80)
+    : null;
   const result = await query(`
     INSERT INTO preparation_profiles (user_id, display_name, last_activity)
-    VALUES ($1, $2, CURRENT_TIMESTAMP)
+    VALUES ($1, COALESCE($2, 'Apprenant #' || $1::text), CURRENT_TIMESTAMP)
     ON CONFLICT (user_id) WHERE user_id IS NOT NULL DO UPDATE SET
-      display_name = COALESCE(EXCLUDED.display_name, preparation_profiles.display_name),
+      display_name = COALESCE($2, preparation_profiles.display_name),
       last_activity = CURRENT_TIMESTAMP
     RETURNING *
-  `, [userId, displayName || null]);
+  `, [userId, cleanName]);
 
   return result.rows[0];
 }
 
 async function getPreparationProfile(userId) {
+  if (!userId) throw new Error('userId requis');
   const result = await query(`
     SELECT p.*, COALESCE(r.position, 0) AS rank
     FROM preparation_profiles p
@@ -258,7 +263,8 @@ async function getPreparationProfile(userId) {
   return result.rows[0] || null;
 }
 
-async function getPreparationProgress(keyId) {
+async function getPreparationProgress(userId) {
+  if (!userId) throw new Error('userId requis');
   const result = await query(`
     SELECT
       project_id,
@@ -281,6 +287,7 @@ async function getPreparationProgress(keyId) {
 }
 
 async function refreshPreparationTotals(userId) {
+  if (!userId) throw new Error('userId requis');
   const result = await query(`
     UPDATE preparation_profiles
     SET
@@ -297,13 +304,14 @@ async function refreshPreparationTotals(userId) {
       last_activity = CURRENT_TIMESTAMP
     WHERE user_id = $1
     RETURNING *
-  `, [keyId, PREPARATION_CURRICULUM_VERSION]);
+  `, [userId, PREPARATION_CURRICULUM_VERSION]);
   return result.rows[0] || null;
 }
 
 async function savePreparationProgress(userId, data = {}) {
+  if (!userId) throw new Error('userId requis');
   const projectId = Number(data.projectId);
-  if (!projectId) throw new Error('projectId requis');
+  if (!projectId || projectId < 1) throw new Error('projectId requis');
 
   const result = await query(`
     INSERT INTO preparation_progress (
@@ -320,7 +328,7 @@ async function savePreparationProgress(userId, data = {}) {
       updated_at = CURRENT_TIMESTAMP
     RETURNING *
   `, [
-    keyId,
+    userId,
     projectId,
     data.htmlCode || '',
     data.jsCode || '',
@@ -335,8 +343,9 @@ async function savePreparationProgress(userId, data = {}) {
 }
 
 async function completePreparationProject(userId, data = {}) {
+  if (!userId) throw new Error('userId requis');
   const projectId = Number(data.projectId);
-  if (!projectId) throw new Error('projectId requis');
+  if (!projectId || projectId < 1) throw new Error('projectId requis');
 
   const result = await query(`
     INSERT INTO preparation_progress (
@@ -356,7 +365,7 @@ async function completePreparationProject(userId, data = {}) {
       updated_at = CURRENT_TIMESTAMP
     RETURNING *
   `, [
-    keyId,
+    userId,
     projectId,
     data.htmlCode || '',
     data.jsCode || '',
@@ -372,8 +381,9 @@ async function completePreparationProject(userId, data = {}) {
 }
 
 async function recordPreparationQuiz(userId, data = {}) {
+  if (!userId) throw new Error('userId requis');
   const projectId = Number(data.projectId);
-  if (!projectId) throw new Error('projectId requis');
+  if (!projectId || projectId < 1) throw new Error('projectId requis');
 
   const result = await query(`
     INSERT INTO preparation_progress (
@@ -388,7 +398,7 @@ async function recordPreparationQuiz(userId, data = {}) {
       updated_at = CURRENT_TIMESTAMP
     RETURNING *
   `, [
-    keyId,
+    userId,
     projectId,
     Number(data.quizScore || 0),
     Number(data.quizXp || 0),
@@ -841,6 +851,7 @@ module.exports = {
   ensurePreparationProfile,
   getPreparationProfile,
   getPreparationProgress,
+  refreshPreparationTotals,
   savePreparationProgress,
   completePreparationProject,
   recordPreparationQuiz,

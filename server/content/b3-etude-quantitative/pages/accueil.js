@@ -156,7 +156,7 @@ function atelier(course) {
     '  <p class="lead">Expérimentez et automatisez vos analyses méthodologiques en Python 3 : dimensionnement d’échantillons probabilistes de Cochran, dépouillement d’échelles de Likert, tests du Chi-deux et codage thématique.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="STATS_ENQUETE\nechantillon=385\nconfiance=95\nerreur=5.0">',
     '    <script type="text/plain" data-lab-starter># Zone libre : expérimentez vos calculs statistiques, dimensionnements d\'échantillons et analyses qualitatives\nimport math\n\ndef dimensionner_etude():\n    print("Zone libre Etude Quantitative & Qualitative B3 : pret a executer.")\n\nif __name__ == \'__main__\':\n    dimensionner_etude()\n</script>',

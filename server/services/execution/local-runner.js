@@ -1,39 +1,20 @@
 'use strict';
 
 /**
- * Moteur d'exécution local embarqué (in-process).
+ * Moteur d'exécution local isolé (processus enfant jetable sans secrets ni privilèges).
  *
- * Permet au serveur de corriger les exercices Python (Skulpt), JavaScript (Node VM)
- * et Pseudo-code (AST) directement et de manière 100% autonome, sans dépendre
- * d'un service distant et sans générer de coût réseau ni de 503.
+ * Permet au serveur de corriger les exercices Python (Skulpt), JavaScript (Node VM),
+ * Pseudo-code (AST) et Étude de cas (Analyse) de manière 100% autonome et isolée.
  */
 
-const fs = require('fs');
+const { spawn } = require('child_process');
 const path = require('path');
-const vm = require('vm');
 
-let skulptCache = null;
+const WORKER_PATH = path.resolve(__dirname, 'isolated-worker.js');
+const SERVER_SKULPT_DIR = path.resolve(__dirname, '../../vendor/skulpt');
+const ASSETS_SKULPT_DIR = path.resolve(__dirname, '../../../assets/vendor/skulpt');
 
-function loadSkulpt() {
-  if (skulptCache) return skulptCache;
-  try {
-    skulptCache = require('../../vendor/skulpt/skulpt-bundle');
-    return skulptCache;
-  } catch (e1) {
-    try {
-      const minPath = path.join(__dirname, '../../../assets/vendor/skulpt/skulpt.min.js');
-      const stdPath = path.join(__dirname, '../../../assets/vendor/skulpt/skulpt-stdlib.js');
-      if (fs.existsSync(minPath) && fs.existsSync(stdPath)) {
-        skulptCache = {
-          core: fs.readFileSync(minPath, 'utf8'),
-          stdlib: fs.readFileSync(stdPath, 'utf8')
-        };
-        return skulptCache;
-      }
-    } catch (e2) {}
-  }
-  return null;
-}
+const NODE_MAJOR = parseInt(process.versions.node.split('.')[0], 10) || 0;
 
 let pseudoEngineCache = null;
 
@@ -53,81 +34,49 @@ function loadPseudoCodeEngine() {
 
 function canHandle(languageId) {
   const norm = String(languageId || '').toLowerCase().trim();
-  return ['python', 'py', 'javascript', 'js', 'algo', 'pseudo-code', 'pseudocode'].includes(norm);
+  return ['python', 'py', 'javascript', 'js', 'algo', 'pseudo-code', 'pseudocode', 'analyse'].includes(norm);
 }
 
-function runPython(code, stdin, timeoutMs = 6000) {
+/**
+ * Exécute un langage dans un processus Node.js enfant jetable, sans aucun secret de process.env
+ * et confiné par le modèle de permissions Node.js (--permission).
+ */
+function runInIsolatedWorker(language, code, stdin, timeoutMs = 5000) {
   return new Promise((resolve) => {
-    const sk = loadSkulpt();
-    if (!sk) {
-      return resolve({
-        ok: false,
-        httpStatus: 500,
-        data: { stdout: '', stderr: 'Moteur Skulpt local introuvable', exit_code: 1 }
-      });
+    const args = ['--max-old-space-size=64'];
+
+    if (NODE_MAJOR >= 20) {
+      args.push(
+        '--permission',
+        `--allow-fs-read=${WORKER_PATH}`,
+        `--allow-fs-read=${SERVER_SKULPT_DIR}/*`,
+        `--allow-fs-read=${ASSETS_SKULPT_DIR}/*`
+      );
     }
+    args.push(WORKER_PATH);
 
-    let stdout = '';
-    let stderr = '';
-    const stdinLines = String(stdin || '').split('\n');
-    let stdinIdx = 0;
-
-    const sandbox = {
-      window: {},
-      document: { createElement: () => ({}) },
-      navigator: { userAgent: 'node' },
-      console: { log: () => {} }
+    const safeEnv = {
+      PATH: '/usr/bin:/bin',
+      LANG: 'C.UTF-8',
+      HOME: '/tmp'
     };
 
+    let settled = false;
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      resolve(result);
+    };
+
+    let child;
     try {
-      vm.createContext(sandbox);
-      vm.runInContext(sk.core, sandbox);
-      vm.runInContext(sk.stdlib, sandbox);
-
-      sandbox.Sk.configure({
-        output: text => { stdout += text; },
-        read: filename => {
-          if (sandbox.Sk.builtinFiles && sandbox.Sk.builtinFiles['files'][filename]) {
-            return sandbox.Sk.builtinFiles['files'][filename];
-          }
-          throw new Error('File not found: ' + filename);
-        },
-        inputfun: () => {
-          if (stdinIdx < stdinLines.length) {
-            return stdinLines[stdinIdx++];
-          }
-          return '';
-        },
-        inputfunTakesPrompt: false,
-        execLimit: timeoutMs
-      });
-
-      sandbox.Sk.misceval.asyncToPromise(() => {
-        return sandbox.Sk.importMainWithBody('<stdin>', false, code, true);
-      }).then(() => {
-        resolve({
-          ok: true,
-          httpStatus: 200,
-          data: {
-            stdout,
-            stderr: '',
-            exit_code: 0
-          }
-        });
-      }).catch(err => {
-        stderr = String(err && err.toString ? err.toString() : err);
-        resolve({
-          ok: true,
-          httpStatus: 200,
-          data: {
-            stdout,
-            stderr,
-            exit_code: 1
-          }
-        });
+      child = spawn(process.execPath, args, {
+        env: safeEnv,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        windowsHide: true
       });
     } catch (err) {
-      resolve({
+      return finish({
         ok: true,
         httpStatus: 200,
         data: {
@@ -137,59 +86,97 @@ function runPython(code, stdin, timeoutMs = 6000) {
         }
       });
     }
-  });
-}
 
-function runJavaScript(code, stdin, timeoutMs = 5000) {
-  return new Promise((resolve) => {
-    let stdout = '';
-    let stderr = '';
-    const stdinLines = String(stdin || '').split('\n');
-    let stdinIdx = 0;
+    let rawStdout = '';
+    let rawStderr = '';
+    const MAX_IPC_BYTES = 256 * 1024;
 
-    const sandbox = {
-      console: {
-        log: (...args) => { stdout += args.map(String).join(' ') + '\n'; },
-        error: (...args) => { stderr += args.map(String).join(' ') + '\n'; },
-        warn: (...args) => { stderr += args.map(String).join(' ') + '\n'; },
-        info: (...args) => { stdout += args.map(String).join(' ') + '\n'; }
-      },
-      readline: () => {
-        if (stdinIdx < stdinLines.length) return stdinLines[stdinIdx++];
-        return '';
-      },
-      input: () => {
-        if (stdinIdx < stdinLines.length) return stdinLines[stdinIdx++];
-        return '';
-      }
-    };
-
-    try {
-      const script = new vm.Script(code);
-      const context = vm.createContext(sandbox);
-      script.runInContext(context, { timeout: timeoutMs });
-      resolve({
+    const killTimer = setTimeout(() => {
+      try {
+        child.kill('SIGKILL');
+      } catch {}
+      finish({
         ok: true,
         httpStatus: 200,
         data: {
-          stdout,
-          stderr,
-          exit_code: 0
+          stdout: '',
+          stderr: `Temps d'exécution dépassé (${timeoutMs} ms).\n`,
+          exit_code: 124
         }
       });
-    } catch (err) {
-      stderr += (err && err.message ? err.message : String(err)) + '\n';
-      resolve({
+    }, Math.max(100, Number(timeoutMs) || 5000) + 500);
+
+    child.stdout.on('data', (chunk) => {
+      if (rawStdout.length < MAX_IPC_BYTES) {
+        rawStdout += chunk.toString('utf8');
+      }
+    });
+
+    child.stderr.on('data', (chunk) => {
+      if (rawStderr.length < MAX_IPC_BYTES) {
+        rawStderr += chunk.toString('utf8');
+      }
+    });
+
+    child.on('error', (err) => {
+      clearTimeout(killTimer);
+      finish({
         ok: true,
         httpStatus: 200,
         data: {
-          stdout,
-          stderr,
+          stdout: '',
+          stderr: String(err && err.message ? err.message : err),
           exit_code: 1
         }
       });
+    });
+
+    child.on('close', (exitCode, signal) => {
+      clearTimeout(killTimer);
+      if (settled) return;
+
+      if (rawStdout.trim()) {
+        try {
+          const parsed = JSON.parse(rawStdout.trim());
+          if (parsed && typeof parsed === 'object' && parsed.data) {
+            return finish(parsed);
+          }
+        } catch {}
+      }
+
+      const stderrMsg = rawStderr.trim()
+        || (signal ? `Processus interrompu par le signal ${signal}` : 'Erreur d’exécution dans le worker isolé');
+
+      finish({
+        ok: true,
+        httpStatus: 200,
+        data: {
+          stdout: '',
+          stderr: stderrMsg,
+          exit_code: exitCode && exitCode !== 0 ? exitCode : 1
+        }
+      });
+    });
+
+    try {
+      child.stdin.end(JSON.stringify({
+        language,
+        code: String(code || ''),
+        stdin: String(stdin || ''),
+        timeoutMs: Number(timeoutMs) || 5000
+      }));
+    } catch {
+      try { child.stdin.destroy(); } catch {}
     }
   });
+}
+
+function runPython(code, stdin, timeoutMs = 6000) {
+  return runInIsolatedWorker('python', code, stdin, timeoutMs);
+}
+
+function runJavaScript(code, stdin, timeoutMs = 5000) {
+  return runInIsolatedWorker('javascript', code, stdin, timeoutMs);
 }
 
 function runPseudoCode(code, stdin) {
@@ -215,6 +202,100 @@ function runPseudoCode(code, stdin) {
   });
 }
 
+/**
+ * Mode d'évaluation conceptuelle (étude de cas / grille d'analyse) sans exécution de code.
+ */
+function runAnalyse(code, stdin) {
+  const rawLines = String(code || '')
+    .replace(/\r\n?/g, '\n')
+    .split('\n');
+  const headerRe = /^\[(?:cas\s*(\d+)|exemple)\b.*\]$/i;
+  const hasSections = rawLines.some(l => headerRe.test(l.trim()));
+  const sel = String(stdin || '').trim();
+
+  if (hasSections || /^cas\s*:/i.test(sel)) {
+    const sections = new Map();
+    const allSectionLines = [];
+    let currentKey = null;
+
+    for (const rawLine of rawLines) {
+      const rtrim = rawLine.replace(/\s+$/, '');
+      const trimmed = rtrim.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const m = headerRe.exec(trimmed);
+      if (m) {
+        currentKey = m[1] ? `cas:${m[1]}` : 'cas:exemple';
+        if (!sections.has(currentKey)) sections.set(currentKey, []);
+        continue;
+      }
+      if (currentKey !== null) {
+        sections.get(currentKey).push(rtrim);
+      }
+      allSectionLines.push(rtrim);
+    }
+
+    if (/^cas\s*:/i.test(sel)) {
+      const key = sel.toLowerCase().replace(/\s+/g, '');
+      const out = (sections.get(key) || []).join('\n');
+      return Promise.resolve({
+        ok: true,
+        httpStatus: 200,
+        data: { stdout: out, stderr: '', exit_code: 0 }
+      });
+    }
+
+    if (
+      !sel ||
+      (!sel.startsWith('critere:') && !sel.startsWith('cle:') && !sel.startsWith('ligne:') && !sel.startsWith('lignes:'))
+    ) {
+      const out = sections.has('cas:exemple')
+        ? sections.get('cas:exemple').join('\n')
+        : allSectionLines.join('\n');
+      return Promise.resolve({
+        ok: true,
+        httpStatus: 200,
+        data: { stdout: out, stderr: '', exit_code: 0 }
+      });
+    }
+  }
+
+  const lines = rawLines
+    .map(l => l.trim().replace(/[ \t]+/g, ' '))
+    .filter(l => l.length > 0 && !l.startsWith('#') && !headerRe.test(l));
+
+  let out = '';
+
+  if (
+    !sel ||
+    (!sel.startsWith('critere:') && !sel.startsWith('cle:') && !sel.startsWith('ligne:') && !sel.startsWith('lignes:'))
+  ) {
+    out = lines.join('\n');
+  } else if (sel.startsWith('ligne:')) {
+    const idx = parseInt(sel.slice('ligne:'.length).trim(), 10) - 1;
+    out = idx >= 0 && idx < lines.length ? lines[idx] : '';
+  } else if (sel.startsWith('lignes:')) {
+    const parts = sel.slice('lignes:'.length).trim().split('-');
+    const start = Math.max(1, parseInt(parts[0], 10) || 1);
+    const end = parseInt(parts[1], 10) || start;
+    out = lines.slice(start - 1, end).join('\n');
+  } else if (sel.startsWith('cle:') || sel.startsWith('critere:')) {
+    const key = sel.slice(sel.indexOf(':') + 1).trim();
+    const found = lines.find(l => l.startsWith(`${key} :`) || l.startsWith(`${key}:`))
+      || lines.find(l => l.toLowerCase().startsWith(`${key.toLowerCase()} :`) || l.toLowerCase().startsWith(`${key.toLowerCase()}:`));
+    out = found || '';
+  }
+
+  return Promise.resolve({
+    ok: true,
+    httpStatus: 200,
+    data: {
+      stdout: out,
+      stderr: '',
+      exit_code: 0
+    }
+  });
+}
+
 function run(payload) {
   const norm = String(payload.language || payload.languageId || '').toLowerCase().trim();
   if (norm === 'python' || norm === 'py') {
@@ -225,6 +306,9 @@ function run(payload) {
   }
   if (norm === 'algo' || norm === 'pseudo-code' || norm === 'pseudocode') {
     return runPseudoCode(payload.code, payload.stdin);
+  }
+  if (norm === 'analyse') {
+    return runAnalyse(payload.code, payload.stdin);
   }
   return Promise.resolve({
     ok: false,
@@ -238,5 +322,6 @@ module.exports = {
   run,
   runPython,
   runJavaScript,
-  runPseudoCode
+  runPseudoCode,
+  runAnalyse
 };

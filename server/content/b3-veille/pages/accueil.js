@@ -148,7 +148,7 @@ function atelier(course) {
     '  <p class="lead">Expérimentez et validez vos scripts d\'ingénierie documentaire en Python 3 : parsing de flux RSS/Atom, déduplication par similarité de Jaccard, indexation TF-IDF et modélisation de tendances.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="SIGNAL id=1 text=La CNIL publie un nouveau décret de conformité RGPD\nSIGNAL id=2 text=Un concurrent annonce une levée de fonds pour anticiper le marché">',
     '    <script type="text/plain" data-lab-starter># Zone libre : simulez vos algorithmes de veille et d\'analyse d\'information en Python 3\nimport sys\n\ndef simuler_veille_strategique(signaux):\n    """Simule la classification préliminaire d’un flux de signaux."""\n    resultats = []\n    for sig in signaux:\n        resultats.append(f"SIGNAL_TRAITÉ: {sig}")\n    return resultats\n\nif __name__ == "__main__":\n    inputs = [l.strip() for l in sys.stdin if l.strip()]\n    for r in simuler_veille_strategique(inputs):\n        print(r)\n</script>',

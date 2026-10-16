@@ -21,7 +21,7 @@ function getAllHtmlFiles(dir) {
   const results = [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
-    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'audit' || entry.name === '.taskstate') {
+    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'audit' || entry.name === '.taskstate' || entry.name === 'dist') {
       continue;
     }
     const fullPath = path.join(dir, entry.name);

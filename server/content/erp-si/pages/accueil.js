@@ -50,7 +50,7 @@ function index(course, chapterList) {
       '      <a class="btn" href="chapitres/chapitre1.html">' + ic('rocket') + ' Commencer le chapitre 1</a>',
       '      <a class="btn" href="chapitres/cartes.html">' + ic('cards') + ' Flashcards</a>',
       '      <a class="btn" href="chapitres/formules.html">' + ic('file') + ' Mémo ERP &amp; SI</a>',
-      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier de code</a>',
+      '      <a class="btn" href="atelier.html">' + ic('terminal') + ' Atelier pratique</a>',
       '      <a class="btn" href="exercices/exercices.html">' + ic('blocks') + ' Exercices &amp; Projet ERP</a>',
       '      <a class="btn" href="chapitres/simulateur-examen.html">' + ic('clipboard') + ' Examens blancs</a>',
       '    </p>'
@@ -96,7 +96,7 @@ function sommaire(course, chapterList) {
     '    <a class="toc__item" href="chapitres/cartes.html"><span class="toc__n">' + ic('cards') + '</span><span><span class="toc__t">Cartes de révision</span><br><span class="toc__d">Toutes les notions clés des ' + chapterList.length + ' chapitres à mémoriser.</span></span></a>',
     '    <a class="toc__item" href="chapitres/formules.html"><span class="toc__n">' + ic('file') + '</span><span><span class="toc__t">Mémo ERP &amp; SI</span><br><span class="toc__d">Formules de gestion, flux comptables, syntaxe BPMN et équations MRP sur une seule page.</span></span></a>',
     '    <a class="toc__item" href="exercices/exercices.html"><span class="toc__n">' + ic('blocks') + '</span><span><span class="toc__t">Exercices &amp; projet fil conducteur</span><br><span class="toc__d">18 exercices guidés et le déploiement simulé d’un ERP complet pour une PME.</span></span></a>',
-    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier de code</span><br><span class="toc__d">Écrire et exécuter du code Python directement dans la page.</span></span></a>',
+    '    <a class="toc__item" href="atelier.html"><span class="toc__n">' + ic('terminal') + '</span><span><span class="toc__t">Atelier pratique</span><br><span class="toc__d">Écrire et exécuter du code Python directement dans la page.</span></span></a>',
     '    <a class="toc__item" href="chapitres/simulateur-examen.html"><span class="toc__n">' + ic('clipboard') + '</span><span><span class="toc__t">Examens blancs</span><br><span class="toc__d">Sujets corrigés pour préparer les épreuves écrites et les cas pratiques d’examen.</span></span></a>',
     '  </div>',
     chnav({ href: 'index.html', label: 'Accueil du cours' }, { href: 'chapitres/chapitre1.html', label: 'Commencer le chapitre 1' })
@@ -118,7 +118,7 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
-    '  <h1>Atelier de code Python / Simulation ERP &amp; SI</h1>',
+    '  <h1>Atelier pratique Python / Simulation ERP &amp; SI</h1>',
     '  <p class="lead">Un éditeur Monaco intégré à la page, relié au moteur d’exécution Python. Écris ton script, ' +
     'exécute-le et observe immédiatement la sortie : l’outil idéal pour prototyper la logique de tes flux ERP.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
@@ -133,7 +133,7 @@ function atelier(course) {
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
-      '     data-language="python"',
+      '     data-language="analyse"',
       '     data-height="360"',
       '     data-languages="1"',
       '     data-stdin="ART-501;Clavier Ergonomique;10;45.0;20.0">',
@@ -200,7 +200,7 @@ function atelier(course) {
     ].join('\n')),
     box('tech', 'Architecture technique du bac à sable', 'terminal', [
       '    <ul>',
-      '      <li>Votre script Python est exécuté dans un conteneur sécurisé et isolé.</li>',
+      '      <li>Votre grille d’analyse est exécuté dans un conteneur sécurisé et isolé.</li>',
       '      <li>Toutes les exécutions respectent les quotas de sécurité de la plateforme.</li>',
       '      <li>La console intégrée sous l’éditeur restitue instantanément la sortie standard et les traces d’erreurs.</li>',
       '    </ul>'
@@ -214,8 +214,8 @@ function atelier(course) {
 
   return {
     'atelier.html': {
-      title: 'Atelier de code : simuler les flux ERP & SI avec Python | ' + course.brand,
-      description: 'Atelier de code du cours ERP & Systèmes d’Information B2 : éditeur Monaco, exécution Python en temps réel, entrée standard et console.',
+      title: 'Atelier pratique : simuler les flux ERP & SI avec Python | ' + course.brand,
+      description: 'Atelier pratique du cours ERP & Systèmes d’Information B2 : éditeur Monaco, exécution Python en temps réel, entrée standard et console.',
       active: 'atelier',
       body
     }

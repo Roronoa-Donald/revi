@@ -388,18 +388,24 @@ async function execute(input, deps = {}) {
   }
 
   const isLocalCapable = localRunner.canHandle(payload.languageId);
+  const canFallbackLocal = Boolean(deps.allowLocal || process.env.ALLOW_LOCAL_EXECUTION_FALLBACK !== 'false');
+
+  if (payload.languageId === 'analyse') {
+    const localRes = await localRunner.run(payload);
+    return normalizeResponse(localRes, 'local');
+  }
 
   // 2. Si Piston est configuré, il est le moteur distant prioritaire
   if (piston.isConfigured()) {
     try {
       const response = await piston.run(payload);
-      if (!response.ok && (deps.allowLocal || isLocalCapable)) {
+      if (!response.ok && canFallbackLocal && isLocalCapable) {
         const localRes = await localRunner.run(payload);
         return normalizeResponse(localRes, 'local');
       }
       return normalizeResponse(response, piston.PROVIDER_NAME);
     } catch (err) {
-      if (deps.allowLocal || isLocalCapable) {
+      if (canFallbackLocal && isLocalCapable) {
         const localRes = await localRunner.run(payload);
         return normalizeResponse(localRes, 'local');
       }
@@ -418,13 +424,13 @@ async function execute(input, deps = {}) {
   if (oanor.isConfigured()) {
     try {
       const response = await oanor.run(payload);
-      if (!response.ok && isLocalCapable) {
+      if (!response.ok && canFallbackLocal && isLocalCapable) {
         const localRes = await localRunner.run(payload);
         return normalizeResponse(localRes, 'local');
       }
       return normalizeResponse(response, oanor.PROVIDER_NAME);
     } catch (err) {
-      if (isLocalCapable) {
+      if (canFallbackLocal && isLocalCapable) {
         const localRes = await localRunner.run(payload);
         return normalizeResponse(localRes, 'local');
       }

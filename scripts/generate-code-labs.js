@@ -88,21 +88,22 @@ function languageLabel(id) {
 
 function renderLab(exercise, index) {
   const example = exercise.examples[0] || { stdin: '', expected: '' };
+  const isAnalyse = exercise.language === 'analyse';
 
   const head =
     '  <div class="lab__head">\n' +
     '    <h3 class="lab__title">Exercice ' + (index + 1) + ' — ' + escText(exercise.title) + '</h3>\n' +
     '    <div class="lab__meta">\n' +
-    '      <span class="lab__lang">' + icon('terminal') + ' ' + escText(languageLabel(exercise.language)) + '</span>\n' +
+    '      <span class="lab__lang">' + icon(isAnalyse ? 'book' : 'terminal') + ' ' + escText(languageLabel(exercise.language)) + '</span>\n' +
     '      <span class="badge badge--' + exercise.level + '">' + LEVELS[exercise.level] + '</span>\n' +
     '    </div>\n' +
     '  </div>\n';
 
   const sample =
     '    <div class="lab__sample">\n' +
-    '      <div class="lab__sample-part"><b>Entrée du programme</b><pre>' +
+    '      <div class="lab__sample-part"><b>' + (isAnalyse ? 'Cas d’exemple' : 'Entrée du programme') + '</b><pre>' +
         escText(example.stdin === '' ? '(aucune)' : example.stdin) + '</pre></div>\n' +
-    '      <div class="lab__sample-part"><b>Sortie attendue</b><pre>' + escText(example.expected) + '</pre></div>\n' +
+    '      <div class="lab__sample-part"><b>' + (isAnalyse ? 'Résolution attendue' : 'Sortie attendue') + '</b><pre>' + escText(example.expected) + '</pre></div>\n' +
     '    </div>\n' +
     (example.note ? '    <p class="lab__note">' + escText(example.note) + '</p>\n' : '');
 
@@ -140,17 +141,21 @@ function renderSection(courseId, chapter) {
     .filter(exercise => exercise.course === courseId && exercise.chapter === chapter)
     .sort((a, b) => a.id.localeCompare(b.id));
 
-  const intro =
-    '  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code\n' +
-    '  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :\n' +
-    '  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>\n' +
-    '  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui\n' +
-    '  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>\n';
+  const allAnalyse = list.length > 0 && list.every(exercise => exercise.language === 'analyse');
+
+  const intro = allAnalyse
+    ? '  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>\n' +
+      '  <p>En cas d’hésitation, le bouton <strong>Expliquer mon erreur</strong> sollicite le tuteur pédagogique pour vous guider dans l’application de la méthodologie sans donner directement la solution.</p>\n'
+    : '  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute votre code\n' +
+      '  sur un service distant, puis la validation fait tourner des tests que vous ne voyez pas :\n' +
+      '  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>\n' +
+      '  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui\n' +
+      '  s’est passé et par où chercher, sans jamais écrire de code à votre place — c’est le principe de l’exercice.</p>\n';
 
   return (
     START + '\n' +
     // Numéro de remplissage : la renumérotation du chapitre le réécrit.
-    '  <h2>0. Exercices de code</h2>\n' +
+    (allAnalyse ? '  <h2>0. Études de cas &amp; applications pratiques</h2>\n' : '  <h2>0. Exercices de code</h2>\n') +
     intro +
     list.map((exercise, index) => renderLab(exercise, index)).join('\n') +
     '  ' + END + '\n'

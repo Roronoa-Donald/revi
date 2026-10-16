@@ -21,21 +21,47 @@ function buildApp(opts = {}) {
     origin: function(origin, cb) {
       // Allow requests with no origin (mobile apps, curl, same-origin)
       if (!origin) return cb(null, true);
-      const allowed = [
+      const allowedPatterns = [
         /^https?:\/\/localhost(:\d+)?$/,
         /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
-        /\.vercel\.app$/,
-        /\.onrender\.com$/
+        /^https:\/\/revi-mu(-[a-z0-9-]+)?\.vercel\.app$/,
+        /^https:\/\/revi-mu(-[a-z0-9-]+)?\.onrender\.com$/
       ];
-      if (allowed.some(re => re.test(origin))) return cb(null, true);
+      if (allowedPatterns.some(re => re.test(origin))) return cb(null, true);
+
+      const extraOrigins = String(process.env.ALLOWED_ORIGINS || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+      if (extraOrigins.includes(origin)) return cb(null, true);
+
       return cb(null, false); // refus propre : pas d'en-têtes CORS, pas d'exception 500
     },
     credentials: true
   });
 
-  // Sécurité : headers HTTP
+  // Sécurité : headers HTTP et Content-Security-Policy (OPS-001)
   fastify.register(require('@fastify/helmet'), {
-    contentSecurityPolicy: false
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:"],
+        workerSrc: ["'self'", "blob:"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        connectSrc: [
+          "'self'",
+          "https://revi-mu.vercel.app",
+          "https://revi-mu.onrender.com",
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ],
+        frameAncestors: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"]
+      }
+    }
   });
 
   // Rate-limiting global (100 req/min par IP réelle — trustProxy activé)

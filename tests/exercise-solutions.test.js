@@ -55,6 +55,7 @@ function toolFor(language) {
   if (language === 'cpp') return CXX && { kind: 'compile', bin: CXX, std: 'c++17', ext: 'cpp' };
   if (language === 'php') return PHP && { kind: 'php', bin: PHP };
   if (language === 'javascript') return NODE && { kind: 'node', bin: NODE };
+  if (language === 'analyse') return { kind: 'analyse' };
   return null;
 }
 
@@ -66,6 +67,46 @@ process.on('exit', () => {
   }
 });
 
+function prepareAnalyse(code) {
+  const rawLines = String(code || '').replace(/\r\n?/g, '\n').split('\n');
+  const headerRe = /^\[(?:cas\s*(\d+)|exemple)\b.*\]$/i;
+  const sections = new Map();
+  const allSectionLines = [];
+  let currentKey = null;
+
+  for (const rawLine of rawLines) {
+    const rtrim = rawLine.replace(/\s+$/, '');
+    const trimmed = rtrim.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const m = headerRe.exec(trimmed);
+    if (m) {
+      currentKey = m[1] ? `cas:${m[1]}` : 'cas:exemple';
+      if (!sections.has(currentKey)) sections.set(currentKey, []);
+      continue;
+    }
+    if (currentKey !== null) {
+      sections.get(currentKey).push(rtrim);
+    }
+    allSectionLines.push(rtrim);
+  }
+
+  return {
+    run: stdin => {
+      const sel = String(stdin || '').trim();
+      let out = '';
+      if (/^cas\s*:/i.test(sel)) {
+        const key = sel.toLowerCase().replace(/\s+/g, '');
+        out = (sections.get(key) || []).join('\n');
+      } else if (sections.has('cas:exemple')) {
+        out = sections.get('cas:exemple').join('\n');
+      } else {
+        out = allSectionLines.join('\n');
+      }
+      return { ok: true, stdout: out, stderr: '', exitCode: 0 };
+    }
+  };
+}
+
 /**
  * Prépare un exécutable pour un couple (langage, code). Pour un langage
  * interprété, on renvoie directement le script ; pour un langage compilé, on
@@ -74,6 +115,10 @@ process.on('exit', () => {
 function prepare(language, code) {
   const tool = toolFor(language);
   if (!tool) return null;
+
+  if (tool.kind === 'analyse') {
+    return prepareAnalyse(code);
+  }
 
   if (tool.kind === 'script') {
     return { run: stdin => runProcess(tool.bin, ['-c', code], stdin, null) };

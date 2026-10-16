@@ -156,7 +156,7 @@ function atelier(course) {
     '  <p class="lead">Automatisez et auditez vos livrables documentaires en Python 3 : validation de schémas OpenAPI, vérificateurs de liens Markdown, matrices de traçabilité RTM et calculs de lisibilité.</p>',
     '',
     '  <div class="lab" data-lab',
-    '       data-language="python"',
+    '       data-language="analyse"',
     '       data-height="420"',
     '       data-stdin="DOC_AUDIT\ntype=API_DOC\npath=/api/v1/auth\ncodes=200,400,500">',
     '    <script type="text/plain" data-lab-starter># Zone libre : automatisez vos validations documentaires, linters et contrats d\'API\nimport re\n\ndef auditer_document_technique():\n    print("Zone libre Document Technique B3 : pret a executer.")\n\nif __name__ == \'__main__\':\n    auditer_document_technique()\n</script>',

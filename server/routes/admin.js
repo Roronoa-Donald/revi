@@ -1,21 +1,27 @@
+const crypto = require('node:crypto');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 const { hashPassword } = require('../utils/password');
 const { COURSES } = require('../middleware/access-control');
 const aiPool = require('../services/ai-pool');
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const IS_PROD = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+function timingSafeCompare(a, b) {
+  const digestA = crypto.createHash('sha256').update(String(a)).digest();
+  const digestB = crypto.createHash('sha256').update(String(b)).digest();
+  return crypto.timingSafeEqual(digestA, digestB);
+}
 
 /**
  * Vérifie le token admin. Retourne true si valide, false sinon.
  */
 function verifyAdmin(request) {
   try {
-    const token = request.cookies.admin_token;
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret || !String(jwtSecret).trim()) return false;
+    const token = request.cookies && request.cookies.admin_token;
     if (!token) return false;
-    const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded.admin === true;
+    const decoded = jwt.verify(token, jwtSecret);
+    return Boolean(decoded && decoded.admin === true);
   } catch {
     return false;
   }
@@ -41,14 +47,46 @@ module.exports = async function adminRoutes(fastify) {
     config: { rateLimit: { max: 5, timeWindow: '1 minute' } }
   }, async (request, reply) => {
     try {
+      const adminUsername = process.env.ADMIN_USERNAME;
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      const jwtSecret = process.env.JWT_SECRET;
+
+      if (
+        typeof adminUsername !== 'string' || !adminUsername.trim() ||
+        typeof adminPassword !== 'string' || !adminPassword.trim() ||
+        typeof jwtSecret !== 'string' || !jwtSecret.trim()
+      ) {
+        return reply.code(503).send({
+          success: false,
+          message: 'Administration désactivée : identifiants non configurés.'
+        });
+      }
+
       const { username, password } = request.body || {};
 
-      if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
-        const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '8h' });
+      if (
+        typeof username !== 'string' ||
+        typeof password !== 'string' ||
+        username.trim().length === 0 ||
+        password.length === 0
+      ) {
+        await db.logActivity('admin_login_failed', {
+          ip: request.ip,
+          details: 'Tentative de connexion échouée - user: ' + String(username || '(vide)').replace(/[<>&"']/g, '').slice(0, 80)
+        });
+        return reply.code(401).send({ success: false, message: 'Identifiants incorrects' });
+      }
+
+      const usernameValid = timingSafeCompare(username, adminUsername);
+      const passwordValid = timingSafeCompare(password, adminPassword);
+
+      if (usernameValid && passwordValid) {
+        const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+        const token = jwt.sign({ admin: true }, jwtSecret, { expiresIn: '8h' });
 
         reply.setCookie('admin_token', token, {
           httpOnly: true,
-          secure: IS_PROD,
+          secure: isProd,
           sameSite: 'lax',
           maxAge: 8 * 60 * 60,
           path: '/',

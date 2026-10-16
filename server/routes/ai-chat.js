@@ -4,8 +4,16 @@
  */
 
 const jwt = require('jsonwebtoken');
+const db = require('../db');
 const aiPool = require('../services/ai-pool');
-const JWT_SECRET = process.env.JWT_SECRET;
+
+const ALLOWED_CLIENT_MODELS = new Set([
+  'deepseek/deepseek-chat',
+  'deepseek/deepseek-chat-v3-0324:free',
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'google/gemini-2.0-flash-exp:free',
+  'qwen/qwen-2.5-72b-instruct:free'
+]);
 
 async function aiChatRoutes(fastify) {
 
@@ -23,10 +31,53 @@ async function aiChatRoutes(fastify) {
     if (!token) {
       return reply.code(401).send({ error: 'Authentification requise pour utiliser le chat IA' });
     }
+
+    const jwtSecret = process.env.JWT_SECRET;
+    if (typeof jwtSecret !== 'string' || !jwtSecret.trim()) {
+      return reply.code(401).send({ error: 'Session invalide ou expirée' });
+    }
+
+    let decoded;
     try {
-      jwt.verify(token, JWT_SECRET);
+      decoded = jwt.verify(token, jwtSecret);
     } catch (e) {
       return reply.code(401).send({ error: 'Session invalide ou expirée' });
+    }
+
+    // Vérification de la révocation de session et de l'état actif du compte (AUTH-001)
+    if (decoded && decoded.jti) {
+      let session;
+      let sessionChecked = false;
+      try {
+        session = await db.getSessionByJti(decoded.jti);
+        sessionChecked = true;
+      } catch (dbErr) {
+        if (process.env.DATABASE_URL || db.isConfigured) {
+          return reply.code(401).send({ error: 'Session révoquée ou compte désactivé' });
+        }
+      }
+
+      if (sessionChecked) {
+        if (!session || !session.is_valid || (decoded.userId !== undefined && session.user_id !== decoded.userId)) {
+          return reply.code(401).send({ error: 'Session révoquée ou compte désactivé' });
+        }
+
+        if (decoded.userId !== undefined) {
+          let user;
+          let userChecked = false;
+          try {
+            user = await db.getUserById(decoded.userId);
+            userChecked = true;
+          } catch (dbErr) {
+            if (process.env.DATABASE_URL || db.isConfigured) {
+              return reply.code(401).send({ error: 'Session révoquée ou compte désactivé' });
+            }
+          }
+          if (userChecked && (!user || !user.is_active)) {
+            return reply.code(401).send({ error: 'Session révoquée ou compte désactivé' });
+          }
+        }
+      }
     }
 
     const { messages, model, max_tokens, temperature, stream } = request.body || {};
@@ -34,6 +85,11 @@ async function aiChatRoutes(fastify) {
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return reply.code(400).send({ error: 'Messages requis' });
     }
+
+    // Liste blanche stricte des modèles sélectionnables par le client (SEC-003)
+    const safeModel = typeof model === 'string' && ALLOWED_CLIENT_MODELS.has(model.trim())
+      ? model.trim()
+      : undefined;
 
     // Limiter la taille des messages pour éviter les abus
     const safeMessages = messages.slice(-25).map(m => ({
@@ -44,7 +100,7 @@ async function aiChatRoutes(fastify) {
     try {
       const result = await aiPool.chatCompletion({
         messages: safeMessages,
-        model,
+        model: safeModel,
         max_tokens: Math.min(max_tokens || 2048, 4096),
         temperature: typeof temperature === 'number' ? Math.min(temperature, 1.5) : 0.7,
         stream: !!stream,
@@ -87,4 +143,5 @@ async function aiChatRoutes(fastify) {
   });
 }
 
+aiChatRoutes.ALLOWED_CLIENT_MODELS = ALLOWED_CLIENT_MODELS;
 module.exports = aiChatRoutes;

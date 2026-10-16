@@ -12,6 +12,10 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const IS_PROD = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
 const PREPARATION_COOKIE = 'preparation_token';
 
+function getJwtSecret() {
+  return process.env.JWT_SECRET || JWT_SECRET;
+}
+
 function preparationEnabled() {
   return Boolean(process.env.PREPARATION_PASSWORD);
 }
@@ -28,11 +32,11 @@ async function verifyUser(request) {
     const token = request.cookies.auth_token;
     if (!token) return { valid: false, reason: 'auth' };
 
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getJwtSecret());
     if (!decoded.userId) return { valid: false, reason: 'auth' };
 
     const session = await db.getSessionByJti(decoded.jti);
-    if (!session || !session.is_valid || session.user_id !== decoded.userId) {
+    if (!session || !session.is_valid || Number(session.user_id) !== Number(decoded.userId)) {
       return { valid: false, reason: 'auth' };
     }
 
@@ -57,11 +61,11 @@ async function verifyUser(request) {
 }
 
 function signPreparationToken(userId) {
-  return jwt.sign({ prepWeb: true, userId, passwordVersion: preparationPasswordVersion() }, JWT_SECRET, { expiresIn: '365d' });
+  return jwt.sign({ prepWeb: true, userId, passwordVersion: preparationPasswordVersion() }, getJwtSecret(), { expiresIn: '365d' });
 }
 
 function buildStorageKey(userId) {
-  return crypto.createHash('sha256').update(`${userId}:${JWT_SECRET}`).digest('hex').slice(0, 24);
+  return crypto.createHash('sha256').update(`${userId}:${getJwtSecret()}`).digest('hex').slice(0, 24);
 }
 
 function preparationPasswordVersion() {
@@ -72,7 +76,7 @@ function verifyPreparationToken(request, userId) {
   try {
     const token = request.cookies[PREPARATION_COOKIE];
     if (!token) return false;
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getJwtSecret());
     return (
       decoded.prepWeb === true &&
       Number(decoded.userId) === Number(userId) &&
@@ -104,7 +108,7 @@ async function getAuthContext(request, reply, requirePrep = true) {
     return null;
   }
 
-  await db.ensurePreparationProfile(auth.userId);
+  await db.ensurePreparationProfile(auth.userId, auth.displayName);
   return auth;
 }
 
@@ -327,7 +331,7 @@ module.exports = async function preparationRoutes(fastify) {
     const unlocked = verifyPreparationToken(request, auth.userId);
     let profile = null;
     if (unlocked) {
-      await db.ensurePreparationProfile(auth.userId);
+      await db.ensurePreparationProfile(auth.userId, auth.displayName);
       profile = normalizeProfile(await db.getPreparationProfile(auth.userId));
     }
 
@@ -387,12 +391,12 @@ module.exports = async function preparationRoutes(fastify) {
       return reply.code(403).send({ success: false, message: 'Mot de passe incorrect.' });
     }
 
-    await db.ensurePreparationProfile(auth.userId);
+    await db.ensurePreparationProfile(auth.userId, auth.displayName);
     const token = signPreparationToken(auth.userId);
     reply.setCookie(PREPARATION_COOKIE, token, cookieOptions());
     await db.logActivity('preparation_unlocked', {
       userId: auth.userId,
-      scope: auth.scope,
+      email: auth.email,
       ip: request.ip,
       details: 'Section Preparation Web deverrouillee'
     });

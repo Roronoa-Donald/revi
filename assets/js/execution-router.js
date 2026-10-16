@@ -99,6 +99,15 @@
    * Retourne les métadonnées de provenance (badge UI).
    */
   ExecutionRouter.prototype.getProvenanceInfo = function (language) {
+    var norm = String(language || '').toLowerCase().trim();
+    if (norm === 'analyse') {
+      return {
+        mode: 'server',
+        label: 'Étude de cas',
+        title: 'Évaluation méthodologique structurée sur le serveur.',
+        icon: 'book'
+      };
+    }
     var isBrowser = this.supportsBrowser(language);
     if (isBrowser) {
       return {
