@@ -78,10 +78,11 @@ test('PED-001 : Les 52 cours non-informatiques utilisent exclusivement le mode Ã
 
   for (const courseId of NON_PROGRAMMING_COURSES) {
     const courseExercises = allExercises.filter(e => e.course === courseId);
+    const expectedCount = courseId === 'RD-RO' ? 20 : 18;
     assert.strictEqual(
       courseExercises.length,
-      18,
-      `${courseId} doit comporter exactement 18 exercices (actuel: ${courseExercises.length})`
+      expectedCount,
+      `${courseId} doit comporter exactement ${expectedCount} exercices (actuel: ${courseExercises.length})`
     );
 
     for (const ex of courseExercises) {

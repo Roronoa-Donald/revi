@@ -60,6 +60,29 @@ function matchOutputs(actualRaw, expectedRaw, test, exercise) {
         return true;
       }
     }
+
+    // Normalisation sémantique et tolérance mathématique robuste
+    const stripAccents = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const cleanAnalyse = (s) => {
+      return stripAccents(s)
+        .toLowerCase()
+        .replace(/,/g, '.')
+        .replace(/·/g, '*')
+        .replace(/\b(valide|non_valide|realisable|irrealisable|meilleur)\s*:\s*/g, '$1 ')
+        .replace(/\s*([=:<>;])\s*/g, '$1')
+        .replace(/\s*\*\s*/g, '*')
+        .replace(/\b(\d+)\.0+\b/g, '$1')
+        .replace(/\s+/g, ' ')
+        .trim();
+    };
+
+    const cleanA = cleanAnalyse(trimA);
+    const cleanE = cleanAnalyse(trimE);
+    if (cleanA === cleanE) return true;
+
+    // Normalisation des multiplications implicites : ex: 4x1 -> 4*x1
+    const expandMul = (s) => s.replace(/(\d)([a-z])/g, '$1*$2');
+    if (expandMul(cleanA) === expandMul(cleanE)) return true;
   }
 
   if (typeof opts.tolerance === 'number' && !isNaN(opts.tolerance)) {
@@ -150,7 +173,7 @@ async function runTests(exercise, code, deps) {
         stderr: outcome.stderr || '',
         compileError: '',
         exitCode: outcome.exitCode,
-        userMessage: ''
+        userMessage: test.hint || test.explanation || ''
       });
     }
   }

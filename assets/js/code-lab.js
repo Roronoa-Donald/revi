@@ -969,7 +969,10 @@
         }
         if (feedback) {
           feedback.hidden = false;
-          feedback.innerHTML = '<p class="lab__case-hint">' + icon('warning') + ' Réponse incorrecte. Vérifiez vos calculs ou votre raisonnement.</p>';
+          var msg = (report.stop && report.stop.testIndex === i && report.stop.userMessage)
+            ? esc(report.stop.userMessage)
+            : 'Réponse incorrecte. Vérifiez vos calculs ou votre raisonnement.';
+          feedback.innerHTML = '<p class="lab__case-hint">' + icon('warning') + ' ' + msg + '</p>';
         }
       } else if (report.stop && report.stop.testIndex === i) {
         el.classList.add('lab__case--ko');
@@ -979,7 +982,8 @@
         }
         if (feedback) {
           feedback.hidden = false;
-          feedback.innerHTML = '<p class="lab__case-hint">' + icon('warning') + ' Réponse incorrecte pour ce cas.</p>';
+          var stopMsg = report.stop.userMessage ? esc(report.stop.userMessage) : 'Réponse incorrecte pour ce cas.';
+          feedback.innerHTML = '<p class="lab__case-hint">' + icon('warning') + ' ' + stopMsg + '</p>';
         }
       }
     }
